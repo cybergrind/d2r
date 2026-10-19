@@ -1,15 +1,27 @@
-"""The town visit's snapshots and their codec (macros/visitlog.py; rca/2026-10-18/arch-town-planning.md step M0)."""
+"""The town visit's snapshots and their codec (macros/visitlog.py; rca/2026-10-18/arch-town-planning.md step M0), and
+the visits kept as fixtures (fixtures/visits) that test_town.py and test_visit.py replay.
+
+The fixtures but 1635 are the stash stops test_town.py builds by hand from the logs; after a change there, write them
+again:
+
+    uv run --offline python -c "from tests.inventory_tracking.macros.test_visitlog import write; write()"
+"""
 
 import json
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
+
+import pytest
 
 from inventory_tracking.common import LOG, log_to_file
 from inventory_tracking.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.macros.portal import FROM_SLING
+from inventory_tracking.macros.stash import is_potion
 from inventory_tracking.macros.town import Exit, Needs
 from inventory_tracking.macros.visitlog import (
+    VERSION,
     Recorder,
     Snapshot,
     carried_from,
@@ -23,6 +35,7 @@ from inventory_tracking.macros.visitlog import (
     view_from,
     view_json,
 )
+from tests.inventory_tracking.macros import test_town
 
 
 RING = Carried(10, 537, 6, 0, (1, 1), quality=5, identified=False, unique=0)
@@ -62,7 +75,6 @@ START = Snapshot(
     cap=940_000,
     at='15:20:18',
     misses=('junk left 1',),
-    predicted=('cube 1 items (unique Embossed Plate at (0, 0))',),
 )
 
 
@@ -144,3 +156,68 @@ def test_the_run_directory_is_where_probe_log_is_written(tmp_path: Path):
     assert session_directory() is None
     with log_to_file(tmp_path / 'probe.log'):
         assert session_directory() == tmp_path
+
+
+# The visits kept as fixtures. Today's misses of 2026-10-18 (rca/2026-10-18/arch-town-planning.md §2.1): the visit's
+# clock and the keeper the contract named ("short of the contract: cube 1 items (<it>), 1 keepers carried (<it>)")
+FIXTURES = Path(__file__).parent / 'fixtures' / 'visits'
+LOGGED = {
+    '1428': ('142812', 'unique Embossed Plate at (0, 0)'),
+    '1455': ('145556', 'unique Spiked Club at (0, 0)'),
+    '1505': ('150553', 'set Boots at (1, 0)'),
+    '1514': ('151423', 'unique Serpentskin Armor at (0, 0)'),
+    '1520': ('152018', 'unique Serpentskin Armor at (0, 0)'),
+}
+# Visits kept as their service wrote them (runs/alt-d/<session>/visits/<HHMMSS>.json, every stop), not built by hand
+REAL = {'1635': '163522'}  # the set Battle Boots behind the junk Fuscina, the third visit running (16:30-16:35)
+
+
+def logged(case: str) -> tuple[str, str]:
+    keeper = LOGGED[case][1]
+    return f'cube 1 items ({keeper})', f'1 keepers carried ({keeper})'
+
+
+def built(case: str) -> Snapshot:
+    """The visit's start as test_town.py builds it (after Cain: its verdicts the junk)."""
+    pack, own, junk = getattr(test_town, f'pack_{case}')()
+    view = getattr(test_town, f'view_{case}')()
+    full = frozenset(txt for txt in view.full() if not is_potion(txt))  # visit.py `_full_of`
+    return Snapshot('start', pack, own, Needs(), Exit.WAYPOINT, view, junk, full=full, at=f'{case[:2]}:{case[2:]}:00')
+
+
+def path_of(case: str) -> Path:
+    return FIXTURES / f'2026-10-18-{REAL[case] if case in REAL else LOGGED[case][0]}.json'
+
+
+def document(case: str) -> str:
+    doc = {'version': VERSION, 'visit': LOGGED[case][0], 'logged': logged(case), 'stops': [snapshot_json(built(case))]}
+    # One line to an item, a row, a cell: short lists of plain values kept on one line
+    return re.sub(r'\[[^\[\]{}]*\]', lambda m: re.sub(r'\n\s*', '', m.group(0)), json.dumps(doc, indent=1)) + '\n'
+
+
+def write() -> None:
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    for case in LOGGED:
+        path_of(case).write_text(document(case))
+
+
+def fixture(case: str) -> Snapshot:
+    """The visit's `start` snapshot."""
+    return load(path_of(case))[0]
+
+
+@pytest.mark.parametrize('case', LOGGED)
+def test_each_fixture_is_the_visit_test_town_builds_through_the_codec(case):
+    # The files predate 2026-10-19 and carry the removed shadow planner's `predicted` key, read past
+    assert fixture(case) == built(case)
+    assert json.loads(path_of(case).read_text())['logged'] == list(logged(case))
+
+
+def test_the_1635_visit_as_its_service_wrote_it_reads_back_every_stop():
+    stops = load(path_of('1635'))
+    boots = 'set Battle Boots at (0, 0)'
+
+    assert [s.stop for s in stops] == ['start', 'stash', 'shops', 'end']
+    assert stops[-1].misses == (f'cube 1 items ({boots})', f'1 keepers carried ({boots})')
+    assert stops[0].view is not None
+    assert 704388917 in {i.unit_id for i in stops[0].pack.in_cube}

@@ -2,7 +2,7 @@
 
 2026-09-24. Implementation specification for [DECISION_TREE.md](DECISION_TREE.md)
 and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Some interfaces remain planned;
-the progress notes below and [STATUS.md](STATUS.md) distinguish implemented parts.
+the progress notes below and [STATUS.md](../../../archive/2026-10-19/knowledge/assessment/planning/STATUS.md) (archived) distinguish implemented parts.
 Runtime remains offline. Reuse the existing assessment package.
 
 Next delivery priority (2026-09-25): [GUIDE_FIRST G1–G5](GUIDE_FIRST.md).

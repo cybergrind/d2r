@@ -4,9 +4,9 @@ Writes one JSONL event stream per service run (terror-probe.jsonl in the run dir
 writes a `mark` with the monsters present. No display, no game input. With a tracker
 (tracker.py) the same events drive the Terror Zone card while D2R is focused.
 
-Events: area (entered; Room2 count), rooms (newly loaded Room2s), life (on change: bursts.py),
+Events: area (entered; Room2 count), rooms (newly loaded Room2s), life (on change),
 around (each second with live monsters within a screen: positions, modes, the player's life and
-states, `marked` danger marks: exposure.py), seen (first sight, with data/stats), died (one kill),
+states, `marked` danger marks), seen (first sight, with data/stats), died (one kill),
 gone (dropped from the client), back, summary, left_game (the ledger resets), mark, and
 elite_kill / shard (shards.py).
 """

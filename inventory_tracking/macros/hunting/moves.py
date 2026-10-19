@@ -139,6 +139,7 @@ def pursue(
         # Recover the budget; the next look must see the healing before it allows a costlier act
         if (
             0 < loot.life < loot.max_life * settings.safety.floor / 100
+            and loot.belt_read  # an unread cell may hold the healing potion
             and not supply[PotionType.HEALING]
             and supply[kind]
             and run.clock() - self.drinker.drunk_at.get(kind, -math.inf) >= settings.drink.rejuvenation_gap

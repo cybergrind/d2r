@@ -5,7 +5,6 @@ import pytest
 
 from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
-from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.fact_changes import fact_changes
@@ -58,7 +57,4 @@ def test_angelic_ring_marker_requires_captured_bonus_and_player_combination(buil
     if rings == 2:
         assert not evaluate(ctx={**context, 'player_items': ['Angelic Wings', 'Angelic Halo']}).annotations
     # The enabling amulet does not own the ring's AR bonus or gain a fabricated marker.
-    dispositions = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_dispositions.json').read_text())
-    excluded = validate_stat_dispositions(dispositions, document, root=ROOT)
-    assert excluded[build_id + '-angelic-amulet']['state'] == 'excluded'
     assert not any(c.role_id == build_id + '-angelic-amulet' for c in compile_stat_configurations(reviews, profiles))

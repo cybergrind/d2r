@@ -1,11 +1,13 @@
 """Reviewed player recipe utility, separate from empty-base or market appraisal."""
 
+from typing import Any
+
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.assessment.maintenance.merc_survival_templates import legal_base_condition
 from pricing.knowledge.definition_store import catalog
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'Rhyme': {
         'role': 'Caster utility and Magic Find shield alternative',
         'slots': ('Off-Hand', 'Off-Hand-Swap'),
@@ -457,7 +459,7 @@ def expand_progression_equipment(row):
     if 'shie' in types and row['class'] == 'Paladin':
         types.append('ashd')
     types.extend(member.get('class_types', {}).get(row['class'], ()))
-    must = [
+    must: list[dict[str, Any]] = [
         {'op': 'context_eq', 'field': 'player_class', 'value': row['class']},
         *[
             {'op': 'fact_eq', 'field': key, 'value': value}

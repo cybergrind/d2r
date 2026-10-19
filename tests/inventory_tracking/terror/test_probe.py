@@ -402,7 +402,7 @@ def test_elite_kills_and_shard_drops_are_logged_with_the_probes_events(tmp_path)
 
 
 def test_what_stands_around_the_player_is_sampled_with_the_life():
-    # The statistics behind the threat level (terror/exposure.py): live positions and modes.
+    # The statistics behind the threat level (danger-plan.md R4): live positions and modes.
     ledger = MonsterLedger(around_seconds=1.0)
 
     def around(now, *monsters, location=PLAYER, life=(900, 1450)):

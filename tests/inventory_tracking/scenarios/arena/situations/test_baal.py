@@ -39,8 +39,8 @@ def test_the_chamber_is_the_probes():
 
 @pytest.mark.xdist_group('situations: baal')
 def test_attack_mode_kills_him_in_the_probes_time_and_his_casts_take_life():
-    outcome = played('attack mode alone: today', 1)
-    assert outcome == played('attack mode alone: today', 1)
+    outcome = played('attack mode alone: new', 1)
+    assert outcome == played('attack mode alone: new', 1)
     assert not outcome.dead
     killed = outcome.boss_dead['Baal']
     assert killed is not None

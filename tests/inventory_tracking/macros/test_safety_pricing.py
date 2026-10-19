@@ -995,3 +995,23 @@ def test_shorter_approaches_follow_the_moves_own_price_not_what_its_fire_adds(mo
     reasons = [c.act.reason for c in found.candidates if isinstance(c.act, (p.Move, p.NoWay))]
     assert reasons[:4] == ['', module.BURNING, module.BURNING, f'{module.STEPPING} out of the fire']
     assert ('safe approach' in reasons) is shorter
+
+
+def test_an_unread_belt_is_priced_as_an_empty_one(monkeypatch):
+    from typing import cast
+
+    from inventory_tracking.combat.harm import Look, SafetySettings
+    from inventory_tracking.combat.survival import Pressure
+    from inventory_tracking.game.records import Loot
+    from inventory_tracking.macros import safety
+
+    monkeypatch.setattr(safety, 'budget', lambda *a, **k: 100.0)
+    monkeypatch.setattr(safety, 'life_factor', lambda *a: 1.0)  # no hostile in the look
+    calm = Pressure(share=0.5, lost=0.0, rate=0.0, burst=0.0)
+
+    def priced(loot):
+        return safety.life_budget(loot, calm, SafetySettings(), cast(Look, SimpleNamespace()), (0.0, 0.0), 0.0)[2]
+
+    stocked = Loot(life=900, max_life=1800, belt=(531, 531, 606, 606) * 4)  # rejuvenations and super healing
+    empty = Loot(life=900, max_life=1800, belt=(None,) * 16)
+    assert priced(replace(stocked, belt_read=False)) == priced(empty) > priced(stocked)

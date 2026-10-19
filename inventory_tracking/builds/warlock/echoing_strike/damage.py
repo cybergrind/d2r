@@ -59,15 +59,3 @@ def mana_table() -> tuple[float, float, float]:
         return (0.0, 0.0, 0.0)  # the recorded mana never limited casting (data file, 2026-10-10)
     pool = float(data['pool'])
     return (pool, pool / (float(data['regen_seconds']) * 25.0), float(data['cost']))
-
-
-def mana_numbers() -> tuple[float, float, float]:
-    """(pool, regeneration per frame, cost) as the data file has them, whether or not the pool limits."""
-    data = damage_data()['mana']
-    pool = float(data['pool'])
-    return (pool, pool / (float(data['regen_seconds']) * 25.0), float(data['cost']))
-
-
-def fit_takes() -> frozenset[str]:
-    """The takes the numbers were fitted on; every other take is held out (the gate's scoreboard)."""
-    return frozenset(damage_data().get('fit_takes', ()))

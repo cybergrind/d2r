@@ -1194,6 +1194,42 @@ def test_a_character_hit_standing_outside_a_fight_is_beset_once():
     assert not loop.beset(door, (2700, 3134), 41.0, GAME, CRYSTALLINE_PASSAGE)
 
 
+def test_a_beset_leg_fights_back_then_fetches_the_ground_then_the_kind_goes_on():
+    # The player, 2026-10-19: "Fight back first: fight the attacker, then pick up the valuable; leave only if life
+    # gets low (the death rules still win)"
+    from inventory_tracking.macros.loop import BESET_AGAIN_SECONDS, FIGHT_BACK, PICK_BACK
+
+    play = Game(at(LOWER_KURAST))
+    progress, loop = progress_in(LOWER_KURAST), Loop(on=True)
+    loop.start()
+    fights, picks = [], [True, False]
+    hands = LegHands(lambda: None, lambda: picks.pop(0), fight_back=lambda: fights.append(1))
+    loop.fight_back_due(GAME)
+    legs = [loop.leg(play.run(), keys, progress, hands) for _ in range(4)]
+    assert legs == [FIGHT_BACK, PICK_BACK, PICK_BACK, CHESTS]
+    assert fights == [1]
+    assert not picks
+    assert loop.fought_back is not None
+    assert loop.beset_again(GAME, loop.fought_back[1] + 1.0)
+    assert not loop.beset_again('cyber33', loop.fought_back[1] + 1.0)
+    assert not loop.beset_again(GAME, loop.fought_back[1] + BESET_AGAIN_SECONDS + 1.0)
+    assert not loop.abandon
+
+
+def test_a_due_fight_back_is_dropped_in_a_town_and_dead_is_nothing_but_dead():
+    loop = Loop(on=True, prebuffed=GAME)
+    loop.start()
+    loop.fight_back_due(GAME)
+    assert loop.after_beset(at(PANDEMONIUM_FORTRESS)) is None
+    assert loop.beset_due is None
+    loop.fight_back_due(GAME)
+    play = Game(at(LOWER_KURAST, mode=0))
+    with pytest.raises(Dead):
+        loop.leg(play.run(), keys, progress_in(LOWER_KURAST), LegHands(lambda: None, lambda: False))
+    assert loop.beset_due is None
+    assert not any('fight back' in said for said in play.said)
+
+
 def recovered_past_the_limit(loop: Loop) -> None:
     """Recoveries one after another, past RECOVERIES: the next leg is to wait RECOVERY_PAUSE (`cooling`)."""
     import time

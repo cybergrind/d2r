@@ -1,8 +1,6 @@
 """Combat takes (combat/plan.md): `replay` prints a take's timeline, `analyse` its play metrics,
-`trim` cuts a take to a range of frames. What is a build's own of a take (its attack emulated against
-the record, its simulator and the gate over the takes) is that build's command: for the Echoing
-Strike Warlock `python -m inventory_tracking.builds.warlock.echoing_strike` (`validate`, `calibrate`,
-`simulate`, `inputs`, `policy`, `gate`, `compare`)."""
+`trim` cuts a take to a range of frames. A build's own view of a take is its viewer export: for the Echoing
+Strike Warlock `python -m inventory_tracking.builds.warlock.echoing_strike.viz` (`make combat-viz`)."""
 
 import argparse
 import json

@@ -6,7 +6,7 @@ recorded paths until killed. Alongside: the companions' rates on the nearest hos
 of damage"), Hex Purge's explosion on a hexed monster's death (user, 2026-10-10: "doing AoE damage") and Death
 Mark's flat points at the recorded presses. Sigil: Lethargy changes nothing here.
 
-The calibration gate (`replay`): the recorded casts replayed, compared with the recorded kills and life drops.
+The calibration gate (`gate`): an outcome compared with the recorded kills and life drops.
 """
 
 import math
@@ -39,27 +39,6 @@ LIFE_EXPLAINED = 0.8  # the gate: mean share of a recorded kill's life the simul
 DAMAGE_BAND = 0.15  # the gate: simulated over recorded damage within this of 1
 CURVE_GAP = 0.1  # the gate: the bias of the blades' side of the life curves within this share of a life
 CURVE_MONSTERS = 5  # fewer monsters away from the companions than this say nothing
-
-
-def fitted_mana(situation: Situation, pool: float, cost: float) -> tuple[float, float, float]:
-    """(pool, regeneration per frame, cost) with the smallest regeneration that keeps the recorded
-    casts above zero from a full pool: the mana economy the player actually had (potions, mana after
-    kill and gear regeneration included), until a take records the mana itself."""
-    from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
-
-    starts = sorted(c.frame - BIRTH_LAG for c in situation.casts)
-    if not starts:
-        return (pool, 0.0, cost)
-    first = starts[0]
-    needed = 0.0
-    for count, frame in enumerate(starts, start=1):
-        spent = count * cost - pool
-        elapsed = frame - first
-        if spent > 0 and elapsed > 0:
-            needed = max(needed, spent / elapsed)
-        elif spent > 0:
-            needed = math.inf
-    return (pool, needed if needed != math.inf else 0.0, cost)
 
 
 BLADES, COMPANIONS, LINK, EXPLOSIONS = 'blades', 'companions', 'link', 'explosions'
@@ -420,13 +399,3 @@ def gate(situation: Situation, outcome: Outcome) -> dict[str, Any]:
     }
     report['fails'] = verdict(report)
     return report
-
-
-def replay(
-    situation: Situation, focal: str = 'fitted', damage_of: Callable[[int], float] | None = None, **options: Any
-) -> dict[str, Any]:
-    """The recorded casts through the simulator, with the fitted or the pointer focal points;
-    `options` go to `simulate` (radius, companions, link, explosion)."""
-    casts = [(c.frame, c.fitted if focal == 'fitted' or c.pointer is None else c.pointer) for c in situation.casts]
-    outcome = simulate(situation, casts, damage_of, **options)
-    return {'focal': focal, 'score': score(situation, outcome), 'gate': gate(situation, outcome)}

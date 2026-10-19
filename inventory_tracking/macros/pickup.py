@@ -171,8 +171,8 @@ def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
     if gold:
         return Plan(min(gold, key=away))
     near = sorted((drop for drop in loot.drops if drop.kind in KINDS and away(drop) <= POTION_UNITS), key=away)
-    if not near:
-        return None
+    if not near or not loot.belt_read:
+        return None  # an unread belt is unknown, not short: no potion from it
     rejuvenation, healing = shortages(loot)
     missing = {REJUVENATION: rejuvenation, HEALING: healing}
     for kind in (REJUVENATION, HEALING):  # the rarer first
@@ -549,7 +549,8 @@ def drink(run: Run, key: str, loot: Loot) -> None:
         until = run.clock() + DRINK_SECONDS
         while run.clock() < until:
             run.world()  # a cancel stops here
-            if run.loot().belt != loot.belt:
+            looked = run.loot()
+            if looked.belt_read and looked.belt != loot.belt:  # a cell left out unread is not a potion drunk
                 if run.pad is not None:
                     LOG.info(
                         'Pad drink: belt key %s in controller mode: the belt cell emptied %.0f ms after press %d',
@@ -605,7 +606,7 @@ def pick_up(
         'nothing to pick up' if plan is None else f'{plan.drop.label} at ({plan.drop.x:.0f}, {plan.drop.y:.0f})',
     )  # fmt: skip
     potions = [math.dist(here, (drop.x, drop.y)) for drop in loot.drops if drop.kind in KINDS]
-    if plan is None and potions and any(shortages(loot)):
+    if plan is None and potions and loot.belt_read and any(shortages(loot)):
         # A short belt and potions on the ground, none taken: how far they lie says why.
         LOG.info(
             'Macro: pickup: the nearest potion is %.0f away, of %d; one is gone for within %.0f',
@@ -636,7 +637,7 @@ def pick_up(
         run.warn(None)
     if plan is None:
         near = [drop for drop in loot.drops if drop.kind in KINDS and math.dist(here, (drop.x, drop.y)) <= POTION_UNITS]
-        if near:
+        if near and loot.belt_read:  # an unread belt was said by the look (game/memory.py `belt_cells`)
             # Said, or potions left with a full belt read as a failed pickup.
             named = ', '.join(sorted({drop.label for drop in near}))
             LOG.info('Macro: pickup: %s near, none the belt has a place for (short %s)', named, shortages(loot))

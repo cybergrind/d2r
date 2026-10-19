@@ -51,7 +51,7 @@ RECORDED = 'recorded'
 POLICIES = (LIVE, YIELD)  # the runs beside the recorded one, by default
 OUT = Path(__file__).parents[3] / 'runs' / 'combat' / 'viz'
 INDEX = 'index.json'
-LEAST_CASTS = 5  # as the scoreboard: a take with fewer full casts shows nothing of the aim
+LEAST_CASTS = 5  # a take with fewer full casts shows nothing of the aim
 UNREAD, FLOOR, LOW, WALL = 0, 1, 2, 3  # a wall cell: no grid, walk and fly, blocks walking only, blocks blades
 LABELS = {
     RECORDED: "the player's recorded casts",

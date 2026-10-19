@@ -71,7 +71,7 @@ in the logs. Deliverable: the table above with numbers and a `weight` per family
 | Terror Zone modifier | `ZoneTracker.zone_modifier` (already tracked) | every plain monster of the zone: 'Cursed', 'Extra Strong', 'Extra Fast', 'Lightning Enchanted' zones raise every pack |
 | Terror level | player level + 2, cap 96 | base damage via `monlvl` |
 | density | live positions (0.25 s) | shooters within one screen of each other: threat adds up, across packs too |
-| curse on the player | player states (`buff_probe.py`, inventory_tracking/history/buff_research.md) | Amplify Damage / Decrepify / Lower Resist active now |
+| curse on the player | player states (`monsters.py` `player_states`; inventory_tracking/history/buff_research.md) | Amplify Damage / Decrepify / Lower Resist active now |
 | the character | player stats: life, resistances, physical reduction | turns pack damage into "% of life per second" |
 
 Open in R3: (a) re-reading stats 350/351 for present monsters every few passes (cost: one stat
@@ -239,7 +239,8 @@ Open:
 - Charge, Leap and Frenzy users reach faster than their speed says; not modelled.
 
 - Nothing was seen in-game yet: colours, the filled mark and the arrow range are untried.
-- Tune factors and bands from `bursts.py` once new logs exist (phase 6); then the character's
+- Tune factors and bands from the probe's `life`/`around` events once new logs exist (phase 6; `bursts.py` and
+  `exposure.py` were deleted 2026-10-19, git has them); then the character's
   own resistances and life in place of the fixed 25%.
 - R3a: an aura a monster walks into after first sight is only caught through the owner's range.
 - Skill casters' real damage (skills.txt / missiles.txt levels); melee burst rules (Charge,

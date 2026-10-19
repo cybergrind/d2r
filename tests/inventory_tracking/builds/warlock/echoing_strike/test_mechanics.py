@@ -1,4 +1,4 @@
-"""Echoing Strike's emulation (mechanics.py, validate.py, hits.py) against one recorded cast (fixtures/cast_706.json:
+"""Echoing Strike's emulation (mechanics.py, hits.py) against one recorded cast (fixtures/cast_706.json:
 42 frames of the second Chaos Sanctuary take, 2026-10-09, trimmed to the player, the pointer and
 the five blades)."""
 
@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.hits import full_casts
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
     LIFE,
     OUT_FRAMES,
@@ -15,7 +16,6 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
     errors,
     focal_point,
 )
-from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts, validate
 
 
 FIXTURE = json.loads((Path(__file__).parent / 'fixtures' / 'cast_706.json').read_text())
@@ -60,38 +60,6 @@ def test_the_emulation_follows_the_recorded_cast_within_a_unit_or_two():
     out, back = errors(blades, origin, focal_point(blades), player_at)
     assert out < 1.3
     assert back < 2.5
-    report = validate(frames, FIXTURE['manifest']['rect'])
-    assert report['casts'] == 1
-    assert report['fitted_focal']['out'] == round(out, 2)
-    assert 0 < report['pointer_focal']['apart'] < 8.0  # the hand moves between the press and the blades
-
-
-HITS = json.loads((Path(__file__).parent / 'fixtures' / 'cast_hits.json').read_text())
-
-
-def test_contacts_name_the_monsters_the_blades_touch_and_the_recorded_drops_follow_them():
-    from inventory_tracking.builds.warlock.echoing_strike.hits import contacts, match
-
-    frames, rect = HITS['frames'], HITS['manifest']['rect']
-    txt_ids = {m['unit_id']: m['txt_id'] for m in HITS['missiles']}
-    found = contacts(frames, rect[2] / rect[3], txt_ids, focal='fitted')
-    assert found, 'the fixture cast touches monsters'
-    assert {leg for *_, leg in found} <= {'out', 'back'}
-    assert all(HITS['manifest']['cast_frame'] <= k <= HITS['manifest']['cast_frame'] + LIFE for _, _, k, _ in found)
-    frame_of = {f['t']: f['n'] for f in frames}
-    report = match(found, HITS['events'], frame_of.get)
-    assert report['contacts'] == len(found)
-    assert report['contact_to_hit'] >= 0.75
-    # Five other casts fly through the fixture's window with their blades cut out: their hits have no contact here.
-    assert report['hit_from_contact'] >= 0.25
-
-
-def test_a_blade_track_with_a_jump_is_left_out_of_the_validation():
-    from inventory_tracking.builds.warlock.echoing_strike.validate import clean
-
-    good = [(0.0, float(k)) for k in range(10)]
-    bad = [*good[:5], (500.0, 500.0), *good[6:]]
-    assert clean([good, bad]) == [good]
 
 
 def test_a_blade_stops_at_a_wall_and_does_not_come_back():

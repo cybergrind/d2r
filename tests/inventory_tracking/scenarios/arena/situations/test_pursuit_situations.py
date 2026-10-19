@@ -1,10 +1,10 @@
-"""The pursuit loop on the recorded situations (rca/2026-10-13/pursuit-v1.md): the same scene and the same
-presses played by today's keys and with `BuildSettings.pursuit` on (`Situation.logic('new')`).
+"""The pursuit loop on the recorded situations (rca/2026-10-13/pursuit-v1.md): the recorded scene and presses
+played with `BuildSettings.pursuit` on (`Situation.logic('new')`), the live game's logic.
 
 What the player asked of the teleport key on 2026-10-13 (kp4-findings.md): repeated presses advance to the
-goal, a press does not pause the attack, repeated presses do not kill. Each requirement is one test over
-both logics: `today` is `xfail(strict=True)` where today's keys do not meet it (the day they do, the mark
-comes off), `new` passes. With the switch off nothing here changes a play: test_situations.py pins those.
+goal, a press does not pause the attack, repeated presses do not kill. The pursuit-off ("today") variants
+were deleted on the player's ruling of 2026-10-19 (the loop no longer uses that mode); test_situations.py
+still pins the recorded plays with the switch off.
 
 Cost: about 150 plays. Each cached family of plays is an `xdist_group` of its own (`-n auto --dist loadgroup`,
 tests/inventory_tracking/conftest.py), so the families run on several workers and a play is still made once;
@@ -60,7 +60,7 @@ STRIKE_REACH = RANGE + CONTACT_RADIUS
 
 def left_alone(outcome: Outcome) -> bool:
     """Whether the fight gave the boss up for a while (hunt.py `untouched`: its life did not go down in four
-    casts laid through it, so it is no hostile for 20 s). The fight's own rule, as it is with today's keys:
+    casts laid through it, so it is no hostile for 20 s). The fight's own rule:
     a play that ends inside those seconds has the character at the boss and the boss alive."""
     boss = next(unit for unit, name in vizier.stored(STALL).bosses if name == BOSS)
     return any('takes no damage' in text and str(boss) in text for _, text in outcome.said)
@@ -74,12 +74,6 @@ def at_the_boss(outcome: Outcome) -> bool:
     death is the character's kill."""
     assert outcome.gaps[BOSS] is not None
     return outcome.gaps[BOSS][1] <= STRIKE_REACH and (outcome.boss_dead[BOSS] is not None or left_alone(outcome))
-
-
-LOGICS = [
-    pytest.param('today', marks=pytest.mark.xfail(strict=True, reason="today's keys: kp4-findings.md §2")),
-    'new',
-]
 
 
 @dataclass
@@ -147,11 +141,9 @@ def in_pocket(logic: str, key: bool, seed: int) -> Watch:
 
 
 @functools.cache
-def sealed(logic: str, seed: int) -> Outcome:
-    """The seal moment as recorded, played once for the tests that read it: 'today' is the stored situation as
-    it is (the switch off), 'new' its copy with the pursuit loop on."""
-    base = vizier.stored(SEAL)
-    return (base.logic('new') if logic == 'new' else base).play(seed=seed)
+def sealed(seed: int) -> Outcome:
+    """The seal moment as recorded with the pursuit loop on, played once for the tests that read it."""
+    return vizier.stored(SEAL).logic('new').play(seed=seed)
 
 
 # The families of plays, one `xdist_group` each (`--dist loadgroup`; a test not marked runs with its file).
@@ -198,30 +190,27 @@ def test_the_logic_is_one_switch_and_off_unless_asked() -> None:
     assert not base.pursuit
     assert base.logic('new').pursuit
     assert not base.logic('new').logic('today').pursuit
-    assert base.logic('today').play(seed=2) == base.play(seed=2)
 
 
 # -- repeated presses advance to the goal ---------------------------------------------------------------
 
 
 @STALL_RECORDED
-@pytest.mark.parametrize('logic', LOGICS)
-def test_repeated_presses_bring_the_character_to_the_boss_and_he_dies(logic) -> None:
+def test_repeated_presses_bring_the_character_to_the_boss_and_he_dies() -> None:
     """The stall as recorded: 48 presses with the route at a fight whose boss stands 57 units off."""
     for seed in SEEDS:
-        outcome = stall('as recorded (48 presses)', logic, seed)
+        outcome = stall('as recorded (48 presses)', 'new', seed)
         assert at_the_boss(outcome), seed
-    assert stall('as recorded (48 presses)', logic, 1).boss_dead[BOSS] is not None
-    assert stall('as recorded (48 presses)', logic, 1).stage != FIGHT_STAGE
+    assert stall('as recorded (48 presses)', 'new', 1).boss_dead[BOSS] is not None
+    assert stall('as recorded (48 presses)', 'new', 1).stage != FIGHT_STAGE
 
 
 @NEAR_BOSS
-@pytest.mark.parametrize('logic', LOGICS)
 @pytest.mark.parametrize('distance', [25, 40, 57.4])
-def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(logic, distance) -> None:
+def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(distance) -> None:
     """No press at all: the route's stage is the fight, so the boss is where the mode goes (25 units is on
     the screen; at 57.4 the recorded stall stood for 25 s)."""
-    watch = near_boss(distance, 'attack mode alone', logic, 1)
+    watch = near_boss(distance, 'attack mode alone', 'new', 1)
     assert watch.outcome.gaps[BOSS] is not None
     assert watch.outcome.gaps[BOSS][0] == pytest.approx(distance, abs=0.2)
     assert watch.outcome.boss_dead[BOSS] is not None
@@ -246,11 +235,10 @@ def test_attack_mode_alone_does_not_go_to_a_boss_beyond_its_sight(caplog) -> Non
 
 
 @IN_POCKET
-@pytest.mark.parametrize('logic', ['today', 'new'])  # today's keys too since the navigation classes (2026-10-15)
 @pytest.mark.parametrize('key', [False, True], ids=['recorded presses', 'the key held'])
-def test_the_character_leaves_the_pocket_and_reaches_the_seal(logic, key) -> None:
+def test_the_character_leaves_the_pocket_and_reaches_the_seal(key) -> None:
     for seed in SEEDS:
-        watch = in_pocket(logic, key, seed)
+        watch = in_pocket('new', key, seed)
         seal = pocket.seal_place(pocket.stored(POCKET))
         assert min(math.dist(here, seal) for _, here, _, _, _ in watch.rows) <= goals.USE_NEAR
         assert math.dist(watch.rows[-1][1], pocket.A) > pocket.POCKET_UNITS
@@ -274,30 +262,14 @@ def test_in_the_pocket_the_way_left_never_grows_between_two_presses(key) -> None
         assert etas[-1] < 1.5  # the last press before the seal opens finds it a move away
 
 
-@IN_POCKET
-def test_today_too_the_way_left_in_the_pocket_never_grows() -> None:
-    """The recording's defect (the way left 318, 325, 312, 333, 308, 314) is gone from today's keys too: with the
-    staff empty their teleport step goes by the navigation class in hand (hunting/moves.py `class_step`: the walked way,
-    a Blade Warp over a clear line; rca/2026-10-14/navigation-classes.md), not toward a Teleport landing."""
-    base = pocket.stored(POCKET)
-    seal = next(prop.unit for prop in base.scene.things if math.dist(prop.at, pocket.seal_place(base)) < 1)
-    watch = in_pocket('today', False, 1)
-    opened = watch.outcome.opened[seal]
-    assert opened is not None
-    etas = [watch.eta_at(at) for at in watch.presses if at < opened]
-    assert etas[0] > 10.0
-    assert all(later <= earlier + 1e-9 for earlier, later in pairwise(etas)), etas
-
-
 # -- a press does not pause the attack ------------------------------------------------------------------
 
 
 @NEAR_BOSS
-@pytest.mark.parametrize('logic', LOGICS)
-def test_a_held_key_does_not_keep_attack_mode_from_killing_a_boss_in_reach(logic) -> None:
+def test_a_held_key_does_not_keep_attack_mode_from_killing_a_boss_in_reach() -> None:
     """The Vizier 12 units off, attack mode on, the key held at 0.3 s: he dies as with the mode alone, and
     while the route is at his fight no QUIET_MOST seconds pass without a strike with a hostile in reach."""
-    watch = near_boss(12, 'attack on + KP_4 every 0.3 s', logic, 1)
+    watch = near_boss(12, 'attack on + KP_4 every 0.3 s', 'new', 1)
     assert watch.outcome.boss_dead[BOSS] is not None
     assert watch.quiet(FIGHT_STAGE) <= QUIET_MOST
 
@@ -319,7 +291,6 @@ def test_a_posted_press_cancels_nothing() -> None:
     outcome = stall('(a) attack mode on + KP_4 held, every 0.3 s', 'new', 1)
     assert not outcome.said_count('Attack mode paused')
     assert outcome.said_count('Attack mode on') == 1
-    assert stall('(a) attack mode on + KP_4 held, every 0.3 s', 'today', 1).said_count('Attack mode paused') > 20
 
 
 # -- repeated presses do not kill, and the toggle stays the player's ------------------------------------
@@ -341,7 +312,7 @@ def test_the_character_lives_through_the_stall_by_the_new_logic(name) -> None:
         assert not outcome.dead, seed
         assert at_the_boss(outcome), seed
         killed += outcome.boss_dead[BOSS] is not None
-    assert killed >= 8  # with today's keys: none of ten
+    assert killed >= 8  # with the pursuit off (deleted 2026-10-19): none of ten
 
 
 def through(name: str) -> tuple[Situation, list | None]:
@@ -364,7 +335,7 @@ def through(name: str) -> tuple[Situation, list | None]:
 )
 def test_the_character_lives_through_the_seal_the_pocket_and_the_pack_by_the_new_logic(name) -> None:
     if name == SEAL:
-        outcomes = (sealed('new', seed) for seed in TEN)
+        outcomes = (sealed(seed) for seed in TEN)
     else:
         situation, presses = through(name)
         outcomes = (situation.play(presses, seed=seed) for seed in TEN)
@@ -375,15 +346,12 @@ def test_the_character_lives_through_the_seal_the_pocket_and_the_pack_by_the_new
 @SEAL_PLAYS
 def test_the_seal_is_opened_and_the_vizier_killed_by_the_new_logic() -> None:
     """The seal moment as recorded, 16 s: the seal is opened in every seed, and the Vizier dies within the
-    window in more of them than with today's keys (5 of 10: the arena's fight takes the character elsewhere
-    before the pack appears, rca/2026-10-13/situations.md §3). Since the casters think by the client's code
-    (sim/casters.py, 2026-10-13) the new logic kills him in 6 of 10 (7 before)."""
-    new = [sealed('new', seed) for seed in TEN]
-    today = [sealed('today', seed) for seed in TEN]
+    window in 6 of 10 since the casters think by the client's code (sim/casters.py, 2026-10-13; 7 before; the
+    pursuit off killed him in 5, rca/2026-10-13/situations.md §3)."""
+    new = [sealed(seed) for seed in TEN]
     assert all(outcome.opened for outcome in new)
     killed = sum(1 for outcome in new if outcome.boss_dead[BOSS] is not None)
     assert killed >= 6
-    assert killed >= sum(1 for outcome in today if outcome.boss_dead[BOSS] is not None)
 
 
 def test_the_toggle_off_stays_off_under_presses() -> None:

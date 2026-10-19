@@ -199,6 +199,10 @@ TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot'
 TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
 REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20, TZ_NEXT_LEVEL: 30}
 REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME}
+# Beset (`beset`): the level run fights the attacker, then the ground's valuables one a leg (runner.py `_fetch`)
+FIGHT_BACK = 'fight back'
+PICK_BACK = 'what the fight back left'
+REPEATS |= {FIGHT_BACK: 5, PICK_BACK: 20}
 # Seconds after her fight's end before her level is left with nothing to pick up: drops land through her death
 # animation, the last 1.7 s after the kill (takes 11:39-11:48, 2026-10-18)
 DROPS_LAND = 2.0
@@ -218,10 +222,14 @@ STILL_UNITS = 2.0
 RECOVERIES = 3
 RECOVERY_SECONDS = 600.0
 RECOVERY_PAUSE = 30.0  # past RECOVERIES in RECOVERY_SECONDS: a pause before the next leg, not a stop (`recover`)
-# Standing outside a fight and losing BESET_LOSS of max life within BESET_SECONDS is beset (`beset`): the game is
-# left at once (the player, 2026-10-19: "we stood still while under attack and almost died"); a hit there was 4-8 %
+# Standing outside a fight and losing BESET_LOSS of max life within BESET_SECONDS is beset (`beset`): the attacker is
+# fought back (FIGHT_BACK; the player, 2026-10-19: "we stood still while under attack and almost died"); a hit there
+# was 4-8 %
 BESET_SECONDS = 4.0
 BESET_LOSS = 0.05
+# Beset again this soon after fighting back (`beset_again`): the fight cannot be won, the game is left (2026-10-19:
+# a level run's fight takes 5-20 s, the loop's next legs a minute)
+BESET_AGAIN_SECONDS = 60.0
 
 
 class GameId(NamedTuple):
@@ -247,6 +255,7 @@ class LegHands:
     bring: Callable[[list[Carried]], int] | None = None
     way_on: Callable[[], None] | None = None
     fight: Callable[[], None] | None = None
+    fight_back: Callable[[], None] | None = None  # the level run posted against an attacker (FIGHT_BACK)
     left: Callable[[], str | None] | None = None
     sighted: Callable[[int | None], str | None] = lambda area: None
     terrorized: Callable[[int], bool | None] = lambda area: None
@@ -285,6 +294,11 @@ class Loop:
     recovered: list[float] = field(default_factory=list)
     # Looks in a stand outside a fight (`beset`): (when, where, life, game)
     hurt: list[tuple[float, tuple[float, float], int, str]] = field(default_factory=list)
+    # Beset (runner.py `_loop_stopped`): the game a fight back is due in, the game whose valuables are fetched after
+    # it, and (game, when) of the fight back's last leg (`beset_again`)
+    beset_due: str | None = None
+    fetch_back: str | None = None
+    fought_back: tuple[str, float] | None = None
     # (game or None for the lobby, since when) (`overdue`)
     seen: tuple[str | None, float] | None = None
     # The level card's marks by label, in tiles (levels/guide.py `marks`): a waypoint out of sight
@@ -348,6 +362,7 @@ class Loop:
         self.full |= self._full_stored()
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
         self.counted_in, self.placed, self.portal, self.printed = None, False, None, None
+        self.beset_due, self.fetch_back, self.fought_back = None, None, None
 
     def recover(self, why: object, now: float) -> bool:
         """Whether the loop goes on after `why` by leaving the game: always but dead. Past RECOVERIES within
@@ -409,6 +424,30 @@ class Loop:
             self.hurt.clear()
             return True
         return False
+
+    def beset_again(self, game: str | None, now: float) -> bool:
+        """Whether a fight back's last leg in `game` was within BESET_AGAIN_SECONDS. `now`: time.monotonic()."""
+        fought = self.fought_back
+        return fought is not None and game is not None and fought[0] == game and now - fought[1] <= BESET_AGAIN_SECONDS
+
+    def fight_back_due(self, game: str) -> None:
+        """Beset in `game`: its next leg fights the attacker (FIGHT_BACK), the ones after fetch the valuables."""
+        self.beset_due, self.fetch_back = game, None
+
+    def after_beset(self, world: World) -> str | None:
+        """FIGHT_BACK or PICK_BACK when one is due where `world` is; None otherwise (out of the game, in a town, dead,
+        or leaving: the due one dropped)."""
+        player = world.player
+        if not world.in_game or player is None or player.mode in DEAD or player.in_town or self.abandon:
+            self.beset_due = self.fetch_back = None
+            return None
+        game = world.game_name
+        if self.beset_due == game:
+            return FIGHT_BACK
+        if self.fetch_back == game:
+            return PICK_BACK
+        self.beset_due = self.fetch_back = None
+        return None
 
     def stop(self) -> None:
         self.on = False
@@ -768,7 +807,9 @@ class Loop:
         coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn_out(wear) else None
         self.repair = due(staff, wear, coins, top_up=topped, waited=self.repair_waited())
         goal = None
-        if self.kind.agenda:
+        if (beset := self.after_beset(world)) is not None:
+            leg = beset  # before the kind's own legs: the attacker first, then its ground
+        elif self.kind.agenda:
             from inventory_tracking.macros import tzloop  # late: tzloop imports this module
 
             goal = tzloop.choose(world, progress, self, hands)
@@ -787,6 +828,15 @@ class Loop:
             return leg
         if leg == NEXT_GAME:
             self.next_game(run, world, key_names)
+        elif leg == FIGHT_BACK:
+            if hands.fight_back is None:
+                raise Abort('no level run to fight back with')
+            self.beset_due, self.fetch_back, self.fought_back = None, game, (game, time.monotonic())
+            hands.fight_back()  # posts the run and returns; its end is PICK_BACK's
+        elif leg == PICK_BACK:
+            self.fought_back = (game, time.monotonic())  # the fight is over: BESET_AGAIN_SECONDS counts from here
+            if not pick_up():
+                self.fetch_back = None  # nothing left: the kind's legs go on
         elif leg == TOWN:
             self.town(run, visit, game, self.exit_of(game))
         if leg in (TO_THE_CHESTS, TO_THE_CATACOMBS):

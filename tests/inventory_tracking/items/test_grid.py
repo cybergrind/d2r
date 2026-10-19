@@ -1,7 +1,7 @@
 """`Grid` against a brute-force model of cells on seeded random rows, unread (None) rows included. Before the move
 (cleanup phase 3 step 2, 2026-10-19) the ten copies it replaced (cube `fits`/`taken`/`largest_block`, charms `_fits`,
-town `_spot`/`_rows_of`, townplan `_first_fit`/`_cube_rows`, world `grid_rows`, the fakes' grid helpers) answered as
-this model on the same rows; the wrappers kept for their callers are checked here too."""
+town `_spot`/`_rows_of`, the town planner's `_first_fit`/`_cube_rows`, world `grid_rows`, the fakes' grid helpers)
+answered as this model on the same rows; the wrappers kept for their callers are checked here too."""
 
 import random
 

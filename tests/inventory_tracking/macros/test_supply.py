@@ -599,6 +599,7 @@ def test_a_low_belt_wants_healing_under_half_its_columns_and_rejuvenations_under
     dry = (JUV, None, HP, HP) + (None, None, HP, HP) * 3  # one rejuvenation of 8: under the reserve of 2
     assert low(Loot(belt=dry, life=1818, max_life=1818, game=NAMED)) == (REJUVENATION,)
     assert low(Loot(belt=LOW_BELT, life=1278, max_life=1818)) == ()  # a belt of no game: unread
+    assert low(Loot(belt=LOW_BELT, life=1278, max_life=1818, game=NAMED, belt_read=False)) == ()  # an item unread
 
 
 def test_in_the_quiet_attack_mode_takes_the_potions_lying_near_before_its_standing_goal(caplog) -> None:

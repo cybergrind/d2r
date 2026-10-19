@@ -602,7 +602,8 @@ Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (`bdd
 `appraisal/service.py`; `macros/default.py` is gone; the ids and names are in `builds/warlock/skills.py`),
 3.8 (26 → 7: the blades' model, damage data, the offline simulator, the scoreboard, the gate and the viewer export
 are `inventory_tracking/builds/warlock/echoing_strike/`; the gate is now
-`python -m inventory_tracking.builds.warlock.echoing_strike gate <takes>`).
+`python -m inventory_tracking.builds.warlock.echoing_strike gate <takes>`; that command, the scoreboard and
+`GATE-base.txt` were deleted 2026-10-19, git has them; `viz.py` and the simulator stay).
 
 **Stage 3 gate, 2026-10-12: passed.** Suite 5863 passed, 8 skipped, 63 xfailed (the pinned list);
 `decisions.json`, the replay logs and the loop counts byte-identical to Stage 0; the combat gate over the 743

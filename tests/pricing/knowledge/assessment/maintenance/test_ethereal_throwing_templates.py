@@ -91,7 +91,6 @@ def test_ethereal_configuration_cannot_override_nonrepairable_amazon_policy():
 
 def test_registered_ethereal_variants_have_exact_source_and_stat_endorsements():
     from pricing.knowledge.assessment.build_profiles import build
-    from pricing.knowledge.assessment.maintenance.qualified_table_context import require_qualification
 
     bundle = build()
     roles = [p for p in bundle['profiles'] if p['id'].endswith('-ethereal-throwing-alternative')]
@@ -105,7 +104,6 @@ def test_registered_ethereal_variants_have_exact_source_and_stat_endorsements():
             'Ethereal ' + role['names'][0] + (' (Upgraded)' if role['names'][0] in ('Deathbit', 'The Scalper') else '')
         )
         assert role['source']['quotes'] == [label]
-        require_qualification(role, label)
         uses = [u for u in bundle['guide_demand']['uses'] if u['profile_id'] == role['id']]
         assert len(uses) == 1
         assert uses[0]['review_state'] == 'reviewed'

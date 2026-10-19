@@ -1,11 +1,13 @@
 """Source-specific completed melee recipes; their bases and attack mechanics differ."""
 
+from typing import Any
+
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.assessment.maintenance.merc_survival_templates import legal_base_condition
 from pricing.knowledge.definition_store import catalog
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'Rift': {
         'types': ('pole', 'scep'),
         'builds': ('mirrored-blades-warlock-guide',),
@@ -124,7 +126,7 @@ MEMBERS = {
 
 
 # Build-specific attack mechanics stay separate from the existing Smite review.
-BUILD_MEMBERS = {
+BUILD_MEMBERS: dict[tuple[str, str], dict[str, Any]] = {
     ('zeal-paladin', 'Unbending Will'): {
         'types': ('swor',),
         'builds': ('zeal-paladin',),
@@ -231,7 +233,7 @@ def expand_combat_weapon(row):
     if 'builds' in member and (row['build'] not in member['builds'] or row['class'] != member.get('class', 'Warlock')):
         raise ValueError('Unreviewed combat attack mode')
     repairable = {'op': 'fact_eq', 'field': 'ethereal', 'value': False}
-    durability = repairable
+    durability: dict[str, Any] = repairable
     if member.get('indestructible'):
         durability = {
             'any': [
@@ -244,7 +246,7 @@ def expand_combat_weapon(row):
                 },
             ]
         }
-    must = [
+    must: list[dict[str, Any]] = [
         {'op': 'context_eq', 'field': 'player_class', 'value': row['class']},
         durability,
         *[

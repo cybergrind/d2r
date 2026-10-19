@@ -17,8 +17,8 @@ class BeltKept:
         self.columns = BeltColumns()
 
     def see(self, loot: Loot) -> Loot:
-        if loot.game is None:
-            return loot
+        if loot.game is None or not loot.belt_read:
+            return loot  # a partial belt would teach the columns wrong kinds
         self.columns = remember(self.columns, loot.belt, loot.game)
         return replace(loot, columns=self.columns)
 

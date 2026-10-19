@@ -4,10 +4,11 @@ The runner asks `first`, then tries the Gheed's swap, then asks `decide`."""
 from dataclasses import dataclass
 from enum import StrEnum
 
+from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.macros.actuator import Cause
 
 
-__all__ = ['ROOM_CAUSES', 'Remedy', 'Stopped', 'decide', 'first']
+__all__ = ['ROOM_CAUSES', 'Beset', 'Remedy', 'Stopped', 'decide', 'first', 'low_life']
 
 # The causes the room rules answer. 'stall' counts as room until ruled otherwise
 # (rca/2026-10-18/arch-loop-orchestration.md §5): a stand by a valuable must still reach the cube (2026-10-17 04:32:26).
@@ -16,7 +17,10 @@ ROOM_CAUSES: frozenset[Cause] = frozenset({'room', 'stall'})
 
 class Remedy(StrEnum):
     DEAD = 'dead'  # the loop stops and nothing more is pressed, not even Save and Exit
-    LEAVE = 'leave'  # hit standing outside a fight: the game is left at once, whatever lies on the ground
+    # Beset with life low, beset again after fighting back, or no attacker read and nothing on the ground: the game is
+    # left at once, whatever lies on the ground
+    LEAVE = 'leave'
+    FIGHT = 'fight back'  # beset otherwise: the attacker fought, then the valuables fetched, the game not left
     AGAIN = 'again'  # the player's hand: the leg is made again, the game not left
     STOP = 'stop'  # the loop stops where it is (a keeper no stash page takes)
     FETCH = 'fetch'  # a valuable left for a cause other than room: the leg made again, once a game
@@ -44,14 +48,36 @@ class Stopped:
     tz_trips: bool = False  # a terror zone kind that may trip now, its level known (`tz_trip`)
 
 
-def first(cause: Cause, *, on: bool, dead: bool) -> Remedy | None:
-    """The rules before the Gheed's swap: by the cause alone. None: the swap, then `decide`."""
+@dataclass(frozen=True)
+class Beset:
+    """The facts of a 'beset' stop (runner.py `_loop_stopped`)."""
+
+    low: bool  # life under the healer's floor (`low_life`)
+    again: bool = False  # beset again within BESET_AGAIN_SECONDS of fighting back (loop.py `Loop.beset_again`)
+    foe: bool = False  # a hostile in the read near the character (runner.py `_attacker_near`)
+    left: str | None = None  # the valuable on the ground (runner.py `valuable_left`)
+
+
+def low_life(life: tuple[int, int] | None) -> bool:
+    """Whether `life` (points, maximum) is under the healer's critical floor (config.py `HEAL_PRIORITY.floor`, the
+    macro's life budget's too); unread counts as low."""
+    return life is None or life[1] <= 0 or life[0] < HEAL_PRIORITY.floor / 100 * life[1]
+
+
+def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None) -> Remedy | None:
+    """The rules before the Gheed's swap: by the cause, and a 'beset' stop's `beset` facts. None: the swap, then
+    `decide`."""
     if dead:
         # The player, 2026-10-19: "if we died - we MUST not take ANY other actions, no reviving, no save/exits"
         return Remedy.DEAD
     if on and cause == 'beset':
-        # The player, 2026-10-19: "we must not die or we lose exp and our gear": no room rule nor a fetch first
-        return Remedy.LEAVE
+        # The player, 2026-10-19: "Fight back first: fight the attacker, then pick up the valuable; leave only if life
+        # gets low (the death rules still win)". Beset again after fighting back: the fight cannot be won
+        if beset is None or beset.low or beset.again:
+            return Remedy.LEAVE
+        if beset.foe or beset.left is not None:
+            return Remedy.FIGHT
+        return Remedy.LEAVE  # no attacker read and nothing to keep: left as before
     if on and cause == 'hand':
         # Leaving the game for a moved mouse cost two games (2026-10-17 01:28:48); REPEATS bounds it
         return Remedy.AGAIN

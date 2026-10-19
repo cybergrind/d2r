@@ -11,9 +11,10 @@ for the objective, measures, queue and stopping rule, then the relevant section 
 [PLAN.md](planning/PLAN.md). Progress is measured by `inventory_tracking/corpus` score
 files. Dated numbers are snapshots, not fresh verification.
 
-`planning/STATUS.md`, root `handoff.md`, per-item formal reviews and the old gates
-below the contract's frozen boundary are historical references. Do not append to
-those logs, regenerate their receipts or resume their queues. A feature's presence
+`planning/STATUS.md`, root `handoff.md`, the contract's frozen half and the review
+machinery (manifest, coverage matrix, completion ledger, per-item reviews, receipts) are
+archived in [`pricing/archive/2026-10-19/`](../../archive/2026-10-19/README.md) (2026-10-19).
+Do not append to those logs, regenerate their receipts or resume their queues. A feature's presence
 or a passing unit suite does not establish the current contract's completion.
 
 ## Runtime path
@@ -63,7 +64,7 @@ or publish a generation merely to read documentation.
 
 ## Historical implementation detail
 
-[IMPLEMENTATION_HISTORY.md](IMPLEMENTATION_HISTORY.md) preserves the former README
+[IMPLEMENTATION_HISTORY.md](../../archive/2026-10-19/knowledge/assessment/IMPLEMENTATION_HISTORY.md) (archived) preserves the former README
 in full: dated implementation slices, assumptions, coverage counts and examples.
 Its “current”, “next” and incomplete-feature statements apply to their original
 slice; consult current code before using them. The history is a targeted reference,
@@ -71,7 +72,7 @@ not a prerequisite for every session.
 
 ### Completed runeword records
 
-The [historical runeword section](IMPLEMENTATION_HISTORY.md#completed-runeword-records)
+The [historical runeword section](../../archive/2026-10-19/knowledge/assessment/IMPLEMENTATION_HISTORY.md#completed-runeword-records)
 records identity and comparison requirements. Check the current runeword handler,
 mechanics and tests before changing those contracts; recipe recognition alone does
 not prove complete roll or base/ethereal evidence.

@@ -219,20 +219,29 @@ summaries. Research and old plan notes (six of them) into a history folder (O1).
 - Module-level state not reset between tests: world's `GOLD_SEEN`/`BASE_ROLLS_SEEN` (T).
 - The worktrees' saved patches in `rca/2026-10-19/cleanup/worktrees/` can go once judged (worktrees removed 10:21).
 
-## The player's rulings needed
+- 2026-10-19 batch D (the rulings below): the beset guard fights back (stops.py `Remedy.FIGHT`, loop.py
+  `after_beset`), leaving only under the healer's 65 % floor, a second beset within 60 s, or no attacker and nothing on
+  the ground; an unreadable belt item leaves the belt unread for the look (`Loot.belt_read`: no refill, drink or
+  alarm from it; the safety prices it as empty); townplan deleted (the visit snapshots stay fixtures); the stash view
+  is read once more (0.2 s) before the page-by-page scan; the Echoing Strike stage 3–6 harness (compare, scoreboard,
+  validate, CLI; the sim viz uses stays), terror exposure/bursts and probes/buff deleted; 18 pursuit-off arena tests
+  deleted (the study's 34 counted other "today"s); the frozen pricing work in `pricing/archive/2026-10-19/` (150
+  maintenance modules, 217 test files, 23 rules JSON, the per-item planning files, STATUS/handoff/history): the
+  pricing test run 12,053 → 9,020 tests, 13 → 5 min, the same 35 red; the 50 live maintenance modules under pyrefly.
 
-1. **Town shadow planner**: matched 87 of 88 visits. (a) visit.py executes the plan's steps (click order changes), or
-   (b) delete townplan, `_predict`, `_matched` (≈ 520 lines with tests) and keep the visit snapshots as fixtures (T2).
-2. **Frozen pricing work**: archive 225 frozen-review test files (3,156 tests, 26.9k lines, ≈ 35 min), ≈ 150
-   maintenance modules, ≈ 8 MB of review JSON, STATUS.md / handoff.md / IMPLEMENTATION_HISTORY (P5).
-3. **Test-suite trade-offs**: seeds a setting (10 full, 3 routine; ≈ 90 s); delete the 34 "pursuit off" arena baselines
-   (39 s); `-n 2` on the slow tests only with a memory cap (reverses the serial rule of 2026-10-15) (S).
-4. **Possibly dead, last used ≈ 2026-10-14**: the Echoing Strike stage 3–6 harness (≈ 1,450 lines),
-   `terror/exposure.py`, `terror/bursts.py`, `probes/buff.py` (O).
-5. **Transient stash read**: a short re-read before the page-by-page scan fallback (≈ 150 lines nearly unused after);
-   a behaviour change (T).
-6. Carried over from the loop session: the "beset" guard leaves a game even with a valuable on the ground (or fight
-   back instead); full exploration of levels before a TZ boss; an instant first aim instead of the human-like flick.
+## The player's rulings (2026-10-19, batch D)
+
+1. Town shadow planner: delete townplan, `_predict`, `_matched` (≈ 520 lines with tests); the visit snapshots stay
+   as fixtures.
+2. Frozen pricing work: archive (a dated folder outside the test run and pyrefly; nothing deleted).
+3. Delete the 34 "pursuit off" arena baselines. Not asked: seeds a setting, `-n` on the slow tests (done: -n 6).
+4. Delete the Echoing Strike stage 3–6 harness, `terror/exposure.py`, `terror/bursts.py`, `probes/buff.py` (check
+   no live import first).
+5. Stash read: one short re-read before the page-by-page scan.
+6. Beset guard: fight the attacker back first, then the valuable; leave only on low life (the death rules win).
+7. Belt read: skip an unreadable belt item, keep the ground drops, the belt "unread" for that look (no refill from it).
+8. Fire on the way: shorter approaches only when the move itself is over budget or vetoed (as fixed in batch C).
+Not asked yet: full exploration of levels before a TZ boss; an instant first aim instead of the flick.
 
 ## Suggested order of work
 

@@ -8,6 +8,7 @@ import hashlib
 import json
 from collections import Counter, defaultdict
 from copy import deepcopy
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.inventory import ROOT, audit_occurrences, collect_occurrences
 
@@ -36,7 +37,7 @@ def configurations(profiles):
     return [groups[key] for key in sorted(groups)]
 
 
-def compile_inventory(occurrences, profiles, catalog):
+def compile_inventory(occurrences, profiles, catalog) -> dict[str, Any]:
     audit = audit_occurrences(occurrences, profiles)
     dispositions = {row['id']: row for row in audit['rows']}
     identities, by_name = {}, defaultdict(set)
@@ -123,7 +124,7 @@ def compile_inventory(occurrences, profiles, catalog):
     }
 
 
-def inspect_source(root, source):
+def inspect_source(root, source) -> dict[str, Any]:
     path = root / source['path']
     actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
     return {

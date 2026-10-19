@@ -290,6 +290,8 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
     """A healing potion beyond POTION_UNITS worth its detour (supply.py `worth`, `detour`) while the belt is below
     the reserve: the potions short at harm's price against the eta there and back. Judged once in 4 *
     DECIDE_SECONDS over the nearest two; the one found stays the goal until then."""
+    if not loot.belt_read:
+        return None  # unknown, not low: the next look reads it again
     now = run.clock()
     judged, found = self.fetching
     if now - judged < 4 * DECIDE_SECONDS:

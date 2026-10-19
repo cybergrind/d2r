@@ -1,11 +1,13 @@
 """Explicitly reviewed player utility families, compiled only during maintenance."""
 
+from typing import Any
+
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.assessment.maintenance.native_membership import named_base_condition
 from pricing.knowledge.definition_store import catalog
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'Crown of Ages': {
         'slots': ('Helmets',),
         'role': 'Caster resistance and physical damage reduction helmet',
@@ -1632,7 +1634,7 @@ def expand_named_utility(row):
                 },
             ]
         }
-    must = [
+    must: list[dict[str, Any]] = [
         {'op': 'context_eq', 'field': 'player_class', 'value': row['class']},
         {'op': 'fact_eq', 'field': 'identified', 'value': True},
         named_base_condition(name, quality),

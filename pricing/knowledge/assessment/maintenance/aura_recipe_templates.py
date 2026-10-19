@@ -1,11 +1,13 @@
 """Reviewed aura recipes with equipment-slot and repair dependencies."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.adapters.capture import bases_by_code
 from pricing.knowledge.assessment.maintenance.merc_survival_templates import legal_base_condition
 from pricing.knowledge.definition_store import catalog
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'Mosaic': {'dragon-talon-assassin': ('Assassin', ('Off-Hand',))},
     'Coven': {'fire-warlock-guide': ('Warlock', ('Helmets',))},
     'Dream': {'dream-paladin': ('Paladin', ('Helmets', 'Off-Hand'))},
@@ -114,7 +116,10 @@ def expand_aura_recipe(row):
             ]
         }
     )
-    must = [{'op': 'context_eq', 'field': 'player_class', 'value': klass}, recipe_condition(name, types)]
+    must: list[dict[str, Any]] = [
+        {'op': 'context_eq', 'field': 'player_class', 'value': klass},
+        recipe_condition(name, types),
+    ]
     if name != 'Phoenix' or slot != 'Weapon':
         must.append(durability)
     dependencies = []

@@ -8,8 +8,6 @@ from typing import Any
 
 import pytest
 
-from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
-
 
 def source_fixture(tmp_path, *, variant='Hardcore', scope=None):
     path = tmp_path / 'pricing/data/wp-a-builds.json'
@@ -72,27 +70,6 @@ def test_explicit_hardcore_scope_is_valid_but_excluded_from_softcore_candidates(
     assert len(loaded.bundle.profiles) == 2  # Retain the reviewed source configuration.
     selected: list[Any] = loaded.bundle.candidates.select(facts('Jewel', 'unique', 'Rainbow Facet'))
     assert {r['id'] for r in selected} == {active['id']}
-
-
-def test_hardcore_use_exclusion_requires_actual_pinned_variant(tmp_path):
-    from pricing.knowledge.assessment.maintenance.value_scope import SCOPE, use_exclusions
-
-    role = source_fixture(tmp_path, scope='hardcore')
-    row = {
-        'profile_id': role['id'],
-        'profile_sha256': fingerprint(role),
-        'classification': 'hardcore_only',
-        'reviewed_at': '2026-09-30',
-        'reason': 'This exact source setup is Hardcore, outside the Softcore task.',
-        'source': role['source'],
-        'quote': 'Facet',
-    }
-    review = {'schema_version': 1, 'scope': SCOPE, 'uses': [row]}
-    assert use_exclusions([role], review, tmp_path)['use:facet:unique']['state'] == 'excluded'
-    role = source_fixture(tmp_path, variant='Standard', scope='hardcore')
-    row.update(profile_sha256=fingerprint(role), source=role['source'])
-    with pytest.raises(ValueError, match=r'[Hh]ardcore'):
-        use_exclusions([role], review, tmp_path)
 
 
 def test_staged_hardcore_roles_cannot_supply_softcore_stat_priorities():

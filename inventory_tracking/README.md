@@ -143,4 +143,4 @@ PE parsing/capture, bounded unit/resource reads, and report publication.
 [Research history](history/RESEARCH_HISTORY.md) preserves the original external-reference
 survey and hover prototypes. Their “not implemented” statements describe those
 prototypes, not the current service. Read only the relevant probe when investigating
-its evidence. `handoff.md` remains frozen and does not drive current work.
+its evidence. The frozen `handoff.md` is archived in `pricing/archive/2026-10-19/` and does not drive current work.

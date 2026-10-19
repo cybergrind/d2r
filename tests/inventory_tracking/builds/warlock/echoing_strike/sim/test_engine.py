@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES
-from inventory_tracking.builds.warlock.echoing_strike.sim.engine import DUPLICATE, gate, replay, score, simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import DUPLICATE, gate, score, simulate
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import (
     Cast,
     CompanionTrack,
@@ -260,10 +260,10 @@ def test_a_situation_is_cut_from_a_take_and_replayed(tmp_path):
     assert describe(sit)['casts'] == 1
     assert describe(sit)['monsters'] > 3
     assert isinstance(sit.casts[0], Cast)
-    report = replay(sit, 'fitted')
-    assert report['score']['contacts'] > 0
-    assert report['score']['damage_points'] > 0
-    assert set(report['gate']) >= {'recorded_kills', 'simulated_kills', 'damage_ratio'}
+    outcome = simulate(sit, [(c.frame, c.fitted) for c in sit.casts])  # the recorded casts at their fitted focal points
+    assert score(sit, outcome)['contacts'] > 0
+    assert score(sit, outcome)['damage_points'] > 0
+    assert set(gate(sit, outcome)) >= {'recorded_kills', 'simulated_kills', 'damage_ratio'}
 
 
 def test_the_situation_blocks_blades_at_flight_walls_unread_cells_and_closed_doors_not_walk_blocked_cells():

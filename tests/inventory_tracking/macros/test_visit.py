@@ -201,7 +201,6 @@ LK_NEEDS = Needs()  # the Warlock's 2 x 4, LK's two key stacks
 def no_park(monkeypatch) -> None:
     """The stash stop as it was before the player's ruling of 16:50 on 2026-10-18 (town.py PARK_JUNK off)."""
     monkeypatch.setattr('inventory_tracking.macros.town.PARK_JUNK', False)
-    monkeypatch.setattr('inventory_tracking.macros.visit.PARK_JUNK', False)
 
 
 def no_waiting(monkeypatch) -> None:
@@ -577,12 +576,11 @@ def test_with_the_gold_near_its_cap_the_stash_still_comes_first(monkeypatch, cap
     assert 'the gold is near its cap: the stash first' in caplog.text
 
 
-# The visit's snapshots and its plan in shadow (macros/visitlog.py, macros/townplan.py; steps M0 and M1)
+# The visit's snapshots (macros/visitlog.py; step M0)
 
 
-def test_a_visit_predicts_its_stranded_keeper_and_the_contract_matches(monkeypatch, caplog, tmp_path):
-    # 15:05:53 on 2026-10-18 in the order of then (no park): the plan foresees the Boots left in the cube before the
-    # first click
+def test_a_visit_writes_a_snapshot_at_each_stop_and_its_contract_names_the_stranded_keeper(monkeypatch, tmp_path):
+    # 15:05:53 on 2026-10-18 in the order of then (no park): the Boots left in the cube
     import inventory_tracking.macros.visitlog as visitlog
     from tests.inventory_tracking.macros.test_town import pack_1505, view_1505
 
@@ -598,28 +596,22 @@ def test_a_visit_predicts_its_stranded_keeper_and_the_contract_matches(monkeypat
     town = Town(monkeypatch, play, junk)
     town.run = play.run()
 
-    with caplog.at_level('INFO'):
-        done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+    done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
 
     boots = 'set Boots at (1, 0)'
     assert done.contract.misses[:2] == (f'cube 1 items ({boots})', f'1 keepers carried ({boots})')
-    assert f'Macro: town plan: predicts cube 1 items ({boots}); 1 keepers carried ({boots}) (variant ruled, ' in (
-        caplog.text
-    )
-    assert 'Macro: town plan: matched' in caplog.text
     [path] = (tmp_path / 'visits').iterdir()
     stops = visitlog.load(path)
     assert [s.stop for s in stops] == ['start', 'stash', 'shops', 'end']
     assert stops[0].pack == pack
     assert stops[0].junk == junk
-    assert stops[0].predicted == (f'cube 1 items ({boots})', f'1 keepers carried ({boots})')
     assert stops[0].view is not None
     assert stops[1].view is not None  # the stash as read after its stop
     assert stops[-1].misses == done.contract.misses
     assert stops[-1].pack == carried(play)
 
 
-def test_a_visit_with_room_predicts_no_miss_and_writes_nothing_without_a_run_directory(monkeypatch, caplog):
+def test_a_visit_with_room_has_no_miss_and_writes_nothing_without_a_run_directory(monkeypatch, caplog):
     keeper = replace(thing(10, 'Ring', 6, 0), quality=4)
     junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
     play = fortress(Pack((THE_CUBE, *OWN_CHARMS, keeper, junk), keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
@@ -629,29 +621,7 @@ def test_a_visit_with_room_predicts_no_miss_and_writes_nothing_without_a_run_dir
         done = town.visit()
 
     assert done.contract.misses == ()
-    assert 'Macro: town plan: predicts none (variant ruled, 2 moves)' in caplog.text
-    assert 'Macro: town plan: matched' in caplog.text
     assert 'visit snapshot' not in caplog.text
-
-
-def test_a_plan_that_fails_never_reaches_the_visit(monkeypatch, caplog):
-    import inventory_tracking.macros.townplan as townplan
-
-    def broken(snapshot, rulings):
-        raise ValueError('a bad plan')
-
-    monkeypatch.setattr(townplan, 'plan_visit', broken)
-    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
-    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, junk), keys=24), [OPEN_PAGE] * 6)
-    town = Town(monkeypatch, play, frozenset({11}))
-
-    with caplog.at_level('INFO'):
-        done = town.visit()
-
-    assert done.contract.misses == ()
-    assert town.sold == [11]
-    assert caplog.text.count('Macro: town plan: failed') == 1
-    assert 'Macro: town plan: matched' not in caplog.text
 
 
 # The player's rulings of 16:50 on 2026-10-18: the junk parked in the stash for a cube keeper, the stash full
@@ -690,8 +660,6 @@ def test_the_junk_holding_a_cube_keepers_way_is_parked_in_the_stash_and_sold_aft
     assert done.contract.in_stash == 0
     assert 'parked on page 5 for the stop: room for the cube' in caplog.text
     assert 'taken back from page 5 for Jamella' in caplog.text
-    assert 'Macro: town plan: predicts none (variant ruled' in caplog.text
-    assert 'Macro: town plan: matched' in caplog.text
     assert play.world.open_panels == ()
 
 
@@ -699,10 +667,11 @@ def test_the_1635_visit_with_no_page_for_the_fuscina_leaves_the_boots_waiting_in
     monkeypatch, caplog
 ):
     # 16:35:22 on 2026-10-18 (fixtures/visits/2026-10-18-163522.json): no shared page has a 2 x 4 for the Fuscina, so
-    # nothing is parked; the Boots stay in the cube, as the visit logged and the plan foresaw. Room on page 5 for them:
+    # nothing is parked; the Boots stay in the cube, as the visit logged. Room on page 5 for them:
     # no stash full (the loop goes on). Since 17:50 ("keeper can wait in cube") they wait for the next visit: named on
     # the contract as deferred, no miss, one line saying so
-    from tests.inventory_tracking.macros.test_townplan import fixture, load, path_of
+    from inventory_tracking.macros.visitlog import load
+    from tests.inventory_tracking.macros.test_visitlog import fixture, path_of
 
     start = fixture('1635')
     assert start.view is not None
@@ -722,7 +691,6 @@ def test_the_1635_visit_with_no_page_for_the_fuscina_leaves_the_boots_waiting_in
     assert done.contract.stash_full == ()
     assert 'parked on page' not in caplog.text
     assert 'Macro: stash: full' not in caplog.text
-    assert 'Macro: town plan: matched' in caplog.text
     assert sorted(town.sold) == sorted(start.junk)  # the Fuscina and the cube's junk, at Jamella
 
 
@@ -1050,3 +1018,73 @@ def test_a_refusal_with_the_stash_unread_is_no_full_stack_and_the_item_stays_car
     assert shard.txt not in done.full
     assert any(i.unit_id == 70 for i in carried(play).items)
     assert 'refused with the stash unread, kept carried, not counted full: Deep Worldstone Shard' in caplog.text
+
+
+# One short re-read before the scan, page after page (the player, 2026-10-19: "a quick re-read; the page-by-page scan
+# stays as the fallback but should rarely run")
+
+
+def flaky(town: Town, unread: int) -> list[int]:
+    """The stash view unread for its first `unread` reads, then as memory holds it; the reads counted."""
+    reads: list[int] = []
+
+    def view() -> StashView | None:
+        reads.append(len(reads))
+        return None if len(reads) <= unread else read(town.run)
+
+    town.hands = lambda: Hands(lambda: 'i', town.identify, lambda items: [], view)
+    return reads
+
+
+def test_a_stash_unread_for_a_moment_is_read_again_and_the_stop_goes_by_its_plan(monkeypatch, caplog):
+    # Unread at Cain and at the stash stop, read the next look: the planned put onto page 5, no scan
+    keeper = replace(thing(10, 'Ring', 6, 0), quality=4)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, keeper), keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play)
+    town.run = play.run()
+    reads = flaky(town, unread=2)
+
+    with caplog.at_level('INFO'):
+        done = visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.LEAVE)
+
+    assert caplog.text.count('Macro: stash: the view read on the second try') == 1
+    assert 'the stash is not read' not in caplog.text
+    assert 'still unread' not in caplog.text
+    assert play.stash_clicks == [(5, 10)]  # the plan's page, no other tried
+    assert play.page_items[5] == [10]
+    assert done.contract.misses == ()
+    assert len(reads) >= 3
+
+
+def test_a_stash_still_unread_after_the_re_read_is_scanned_page_by_page(monkeypatch, caplog):
+    from inventory_tracking.macros.visit import REREAD_SECONDS
+
+    keeper = replace(thing(10, 'Ring', 6, 0), quality=4)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, keeper), keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play)
+    town.run = play.run()
+    reads = flaky(town, unread=1_000)
+    play.stash_pages = None  # the pages take items by `stash_room`
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.LEAVE)
+
+    assert caplog.text.count('Macro: stash: the view still unread: page by page') == 1
+    assert 'Macro: town visit: the stash is not read: the scan, page after page' in caplog.text
+    assert 'read on the second try' not in caplog.text
+    assert [i.unit_id for i in play.stashed] == [10]  # the scan stored it
+    assert 3 <= len(reads) <= 3 + round(REREAD_SECONDS / 0.05) + 2  # Cain's, the stop's, the beat's few
+
+
+def test_a_stash_unread_with_nothing_to_put_in_is_not_read_again(monkeypatch, caplog):
+    # No keeper carried and no gold to deposit: no scan would run, so no re-read either
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS), keys=24), [OPEN_PAGE] * 6)
+    town = Town(monkeypatch, play)
+    town.run = play.run()
+    reads = flaky(town, unread=1_000)
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.LEAVE)
+
+    assert 'Macro: stash: the view' not in caplog.text
+    assert len(reads) == 2

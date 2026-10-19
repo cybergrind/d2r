@@ -802,7 +802,8 @@ class LiveSampler:
                     if self.clock() - self.slow_at >= SLOW_SECONDS:
                         self.slow_at = self.clock()
                         loot = self.loot(memory) if self.loot is not None else None
-                        belt = loot.belt if loot is not None else memory.belt()  # one walk of the items, not two
+                        # one walk of the items, not two; a belt with an item unread is not written
+                        belt = memory.belt() if loot is None else loot.belt if loot.belt_read else None
                         state = self.macro_state() if self.macro_state is not None else None
                         items = self.identify(memory, loot)
                         self.slow = (memory.operated(), memory.teleport(), belt, loot, state, items)

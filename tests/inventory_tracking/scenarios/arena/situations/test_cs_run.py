@@ -1,18 +1,15 @@
 """The whole Chaos Sanctuary run as a situation (cs_run.py; rca/2026-10-13/cs-run.md has the plays' table).
 
-Three kinds of test:
+Two kinds of test:
 
 - the fixture and the stage's additions (the client's sight, a potion from a kill, Diablo after the fifth seal,
   the stall's end, the tracker's memory), each without a play of the macro;
-- **what today's code comes to** (seed 3, the catalog's): plain asserts that pin the state of 2026-10-13 and are
-  to be moved when the code moves, each said so where it stands;
-- the requirement (user, 2026-10-13: "one press of KP_1, then it runs the whole level automatically") as strict
-  expected failures, by today's keys and by the pursuit loop.
+- the requirement (user, 2026-10-13: "one press of KP_1, then it runs the whole level automatically") by the
+  pursuit loop (seed 3, the catalog's). The pursuit-off ("today") plays were deleted on the player's ruling of
+  2026-10-19: the loop no longer uses that mode.
 
-Cost: a play that stalls is over in about 3 s of wall time, the two that die in 5 and 10; the one long play
-kept here (the recording's own presses by today's keys, to the play's end) takes about 30 s. The package has no
-mark for slow tests, so all of them run: about 55 s for the file. The three longest plays are an `xdist_group`
-each (`-n auto --dist loadgroup`, tests/inventory_tracking/conftest.py): they run on workers of their own.
+The pursuit loop's play is one `xdist_group` (`--dist loadgroup`, tests/inventory_tracking/conftest.py), made
+once for the tests that read it.
 """
 
 import functools
@@ -28,14 +25,10 @@ from inventory_tracking.terror.tracker import HELD_RANGE
 from tests.inventory_tracking.scenarios.arena.situations import cs_run
 from tests.inventory_tracking.scenarios.arena.situations.catalog import SEED, catalog
 from tests.inventory_tracking.scenarios.arena.situations.cs_run import (
-    ALONE,
-    EMPTY,
     FULL,
-    HELD,
     LINGER,
     NAME,
     ONCE,
-    RECORDED,
     ROUTE,
     SIGHT,
     STALL,
@@ -54,7 +47,7 @@ from tests.inventory_tracking.scenarios.arena.situations.stage import GAME_AWARE
 
 
 SEAL_MARKS = ('Vizier seal 1', 'Vizier seal 2', 'De Seis seal', 'Infector seal 1', 'Infector seal 2')
-TODAY, NEW = 0, 1  # the index of a logic in `pair`
+NEW = 1  # the index of the pursuit loop's variant in `pair`
 
 
 @functools.cache
@@ -69,10 +62,8 @@ def play_of(way: str, staff: str, logic: int, seed: int = SEED) -> Score:
     return watched(way, staff, logic, seed)[0]
 
 
-# The longest plays, one `xdist_group` each with the tests that read them (`--dist loadgroup`).
+# The longest play, an `xdist_group` with the tests that read it (`--dist loadgroup`).
 PURSUIT_LOOP = pytest.mark.xdist_group('cs-run: the pursuit loop')
-HELD_EMPTY = pytest.mark.xdist_group('cs-run: the key held, the staff empty')
-RECORDED_EMPTY = pytest.mark.xdist_group("cs-run: the recording's presses")
 
 
 def hostiles(run: Run) -> list:
@@ -280,94 +271,7 @@ def test_the_memory_is_the_trackers_explored_rooms_and_monsters_last_seen() -> N
     assert far.unit_id not in {unit for unit, *_ in memory.remembered(108)}
 
 
-# -- the plays: what today's code comes to (seed 3; pins of 2026-10-13, to be moved with the code) --------------
-
-
-def test_today_one_press_of_the_pickup_key_fights_what_is_near_and_stands() -> None:
-    """Pins today's state (the pursuit off): KP_1 turns attack mode on with its sweep, the sweep takes one step to
-    the pack by the entrance, the fight there ends with "Nothing left in reach" and nothing follows: no hostile is
-    within the sweep's 60 units, no route stage is the pickup key's. The play is ended as a stall. With the
-    pursuit on the same press is a level run (the requirement below, rca/2026-10-13/kp1-level-run.md)."""
-    found = play_of(ONCE, FULL, TODAY)
-    assert found.ended == 'stalled'
-    assert found.seconds < STALL + 10.0
-    assert (found.stage, found.stages_done) == (ROUTE[0], 0)
-    assert all(at is None for at in found.seals.values())
-    assert 1 <= found.kills <= 4
-    assert found.attack_mode  # the mode is still on: it waits where it stands
-    assert found.nearest is not None
-    assert found.nearest[1] > 60.0  # hunt.py SWEEP_UNITS
-    assert found.moved < 40.0
-    assert found.dead_at is None
-
-
-def test_today_attack_mode_alone_never_leaves_the_entrance() -> None:
-    """Pins today's state: the mode goes nowhere. Since the casters think by the client's code (sim/casters.py,
-    2026-10-13: awake within 35, after the nearest body) the entrance's two Storm Casters come into the strike's
-    reach and die (before: 0 kills, 0 strikes, nothing came)."""
-    found = play_of(ALONE, FULL, TODAY)
-    assert (found.ended, found.kills, found.strikes, found.moved) == ('stalled', 2, 8, 0.0)
-    assert found.stage == ROUTE[0]
-
-
-def test_today_the_pickup_key_and_a_held_teleport_key_open_the_viziers_seals_and_die_without_a_strike() -> None:
-    """Pins today's state: with the staff full the held teleport key takes the route to the Vizier's two seals,
-    and no strike is ever cast: each press pauses attack mode and the quiet after it (runner.py TRAVEL_QUIET; the
-    strict expected failure of test_incident_kp4.py, here for a whole level). The pack kills the character."""
-    found = play_of(HELD, FULL, TODAY)
-    assert found.ended == 'dead'
-    assert found.strikes == 0
-    assert found.kills == 0
-    assert found.seals['Vizier seal 1'] is not None
-    assert found.seals['De Seis seal'] is None
-    assert found.bosses['Grand Vizier of Chaos'] is None
-    assert found.stages_done <= 2
-    assert found.charges > 5
-
-
-@HELD_EMPTY
-def test_today_with_the_staff_empty_the_held_teleport_key_opens_the_first_seal_and_dies_without_a_strike() -> None:
-    """Pins today's state. Since the navigation classes (2026-10-15, rca/2026-10-14/navigation-classes.md) the step
-    with the staff empty goes by the class in hand (hunting/moves.py `class_step`: the walked way, a Blade Warp over a
-    clear line), not toward a Teleport landing: it no longer stops on "no Blade Warp or walk leads toward Vizier seal 1"
-    by the star (before: six seeds of ten stalled there or in the entrance's hall, alive, one died on the way,
-    three opened the seal and died). It comes to Vizier seal 1 and opens it at about 21 s, and then dies as the
-    full staff's play does (`test_today_the_pickup_key_and_a_held_teleport_key_...`): today's held key pauses
-    attack mode at every press and nothing is ever struck (kp4-findings.md §2.4). All ten seeds alike, dead 25 to
-    32 s in; the pursuit loop's play (the live game's) kills Diablo at 235 s as before."""
-    found, outcome = watched(HELD, EMPTY, TODAY)
-    assert (found.ended, found.strikes, found.kills, found.charges) == ('dead', 0, 0, 0)
-    assert found.seals['Vizier seal 1'] is not None
-    assert found.seals['Vizier seal 1'] < 30.0
-    assert found.seals['Vizier seal 2'] is None
-    assert outcome.said_count('Blade Warp toward Vizier seal 1') >= 10
-    assert outcome.said_count('no Blade Warp or walk leads toward Vizier seal 1') == 0
-
-
-@RECORDED_EMPTY
-def test_today_the_recordings_own_presses_with_the_staff_empty_open_every_seal_and_die_at_diablo() -> None:
-    """The one long play (about 15 s of wall time). Pins today's state: the 251 presses of the real game (187
-    of the teleport key, 64 of the pickup key) played by today's keys. Since the navigation classes (2026-10-15,
-    rca/2026-10-14/navigation-classes.md: the step with the staff empty goes along the walked way by Blade Warp, not
-    toward a Teleport landing) they open the five seals by 173 s, ahead of the recording, and the Infector of Souls'
-    fight comes under its burst of teleport presses, each of which pauses attack mode (kp4-findings.md §2.4): the
-    character dies at 179 s. Before, the play's way ran behind and came to the route's end at 225 to 293 s by the
-    seeds' order. The pursuit loop's play of the same presses (the live game's) kills Diablo at 268 s, as before.
-    Since a Blade Warp lands where the least of the walked way is left in its reach (travel.py `landing_in_reach`,
-    2026-10-17), the seals are open by 162 s and the character comes on to Diablo, where it dies at 188 s."""
-    found = play_of(RECORDED, EMPTY, TODAY)
-    assert all(at is not None for at in found.seals.values())
-    assert max(at for at in found.seals.values() if at is not None) < 170.0
-    assert found.kills > 100
-    assert found.dead_at is not None
-    assert found.near[0] == 'Diablo'
-
-
-@pytest.mark.xfail(strict=True, reason='one press of the pickup key is one fight: nothing takes the route on (KP_1)')
-def test_one_press_of_the_pickup_key_clears_the_level_and_kills_diablo() -> None:
-    found = play_of(ONCE, FULL, TODAY)
-    assert found.done
-    assert found.dead_at is None
+# -- the plays: the pursuit loop (the live game's) -----------------------------------------------------
 
 
 @PURSUIT_LOOP

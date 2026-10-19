@@ -105,7 +105,7 @@ def test_native_manald_contracts_do_not_mix_seasonal_listings(compiled, tmp_path
     import json
 
     from pricing.knowledge.assessment.comparables import evaluate
-    from pricing.knowledge.assessment.maintenance.fixed_jewelry_market_review import native_jewelry_contract
+    from tests.pricing.knowledge.assessment.jewelry_contracts import native_jewelry_contract
 
     path = tmp_path / 'definitions.json'
     path.write_text(json.dumps(compiled))

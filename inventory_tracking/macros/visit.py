@@ -22,7 +22,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
-from inventory_tracking.macros import townplan, visitlog
+from inventory_tracking.macros import visitlog
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cain import CAIN
@@ -84,7 +84,6 @@ from inventory_tracking.macros.stash import (
 from inventory_tracking.macros.town import (
     BER,
     KEEPER_IN_CUBE,
-    PARK_JUNK,
     RUNES_A_TAKE,
     RUNES_AIM,
     RUNES_TAB,
@@ -726,6 +725,19 @@ def _cubable(carried: Sequence[Carried], full: frozenset[int]) -> bool:
     return any(count >= GEMS_A_TRANSMUTE for count in kinds.values())
 
 
+# Most unread views are a momentary bad read: one short re-read before the scan, page after page (the player,
+# 2026-10-19: "a quick re-read; the page-by-page scan stays as the fallback but should rarely run")
+REREAD_SECONDS = 0.2  # about five game frames
+
+
+def _reread(run: Run, hands: Hands) -> StashView | None:
+    """The stash view read again within REREAD_SECONDS; None: still unread."""
+    view = until(run, lambda _view: True, REREAD_SECONDS, read=hands.view)
+    said = 'read on the second try' if view is not None else 'still unread: page by page'
+    LOG.info('Macro: stash: the view %s', said)
+    return view
+
+
 def _stash(
     run: Run,
     hands: Hands,
@@ -750,7 +762,15 @@ def _stash(
         record.gold(coins, cap)
     gold_to = deposit_to(coins, cap, cost or 0)
     view = hands.view()
+    stay = (
+        waiting
+        | junk
+        | frozenset(i.unit_id for i in (*pack.items, *pack.in_cube) if i.txt in full and i.txt not in sold_full(full))
+    )
+    nothing = all(i.unit_id in stay for i in (*loot(pack, own), *pack.in_cube)) and gold_to is None
     try:
+        if view is None and not nothing:
+            view = _reread(run, hands)
         if view is not None:
             planned = plan_stop(Holdings(pack, own, junk, waiting), view, needs, deposit_to=gold_to)
             if plans is not None:
@@ -764,14 +784,7 @@ def _stash(
                 return full
             stash_stop(run, planned, inventory_key=key, own=own, memory=memory)
         else:
-            stay = (
-                waiting
-                | junk
-                | frozenset(
-                    i.unit_id for i in (*pack.items, *pack.in_cube) if i.txt in full and i.txt not in sold_full(full)
-                )
-            )
-            if all(i.unit_id in stay for i in (*loot(pack, own), *pack.in_cube)) and gold_to is None:
+            if nothing:
                 return full
             LOG.info('Macro: town visit: the stash is not read: the scan, page after page')
             tried = set(sold_full(full))
@@ -843,7 +856,8 @@ def _repair_due(run: Run, waited: bool) -> bool:
     return due(staff, wear, gold(run), top_up=tops_up(staff, True, False), waited=waited)
 
 
-# The visit's snapshots and its shadow plan (rca/2026-10-18/arch-town-planning.md §4): no clicks, no reads, never raise
+# The visit's snapshots (rca/2026-10-18/arch-town-planning.md §4): no clicks, no reads, never raise. The shadow planner
+# (townplan.py) that replayed them was removed 2026-10-19 (the player: "delete it"; 87 of 88 matched)
 
 
 def _note(
@@ -860,41 +874,10 @@ def _note(
     if not record.active or pack is None:
         return
     try:
-        record.note(replace(start, stop=stop, pack=pack, view=view, full=full, misses=misses, predicted=None, at=''))
+        record.note(replace(start, stop=stop, pack=pack, view=view, full=full, misses=misses, at=''))
     except Exception as error:  # never into the visit
         record.failed = True
         LOG.info('Macro: visit snapshot: not made: %s', error)
-
-
-def _predict(start: Snapshot) -> townplan.VisitPlan | None:
-    """The visit simulated from its start (townplan.py `plan_visit`) under the visit's rulings, its misses logged;
-    never raises."""
-    try:
-        rulings = townplan.Rulings(park_junk=PARK_JUNK, jamella_first=JAMELLA_FIRST, keeper_in_cube=KEEPER_IN_CUBE)
-        plan = townplan.plan_visit(start, rulings)
-        if plan is None:
-            LOG.info('Macro: town plan: no prediction: the stash is not read')
-        else:
-            LOG.info('Macro: town plan: predicts %s', plan.said())
-        return plan
-    except Exception as error:  # never into the visit
-        LOG.info('Macro: town plan: failed: %r', error)
-        return None
-
-
-def _matched(plan: townplan.VisitPlan | None, done: Contract) -> None:
-    """Log whether the visit's misses (those townplan.MODELLED covers) are the ones the plan foresaw; never raises."""
-    if plan is None:
-        return
-    try:
-        modelled = [miss for miss in done.misses if townplan.kind_of(miss) in townplan.MODELLED]
-        if townplan.kinds(plan.misses) == townplan.kinds(modelled):
-            LOG.info('Macro: town plan: matched')
-        else:
-            LOG.info('Macro: town plan: differs: predicted %s; the visit %s', '; '.join(plan.misses) or 'none',
-                     '; '.join(modelled) or 'none')  # fmt: skip
-    except Exception as error:  # never into the visit
-        LOG.info('Macro: town plan: not compared: %r', error)
 
 
 # Jamella before the stash for a cube keeper stranded by junk: off until the player rules (asked 2026-10-18 15:06)
@@ -960,8 +943,7 @@ def visit(
     record = Recorder(visitlog.session_directory())
     start = Snapshot('start', pack, own, needs, exit, view, junk, frozenset(i.unit_id for i in _unknown(pack, own)),
                      stacks)  # fmt: skip
-    predicted = _predict(start)
-    record.note(replace(start, predicted=predicted.misses if predicted is not None else None))
+    record.note(start)
     failed, repaired = False, False
 
     def jamella(stacks: frozenset[int], *, stock: bool) -> bool:
@@ -1087,6 +1069,5 @@ def visit(
         'clear' if not done.parked_on_ground else f'{done.parked_on_ground} left', run.clock() - began,
         ', '.join(f'{stop} {took[stop]:.1f}' if stop in took else f'{stop} -' for stop in STOPS),
     )  # fmt: skip
-    _matched(predicted, done)
     run.say(f'Town: cube {done.cube}, junk left {done.junk_left}, keys {done.keys}')
     return Visited(done, stacks, failed, tuple((stop, took[stop]) for stop in STOPS if stop in took))

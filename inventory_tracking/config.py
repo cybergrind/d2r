@@ -420,7 +420,8 @@ class AppraisalConfig(Config):
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
-    # Seconds between `around` events: the monsters within a screen with the player's life (terror/exposure.py).
+    # Seconds between `around` events: the monsters within a screen with the player's life (danger-plan.md R4;
+    # its statistics script, terror/exposure.py, is in git history).
     terror_around_seconds: Positive = 1.0
     elite_line: bool = True  # the level's elite groups killed, alive and expected on the Terror card (terror/elites.py)
     danger_marks: bool = True  # deadly packs: own map dots, ground marks and a warning row (terror/danger.py)

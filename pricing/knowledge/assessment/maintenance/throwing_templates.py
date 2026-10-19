@@ -1,11 +1,13 @@
 """Reviewed named throwing weapons: quantity recovery is not melee repair."""
 
+from typing import Any
+
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.assessment.maintenance.native_membership import named_base_condition
 from pricing.knowledge.definition_store import catalog
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'The Scalper': {
         'class': 'Barbarian',
         'sustain': 'replenishes',
@@ -151,7 +153,7 @@ def expand_named_throwing(row):
         raise ValueError('Exact ethereal alternative requires the reviewed Double Throw build')
     if member['sustain'] == 'throwing_mastery' and row['build'] != 'double-throw-barbarian-guide':
         raise ValueError('Throwing Mastery sustain requires the reviewed Double Throw build')
-    must = [
+    must: list[dict[str, Any]] = [
         {'op': 'context_eq', 'field': 'player_class', 'value': row['class']},
         named_base_condition(name, 'unique'),
         *[

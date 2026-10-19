@@ -9,6 +9,7 @@ import json
 from collections import Counter
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.named_evidence import index_evidence
 from pricing.knowledge.assessment.maintenance.review_queue import review_queue
@@ -52,7 +53,7 @@ def audit_named(
     indexed = {source_identity(k, r): k for k, r in research.items() if isinstance(r, dict) and r.get('name')}
     evidence = index_evidence(definitions, demand, recommendations, item_facts)
     market = {(row['quality'], row['name']): row for row in market_readiness['items']} if market_readiness else {}
-    rows = []
+    rows: list[dict[str, Any]] = []
     for identity, definition in sorted(definitions.items()):
         quality, name = identity
         records = definition_variants((variants or {}).get(identity, [definition]))

@@ -76,8 +76,8 @@ class Drinker:
             return None
         self.looked_at = now
         loot = self.last = run.loot()
-        if not loot.max_life or not loot.life:
-            return None  # unread, or dead
+        if not loot.max_life or not loot.life or not loot.belt_read:
+            return None  # unread, or dead; a belt item unread: as no look, as before 2026-10-19
         self.readings.append(Reading(now, float(loot.life), float(loot.max_life)))
         while now - self.readings[0].at > KEPT:
             self.readings.popleft()

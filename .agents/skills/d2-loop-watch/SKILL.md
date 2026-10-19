@@ -65,7 +65,7 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
    `vendor` ("do not sell own equipment or valuable items"). A rare amulet with +FCR, +2 skills or +life is kept
    (`keepers.py`, whatever the appraisal says: two were sold at 03:48 on 2026-10-19); a high vendor price alone is no
    reason to keep. Never a Ber Rune in a transmute (Enigma).
-5. **The town visit** (`town visit` leg, macros/visit.py, town.py, townplan.py) only when the room runs low
+5. **The town visit** (`town visit` leg, macros/visit.py, town.py) only when the room runs low
    (`town.TRADE_ROOM`); it leaves keepers stashed, junk sold (junk may be parked on a stash page and sold after), keys
    and scrolls refilled, the staff repaired if the carried gold covers it, **the cube empty, a 2x4 block free**. The
    stash once a visit, no running back and forth. A keeper with a page but no way out waits in the cube
@@ -94,7 +94,7 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
 | The service's routines, stops and recoveries, watchdogs | `runner.py` (`_loop_stopped`, `classify`, `_fetch`, `_go_back`, the LOOP closures); the stop rules in their order: `stops.py` (`first`, `decide`, `ROOM_CAUSES`) |
 | Level run, fight, side goals, pickups on the way | `hunt.py` (`Hunter`, the fight), `hunting/` (`choice.py` `side_drop`, `on_the_way`; `judging.py` `judge`), `pursuit.py` (`RUSH_THE_BOSS`), `buffs.py` (`QUIET_BY_THE_BOSS`) |
 | Pickup and what is valuable | `pickup.py`, `pickmode.py`, `lootpolicy.py` (`verdict`, hold classes), `sightings.py` (remembered drops) |
-| Town visit and its plan | `visit.py` (`visit`, `_cube_runes`, `JAMELLA_FIRST`), `town.py` (`contract`, `rune_transmutes`, `PARK_JUNK`, `KEEPER_IN_CUBE`, `RUNE_TRANSMUTES`), `townplan.py` (shadow planner: "town plan: matched"), `visitlog.py` (snapshots in `<session>/visits/`) |
+| Town visit | `visit.py` (`visit`, `_cube_runes`, `JAMELLA_FIRST`, `REREAD_SECONDS`: one short stash re-read before the page-by-page scan), `town.py` (`contract`, `rune_transmutes`, `PARK_JUNK`, `KEEPER_IN_CUBE`, `RUNE_TRANSMUTES`), `visitlog.py` (snapshots in `<session>/visits/`; the shadow planner townplan.py was removed 2026-10-19) |
 | Cube, stash, shop, repair, Cain | `cube.py` (`data/rune_cube.json` from `build_rune_cube.py`), `stash.py`, `shop.py`, `repair.py`, `cain.py`, `copies.py` |
 | Game reads, keys, Save and Exit | `game/` (`records.py` `World`, `memory.py` `GameMemory`, `decode.py`, `layout.py`), `routines.py` (`show_items_on`, Save and Exit, prebuff), `actuator.py` (`Abort(cause=)`) |
 | Log words the tools read | `.agents/skills/d2-loop-watch/tools/logwords.py`, pinned by `tests/skills/test_loop_watch_lines.py` |
@@ -145,7 +145,7 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 | `MISSED: game N, <item> ...` | Hard rule 1: trace it at once (the sighting, every `pickup:` / `aims for` / `remembered` / `gone back for it`, where the run went) and **Fix** before speed work. A MISSED right after `PLAYER: loop off` / `loop on` (`game None`) is usually the player's own pickup by hand: check the next `carried at its first look` line for the item before calling it lost. |
 | `identify: appraised ...` / `copies: keep\|sell` / `shop: sold ...` | Rule 4: each sale must be `vendor` and not the best copy; check the gold goes into the carried gold (`carried gold A -> B after the sales`). |
 | `ERROR Shop check failed ... Shop stock changed during scan` | Harmless: the HUD's shop card raced the loop's sale (a skip is queued). Any other `Traceback` / `ERROR` / `Macro failed`: **Fix**. |
-| `trade session done[ (short of the contract: …)]` | Every part must hold (cube 0, block 2x4 free, junk left 0, keys, ground clear); "short of the contract" is a **Fix**. `town plan: matched` expected; `predicts …` that differs is a planner finding for the journal. |
+| `trade session done[ (short of the contract: …)]` | Every part must hold (cube 0, block 2x4 free, junk left 0, keys, ground clear); "short of the contract" is a **Fix**. `stash: the view still unread: page by page` (the slow scan) should be rare; often is a finding. |
 | `cube: three X Rune [and a <gem>] into a Y Rune ...`, `runes cubed`, `not cubed: ...` | Rune stacks over 80 cubed toward 80 (3 a visit, gem recipes with the gem from the Gems tab by Ctrl+Shift+left click). `not taken into the cube` or a non-empty cube after: **Fix**. |
 | `Show Items was off before the level run: turned on` / `Show Items stays off` | Rule 2. The second stops the run: check `osd.log` and the key binding. |
 | `PLAYER: loop off` | Rule 7. Say where any valuable lies; finish notes; keep watching. |

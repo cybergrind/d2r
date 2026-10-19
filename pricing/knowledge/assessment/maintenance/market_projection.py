@@ -3,6 +3,7 @@
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.items.stat_constants import CLASS_NAMES, SKILL_TABS
 from inventory_tracking.items.stats import StatContext, decode_stat
@@ -18,7 +19,7 @@ LABEL_ALIASES = {
 }
 
 
-def compile_projection(metadata, properties):
+def compile_projection(metadata, properties) -> dict[str, Any]:
     labels = {}
     for key, prop in properties.items():
         if prop.get('types') != ['number']:

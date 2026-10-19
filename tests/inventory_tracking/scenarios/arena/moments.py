@@ -10,7 +10,7 @@ from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.takes.takes import PlayerRow, Take, monsters_of, player_of
 
 
-BURST_SHARE = 0.3  # of the most life (inventory_tracking/terror/bursts.py SHARE)
+BURST_SHARE = 0.3  # of the most life (danger-plan.md R4: terror/bursts.py SHARE, in git history)
 BURST_WINDOW = 1.0  # seconds (bursts.py WINDOW)
 POTIONS = 3  # belt keys ...
 POTIONS_WINDOW = 10.0  # ... within this many seconds

@@ -29,7 +29,7 @@ dev = [
 line-length = 120
 target-version = 'py315'
 indent-width = 4
-exclude = ['.venv', '.git']
+exclude = ['.venv', '.git', 'pricing/archive']
 
 [tool.ruff.format]
 quote-style = 'single'
@@ -85,10 +85,9 @@ markers = ['slow: a full arena play (tests/inventory_tracking/scenarios/conftest
 
 [tool.pyrefly]
 project-includes = ['inventory_tracking', 'pricing', 'tests']
-# The frozen assessment maintenance modules wait for the archive ruling (cleanup-plan.md, rulings 2).
+# The frozen pricing work is archived, unchecked (the player, 2026-10-19).
 project-excludes = [
-  '**/__pycache__', '.venv', 'inventory_tracking/runs', 'pricing/raw', 'pricing/data',
-  'pricing/knowledge/assessment/maintenance',
+  '**/__pycache__', '.venv', 'inventory_tracking/runs', 'pricing/raw', 'pricing/data', 'pricing/archive',
 ]
 python-version = '3.14'
 preset = 'default'

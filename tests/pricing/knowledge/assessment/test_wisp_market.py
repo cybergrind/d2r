@@ -107,7 +107,7 @@ def test_complete_native_wisp_matches_cached_rows_with_and_without_fixed_skills(
     from pathlib import Path
 
     from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
-    from pricing.knowledge.assessment.maintenance.fixed_jewelry_market_review import native_jewelry_contract
+    from tests.pricing.knowledge.assessment.jewelry_contracts import native_jewelry_contract
 
     # Native skill IDs verified against the local decoder metadata; charges use
     # the game's packed remaining/capacity representation, not passive bonuses.

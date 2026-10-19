@@ -52,14 +52,3 @@ def test_conflicting_scope_facets_and_modifiers_remain_rejected(extra):
 def test_sets_and_quest_only_catalogs_do_not_inherit_material_facts(name):
     row = imported(name, 'fixture')
     assert row.get('facet_basis', {}).get('base_code', {}).get('kind') != 'native_recipe_material'
-
-
-def test_review_queries_localized_catalog_but_retains_native_identity():
-    from pricing.knowledge.assessment.maintenance.quest_material_market_review import REVIEW
-
-    rows = [imported('Charged Essence of Hatred', str(i)) for i in range(3)]
-    records = REVIEW.audit(rows, date(2026, 9, 28))
-    record = next(r for r in records if r['base_code'] == 'ceh')
-    assert record['name'] == 'Charged Essense of Hatred'
-    assert record['cached_observations'] == 3
-    assert record['price']['estimate_ist'] == 1  # Synthetic asks only.

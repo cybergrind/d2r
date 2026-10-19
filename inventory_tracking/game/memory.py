@@ -148,6 +148,29 @@ CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`Game
 UNPLACED_GOLD: set[int] = set()  # gold piles `loot` said it left out for an unread place: said once a pile
 
 
+def belt_cells(read, items: list[dict], owner: int) -> tuple[tuple[int | None, ...], bool]:
+    """The item class in each belt cell of `owner`'s (None: empty), and whether every belt item was read. One that
+    is not is left out and the belt is unknown for the look (the player, 2026-10-19: "skip the bad potion, keep
+    the ground drops, and mark the belt as 'unread'"): it used to empty the whole look."""
+    cells: list[int | None] = [None] * BELT_SIZE
+    whole = True
+    for unit in items:
+        if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
+            continue
+        try:
+            if struct.unpack_from('<I', read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != owner:
+                continue
+            cell = struct.unpack_from('<H', read(unit['path_pointer'], 0x18), 0x10)[0]
+        except OSError, ValueError, struct.error:
+            if whole:
+                LOG.info('Macro: belt: item %d unread: the belt is unread this look', unit['unit_id'])
+            whole = False
+            continue
+        if cell < BELT_SIZE:
+            cells[cell] = unit['txt_id']
+    return tuple(cells), whole
+
+
 def _unit_of(walk: dict, player: Player) -> dict | None:
     """The character's unit among the walked player units; None when the walk did not find it."""
     return next((unit for unit in walk['units'] if unit['unit_id'] == player.unit_id), None)
@@ -253,17 +276,9 @@ class GameMemory:
             player = self._player()
             if player is None:
                 return None
-            cells: list[int | None] = [None] * BELT_SIZE
             heads = struct.unpack('<128Q', self.read(self.table + ITEM_UNIT * 1024, 1024))
-            for unit in walk_units(self.read, heads, ITEM_UNIT)['units']:
-                if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
-                    continue
-                if struct.unpack_from('<I', self.read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != player.unit_id:
-                    continue
-                cell = struct.unpack_from('<H', self.read(unit['path_pointer'], 0x18), 0x10)[0]
-                if cell < BELT_SIZE:
-                    cells[cell] = unit['txt_id']
-            return tuple(cells)
+            cells, whole = belt_cells(self.read, walk_units(self.read, heads, ITEM_UNIT)['units'], player.unit_id)
+            return cells if whole else None
         except OSError, ValueError, struct.error:
             return None
 
@@ -505,21 +520,13 @@ class GameMemory:
                         kind,
                     )
                 )
-            belt: list[int | None] = [None] * BELT_SIZE
-            for unit in items:
-                if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
-                    continue
-                if struct.unpack_from('<I', read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != player.unit_id:
-                    continue
-                cell = struct.unpack_from('<H', read(unit['path_pointer'], 0x18), 0x10)[0]
-                if cell < BELT_SIZE:
-                    belt[cell] = unit['txt_id']
+            belt, belt_read = belt_cells(read, items, player.unit_id)
             stats = unit_stats(read, player.stats_at) if player.stats_at else {}
             room, cube, held = carried_rows(read, _unit_of(players, player))
             carried = frozenset(unit['unit_id'] for unit in items if unit['address'] in held)
             return Loot(
                 tuple(drops),
-                tuple(belt),
+                belt,
                 stats.get(LIFE_STAT, 0) >> 8,
                 stats.get(MAX_LIFE_STAT, 0) >> 8,
                 room,
@@ -529,6 +536,7 @@ class GameMemory:
                 shown=frozenset(unit for unit, source in sources.items() if source == 'shown'),
                 carried=carried,
                 classes=tuple((drop.unit_id, classes[drop.unit_id]) for drop in drops if drop.unit_id in classes),
+                belt_read=belt_read,
             )
         except OSError, ValueError, struct.error:
             return Loot()

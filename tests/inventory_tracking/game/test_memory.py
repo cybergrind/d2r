@@ -299,6 +299,32 @@ def test_a_gold_pile_whose_place_is_unread_is_left_out_and_the_rest_of_the_look_
     ]  # once, not at every look
 
 
+def test_a_belt_item_that_is_unread_leaves_the_belt_unread_and_the_rest_of_the_look_kept(game, caplog):
+    # It used to empty the whole look, the ground drops with it (the player, 2026-10-19: "skip the bad potion, keep
+    # the ground drops, and mark the belt as 'unread' for that one look")
+    game.item(SUPER_HEALING, 128 * 24 + 8, BELT_ITEM_MODE, owner=PLAYER, path=UNMAPPED)
+    game.chain()
+    memory = game.game_memory()
+
+    with caplog.at_level('INFO'):
+        loot = look(memory)
+
+    assert loot.drops == LOOT_DROPS
+    assert not loot.belt_read
+    assert loot.belt == (None, None, FULL_REJUVENATION) + (None,) * 13  # the readable ones
+    assert (loot.life, loot.max_life, loot.game) == (900, 1200, ('cyber9', PLAYER))
+    assert [m for record in caplog.records if 'belt' in (m := record.getMessage())] == [
+        'Macro: belt: item 3080 unread: the belt is unread this look'
+    ]
+    assert memory.belt() is None  # the recorder's own read: unread too
+    assert look(game.game_memory()).belt_read is False  # the next look reads it again
+
+
+def test_a_belt_read_whole_is_read(game):
+    assert look(game.game_memory()).belt_read
+    assert game.game_memory().belt() == (None, None, FULL_REJUVENATION) + (None,) * 13
+
+
 def test_the_ground_classifiers_of_one_walk_give_what_their_own_walks_gave(game):
     read = game.memory.read
     on_ground = ground.on_ground(read, walked(read, TABLE, ITEM_UNIT)['units'])

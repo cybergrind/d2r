@@ -22,6 +22,7 @@ def native_cases(identity, definition):
     base = definition['base_definition']
     modifiers = {definition['game_definition'].get(f'prop{i}') for i in range(1, 13)}
     socket_range = definition.get('native_socket_range') or {}
+    native_sockets = socket_range.get('min', 0)
     item = ItemFacts(
         name,
         base['name'],
@@ -31,7 +32,7 @@ def native_cases(identity, definition):
         None,
         True,
         'ethereal' in modifiers,
-        socket_range.get('min', 0),
+        native_sockets,
         'empty',
         [],
         True,
@@ -57,7 +58,9 @@ def native_cases(identity, definition):
     if base.get('durability', 0) > 0 and not base.get('nodurability'):
         yield (
             'filled_socket_unknown_contribution',
-            replace(item, sockets=max(1, item.sockets), socket_contents='filled', filled_sockets=max(1, item.sockets)),
+            replace(
+                item, sockets=max(1, native_sockets), socket_contents='filled', filled_sockets=max(1, native_sockets)
+            ),
         )
         if quality == 'unique' and 'indestruct' not in modifiers and 'ethereal' not in modifiers:
             yield 'ethereal', replace(item, ethereal=True)

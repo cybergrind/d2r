@@ -28,7 +28,7 @@ AIM_TRIES = 3
 
 # Why a macro stopped, for the KP_6 loop's stop rules (runner.py `classify`): the player's hand, a Gheed's Fortune
 # carry-one refusal, no inventory room, the watchdog's stand, a keeper no stash page takes, hit outside a fight
-# (loop.py `beset`), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
+# (fought back or left: stops.py `first`), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
 Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'other']
 
 

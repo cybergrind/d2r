@@ -51,8 +51,8 @@ def worth(count: int, reserve: int, seconds: float) -> float:
 
 
 def unread(loot: Loot) -> bool:
-    """Whether the belt is not known: no life read, or no game it is of."""
-    return not loot.max_life or loot.game is None
+    """Whether the belt is not known: no life read, no game it is of, or a belt item unread (`Loot.belt_read`)."""
+    return not loot.max_life or loot.game is None or not loot.belt_read
 
 
 def low(loot: Loot) -> tuple[str, ...]:
@@ -135,8 +135,8 @@ class Potions:
                 del self.seen[unit]
                 self.fates[unit] = 'gone'
         healing = on_belt(loot)[PotionType.HEALING]
-        if not loot.max_life:
-            return None  # an unread belt is no fall
+        if not loot.max_life or not loot.belt_read:
+            return None  # an unread belt is no fall; the next read one is compared with the last read
         if self.healing is not None and healing < self.healing:
             by = 'the macro' if 0.0 <= now - pressed <= DRUNK_BY else 'not the macro (the healer or a hand)'
             self.gone.extend((now, by) for _ in range(self.healing - healing))

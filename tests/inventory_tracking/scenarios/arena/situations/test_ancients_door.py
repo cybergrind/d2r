@@ -4,7 +4,8 @@
 into the pocket D, 43 units from the door in a straight line and 276 by the walked way, and stopped there on "no Blade
 Warp or walk leads toward Icy Cellar" three times. Played on that ground before the navigation classes, the key held
 from D moved nothing (149 such stops in 25 s) and from B walked into D. Each press now goes by the class in hand (the
-walked way, a Blade Warp over a clear line where it beats the walk), by the pursuit loop as by today's keys."""
+walked way, a Blade Warp over a clear line where it beats the walk), by the pursuit loop (the pursuit-off variant
+was deleted 2026-10-19)."""
 
 import functools
 import math
@@ -51,11 +52,10 @@ def test_the_moment_is_the_takes() -> None:
 
 
 @pytest.mark.xdist_group('ancients: the door')
-@pytest.mark.parametrize('logic', ['today', 'new'])
 @pytest.mark.parametrize('start', ['D', 'B'])
-def test_the_held_key_comes_to_the_door_along_the_walked_way(start: str, logic: str) -> None:
+def test_the_held_key_comes_to_the_door_along_the_walked_way(start: str) -> None:
     for seed in SEEDS:
-        watch = pressed(start, logic, seed)
+        watch = pressed(start, 'new', seed)
         outcome = watch.outcome
         assert not outcome.dead, seed
         assert not [text for _, text in outcome.said if STOP in text], seed

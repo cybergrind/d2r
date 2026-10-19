@@ -36,6 +36,6 @@ navigation map for a new session, not a duplicate status log.
 
 Historical documents are labeled at their entry. Read them for a specific incident,
 source or design decision; their old “next” instructions do not start new work.
-`handoff.md` and assessment `STATUS.md` remain frozen. Keep current behavior in the
+The frozen `handoff.md` and assessment `STATUS.md` are archived in `pricing/archive/2026-10-19/`. Keep current behavior in the
 area guide and dated evidence in its history, so corrections replace stale claims
 instead of accumulating contradictory updates in an entry point.

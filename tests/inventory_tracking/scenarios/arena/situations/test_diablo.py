@@ -47,11 +47,11 @@ def test_pricing_his_stream_halves_what_it_takes_at_little_cost_in_time():
 
 
 def test_attack_mode_alone_steps_across_his_lightning_and_strikes_on():
-    """rca/2026-10-14/baal-sim.md fix 3: with the pursuit loop off, attack mode takes the loop's priced step across
-    his stream (hunting/judging.py `guard`), then strikes again; it does not wander. Seed 1 held through it before: 295
-    of his lightning, not a unit moved."""
-    situation, presses = {label: (s, p) for label, s, p in diablo.variants()}['attack mode alone: today']
-    assert not situation.pursuit
+    """rca/2026-10-14/baal-sim.md fix 3: attack mode takes the loop's priced step across his stream
+    (hunting/judging.py `guard`), then strikes again; it does not wander. Seed 1 held through it before: 295 of his
+    lightning, not a unit moved. By the pursuit loop since the pursuit-off variants went (2026-10-19)."""
+    situation, presses = {label: (s, p) for label, s, p in diablo.variants()}['attack mode alone: new']
+    assert situation.pursuit
     outcome = situation.play(presses, seed=1)
     assert outcome.said_count("Stepping across Diablo's lightning") >= 1
     assert outcome.taken_by()['Diablo', 'spell'] < 150

@@ -3,6 +3,7 @@
 import json
 from collections import defaultdict
 from functools import lru_cache
+from typing import Any
 
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.artifacts import read_artifact
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.base_use import UTILITY
 from pricing.knowledge.assessment.maintenance.native_membership import unique_base_condition
 
 
-MEMBERS = {
+MEMBERS: dict[str, dict[str, Any]] = {
     'Wealth': {
         'role': 'Mercenary Find armor alternative',
         'kind': 'runeword',
@@ -209,7 +210,7 @@ def expand_merc_survival(row):
     member = MEMBERS[name]
     if row['slot'] != ('Body Armor' if member['types'] == ['tors'] else 'Helmet'):
         raise ValueError('Mercenary survival template has the wrong equipment slot')
-    must = [
+    must: list[dict[str, Any]] = [
         {'op': 'context_eq', 'field': 'player_class', 'value': row['class']},
         {'op': 'fact_eq', 'field': 'identified', 'value': True},
     ]

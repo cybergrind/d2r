@@ -139,6 +139,21 @@ def test_a_loot_of_no_known_game_is_passed_as_read_and_the_belt_kept_as_it_was(l
     assert choose(kept.see(Loot((CS_NEAR,), CS_DRY, 1807, 1818, game=('cs-3', 7))), CS_HERE) is None
 
 
+def test_an_unread_belt_is_unknown_not_short_no_potion_is_taken_or_drunk_for_it(learned):
+    # A belt item unread leaves its cell out (game/memory.py `belt_cells`; the player, 2026-10-19): the dry
+    # columns may be the unread cells, so no refill starts from them and the columns learn nothing.
+    kept = kept_belt(CS_ENTRY)
+    before = kept.columns
+    unread = Loot((CS_FURTHER, CS_NEAR), CS_DRY, 1807, 1818, game=CS_GAME, belt_read=False)
+    assert kept.see(unread) is unread
+    assert kept.columns is before
+    assert choose(replace(unread, columns=before), CS_HERE) is None
+    assert choose(replace(unread, columns=before, belt_read=True), CS_HERE) == Plan(CS_NEAR)  # read: it is short
+    hurt = Loot((HP_NEAR,), FULL, 600, 1000, belt_read=False)
+    assert choose(hurt, ORIGIN) is None  # no drink to make room either
+    assert choose(replace(hurt, belt_read=True), ORIGIN) == Plan(HP_NEAR, '1')
+
+
 def test_by_the_default_layout_a_new_games_dry_healing_columns_want_a_healing_potion():
     # The player's layout (2026-10-13): columns 3-4 are healing whatever this game has seen of them; the belt
     # carries over between games, the learned kinds do not.

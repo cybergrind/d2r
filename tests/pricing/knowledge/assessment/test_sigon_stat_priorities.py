@@ -5,7 +5,6 @@ import pytest
 
 from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
-from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.fact_changes import fact_changes
@@ -84,10 +83,3 @@ def test_sigon_attack_rating_marker_preserves_companions_and_helmet_payload(slug
             assert not evaluate(
                 replace(item, socket_items=[], stats={**item.stats, '93:0': {'status': 'decoded', 'value': 15}})
             ).annotations
-
-
-def test_sigon_wrap_enables_combination_without_inventing_stat_priority():
-    document = build()
-    reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_dispositions.json').read_text())
-    result = validate_stat_dispositions(reviews, document, root=ROOT)
-    assert result["berserk-barbarian-starter-set-Sigon's Wrap"]['state'] == 'excluded'

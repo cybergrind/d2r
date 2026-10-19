@@ -8,6 +8,7 @@ import hashlib
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.guide_spans import occurrence_source
 
@@ -16,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[4]
 SCOPE = ('build', 'variant', 'side', 'slot')
 
 
-def audit_occurrences(occurrences, profiles):
+def audit_occurrences(occurrences, profiles) -> dict[str, Any]:
     index = defaultdict(list)
     source_keys = {profile['id']: occurrence_source(profile['source']) for profile in profiles}
     for profile in profiles:

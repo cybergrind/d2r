@@ -67,32 +67,9 @@ def test_ladder_profile_is_archived_but_not_a_runtime_candidate(tmp_path):
     assert {r['id'] for r in selected} == {active['id']}
 
 
-def test_ladder_exclusion_requires_pinned_ladder_source(tmp_path):
-    from pricing.knowledge.assessment.maintenance.value_scope import SCOPE, profile_fingerprint, use_exclusions
-
-    role = source_fixture(tmp_path, variant='Ladder', scope='softcore')
-    role['season'] = 'ladder'
-    row = {
-        'profile_id': role['id'],
-        'profile_sha256': profile_fingerprint(role),
-        'classification': 'ladder_only',
-        'reviewed_at': '2026-09-30',
-        'reason': 'Exact Ladder-only source use is outside the Non-Ladder task.',
-        'source': role['source'],
-        'quote': 'Facet',
-    }
-    review = {'schema_version': 1, 'scope': SCOPE, 'uses': [row]}
-    assert use_exclusions([role], review, tmp_path)['use:facet:unique']['state'] == 'excluded'
-    role = source_fixture(tmp_path, variant='Standard', scope='softcore')
-    role['season'] = 'ladder'
-    row.update(profile_sha256=profile_fingerprint(role), source=role['source'])
-    with pytest.raises(ValueError, match='Ladder'):
-        use_exclusions([role], review, tmp_path)
-
-
 def test_ladder_guide_use_cannot_default_to_non_ladder():
     from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
-    from pricing.knowledge.assessment.maintenance.value_scope import profile_fingerprint
+    from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
     from tests.pricing.knowledge.assessment.maintenance.test_guide_demand import use
 
     profile = {
@@ -110,7 +87,7 @@ def test_ladder_guide_use_cannot_default_to_non_ladder():
         profile_id='example',
         item='Facet',
         source=profile['source'],
-        profile_fingerprint=profile_fingerprint(profile),
+        profile_fingerprint=fingerprint(profile),
     )
     with pytest.raises(ValueError, match='season'):
         compile_demand([review], [profile])

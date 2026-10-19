@@ -1950,7 +1950,7 @@ def test_any_stop_with_the_character_dead_stops_the_loop_and_leaves_no_game():
     runner.close()
 
 
-def beset_runner(lives, *, attack_mode=False, left=None):
+def beset_runner(lives, *, attack_mode=False, left=None, foe=False):
     """A runner whose polls read the character standing at the Frozen River door (area 113) with `lives`, the loop on
     and outside a fight unless `attack_mode` (rca/2026-10-19/near-death-findings.md)."""
     looks = iter(lives)
@@ -1964,6 +1964,7 @@ def beset_runner(lives, *, attack_mode=False, left=None):
         return 'cyber13', 113
 
     runner.valuable_left = lambda: left
+    runner.attacker_near = lambda: foe
     runner.loop.on, runner.attack_mode = True, attack_mode
     return runner, shown
 
@@ -1982,13 +1983,78 @@ def test_a_character_hit_standing_outside_a_fight_leaves_the_game_at_once(caplog
     runner.close()
 
 
-def test_hit_standing_the_game_is_left_even_with_a_valuable_on_the_ground():
-    runner, _ = beset_runner([3119, 2789], left='Flawless Topaz')
-    for now in (10.0, 11.0):
-        runner.poll(now)
-    assert runner.loop.abandon
+def test_hit_standing_with_a_valuable_on_the_ground_fights_back_then_fetches_it(caplog):
+    # The player, 2026-10-19: "Fight back first: fight the attacker, then pick up the valuable; leave only if life gets
+    # low (the death rules still win)"
+    from inventory_tracking.macros.loop import FIGHT_BACK, PICK_BACK
+
+    runner, shown = beset_runner([3119, 2789], left='Flawless Topaz', foe=True)
+    with caplog.at_level('INFO'):
+        for now in (10.0, 11.0):
+            runner.poll(now)
+    assert not runner.loop.abandon  # the game is not left
+    assert runner.loop.on
     assert not runner.loop.make_room
     assert runner.loop.fetch_again is None
+    assert runner.loop.beset_due == 'cyber13'
+    assert 'the attacker is fought back, then Flawless Topaz is picked up; the game is not left' in caplog.text
+    assert shown[-1] == ['Loop: the character is hit standing outside a fight (life 2789/3134): fighting back']
+    door = world(113, game_name='cyber13', player=player(113, x=10212.5, y=5359.5))
+    assert runner.loop.after_beset(door) == FIGHT_BACK
+    runner.loop.beset_due, runner.loop.fetch_back = None, 'cyber13'  # the fight back's leg made (macros/loop.py)
+    assert runner.loop.after_beset(door) == PICK_BACK
+    runner.close()
+
+
+def test_hit_standing_with_an_attacker_and_nothing_on_the_ground_fights_back_too():
+    runner, _ = beset_runner([3119, 2789], foe=True)
+    for now in (10.0, 11.0):
+        runner.poll(now)
+    assert not runner.loop.abandon
+    assert runner.loop.beset_due == 'cyber13'
+    runner.close()
+
+
+def test_hit_standing_with_life_low_leaves_the_game_even_with_a_valuable_on_the_ground(caplog):
+    # 65 % of 3134 is 2037 (config.py HEAL_PRIORITY.floor): "we must not die" wins over the valuable
+    runner, _ = beset_runner([2400, 2000], left='Flawless Topaz', foe=True)
+    with caplog.at_level('INFO'):
+        for now in (10.0, 11.0):
+            runner.poll(now)
+    assert runner.loop.abandon
+    assert runner.loop.beset_due is None
+    assert 'beset with life low' in caplog.text
+    runner.close()
+
+
+def test_beset_again_soon_after_fighting_back_leaves_the_game(caplog):
+    # The fight back lost: a beset within BESET_AGAIN_SECONDS of its last leg
+    runner, _ = beset_runner([3119, 2789], left='Flawless Topaz', foe=True)
+    runner.loop.fought_back = ('cyber13', time.monotonic())
+    with caplog.at_level('INFO'):
+        for now in (10.0, 11.0):
+            runner.poll(now)
+    assert runner.loop.abandon
+    assert runner.loop.beset_due is None
+    assert 'beset with the fight back lost' in caplog.text
+    runner.close()
+    runner, _ = beset_runner([3119, 2789], left='Flawless Topaz', foe=True)
+    runner.loop.fought_back = ('cyber12', time.monotonic())  # another game's
+    for now in (10.0, 11.0):
+        runner.poll(now)
+    assert not runner.loop.abandon
+    runner.close()
+
+
+def test_hit_standing_with_the_character_dead_does_nothing_at_all():
+    # The player, 2026-10-19: "if we died - we MUST not take ANY other actions, no reviving, no save/exits"
+    runner, _ = beset_runner([3119, 2789], left='Flawless Topaz', foe=True)
+    runner._dead = lambda: True
+    for now in (10.0, 11.0):
+        runner.poll(now)
+    assert not runner.loop.on
+    assert not runner.loop.abandon
+    assert runner.loop.beset_due is None
     runner.close()
 
 

@@ -6,7 +6,6 @@ import json
 
 import pytest
 
-from inventory_tracking.builds.warlock.echoing_strike.__main__ import window
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut, describe
 from inventory_tracking.takes.takes import Take
 from inventory_tracking.takes.timeline import HOLD_TICKS
@@ -164,16 +163,6 @@ def test_a_take_recorded_faster_than_the_game_is_refused(tmp_path):
 
 
 def test_describe_reports_the_late_ticks_of_the_situation(tmp_path):
-    # The report that the CLI prints must show the same late ticks the situation carries.
+    # The report must show the same late ticks the situation carries.
     situation = cut(late_take(tmp_path, stamps(10, LATE)))
     assert describe(situation)['late_ticks'] == situation.late_ticks == 2
-
-
-def test_the_cli_window_picks_the_longest_stay_in_the_area(tmp_path):
-    # The CLI cuts the longest stay in the area asked for; an area never visited is an error, not an empty cut.
-    areas = [108] * 3 + [35] * 4 + [108] * 6
-    samples = [sample(n, t, area=area) for (n, t), area in zip(stamps(13).items(), areas, strict=True)]
-    take = write_take(tmp_path, samples)
-    assert set(window(take, 108).ticks) == set(range(8, 14))
-    with pytest.raises(SystemExit):
-        window(take, 99)

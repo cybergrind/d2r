@@ -3,6 +3,7 @@
 import hashlib
 from html import unescape
 from html.parser import HTMLParser
+from typing import Any
 
 from pricing.knowledge.builds import guide_mentions
 
@@ -87,7 +88,7 @@ class SectionParser(HTMLParser):
             target.append(data)
 
 
-def section_inventory(html, previous=None):
+def section_inventory(html, previous=None) -> dict[str, Any]:
     digest = hashlib.sha256(html.encode()).hexdigest()
     if previous and previous.get('source_sha256') == digest and previous.get('extractor_version') == VERSION:
         return previous

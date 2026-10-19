@@ -4,7 +4,8 @@ each turns into a failure the day it is met, and the mark is then taken off.
 
 The pack by the seal was played with a rule withdrawn the same day ("N monsters by <mark>: the fight first"):
 its replay has that rule from the test's side (kp4.py `fight_first`, "as it was"), and pins that morning. The
-tests under "today's key" play the same scene with the code as it is: the press goes to the seal."""
+plays of the same scene with the rule gone and the pursuit off ("today's key") were deleted on the player's ruling
+of 2026-10-19: the loop no longer uses that mode."""
 
 import functools
 
@@ -194,50 +195,11 @@ def test_a_press_of_the_teleport_key_does_not_stop_the_attack() -> None:
         assert told.quiet_mashed <= QUIET_MOST
 
 
-# -- the pack by the seal: today's key (the rule withdrawn) ---------------------------------------------
+# -- the boss out of reach ------------------------------------------------------------------------------
 
 
 def test_the_boss_moment_is_played_by_todays_rules() -> None:
     assert not BOSS_AWAY.as_it_was
-
-
-def test_today_the_first_press_goes_toward_the_seal_with_the_pack_by_it() -> None:
-    for seed in SEEDS[:3]:
-        told, lines = play(SEAL_PACK.name, seed, ((0.0, TELEPORT),), False)
-        assert next(text for _, text in lines).startswith('Macro: Blade Warp toward Vizier seal 1')
-        assert not said(lines, 'the fight first')
-        assert not said(lines, 'Attack mode')  # the press turns no mode on, and there was none to pause
-        assert told.moved > 20.0  # one warp of the 33 units to the seal
-        assert not told.strikes
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SIM-CASTERS: least life 745 under the casters' blows with Psychic Ward played (855 before it; the Venom "
-        "Lords' flames pass it; sim-casters.md section 9)"
-    ),
-)
-def test_today_the_recorded_presses_open_the_seal_within_the_burst_and_strike_nothing_meanwhile() -> None:
-    """The presses of that morning with the rule gone (not what the player would have pressed: they were
-    mashed because nothing moved). The key warps to the seal and opens it within the 6.8 s, 21 s in the
-    recording, and goes on to the second seal; no strike begins while it does, the presses being the route's."""
-    _, _, truth = moment(SEAL_PACK.name)
-    scene, _, _ = moment(SEAL_PACK.name)
-    for seed in SEEDS:
-        told, lines = play(SEAL_PACK.name, seed, None, False)
-        assert not said(lines, 'the fight first')
-        assert said(lines, 'Vizier seal 1: open', SEAL_PACK.mashed) == 1
-        assert told.opened is not None
-        assert truth.opened is not None
-        assert told.opened <= SEAL_PACK.mashed < truth.opened
-        assert told.strikes
-        assert told.strikes[0] >= 6.0  # after the burst, as in the recording (7.11)
-        assert not told.dead
-        assert told.low >= LIFE_FLOOR * scene.hero.max_life
-
-
-# -- the boss out of reach ------------------------------------------------------------------------------
 
 
 def test_the_recording_has_the_boss_57_units_off_and_the_character_still() -> None:

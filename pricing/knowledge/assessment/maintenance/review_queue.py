@@ -1,5 +1,7 @@
 """Prioritize unreviewed named identities using demand and cached evidence gaps."""
 
+from typing import Any
+
 
 def next_action(row):
     if row['status'] == 'invalid_source':
@@ -15,7 +17,7 @@ def next_action(row):
 
 
 def review_queue(rows):
-    queue = []
+    queue: list[dict[str, Any]] = []
     for row in rows:
         if row['status'] == 'reviewed_policy':
             continue

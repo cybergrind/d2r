@@ -233,7 +233,9 @@ def life_budget(
     spendable = stock_life(loot, settings.healing_points, settings.floor)
     allowance = budget(loot.life, loot.max_life, felt, settings, insisting=insisting, spendable=spendable)
     supply = on_belt(loot)
-    kappa = life_price(Supply(supply[PotionType.HEALING], supply[PotionType.REJUVENATION]), loot.max_life, settings)
+    # An unread belt is priced as an empty one: its cells may hide a drunk potion (the player, 2026-10-19)
+    stock = Supply(supply[PotionType.HEALING], supply[PotionType.REJUVENATION]) if loot.belt_read else Supply(0, 0)
+    kappa = life_price(stock, loot.max_life, settings)
     dear = life_factor(look, here, settings)
     kappa *= dear
     return allowance, spendable, kappa, dear

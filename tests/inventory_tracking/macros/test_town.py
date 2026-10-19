@@ -687,7 +687,7 @@ def test_a_keeper_no_page_has_room_for_is_the_stash_full_and_named():
 def test_a_stranded_keeper_is_not_the_stash_full():
     # 16:35 on 2026-10-18 (fixtures/visits/2026-10-18-163522.json): the Boots have room on page 5; the inventory has
     # none for them to come out through, and no shared page a 2 x 4 for the Fuscina to park: stranded, not full
-    from tests.inventory_tracking.macros.test_townplan import fixture
+    from tests.inventory_tracking.macros.test_visitlog import fixture
 
     start = fixture('1635')
     assert start.view is not None

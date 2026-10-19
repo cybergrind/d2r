@@ -7,15 +7,6 @@ role matching with mocks or pass a hand-picked profile list to the engine.
 For red/green before publication, add `--item-bank-staged` to use rebuilt working-tree
 artifacts and SQLite; rerun without that option after selecting the generation.
 
-Add `--item-bank-receipt pricing/data/appraisal-item-bank-run.json` to retain
-executed-case outcomes, covered targets, generation and source hashes. Each case
-must pass setup, call and teardown. Skips, failed attempts, interruptions, mixed
-generations, staged execution or changed sources prevent a full-bank pass claim.
-A filtered run records its passed and unexecuted cases without claiming complete
-execution. Receipts currently require a single pytest process and an existing
-output directory. They do not replace the coverage audit or independently reviewed
-report/stat expectations, and do not automatically close completion-ledger rows.
-
 `models.Item` constructs an extraction from a canonical base name and explicit
 native raw stats. Metadata resolves the base code. Leave `complete=False` when
 only selected properties are supplied; incomplete input must not acquire an exact
@@ -45,11 +36,8 @@ at one particular stat while allowing its other valid contributions and other
 builds using that stat (for example, attack rating helps Zeal but not Smite).
 Add report expectations where presentation matters.
 
-Run `uv run --offline python -m tests.pricing.knowledge.assessment.item_bank.coverage`
-to persist the remaining target inventory in
-`pricing/data/appraisal-item-bank-coverage.json`. It includes every compiled
-build/use quality, named high/mid or leveling target, and stat-qualified valuable
-trade watch. The watch artifact is pinned alongside the profiles and named gate. A named-tier target uses
+The coverage audit and run receipts are frozen and archived in `pricing/archive/2026-10-19/`
+(2026-10-19). Cases still declare `covers`: a named-tier target uses
 `named:<quality>:<name>`; ordinary IDs refer to reviewed role IDs. A test for one
 quality cannot cover another. Use `watch:<watch_id>` for a conditional trade-watch
 target; invalid-rarity rejection cases remain useful but cannot cover another

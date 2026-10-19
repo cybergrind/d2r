@@ -17,9 +17,8 @@ from itertools import pairwise
 from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.damage import DAMAGE
-from inventory_tracking.builds.warlock.echoing_strike.hits import hostiles_by_frame, pointer_focal
+from inventory_tracking.builds.warlock.echoing_strike.hits import full_casts, hostiles_by_frame, pointer_focal
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import focal_point
-from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
 from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.policy import walls

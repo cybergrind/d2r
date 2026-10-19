@@ -46,6 +46,7 @@ from inventory_tracking.macros.cube import (
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
+from inventory_tracking.macros.hunting.base import SIGHT, hostiles
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.junk import identify, junk_of, named
 from inventory_tracking.macros.keepers import amulet_keeper
@@ -81,7 +82,7 @@ from inventory_tracking.macros.routines import DEAD, Dead, prebuff_keys, run_mac
 from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
 from inventory_tracking.macros.sightings import Sightings
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL, character_bindings, skill_keys, skill_name
-from inventory_tracking.macros.stops import Remedy, Stopped, decide, first
+from inventory_tracking.macros.stops import Beset, Remedy, Stopped, decide, first, low_life
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem
@@ -232,6 +233,7 @@ class MacroRunner:
         self.life_seen: tuple[int, int] | None = None  # (life, max life) at the last poll (loop.py `beset`)
         self.valuable_left: Callable[[], str | None] = self._valuable_left  # (tests give their own)
         self.carried_now: Callable[[], Pack | None] = self._carried_now  # the inventory now, for `_gheeds_swap`
+        self.attacker_near: Callable[[], bool] = self._attacker_near  # a hostile by the character, for `_beset_facts`
         # An item unit's stats from the run's memory (GameMemory.item_stats)
         self.item_stats: Callable[[int], dict[int, int]] | None = None
         # Valuables seen this game and still on the ground (sightings.py); the ground census's items (game/memory.py)
@@ -491,6 +493,13 @@ class MacroRunner:
             labels()
             self._loop_level_run(hunter, rush=False)
 
+        def fight_back() -> None:
+            # Beset (macros/loop.py FIGHT_BACK): the kind's own level run, past nothing, so the attacker is fought
+            if hunter is None:
+                raise Abort('no level guide to hunt with')
+            labels()
+            self._loop_level_run(hunter, rush=False, agenda=agenda)
+
         def take_one() -> bool:
             level = hunter.level() if hunter is not None and hunter.level is not None else None
             # No room for a valuable: a 'room' stop, and the room rules make room (the player, 2026-10-18: "we should
@@ -602,6 +611,7 @@ class MacroRunner:
             bring=bring,
             way_on=way_on,
             fight=fight,
+            fight_back=fight_back,
             left=self.valuable_left,
             sighted=sighted,
             terrorized=terrorized,
@@ -733,12 +743,23 @@ class MacroRunner:
         rules are macros/stops.py's. Under the lock or from the run's thread."""
         dead = isinstance(why, Dead) or self._dead()
         cause = classify(why)
-        early = first(cause, on=self.loop.on, dead=dead)
+        seen = self.loop.seen[0] if self.loop.seen is not None else None
+        beset = self._beset_facts(seen) if cause == 'beset' and self.loop.on and not dead and seen else None
+        early = first(cause, on=self.loop.on, dead=dead, beset=beset)
         if early is Remedy.DEAD:
             self.attack_mode = False
             self._stop_loop(why if isinstance(why, Dead) else Dead(f'the character is dead ({why})'))
             return
+        if early is Remedy.FIGHT and beset is not None and seen:
+            self.loop.fight_back_due(seen)
+            LOG.info('Macro: loop: %s: the attacker is fought back%s; the game is not left', why,
+                     f', then {beset.left} is picked up' if beset.left is not None else '')  # fmt: skip
+            self._show([f'Loop: {why}: fighting back'])
+            return
         if early is Remedy.LEAVE:
+            if beset is not None:
+                LOG.info('Macro: loop: beset with %s', 'life low' if beset.low else 'the fight back lost' if beset.again
+                         else 'no attacker read and nothing on the ground')  # fmt: skip
             # The pause after recoveries is not stood in a battle level (loop.py `leg`)
             if self.loop.recover(why, time.monotonic()):
                 LOG.info('Macro: loop: %s: the game is left at once and the loop goes on', why)
@@ -961,15 +982,15 @@ class MacroRunner:
                     and not self.attack_mode
                     and self.loop.beset(self.where, self.life_seen, now, game, area)
                 ):
-                    # Hit standing outside a fight: the game is left at once (the player, 2026-10-19: "we must not die
-                    # or we lose exp and our gear"; rca/2026-10-19/near-death-findings.md)
+                    # Hit standing outside a fight: fought back, or left with life low (macros/stops.py `first`; the
+                    # player, 2026-10-19: "we must not die or we lose exp and our gear"; "Fight back first")
                     life = self.life_seen or (0, 0)
                     why, cause = f'the character is hit standing outside a fight (life {life[0]}/{life[1]})', 'beset'
                 elif self.loop.on and game is not None and self.loop.still(self.where, now, game):
                     why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
                 if why is not None:
-                    # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS): the run is cancelled, the next
-                    # leg leaves the game
+                    # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS) or beset: the run is cancelled,
+                    # the next leg leaves the game or fights back
                     self._loop_stopped(Abort(why, cause=cause))
                     self.attack_mode = False
                     if self.working:
@@ -1018,6 +1039,35 @@ class MacroRunner:
             return found[0].label
         # One seen this game and out of the client's reach now lies there all the same (macros/sightings.py)
         return self.sightings.left()
+
+    def _beset_facts(self, game: str) -> Beset:
+        """The facts a 'beset' stop in `game` is judged by (macros/stops.py `first`): the last poll's life, a fight back
+        just before, what lies on the ground and whether an attacker is in the read."""
+        low = low_life(self.life_seen)
+        again = self.loop.beset_again(game, time.monotonic())
+        if low or again:
+            return Beset(low, again)
+        left = self.valuable_left()
+        return Beset(low, again, foe=self.attacker_near(), left=left)
+
+    def _attacker_near(self) -> bool:
+        """Whether a hostile the hunt strikes stands within its SIGHT of the character now; False unread."""
+        try:
+            table = one_unit_table(self.source.capture)
+            if table is None:
+                return False
+            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
+            try:
+                world = memory.world()
+            finally:
+                memory.close()
+        except Exception as exc:
+            LOG.info('Macro: the hostiles could not be read (%s)', exc)
+            return False
+        here = world.player
+        if here is None:
+            return False
+        return any(math.dist((m.x, m.y), (here.x, here.y)) <= SIGHT for m in hostiles(world))
 
     def _dead(self) -> bool:
         """Whether the character reads dead now (routines.py DEAD); False when the game is not read."""

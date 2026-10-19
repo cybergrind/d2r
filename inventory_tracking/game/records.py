@@ -158,6 +158,9 @@ class Loot:
     carried: frozenset[int] = frozenset()
     # (unit id, classid) of drops whose class was read: how `PutDown` knows an item after it gets a new unit id.
     classes: tuple[tuple[int, int], ...] = ()
+    # False: a belt item was unreadable and `belt` lacks it: the belt is unknown this look, never empty (no refill,
+    # no drink, no empty-belt warning from it; the player, 2026-10-19)
+    belt_read: bool = True
 
 
 @dataclass(frozen=True)

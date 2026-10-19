@@ -47,6 +47,7 @@ The driving document is `pricing/knowledge/assessment/planning/COMPLETION_CONTRA
 contract file, the coverage matrix, report receipts and per-item formal reviews are frozen: do
 not resume them, do not regenerate their artifacts, and do not append to `handoff.md` or
 `STATUS.md`. Measure changes with the corpus score (`inventory_tracking/corpus`).
+The frozen files are archived in `pricing/archive/2026-10-19/` (player, 2026-10-19), outside tests and type checks.
 
 ## Rules that apply to every task
 

@@ -1,10 +1,11 @@
 """The town visit's snapshots (rca/2026-10-18/arch-town-planning.md §4): what a visit holds at its start and after
-each stop, as JSON beside the service's probe.log (`visits/<HHMMSS>.json`), and the codec reading them back for offline
-replay (townplan.py `plan_visit`) and test fixtures. No game reads of its own; never raises into the visit.
+each stop, as JSON beside the service's probe.log (`visits/<HHMMSS>.json`), and the codec reading them back for test
+fixtures and offline study. No game reads of its own; never raises into the visit.
 
 The file: `{"version": 1, "visit": "<HHMMSS>", "stops": [<snapshot>, ...]}`, stops `start` (after Cain and the
 verdicts), `stash` (before any transmute), `shops` (after Jamella and Halbu), `end` (with the contract's misses). The
-stash view is in `start` and `stash` only; the plan's predicted misses in `start`. An item is
+stash view is in `start` and `stash` only. Files before 2026-10-19 also carry `predicted` (the removed shadow planner's
+misses), ignored on reading. An item is
 `[unit, class, x, y, across, down, quality, identified, unique]`.
 """
 
@@ -45,7 +46,7 @@ FOLDER = 'visits'  # beside probe.log: runs/alt-d/<service>/visits/<HHMMSS>.json
 
 @dataclass(frozen=True)
 class Snapshot:
-    """What a visit holds at one stop: enough for `townplan.plan_visit` to replay it."""
+    """What a visit holds at one stop: enough to replay it offline."""
 
     stop: str
     pack: Pack
@@ -60,7 +61,6 @@ class Snapshot:
     cap: int | None = None
     at: str = ''  # the wall clock, HH:MM:SS
     misses: tuple[str, ...] = ()  # the contract's (`end`)
-    predicted: tuple[str, ...] | None = None  # the plan's (`start`), None not planned
 
 
 # The codec
@@ -176,12 +176,10 @@ def snapshot_json(snapshot: Snapshot) -> dict[str, Any]:
         'needs': _needs_json(snapshot.needs),
         'exit': snapshot.exit.value,
         'misses': list(snapshot.misses),
-        'predicted': list(snapshot.predicted) if snapshot.predicted is not None else None,
     }
 
 
 def snapshot_from(raw: dict[str, Any]) -> Snapshot:
-    predicted = raw.get('predicted')
     return Snapshot(
         stop=str(raw['stop']),
         pack=pack_from(raw['pack']),
@@ -196,7 +194,6 @@ def snapshot_from(raw: dict[str, Any]) -> Snapshot:
         cap=raw.get('cap'),
         at=str(raw.get('at', '')),
         misses=tuple(raw.get('misses', ())),
-        predicted=tuple(predicted) if predicted is not None else None,
     )
 
 
