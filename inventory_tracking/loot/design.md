@@ -841,3 +841,70 @@ hand pick and carry as before.
 - Not in this step: `cube.droppable` / `drop_for` stay (M3 moves cube.py); M2 (town sales by `keep.decide`) waits for
   the shadow log. Side finding: R1's unit 1728653239 (chain 20:10, 102:15, native suffix 172) is a Monarch **of
   Blocking** (magicsuffix.json "172": block 10, faster block 15), not of Deflecting (row 173: 20 and 30).
+
+### Big items in the field and M5 ground bases (2026-10-20, the player ~11:55 "bases or blue/rare items might take much place (like spears, matron bow) -- we want to check them and drop in the middle of the run", ~12:00 "start all three", ~12:15 / ~12:18 the own-use bases; Q6, Q7, Q8, Q12 as recommended)
+
+Three switches, each on, each alone:
+
+- **G14** (`loot.api.FIELD_BIG`): every magic or rare item of 4+ cells (`BIG_CELLS`, Q6) the filter shows and no other
+  class takes is picked for the field identify (`Field.takes`): a magic Archon Plate, rare gloves / boots / helms, a
+  rare Monarch. In the MOST level, which took them before, the loop's magic/rare items are remembered for the routine
+  too (`pickmode._kept`). So a bad one is identified and dropped at the feet (`droppable` unchanged), only keepers go
+  to town.
+- **G15** (`loot.api.FIELD_OVERSIZE`): magic/rare items over `pickup_shown_cells` (6) the filter shows. The look now
+  reads the filter's > 6-cell classes for magic/rare (and white, M5) (`macros/pickup.py shown_rules`,
+  `loot/shown.py oversize_rules`); `pickmode._kept` keeps such a drop, in every level, only when the field identify
+  takes it (magic/rare, with the loop on) or the ground read picks it (white). Today the filter shows no magic item
+  over 6 cells and, of rares, only the Amazon bows and spears, the Colossus Blade and the Zakarum Shield: a rare Giant
+  Thresher or any magic polearm needs a filter Show rule first (lootfilter skill), not done.
+- Room: a field item of 4+ cells is taken only when a SURE_BLOCK (1x3) still fits after it (`leaves_room`), and the
+  press goes to every other valuable in sight first (`pickup.choose`); the field routine before `make_room` drops the
+  bad ones first.
+- **M5** (`loot.ground_judge.BASES`): `ROLLED_TYPES` = the old `knif/shie/ashd` (read for magic too) + `pole, spea,
+  aspe, tors, abow, swor, axe, helm` (white/superior only; `game/layout.py BASE_ROLLED_TYPES`). `Rolls` gained
+  `damage` (17, a superior weapon's ED, from the +0xD0 chain like 16) and `tabs` (188; a white bow's +3 Bow and
+  Crossbow Skills, [verified] in the totals on 96 of 96 captured superior Amazon bows); resists are taken from the chain
+  when the totals lack them ([inferred]: 6 superior Rondache census lines read none). `pickmode.ground_base` →
+  `ground_judge.base_verdict` (rows of G3, G4, G5, G7, G8, G16, G17, `LEFT_ROWS` aside) joins `void_base`/`shield_base`
+  in `sure`; a must-have row's drop is made `prized` (guard, press stop, trip). The strict xfails of the M5 cases (11)
+  are passes now.
+- New rows (`build_wants.py`): G16 market bases (Q7: Superior ≥ 15 ED with the guide's socket counts, asks ≥ 1 Ist:
+  Phase Blade 5/6os, Berserker Axe 5os non-eth or eth 0/6os, Colossus Blade 5os or eth 0/5/6os, GMB/Matriarchal Bow
+  4os +3, Matriarchal Bow 0os +3, GMB 5os +3); Matriarchal Spear in the eth 4os Superior merc row; own-use (~12:15):
+  Exile = Sacred Targe / Rondache 0/4os all res ≥ 40 (eth preferred: a different item for the copies), Cure (G17) = eth
+  0/3os Corona / Spired Helm / Bone Visage / Demonhead (the 3-socket elite helms by defense, under the Act 2 merc's
+  204 str); Insight = the G3 rows; Chains of Honor = eth 4os Archon Plate (G4). Spirit (~12:18) = the non-eth 4os
+  Monarch row, in `LEFT_ROWS` (Q8: one is owned, MSockB/MSockC); the Superior 15 ED Monarch row picks the better copy.
+- Not live: Cure helms are not shown by the filter (no white elite helm rule), so they are never in the look until a
+  Show rule is added.
+
+### Really good rare circlets, more Spirit Monarchs (2026-10-20, the player ~12:50: "I want to try to find rare helms (tiara, corona, etc) that are really good - fcr + 2skills level + other valuable stats / I want to keep more monarch bases")
+
+- Which bases can (d2data, 2026-10-20): FCR rolls only on circlets among helms — of the Magus 20 FCR
+  (`magicsuffix.json:3029`, itypes circ/orb/rod, rare) and of the Apprentice 10 (`:3009`). +2 Warlock skills on a
+  rare: Arch-Devil's (`magicprefix.json:13176`, amul/circ, affix level 90); +2 to a Warlock tree on a rare: Dreadful
+  Demon `:13114`, TaintedAffix Eldritch `:13043` (Echoing Strike's tree, `skilldesc.json:2575`), Erratic Chaos
+  `:12974`; the +3 trees (Malevolent/Forbidden/Torrid) are magic only, and the class prefixes share group 125 (one a
+  circlet). A plain helm (Corona, Shako, Spired Helm..., type `helm`) rolls no FCR and only the Barbarian Combat /
+  Assassin Shadow tree prefixes: never a Warlock helm. So the rule covers Circlet, Coronet, Tiara and Diadem only.
+- Keep rows (`build_wants.py` G10, all identified in the field as before, `circlet-identify`): always kept — 20 FCR +
+  +2 Warlock (or +2 Eldritch) + a third stat (life 30+, a resist 10+, str/dex 10+, mana 40+, a socket, 30 FRW:
+  `CIRCLET_EXTRAS`, pricing.html:233's "then two of"); the older 20 FCR + +2 Warlock / +3 Eldritch row unchanged.
+  Kept as wants (never field-dropped) because the evidence prices them at 1 Ist or more: any +2 class skills
+  without FCR (pricing.html:233: 33 priced sellers, q1 8 Ist, 2026-10-08; primer:482 1 -> 34 n=39) and 20 FCR with
+  +1 class skills, +2 to a tree or 30 FRW (pricing.html:233). Scoped asks of 2026-09-18/19 (appraisal-market.jsonl,
+  one ask a seller, rare circlets): +2 Warlock + 20 FCR + third stat 11.4 -> 57.1 (5 sellers), alone 17.1 -> 22.8
+  (2), +2 Warlock no FCR 25.7 -> 34.3 (6), +2 Warlock tree + 20 FCR 11.4 (1) / 17.1 -> 22.8 (3): thin, few sellers.
+- Junk: `keep.JUNK_UNWANTED` — a rare circlet or plain helm no row names is dropped (K8) even when the KB has no
+  price (in place of K9), unless worth 1 Ist by its own rolls (K5; `api.droppable` still spares 1 Ist+).
+- Spirit Monarch: `LEFT_ROWS` is empty; the row `spirit-monarch-plain-4os` has `keep_up_to` =
+  `build_wants.SPIRIT_MONARCH_CAP` 6. The ground judge counts the owned copies through `owned`
+  (live `value.owned_bases`: collection.sqlite read-only, same code / ethereal / sockets, white or superior, no
+  runeword, online owners; cached 60 s; 2 owned on 2026-10-20: MSockB normal, MSockC superior) and leaves the row's
+  drops at the cap; Superior 15 ED is still picked by its own row (as `pickmode.shield_base`). `keep.decide`: K3
+  keeps while fewer comparable copies are owned (after K5), then K6 keeps only a better one (ED). White Monarchs are
+  never sold (`pickmode.sellable`) nor field-dropped (not field items; `droppable` spares wants).
+- `pickmode.ground_base` passes `owned=loot_value.owned_bases` (same line count: build_wants' pickmode line citations
+  hold). Tests: 11 new acceptance cases in `fixtures/valuables.json` (the harness counts `owned` per case and never
+  reads the host's collection), `test_value.py` (the count), `test_pickmode.py` (the cap in the GOOD level).
+- 2026-10-20 ~13:35 note: design.md §9's 'Not live: Cure helms are not shown by the filter' is superseded by the filter pass (SHOW Cure Helms Gray).

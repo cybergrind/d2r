@@ -54,13 +54,14 @@ QUALITY_NAMES = {
     CRAFTED: 'crafted',
 }
 # Stat ids (third-parties/d2data/json/itemstatcost.json, checked 2026-10-20)
-SOCKETS, SINGLE_SKILL, DEFENSE_PERCENT = 194, 107, 16
+SOCKETS, SINGLE_SKILL, DEFENSE_PERCENT, DAMAGE_PERCENT, SKILL_TAB = 194, 107, 16, 17, 188
 RESISTS = (39, 41, 43, 45)  # fire, lightning, cold, poison
 # The stat ids a ground read of a white or superior base holds (game/decode.py `base_rolls`): sockets, staff mods,
 # resists, and armor enhanced defense (16) once its +0xD0 modifier chain is read whole (`Rolls.defense` not None;
 # 2026-10-20: the read took 16 from the totals, where this build never keeps it, rca/2026-10-20/loot-m0-research.md
-# R2). Not weapon ED (17/18): `Rolls` has none
-GROUND_STATS = frozenset((SOCKETS, SINGLE_SKILL, *RESISTS, DEFENSE_PERCENT))
+# R2). Since M5 (2026-10-20) a superior weapon's enhanced damage (17, the same chain) and the skill tab bonuses (188:
+# a white bow's +3 Bow and Crossbow Skills, in the totals)
+GROUND_STATS = frozenset((SOCKETS, SINGLE_SKILL, *RESISTS, DEFENSE_PERCENT, DAMAGE_PERCENT, SKILL_TAB))
 
 
 class Where(StrEnum):
@@ -169,8 +170,11 @@ def _ground_rolls(drop: Drop) -> dict[str, int] | None:
     rolls |= {f'{SINGLE_SKILL}:{skill}': level for skill, level in found.skills}
     # The read keeps the least of the four resistances: each is at least that (Sacred Targe's all-res rule)
     rolls |= {f'{stat}:0': found.resists for stat in RESISTS}
+    rolls |= {f'{SKILL_TAB}:{layer}': value for layer, value in found.tabs}
     if found.defense is not None:
         rolls[f'{DEFENSE_PERCENT}:0'] = found.defense
+    if found.damage is not None:
+        rolls[f'{DAMAGE_PERCENT}:0'] = found.damage
     return rolls
 
 
@@ -181,7 +185,9 @@ def _ground_known(drop: Drop) -> frozenset[int] | None:
         return None
     if drop.quality >= MAGIC or drop.quality <= 0:
         return frozenset()
-    return GROUND_STATS if found.defense is not None else GROUND_STATS - {DEFENSE_PERCENT}
+    unread = {DEFENSE_PERCENT} if found.defense is None else set()
+    unread |= {DAMAGE_PERCENT} if found.damage is None else set()
+    return GROUND_STATS - unread
 
 
 def from_drop(drop: Drop) -> ItemFacts:

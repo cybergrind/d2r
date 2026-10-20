@@ -61,8 +61,10 @@ class GameHands:
         put_down: PutDown,
         book: Book = BOOK,
         owned: OwnedCopies | None = None,
+        cain_ahead: Callable[[], bool] = lambda: False,
     ) -> None:
         self.run, self.inventory_key, self.own, self.appraiser = run, inventory_key, own, appraise
+        self.cain_ahead = cain_ahead  # a town visit is due: Cain identifies the inventory and the cube at once there
         self.put_down, self.book, self.owned = put_down, book, owned or CollectionCopies()
 
     def game(self) -> str | None:
@@ -86,8 +88,11 @@ class GameHands:
             return 'no character read'
         if player.mode in DEAD:
             return 'the character is dead'
-        if player.in_town:
-            return 'in town (Cain)'
+        # Town is quiet: the tome there too, unless a visit is due and Cain identifies all at once (the player,
+        # 2026-10-20: "we picked up magic ring and haven't id'ed it"; "when we visit cain it identifies all items across
+        # cube + inventory, so, in most cases this is preferrable way to identify items when in town")
+        if player.in_town and self.cain_ahead():
+            return 'in town: Cain identifies them at the visit due'
         if world.open_panels:
             return f'{", ".join(world.open_panels)} open'
         near = sum(1 for m in hostiles(world) if math.dist((m.x, m.y), (player.x, player.y)) <= SIGHT)

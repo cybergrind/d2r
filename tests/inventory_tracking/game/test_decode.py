@@ -94,7 +94,7 @@ def test_a_chain_not_read_whole_leaves_the_ed_unread_and_is_read_again():
     item.chain(((ITEM, UNIT), [(0, 16, 15)]))
     struct.pack_into('<II', item.root, 8, 4, UNIT + 1)  # the holder names another unit: not this item's
     found = base_rolls(item.memory.read, item.unit())
-    assert found == Rolls(4, (), None)
+    assert found == Rolls(4, (), None, damage=None)
     assert not shield_base(replace(monarch(), rolls=found))  # unread: not taken
     assert rolls(replace(monarch(), rolls=found)) == ' 4os'
     assert UNIT not in BASE_ROLLS_SEEN
@@ -106,15 +106,49 @@ def test_a_chain_not_read_whole_leaves_the_ed_unread_and_is_read_again():
 def test_a_broken_link_or_a_list_of_another_kind_leaves_the_ed_unread():
     broken = Item([(0, 194, 4)])
     struct.pack_into('<Q', broken.root, CHAIN, 0x7F000000)  # points at nothing readable
-    assert base_rolls(broken.memory.read, broken.unit()) == Rolls(4, (), None)
+    assert base_rolls(broken.memory.read, broken.unit()) == Rolls(4, (), None, damage=None)
     BASE_ROLLS_SEEN.clear()
     foreign = Item([(0, 194, 4)])
     foreign.chain(((ITEM, UNIT), [(0, 16, 15)]))
     struct.pack_into('<I', foreign.memory.blocks[0x200000], 8, 1)  # a monster's list, not an item's
-    assert base_rolls(foreign.memory.read, foreign.unit()) == Rolls(4, (), None)
+    assert base_rolls(foreign.memory.read, foreign.unit()) == Rolls(4, (), None, damage=None)
 
 
 def test_the_totals_enhanced_defense_is_taken_should_a_build_keep_it_there(monkeypatch):
     item = Item([(0, 194, 0), (0, 16, 15)])
-    monkeypatch.setattr(decode, 'chain_defense', lambda read, unit: 0)
+    monkeypatch.setattr(decode, 'chain_sums', lambda read, unit, ids: dict.fromkeys(ids, 0))
     assert base_rolls(item.memory.read, item.unit()) == Rolls(0, (), 15)
+
+
+GIANT_THRESHER, GRAND_MATRON_BOW, ARCHON = 258, 302, 443  # 7wc, amc, utp (items/data/item_metadata.json)
+
+
+def test_a_superior_weapons_enhanced_damage_is_read_from_its_modifier_chain():
+    # M5 (the player, 2026-10-20 ~12:00: "start all three"): a polearm is read off the ground, its ED (17) in the
+    # chain
+    item = Item([(0, 194, 0)], flags=ETHEREAL_FLAG)
+    item.chain(((ITEM, UNIT), [(0, 17, 15), (0, 18, 15)]))
+    thresher = Drop(UNIT, 0.0, 0.0, 'Giant Thresher', VALUABLE, (2, 4), source='shown', txt=GIANT_THRESHER,
+                    quality=3)  # fmt: skip
+    found = rolled(item.memory.read, thresher, item.unit())
+    assert found.rolls == Rolls(0, (), 0, 0, True, 15)
+    assert rolls(found) == ' 0os 15% ED'
+
+
+def test_a_bows_skill_tab_automod_is_read_from_its_totals():
+    # 96 of 96 captured superior Amazon bows hold 188 in the totals (a Grand Matron Bow 188:0 = 3, 194 = 5)
+    item = Item([(0, 194, 4), (0, 188, 3)])
+    item.chain(((ITEM, UNIT), [(0, 17, 12), (0, 18, 12)]))
+    bow = Drop(UNIT, 0.0, 0.0, 'Grand Matron Bow', VALUABLE, (2, 4), source='shown', txt=GRAND_MATRON_BOW, quality=3)
+    found = rolled(item.memory.read, bow, item.unit())
+    assert found.rolls == Rolls(4, (), 0, 0, False, 12, ((0, 3),))
+    assert rolls(found) == ' 4os +3 Bow and Crossbow Skills 12% ED'
+
+
+def test_a_magic_body_armor_is_not_read_its_ground_holds_nothing_to_judge():
+    # R1: an unidentified magic item holds no socket count and no affix; the old types are still read for magic
+    item = Item([(0, 194, 0)])
+    item.chain()
+    archon = Drop(UNIT, 0.0, 0.0, 'Archon Plate', VALUABLE, (2, 3), source='shown', txt=ARCHON, quality=4)
+    assert rolled(item.memory.read, archon, item.unit()).rolls is None
+    assert rolled(item.memory.read, replace(archon, quality=2), item.unit()).rolls == Rolls(0)

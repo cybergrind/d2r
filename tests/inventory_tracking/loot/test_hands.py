@@ -98,3 +98,30 @@ def test_a_valuable_the_loop_can_pick_up_now_holds_it_one_with_no_room_does_not(
 def test_in_controller_mode_or_with_a_panel_open_it_waits():
     _, hands, _, _ = setup(Pack((TOME, WORN, JUNK), identifies=10), open_panels=('stash',))
     assert hands.unquiet() == 'stash open'
+
+
+def test_in_town_it_is_quiet_and_the_tome_identifies_there():
+    # 11:52:48 on 2026-10-20: a magic Ring waited 'in town (Cain)' at the Save and Exit, games away from a trade visit
+    play, hands, _, asked = setup(Pack((TOME, WORN, JUNK), identifies=10))
+    me = play.world.player
+    assert me is not None
+    play.world = replace(play.world, player=replace(me, area=1))  # the Rogue Encampment
+    assert hands.unquiet() is None
+    done = looped(play.world.game_name).settle(hands, 'Save and Exit')
+    assert asked == [[UNIT]]
+    assert done.dropped == 1
+
+
+def test_in_town_with_a_visit_due_cain_identifies_them_there():
+    # The player, 2026-10-20: "when we visit cain it identifies all items across cube + inventory"
+    play, hands, _, asked = setup(Pack((TOME, WORN, JUNK), identifies=10))
+    me = play.world.player
+    assert me is not None
+    play.world = replace(play.world, player=replace(me, area=1))  # the Rogue Encampment
+    hands.cain_ahead = lambda: True
+    assert hands.unquiet() == 'in town: Cain identifies them at the visit due'
+    done = looped(play.world.game_name).settle(hands, 'Save and Exit')
+    assert asked == []
+    assert done.dropped == 0
+    assert play.pack is not None
+    assert play.pack.identifies == 10  # no scroll spent

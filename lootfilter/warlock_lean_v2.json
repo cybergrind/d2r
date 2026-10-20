@@ -72,7 +72,21 @@
         "gpr",
         "gpb",
         "gpy",
-        "skz"
+        "skz",
+        "gcv",
+        "gcw",
+        "gcg",
+        "gcr",
+        "gcb",
+        "gcy",
+        "skc",
+        "gfv",
+        "gfw",
+        "gfg",
+        "gfr",
+        "gfb",
+        "gfy",
+        "skf"
       ]
     },
     {
@@ -432,6 +446,28 @@
       ]
     },
     {
+      "name": "SHOW Rare Merc Polearms",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "rare"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "7s8",
+        "7wc",
+        "7pa",
+        "7h7",
+        "7vo",
+        "7br"
+      ]
+    },
+    {
       "name": "SHOW Magic ARMOR",
       "enabled": true,
       "ruleType": "show",
@@ -519,6 +555,27 @@
       ]
     },
     {
+      "name": "SHOW Magic Amazon Bows Spears",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "magic"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "amb",
+        "amc",
+        "am9",
+        "amd",
+        "ame"
+      ]
+    },
+    {
       "name": "SHOW Craft Bases ARMOR",
       "enabled": true,
       "ruleType": "show",
@@ -589,6 +646,26 @@
         "utp",
         "utu",
         "uar"
+      ]
+    },
+    {
+      "name": "SHOW Cure Helms Gray",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "lowQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "urn",
+        "uhm",
+        "uh9",
+        "usk"
       ]
     },
     {

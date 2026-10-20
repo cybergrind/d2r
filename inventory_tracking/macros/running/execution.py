@@ -212,8 +212,14 @@ def field_hands(self: MacroRunner, run: Run) -> GameHands:
         player = run.world().player
         return action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
 
+    loop = self.loop
     return GameHands(
-        run, inventory_key=inventory_key, own=lambda pack: self.loop.own, appraise=self.appraise, put_down=self.put_down
+        run,
+        inventory_key=inventory_key,
+        own=lambda pack: loop.own,
+        appraise=self.appraise,
+        put_down=self.put_down,
+        cain_ahead=lambda: (loop.room_low and loop.carrying) or loop.short or loop.repair,  # the next visit's errands
     )
 
 

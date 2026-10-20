@@ -1,9 +1,9 @@
 """Drops the pickup step takes because the loot filter shows them (user, 2026-10-11).
 
-The filter (lootfilter/warlock_lean_v2.json, built by loot/build_filter.py) decides "worth a look"; its Show
-rules are read here so what the game labels is what is picked up, and the two cannot drift. A rule matches as
-the game does (the lootfilter skill): rarity AND (category OR item code); `filterEtherealSocketed` adds gray
-items. Accessories are left out: they are groups of loot/materials.py.
+The filter (lootfilter/warlock_lean_v2.json, the one profile; loot/build_filter.py rebuilds its unique and set
+rules) decides "worth a look"; its Show rules are read here so what the game labels is what is picked up, and the
+two cannot drift. A rule matches as the game does (the lootfilter skill): rarity AND (category OR item code);
+`filterEtherealSocketed` adds gray items. Accessories are left out: they are groups of loot/materials.py.
 
 Smaller items are preferred (user, 2026-10-11): below set quality only bases of at most `max_cells` cells are
 taken. Gems follow the game's own copy of the profile (`game_filter`; user, 2026-10-12: "I want to get some
@@ -108,6 +108,25 @@ def pickup_rules(max_cells: int, path: Path = FILTER) -> tuple[ShownRule, ...]:
         small = frozenset(class_id for class_id in rule.classes if sizes.get(class_id, 1) <= max_cells)
         if small:
             rules.append(ShownRule(rule.qualities - NAMED_QUALITIES, rule.gray, small))
+    return tuple(rules)
+
+
+@cache
+def oversize_rules(max_cells: int, qualities: frozenset[int], path: Path = FILTER) -> tuple[ShownRule, ...]:
+    """The filter's rules for the bases over `max_cells` cells that `pickup_rules` leaves out, for `qualities` alone
+    (a gray item counts when `qualities` holds a white quality): the cap lifted only for what the loop judges before
+    it carries it (2026-10-20, macros/pickup.py `wanted`: the field identify's magic and rare items, the ground read's
+    white bases). Every such drop is still judged by macros/pickmode.py `kept`, in every pickup level."""
+    sizes = {int(class_id): size[0] * size[1] for class_id, size in json.loads(SIZES.read_text())['sizes'].items()}
+    rules = []
+    for rule in filter_rules(path):
+        if rule.qualities <= NAMED_QUALITIES:
+            continue
+        big = frozenset(class_id for class_id in rule.classes if sizes.get(class_id, 1) > max_cells)
+        taken = (rule.qualities - NAMED_QUALITIES) & qualities
+        gray = rule.gray and bool(qualities & GRAY_QUALITIES)
+        if big and (taken or gray):
+            rules.append(ShownRule(frozenset(taken), gray, big))
     return tuple(rules)
 
 

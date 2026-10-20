@@ -1,20 +1,26 @@
 ---
 name: lootfilter
-description: Explain or change the D2R in-game loot filter profiles in lootfilter/ (why an item is shown or hidden, add/remove a rule, verify item codes); knows the filter's evaluation semantics and import limits.
+description: Explain or change the D2R in-game loot filter, the one profile in lootfilter/ (why an item is shown or hidden, add/remove a rule, verify item codes); knows the filter's evaluation semantics and import limits.
 ---
 
 # Loot filter
 
-Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 13 rules; "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable),
-`lootfilter/warlock_lean_v2.json` (profile "Warlock Lean2", 16 rules, 2026-10-09: Lean with uniques and sets shown **by base**,
-from **sales** (`pricing/data/named-trades.json`: 3+ trades in 30 days at a median ≥ 0.25 Ist, or 1+ in 90 days at ≥ 1 Ist),
-planner loadouts, leveling items the collection DB says are not owned, and (2026-10-11) items the character's Chronicle lacks —
-the player runs `uv run -m inventory_tracking.probes.chronicle` in a game from their own terminal, then the generator; **generated** by
-`uv run --offline python -m inventory_tracking.loot.build_filter`, never hand-edited — edit Lean, then regenerate;
-refresh the trade record with `node pricing/tools/traderie_trades.mjs <catalog ids> --out pricing/raw/traderie/recent-named-<date>`
-then `uv run --offline python pricing/tools/named_trades.py <that dir>`;
-`lootfilter/warlock_lean_v2.names.json` says per unique/set name whether it shows and why) and
-`lootfilter/warlock_echoing_strike.json` (profile "General (ALL)", 23 rules, the older per-class one).
+One filter file (player, 2026-10-20: "retire other filters. and keep only one filter file at all"):
+`lootfilter/warlock_lean_v2.json`, profile "Warlock Lean2", 19 rules. Keep that name: the game saves the imported
+profile as `Warlock Lean2.fltr`, which `inventory_tracking/loot/shown.py` `game_filter` reads for the gems, and the
+pickup reads the repo file (`shown.FILTER`). "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable.
+The file is its own source: edit any rule by hand in it, **except** the four generated ones (SHOW Unique ARMOR /
+WEAPONS, SHOW Set ARMOR / WEAPONS), which `uv run --offline python -m inventory_tracking.loot.build_filter`
+(`make filter` reads the Chronicle first) rebuilds in place, leaving every other rule as it is. They show uniques
+and sets **by base**, from **sales** (`pricing/data/named-trades.json`: 3+ trades in 30 days at a median ≥ 0.25 Ist,
+or 1+ in 90 days at ≥ 1 Ist), planner loadouts, leveling items the collection DB says are not owned, and (2026-10-11)
+items the character's Chronicle lacks — the player runs `uv run -m inventory_tracking.probes.chronicle` in a game
+from their own terminal, then the generator; refresh the trade record with
+`node pricing/tools/traderie_trades.mjs <catalog ids> --out pricing/raw/traderie/recent-named-<date>`
+then `uv run --offline python pricing/tools/named_trades.py <that dir>`.
+The names sidecar `inventory_tracking/loot/data/filter_names.json` (written by the generator; loot data, not a filter)
+says per unique/set name whether it shows and why. Do not add other profiles to `lootfilter/` (a test holds it to the
+one file); the retired Warlock Lean (16 rules, uniques and sets unnarrowed) and General (ALL) profiles are in git history.
 "Why is unique X hidden?" → look its name up in the names sidecar; the evidence rules are in the generator's docstring.
 The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules the filter implements:
 `guides/pindle-anya.html` §3 (`PK-*`) and `pricing/data/wp-d-pickup.json` (a `why` per key);
@@ -34,7 +40,8 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
   vs non-eth is decided after pickup (KB: eth gloves/boots/belts price as non-eth).
 - `equipmentRarity: ["normal"]` also matches gray socketed/ethereal white bases;
   `filterEtherealSocketed: true` matches gray items. "hiQuality + flag, no normal" = show Superior and gray
-  bases, hide plain 0os whites.
+  bases, hide plain 0os whites. "lowQuality + flag" on elite codes = the gray copies only (an elite base is never
+  low quality: itemratio.json Uber rows; SHOW Cure Helms Gray, 2026-10-20, inferred, Alt check pending).
 - Category codes: `acce` rings/amulets/charms/jewels; `armo`/`weap` parents; class: `assas amazo sorce
   palad barbh necro druid warlo`; `daggs circl glove boots belts shlds`. `itemCategory`: `misc` (all
   non-equipment), `gems`, `runes`, `potis`, `uberm`, `terrt`, `absol`; `goldFilterValue` = pile threshold.
@@ -62,5 +69,6 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
    Legend Spike rate → shown. Evidence: `pricing/raw/traderie/buy-side-20261009/`, warlock guide §6 review log.
 3. After editing: keep `guides/warlock.html` §6 rule table in sync, and log a dated pass in its Review log.
 4. Verify in-game with Alt after import; the game's toggle for "Show Items" resets every game (no fix).
-5. Another session sometimes edits `guides/warlock.html` and `lootfilter/warlock_lean.json` concurrently;
-   re-read before writing.
+5. Another session sometimes edits `guides/warlock.html` and `lootfilter/warlock_lean_v2.json` concurrently;
+   re-read before writing. After a hand edit, rerun the generator: it keeps the edit and rewrites the file in its
+   own form (2-space JSON), so the file stays what the game imports.

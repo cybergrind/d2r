@@ -143,9 +143,12 @@ def tome_pack(*items: Carried, charges: int = 20) -> Pack:
 
 
 def test_m4_ships_on_for_every_class_built():
-    """G6 first (design.md §7 M4), then G9-G11: the player, 2026-10-20 ~11:05: "turn on G9-G11 too"."""
+    """G6 first (design.md §7 M4), then G9-G11: the player, 2026-10-20 ~11:05: "turn on G9-G11 too"; G14 and G15,
+    the big items, ~12:00: "start all three"."""
     assert FIELD_IDENTIFY
-    assert frozenset(('G6', 'G9', 'G10', 'G11')) == CLASSES
+    assert api.FIELD_BIG
+    assert api.FIELD_OVERSIZE
+    assert frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15')) == CLASSES
     assert frozenset(('G9', 'G10', 'G11')) <= api.IMPLEMENTED
     assert api.IDENTIFY_RESERVE == 5
 
@@ -167,8 +170,97 @@ def test_a_magic_monarch_the_good_pickup_leaves_is_picked_for_the_field_identify
         ('a potion or gold: no valuable', drop_of(15, kind='healing')),
     ],
 )
-def test_what_no_class_takes_is_not_picked_for_it(looped, why, drop):
+def test_what_no_class_takes_is_not_picked_for_it(looped, why, drop, monkeypatch):
+    monkeypatch.setattr(api, 'FIELD_BIG', False)  # the size classes: their own tests below
+    monkeypatch.setattr(api, 'FIELD_OVERSIZE', False)
     assert looped.takes(drop) is None, why
+
+
+# -- the big items (G14, G15) ----------------------------------------------------------------------------------------
+
+ARCHON, GRAND_MATRON_BOW, ZAKARUM, HEAVY_BELT = 443, 302, 501, 347  # items metadata classes (utp, amc, pae, tbl)
+
+
+def big(unit: int, txt: int, quality: int, size: tuple[int, int], **changes: Any) -> Drop:
+    return drop_of(unit, txt, quality, size=size, label='Magic' if quality == MAGIC else 'Rare', **changes)
+
+
+@pytest.mark.parametrize(
+    ('klass', 'drop'),
+    [
+        ('G14', big(60, ARCHON, MAGIC, (2, 3))),  # a magic Archon Plate: no field class before (G12 is off)
+        ('G14', big(61, SACRED_TARGE, MAGIC, (2, 2))),  # 4 cells, the least of Q6's "every item >= 4 cells"
+        ('G14', big(62, MONARCH, RARE, (2, 3))),  # a rare Monarch: no G6 row
+        ('G15', big(63, GRAND_MATRON_BOW, RARE, (2, 4))),  # over the cap: "like spears, matron bow"
+        ('G15', big(64, ZAKARUM, RARE, (2, 4))),
+        ('G6', big(65, MONARCH, MAGIC, (2, 3))),  # a class of its own first
+    ],
+)
+def test_a_big_shown_magic_or_rare_item_is_picked_for_the_field_check(looped, klass, drop):
+    """The player, 2026-10-20 ~11:55: "bases or blue/rare items might take much place (like spears, matron bow) --
+    we want to check them and drop in the middle of the run"; ~12:00 "start all three"."""
+    assert looped.takes(drop) == klass
+    assert looped.pick(drop, (GAME, 7))
+    assert looped.class_of(drop.unit_id, GAME) == klass
+
+
+def test_the_size_classes_take_only_what_the_filter_shows_and_each_switch_turns_one_off(looped, monkeypatch):
+    assert looped.takes(big(70, HEAVY_BELT, RARE, (2, 1))) is None  # 2 cells: carried as before
+    assert looped.takes(big(71, ARCHON, MAGIC, (2, 3), source='material')) is None  # not the filter's gear
+    assert looped.takes(big(72, ARCHON, MAGIC, (2, 3), prized=True)) is None  # the marks': a sure valuable
+    assert Field().takes(big(73, ARCHON, MAGIC, (2, 3))) is None  # the loop off: KP_1 by hand as before
+    monkeypatch.setattr(api, 'FIELD_BIG', False)
+    assert looped.takes(big(74, ARCHON, MAGIC, (2, 3))) is None
+    assert looped.takes(big(75, GRAND_MATRON_BOW, RARE, (2, 4))) == 'G15'
+    monkeypatch.setattr(api, 'FIELD_OVERSIZE', False)
+    assert looped.takes(big(76, GRAND_MATRON_BOW, RARE, (2, 4))) is None
+
+
+ROOMY = ('..........', '..........', '..........', '..........')
+
+
+def test_a_big_item_is_taken_only_with_a_grand_charms_room_left_after_it(looped):
+    bow = big(80, GRAND_MATRON_BOW, RARE, (2, 4))
+    assert api.leaves_room(ROOMY, (2, 4))
+    assert api.leaves_room(None, (2, 4))  # unread: the pickup's own room rule decides
+    two = ('########..', '########..', '########..', '########..')  # a 2x4 hole and nothing else
+    assert not api.leaves_room(two, (2, 4))
+    three = ('#######...', '#######...', '#######...', '#######...')  # a 1x4 column left beside it
+    assert api.leaves_room(three, (2, 4))
+    assert not looped.pick(bow, (GAME, 7), two)
+    assert looped.class_of(80, GAME) is None  # not remembered: seen again at the next look
+    assert looped.pick(bow, (GAME, 7), three)
+    ring = drop_of(81, RING, source='material', size=(1, 1))
+    assert looped.pick(ring, (GAME, 7), ('#########.', '##########', '##########', '##########'))  # small: as before
+
+
+def archon_read(sockets: int, life: int = 0) -> dict[str, Any]:
+    stats = [{'name': 'maxhp', 'memory_stat': {'id': 7, 'layer': 0, 'raw': life * 256}, 'value': life,
+              'status': 'decoded'}] if life else []  # fmt: skip
+    return {
+        'item': {'name': 'Archon Plate', 'base_name': 'Archon Plate', 'base_code': 'utp', 'rarity': 'magic',
+                 'identified': True, 'ethereal': False, 'sockets': sockets},
+        'source': {},
+        'decoded_stats': stats,
+    }  # fmt: skip
+
+
+def test_a_bad_big_item_is_dropped_in_the_field_and_a_jewelers_one_kept(looped):
+    """Q6/G14: a magic Archon Plate with no paid roll is put down where it was identified; a 4os one (Jeweler's,
+    a want row) is kept whatever the appraisal says (api.droppable)."""
+    plain, jewelers = Carried(90, ARCHON, 0, 0, (2, 3), MAGIC, False), Carried(91, ARCHON, 2, 0, (2, 3), MAGIC, False)
+    hands = Hands(tome_pack(plain, jewelers))
+    hands.reads[90] = Appraised(archon_read(0, life=20), VENDOR, 'vendor')
+    hands.reads[91] = Appraised(archon_read(4), VENDOR, 'vendor')
+    for unit in (90, 91):
+        assert looped.pick(big(unit, ARCHON, MAGIC, (2, 3)), (GAME, 7))
+
+    done = looped.settle(hands, 'Town Portal')
+
+    assert sorted(hands.identified) == [90, 91]
+    assert hands.dropped == [90]
+    assert hands.rejected == [90]
+    assert done.dropped == 1
 
 
 def test_nothing_is_picked_for_it_with_the_loop_off_or_the_switch_off(looped, monkeypatch):

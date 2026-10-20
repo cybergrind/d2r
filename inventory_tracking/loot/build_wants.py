@@ -38,6 +38,9 @@ PRICES = 'pricing/data/wp-b-prices.json'
 OWN = 'pricing/data/triage/own.json'
 D2DATA = ('armor.json', 'weapons.json', 'misc.json')
 PINDLE, WARLOCK, PRICING = 'guides/pindle-anya.html', 'guides/warlock.html', 'guides/pricing.html'
+PRIMER = 'guides/pricing-primer.html'
+RUNES = 'third-parties/d2data/json/runes.json'  # a runeword's item types (itype) and runes (= its socket count)
+ARMOR = 'third-parties/d2data/json/armor.json'
 
 WHITE = ['normal', 'superior']
 LIFE = 256  # maxhp raw units a point
@@ -45,8 +48,25 @@ RESISTS = ['39:0', '41:0', '43:0', '45:0']
 VOID_STAFFMODS = ['107:402', '107:389', '107:401']  # Abyss, Hex: Purge, Apocalypse
 WARLOCK_TABS = ['188:56', '188:57', '188:58']
 POLEARMS = ['Thresher', 'Giant Thresher', 'Cryptic Axe', 'Great Poleaxe', 'Colossus Voulge', 'Mancatcher']
+# PK-merc-polearms names it too ("Matriarchal Spear (6)"): `amd`, item type `aspe` (Amazon Spear), not `spea`
+MERC_SPEARS = [*POLEARMS, 'Matriarchal Spear']
+# The merc's own bases are the fast ones (the player, 2026-10-20 ~13:20: "I'm not sure about colosus voulge speed wise,
+# probably we need to keep only fast bases first"): weapons.json speed -10, Thresher and Giant Thresher (Great Poleaxe
+# 0, Cryptic Axe and Colossus Voulge +10, Mancatcher -20 but a spear: no Insight, runes.json Insight itype pole/staf/
+# miss). Mancatcher (-20, a spear) is the fast Infinity base (runes.json Infinity itype pole/spea; the player, ~13:25:
+# "we will need good infinity base later"). The slower ones are market rows, kept by their worth alone
+MERC_FAST = ['Thresher', 'Giant Thresher', 'Mancatcher']
+MERC_SLOW = [base for base in MERC_SPEARS if base not in MERC_FAST]
+AMAZON_BOWS = ['Grand Matron Bow', 'Matriarchal Bow']
+BOW_SKILLS = '188:0'  # +N to Bow and Crossbow Skills: the Amazon's (class 0) first tab (items/stat_constants.py)
 VOID_BASES = ['Kriss', 'Blade', 'Cinquedeas', 'Stilleto', 'Fanged Knife', 'Legend Spike']
 CIRCLETS = ['Circlet', 'Coronet', 'Tiara', 'Diadem']
+CLASS_SKILLS = [f'83:{layer}' for layer in range(8)]  # +N to a class's skills, layer = class (7 the Warlock)
+SKILL_TREES = [f'188:{klass * 8 + tree}' for klass in range(8) for tree in range(3)]  # stat 188 layer class*8+tree
+# The player, 2026-10-20 ~12:50: "I want to keep more monarch bases". The Spirit base row (a white or superior non-eth
+# 4os Monarch) keeps copies until this many are owned in all (bases in the collection, no runeword: 2 on 2026-10-20,
+# MSockB and MSockC); later copies only when better (Superior 15 ED on the ground; better ED once carried, keep.py)
+SPIRIT_MONARCH_CAP = 6
 
 
 def eth(value: bool = True) -> dict:
@@ -69,6 +89,20 @@ def spec(key: str, label: str, low: int, high: int, good: int | None = None, sca
 
 ED_ARMOR = spec('16:0', 'Enhanced Defense (superior)', 1, 15, good=15)
 ED_WEAPON = spec('17:0', 'Enhanced Damage (superior)', 1, 15, good=15)
+# A rare circlet's valuable third stat beside FCR and +skills (pricing.html §4 rare table, the Circlet row's "then two
+# of": FRW, sockets, res, life, mana, str/dex; IAS cannot roll on a circlet). The floors follow the circlet affixes
+# (d2data magicsuffix/magicprefix): life 30+ (of the Tiger 21-30, Mammoth 31-40, Colosuss 41-60), a resist 10+, str or
+# dex 10+ (of the Giant, of Precision), mana 40+ (Wyrm's 41-60), a socket (Mechanist's 1-2), 30 FRW (of Speed)
+CIRCLET_EXTRAS = [
+    at_least('7:0', 30, LIFE),
+    at_least(RESISTS, 10),
+    at_least('0:0', 10),
+    at_least('2:0', 10),
+    at_least('9:0', 40, LIFE),
+    at_least('194:0', 1),
+    at_least('96:0', 30),
+]
+
 
 # The rows (loot/design.md §4.2). `bases`: names resolved to codes; `asks`: a wp-b bucket (item slug, bucket).
 ROWS: list[dict[str, Any]] = [
@@ -77,13 +111,27 @@ ROWS: list[dict[str, Any]] = [
         'id': 'merc-polearm-eth-4os-superior',
         'class': 'G3',
         'who': 'merc',
-        'label': 'Insight / Infinity base: eth 4os Superior merc polearm',
-        'bases': POLEARMS,
+        'label': 'Insight / Infinity base: eth 4os Superior fast merc polearm',
+        'bases': MERC_FAST,
         'qualities': ['superior'],
         'ground': [eth(), sockets(4)],
         'must': [eth(), sockets(4)],
         'always_keep': True,
         'must_have': True,
+        'matters': [ED_WEAPON],
+        'asks': ('giant-thresher', '4os/eth/superior'),
+        'source': f'{PINDLE}:291',
+        'quote': 'Keep eth 4os Superior of any',
+    },
+    {
+        'id': 'merc-polearm-eth-4os-superior-slow',
+        'class': 'G3',
+        'who': 'trade',
+        'label': 'Infinity / Insight base, slow or a spear: eth 4os Superior (kept by its worth)',
+        'bases': MERC_SLOW,
+        'qualities': ['superior'],
+        'ground': [eth(), sockets(4)],
+        'must': [eth(), sockets(4)],
         'matters': [ED_WEAPON],
         'asks': ('giant-thresher', '4os/eth/superior'),
         'source': f'{PINDLE}:291',
@@ -101,7 +149,7 @@ ROWS: list[dict[str, Any]] = [
         'always_keep': True,
         'must_have': True,
         'asks': ('giant-thresher', '4os/eth/normal'),
-        'source': f'{PINDLE}:291; {WARLOCK}:166',
+        'source': f'{PINDLE}:291; {WARLOCK}:166; {RUNES}:1639',
         'quote': 'eth 4os plain GT',
     },
     {
@@ -173,7 +221,7 @@ ROWS: list[dict[str, Any]] = [
         'always_keep': True,
         'must_have': True,
         'asks': ('archon-plate', '4os/eth/normal'),
-        'source': f'{WARLOCK}:139; {PINDLE}:286',
+        'source': f'{WARLOCK}:139; {PINDLE}:286; {RUNES}:353',
         'quote': 'Eth 4os Archon Plate asks 9.3',
     },
     {
@@ -257,16 +305,23 @@ ROWS: list[dict[str, Any]] = [
         'quote': 'keep Superior ≥15 ED 4os or 0os',
     },
     {
+        # The player, 2026-10-20 ~12:18: "also keep a base for spirit monarch". Spirit is Tal-Thul-Ort-Amn in any
+        # shield (runes.json itype shld, 4 runes); not eth on the player's own shield (PK-eth: eth loses durability
+        # and no vendor repairs it). ~12:50 "I want to keep more monarch bases": picked and kept until
+        # SPIRIT_MONARCH_CAP are owned (`keep_up_to`: ground_judge.py, keep.py K3), later copies only when better;
+        # a Superior 15 ED one is the previous row's
         'id': 'spirit-monarch-plain-4os',
         'class': 'G5',
         'who': 'warlock',
-        'label': 'Spirit base: plain 4os Monarch',
+        'label': 'Spirit base (own use): non-eth 4os Monarch',
         'bases': ['Monarch'],
-        'qualities': ['normal'],
-        'ground': [sockets(4)],
-        'must': [sockets(4)],
+        'qualities': WHITE,
+        'ground': [eth(False), sockets(4)],
+        'must': [eth(False), sockets(4)],
+        'keep_up_to': SPIRIT_MONARCH_CAP,
+        'matters': [ED_ARMOR],
         'asks': ('monarch', '4os/noneth/normal'),
-        'source': f'{PINDLE}:288; {WARLOCK}:156',
+        'source': f'{PINDLE}:288; {WARLOCK}:156; {PINDLE}:285; {RUNES}:2982',
         'quote': 'plain 4os = self-use Spirit base',
     },
     # G6 magic Monarch (PK-blue-jeweler)
@@ -358,7 +413,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [at_least(RESISTS, 40), at_least('194:0', 3)],
         'must': [at_least(RESISTS, 40), at_least('194:0', 3)],
-        'source': f'{PINDLE}:289; inventory_tracking/macros/pickmode.py:75',
+        'source': f'{PINDLE}:289; inventory_tracking/macros/pickmode.py:89',
         'quote': 'sell 40–44@',  # ruff: ignore[ambiguous-unicode-character-string] (the guide's dash)
     },
     {
@@ -382,7 +437,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [at_least(RESISTS, 45), eth()],
         'must': [at_least(RESISTS, 45), eth()],
-        'source': 'inventory_tracking/macros/pickmode.py:135',
+        'source': 'inventory_tracking/macros/pickmode.py:172',
         'quote': 'found.ethereal',
     },
     {
@@ -413,7 +468,7 @@ ROWS: list[dict[str, Any]] = [
             spec('107:401', '+3 Apocalypse', 1, 3, good=3),
         ],
         'asks': ('legend-spike', '3os/noneth/normal/affixed'),
-        'source': f'{PRICING}:330; {PINDLE}:294; inventory_tracking/macros/pickmode.py:66',
+        'source': f'{PRICING}:330; {PINDLE}:294; inventory_tracking/macros/pickmode.py:80',
         'quote': 'a second 3os elite dagger with +3 Abyss / Chaos staff-mods',
     },
     {
@@ -425,7 +480,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [sockets(0), at_least('107:402', 3)],
         'must': [sockets(0), at_least('107:402', 3)],
-        'source': 'inventory_tracking/macros/pickmode.py:68',
+        'source': 'inventory_tracking/macros/pickmode.py:82',
         'quote': '0 socket +3 abyss',
     },
     # G9 Warlock class items (PK-blue-class-items; pricing.html §7)
@@ -474,6 +529,47 @@ ROWS: list[dict[str, Any]] = [
         'source': f'{PINDLE}:297',
         'quote': 'ID every magic/rare Circlet / Coronet / Tiara / Diadem',
     },
+    # The player, 2026-10-20 ~12:50: "I want to try to find rare helms (tiara, corona, etc) that are really good - fcr
+    # + 2skills level + other valuable stats". Only circlets roll either on a rare (d2data: of the Magus 20 FCR
+    # magicsuffix.json:3029 itype circ/orb/rod, of the Apprentice 10 FCR :3009; Arch-Devil's +2 Warlock
+    # magicprefix.json:13176 rare, amul/circ, affix level 90; +2 to a Warlock tree rare: Dreadful Demon :13114,
+    # TaintedAffix Eldritch :13043, Erratic Chaos :12974, the +3 trees magic only). A plain helm (Corona, Shako...,
+    # type helm) rolls no FCR and only Barbarian Combat / Assassin Shadow tree prefixes: never a Warlock helm.
+    # 20 FCR is the circlet's top FCR (the build sits at the 125 breakpoint, warlock.html:114). The scoped asks of
+    # 2026-09-18/19 (pricing/data/appraisal-market.jsonl, one ask a seller): +2 Warlock + 20 FCR + a third stat 11.4
+    # q1 -> 57.1 median (5 priced sellers), with nothing else 17.1 -> 22.8 (2), +2 Warlock without FCR 25.7 -> 34.3
+    # (6, with a third stat), +2 Eldritch/Chaos/Demon + 20 FCR 11.4 (1) and 17.1 -> 22.8 (3, with a third stat)
+    {
+        'id': 'warlock-circlet-fcr-plus2-warlock-extra',
+        'class': 'G10',
+        'who': 'warlock',
+        'label': 'Warlock helm, really good: rare circlet 20 FCR, +2 Warlock and a third stat',
+        'bases': CIRCLETS,
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('105:0', 20), at_least('83:7', 2)],
+        'any': CIRCLET_EXTRAS,
+        'always_keep': True,
+        'matters': [spec('7:0', 'Life', 1, 60, scale=LIFE), spec('39:0', 'Fire Resist', 1, 40)],
+        'asks': ('diadem', '2os/noneth/rare'),
+        'source': f'{PRICING}:233; {WARLOCK}:114; {WARLOCK}:158; third-parties/d2data/json/magicprefix.json:13176; '
+        'third-parties/d2data/json/magicsuffix.json:3029',
+        'quote': '20 FCR with +1 class skills',
+    },
+    {
+        'id': 'warlock-circlet-fcr-plus2-eldritch-extra',
+        'class': 'G10',
+        'who': 'warlock',
+        'label': 'Warlock helm, really good: rare circlet 20 FCR, +2 Eldritch (Echoing Strike) and a third stat',
+        'bases': CIRCLETS,
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('105:0', 20), at_least('188:57', 2)],
+        'any': CIRCLET_EXTRAS,
+        'always_keep': True,
+        'matters': [spec('7:0', 'Life', 1, 60, scale=LIFE), spec('39:0', 'Fire Resist', 1, 40)],
+        'source': f'{PRICING}:233; third-parties/d2data/json/magicprefix.json:13043; '
+        'third-parties/d2data/json/skilldesc.json:2575',
+        'quote': '+2 to a skill tree',
+    },
     {
         'id': 'warlock-circlet-fcr-plus2',
         'class': 'G10',
@@ -487,6 +583,33 @@ ROWS: list[dict[str, Any]] = [
         'matters': [spec('105:0', 'Faster Cast Rate', 10, 20, good=20)],
         'source': f'{WARLOCK}:158; {PRICING}:332; {PRICING}:233',
         'quote': 'Rare Diadem',
+    },
+    # The weaker rare circlets the evidence still prices at 1 Ist or more (pricing.html §4 rare table, Circlet row,
+    # "Must-affixes": "+2 class skills alone; or 20 FCR with +1 class skills, +2 to a skill tree or 30 FRW"): kept
+    # (never field-dropped: a want), not as always-keep rows. Every other rare circlet is junk (keep.py K8)
+    {
+        'id': 'rare-circlet-plus2-class',
+        'class': 'G10',
+        'who': 'trade',
+        'label': 'rare circlet +2 class skills (any class, FCR or not)',
+        'bases': CIRCLETS,
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least(CLASS_SKILLS, 2)],
+        'asks': ('tiara', '0os/noneth/rare'),
+        'source': f'{PRICING}:233; {PRIMER}:482',
+        'quote': '+2 class without FCR: 33 priced sellers the FCR-only gate missed, lower quartile 8 Ist',
+    },
+    {
+        'id': 'rare-circlet-fcr-gate',
+        'class': 'G10',
+        'who': 'trade',
+        'label': 'rare circlet 20 FCR with +1 class skills, +2 to a skill tree or 30 FRW',
+        'bases': CIRCLETS,
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('105:0', 20)],
+        'any': [at_least(CLASS_SKILLS, 1), at_least(SKILL_TREES, 2), at_least('96:0', 30)],
+        'source': f'{PRICING}:233',
+        'quote': '20 FCR with +1 class skills, +2 to a skill tree or 30 FRW',
     },
     # G11 rare rings and amulets (PK-blue-jewelry-gloves; pricing.html §6)
     {
@@ -597,6 +720,171 @@ ROWS: list[dict[str, Any]] = [
         'quote': 'Warlock skillers (Chaos / Eldritch / Demon GCs)',
     },
 ]
+
+
+# G16 market-only white bases (Q7 of loot/design.md §8, the recommended answer the player took on 2026-10-20 ~12:00,
+# "start all three": "Pick only rows >= 1 Ist with the exact socket count (superior >= 15 ED); never plain ones; never
+# carried to town to be sold"). No build or merc of the player's uses them; the guide's Keep/Sell rows that are
+# Superior >= 15 ED, each with its asks bucket at >= 1 Ist (wp-b, 2026-09-18). Plain ones (PK-elite-weapons' "Floor",
+# PK-bows' "4os plain +3 GMB") are left.
+MARKET_ROWS: list[dict[str, Any]] = [
+    {
+        'id': 'market-phase-blade-superior-15ed-5-6os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Phase Blade 5/6os (Grief, Last Wish)',
+        'bases': ['Phase Blade'],
+        'qualities': ['superior'],
+        'ground': [sockets(5, 6), at_least('17:0', 15)],
+        'must': [sockets(5, 6), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('phase-blade', '5os/noneth/superior/15ed'),
+        'source': f'{PINDLE}:290',
+        'quote': 'PB 5os or 6os',
+    },
+    {
+        'id': 'market-berserker-axe-superior-15ed-5os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Berserker Axe 5os, not eth',
+        'bases': ['Berserker Axe'],
+        'qualities': ['superior'],
+        'ground': [eth(False), sockets(5), at_least('17:0', 15)],
+        'must': [eth(False), sockets(5), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('berserker-axe', '5os/noneth/superior/15ed'),
+        'source': f'{PINDLE}:290',
+        'quote': 'BA 5os non-eth, eth 6os, eth 0os',
+    },
+    {
+        'id': 'market-berserker-axe-eth-superior-15ed-0-6os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED eth Berserker Axe 0/6os',
+        'bases': ['Berserker Axe'],
+        'qualities': ['superior'],
+        'ground': [eth(), sockets(0, 6), at_least('17:0', 15)],
+        'must': [eth(), sockets(0, 6), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('berserker-axe', '6os/eth/superior/15ed'),
+        'source': f'{PINDLE}:290',
+        'quote': 'BA 5os non-eth, eth 6os, eth 0os',
+    },
+    {
+        'id': 'market-colossus-blade-superior-15ed-5os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Colossus Blade 5os',
+        'bases': ['Colossus Blade'],
+        'qualities': ['superior'],
+        'ground': [sockets(5), at_least('17:0', 15)],
+        'must': [sockets(5), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('colossus-blade', '5os/noneth/superior/15ed'),
+        'source': f'{PINDLE}:290',
+        'quote': 'CB 5os, or eth 0/5/6os',
+    },
+    {
+        'id': 'market-colossus-blade-eth-superior-15ed-0-6os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED eth Colossus Blade 0/5/6os',
+        'bases': ['Colossus Blade'],
+        'qualities': ['superior'],
+        'ground': [eth(), sockets(0, 5, 6), at_least('17:0', 15)],
+        'must': [eth(), sockets(0, 5, 6), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('colossus-blade', '0os/eth/superior/15ed'),
+        'source': f'{PINDLE}:290',
+        'quote': 'CB 5os, or eth 0/5/6os',
+    },
+    {
+        'id': 'market-amazon-bow-superior-15ed-4os-plus3',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED +3 Bow skills Grand Matron / Matriarchal Bow 4os',
+        'bases': AMAZON_BOWS,
+        'qualities': ['superior'],
+        'ground': [sockets(4), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'must': [sockets(4), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'matters': [ED_WEAPON],
+        'asks': ('grand-matron-bow', '4os/noneth/superior/15ed/skill3'),
+        'source': f'{PINDLE}:292',
+        'quote': 'Keep 4os Superior ≥15 ED +3 (either)',
+    },
+    {
+        'id': 'market-matriarchal-bow-superior-15ed-0os-plus3',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED +3 Bow skills Matriarchal Bow 0os',
+        'bases': ['Matriarchal Bow'],
+        'qualities': ['superior'],
+        'ground': [sockets(0), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'must': [sockets(0), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'matters': [ED_WEAPON],
+        'asks': ('matriarchal-bow', '0os/noneth/superior/15ed/skill3'),
+        'source': f'{PINDLE}:292',
+        'quote': '0os Superior 15 ED +3 Mat Bow',
+    },
+    {
+        'id': 'market-grand-matron-bow-superior-15ed-5os-plus3',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED +3 Bow skills Grand Matron Bow 5os (sell)',
+        'bases': ['Grand Matron Bow'],
+        'qualities': ['superior'],
+        'ground': [sockets(5), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'must': [sockets(5), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'matters': [ED_WEAPON],
+        'asks': ('grand-matron-bow', '5os/noneth/superior/15ed/skill3'),
+        'source': f'{PINDLE}:292',
+        'quote': '5os Superior ≥15 ED +3 GMB',
+    },
+]
+ROWS += MARKET_ROWS
+
+
+# The player's own-use bases (2026-10-20 ~12:15: "Also, I want to get some bases for what I personally want: - bis
+# preferrably ethereal base for merc insight - best base for exile (4os, at least +40 all res, preferrably ethereal
+# shield) for paladin - base for cure (3os) for merc - merc chain of honor base (archon plate? maybe ethereal, 4os)").
+# Insight and Chains of Honor are the G3/G4 merc rows above (eth 4os Giant Thresher or any eth 4os Superior merc
+# polearm; eth 4os Archon Plate); these add Exile and Cure. Kept, never field-dropped (a want: loot/api.py
+# `droppable`); a later copy under 1 Ist only when better by the rolls that matter (keep.py K6), eth and non-eth
+# being different items (value.py `comparable`).
+OWN_BASES: list[dict[str, Any]] = [
+    {
+        'id': 'own-exile-paladin-shield-4os-40res',
+        'class': 'G7',
+        'who': 'runeword-base',
+        'label': 'Exile base (own Paladin): Sacred Targe / Rondache 4os or 0os, all res 40+, eth preferred',
+        'bases': ['Sacred Targe', 'Sacred Rondache'],
+        'qualities': WHITE,
+        'ground': [sockets(0, 4), at_least(RESISTS, 40)],
+        'must': [sockets(0, 4), at_least(RESISTS, 40)],
+        'matters': [spec('39:0', 'All Resistances', 30, 45, good=45), ED_ARMOR],
+        'asks': ('sacred-targe', '4os/eth/normal/res45'),
+        'source': f'{PRIMER}:372; {PINDLE}:289; {PINDLE}:285; {RUNES}:955',
+        'quote': 'eth 45@ 45.7 → 63 (n=9, Exile)',
+    },
+    {
+        # Cure is Shael-Io-Tal in a helm (runes.json itype helm, 3 runes); the merc's eth (PK-eth: "Ethereal gear is
+        # preferred since it doesn't lose durability" in the merc sections). The elite 3-socket helms by defense
+        # (armor.json): Corona 111-165 (str 174), Spired Helm 114-159 (192), Bone Visage 100-157 (106), Demonhead
+        # 101-154 (102), all under the Act 2 merc's 204 str (warlock.html §0.1); 0os: Larzuk gives their maximum 3
+        'id': 'own-merc-cure-helm-eth-3os',
+        'class': 'G17',
+        'who': 'merc',
+        'label': 'Cure base (merc): eth 3os or 0os Corona / Spired Helm / Bone Visage / Demonhead',
+        'bases': ['Corona', 'Spired Helm', 'Bone Visage', 'Demonhead'],
+        'qualities': WHITE,
+        'ground': [eth(), sockets(0, 3)],
+        'must': [eth(), sockets(0, 3)],
+        'matters': [ED_ARMOR],
+        'source': f'{PINDLE}:480; {WARLOCK}:141; {PINDLE}:285; {RUNES}:496; {ARMOR}:11724',
+        'quote': 'early merc helms (Bulwark/Temper/Ground/Cure/Hearth 3)',
+    },
+]
+ROWS += OWN_BASES
 
 
 @cache

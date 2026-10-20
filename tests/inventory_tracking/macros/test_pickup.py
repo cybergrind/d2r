@@ -398,7 +398,29 @@ def test_the_pickup_step_wants_what_the_loot_filter_shows_the_smaller_bases_belo
     from inventory_tracking.macros.pickup import wanted
 
     assert APPRAISAL.pickup_shown_cells == 6
-    assert wanted()['shown'] == pickup_rules(6) != ()
+    assert wanted()['shown'][: len(pickup_rules(6))] == pickup_rules(6) != ()
+
+
+def test_over_the_cell_cap_the_look_reads_only_the_magic_rare_and_white_bases_the_loop_judges(monkeypatch):
+    # The player, 2026-10-20 ~11:55: "bases or blue/rare items might take much place (like spears, matron bow) -- we
+    # want to check them"; ~12:00 "start all three" (loot/api.py G15, loot/ground_judge.py BASES)
+    import json
+
+    from inventory_tracking.loot import api, ground_judge
+    from inventory_tracking.loot.shown import RARITIES, SIZES, pickup_rules
+    from inventory_tracking.macros.pickup import shown_rules
+
+    grand_matron_bow = 302  # amc (items/data/item_metadata.json)
+    sizes = {int(k): v[0] * v[1] for k, v in json.loads(SIZES.read_text())['sizes'].items()}
+    over = shown_rules()[len(pickup_rules(6)) :]
+    assert over
+    assert all(sizes[c] > 6 for rule in over for c in rule.classes)
+    words = ('normal', 'hiQuality', 'magic', 'rare')
+    assert {q for rule in over for q in rule.qualities} <= {RARITIES[w] for w in words}
+    assert grand_matron_bow in {c for rule in over for c in rule.classes}
+    monkeypatch.setattr(api, 'FIELD_OVERSIZE', False)
+    monkeypatch.setattr(ground_judge, 'BASES', False)
+    assert shown_rules() == pickup_rules(6)
 
 
 def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_for_a_while():
@@ -955,3 +977,18 @@ def test_a_unique_grand_charm_with_no_room_for_it_is_no_refusal():
     far = replace(charm, x=5020.0)  # a click that did not bring the character up to it
     play.loot = replace(play.loot, room=None)
     assert refusal(run, far, player) is None
+
+
+def test_an_item_picked_for_the_field_identify_comes_after_every_other_valuable_in_sight(monkeypatch):
+    # The player, 2026-10-20 ~11:55 (big items checked in the field): a big one never takes a valuable's room
+    from inventory_tracking.loot.api import FIELD
+
+    monkeypatch.setattr(FIELD, 'looping', lambda: True)
+    bow = Drop(60, 5001.0, 5001.0, 'Rare Grand Matron Bow', VALUABLE, (2, 4), False, 'shown', 302, 6)
+    assert FIELD.pick(bow, ('game-1', 7))
+    try:
+        nearer_first = Loot((bow, RUNE), FULL, 1000, 1000, game=('game-1', 7))
+        assert choose(nearer_first, ORIGIN) == Plan(RUNE)
+        assert choose(Loot((bow,), FULL, 1000, 1000, game=('game-1', 7)), ORIGIN) == Plan(bow)
+    finally:
+        FIELD.picked.clear()

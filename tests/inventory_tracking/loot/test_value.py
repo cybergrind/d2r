@@ -47,3 +47,44 @@ def test_the_rolls_that_matter_come_from_the_read_without_a_want():
 def test_owned_copies_cannot_be_told_without_a_read():
     facts = facts_of({**GOBLIN, 'rolls': {'16:0': 50}})
     assert CollectionCopies().copies(replace(facts, observation=None)) is None
+
+
+def test_the_owned_bases_count_reads_the_collection_by_base_ethereal_and_sockets(tmp_path, monkeypatch):
+    # The Spirit base Monarch's cap (build_wants.py SPIRIT_MONARCH_CAP, the player 2026-10-20 ~12:50): every open
+    # placement of a white or superior base with the same sockets and ethereal flag, no runeword, online owners only
+    import sqlite3
+
+    from inventory_tracking.collection.store import SCHEMA
+
+    database = tmp_path / 'collection.sqlite'
+    with sqlite3.connect(database) as db:
+        db.executescript(SCHEMA)
+        rows = [  # fingerprint, rarity, ethereal, sockets, runeword, owner, gone
+            ('a', 'normal', 0, 4, None, 'MSockB', None),
+            ('b', 'superior', 0, 4, None, 'MSockC', None),
+            ('c', 'normal', 0, 4, 'Spirit', 'CybergrindAA', None),  # a runeword: no base any more
+            ('d', 'normal', 1, 4, None, 'MSockB', None),  # ethereal: another item
+            ('e', 'normal', 0, 3, None, 'MSockB', None),  # 3os
+            ('f', 'normal', 0, 4, None, 'MSockB', '2026-10-20'),  # gone
+            ('g', 'normal', 0, 4, None, 'Warlock', None),  # an offline character's
+        ]
+        for fingerprint, rarity, ethereal, sockets, runeword, owner, gone in rows:
+            db.execute(
+                "INSERT INTO items VALUES (?, 'uit', 'Monarch', 'Monarch', ?, 1, ?, ?, NULL, '[]', ?, NULL, '[]', 0, "
+                "NULL, 2, 3, '', '{}', 't', 't')",
+                (fingerprint, rarity, ethereal, sockets, runeword),
+            )
+            db.execute(
+                'INSERT INTO placements (fingerprint, owner, container, x, y, capture_id, seen_at, gone_at) '
+                "VALUES (?, ?, 'stash', 0, 0, ?, 't', ?)",
+                (fingerprint, owner, f'capture-{owner}', gone),
+            )
+    monkeypatch.setattr(value, 'offline_characters', lambda: frozenset(('Warlock',)))
+    monkeypatch.setattr(value, '_COUNTS', {})
+    plain = facts_of({'base': 'Monarch', 'code': 'uit', 'quality': 'normal', 'sockets': 4})
+    assert value.owned_bases(plain, database) == 2
+    assert value.owned_bases(replace(plain, ethereal=True), database) == 1
+    assert value.owned_bases(replace(plain, quality=6), database) is None  # a rare: no base count
+    assert value.owned_bases(plain, tmp_path / 'missing.sqlite') == 2  # counted a minute ago: reused
+    monkeypatch.setattr(value, '_COUNTS', {})
+    assert value.owned_bases(plain, tmp_path / 'missing.sqlite') is None  # no collection: the cap does not hold

@@ -10,6 +10,16 @@ level dropped the same evening; rulings and market evidence: history/pickmode.md
 
 A filter over the drops the regular rules found (`kept`): no mode takes what the regular one would not. Item types
 are the game's (items/metadata.py `item_base`), not written from memory.
+
+Since 2026-10-20 (the player, ~11:55: "bases or blue/rare items might take much place (like spears, matron bow) -- we
+want to check them and drop in the middle of the run"; ~12:00 "start all three"):
+- M5 (loot/ground_judge.py BASES): a white or superior base is also taken by its ground read and the wants rows
+  (`ground_base`: eth 4os merc polearms and armor, Superior 15 ED runeword and market bases); a must-have row's
+  (the merc BiS bases) is `prized` (no game left with it, a press stops for it). Today's dagger and shield rules stay.
+- The bases over the cell cap the look now reads (macros/pickup.py `shown_rules`) are kept, in every level, only
+  when the ground read picks them (white) or the field identify takes them (magic, rare: loot/api.py G15).
+- With the loop on, the MOST level's magic and rare items are remembered for the field identify too (loot/api.py
+  `Field.pick`), so a bad one is dropped in the field, not carried to town.
 """
 
 from dataclasses import replace
@@ -17,7 +27,10 @@ from dataclasses import replace
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.items.metadata import item_base
-from inventory_tracking.loot.api import FIELD
+from inventory_tracking.loot import api as field_api, ground_judge, value as loot_value
+from inventory_tracking.loot.api import FIELD, oversize
+from inventory_tracking.loot.facts import from_drop
+from inventory_tracking.loot.ground_judge import GroundVerdict
 from inventory_tracking.loot.shown import RARITIES
 
 
@@ -27,6 +40,7 @@ __all__ = [
     'SURE',
     'WHITE',
     'candidate',
+    'ground_base',
     'identified_for',
     'is_candidate',
     'kept',
@@ -95,14 +109,37 @@ def sure(drop: Drop) -> bool:
 
 def judged_base(drop: Drop) -> bool:
     """Whether the drop is a shown base kept by its rolls read off the ground."""
-    return drop.source in ('shown', 'material') and (void_base(drop) or shield_base(drop))
+    if drop.source not in ('shown', 'material'):
+        return False
+    if void_base(drop) or shield_base(drop):
+        return True
+    verdict = ground_base(drop)
+    return verdict is not None and verdict.pick
+
+
+def ground_base(drop: Drop) -> GroundVerdict | None:
+    """M5: the ground read's verdict on a shown white or superior base the wants rows judge (loot/ground_judge.py
+    `base_verdict`), None for any other drop, with its rolls unread, or with the switch off."""
+    if drop.kind != VALUABLE or drop.quality not in WHITE or drop.source not in ('shown', 'material'):
+        return None
+    if drop.rolls is None or not ground_judge.BASES:
+        return None
+    try:
+        return ground_judge.base_verdict(from_drop(drop), owned=loot_value.owned_bases)  # the Spirit Monarch cap
+    except Exception as error:  # the wants unreadable (another edit under way): today's rules alone
+        LOG.debug('Macro: pickup: no ground verdict on %s: %s', drop.label, error)
+        return None
 
 
 def candidate(drop: Drop, kind: str | None) -> bool:
-    """Whether the drop, of item type `kind`, is a candidate for an identify."""
+    """Whether the drop, of item type `kind`, is a candidate for an identify (or a base no game is kept for: a
+    must-have base is `prized` instead, `kept`)."""
     if drop.source != 'shown' and drop.source != 'material':
         return False
-    return identified_for(kind, drop.quality) or void_base(drop) or shield_base(drop)
+    if identified_for(kind, drop.quality) or void_base(drop) or shield_base(drop):
+        return True
+    verdict = ground_base(drop)
+    return verdict is not None and verdict.pick and not verdict.must_have
 
 
 def void_base(drop: Drop) -> bool:
@@ -177,11 +214,27 @@ def kept(loot: Loot, mode: str) -> Loot:
         shadow(loot, lambda drop: mode == MOST or sure(drop))
     except Exception as error:  # never into the look
         LOG.debug('Macro: loot: shadow: ground not logged: %s', error)
+    drops = tuple(found for drop in loot.drops if (found := _kept(drop, mode, loot)) is not None)
+    return replace(loot, drops=drops)
+
+
+def _kept(drop: Drop, mode: str, loot: Loot) -> Drop | None:
+    """`drop` as `mode` takes it (a must-have base `prized`), None when it does not (the module text)."""
+    based = ground_base(drop)
+    if based is not None and based.pick and based.must_have and not drop.prized:
+        drop = replace(drop, prized=True)  # the merc BiS bases: no game is left with one on the ground
+    if drop.kind == VALUABLE and drop.source == 'shown' and oversize(drop):
+        # Over the cell cap only what the ground read or the field identify judges, in every level
+        if based is not None:
+            return drop if based.pick else None
+        return drop if FIELD.pick(drop, loot.game, loot.room) else None
     if mode == MOST:
-        return loot
+        if field_api.FIELD_BIG and not sure(drop):
+            FIELD.pick(drop, loot.game, loot.room)  # remembered: identified in the field, the bad ones dropped there
+        return drop
     # M4 (the player, 2026-10-20: "just get it, identify with scroll, and drop if it is bad"): the loop takes the
     # classes of the field identify too, each remembered for its routine (loot/api.py `Field.pick`)
-    return replace(loot, drops=tuple(drop for drop in loot.drops if sure(drop) or FIELD.pick(drop, loot.game)))
+    return drop if sure(drop) or FIELD.pick(drop, loot.game, loot.room) else None
 
 
 def next_mode(mode: str) -> str:

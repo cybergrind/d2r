@@ -167,9 +167,14 @@ def test_the_candidates_for_an_identify_are_skilled_magic_or_rare_items_the_filt
     assert kept(loot, SURE).drops == ()  # a trade good: MOST's
 
 
-def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():
+def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell(monkeypatch):
     # The player, 19:10 on 2026-10-17: "start picking up monarchs (for 4os deflecting) and sacred targes (check what
-    # are expensive ones)"; the market study's rule (pickmode.py SHIELD_*)
+    # are expensive ones)"; the market study's rule (pickmode.py SHIELD_*). With SPIRIT_MONARCH_CAP Spirit bases owned
+    # (2026-10-20 ~12:50 "I want to keep more monarch bases"), as before; under it a plain 4os copy is taken too
+    from inventory_tracking.loot import value
+
+    owned = {'count': 6}
+    monkeypatch.setattr(value, 'owned_bases', lambda facts: owned['count'])
     monarch = drop('Monarch', source='shown', quality=3)
     assert is_candidate(replace(monarch, rolls=Rolls(4, defense=15)))
     assert is_candidate(replace(monarch, rolls=Rolls(0, defense=15)))  # Larzuk's sockets
@@ -178,6 +183,12 @@ def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():
     assert not is_candidate(replace(monarch, quality=2, rolls=Rolls(4)))  # a white 4os asked 0.79
     assert is_candidate(replace(monarch, quality=4, rolls=Rolls(4)))  # magic 4os: identified, then appraised
     assert not is_candidate(replace(monarch, quality=4, rolls=Rolls(2)))
+    owned['count'] = 2  # under the cap: the Spirit base, white or superior, non-eth 4os
+    assert is_candidate(replace(monarch, quality=2, rolls=Rolls(4)))
+    assert is_candidate(replace(monarch, rolls=Rolls(4, defense=12)))
+    assert not is_candidate(replace(monarch, quality=2, rolls=Rolls(4, ethereal=True)))
+    assert not is_candidate(replace(monarch, quality=2, rolls=Rolls(3)))
+    owned['count'] = 6
     targe = drop('Sacred Targe', source='shown', quality=2)
     assert is_candidate(replace(targe, rolls=Rolls(0, resists=45)))
     assert is_candidate(replace(targe, rolls=Rolls(3, resists=42)))
@@ -187,7 +198,10 @@ def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():
     assert is_candidate(replace(rondache, rolls=Rolls(4, resists=45)))
     assert is_candidate(replace(rondache, rolls=Rolls(0, resists=45, ethereal=True)))
     assert not is_candidate(replace(rondache, rolls=Rolls(3, resists=45)))
-    assert not is_candidate(replace(rondache, rolls=Rolls(4, resists=44)))
+    assert not is_candidate(replace(rondache, rolls=Rolls(4, resists=39)))
+    # The Exile base since 2026-10-20 ~12:15 (the player: "4os, at least +40 all res"; loot/ground_judge.py, M5)
+    assert is_candidate(replace(rondache, rolls=Rolls(4, resists=44)))
+    assert not is_candidate(replace(rondache, rolls=Rolls(2, resists=44)))
     assert not is_candidate(targe)  # unread: not taken
 
 
@@ -215,3 +229,100 @@ def test_the_loot_shadow_logs_beside_the_look_and_never_changes_what_it_takes(mo
     else:
         lines = [r.message for r in caplog.records if r.message.startswith('Macro: loot: shadow: ground:')]
         assert lines == ['Macro: loot: shadow: ground: magic Monarch: new pick G6 identify / old leave (differ)']
+
+
+# -- 2026-10-20: the big items and the ground bases (the player, ~11:55: "bases or blue/rare items might take much
+# place (like spears, matron bow) -- we want to check them and drop in the middle of the run"; ~12:00 "start all
+# three"; ~12:15 the own-use bases)
+
+GAME = ('game-1', 7)
+EMPTY = ('..........',) * 4
+
+
+def base(name: str, size: tuple[int, int], rolls: Rolls | None, *, quality: int = 2, unit: int = 1) -> Drop:
+    found = drop(name, source='shown', quality=quality)
+    return replace(found, unit_id=unit, size=size, rolls=rolls)
+
+
+@pytest.fixture
+def looping(monkeypatch):
+    from inventory_tracking.loot.api import FIELD
+
+    monkeypatch.setattr(FIELD, 'looping', lambda: True)
+    FIELD.picked.clear()
+    yield FIELD
+    FIELD.picked.clear()
+
+
+@pytest.mark.parametrize('mode', MODES)
+def test_an_eth_4os_giant_thresher_is_taken_over_the_cell_cap_as_a_must_have_and_a_plain_one_is_left(mode):
+    gt_eth = base('Giant Thresher', (2, 4), Rolls(4, ethereal=True), unit=1)
+    gt_plain = base('Giant Thresher', (2, 4), Rolls(4), unit=2)  # non-eth: "Floor: any non-eth" (PK-merc-polearms)
+    partizan = base('Partizan', (2, 4), Rolls(2), unit=3)  # no row names it: never picked
+    found = kept(Loot(drops=(gt_eth, gt_plain, partizan), game=GAME, room=EMPTY), mode).drops
+    assert [d.unit_id for d in found] == [1]
+    assert found[0].prized  # the merc BiS: no game is left with it on the ground, a press stops for it
+    assert not is_candidate(found[0])
+
+
+def test_the_ground_bases_follow_the_wants_rows_in_the_good_level(monkeypatch):
+    from inventory_tracking.loot import value
+
+    owned = {'count': 2}  # the Spirit base Monarchs owned (collection.sqlite, 2026-10-20: MSockB, MSockC)
+    monkeypatch.setattr(value, 'owned_bases', lambda facts: owned['count'])
+    archon_eth = base('Archon Plate', (2, 3), Rolls(4, ethereal=True), unit=1)  # CoH (merc)
+    archon_plain = base('Archon Plate', (2, 3), Rolls(4), unit=2)  # plain 4os: "Sell", not picked ("no bad bases")
+    spirit_plain = base('Monarch', (2, 3), Rolls(4), unit=3)  # under SPIRIT_MONARCH_CAP owned: picked (~12:50)
+    spirit_superior = base('Monarch', (2, 3), Rolls(4, defense=15), quality=3, unit=4)  # the better copy
+    exile = base('Sacred Targe', (2, 2), Rolls(4, resists=41, ethereal=True), unit=5)
+    cure = base('Corona', (2, 2), Rolls(3, ethereal=True), unit=6)
+    cure_plain = base('Corona', (2, 2), Rolls(3), unit=7)  # non-eth: the merc's is eth
+    bow = base('Grand Matron Bow', (2, 4), Rolls(4, damage=15, tabs=((0, 3),)), quality=3, unit=8)  # Q7 G16
+    bow_plain = base('Grand Matron Bow', (2, 4), Rolls(4, tabs=((0, 3),)), unit=9)  # "never plain ones"
+    drops = (archon_eth, archon_plain, spirit_plain, spirit_superior, exile, cure, cure_plain, bow, bow_plain)
+    loot = Loot(drops=drops, game=GAME, room=EMPTY)
+    assert [d.unit_id for d in kept(loot, SURE).drops] == [1, 3, 4, 5, 6, 8]
+    assert is_candidate(kept(loot, SURE).drops[1])  # the Spirit base: no game kept for it, no trip
+    assert is_candidate(kept(loot, SURE).drops[3])  # the Exile base: no game kept for it, no trip
+    owned['count'] = 6  # the cap reached: the plain copy is left, the Superior 15 ED one (the better copy) still taken
+    assert [d.unit_id for d in kept(loot, SURE).drops] == [1, 4, 5, 6, 8]
+
+
+def test_with_the_switch_off_only_todays_dagger_and_shield_rules_take_a_base(monkeypatch):
+    from inventory_tracking.loot import ground_judge
+
+    monkeypatch.setattr(ground_judge, 'BASES', False)
+    archon_eth = base('Archon Plate', (2, 3), Rolls(4, ethereal=True), unit=1)
+    monarch = base('Monarch', (2, 3), Rolls(4, defense=15), quality=3, unit=2)
+    gt_eth = base('Giant Thresher', (2, 4), Rolls(4, ethereal=True), unit=3)
+    assert [d.unit_id for d in kept(Loot(drops=(archon_eth, monarch, gt_eth), game=GAME), SURE).drops] == [2]
+
+
+def test_a_big_magic_or_rare_item_is_picked_for_the_field_check_in_the_loop_only(looping):
+    archon = base('Archon Plate', (2, 3), None, quality=4, unit=1)
+    bow = base('Grand Matron Bow', (2, 4), None, quality=6, unit=2)
+    belt = base('Heavy Belt', (2, 1), None, quality=6, unit=3)  # 2 cells: as before (left in GOOD)
+    loot = Loot(drops=(archon, bow, belt), game=GAME, room=EMPTY)
+    assert [d.unit_id for d in kept(loot, SURE).drops] == [1, 2]
+    assert looping.class_of(1, GAME[0]) == 'G14'
+    assert looping.class_of(2, GAME[0]) == 'G15'
+    assert is_candidate(bow)  # a field item: no game kept, no trip for it
+    looping.looping = lambda: False
+    looping.picked.clear()
+    assert kept(loot, SURE).drops == ()  # KP_1 by hand: as before
+    assert [d.unit_id for d in kept(loot, MOST).drops] == [1, 3]  # MOST: the cap holds for an unjudged one
+
+
+def test_the_most_level_remembers_its_big_items_for_the_field_identify(looping):
+    archon = base('Archon Plate', (2, 3), None, quality=4, unit=1)
+    rune = replace(drop('Ber Rune', source='rune'), unit_id=2)
+    assert [d.unit_id for d in kept(Loot(drops=(archon, rune), game=GAME, room=EMPTY), MOST).drops] == [1, 2]
+    assert looping.class_of(1, GAME[0]) == 'G14'  # identified in the field, a bad one dropped there
+    assert looping.class_of(2, GAME[0]) is None
+
+
+def test_a_big_field_item_with_no_grand_charms_room_after_it_is_left(looping):
+    bow = base('Grand Matron Bow', (2, 4), None, quality=6, unit=1)
+    tight = ('########..',) * 4  # one 2x4 hole: the bow would take the room a valuable needs
+    assert kept(Loot(drops=(bow,), game=GAME, room=tight), SURE).drops == ()
+    assert looping.class_of(1, GAME[0]) is None

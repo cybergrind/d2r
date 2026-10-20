@@ -15,7 +15,7 @@ import pytest
 
 from inventory_tracking.game.kept import PutDown
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
-from inventory_tracking.loot import today
+from inventory_tracking.loot import today, value as loot_value
 from inventory_tracking.loot.facts import (
     MAGIC,
     ItemFacts,
@@ -99,6 +99,12 @@ def owned_of(case: dict[str, Any]) -> list[ItemFacts] | None:
     ]
 
 
+def counted(case: dict[str, Any]):
+    """The owned count a row with `keep_up_to` reads (live: loot/value.py `owned_bases`): the case's owned copies."""
+    owned = case['owned']
+    return lambda facts: None if owned is None else len(owned)
+
+
 def params(aspect: str, path: str) -> list:
     found = []
     for case in CASES:
@@ -112,7 +118,7 @@ def params(aspect: str, path: str) -> list:
 
 @pytest.mark.parametrize('case', params('ground', 'new'))
 def test_the_new_ground_judge_picks_or_leaves_each_valuable(case):
-    verdict = judge(ground_facts(case))
+    verdict = judge(ground_facts(case), owned=counted(case))
     expect = case['expect']
     assert verdict.pick == (expect['ground'] == 'pick'), f'{case["id"]}: {verdict.said()} ({case["source"]})'
     if verdict.pick and 'then' in expect:
@@ -123,7 +129,8 @@ def test_the_new_ground_judge_picks_or_leaves_each_valuable(case):
 
 
 @pytest.mark.parametrize('case', params('ground', 'today'))
-def test_todays_good_pickup_picks_or_leaves_each_valuable(case):
+def test_todays_good_pickup_picks_or_leaves_each_valuable(case, monkeypatch):
+    monkeypatch.setattr(loot_value, 'owned_bases', counted(case))  # never the host's collection
     verdict = today.judge(ground_facts(case))
     assert verdict.pick == (case['expect']['ground'] == 'pick'), f'{case["id"]}: {verdict.said()}'
 

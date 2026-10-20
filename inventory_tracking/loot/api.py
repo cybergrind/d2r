@@ -29,6 +29,21 @@ Log lines (the d2-loop-watch tools read the drop: logwords.py FIELD_DROP):
     Macro: inventory: 447 (1728653239) at (3, 0) dropped in the field: K8 worthless (...), no want
     Macro: loot: field: Town Portal: 1 identified, 1 dropped, 0 kept
     Macro: loot: field: Town Portal: 2 to identify wait: 1 hostiles within 30
+
+The big items (the player, 2026-10-20 ~11:55: "bases or blue/rare items might take much place (like spears, matron
+bow) -- we want to check them and drop in the middle of the run, without caring them along occupying a lot of space
+to the town"; ~12:00 "start all three"):
+
+- G14 (`FIELD_BIG`): every magic or rare item of BIG_CELLS cells or more the filter shows (source 'shown') that no
+  other class takes is a field-identify item too: identified in the field, the bad ones dropped at the feet, only the
+  kept ones carried to town. In the MOST pickup level, which takes them anyway, they are remembered for the routine
+  the same way (pickmode.py `kept`).
+- G15 (`FIELD_OVERSIZE`): a magic or rare item over the pickup's cell cap (config.py `pickup_shown_cells`, 6: the
+  2x4 spears, polearms, bows, the Zakarum Shield) the filter shows is picked for the field identify only: the cap
+  is lifted for it alone (macros/pickup.py `wanted`, loot/shown.py `oversize_rules`).
+- A field item of BIG_CELLS or more is taken only when the inventory keeps a SURE_BLOCK free after it (`leaves_room`),
+  and the pickup goes to every other valuable in sight first (macros/pickup.py `choose`): a big item never takes
+  the room a valuable needs. The field routine before the loop makes room drops the bad ones first.
 """
 
 import threading
@@ -38,7 +53,9 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 from inventory_tracking.common import LOG
+from inventory_tracking.config import APPRAISAL
 from inventory_tracking.game.records import VALUABLE, Carried, Drop, Pack
+from inventory_tracking.items.grid import Grid
 from inventory_tracking.loot import ground_judge
 from inventory_tracking.loot.facts import MAGIC, RARE, SET, UNIQUE, ItemFacts, Owner, from_carried, from_drop
 from inventory_tracking.loot.ground_judge import Then
@@ -56,13 +73,17 @@ from inventory_tracking.loot.keep import (
     decide_all,
 )
 from inventory_tracking.loot.shadow import Appraised
+from inventory_tracking.loot.storage import SURE_BLOCK
 from inventory_tracking.loot.value import DUPLICATE_IST, Value, appraise_result
 
 
 __all__ = [
+    'BIG_CELLS',
     'CLASSES',
     'FIELD',
+    'FIELD_BIG',
     'FIELD_IDENTIFY',
+    'FIELD_OVERSIZE',
     'IDENTIFY_RESERVE',
     'IMPLEMENTED',
     'MOST_A_BATCH',
@@ -72,6 +93,8 @@ __all__ = [
     'Judged',
     'Settled',
     'droppable',
+    'leaves_room',
+    'oversize',
     'reserve_short',
     'settle',
 ]
@@ -81,11 +104,20 @@ __all__ = [
 FIELD_IDENTIFY = True
 # The classes of loot/design.md §4.2 the field identify picks and judges: G6 every magic Monarch, first (§7 M4: "G6
 # first (every magic Monarch), then G9-G11"). G9 (magic/rare daggers and grimoires), G10 (magic/rare circlets) and
-# G11 (magic rings and amulets: the rare ones are today's pickup); the player, 2026-10-20 ~11:05: "turn on G9-G11 too"
-CLASSES = frozenset(('G6', 'G9', 'G10', 'G11'))
-IMPLEMENTED = frozenset(('G6', 'G9', 'G10', 'G11'))
+# G11 (magic rings and amulets: the rare ones are today's pickup); the player, 2026-10-20 ~11:05: "turn on G9-G11 too".
+# G14 the shown magic/rare items of BIG_CELLS+ cells and G15 those over the cell cap (module text; the player, ~12:00:
+# "start all three")
+CLASSES = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15'))
+IMPLEMENTED = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15'))
 # The order a batch identifies the classes in (§5 `identify.order`): the dearest class first, then the larger items
-ORDER = ('G6', 'G10', 'G9', 'G11')
+ORDER = ('G6', 'G10', 'G9', 'G15', 'G14', 'G11')
+# Step 1 of the big items (module text; the player, 2026-10-20 ~11:55 "we want to check them and drop in the middle of
+# the run", ~12:00 "start all three"; Q6: "a scroll on every item >= 4 cells"). False: such an item is the GOOD
+# pickup's only by another class, and the MOST level carries it to town unjudged as before
+FIELD_BIG = True
+# Step 2 (the same words: "like spears, matron bow"). False: the cell cap holds for magic and rare items as before
+FIELD_OVERSIZE = True
+BIG_CELLS = 4  # Q6 "every item >= 4 cells": a 2x2 helm, glove, boot, circlet and up
 # The Tome of Identify's charges under which a visit restocks it (§5: "charges < 5 makes shop.short true", and the
 # visit's contract misses it): macros/shop.py `short`, macros/town.py `contract`
 IDENTIFY_RESERVE = 5
@@ -116,6 +148,26 @@ def droppable(facts: ItemFacts, value: Value | None = None) -> str | None:
     if value is not None and value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
         return f'expensive ({value.worth_ist:.3g} Ist)'
     return None
+
+
+def cells(drop: Drop) -> int:
+    return drop.size[0] * drop.size[1]
+
+
+def oversize(drop: Drop) -> bool:
+    """Whether `drop` is over the pickup's cell cap for the filter's shown gear (config.py `pickup_shown_cells`): the
+    cap is lifted only for the field identify (G15) and the bases the ground read judges (M5)."""
+    return cells(drop) > APPRAISAL.pickup_shown_cells
+
+
+def leaves_room(room: tuple[str, ...] | None, size: tuple[int, int]) -> bool:
+    """Whether an item of `size` fits the inventory's `room` (rows, '.' free) and a SURE_BLOCK (the tallest sure
+    valuable, a Grand Charm) still fits after it, where the game puts it (the first free spot). Unread: True."""
+    if room is None:
+        return True
+    grid = Grid(room)
+    spot = grid.first_spot(size)
+    return spot is not None and grid.take(spot, size).has_room(SURE_BLOCK)
 
 
 def reserve_short(identifies: int | None) -> bool:
@@ -185,8 +237,9 @@ class Field:
 
     def takes(self, drop: Drop, classes: frozenset[str] | None = None) -> str | None:
         """The class (CLASSES, or `classes`) that picks `drop` for the field identify, None when none: the switch and
-        the loop on, a magic or rare valuable the filter shows, unidentified, an identify by its ground verdict. Pure
-        but for `looping`; the caller leaves out what the GOOD pickup takes anyway (pickmode.py `sure`)."""
+        the loop on, a magic or rare valuable the filter shows, unidentified, an identify by its ground verdict, else
+        by its size (G15 over the cell cap, G14 from BIG_CELLS cells; the filter's gear only). Pure but for `looping`;
+        the caller leaves out what the GOOD pickup takes anyway (pickmode.py `sure`)."""
         if not FIELD_IDENTIFY or drop.kind != VALUABLE or drop.quality not in (MAGIC, RARE) or drop.prized:
             return None
         if drop.source not in ('shown', 'material') or not self.looping():
@@ -196,15 +249,22 @@ class Field:
         except Exception:  # the wants unreadable (another edit under way): nothing is picked for it
             return None
         wanted = CLASSES if classes is None else classes
-        if not verdict.pick or verdict.then != Then.IDENTIFY or verdict.klass not in wanted:
+        if verdict.pick and verdict.then == Then.IDENTIFY and verdict.klass in wanted:
+            return verdict.klass
+        if drop.source != 'shown' or cells(drop) < BIG_CELLS:
             return None
-        return verdict.klass
+        if oversize(drop):
+            return 'G15' if FIELD_OVERSIZE and 'G15' in wanted else None
+        return 'G14' if FIELD_BIG and 'G14' in wanted else None
 
-    def pick(self, drop: Drop, game: tuple[str, int] | str | None) -> bool:
-        """Whether the pickup takes `drop` for the field identify (`takes`); remembered for `game` when it does."""
+    def pick(self, drop: Drop, game: tuple[str, int] | str | None, room: tuple[str, ...] | None = None) -> bool:
+        """Whether the pickup takes `drop` for the field identify (`takes`), with `room` (the inventory's rows, None
+        unread) left for a valuable after it (`leaves_room`); remembered for `game` when it does."""
         klass = self.takes(drop)
         if klass is None:
             return False
+        if cells(drop) >= BIG_CELLS and not leaves_room(room, drop.size):
+            return False  # a big one never takes a valuable's room: left, seen again at the next look
         name = game[0] if isinstance(game, tuple) else game
         with self.lock:
             if len(self.picked) > PICKED_MOST:

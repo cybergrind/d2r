@@ -19,6 +19,7 @@ from inventory_tracking.game.layout import (
     BATTLE_ORDERS_BIT,
     COOLDOWN_BIT,
     CURSOR_MODE,
+    DAMAGE_PERCENT,
     DEFENSE_PERCENT,
     DEFILER_CLASS,
     EMPTY_SLOT,
@@ -33,6 +34,7 @@ from inventory_tracking.game.layout import (
     LEFT_SKILL,
     LOW_STATES,
     LYING_DEAD,
+    MAGIC_ROLLED_TYPES,
     MISSILE_DATA,
     MISSILE_OWNER,
     MISSILE_PATH,
@@ -70,6 +72,7 @@ from inventory_tracking.game.layout import (
     TYPE_FLAGS,
     UNIT_FLAGS,
     UNIT_SLOTS,
+    WHITE_QUALITIES,
 )
 from inventory_tracking.game.records import (
     VALUABLE,
@@ -98,7 +101,7 @@ from inventory_tracking.items.identity import (
 )
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.items.modifiers import owned_chain
-from inventory_tracking.items.stat_constants import StatId
+from inventory_tracking.items.stat_constants import SKILL_TABS, StatId
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
 from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
@@ -441,9 +444,19 @@ def rolls(drop: Drop | None) -> str:
         return ''
     found, skills = drop.rolls, metadata()['skills']
     named = ''.join(f' +{level} {skills.get(str(skill), {}).get("name", skill)}' for skill, level in found.skills)
+    tabs = ''.join(f' +{value} {tab_name(layer)}' for layer, value in found.tabs)
     defense = f' {found.defense}% ED' if found.defense else ''
+    damage = f' {found.damage}% ED' if found.damage else ''  # a weapon's: an item has one or the other
     resists = f' {found.resists} all res' if found.resists else ''
-    return f' {found.sockets}os{named}{defense}{resists}'
+    return f' {found.sockets}os{named}{tabs}{defense}{damage}{resists}'
+
+
+def tab_name(layer: int) -> str:
+    """A skill tab's name by its stat 188 layer (class * 8 + tab, items/stat_constants.py SKILL_TABS)."""
+    group, tab = divmod(layer, 8)
+    if group < len(SKILL_TABS) and tab < len(SKILL_TABS[group]):
+        return SKILL_TABS[group][tab]
+    return f'skill tab {layer}'
 
 
 def census(
@@ -621,20 +634,27 @@ BASE_ROLLS_SEEN: dict[int, Rolls] = {}  # unit id -> `base_rolls`, of the items 
 
 
 def chain_defense(read, unit: dict) -> int | None:
-    """An item's enhanced defense (16, layer 0) from its own +0xD0 modifier chain; 0 when the chain holds none; None
-    when the chain is not read whole (items/modifiers.py `owned_chain`: owner and links checked; a socket filler's
-    list passed over). This build keeps a superior armor's local ED there and never in the +0xE8 totals ([verified]
-    0 of 5,610 captured white, superior or magic units have 16 in the totals, 720 in the chain:
+    """An item's enhanced defense (16, layer 0) from its own +0xD0 modifier chain (`chain_sums`)."""
+    found = chain_sums(read, unit, (DEFENSE_PERCENT,))
+    return found[DEFENSE_PERCENT] if found is not None else None
+
+
+def chain_sums(read, unit: dict, ids: Sequence[int]) -> dict[int, int] | None:
+    """The sums of the stats `ids` (layer 0) in an item's own +0xD0 modifier chain, one walk; 0 for one the chain
+    holds none of; None when the chain is not read whole (items/modifiers.py `owned_chain`: owner and links checked;
+    a socket filler's list passed over). This build keeps a superior armor's local ED there and never in the +0xE8
+    totals ([verified] 0 of 5,610 captured white, superior or magic units have 16 in the totals, 720 in the chain:
     rca/2026-10-20/loot-m0-research.md R2). The chain walk is the collection and Alt+D captures' (`owned_defense_
     modifiers`); [verified] 2026-10-20 by replaying the bytes of 600 collection captures (106,658 white, superior and
     magic item reads) through `base_rolls`: every ED equals the capture's own, e.g. a superior Tome's 8 and a superior
     Grimoire's 12. On the ground the same unit structure is [inferred]: no superior shield lay in a capture.
-    Read only."""
+    Read only. A superior weapon's enhanced damage (17) is kept in the same chain (items/modifiers.py
+    `owned_damage_modifiers`, the collection and Alt+D captures' read), [inferred] on the ground as the ED is."""
     diagnostics = capture_stat_candidates(read, unit['stats_pointer'])
     chain = owned_chain(diagnostics, unit, fillers=True)
     if chain is None:
         return None
-    return sum(s['raw'] for s in chain if s['id'] == DEFENSE_PERCENT and s['layer'] == 0)
+    return {stat: sum(s['raw'] for s in chain if s['id'] == stat and s['layer'] == 0) for stat in ids}
 
 
 def base_rolls(read, unit: dict) -> Rolls | None:
@@ -651,17 +671,33 @@ def base_rolls(read, unit: dict) -> Rolls | None:
     if stats is None or data is None:
         return None
     plain = {s['id']: s['raw'] for s in stats if s['layer'] == 0}
-    # The totals' 16 first, should a build keep it there; else the chain's (2026-10-20: the superior Monarch rule,
-    # "superior bases" the player asked for at 08:42, never fired on a ground ED read always 0)
-    defense = plain.get(DEFENSE_PERCENT) or chain_defense(read, unit)
+    # The totals' 16 and 17 first, should a build keep them there; else the chain's (2026-10-20: the superior Monarch
+    # rule, "superior bases" the player asked for at 08:42, never fired on a ground ED read always 0). One chain walk
+    defense, damage = plain.get(DEFENSE_PERCENT), plain.get(DAMAGE_PERCENT)
+    resists = min(plain.get(stat, 0) for stat in RESISTS)
+    chain = None
+    if not defense or not damage or not resists:
+        chain = chain_sums(read, unit, (DEFENSE_PERCENT, DAMAGE_PERCENT, *RESISTS))
+        defense = defense or (chain[DEFENSE_PERCENT] if chain is not None else None)
+        damage = damage or (chain[DAMAGE_PERCENT] if chain is not None else None)
+    if not resists and chain is not None:
+        # A Paladin shield's all-res automod off the totals: the chain's, should it be kept there as a superior's
+        # ED is ([inferred]: the ground census read 9-32 all res on 12 normal Sacred Targe / Rondache lines and none
+        # on 6 superior Rondache lines, 2026-10-17 to 10-20; a carried superior Ancient Shield holds its 13 in the
+        # totals). Read for the Exile base (the player, 2026-10-20 ~12:15)
+        resists = min(chain[stat] for stat in RESISTS)
     rolls = Rolls(
         plain.get(StatId.SOCKETS, 0),
         tuple((s['layer'], s['raw']) for s in stats if s['id'] == StatId.CLASS_SINGLE_SKILL),
         defense,
-        min(plain.get(stat, 0) for stat in RESISTS),
+        resists,
         bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & ETHEREAL_FLAG),
+        damage,
+        # A white bow's +3 Bow and Crossbow Skills automod: in the totals ([verified] 2026-10-20: 96 of 96 captured
+        # superior Amazon bows hold 188 there, e.g. a superior Grand Matron Bow 188:0 = 3 with 194 = 5)
+        tuple((s['layer'], s['raw']) for s in stats if s['id'] == StatId.SKILL_TAB),
     )
-    if defense is None:
+    if defense is None or damage is None:
         return rolls
     if len(BASE_ROLLS_SEEN) > 500:
         BASE_ROLLS_SEEN.clear()
@@ -671,12 +707,15 @@ def base_rolls(read, unit: dict) -> Rolls | None:
 
 def rolled(read, drop: Drop, unit: dict | None) -> Drop:
     """`drop` with its `Rolls` when it is a base the loop judges off the ground (pickmode.py `void_base`,
-    `shield_base`): a white, superior or magic dagger, shield or Paladin shield; as it is otherwise."""
+    `shield_base`, `ground_base`): a white, superior or magic dagger, shield or Paladin shield, or a white or superior
+    base of BASE_ROLLED_TYPES (M5: polearms, spears, body armor, Amazon bows, swords, axes); as it is otherwise."""
     base = item_base(drop.txt) if drop.txt else None
     if unit is None or drop.kind != VALUABLE or drop.quality not in ROLLED_QUALITIES or base is None:
         return drop
     if base['type'] not in ROLLED_TYPES:
         return drop
+    if base['type'] not in MAGIC_ROLLED_TYPES and drop.quality not in WHITE_QUALITIES:
+        return drop  # a magic one's ground read holds no socket count and no affix (R1): nothing to judge by
     return replace(drop, rolls=base_rolls(read, unit))
 
 

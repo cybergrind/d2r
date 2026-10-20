@@ -81,7 +81,7 @@ combat-view-check:
 	godot --headless --path combat_viewer --script res://tests/drive.gd
 
 .PHONY: filter
-## filter: read the Chronicle from the running game (skipped when no game is seen), rebuild lootfilter/warlock_lean_v2.json and copy it to the clipboard
+## filter: read the Chronicle from the running game (skipped when no game is seen), rebuild the unique/set rules of lootfilter/warlock_lean_v2.json (the one filter) in place and copy it to the clipboard
 filter:
 	-$(UV) python -m inventory_tracking.probes.chronicle
 	$(UV) python -m inventory_tracking.loot.build_filter

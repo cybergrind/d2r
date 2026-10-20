@@ -105,9 +105,20 @@ LEVEL_STAT = 12  # itemstatcost.txt 'level'
 GOLD_PER_LEVEL = 10_000  # the gold a character carries at most, a level
 BASE_STATS = 0x30  # the unit's own stat list (terror/monsters.py)
 ROLLED_QUALITIES = frozenset((2, 3, 4))  # ItemData quality: normal, superior, magic (loot/shown.py RARITIES)
+WHITE_QUALITIES = frozenset((2, 3))  # normal, superior
 # The item types whose rolls are read off the ground (items metadata): the Void line's daggers, shields (Monarch),
-# Paladin shields (Sacred Targe, Sacred Rondache)
-ROLLED_TYPES = frozenset(('knif', 'shie', 'ashd'))
+# Paladin shields (Sacred Targe, Sacred Rondache), read for magic too (pickmode.py `shield_base`)
+MAGIC_ROLLED_TYPES = frozenset(('knif', 'shie', 'ashd'))
+# M5 (loot/design.md §7; the player, 2026-10-20 ~12:00: "start all three", the third the white bases judged on the
+# ground; "no bad bases", "best 4os eth merc bases"): the bases the wants rows judge by their ground read, white and
+# superior only (an unidentified magic item holds no socket count, R1): polearms (`pole`: Thresher, Giant Thresher,
+# Cryptic Axe, Great Poleaxe, Colossus Voulge), spears (`spea`: Mancatcher), Amazon spears (`aspe`: Matriarchal
+# Spear), body armor (`tors`: Archon Plate, Dusk Shroud, Wire Fleece, Sacred Armor, Mage Plate), Amazon bows (`abow`:
+# Grand Matron Bow, Matriarchal Bow), swords and axes (`swor`, `axe`: Phase Blade, Colossus Blade, Berserker Axe), helms
+# (`helm`: the merc's Cure base, Corona, Spired Helm, Bone Visage, Demonhead; the player, ~12:15).
+# Types from third-parties/d2data/json/itemtypes.json and items/data/item_metadata.json, checked 2026-10-20
+BASE_ROLLED_TYPES = frozenset(('pole', 'spea', 'aspe', 'tors', 'abow', 'swor', 'axe', 'helm'))
+ROLLED_TYPES = MAGIC_ROLLED_TYPES | BASE_ROLLED_TYPES
 
 
 NAME_WRAP = 99  # after it the number starts from 1 again (the player, 2026-10-17: "upon reaching 99, we start from 1")
@@ -148,6 +159,7 @@ BANK = 267  # objects.txt `Bank` (*ID), the stash a town's character puts its th
 
 RESISTS = (39, 41, 43, 45)  # fireresist, lightresist, coldresist, poisonresist (itemstatcost.txt)
 DEFENSE_PERCENT = 16  # item_armor_percent: a superior armor's enhanced defense (itemstatcost.txt)
+DAMAGE_PERCENT = 17  # item_maxdamage_percent: a superior weapon's enhanced damage (itemstatcost.txt)
 
 
 # Stats kept on a layer other than 0 (itemstatcost.txt): item_addclassskills (83, layer = class), item_addskill_tab

@@ -1,14 +1,17 @@
 """What the pickup step takes because the loot filter shows it: the filter's Show rules by item class."""
 
 import json
+from pathlib import Path
 
 from inventory_tracking.items.identity import ETHEREAL_FLAG, IDENTIFIED_FLAG, SOCKETED_FLAG
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.shown import (
+    FILTER,
     ShownRule,
     filter_rules,
     game_filter,
     hides,
+    oversize_rules,
     pickup_rules,
     shown_gems,
     shown_label,
@@ -137,3 +140,77 @@ def test_the_games_copy_of_the_profile_is_read_where_there_is_one(tmp_path):
     assert game_filter(path, tmp_path) == path
     (tmp_path / 'Lean.fltr').write_text('{}')
     assert game_filter(path, tmp_path) == tmp_path / 'Lean.fltr'
+
+
+D2DATA = Path('third-parties/d2data/json/base')
+
+
+def d2data_codes(file, *names):
+    """The base codes of `names` in the d2data dump (the lootfilter skill: never a code from memory)."""
+    by_name = {row['name']: code for code, row in json.loads((D2DATA / file).read_text()).items()}
+    return [by_name[name] for name in names]
+
+
+def repository_rule(name):
+    [found] = [rule for rule in json.loads(FILTER.read_text())['rules'] if rule['name'] == name]
+    return found
+
+
+def test_the_2026_10_20_show_rules_list_the_d2data_codes_of_their_bases():
+    # The player, 2026-10-20 ~13:00: "add the filter show rules too" (loot/design.md §9: G15, G17)
+    cure = d2data_codes('armor.json', 'Corona', 'Spired Helm', 'Bone Visage', 'Demonhead')
+    polearms = d2data_codes(
+        'weapons.json', 'Thresher', 'Giant Thresher', 'Cryptic Axe', 'Great Poleaxe', 'Colossus Voulge', 'Mancatcher'
+    )
+    amazon = d2data_codes(
+        'weapons.json',
+        'Matriarchal Bow',
+        'Grand Matron Bow',
+        'Ceremonial Pike',
+        'Matriarchal Spear',
+        'Matriarchal Pike',
+    )
+    assert repository_rule('SHOW Cure Helms Gray')['equipmentItemCode'] == cure
+    assert repository_rule('SHOW Rare Merc Polearms')['equipmentItemCode'] == polearms
+    assert repository_rule('SHOW Magic Amazon Bows Spears')['equipmentItemCode'] == amazon
+    # gray only: an elite base is never low quality (itemratio.json "Uber": Normal 1, NormalDivisor 1)
+    assert repository_rule('SHOW Cure Helms Gray')['equipmentRarity'] == ['lowQuality']
+    assert repository_rule('SHOW Cure Helms Gray')['filterEtherealSocketed'] is True
+
+
+def test_the_repositorys_filter_shows_the_cure_helms_the_big_field_items_and_keeps_monarchs_and_circlets():
+    small, every = pickup_rules(6), filter_rules()
+    field = oversize_rules(6, frozenset((4, 6)))
+
+    def label(rules, code, quality, flags=0):
+        return shown_label(rules, BY_CODE[code], quality, flags)
+
+    # G17 Cure bases: eth (any sockets, normal or superior) and socketed copies; plain and 0os Superior hidden
+    assert label(small, 'urn', 2, WHITE | ETHEREAL_FLAG) == 'Ethereal Corona'
+    assert label(small, 'uhm', 3, WHITE | ETHEREAL_FLAG | SOCKETED_FLAG) == 'Ethereal Socketed Superior Spired Helm'
+    assert label(small, 'uh9', 2, WHITE | SOCKETED_FLAG) == 'Socketed Bone Visage'  # the filter cannot ask for eth
+    assert label(small, 'usk', 2, WHITE) is None
+    assert label(small, 'urn', 3, WHITE) is None
+    # A rare Corona-line helm can roll no FCR and no +class skills (magicprefix/magicsuffix.json): still hidden
+    assert all(label(every, code, 6) is None for code in ('urn', 'uhm', 'uh9', 'usk'))
+    # G15: rare merc polearms and magic Amazon bows / spears, 2x4, for the field identify only (over the cell cap)
+    for code, quality, name in (('7wc', 6, 'Rare Giant Thresher'), ('7br', 6, 'Rare Mancatcher')):
+        assert label(field, code, quality) == name
+        assert label(small, code, quality) is None
+    assert label(field, 'amc', 4) == 'Magic Grand Matron Bow'
+    assert label(field, 'amd', 4) == 'Magic Matriarchal Spear'
+    assert label(every, '7wc', 4) is None  # magic polearms: no wants row, no scoped trade
+    # Unchanged: rare circlets of every tier, white 4os and Superior Monarchs, eth polearm bases
+    assert all(
+        label(small, code, 6) == f'Rare {BASES[str(BY_CODE[code])]["name"]}' for code in ('ci0', 'ci1', 'ci2', 'ci3')
+    )
+    assert label(small, 'uit', 2, WHITE | SOCKETED_FLAG) == 'Socketed Monarch'
+    assert label(small, 'uit', 3, WHITE) == 'Superior Monarch'
+    assert label(oversize_rules(6, frozenset((2, 3))), '7wc', 2, WHITE | ETHEREAL_FLAG) == 'Ethereal Giant Thresher'
+
+
+def test_the_repositorys_filter_keeps_the_players_chipped_and_flawed_gems():
+    # The player enabled them in the game's editor (2026-10-12); a re-import must not take them away
+    gems = set(shown_gems(FILTER).values())
+    assert {'Chipped Amethyst', 'Flawed Ruby', 'Chipped Skull', 'Flawless Topaz', 'Perfect Skull'} <= gems
+    assert len(gems) == 28

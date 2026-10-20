@@ -6,12 +6,15 @@
 - K1 a never-sell class: runes, gems, potions, set/unique and sunder charms KEEP; the loop's tomes, keys and cube
   NEVER_TOUCH (S2)
 - K2 unidentified magic or better: IDENTIFY, never dropped unidentified (S8)
-- K3 an always-keep want (the BiS rows of loot/data/wants.json): KEEP, duplicates included
+- K3 an always-keep want (the BiS rows of loot/data/wants.json): KEEP, duplicates included; after K5, a want with
+  `keep_up_to` (the Spirit base Monarch, 2026-10-20 ~12:50): KEEP while fewer comparable copies are owned, then by
+  the rules below (K6: only a better copy)
 - K4 a unique or set with no comparable owned copy, or owned copies that cannot be told: KEEP (S3, S8)
 - K7 a charm or jewel (used in multiples, appraisal/owned.py MULTIPLE_COPY_BASES): KEEP when worth KEEP_IST or a want
   names it, else DROP; never compared as copies
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
-- K8 worthless (vendor, or under KEEP_IST) and no want: DROP
+- K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
+  (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not
 - K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2)
 - K9 no price, no want: KEEP the first, logged `unknown` for the update-kb skill (Q13)
 - K10 else KEEP: a cheap first copy, or a want
@@ -25,7 +28,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from inventory_tracking.loot.facts import MAGIC, SET, UNIQUE, ItemFacts, Owner
+from inventory_tracking.loot.facts import MAGIC, RARE, SET, UNIQUE, ItemFacts, Owner
 from inventory_tracking.loot.value import DUPLICATE_IST, KEEP_IST, Comparison, Value, better_than, comparable, score
 
 
@@ -34,6 +37,7 @@ __all__ = [
     'DECIDED_WITHOUT_COPIES',
     'GEMS',
     'JEWELS',
+    'JUNK_UNWANTED',
     'LOOP_GEAR',
     'POTIONS',
     'RULES',
@@ -61,6 +65,12 @@ POTIONS = frozenset(('hpot', 'mpot', 'rpot', 'spot', 'apot', 'wpot', 'tpot', 'el
 ORGANS = frozenset(('body',))  # the Uber keys' organs
 LOOP_GEAR = frozenset(('book', 'key', 'ques', 'scro'))  # Tomes, keys, scrolls, the Horadric Cube: the loop's tools
 MULTIPLES = CHARMS | JEWELS
+# The rare item types kept only by a want row (the player, 2026-10-20 ~12:50: "rare helms (tiara, corona, etc) that are
+# really good - fcr + 2skills level + other valuable stats"; the rows: loot/build_wants.py G10): circlets, and plain
+# helms, which roll neither FCR nor a Warlock skill (d2data magicsuffix/magicprefix itypes). Anything else of them that
+# is not worth DUPLICATE_IST by its own rolls (K5) is junk, dropped in the field (loot/api.py `droppable` still spares
+# 1 Ist or more)
+JUNK_UNWANTED = frozenset(('circ', 'helm'))
 
 
 class Action(StrEnum):
@@ -130,8 +140,13 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
         return Decision(Action.DROP, 'K7', f'used in multiples, worthless ({value.said()})')
     if value.worth_ist is not None and value.worth_ist >= rules.duplicate_ist:
         return Decision(Action.KEEP, 'K5', f'expensive: {_price(value)} by its rolls')
+    capped = next((want for want in value.wants if want.keep_up_to is not None), None)
+    if capped is not None and capped.keep_up_to is not None and same is not None and len(same) < capped.keep_up_to:
+        return Decision(Action.KEEP, 'K3', f'{len(same)} owned, kept up to {capped.keep_up_to}: {capped.label}')
     if value.tier == 'worthless' and not value.wants:
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
+    if facts.quality == RARE and kind in JUNK_UNWANTED and not value.wants:
+        return Decision(Action.DROP, 'K8', f'a rare circlet or helm no want row names ({value.said()})')
     if same:
         compared = better_than(facts, same, value.matters)
         told = f'{len(same)} owned: {compared.said()}'

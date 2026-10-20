@@ -1,8 +1,10 @@
-"""Generate lootfilter/warlock_lean_v2.json: the Warlock Lean profile with its "SHOW Unique Set" rule
-narrowed to the bases whose unique or set item is worth picking up (user, 2026-10-09).
+"""Regenerate the unique and set rules of the one loot filter profile, lootfilter/warlock_lean_v2.json ("Warlock
+Lean2"), in place: they show only the bases whose unique or set item is worth picking up (user, 2026-10-09).
 
-Show beats Hide and a rule matches rarity AND (category OR item code), so four Show rules (unique and set, each
-split into armor and weapons, item codes only) list the bases worth showing; accessories stay shown by their rule.
+The profile is also its own source (user, 2026-10-20: "keep only one filter file at all"): every other rule is
+edited in the file by hand and kept as it is; only the GENERATED rules are rebuilt. Show beats Hide and a rule
+matches rarity AND (category OR item code), so four Show rules (unique and set, each split into armor and weapons,
+item codes only) list the bases worth showing; accessories stay shown by their rule.
 
 A named item is shown when any holds (a base shared with a shown item stays shown):
 - it trades (pricing/data/named-trades.json): TRADES_PER_MONTH sales in 30 days at a median of ASK_MINIMUM
@@ -14,7 +16,8 @@ Items the trades file does not cover use the ask-based reasons: a good-roll ask 
 (loot/data/uniques.json), a maxroll guide mention (appraisal-demand.json), or an elite base.
 
 Run: uv run --offline python -m inventory_tracking.loot.build_filter
-The profile is also put on the clipboard (wl-copy), ready for the game's import.
+The profile is also put on the clipboard (wl-copy), ready for the game's import. Per name, shown or hidden and why:
+NAMES (loot data, not a filter: the game imports the profile alone).
 """
 
 import json
@@ -24,15 +27,13 @@ import subprocess
 from pathlib import Path
 
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.loot.shown import FILTER
 from inventory_tracking.reports import publish
 from pricing.api import base_tier
 
 
-TEMPLATE = Path('lootfilter/warlock_lean.json')
-OUTPUT = Path('lootfilter/warlock_lean_v2.json')
-NAMES = Path('lootfilter/warlock_lean_v2.names.json')
-PROFILE_NAME = 'Warlock Lean2'  # the game accepts at most 13 characters
-REPLACED_RULE = 'SHOW Unique Set'
+PROFILE = FILTER  # the one profile: the game imports it, the pickup reads it, this rebuilds four of its rules
+NAMES = Path(__file__).parent / 'data' / 'filter_names.json'
 ASKS = Path('inventory_tracking/loot/data/uniques.json')
 DEMAND = Path('pricing/data/appraisal-demand.json')
 BUILDS = Path('pricing/data/wp-a-variants/index.json')
@@ -45,6 +46,13 @@ TRADES_PER_MONTH = 3
 SLOW_MINIMUM = 1.0  # Ist: a dear item that sells only now and then is still worth the pickup
 TABLES = {'unique': 'uniques', 'set': 'sets'}  # decoder identity table -> ask table kind
 CATEGORIES = {'armor': 'ARMOR', 'weapons': 'WEAPONS'}  # the decoder's base categories
+
+
+def rule_name(table: str, label: str) -> str:
+    return f'SHOW {table.title()} {label}'
+
+
+GENERATED = frozenset(rule_name(table, label) for table in TABLES for label in CATEGORIES.values())
 
 
 def named_items(table: str) -> dict[str, list[str]]:
@@ -139,7 +147,7 @@ def shown_codes(table: str, reasons: dict[str, list[str]]) -> dict[str, set[str]
 def rules(table: str, codes: dict[str, set[str]]) -> list[dict]:
     return [
         {
-            'name': f'SHOW {table.title()} {label}',
+            'name': rule_name(table, label),
             'enabled': True,
             'ruleType': 'show',
             'filterEtherealSocketed': False,
@@ -210,23 +218,24 @@ def load_sources() -> dict:
     }
 
 
-def build(template: dict, sources: dict) -> tuple[dict, dict]:
-    """The new profile and its names sidecar."""
+def build(profile: dict, sources: dict) -> tuple[dict, dict]:
+    """The profile with its GENERATED rules rebuilt where they stand, every other rule and field as it was; and
+    the names sidecar."""
     replacement, names = [], {}
     for table in TABLES:
         reasons = evidence(table, sources)
         codes = shown_codes(table, reasons)
         replacement.extend(rules(table, codes))
         names[table] = visibility(table, reasons, codes, sources)
-    position = next(i for i, rule in enumerate(template['rules']) if rule['name'] == REPLACED_RULE)
-    profile = {
-        **template,
-        'name': PROFILE_NAME,
-        'rules': template['rules'][:position] + replacement + template['rules'][position + 1 :],
-    }
+    position = next((i for i, rule in enumerate(profile['rules']) if rule['name'] in GENERATED), None)
+    if position is None:
+        raise ValueError(f'the profile has none of the generated rules {sorted(GENERATED)} to rebuild')
+    kept = [rule for rule in profile['rules'] if rule['name'] not in GENERATED]
+    rebuilt = {**profile, 'rules': kept[:position] + replacement + kept[position:]}
     trade_rows = sources.get('trades', {})
     sidecar = {
-        'source': f'{TEMPLATE} with {REPLACED_RULE} narrowed by inventory_tracking.loot.build_filter',
+        'source': f'the {", ".join(sorted(GENERATED))} rules of {PROFILE.parent.name}/{PROFILE.name}, '
+        'rebuilt by inventory_tracking.loot.build_filter',
         'asks_date': sources['asks']['date'],
         'ask_minimum_ist': ASK_MINIMUM,
         'trades': {
@@ -237,7 +246,7 @@ def build(template: dict, sources: dict) -> tuple[dict, dict]:
         },
         **names,
     }
-    return profile, sidecar
+    return rebuilt, sidecar
 
 
 def copy(text: str) -> bool:
@@ -260,13 +269,13 @@ def copy(text: str) -> bool:
 
 
 def main() -> int:
-    profile, sidecar = build(json.loads(TEMPLATE.read_text()), load_sources())
-    publish(OUTPUT, profile)
+    profile, sidecar = build(json.loads(PROFILE.read_text()), load_sources())
+    publish(PROFILE, profile)
     publish(NAMES, sidecar)
     for table in TABLES:
         print(f'{table}: {len(sidecar[table]["shown"])} shown, {len(sidecar[table]["hidden"])} hidden')
-    copied = copy(OUTPUT.read_text())
-    print(f'{OUTPUT}: {"copied to the clipboard" if copied else "not copied (no wl-copy or no display)"}')
+    copied = copy(PROFILE.read_text())
+    print(f'{PROFILE}: {"copied to the clipboard" if copied else "not copied (no wl-copy or no display)"}')
     return 0
 
 

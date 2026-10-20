@@ -396,6 +396,22 @@ def test_a_census_line_from_the_world(name, quality, flags, taken, label, groups
     assert found.groups() == groups
 
 
+def test_a_census_line_with_the_m5_rolls_folds_them_into_the_base() -> None:
+    # 2026-10-20 (M5, the player's "start all three"): a weapon's ED and a bow's skill tab automod in the census
+    from inventory_tracking.game.decode import rolls
+    from inventory_tracking.game.records import VALUABLE, Drop, Rolls
+
+    bow = Drop(1, 0.0, 0.0, 'Grand Matron Bow', VALUABLE, (2, 4), rolls=Rolls(4, damage=15, tabs=((0, 3),)))
+    said = rolls(bow)
+    assert said == ' 4os +3 Bow and Crossbow Skills 15% ED'
+    form = one('game/memory.py', 'Macro: ground: ')
+    line = logged(form % census('Grand Matron Bow', 3, 0, (100.0, 200.0), 'shown', 'Superior Grand Matron Bow', said))
+    found = logwords.GROUND.search(line)
+    assert found is not None
+    assert found.groups() == ('superior', 'Grand Matron Bow' + said, None, None, 'Superior Grand Matron Bow', '100',
+                              '200', 'shown')  # fmt: skip
+
+
 def test_a_pickup_line_names_the_item() -> None:
     clicked = one('macros/pickup.py', 'Macro: picked up %s %.2fs after the click %s')
     late = one('macros/pickup.py', 'after the click, late')

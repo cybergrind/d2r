@@ -10,7 +10,7 @@
       "id": "merc-polearm-eth-4os-superior",
       "class": "G3",
       "who": "merc",
-      "label": "Insight / Infinity base: eth 4os Superior merc polearm",
+      "label": "Insight / Infinity base: eth 4os Superior fast merc polearm",
       "qualities": [
         "superior"
       ],
@@ -52,19 +52,76 @@
       "source": "guides/pindle-anya.html:291",
       "codes": [
         "7br",
-        "7h7",
-        "7pa",
         "7s8",
-        "7vo",
         "7wc"
       ],
       "bases": [
         "Thresher",
         "Giant Thresher",
+        "Mancatcher"
+      ],
+      "asks": {
+        "min_ist": 57.105,
+        "median_ist": 85.657,
+        "n": 10,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#giant-thresher/4os/eth/superior"
+      }
+    },
+    {
+      "id": "merc-polearm-eth-4os-superior-slow",
+      "class": "G3",
+      "who": "trade",
+      "label": "Infinity / Insight base, slow or a spear: eth 4os Superior (kept by its worth)",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:291",
+      "codes": [
+        "7h7",
+        "7pa",
+        "7vo",
+        "amd"
+      ],
+      "bases": [
         "Cryptic Axe",
         "Great Poleaxe",
         "Colossus Voulge",
-        "Mancatcher"
+        "Matriarchal Spear"
       ],
       "asks": {
         "min_ist": 57.105,
@@ -109,7 +166,7 @@
       ],
       "always_keep": true,
       "must_have": true,
-      "source": "guides/pindle-anya.html:291; guides/warlock.html:166",
+      "source": "guides/pindle-anya.html:291; guides/warlock.html:166; third-parties/d2data/json/runes.json:1639",
       "codes": [
         "7wc"
       ],
@@ -401,7 +458,7 @@
       ],
       "always_keep": true,
       "must_have": true,
-      "source": "guides/warlock.html:139; guides/pindle-anya.html:286",
+      "source": "guides/warlock.html:139; guides/pindle-anya.html:286; third-parties/d2data/json/runes.json:353",
       "codes": [
         "utp"
       ],
@@ -728,11 +785,16 @@
       "id": "spirit-monarch-plain-4os",
       "class": "G5",
       "who": "warlock",
-      "label": "Spirit base: plain 4os Monarch",
+      "label": "Spirit base (own use): non-eth 4os Monarch",
       "qualities": [
-        "normal"
+        "normal",
+        "superior"
       ],
       "ground": [
+        {
+          "key": "ethereal",
+          "equals": false
+        },
         {
           "key": "sockets",
           "in": [
@@ -742,13 +804,27 @@
       ],
       "must": [
         {
+          "key": "ethereal",
+          "equals": false
+        },
+        {
           "key": "sockets",
           "in": [
             4
           ]
         }
       ],
-      "source": "guides/pindle-anya.html:288; guides/warlock.html:156",
+      "keep_up_to": 6,
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:288; guides/warlock.html:156; guides/pindle-anya.html:285; third-parties/d2data/json/runes.json:2982",
       "codes": [
         "uit"
       ],
@@ -1021,7 +1097,7 @@
           "min": 3
         }
       ],
-      "source": "guides/pindle-anya.html:289; inventory_tracking/macros/pickmode.py:75",
+      "source": "guides/pindle-anya.html:289; inventory_tracking/macros/pickmode.py:89",
       "codes": [
         "pab"
       ],
@@ -1121,7 +1197,7 @@
           "equals": true
         }
       ],
-      "source": "inventory_tracking/macros/pickmode.py:135",
+      "source": "inventory_tracking/macros/pickmode.py:172",
       "codes": [
         "pac"
       ],
@@ -1233,7 +1309,7 @@
           "good": 3
         }
       ],
-      "source": "guides/pricing.html:330; guides/pindle-anya.html:294; inventory_tracking/macros/pickmode.py:66",
+      "source": "guides/pricing.html:330; guides/pindle-anya.html:294; inventory_tracking/macros/pickmode.py:80",
       "codes": [
         "7bl",
         "7kr",
@@ -1292,7 +1368,7 @@
           "min": 3
         }
       ],
-      "source": "inventory_tracking/macros/pickmode.py:68",
+      "source": "inventory_tracking/macros/pickmode.py:82",
       "codes": [
         "7bl",
         "7kr",
@@ -1400,6 +1476,187 @@
       "asks": null
     },
     {
+      "id": "warlock-circlet-fcr-plus2-warlock-extra",
+      "class": "G10",
+      "who": "warlock",
+      "label": "Warlock helm, really good: rare circlet 20 FCR, +2 Warlock and a third stat",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "83:7",
+          "min": 2
+        }
+      ],
+      "any": [
+        {
+          "key": "7:0",
+          "min": 30,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 10
+        },
+        {
+          "key": "0:0",
+          "min": 10
+        },
+        {
+          "key": "2:0",
+          "min": 10
+        },
+        {
+          "key": "9:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "key": "194:0",
+          "min": 1
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "7:0",
+          "label": "Life",
+          "low": 1,
+          "high": 60,
+          "scale": 256
+        },
+        {
+          "key": "39:0",
+          "label": "Fire Resist",
+          "low": 1,
+          "high": 40
+        }
+      ],
+      "source": "guides/pricing.html:233; guides/warlock.html:114; guides/warlock.html:158; third-parties/d2data/json/magicprefix.json:13176; third-parties/d2data/json/magicsuffix.json:3029",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": {
+        "min_ist": 45.684,
+        "median_ist": 171.315,
+        "n": 68,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#diadem/2os/noneth/rare"
+      }
+    },
+    {
+      "id": "warlock-circlet-fcr-plus2-eldritch-extra",
+      "class": "G10",
+      "who": "warlock",
+      "label": "Warlock helm, really good: rare circlet 20 FCR, +2 Eldritch (Echoing Strike) and a third stat",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "188:57",
+          "min": 2
+        }
+      ],
+      "any": [
+        {
+          "key": "7:0",
+          "min": 30,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 10
+        },
+        {
+          "key": "0:0",
+          "min": 10
+        },
+        {
+          "key": "2:0",
+          "min": 10
+        },
+        {
+          "key": "9:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "key": "194:0",
+          "min": 1
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "7:0",
+          "label": "Life",
+          "low": 1,
+          "high": 60,
+          "scale": 256
+        },
+        {
+          "key": "39:0",
+          "label": "Fire Resist",
+          "low": 1,
+          "high": 40
+        }
+      ],
+      "source": "guides/pricing.html:233; third-parties/d2data/json/magicprefix.json:13043; third-parties/d2data/json/skilldesc.json:2575",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
       "id": "warlock-circlet-fcr-plus2",
       "class": "G10",
       "who": "warlock",
@@ -1436,6 +1693,130 @@
         }
       ],
       "source": "guides/warlock.html:158; guides/pricing.html:332; guides/pricing.html:233",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
+      "id": "rare-circlet-plus2-class",
+      "class": "G10",
+      "who": "trade",
+      "label": "rare circlet +2 class skills (any class, FCR or not)",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7"
+          ],
+          "min": 2
+        }
+      ],
+      "source": "guides/pricing.html:233; guides/pricing-primer.html:482",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 91.368,
+        "n": 87,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#tiara/0os/noneth/rare"
+      }
+    },
+    {
+      "id": "rare-circlet-fcr-gate",
+      "class": "G10",
+      "who": "trade",
+      "label": "rare circlet 20 FCR with +1 class skills, +2 to a skill tree or 30 FRW",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 20
+        }
+      ],
+      "any": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7"
+          ],
+          "min": 1
+        },
+        {
+          "keys": [
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        }
+      ],
+      "source": "guides/pricing.html:233",
       "codes": [
         "ci0",
         "ci1",
@@ -1749,6 +2130,658 @@
       ],
       "bases": [
         "Grand Charm"
+      ],
+      "asks": null
+    },
+    {
+      "id": "market-phase-blade-superior-15ed-5-6os",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED Phase Blade 5/6os (Grief, Last Wish)",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            5,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            5,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:290",
+      "codes": [
+        "7cr"
+      ],
+      "bases": [
+        "Phase Blade"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 22.842,
+        "n": 5,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#phase-blade/5os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "market-berserker-axe-superior-15ed-5os",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED Berserker Axe 5os, not eth",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": false
+        },
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        },
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:290",
+      "codes": [
+        "7wa"
+      ],
+      "bases": [
+        "Berserker Axe"
+      ],
+      "asks": {
+        "min_ist": 34.263,
+        "median_ist": 45.684,
+        "n": 10,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#berserker-axe/5os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "market-berserker-axe-eth-superior-15ed-0-6os",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED eth Berserker Axe 0/6os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:290",
+      "codes": [
+        "7wa"
+      ],
+      "bases": [
+        "Berserker Axe"
+      ],
+      "asks": {
+        "min_ist": 45.684,
+        "median_ist": 51.394,
+        "n": 4,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#berserker-axe/6os/eth/superior/15ed"
+      }
+    },
+    {
+      "id": "market-colossus-blade-superior-15ed-5os",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED Colossus Blade 5os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:290",
+      "codes": [
+        "7gd"
+      ],
+      "bases": [
+        "Colossus Blade"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 39.974,
+        "n": 11,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#colossus-blade/5os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "market-colossus-blade-eth-superior-15ed-0-6os",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED eth Colossus Blade 0/5/6os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:290",
+      "codes": [
+        "7gd"
+      ],
+      "bases": [
+        "Colossus Blade"
+      ],
+      "asks": {
+        "min_ist": 68.526,
+        "median_ist": 79.947,
+        "n": 7,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#colossus-blade/0os/eth/superior/15ed"
+      }
+    },
+    {
+      "id": "market-amazon-bow-superior-15ed-4os-plus3",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED +3 Bow skills Grand Matron / Matriarchal Bow 4os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:292",
+      "codes": [
+        "amb",
+        "amc"
+      ],
+      "bases": [
+        "Grand Matron Bow",
+        "Matriarchal Bow"
+      ],
+      "asks": {
+        "min_ist": 91.368,
+        "median_ist": 114.21,
+        "n": 13,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#grand-matron-bow/4os/noneth/superior/15ed/skill3"
+      }
+    },
+    {
+      "id": "market-matriarchal-bow-superior-15ed-0os-plus3",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED +3 Bow skills Matriarchal Bow 0os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:292",
+      "codes": [
+        "amb"
+      ],
+      "bases": [
+        "Matriarchal Bow"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 28.552,
+        "n": 5,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#matriarchal-bow/0os/noneth/superior/15ed/skill3"
+      }
+    },
+    {
+      "id": "market-grand-matron-bow-superior-15ed-5os-plus3",
+      "class": "G16",
+      "who": "trade",
+      "label": "Superior 15 ED +3 Bow skills Grand Matron Bow 5os (sell)",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            5
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        },
+        {
+          "key": "188:0",
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:292",
+      "codes": [
+        "amc"
+      ],
+      "bases": [
+        "Grand Matron Bow"
+      ],
+      "asks": {
+        "min_ist": 17.306,
+        "median_ist": 38.923,
+        "n": 4,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#grand-matron-bow/5os/noneth/superior/15ed/skill3"
+      }
+    },
+    {
+      "id": "own-exile-paladin-shield-4os-40res",
+      "class": "G7",
+      "who": "runeword-base",
+      "label": "Exile base (own Paladin): Sacred Targe / Rondache 4os or 0os, all res 40+, eth preferred",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 40
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 40
+        }
+      ],
+      "matters": [
+        {
+          "key": "39:0",
+          "label": "All Resistances",
+          "low": 30,
+          "high": 45,
+          "good": 45
+        },
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pricing-primer.html:372; guides/pindle-anya.html:289; guides/pindle-anya.html:285; third-parties/d2data/json/runes.json:955",
+      "codes": [
+        "pab",
+        "pac"
+      ],
+      "bases": [
+        "Sacred Targe",
+        "Sacred Rondache"
+      ],
+      "asks": {
+        "min_ist": 57.105,
+        "median_ist": 74.237,
+        "n": 4,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#sacred-targe/4os/eth/normal/res45"
+      }
+    },
+    {
+      "id": "own-merc-cure-helm-eth-3os",
+      "class": "G17",
+      "who": "merc",
+      "label": "Cure base (merc): eth 3os or 0os Corona / Spired Helm / Bone Visage / Demonhead",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        }
+      ],
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:480; guides/warlock.html:141; guides/pindle-anya.html:285; third-parties/d2data/json/runes.json:496; third-parties/d2data/json/armor.json:11724",
+      "codes": [
+        "uh9",
+        "uhm",
+        "urn",
+        "usk"
+      ],
+      "bases": [
+        "Corona",
+        "Spired Helm",
+        "Bone Visage",
+        "Demonhead"
       ],
       "asks": null
     },

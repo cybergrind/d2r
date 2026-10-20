@@ -182,9 +182,7 @@
    "owned": [
     {}
    ],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_giant_thresher_eth_4os_superior",
@@ -212,9 +210,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_thresher_eth_4os_superior",
@@ -242,9 +238,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_cryptic_axe_eth_4os_superior",
@@ -262,19 +256,17 @@
    "expect": {
     "ground": "pick",
     "then": "keep",
-    "must_have": true,
+    "must_have": false,
     "decision": "keep",
-    "rule": "K3"
+    "rule": "K5"
    },
-   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10; 2026-10-20 ~13:20 the player: \"probably we need to keep only fast bases first\": a slow base or a spear, kept by its worth",
    "value": {
     "worth": 57.105,
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_great_poleaxe_eth_4os_superior",
@@ -292,19 +284,17 @@
    "expect": {
     "ground": "pick",
     "then": "keep",
-    "must_have": true,
+    "must_have": false,
     "decision": "keep",
-    "rule": "K3"
+    "rule": "K5"
    },
-   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10; 2026-10-20 ~13:20 the player: \"probably we need to keep only fast bases first\": a slow base or a spear, kept by its worth",
    "value": {
     "worth": 57.105,
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_colossus_voulge_eth_4os_superior",
@@ -322,19 +312,17 @@
    "expect": {
     "ground": "pick",
     "then": "keep",
-    "must_have": true,
+    "must_have": false,
     "decision": "keep",
-    "rule": "K3"
+    "rule": "K5"
    },
-   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10; 2026-10-20 ~13:20 the player: \"probably we need to keep only fast bases first\": a slow base or a spear, kept by its worth",
    "value": {
     "worth": 57.105,
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_gt_eth_0os_superior_15ed",
@@ -361,9 +349,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_dusk_eth_4os",
@@ -390,9 +376,7 @@
    "owned": [
     {}
    ],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_archon_eth_4os",
@@ -417,9 +401,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "merc_andariels_visage_first",
@@ -648,9 +630,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "warlock_coh_archon_superior_15ed_4os",
@@ -676,9 +656,7 @@
     "verdict": "sell"
    },
    "owned": [],
-   "today_fails": {
-    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
-   }
+   "today_fails": {}
   },
   {
    "id": "rare_ring_dual_leech_fcr",
@@ -2013,6 +1991,638 @@
    "source": "inventory_tracking/macros/pickmode.py void_base (unread bases filled the stash, 2026-10-17)",
    "owned": [],
    "ground_rolls": null
+  },
+  {
+   "id": "own_exile_sacred_targe_eth_4os_41res",
+   "section": "6.1",
+   "item": {
+    "base": "Sacred Targe",
+    "code": "pab",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "39:0": 41,
+     "41:0": 41,
+     "43:0": 41,
+     "45:0": 41
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); \"best base for exile (4os, at least +40 all res, preferrably ethereal shield)\"; guides/pricing-primer.html:372; runes.json:955 (Exile: pala, 4 runes)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "own_exile_sacred_rondache_4os_44res",
+   "section": "6.1",
+   "item": {
+    "base": "Sacred Rondache",
+    "code": "pac",
+    "quality": "normal",
+    "sockets": 4,
+    "rolls": {
+     "39:0": 44,
+     "41:0": 44,
+     "43:0": 44,
+     "45:0": 44
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); Exile at 40+ all res: below pickmode.shield_base's 45 for a Rondache",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "exile_sacred_targe_4os_38res_left",
+   "section": "6.4",
+   "item": {
+    "base": "Sacred Targe",
+    "code": "pab",
+    "quality": "normal",
+    "sockets": 4,
+    "rolls": {
+     "39:0": 38,
+     "41:0": 38,
+     "43:0": 38,
+     "45:0": 38
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); under 40 all res; guides/pindle-anya.html:289 (below 40@ = floor)",
+   "owned": []
+  },
+  {
+   "id": "own_cure_corona_eth_3os",
+   "section": "6.1",
+   "item": {
+    "base": "Corona",
+    "code": "urn",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 3
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); \"base for cure (3os) for merc\"; runes.json:496 (Cure: helm, 3 runes); guides/pindle-anya.html:285, :480 (merc eth); armor.json:11724 (Corona 111-165 def, the most of the 3os elite helms)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "cure_corona_non_eth_3os_left",
+   "section": "6.4",
+   "item": {
+    "base": "Corona",
+    "code": "urn",
+    "quality": "normal",
+    "sockets": 3
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); the merc's is eth (guides/pindle-anya.html:285, :480)",
+   "owned": []
+  },
+  {
+   "id": "spirit_monarch_plain_4os_under_the_cap_kept",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "normal",
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K3",
+    "reason_has": [
+     "2 owned, kept up to 6"
+    ]
+   },
+   "source": "the player, 2026-10-20 ~12:50 \"I want to keep more monarch bases\"; loot/build_wants.py SPIRIT_MONARCH_CAP 6; 2 owned (MSockB normal, MSockC superior: collection.sqlite read 2026-10-20); plain 4os Q1 0.674 Ist / 15 sellers (guides/pricing.html:189, asks 2026-10-04)",
+   "value": {
+    "worth": 0.674,
+    "verdict": "sell"
+   },
+   "owned": [
+    {},
+    {
+     "quality": "superior"
+    }
+   ]
+  },
+  {
+   "id": "spirit_monarch_plain_4os_over_the_cap_left",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "normal",
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "leave",
+    "decision": "drop",
+    "rule": "K6"
+   },
+   "source": "the player, 2026-10-20 ~12:50 \"I want to keep more monarch bases\"; loot/build_wants.py SPIRIT_MONARCH_CAP 6: 6 owned, a plain copy is not better (no ED)",
+   "value": {
+    "worth": 0.674,
+    "verdict": "sell"
+   },
+   "owned": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+     "quality": "superior"
+    }
+   ],
+   "today_fails": {
+    "decision": "today: a white Monarch is never sellable (pickmode.sellable), so a copy over the cap stays carried and is stashed"
+   }
+  },
+  {
+   "id": "spirit_monarch_superior_15ed_over_the_cap_kept",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player, 2026-10-20 ~12:50 \"I want to keep more monarch bases\"; loot/build_wants.py SPIRIT_MONARCH_CAP 6; guides/pindle-anya.html:288 Superior 15 ED 4os, wp-b monarch 4os/noneth/superior/15ed 9.3->17.1 (asks 2026-09-18)",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": [
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    }
+   ]
+  },
+  {
+   "id": "spirit_monarch_superior_10ed_carried_over_the_cap_better_kept",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "16:0": 10
+    }
+   },
+   "expect": {
+    "ground": "leave",
+    "decision": "keep",
+    "rule": "K6"
+   },
+   "source": "the player, 2026-10-20 ~12:50 \"I want to keep more monarch bases\"; loot/build_wants.py SPIRIT_MONARCH_CAP 6: over the cap a copy is kept only when better (ED 10 vs the owned 0); on the ground only Superior 15 ED is picked",
+   "value": {
+    "worth": 0.674,
+    "verdict": "sell"
+   },
+   "owned": [
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    },
+    {
+     "quality": "normal",
+     "rolls": {}
+    }
+   ]
+  },
+  {
+   "id": "coh_archon_plain_4os_left",
+   "section": "6.4",
+   "item": {
+    "base": "Archon Plate",
+    "code": "utp",
+    "quality": "normal",
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~12:15 (own-use bases); \"merc chain of honor base (archon plate? maybe ethereal, 4os)\": the eth one (merc_archon_eth_4os); plain 4os = Sell (guides/pindle-anya.html:286), no bad bases",
+   "owned": []
+  },
+  {
+   "id": "merc_matriarchal_spear_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Matriarchal Spear",
+    "code": "amd",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "guides/pindle-anya.html:291 (Matriarchal Spear (6); Keep eth 4os Superior of any); Insight (runes.json:1639); 2026-10-20 ~13:20 the player: \"probably we need to keep only fast bases first\": a slow base or a spear, kept by its worth",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "market_grand_matron_bow_superior_15ed_4os_plus3",
+   "section": "6.1",
+   "item": {
+    "base": "Grand Matron Bow",
+    "code": "amc",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "17:0": 15,
+     "188:0": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "Q7 (G16); guides/pindle-anya.html:292; wp-b grand-matron-bow 4os/noneth/superior/15ed/skill3 91.4->114 n13",
+   "value": {
+    "worth": 91.368,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_grand_matron_bow_plain_4os_plus3_left",
+   "section": "6.4",
+   "item": {
+    "base": "Grand Matron Bow",
+    "code": "amc",
+    "quality": "normal",
+    "sockets": 4,
+    "rolls": {
+     "188:0": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "Q7: never plain ones (the guide's \"Sell: 4os plain +3 GMB\" is left)",
+   "owned": []
+  },
+  {
+   "id": "market_colossus_blade_eth_superior_15ed_0os",
+   "section": "6.1",
+   "item": {
+    "base": "Colossus Blade",
+    "code": "7gd",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 0,
+    "rolls": {
+     "17:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "Q7 (G16); guides/pindle-anya.html:290 (CB eth 0/5/6os); wp-b colossus-blade 0os/eth/superior/15ed 68.5->79.9 n7",
+   "value": {
+    "worth": 68.526,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_colossus_blade_superior_10ed_5os_left",
+   "section": "6.4",
+   "item": {
+    "base": "Colossus Blade",
+    "code": "7gd",
+    "quality": "superior",
+    "sockets": 5,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "Q7: Superior under 15 ED is plain (guides/pindle-anya.html:283 PK-ilvl-gray)",
+   "owned": []
+  },
+  {
+   "id": "rare_diadem_fcr_plus2_warlock_life_really_good",
+   "section": "6.1",
+   "item": {
+    "base": "Diadem",
+    "code": "ci3",
+    "quality": "rare",
+    "sockets": 2,
+    "rolls": {
+     "105:0": 20,
+     "83:7": 2,
+     "7:0": 11520
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3",
+    "reason_has": [
+     "really good"
+    ]
+   },
+   "source": "the player, 2026-10-20 ~12:50 \"rare helms ... fcr + 2skills level + other valuable stats\"; guides/pricing.html:233; magicprefix.json:13176 Arch-Devil's, magicsuffix.json:3029 of the Magus; asks +2 Warlock/20 FCR/third stat 11.4 -> 57.1 (5 priced sellers, 2026-09-18, appraisal-market.jsonl)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "105:0": 20,
+      "83:7": 2,
+      "7:0": 11520
+     }
+    }
+   ],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_tiara_fcr_plus2_warlock_nothing_else_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Tiara",
+    "code": "ci2",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 20,
+     "83:7": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:158; guides/pricing-primer.html:482 (rare +2 & 20 FCR 0os Tiara 0.8 -> 11.4, 8 sellers); +2 Warlock/20 FCR alone 17.1 -> 22.8 (2 priced sellers, 2026-09-18, appraisal-market.jsonl)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_coronet_plus2_warlock_without_fcr_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Coronet",
+    "code": "ci1",
+    "quality": "rare",
+    "rolls": {
+     "83:7": 2,
+     "7:0": 6400
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K10",
+    "reason_has": [
+     "rare circlet +2 class skills"
+    ]
+   },
+   "source": "guides/pricing.html:233 (+2 class without FCR: 33 priced sellers, lower quartile 8 Ist, 2026-10-08); guides/pricing-primer.html:482 (rare +2 without FCR 1 -> 34, n=39); +2 Warlock no FCR 25.7 -> 34.3 (6 priced sellers, 2026-09-18)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_tiara_fcr_plus2_demon_tree_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Tiara",
+    "code": "ci2",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 20,
+     "188:56": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "guides/pricing.html:233 (20 FCR with +2 to a skill tree); magicprefix.json:13114 Dreadful (+2 Demon, rare)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_diadem_fcr_life_res_without_skills_dropped",
+   "section": "6.1",
+   "item": {
+    "base": "Diadem",
+    "code": "ci3",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 20,
+     "7:0": 12800,
+     "39:0": 20,
+     "41:0": 20,
+     "43:0": 20,
+     "45:0": 20
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "drop",
+    "rule": "K8"
+   },
+   "source": "the player, 2026-10-20 ~12:50 (only the really good rare helms); guides/pricing.html:233 (no +2 class skills, 20 FCR without +1 class / +2 tree / 30 FRW: not a paid circlet)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: junk.junk_of sells only a vendor verdict; with none the item is carried to town and stashed"
+   }
+  },
+  {
+   "id": "rare_circlet_plus1_warlock_life_dropped",
+   "section": "6.1",
+   "item": {
+    "base": "Circlet",
+    "code": "ci0",
+    "quality": "rare",
+    "rolls": {
+     "83:7": 1,
+     "7:0": 10240,
+     "96:0": 30
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "drop",
+    "rule": "K8"
+   },
+   "source": "guides/pricing.html:233 (+1 class skills pay only with 20 FCR); the player, 2026-10-20 ~12:50",
+   "value": {
+    "worth": 0.5,
+    "verdict": "slow"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: junk.junk_of sells only a vendor verdict; with none the item is carried to town and stashed"
+   }
+  },
+  {
+   "id": "rare_corona_cannot_roll_fcr_or_warlock_skills_dropped",
+   "section": "6.4",
+   "item": {
+    "base": "Corona",
+    "code": "urn",
+    "quality": "rare",
+    "rolls": {
+     "7:0": 10240,
+     "39:0": 25
+    }
+   },
+   "expect": {
+    "ground": "leave",
+    "decision": "drop",
+    "rule": "K8"
+   },
+   "source": "third-parties/d2data/json/magicsuffix.json:3009/:3029 (FCR: amul/circ/orb/ring/rod only) and magicprefix.json:13176 (Arch-Devil's: amul/circ); a plain helm rolls only Barbarian Combat / Assassin Shadow trees (magicprefix.json Veteran's, Psychic); the filter shows no plain rare helm",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": [],
+   "today_fails": {
+    "decision": "today: junk.junk_of sells only a vendor verdict; with none the item is carried to town and stashed"
+   }
   }
  ]
 }

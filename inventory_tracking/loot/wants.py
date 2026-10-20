@@ -5,7 +5,8 @@ A row names its bases (items.txt codes resolved from the game data at build time
 qualities, the conditions readable on the ground (`ground`: pick it up), the conditions that make it a keeper once
 read in full (`must`, and one of `any`), and the rolls that decide its worth (`matters`). Conditions are tri-state:
 True, False, or None when the facts do not hold the stat (an unread ground roll, an unidentified affix). A row with
-no `must` is a pickup row only (it never makes an item a keeper).
+no `must` is a pickup row only (it never makes an item a keeper). A row with `keep_up_to` (the Spirit base Monarch)
+keeps copies until that many are owned (loot/ground_judge.py, loot/keep.py).
 """
 
 import json
@@ -125,6 +126,7 @@ class Want:
     then: Literal['keep', 'identify'] = 'keep'
     always_keep: bool = False  # BiS rows: kept whatever the copies
     must_have: bool = False  # on the ground: a valuable the loop does not leave
+    keep_up_to: int | None = None  # kept until this many comparable copies are owned, then only when better
     matters: tuple[RollSpec, ...] = ()
     asks: Mapping[str, Any] | None = field(default=None, compare=False)
     source: str = ''
@@ -183,6 +185,7 @@ def parse(row: Mapping[str, Any]) -> Want:
         then=row.get('then', 'keep'),
         always_keep=row.get('always_keep', False),
         must_have=row.get('must_have', False),
+        keep_up_to=row.get('keep_up_to'),
         matters=tuple(_spec(s) for s in row.get('matters', ())),
         asks=row.get('asks'),
         source=row['source'],

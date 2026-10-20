@@ -7,12 +7,13 @@ strict xfails). Not on the loop's path.
   identify/service.py `owned_verdict` never runs in the loop), junk.py `junk_of` (identified, `sellable`, `vendor`),
   the amulet keeper (engine.py `protected`) and copies.py `keep_copy` for a `vendor` set or unique.
 - `judge`: the GOOD pickup level, pickmode.py `sure`, on the drop as the ground read gives it today (game/decode.py
-  `rolled`: rolls only for game/layout.py ROLLED_TYPES).
+  `rolled`: rolls only for game/layout.py ROLLED_TYPES, and of BASE_ROLLED_TYPES only for white and superior ones).
+  Since M5 (2026-10-20) `sure` takes the white bases the ground read picks (pickmode.py `ground_base`).
 """
 
 from collections.abc import Sequence
 
-from inventory_tracking.game.layout import ROLLED_QUALITIES, ROLLED_TYPES
+from inventory_tracking.game.layout import MAGIC_ROLLED_TYPES, ROLLED_QUALITIES, ROLLED_TYPES, WHITE_QUALITIES
 from inventory_tracking.game.records import NAMED, VALUABLE, Carried, Drop, Rolls, prized
 from inventory_tracking.loot.facts import MAGIC, SET, UNIQUE, ItemFacts, Owner
 from inventory_tracking.loot.ground_judge import GroundVerdict, Then
@@ -72,11 +73,13 @@ def drop(facts: ItemFacts) -> Drop:
         else 'shown'
     )  # fmt: skip
     rolls = None
-    if kind in ROLLED_TYPES and facts.quality in ROLLED_QUALITIES and facts.rolls is not None:
+    read = kind in MAGIC_ROLLED_TYPES or facts.quality in WHITE_QUALITIES
+    if kind in ROLLED_TYPES and read and facts.quality in ROLLED_QUALITIES and facts.rolls is not None:
         found = _stats(facts)
         skills = tuple((int(k.partition(':')[2]), v) for k, v in facts.rolls.items() if k.startswith('107:'))
+        tabs = tuple((int(k.partition(':')[2]), v) for k, v in facts.rolls.items() if k.startswith('188:'))
         rolls = Rolls(facts.sockets or 0, skills, found.get(16, 0), min(found.get(s, 0) for s in (39, 41, 43, 45)),
-                      bool(facts.ethereal))  # fmt: skip
+                      bool(facts.ethereal), found.get(17, 0), tabs)  # fmt: skip
     return Drop(facts.unit_id, 0.0, 0.0, facts.base_name, VALUABLE, facts.size, prized(source, marked=facts.marked),
                 source, facts.txt or 0, facts.quality, rolls)  # fmt: skip
 

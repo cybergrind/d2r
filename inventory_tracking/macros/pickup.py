@@ -22,8 +22,10 @@ from inventory_tracking.config import APPRAISAL, BELT, INPUT
 from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT
 from inventory_tracking.game.records import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Player, has_room
 from inventory_tracking.levels.model import Ground, Level, Target
+from inventory_tracking.loot import api as field_api, ground_judge
+from inventory_tracking.loot.api import FIELD
 from inventory_tracking.loot.materials import material_classes
-from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
+from inventory_tracking.loot.shown import RARITIES, game_filter, oversize_rules, pickup_rules, shown_gems
 from inventory_tracking.macros import lootpolicy
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Step
@@ -151,11 +153,29 @@ def wanted() -> dict:
         'unique_minimum': APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
         'materials': materials,
         'gold_minimum': APPRAISAL.pickup_gold_minimum,
-        'shown': pickup_rules(APPRAISAL.pickup_shown_cells) if APPRAISAL.pickup_filter_shown else (),
+        'shown': shown_rules() if APPRAISAL.pickup_filter_shown else (),
         # What a full inventory stops the press for: what the marks point at (game/records.py `prized`).
         'prized_rune_minimum': APPRAISAL.rune_minimum,
         'prized_materials': frozenset(material_classes(APPRAISAL.material_marks)),
     }
+
+
+# The qualities whose filter-shown bases over the cell cap are read (`shown_rules`): the field identify's (loot/api.py
+# G15) and the ground read's white bases (loot/ground_judge.py BASES, M5)
+OVERSIZE_FIELD = frozenset((RARITIES['magic'], RARITIES['rare']))
+OVERSIZE_BASES = frozenset((RARITIES['normal'], RARITIES['hiQuality']))
+
+
+def shown_rules() -> tuple:
+    """The filter's gear rules the look reads: up to `pickup_shown_cells`, and over it the magic and rare items the
+    field identify checks (loot/api.py FIELD_OVERSIZE) and the white bases the ground read judges (ground_judge.py
+    BASES): the player, 2026-10-20 ~11:55, "bases or blue/rare items might take much place (like spears, matron bow)
+    -- we want to check them". Over the cap, pickmode.py `kept` takes only what those judge, in every pickup level."""
+    cap = APPRAISAL.pickup_shown_cells
+    qualities = (OVERSIZE_FIELD if field_api.FIELD_IDENTIFY and field_api.FIELD_OVERSIZE else frozenset()) | (
+        OVERSIZE_BASES if ground_judge.BASES else frozenset()
+    )
+    return pickup_rules(cap) + (oversize_rules(cap, qualities) if qualities else ())
 
 
 def shortages(loot: Loot) -> tuple[int, int]:
@@ -169,10 +189,12 @@ def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
     def away(drop: Drop) -> float:
         return math.dist(here, (drop.x, drop.y))
 
-    # A valuable with no room is left: no click takes it, and the press would do nothing else.
+    # A valuable with no room is left: no click takes it, and the press would do nothing else. One picked for the
+    # field identify (loot/api.py) comes after every other in sight: a big one never takes a valuable's room
     valuables = [drop for drop in loot.drops if drop.kind == VALUABLE and has_room(loot.room, drop.size)]
     if valuables:
-        return Plan(min(valuables, key=away))
+        game = loot.game[0] if loot.game is not None else None
+        return Plan(min(valuables, key=lambda drop: (FIELD.class_of(drop.unit_id, game) is not None, away(drop))))
     gold = [drop for drop in loot.drops if drop.kind == GOLD and away(drop) <= GOLD_UNITS]
     if gold:
         return Plan(min(gold, key=away))

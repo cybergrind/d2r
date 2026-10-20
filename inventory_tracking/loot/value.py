@@ -1,5 +1,5 @@
 """Layer 2 of the loot design (loot/design.md §3): what the market and the build say an item is worth, and which of
-its rolls decide that. Pure, except `CollectionCopies` (a read-only collection read).
+its rolls decide that. Pure, except `CollectionCopies` and `owned_bases` (read-only collection reads).
 
 - `value_ist`: the price by the item's own rolls (moved here from identify/service.py, which imports it back).
 - `assess` / `appraise_result`: a `Value` from a price and a verdict (tests, tables) or from the identify worker's KB
@@ -11,11 +11,25 @@ its rolls decide that. Pure, except `CollectionCopies` (a read-only collection r
 Prices are the repo's (pricing/, the KB), never the web (S7).
 """
 
+import sqlite3
+import threading
+import time
 from collections.abc import Mapping, Sequence
+from contextlib import closing
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal, Protocol
 
-from inventory_tracking.appraisal.owned import perfection, variable_rolls
+from inventory_tracking.appraisal.owned import (
+    connect_readonly,
+    match_kind,
+    offline_characters,
+    online_only,
+    perfection,
+    variable_rolls,
+)
+from inventory_tracking.collection.store import DEFAULT_DATABASE
+from inventory_tracking.common import LOG
 from inventory_tracking.loot.facts import NORMAL, SUPERIOR, ItemFacts, Owner, Where, from_observation
 from inventory_tracking.loot.wants import RollSpec, Want, matching
 
@@ -36,6 +50,7 @@ __all__ = [
     'better_than',
     'comparable',
     'matters_for',
+    'owned_bases',
     'position',
     'score',
     'tier_of',
@@ -262,3 +277,42 @@ class CollectionCopies:
         if found is None:
             return None
         return [from_observation(copy, where=Where.STASH, owner=Owner.PLAYER) for copy in found]
+
+
+COUNT_SECONDS = 60.0  # how long an owned-bases count is reused: the pickup asks at every look
+_COUNTS: dict[tuple[str, bool | None, int | None], tuple[float, int | None]] = {}
+_COUNTS_LOCK = threading.Lock()
+
+
+def owned_bases(facts: ItemFacts, database: Path = DEFAULT_DATABASE) -> int | None:
+    """How many copies of a white or superior base the player owns (the collection, read-only: open placements of
+    the same base code, ethereal flag and sockets, normal or superior, no runeword: appraisal/owned.py `match_kind`;
+    offline characters own nothing), for the wants rows' `keep_up_to` (the Spirit base Monarch). Counted again after
+    COUNT_SECONDS. None for any other item or when the collection cannot be read (S8: the cap does not hold)."""
+    if facts.quality not in (NORMAL, SUPERIOR) or not facts.code or facts.sockets is None:
+        return None
+    key = (facts.code, facts.ethereal, facts.sockets)
+    now = time.monotonic()
+    with _COUNTS_LOCK:
+        found = _COUNTS.get(key)
+        if found is not None and now - found[0] < COUNT_SECONDS:
+            return found[1]
+    item = {'rarity': facts.quality_name, 'base_code': facts.code, 'base_name': facts.base_name or facts.code,
+            'ethereal': bool(facts.ethereal), 'sockets': facts.sockets, 'identified': True}  # fmt: skip
+    kind = match_kind({'item': item})
+    count: int | None = None
+    if kind is not None and database.exists():
+        _, condition, params = kind
+        online, online_params = online_only(offline_characters())
+        sql = (
+            'SELECT COUNT(*) FROM placements p JOIN items i ON i.fingerprint = p.fingerprint '
+            f'WHERE p.gone_at IS NULL AND {condition}{online}'
+        )
+        try:
+            with closing(connect_readonly(database)) as db:
+                count = int(db.execute(sql, [*params, *online_params]).fetchone()[0])
+        except sqlite3.Error as error:
+            LOG.info('Macro: loot: owned %s cannot be counted: %s', facts.title(), error)
+    with _COUNTS_LOCK:
+        _COUNTS[key] = (now, count)
+    return count

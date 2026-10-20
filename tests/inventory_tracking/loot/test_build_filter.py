@@ -1,4 +1,5 @@
-"""The Warlock Lean v2 profile: unique and set items shown by base, from the knowledge base's evidence."""
+"""The one loot filter profile (Warlock Lean2): unique and set items shown by base, from the knowledge base's
+evidence, rebuilt in place."""
 
 import json
 import re
@@ -15,9 +16,14 @@ D2DATA = Path('third-parties/d2data/json/base')
 
 
 @pytest.fixture(scope='module')
-def built():
+def sources():
     # without the Chronicle: what it lacks changes with every find
-    return build(json.loads(build_filter.TEMPLATE.read_text()), {**load_sources(), 'chronicle': None})
+    return {**load_sources(), 'chronicle': None}
+
+
+@pytest.fixture(scope='module')
+def built(sources):
+    return build(json.loads(build_filter.PROFILE.read_text()), sources)
 
 
 def rule(profile, name):
@@ -25,12 +31,16 @@ def rule(profile, name):
     return found
 
 
-def test_only_the_unique_set_rule_is_replaced_and_the_name_fits_the_game(built):
+def test_only_the_generated_rules_are_rebuilt_and_the_name_fits_the_game(built):
     profile, _ = built
-    template = json.loads(build_filter.TEMPLATE.read_text())
+    source = json.loads(build_filter.PROFILE.read_text())
+    assert profile['name'] == source['name'] == 'Warlock Lean2'  # the game's saved copy is found by this name
     assert len(profile['name']) <= 13
-    assert [r['name'] for r in profile['rules'] if not r['name'].startswith(('SHOW Unique', 'SHOW Set'))] == [
-        r['name'] for r in template['rules'] if r['name'] != 'SHOW Unique Set'
+    assert {key: value for key, value in profile.items() if key != 'rules'} == {
+        key: value for key, value in source.items() if key != 'rules'
+    }
+    assert [r for r in profile['rules'] if r['name'] not in build_filter.GENERATED] == [
+        r for r in source['rules'] if r['name'] not in build_filter.GENERATED
     ]
     assert [r['name'] for r in profile['rules'][3:7]] == [
         'SHOW Unique ARMOR',
@@ -41,6 +51,33 @@ def test_only_the_unique_set_rule_is_replaced_and_the_name_fits_the_game(built):
     for r in profile['rules']:
         assert len(r['name']) <= 32
         assert re.fullmatch(r'[A-Za-z0-9 _\-/.,]+', r['name'])
+
+
+def test_lootfilter_holds_the_one_profile():
+    # the player's ruling, 2026-10-20: "retire other filters. and keep only one filter file at all"
+    assert sorted(path.name for path in build_filter.PROFILE.parent.glob('*.json')) == [build_filter.PROFILE.name]
+
+
+def test_a_rebuild_round_trips_the_profile_unchanged(built, sources, tmp_path, monkeypatch):
+    profile, _ = built
+    assert build(profile, sources)[0] == profile  # rebuilding a rebuilt profile changes nothing
+    source = build_filter.PROFILE.read_text()
+    assert source == json.dumps(json.loads(source), indent=2) + '\n'  # in the form main() writes
+    target, names = tmp_path / build_filter.PROFILE.name, tmp_path / 'filter_names.json'
+    target.write_text(json.dumps(profile, indent=2) + '\n')
+    monkeypatch.setattr(build_filter, 'PROFILE', target)
+    monkeypatch.setattr(build_filter, 'NAMES', names)
+    monkeypatch.setattr(build_filter, 'load_sources', lambda: sources)
+    monkeypatch.setattr(build_filter, 'copy', lambda text: False)
+    written = target.read_bytes()
+    assert build_filter.main() == 0
+    assert target.read_bytes() == written
+    assert json.loads(names.read_text())['unique']['shown']
+
+
+def test_a_profile_without_the_generated_rules_is_refused(sources):
+    with pytest.raises(ValueError, match='generated rules'):
+        build({'name': 'Warlock Lean2', 'rules': [{'name': 'SHOW Unique Set'}]}, sources)
 
 
 def test_every_code_is_a_real_base_of_the_rule_kind_and_categories_are_absent(built):
