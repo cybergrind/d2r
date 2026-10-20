@@ -22,8 +22,8 @@ from inventory_tracking.macros.terrorize import SHARD_FLOOR, choose_shard, name_
 # The act kind "Shard: Act 4" offered (the picker's entry). On 2026-10-20 ~21:18 after the player's in-game test
 # (findings §6) with terrorize.CLICKS on. False: the kind is not offered
 ENABLED = True
-# The kinds' acts by kind key (loop.py ACT4)
-ACTS = {'act4': 4}
+# The kinds' acts by kind key (loop.py ACT_KINDS: act1 ... act5, each offered once its script is ready, macros/acts/)
+ACTS = {f'act{act}': act for act in range(1, 6)}
 # The shard step's outcomes in a game (`Agenda.shard`)
 USED, NONE_HELD, CLICKS_OFF, FAILED, GIVEN_UP, JOINED = (
     'used',

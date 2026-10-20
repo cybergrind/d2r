@@ -1,42 +1,48 @@
 """The KP_6 kind picker's rows and highlight (macros/kindpick.py; the player, 2026-10-20: "pop some kind of dialogue to
 chose the mode on 3 clicks: shard act 4 as an entry")."""
 
-from dataclasses import replace
-
 import pytest
 
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.macros import kindpick
 from inventory_tracking.macros.kindpick import KindPicker, entries
-from inventory_tracking.macros.loop import ANDARIEL, KINDS, LK, TZ, TZ_CLEAR, coming_kinds
+from inventory_tracking.macros.loop import ACT4, ANDARIEL, KINDS, LK, TZ, TZ_CLEAR, coming_kinds
 
 
 OFFERED = {LK.key: LK, ANDARIEL.key: ANDARIEL, TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR}
 
 
-def test_the_rows_are_the_offered_kinds_in_order_then_the_shard_act_coming():
+SHARD_ACTS = [f'Shard: Act {act}' for act in range(1, 6)]
+
+
+def test_the_rows_are_the_offered_kinds_in_order_then_the_shard_acts_coming():
     rows = entries(OFFERED)
 
-    assert [row.name for row in rows] == ['Lower Kurast', 'Andariel', TZ.name, 'Full clear TZ', 'Shard: Act 4']
-    assert [row.enabled for row in rows] == [True, True, True, True, False]
+    assert [row.name for row in rows] == ['Lower Kurast', 'Andariel', TZ.name, 'Full clear TZ', *SHARD_ACTS]
+    assert [row.enabled for row in rows] == [True, True, True, True, False, False, False, False, False]
     assert rows[1].word == 'AND'
     assert rows[1].metric == 'Andariel kills an hour'
 
 
-def test_the_default_rows_are_loop_kinds_and_the_coming_ones():
-    assert [row.key for row in entries()][: len(KINDS)] == list(KINDS)
-    assert entries()[-1].name == 'Shard: Act 4'
+def test_the_default_rows_are_loop_kinds_and_the_act_kinds_not_ready_coming():
+    # The player, 2026-10-20 ~22:50: "could you implement shards run for every act": one kind per act, offered once
+    # its script is ready (macros/acts/), "coming" until then
+    from inventory_tracking.macros import acts
+
+    rows = entries()
+    assert [row.key for row in rows][: len(KINDS)] == list(KINDS)
+    coming = [row.key for row in rows if not row.enabled]
+    assert coming == [f'act{act}' for act in range(1, 6) if not acts.ready(act)]
+    assert 'act4' in [row.key for row in rows if row.enabled]
 
 
-@pytest.mark.parametrize('key', ['act', 'act4'])
-def test_the_act_kind_once_registered_replaces_its_coming_entry_by_itself(key):
-    act = replace(TZ, key=key, name='Terror act', word='ACT')
-    rows = entries({**OFFERED, key: act})
+def test_an_act_kind_once_offered_replaces_its_coming_entry_by_itself():
+    rows = entries({**OFFERED, ACT4.key: ACT4})
 
-    assert [row.name for row in rows][-1] == 'Terror act'
-    assert all(row.enabled for row in rows)
-    assert coming_kinds([key]) == ()
-    assert coming_kinds(['andariel']) != ()  # andariel starts with "a", not "act"
+    assert [row.name for row in rows if row.enabled][-1] == 'Shard: Act 4'
+    assert [row.name for row in rows if not row.enabled] == [name for name in SHARD_ACTS if name != 'Shard: Act 4']
+    assert [coming.word for coming in coming_kinds(['act4'])] == ['ACT1', 'ACT2', 'ACT3', 'ACT5']
+    assert len(coming_kinds(['andariel'])) == 5  # andariel starts with "a", not "act1"
 
 
 def test_the_highlight_starts_after_the_kind_running_and_skips_the_coming_entry():

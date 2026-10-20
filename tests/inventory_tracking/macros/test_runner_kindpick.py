@@ -10,7 +10,7 @@ import pytest
 
 from inventory_tracking.macros import kindpick
 from inventory_tracking.macros.kindpick import entries
-from inventory_tracking.macros.loop import ANDARIEL, LK
+from inventory_tracking.macros.loop import ANDARIEL, LK, coming_kinds
 from inventory_tracking.macros.pickmode import MOST, SURE
 from inventory_tracking.macros.runner import MacroRunner
 from tests.inventory_tracking.macros.fakes import patch_runner
@@ -69,7 +69,9 @@ def test_three_presses_open_it_one_moves_two_choose_and_the_loop_stays_off(caplo
         assert runner.loop.kind == ANDARIEL  # nothing switched by opening it
         until(lambda: bool(published))
         assert f'>{after.name}' in names(published)
-        assert names(published)[-1] == 'Shard: Act 4'  # the act loop to come, shown
+        assert 'Shard: Act 4' in names(published)  # the act loop, offered
+        coming = [kind.name for kind in coming_kinds()]  # the act kinds whose scripts are not ready, shown last
+        assert names(published)[len(names(published)) - len(coming) :] == coming
 
         press(runner, 20.0)  # one: the highlight moves
         until(lambda: runner.picker is not None and runner.picker.highlighted.kind == then)

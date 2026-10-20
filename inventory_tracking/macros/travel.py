@@ -148,6 +148,13 @@ STANDING = Intent(
     routed=True,
 )
 
+# A one-click walk whose end lies off the screen is made to the farthest point of its straight line in view
+# (`in_view_toward`); the next look walks on. The player, 2026-10-20 ~23:15: "act 4: we couldn't find way to plains
+# of despair in current game, I moved char through the gate manually" (the Outer Steppes passage 37 units south,
+# below the view: "the place near Plains of Despair is not in view" x52 from 23:10:47). False: it aborts as before
+WALK_PARTWAY = True
+VIEW_STEPS = 12  # halvings of the line to its last point in view (37 units to under 0.01)
+
 # `NoWay.reason`s.
 THERE = 'the character is as near the goal as the move was to end'  # the arrival
 SHUNNED = 'the place a stride toward the goal ends at is shunned'
@@ -1332,15 +1339,36 @@ class Travel:
             self.jump(run, replace(found, skill=skill), player, aspect, key_names, ahead)
         else:
             began = run.clock()
+            spot = in_view_toward(player, found.spot, aspect) if WALK_PARTWAY else found.spot
+            if spot != found.spot:
+                LOG.info('Macro: walk: (%.1f, %.1f) is %.0f away, off the screen: walked to (%.1f, %.1f) on its line',
+                         *found.spot, math.dist(here, found.spot), *spot)  # fmt: skip
             settled = step_walk(
-                run, found.spot, player, aspect, attackable(world), name=name or 'a better place', hurry=hurry
+                run, spot, player, aspect, attackable(world), name=name or 'a better place', hurry=hurry
             )
-            self.tally.units += math.dist(here, found.spot)
+            self.tally.units += math.dist(here, spot)
             self.tally.walks += 1
             LOG.info(
                 'Macro: leg time: walk of %.0f, %.3fs to the character seen going (settle %.3f)',
-                math.dist(here, found.spot), run.clock() - began, settled,
+                math.dist(here, spot), run.clock() - began, settled,
             )  # fmt: skip
+
+
+def in_view_toward(player: Player, goal: Point, aspect: float) -> Point:
+    """`goal` when its ground is in view from the character, else the farthest point of the straight line to it that is
+    (halved VIEW_STEPS times); the character's own place when none is."""
+    here = (player.x, player.y)
+    if in_view(ground_fraction(player, goal[0], goal[1], aspect)):
+        return goal
+    low, high = 0.0, 1.0
+    for _ in range(VIEW_STEPS):
+        mid = (low + high) / 2
+        point = (here[0] + (goal[0] - here[0]) * mid, here[1] + (goal[1] - here[1]) * mid)
+        if in_view(ground_fraction(player, *point, aspect)):
+            low = mid
+        else:
+            high = mid
+    return (here[0] + (goal[0] - here[0]) * low, here[1] + (goal[1] - here[1]) * low)
 
 
 def walked_way(barred: Callable[[Point], bool], start: Point, goal: Point) -> list[Point]:

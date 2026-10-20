@@ -4,7 +4,7 @@
 
 from dataclasses import replace
 
-from inventory_tracking.builds.warlock.buffs import HERALD_SIGIL_SECONDS, prey, sigil_due
+from inventory_tracking.builds.warlock.buffs import HERALD_SIGIL_SECONDS, SIGIL_LOOK, prey, sigil_due
 from inventory_tracking.builds.warlock.mark import MARK_SECONDS, herald, target, why_not
 from inventory_tracking.builds.warlock.skills import DEATH_MARK, SIGIL_LETHARGY
 from inventory_tracking.game.layout import DEFILER_CLASS
@@ -50,9 +50,12 @@ def test_the_sigil_goes_under_a_herald_in_reach_and_again_as_it_moves():
     found = facts([minion, boss])  # the strike aimed through the minion
     assert prey(found) == boss
     assert sigil_due(found)
-    laid = {(SIGIL_LETHARGY, boss.unit_id): 100.0 - HERALD_SIGIL_SECONDS + 1.0}
+    # Kept in its sigil (SIGIL_KEEPS, 2026-10-20): the caster looks every SIGIL_LOOK whether it still stands in one
+    # and casts at HERALD_SIGIL_SECONDS at the latest (test_sigil_keep.py)
+    laid = {(SIGIL_LETHARGY, boss.unit_id): 100.0 - SIGIL_LOOK + 0.1}
     assert not sigil_due(facts([minion, boss], laid))
-    assert sigil_due(facts([minion, boss], laid, now=100.0 + 1.5))
+    assert sigil_due(facts([minion, boss], laid, now=100.0 + 0.5))
+    assert SIGIL_LOOK < HERALD_SIGIL_SECONDS
     assert prey(replace(found, reachable=(minion,))) == minion  # no Herald: the strike's prey
 
 

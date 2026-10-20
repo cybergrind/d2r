@@ -78,6 +78,19 @@ DUD_SECONDS = 20.0
 DUD_UNITS = 3.0
 STILL_UNITS = 1.5
 DUD = 'a Teleport there cast nothing'
+# A Teleport while a read model's act under way is walked out of (combat/threats `Threat.walked`: Diablo's lightning,
+# the player 2026-10-20, combat/threats/diablo.py WALK_AROUND): barred but as a retreat, the life-danger escape (nothing
+# else fits the budget or the veto: `Safety.retreats`)
+WALKED = "Diablo's lightning is walked round, not hopped out of"
+# A walk round an act under way that is walked out of (combat/threats `Threat.around`): once a step across it is
+# taken, each look offers the next place on round him the same way (`Safety.rounds`), taken over the rest while it fits
+# (pursuit.py `Move.onward`) and clicked while the character still walks (hunting/moves.py), until the act ends. The
+# player, 2026-10-20: "just walk around of him"; the coordinator the same night: keep moving on an arc round him, not
+# a 4-unit step and a stand (take 20261020T195849Z-108: 205 life lost a median 2 s after a step that ends in a stand).
+# The arena duel, 20 seeds, the loop's latency modelled (a stand between walks; a click while walking lands in 3
+# frames): lightning lost 45 -> 33 and 107 -> 80 from 9 units, 17 -> 15 and 68 -> 53 from 18 (22 and 44 strikes),
+# for 0.4 to 1.1 s more a kill and, in the longer fights, more of his fire wall. False: steps across as before.
+WALK_ROUND = False  # held off for the restart of 2026-10-20 night: untested in the arena yet
 RESISTS = ((36, 'physical'), (39, 'fire'), (41, 'lightning'), (43, 'cold'), (45, 'poison'), (37, 'magic'))
 # Stats are unpenalized and difficulty is not observed: Hell assumed, never capped gear.
 HELL_PENALTY = 100.0
@@ -284,6 +297,8 @@ class Pricing:
     # `shown(spot)`: the window shows the spot where a Teleport may be aimed (`Safety.shown`); None: every spot
     shown: Callable[[Point], bool] | None = None
     duds: tuple[Point, ...] = ()  # Teleport spots that cast nothing (`Safety.remember`): barred
+    # A read model's act under way is walked out of (`Safety.walked_round`): a Teleport but a retreat is barred (WALKED)
+    walking: bool = False
     candidates: list[Candidate] = field(default_factory=list)
     # The forecast here (`__post_init__`)
     here: Point = field(init=False)
@@ -354,7 +369,15 @@ class Pricing:
         return c.harm.worst <= self.allowance and veto(c.harm, self.look.life, self.settings) is None
 
     def move_price(
-        self, step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False, keeps=False
+        self,
+        step: Step,
+        *,
+        retreat=False,
+        firing=False,
+        why: str | None = None,
+        dodge=False,
+        keeps=False,
+        onward=False,
     ) -> tuple[tuple, float]:
         """A move to `step` priced and added to the candidates: its path and seconds."""
         look, settings, here, hands = self.look, self.settings, self.here, self.hands
@@ -393,6 +416,8 @@ class Pricing:
             damage = replace(damage, barred='battle weapon swap is unavailable')
         if step.skill == TELEPORT and any(math.dist(step.spot, dud) <= DUD_UNITS for dud in self.duds):
             damage = replace(damage, barred=DUD)
+        if step.skill == TELEPORT and self.walking and not retreat:
+            damage = replace(damage, barred=damage.barred or WALKED)
         duration = math.dist(step.spot, self.goal.place) / 20.0
         if firing and not why:
             # A firing stand: the clear time scaled by here's pace over the stand's (from its landing, as `camp`
@@ -406,7 +431,9 @@ class Pricing:
             there_worth, _ = taken(self.seen, self.attack, self.field_, step.spot, 0.0)
             duration += self.clear * self.worth / max(there_worth, 1.0)
         step = PricedStep(step.spot, step.skill, step.camp, needs, seconds)
-        act = Move(step, self.goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge)
+        act = Move(
+            step, self.goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge, onward=onward
+        )
         unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
         self.candidates.append(Candidate(act, duration, damage, retreat, unstruck, self.strikes_from(step.spot), keeps))
         return tuple(path), duration
@@ -571,6 +598,7 @@ class Pricing:
                     'veto': veto(c.harm, look.life, settings),
                     'retreat': c.retreat,
                     'dodge': isinstance(c.act, Move) and c.act.dodge,
+                    'onward': isinstance(c.act, Move) and c.act.onward,
                     'keeps': c.keeps,
                     'contributors': c.harm.by,
                     'stand_ins': c.harm.stand_ins,
@@ -614,6 +642,9 @@ class Safety:
     # The Teleport chosen at the last looks: (spot, where the character stood, looks in a row, clock of the first)
     hops: tuple[Point, Point, int, float] | None = None
     duds: dict[Point, float] = field(default_factory=dict)  # Teleport spots that cast nothing -> barred until
+    walked_said: tuple | None = None  # the acts under way the hops left out (WALKED) were last said for
+    # Unit -> (its mode, the way round it a walk goes: +1 / -1): a walk round its act under way (WALK_ROUND)
+    rounds: dict[int, tuple[tuple[int, float] | None, int]] = field(default_factory=dict)
 
     def shown(self, here: Point) -> Callable[[Point], bool]:
         """Whether the window shows a spot's ground with the character at `here` (game/view.py `in_view`; the
@@ -655,6 +686,8 @@ class Safety:
             self.stand = None
             self.hops = None
             self.duds.clear()
+            self.walked_said = None
+            self.rounds.clear()
         here = (player.x, player.y)
         if not self.trail or math.dist(self.trail[-1], here) >= TRAIL_STEP:
             self.trail.append(here)
@@ -796,10 +829,11 @@ class Safety:
         asking = fresh or running
         insisting = self.insisting(facts.now, posted, key, asking, running)
         allowance, spendable, kappa, dear = life_budget(loot, felt, settings, look, seen.origin, insisting)
+        walkers = self.walked_round(look, seen.origin) if facts.attacking else ()
         p = Pricing(
             facts, look, seen, settings, attack, leg, jumps, barred, hands, options, battle_ready, teleport_hands,
             goal, clock, legs, allowance, kappa, shown=self.shown(seen.origin),
-            duds=tuple(spot for spot, until in self.duds.items() if facts.now < until),
+            duds=tuple(spot for spot, until in self.duds.items() if facts.now < until), walking=bool(walkers),
         )  # fmt: skip
         clock.lap('the forecast')
         held = self.hold(p)
@@ -824,6 +858,7 @@ class Safety:
         self.offered_stand(p, fresh, posted)
         clock.lap('the offered stand')
         if not unsafe and ((facts.in_reach and facts.attacking) or waiting) and saving > least:
+            self.rounding(p, walkers)
             self.stepping(p, held.harm, saving, least)
         clock.lap('the escapes')
         if unsafe:
@@ -843,6 +878,8 @@ class Safety:
             self.blocked_by = blockers(obstructed.harm, allowance)
         chosen = decide(priced, posted)
         self.remember(chosen, look, p.here, asking, key, facts.now, posted)
+        self.went_round(chosen, look, p.here, walkers)
+        self.said_walked(p, walkers, chosen)
         self.decision = p.record(
             chosen, dear=dear, insisting=insisting, spendable=spendable, blocked_by=self.blocked_by, draws=self.draws
         )
@@ -850,6 +887,67 @@ class Safety:
             clock.lap('the choice')
             self.over(facts.now, clock.timer() - clock.began, settings.look_seconds, clock.laps, chosen)
         return priced
+
+    def walked_round(self, look: Look, here: Point) -> tuple[int, ...]:
+        """The hostiles whose act under way is walked out of, not hopped out of (combat/threats `Threat.walked`)."""
+        found = []
+        for m in look.hostiles:
+            model = threats.of(m.txt)
+            if model is not None and model.walked is not None:
+                flying, kinds = threats.flying_of(look.missiles, m.unit)
+                if model.walked(threats.Acting(m.at, m.mode, m.mode_frames, flying, kinds), here):
+                    found.append(m.unit)
+        return tuple(found)
+
+    def rounding(self, p: Pricing, walkers: tuple[int, ...]) -> None:
+        """The next place of a walk round each act under way it goes round (`rounds`, WALK_ROUND), priced as a dodge
+        that goes on (`Move.onward`)."""
+        if not WALK_ROUND:
+            return
+        for m in p.look.hostiles:
+            kept = self.rounds.get(m.unit)
+            model = threats.of(m.txt)
+            if m.unit not in walkers or kept is None or kept[0] != self.modes.get(m.unit) or model is None:
+                continue
+            if model.around is None or p.clock.late():
+                continue
+            flying, kinds = threats.flying_of(p.look.missiles, m.unit)
+            found = model.around(threats.Acting(m.at, m.mode, m.mode_frames, flying, kinds), p.here, kept[1])
+            if found is None:
+                continue
+            spot = footing(p.field_, p.here, found[0])
+            if spot is not None and math.dist(p.here, spot) > 2:
+                p.move_price(Step(spot), firing=True, why=f'{STEPPING} {found[1]}', dodge=True, onward=True)
+
+    def went_round(self, chosen: Act, look: Look, here: Point, walkers: tuple[int, ...]) -> None:
+        """A step across or round an act walked out of (STEPPING, a walk) sets the way round it for the next looks
+        (`rounds`): the side of the line from it to the character the step went to."""
+        self.rounds = {unit: kept for unit, kept in self.rounds.items() if kept[0] == self.modes.get(unit)}
+        if not isinstance(chosen, Move) or not chosen.reason.startswith(STEPPING) or chosen.step.skill is not None:
+            return
+        spot = chosen.step.spot
+        for m in look.hostiles:
+            if m.unit not in walkers:
+                continue
+            cross = (here[0] - m.at[0]) * (spot[1] - m.at[1]) - (here[1] - m.at[1]) * (spot[0] - m.at[0])
+            if abs(cross) > 1e-6:
+                self.rounds[m.unit] = (self.modes.get(m.unit), 1 if cross > 0 else -1)
+
+    def said_walked(self, p: Pricing, walkers: tuple[int, ...], chosen: Act) -> None:
+        """Log, once an act under way, the Teleports left out for it (WALKED) and what is done instead."""
+        left = sum(1 for c in p.candidates if c.harm.barred == WALKED)
+        said = tuple((unit, self.modes.get(unit)) for unit in walkers)
+        if not left or said == self.walked_said:
+            return
+        self.walked_said = said
+        if isinstance(chosen, Move):
+            spot = chosen.step.spot
+            how = 'a walk' if chosen.step.skill is None else 'a jump'
+            gap = math.dist(p.here, spot)
+            act = f'{how} of {gap:.0f} to ({spot[0]:.1f}, {spot[1]:.1f}), {chosen.reason or "toward the goal"}'
+        else:
+            act = f'{type(chosen).__name__} {getattr(chosen, "reason", "")}'.strip()
+        LOG.info('Macro: safety: %s: %d Teleport%s left out; %s', WALKED, left, '' if left == 1 else 's', act)
 
     def insisting(self, now: float, posted, key: tuple, asking: bool, running: bool) -> float:
         """Seconds the goal `key` has been asked for and blocked with no gap of 0.7 s; else 0."""

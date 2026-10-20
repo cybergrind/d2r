@@ -11,18 +11,22 @@ adapters over code that exists, reads through the run, input only through its ac
   `stash_only`), for the field identify of the cube's items (loot/api.py, 2026-10-20 ~13:28).
 - `unquiet`: no hostile within SIGHT (macros/hunting/base.py), life not under the healer's floor (macros/stops.py
   `low_life`, as running/room.py `unsafe`), no valuable the loop could pick up now on the ground, out of town, alive,
-  mouse mode, no panel open.
+  mouse mode, no panel open (but the visit's own, `visit`).
+- `visit`: one opening of the inventory for a whole field visit (loot/api.py ONE_OPENING): the acts inside it leave
+  the inventory and the cube open when they end normally (cube.py `held_shut`), the visit's end closes them once,
+  through a cancel too; an act that fails closes them at once as before, and the next act opens them again.
 """
 
 import math
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Generator, Mapping, Sequence
+from contextlib import contextmanager
 
 from inventory_tracking.game.kept import PutDown
 from inventory_tracking.game.records import VALUABLE, Carried, Loot, Pack, has_room
 from inventory_tracking.loot.facts import ItemFacts
 from inventory_tracking.loot.shadow import BOOK, Appraised, Book
 from inventory_tracking.loot.value import CollectionCopies, OwnedCopies
-from inventory_tracking.macros.cube import KEPT, drop_item, loot, stash_only, unpack
+from inventory_tracking.macros.cube import KEPT, close, drop_item, loot, stash_only, unpack
 from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.hunting.base import SIGHT, hostiles
 from inventory_tracking.macros.junk import identify
@@ -68,6 +72,37 @@ class GameHands:
         self.run, self.inventory_key, self.own, self.appraiser = run, inventory_key, own, appraise
         self.cain_ahead = cain_ahead  # a town visit is due: Cain identifies the inventory and the cube at once there
         self.put_down, self.book, self.owned = put_down, book, owned or CollectionCopies()
+        # The panels a field visit holds open (`visit`); None outside a visit: every act closes its own
+        self.holding: set[str] | None = None
+
+    @contextmanager
+    def visit(self) -> Generator[None]:
+        """One opening of the inventory for the field visit inside it (loot/api.py ONE_OPENING): the acts leave the
+        panels they opened open, and the visit's end closes them once, through a failure, the player's hand or a
+        cancel too (cube.py `close`). A visit inside a visit is the outer one's."""
+        if self.holding is not None:
+            yield
+            return
+        self.holding = set()
+        try:
+            yield
+        finally:
+            held, self.holding = self.holding, None
+            if held:
+                close(self.run, tuple(panel for panel in ('inventory', 'cube') if panel in held))
+
+    def _held(self, panels: tuple[str, ...]) -> bool:
+        """Whether the act about to open `panels` leaves them open (a visit holds them): noted held at once, so a
+        failure that closes them (`held_shut`) is followed by `_shut`."""
+        if self.holding is None:
+            return False
+        self.holding.update(panels)
+        return True
+
+    def _shut(self) -> None:
+        """An act inside a visit failed: it closed every panel (cube.py `held_shut`), none is held now."""
+        if self.holding is not None:
+            self.holding.clear()
 
     def game(self) -> str | None:
         world = self.run.world()
@@ -91,7 +126,11 @@ class GameHands:
         key = self.inventory_key()
         if key is None or not items:
             return []
-        unpack(self.run, key, items)  # Ctrl + click, two tries an item, the panels closed after
+        try:
+            unpack(self.run, key, items, keep_open=self._held(('inventory', 'cube')))  # Ctrl + click, two tries
+        except BaseException:
+            self._shut()
+            raise
         pack = self.carried()
         carried = {item.unit_id for item in pack.items} if pack is not None else set()
         return [item.unit_id for item in items if item.unit_id in carried]
@@ -103,7 +142,12 @@ class GameHands:
         if key is None or own is None or not units:
             return 0
         wanted = frozenset(units)
-        return stash_only(self.run, key, own, lambda item: item.unit_id in wanted)
+        try:
+            return stash_only(self.run, key, own, lambda item: item.unit_id in wanted,
+                              keep_open=self._held(('inventory', 'cube')))  # fmt: skip
+        except BaseException:
+            self._shut()
+            raise
 
     def unquiet(self) -> str | None:
         run = self.run
@@ -120,8 +164,10 @@ class GameHands:
         # cube + inventory, so, in most cases this is preferrable way to identify items when in town")
         if player.in_town and self.cain_ahead():
             return 'in town: Cain identifies them at the visit due'
-        if world.open_panels:
-            return f'{", ".join(world.open_panels)} open'
+        # The panels the field visit holds open itself are no hand (`visit`); any other still waits
+        panels = [panel for panel in world.open_panels if panel not in (self.holding or ())]
+        if panels:
+            return f'{", ".join(panels)} open'
         near = sum(1 for m in hostiles(world) if math.dist((m.x, m.y), (player.x, player.y)) <= SIGHT)
         if near:
             return f'{near} hostiles within {SIGHT:.0f}'
@@ -138,7 +184,11 @@ class GameHands:
         key = self.inventory_key()
         if key is None:
             return []
-        return identify(self.run, key, items)
+        try:
+            return identify(self.run, key, items, keep_open=self._held(('inventory',)))
+        except BaseException:
+            self._shut()
+            raise
 
     def appraise(self, units: Sequence[int]) -> Mapping[int, Appraised]:
         self.appraiser(list(units))  # the worker's read, noted into the book
@@ -149,7 +199,13 @@ class GameHands:
 
     def drop(self, item: Carried, why: str) -> bool:
         key = self.inventory_key()
-        return key is not None and drop_item(self.run, key, item, why)
+        if key is None:
+            return False
+        try:
+            return drop_item(self.run, key, item, why, keep_open=self._held(('inventory',)))
+        except BaseException:
+            self._shut()
+            raise
 
     def reject(self, item: Carried, why: str) -> None:
         self.put_down.reject(item.unit_id, why)

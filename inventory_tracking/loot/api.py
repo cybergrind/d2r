@@ -100,6 +100,15 @@ never picked: after a visit the free cells are the 2x4 block and two more, and `
     Macro: loot: field: at once: 1 identified, 1 dropped, 0 kept
     Macro: loot: field: at once: magic Monarch (unit 5) kept: into the cube
     Macro: loot: field: at once: magic Monarch (unit 5) kept: it stays in the inventory, the cube has no room for it
+
+One opening a visit (`ONE_OPENING`, 2026-10-20 ~23:20): the park, the Tome's identify and the drops of one routine
+share one opening of the inventory and the cube (`FieldHands.visit`), closed once after it; the lines are as before.
+
+The magic rings and amulets go to Cain unidentified (`RINGS_TO_CAIN`, 2026-10-20 ~23:45, "Carry to Cain
+unidentified"); where the room must be made and nothing else makes it, the Tome as before:
+
+    Macro: loot: field: Town Portal: 1 magic rings and amulets carried to Cain unidentified
+    Macro: loot: field: room: no room otherwise: 1 magic rings and amulets identified with the Tome
 """
 
 import math
@@ -107,6 +116,7 @@ import threading
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -153,6 +163,8 @@ __all__ = [
     'IMPLEMENTED',
     'MOST_A_BATCH',
     'MOST_TRIES',
+    'ONE_OPENING',
+    'RINGS_TO_CAIN',
     'Field',
     'FieldHands',
     'Judged',
@@ -218,6 +230,20 @@ FIELD_AT_ONCE = True
 # stash in cube, to have space for identifying items along the way"). False: they stay in the inventory until the
 # level's end, or the room rules move them
 CUBE_AT_PICKUP = True
+# One inventory opening a field visit (rca/2026-10-20/lazy-work-findings.md §5; the player, 2026-10-20 ~23:20: "we're
+# not wasting time identifying individually every separate item but doing bath when we actually need it / I like how it
+# feels in time and fast", "I'd like to see more this kind of mindset in other areas"): the park into the cube, the
+# Tome's identify and every drop of one routine (`Field.at_once`, `Field.settle`) share one opening of the inventory
+# (and the cube), closed once at the end, through a cancel too (loot/hands.py `GameHands.visit`). False: each act
+# opens and closes the inventory itself as before
+ONE_OPENING = True
+# Magic rings and amulets carried unidentified to Cain (lazy-work-findings.md §1, variant 1a; the player, 2026-10-20
+# ~23:45, chose "Carry to Cain unidentified"): still picked (G11, the lottery kept), never the Tome's in the field; Cain
+# identifies them in the town visit's one batch, and the town's keep rules sell or drop the junk. Where the routine must
+# make room (`_room_for`, ROOM_SITE) the other items go first; only when nothing else frees room are they identified
+# with the Tome as before, said so (`_cain_rings_for_room`). Rare and unique ones are unchanged. False: identified with
+# the Tome in the field as before
+RINGS_TO_CAIN = True
 AT_ONCE = 'at once'  # the site's name in the routine's lines
 ROOM_SITE = 'room'  # the site where room is made for a valuable waiting (running/execution.py): the reserve holds there
 AT_ONCE_EVERY = 1.0  # seconds between two looks of the level run for a big item to identify (`Field.due`)
@@ -589,6 +615,22 @@ class FieldHands(Protocol):
     def copies(self, facts: ItemFacts) -> Sequence[ItemFacts] | None: ...  # owned copies; None cannot be told
     def drop(self, item: Carried, why: str) -> bool: ...  # put down at the feet, checked in memory
     def reject(self, item: Carried, why: str) -> None: ...  # never picked up again this game
+    def visit(self) -> AbstractContextManager[None]: ...  # one opening of the inventory for the acts inside it
+
+
+def _visit(hands: FieldHands) -> AbstractContextManager[None]:
+    """The field visit's one opening of the inventory (ONE_OPENING), else nothing held."""
+    return hands.visit() if ONE_OPENING else nullcontext()
+
+
+def to_cain(item: Carried) -> bool:
+    """Whether `item` is carried unidentified to Cain (RINGS_TO_CAIN): an unidentified magic ring or amulet."""
+    if not RINGS_TO_CAIN or item.identified or item.quality != MAGIC:
+        return False
+    from inventory_tracking.items.metadata import item_base
+
+    base = item_base(item.txt)
+    return base is not None and base['type'] in NAMED_SMALL
 
 
 def _cut(stop: BaseException) -> bool:
@@ -826,16 +868,23 @@ class Field:
         if game is None:
             return Settled()
         self._begin(game)
+        with _visit(hands):  # the take-out, the identify, the drops and the put back in one opening (ONE_OPENING)
+            return self._settle(hands, game, when)
+
+    def _settle(self, hands: FieldHands, game: str, when: str) -> Settled:
         pack = hands.carried()
         if pack is None:
             return Settled()
         self.tome_seen = (self.clock(), pack.identifies)  # the pickup's squeeze reads it (`_charges`)
         pending = self._pending(hands.loops(pack), game)
         boxed = [item for item in self._pending(self._cubed(hands, pack, game), game)
-                 if item.identified or self.tries[item.unit_id] < MOST_TRIES]  # fmt: skip
+                 if (item.identified or self.tries[item.unit_id] < MOST_TRIES) and not to_cain(item)]  # fmt: skip
         active = [item for item in pending if item.identified or self.tries[item.unit_id] < MOST_TRIES]
-        if not active and not boxed:
-            return Settled()
+        rings = [item for item in active if to_cain(item)]  # RINGS_TO_CAIN: Cain's, but where room must be made
+        if not boxed and len(rings) == len(active) and (not rings or when != ROOM_SITE):
+            if rings:
+                self._carried_to_cain(game, when, rings)
+            return Settled(pending=len(rings))
         total = len(pending) + len(boxed)
         why = hands.unquiet()
         if why is not None:
@@ -849,15 +898,55 @@ class Field:
             pack = hands.carried() or pack
             pending = self._pending(hands.loops(pack), game)
         unknown = [item for item in pending if not item.identified and self.tries[item.unit_id] < MOST_TRIES]
+        rings = [item for item in unknown if to_cain(item)]
+        unknown = [item for item in unknown if not to_cain(item)]
         known = [item for item in pending if item.identified]
         done = self._identify(hands, pack, game, when, unknown)
         units = [item.unit_id for item in (*known, *done)]
         judged = self._judge(hands, units, game) if units else []
+        if rings and when == ROOM_SITE:
+            # Room made for a valuable waiting: the rings only when nothing else frees room (RINGS_TO_CAIN)
+            pack = hands.carried() or pack
+            if self._room_without(hands, pack, game, rings):
+                self._carried_to_cain(game, when, rings)
+            else:
+                ringed = self._cain_rings_for_room(hands, pack, game, when, rings)
+                done += ringed
+                judged += self._judge(hands, [item.unit_id for item in ringed], game) if ringed else []
+        elif rings:
+            self._carried_to_cain(game, when, rings)
         self._put_back(hands, when, out)  # not after the player's hand or a cancel: the loop's cube leg takes them
         left = total - len(judged)
         self.log('%s %s: %d identified, %d dropped, %d kept%s', PREFIX, when, len(done), sum(j.dropped for j in judged),
                  sum(not j.dropped for j in judged), f', {left} wait (Cain in town)' if left else '')  # fmt: skip
         return Settled(tuple(judged), None, left)
+
+    def _carried_to_cain(self, game: str, when: str, rings: Sequence[Carried]) -> None:
+        """Said once a game and site: the magic rings and amulets the routine leaves for Cain (RINGS_TO_CAIN)."""
+        key = (game, f'{when}: Cain')
+        if key in self.said:
+            return
+        self.said.add(key)
+        self.log('%s %s: %d magic rings and amulets carried to Cain unidentified', PREFIX, when, len(rings))
+
+    def _room_without(self, hands: FieldHands, pack: Pack, game: str, rings: Sequence[Carried]) -> bool:
+        """At ROOM_SITE: whether room comes without the Tome on the rings (RINGS_TO_CAIN): a SURE_BLOCK free in the
+        inventory, or one the cube frees by taking the loop's decided items, the rings among them (`room_moves`; Cain
+        identifies the cube's too; the room rules' stash after the routine: running/execution.py `make_room`)."""
+        if pack.inventory.has_room(SURE_BLOCK):
+            return True
+        movable = [item for item in hands.loops(pack) if self.class_of(item.unit_id, game) is None
+                   or item.unit_id in self.judged or to_cain(item)]  # fmt: skip
+        return bool(room_moves(pack, movable, SURE_BLOCK))
+
+    def _cain_rings_for_room(
+        self, hands: FieldHands, pack: Pack, game: str, when: str, rings: Sequence[Carried]
+    ) -> list[Carried]:
+        """Nothing else frees room (RINGS_TO_CAIN's last resort): the magic rings and amulets identified with the
+        Tome as before the ruling, said so; those identified."""
+        self.log('%s %s: no room otherwise: %d magic rings and amulets identified with the Tome', PREFIX, when,
+                 len(rings))  # fmt: skip
+        return self._identify(hands, pack, game, when, list(rings))
 
     def _pending(self, items: Sequence[Carried], game: str) -> list[Carried]:
         return [item for item in items if self.class_of(item.unit_id, game) is not None and item.unit_id not in
@@ -1064,9 +1153,10 @@ class Field:
         if game is None:
             return False
         self._begin(game)
-        parked = self._park(hands, game)  # the free block kept for what needs the Tome
-        done = self._big_at_once(hands, game)
-        return self._room_for(hands, game) or done or parked
+        with _visit(hands):  # the park, the identify and the drops in one opening of the inventory (ONE_OPENING)
+            parked = self._park(hands, game)  # the free block kept for what needs the Tome
+            done = self._big_at_once(hands, game)
+            return self._room_for(hands, game) or done or parked
 
     def _park(self, hands: FieldHands, game: str) -> bool:
         """The loop's stash-bound items carried (runes, gems, shards, statues, keys, essences: the resource tabs';
@@ -1175,6 +1265,21 @@ class Field:
         movable = [item for item in hands.loops(pack) if self.class_of(item.unit_id, game) is None
                    or item.unit_id in self.judged]  # fmt: skip
         moves = room_moves(pack, movable, size)
+        rings = [item for item in self._pending(hands.loops(pack), game) if to_cain(item)]
+        if not moves and rings:
+            # RINGS_TO_CAIN: the rings into the cube unidentified after the others (Cain identifies the cube's too),
+            # and only when the cube takes none of them, the Tome on them as before (`_cain_rings_for_room`)
+            moves = room_moves(pack, [*movable, *rings], size)
+            if not moves:
+                ringed = self._cain_rings_for_room(hands, pack, game, AT_ONCE, rings)
+                if ringed:
+                    self._judge(hands, [item.unit_id for item in ringed], game)  # each decision and drop said
+                pack = hands.carried() or pack
+                if pack.inventory.has_room(size):
+                    return True
+                movable = [item for item in hands.loops(pack) if self.class_of(item.unit_id, game) is None
+                           or item.unit_id in self.judged]  # fmt: skip
+                moves = room_moves(pack, movable, size)
         if not moves:
             if self.trip(label):
                 self.log('%s %s: %s (unit %d): the cube has no room for its %dx%d: a trip to town for room', PREFIX,

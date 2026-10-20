@@ -157,25 +157,39 @@ TZ = Kind(
 TZ_CLEAR = replace(
     TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour', full_clear=True, word='TZC'
 )
-# The shard act loop (macros/actloop.py; routes/act-terrorize-plan.md): Act 4 terrorized by a Deep Worldstone Shard in
-# the Fortress, Diablo first, then the Steppes and the Plains, TZ+ on every level. The player, 2026-10-20 ~19:25: "yes,
-# let's do act 4 mode ... shard act 4 as an entry". The coordinator's answers, accepted: a game cap of 2700 s for now
-# (measured), elite and Herald kills an hour, statues reported apart. Offered only with actloop.ENABLED
+# The shard act loops (macros/actloop.py; routes/act-terrorize-plan.md): an act terrorized by its Worldstone Shard in
+# the Fortress, played in its script's order (macros/acts/act<N>.py: the boss first), TZ+ on every level. The player,
+# 2026-10-20 ~19:25: "yes, let's do act 4 mode ... shard act 4 as an entry"; ~22:50: "could you implement shards run
+# for every act". The coordinator's answers, accepted: a game cap of 2700 s for now (measured), elite and Herald kills
+# an hour, statues reported apart. Each offered only with actloop.ENABLED and its script ready
 ACT_GAME_SECONDS = 2700.0
-ACT4 = replace(
-    TZ, key='act4', name='Shard: Act 4', metric='elite and Herald kills an hour', game_seconds=ACT_GAME_SECONDS,
-    word='ACT4',
-)  # fmt: skip
-TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key, ACT4.key))  # the experience lines too (`look_at_experience`)
+# Per act where the whole act takes longer: act 1's 37 levels are ~3200-3400 s by the stays of the takes (the act 1
+# agent's estimate, 2026-10-20); at 2700 the cap would cut every game at the Crypt (the player, 2026-10-20 ~21:30:
+# "make sure, that we're farming until it's done")
+ACT_SECONDS = {1: 3900.0, 3: 3600.0, 5: 3600.0}  # acts 3 and 5: 15 and 11 trips
+
+
+def act_kind(act: int) -> Kind:
+    """The shard act kind of act `act` (1-5): key `act<N>`, "Shard: Act N", HUD word `ACT<N>`."""
+    return replace(
+        TZ, key=f'act{act}', name=f'Shard: Act {act}', metric='elite and Herald kills an hour',
+        game_seconds=ACT_SECONDS.get(act, ACT_GAME_SECONDS), word=f'ACT{act}',
+    )  # fmt: skip
+
+
+ACT_KINDS = {kind.key: kind for kind in map(act_kind, range(1, 6))}
+ACT4 = ACT_KINDS['act4']
+TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key, *ACT_KINDS))  # the experience lines too (`look_at_experience`)
 
 
 def loop_kinds() -> dict[str, Kind]:
-    """The kinds the player may choose (KP_6 three times, restart.py --kind); TZ kinds only with tzloop.ENABLED, the
-    shard act kind only with actloop.ENABLED as well."""
-    from inventory_tracking.macros import actloop, tzloop  # late: tzloop imports this module
+    """The kinds the player may choose (KP_6 three times, restart.py --kind); TZ kinds only with tzloop.ENABLED, a
+    shard act kind only with actloop.ENABLED as well and its act's script ready (macros/acts/)."""
+    from inventory_tracking.macros import actloop, acts, tzloop  # late: tzloop imports this module
 
     tz = {TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR} if tzloop.ENABLED else {}
-    act = {ACT4.key: ACT4} if tzloop.ENABLED and actloop.ENABLED else {}
+    on = tzloop.ENABLED and actloop.ENABLED
+    act = {key: kind for key, kind in ACT_KINDS.items() if on and acts.ready(actloop.act_of(kind))}
     return {**KINDS, **tz, **act}
 
 
@@ -191,15 +205,16 @@ class Coming:
 
 
 # The player, 2026-10-20 ~19:25: "probably we need to pop some kind of dialogue to chose the mode on 3 clicks: shard act
-# 4 as an entry". The act loop (routes/act-terrorize-plan.md §2: the kind `act`, behind actloop.ENABLED); its entry
-# goes by itself once a kind `act` or `act4` is offered.
-COMING = (Coming('act', 'Shard: Act 4', 'ACT4', 'elite and Herald kills an hour'),)
+# 4 as an entry". Announced kinds besides the act kinds (each act kind not offered is announced by itself)
+COMING: tuple[Coming, ...] = ()
 
 
 def coming_kinds(offered: Iterable[str] | None = None) -> tuple[Coming, ...]:
-    """The announced kinds no kind of `offered` (keys; `loop_kinds()` by default) stands for yet."""
+    """The announced kinds no kind of `offered` (keys; `loop_kinds()` by default) stands for yet: COMING, then each
+    act kind not offered (its script not ready, or actloop.ENABLED off)."""
     keys = tuple(loop_kinds() if offered is None else offered)
-    return tuple(coming for coming in COMING if not any(key.startswith(coming.key) for key in keys))
+    acts = tuple(Coming(kind.key, kind.name, kind.word, kind.metric) for kind in ACT_KINDS.values())
+    return tuple(coming for coming in (*COMING, *acts) if not any(key.startswith(coming.key) for key in keys))
 
 
 def kind_of(area: int | None) -> Kind | None:
@@ -259,12 +274,14 @@ TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back 
 # The Gheed's swap: four waypoints and two portals back (agenda.py `gheeds_package`)
 # TZ_LEVEL 60: a shard's whole act and the rotation in one game (the player, 2026-10-20 ~21:30: "make sure, that we're
 # farming until it's done"; was 40)
-REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 60, TZ_LOOT: 20, TZ_PICKUP: 20}
+# TZ_WAYPOINT 20 + ...: act 3's 16 waypoint trips and the visits after them (the act 3 agent, 2026-10-20; was 12 + ...)
+REPEATS |= {TZ_WAYPOINT: 20 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 60, TZ_LOOT: 20, TZ_PICKUP: 20}
 # The Canyon's tour of its seven tombs adds up to three ways on a tomb: the Canyon's run to its entrance, the press
 # through, the way back (2026-10-20, tzroutine.py `Excursion.onward`)
 TOUR_WAYS = 3 * len(TOMBS)
 REPEATS |= {TZ_NEXT_LEVEL: 30 + TOUR_WAYS}
-REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
+# TZ_PORTAL 20 + ...: a shard's whole act, act 3's 15 trips each ending in a Town Portal (2026-10-20; was 10 + ...)
+REPEATS |= {TZ_PORTAL: 20 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
 TZ_OUT = 'TZ out of town'  # the walk out of a town into a trip's first level (macros/townexit.py)
 REPEATS |= {TZ_OUT: 3}
 TZ_SHARD = 'Worldstone Shard'  # the act kind's shard in the Fortress (macros/actloop.py): once a game, a hand again

@@ -1,8 +1,9 @@
 """The death in Tower Cellar 5 (22:50:37 on 2026-10-11), replayed to the production macro.
 
 "Red" first (user, 2026-10-12): the test that reproduces what happened, action by action, before any
-better decision is tried against it. 108 of the 110 recorded actions are replayed, in order and at
-their moments; the one strike that is not is a strict xfail with its reason.
+better decision is tried against it. 103 of the 110 recorded actions are replayed, in order and at
+their moments (108 before the sigil was kept under dangerous monsters, 2026-10-20); the one strike that is not is a
+strict xfail with its reason.
 """
 
 import functools
@@ -171,10 +172,22 @@ def test_the_replay_makes_the_decision_that_killed_the_character():
 
 def test_the_replay_does_what_the_game_did_action_by_action():
     found = compared()
-    # 110 recorded actions in 22.7 s; all but one strike and its line are replayed, in order.
-    assert len(found.same) >= 108, found.table()
-    assert [(action.kind, action.what) for action in found.missing] == [('strike', '740045072'), ('line', '740045072')]
-    assert [(action.kind, action.what) for action in found.extra] == [('strike', '46244625')]
+    # 110 recorded actions in 22.7 s; all but one strike and its line are replayed, in order. Since 2026-10-20 (the
+    # player: dangerous monsters kept in their sigil, builds/warlock/buffs.py SIGIL_KEEPS) also not the sigil of
+    # 14.87 s: the Herald stood 4-5 units from the first one (radius 6) and that game's second, laid 13 units off it,
+    # ended the one it stood in; with it go the Blade Warp's key wait it waited out and two lines the strike's aim
+    # put back after it (16.05 and 16.28 s; the aim's next line, 18.2 s, is extra).
+    assert len(found.same) >= 103, found.table()
+    assert [(action.kind, action.what) for action in found.missing] == [
+        ('strike', '740045072'),
+        ('line', '740045072'),
+        ('key wait', 'Blade Warp'),
+        ('other', 'Sigil: Lethargy'),
+        ('skill', 'Sigil: Lethargy'),
+        ('line', '2960229440'),
+        ('line', '740045072'),
+    ]
+    assert [(action.kind, action.what) for action in found.extra] == [('strike', '46244625'), ('line', '46244625')]
 
 
 def test_the_replay_keeps_the_games_time_without_being_held_to_its_log():

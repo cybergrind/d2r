@@ -475,12 +475,19 @@ def test_a_terrorized_act_and_the_rotation_in_another_act_are_one_itinerary_the_
     assert look(FORTRESS, plan, finished=ACT4 - {104}) == [(WAYPOINT, 35)]
 
 
-def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_first():
+def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_first(monkeypatch):
+    from inventory_tracking.macros import tzroutine
     from inventory_tracking.routes.tz_groups import manual_zone
 
+    # The generic boss-first plan (acts/act1.py's script, ready since 2026-10-20, is acts/test_act1.py's)
+    monkeypatch.setattr(tzroutine, 'ACT_SCRIPTS', False)
+    tzroutine.itinerary.cache_clear()
     act1 = manual_zone(1)
     assert act1 is not None
-    plan = itinerary(act1.core)
+    try:
+        plan = itinerary(act1.core)
+    finally:
+        tzroutine.itinerary.cache_clear()
     assert plan is not None
     assert plan.zone == 'Act1-Manual'
     first, back, rest = plan.excursions[:3]
@@ -493,19 +500,26 @@ def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_firs
     assert plan.skipped == ()
 
 
-def test_terrorized_acts_3_and_5_take_their_boss_from_the_nearest_waypoint_and_the_way_after():
+def test_terrorized_acts_3_and_5_take_their_boss_from_the_nearest_waypoint_and_the_way_after(monkeypatch):
+    from inventory_tracking.macros import tzroutine
     from inventory_tracking.routes.tz_groups import manual_zone
 
+    # The generic boss-first plan (acts/act5.py's script, ready since 2026-10-20, is acts/test_act5.py's)
+    monkeypatch.setattr(tzroutine, 'ACT_SCRIPTS', False)
+    tzroutine.itinerary.cache_clear()
     act3, act5 = manual_zone(3), manual_zone(5)
     assert act3 is not None
     assert act5 is not None
-    durance = itinerary(act3.core)
+    try:
+        durance = itinerary(act3.core)
+        throne = itinerary(act5.core)
+    finally:
+        tzroutine.itinerary.cache_clear()
     assert trips_of(durance)[:3] == [
         ('Mephisto', 101, (101, 102)),  # Durance 2's waypoint; Durance 3's stand is the trip's own
         ('Mephisto', 101, (101,)),
         ('Mephisto', 81, (81, 82, 83, 100)),  # the rest of his route: Travincal's Council, Durance 1
     ]
-    throne = itinerary(act5.core)
     assert throne is not None
     assert trips_of(throne)[:2] == [('Baal', 129, (129, 130, 131, 132)), ('Baal', 129, (129, 130))]
     assert throne.excursions[0].passes == frozenset((129, 130))  # the Throne's waves are the trip's own work

@@ -16,7 +16,7 @@ from inventory_tracking.game.layout import IDENTIFY_TOME
 from inventory_tracking.game.records import Carried, Pack
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, cell_point, close, loot, open_inventory
+from inventory_tracking.macros.cube import INVENTORY, cell_point, held_shut, loot, open_inventory
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import WHITE, sellable
 
@@ -49,9 +49,10 @@ def unidentified(pack: Pack, own: frozenset[Cell]) -> list[Carried]:
     return [item for item in loot(pack, own) if not item.identified and item.quality >= MAGIC]
 
 
-def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Carried]:
+def identify(run: Run, inventory_key: str, items: Iterable[Carried], *, keep_open: bool = False) -> list[Carried]:
     """Identify `items` with the Tome, each checked in memory; returns those identified. Stops at the first that does
-    not take or when the tome is empty. Mouse mode only; panels closed after."""
+    not take or when the tome is empty. Mouse mode only; panels closed after (`keep_open`: left open when it ends
+    normally, a field visit's one opening: cube.py `held_shut`)."""
     if run.pad is not None:
         raise Abort('identifying needs mouse mode')
     pack = run.reads.carried()
@@ -69,7 +70,9 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
         LOG.info('Macro: identify: %s: %d items stay unidentified', why, len(items))
         return []
     done: list[Carried] = []
-    try:
+    # Through a cancel too (cube.py `close`): a fight back cancelled the field identify at 15:21:38 on 2026-10-20 and
+    # the inventory stayed open while the character was hit
+    with held_shut(run, ('inventory', 'cube'), keep_open):
         open_inventory(run, inventory_key)
         for item in items[: pack.identifies]:
             run.actuator.move(*cell_point(rect, INVENTORY, (tome.x, tome.y), tome.size), scatter=(5, 5))
@@ -86,10 +89,6 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
                 LOG.info('Macro: identify: the item %d at (%d, %d) did not take', item.txt, item.x, item.y)
                 break
             done.append(item)
-    finally:
-        # Through a cancel too (cube.py `close`): a fight back cancelled the field identify at 15:21:38 on 2026-10-20
-        # and the inventory stayed open while the character was hit
-        close(run, ('inventory', 'cube'))
     LOG.info('Macro: identify: %d of %d items identified', len(done), len(items))
     return done
 

@@ -551,3 +551,66 @@ def test_the_loops_own_panels_left_open_are_closed_and_said_and_the_players_are_
     assert cube_module.OPENED == {}
     cube_module.opened('inventory')
     assert left_open(('inventory',), now=1e12) == ()  # older than LEFT_OPEN_SECONDS: the player's
+
+
+# -- one opening a field visit (loot/api.py ONE_OPENING; rca/2026-10-20/lazy-work-findings.md §5): the acts leave the
+# panels open when they end normally (`keep_open`), and a failure closes them at once as before --
+
+
+def moves_of(run) -> list[tuple[float, float]]:
+    """The window fractions the run's pointer is moved to, from now on."""
+    moved: list[tuple[float, float]] = []
+    move = run.actuator.move
+
+    def recorded(x: float, y: float, **kwargs) -> None:
+        moved.append((x, y))
+        move(x, y, **kwargs)
+
+    run.actuator.move = recorded
+    return moved
+
+
+def test_held_open_the_park_and_the_drop_share_one_opening_and_the_drop_falls_between_the_panels():
+    from inventory_tracking.macros.cube import PARK_POINT, close, drop_item, stash_only
+
+    dagger = Carried(50, 135, 6, 2, (1, 3), quality=4, identified=True)  # a magic Stilleto, the loop's
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, RUNE, dagger), EMPTY_CUBE))
+    run = play.run()
+    moves = moves_of(run)
+
+    assert stash_only(run, 'i', OWN, lambda item: item.unit_id == RUNE.unit_id, keep_open=True) == 1
+    assert play.world.open_panels == ('inventory', 'cube')
+    assert drop_item(run, 'i', dagger, 'in the field: K8 worthless', keep_open=True)
+    assert play.fallen == [dagger]
+    assert moves[-1] == pytest.approx(PARK_POINT, abs=0.01)  # DROP_POINT lies on the cube's panel
+    assert play.world.open_panels == ('inventory', 'cube')
+    close(run, ('inventory', 'cube'))  # the visit's end (loot/hands.py `GameHands.visit`)
+
+    assert play.pressed().count('i') == 1
+    assert play.pressed().count('Escape') == 1
+    assert play.world.open_panels == ()
+
+
+def test_held_open_a_failure_closes_the_panels_at_once():
+    from inventory_tracking.macros.cube import stash_only
+
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, RUNE), EMPTY_CUBE))
+    play.cube_refuses = True
+    with pytest.raises(Abort):
+        stash_only(play.run(), 'i', OWN, lambda item: True, keep_open=True)
+    assert play.world.open_panels == ()
+
+
+def test_not_held_each_act_opens_and_closes_the_inventory_as_before():
+    from inventory_tracking.macros.cube import DROP_POINT, drop_item
+
+    dagger = Carried(50, 135, 6, 2, (1, 3), quality=4, identified=True)
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, dagger), EMPTY_CUBE))
+    run = play.run()
+    moves = moves_of(run)
+    assert drop_item(run, 'i', dagger, 'in the field: K8 worthless')
+    assert play.fallen == [dagger]
+    assert moves[-1] == pytest.approx(DROP_POINT, abs=0.01)
+    assert play.pressed().count('i') == 1
+    assert play.pressed().count('Escape') == 1
+    assert play.world.open_panels == ()

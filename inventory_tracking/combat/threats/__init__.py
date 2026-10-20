@@ -82,6 +82,12 @@ class Threat:
     # (hostile, where the character stands) -> places with a word on why each, best first
     escapes: Callable[[Acting, Point], tuple[tuple[Point, str], ...]]
     lingering: Lingering | None = None  # what its casts leave on the ground; None: nothing
+    # (hostile, where the character stands) -> its act under way is walked out of, not hopped out of: no Teleport but
+    # the life-danger escape (macros/safety.py `Pricing.walking`); None: any move
+    walked: Callable[[Acting, Point], bool] | None = None
+    # (hostile, where the character stands, the way it goes round: +1 / -1) -> the next place of a walk round its act
+    # under way, with a word on why; None: not walked round now (macros/safety.py WALK_ROUND); None: no such walk
+    around: Callable[[Acting, Point, int], tuple[Point, str] | None] | None = None
 
 
 @cache

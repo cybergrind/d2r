@@ -236,3 +236,86 @@ def test_his_wall_is_priced_where_it_lies_whoever_cast_it_and_for_as_long_as_it_
     places = threat.wall_escapes(fan, (14.0, 0.0))
     assert len(places) == 2
     assert all(abs(math.dist(place, (0.0, 0.0)) - 14.0) < 0.5 for place, _ in places)
+
+
+def _round(gap: float, start: float, units: float, speed: float = 20.0) -> threat.Way:
+    """A walk of `units` round him at `gap` (combat/stance.py RUN_SPEED), in eight straight slices, then 1.5 s still."""
+    legs: list[tuple[tuple[float, float], float, float]] = [((gap * math.cos(start), gap * math.sin(start)), 0.0, 0.0)]
+    for k in range(1, 9):
+        turn = start + units / gap * k / 8
+        legs.append(((gap * math.cos(turn), gap * math.sin(turn)), units / speed / 8, 0.0))
+    legs.append((legs[-1][0], 0.0, 1.5))
+    return threat.Way(tuple(legs))
+
+
+def test_a_walk_round_him_keeps_his_stream_missing_and_a_hop_takes_the_rest_of_it_where_it_lands():
+    # The player, 2026-10-20 (WALK_AROUND): "just walk around of him". Each missile goes at where the character
+    # stands in its frame: a Teleport drops only those in flight, the rest come at the landing; a walk that keeps
+    # going leaves each behind it.
+    protection = threat.Protection(STOPPED)
+    stream = threat.Stream((0.0, 0.0), age=rules.RELEASE['SC'] + 2)  # his missiles just began, at (9, 0)
+    hold = threat.stream_points(stream, threat.Way.stand((9.0, 0.0), 3.0), protection)
+    hop = threat.stream_points(stream, threat.Way((((9.0, 0.0), 0.0, 0.31), ((0.0, 9.0), 0.0, 3.0))), protection)
+    walked = threat.stream_points(stream, _round(9.0, 0.0, 30.0), protection)
+    stepped = threat.stream_points(stream, _round(9.0, 0.0, 4.0), protection)
+    assert hop > 0.6 * hold  # the hop lands in the rest of the stream
+    assert walked < 0.25 * hold  # round him all through it: the stream misses
+    assert walked < stepped < hold  # a short step and a stand: re-aimed at once
+
+
+def test_a_hop_in_his_range_brings_no_more_casts_than_a_walk_and_one_out_of_it_brings_his_run():
+    # His think weighs where the target is (sim/diablo.py `weights`), not how it got there: a landing within
+    # LIGHTNING_RANGE draws his lightning as often as a stand there; beyond it no lightning, and his run doubles.
+    near = threat.sight_at((0.0, 0.0), (9.0, 0.0))
+    landing = threat.sight_at((0.0, 0.0), (0.0, 20.0))
+    far = threat.sight_at((0.0, 0.0), (30.0, 0.0))
+    assert threat.lightning_rate(near) == threat.lightning_rate(landing) > 0
+    assert threat.lightning_rate(far) == 0.0
+    assert rules.weights(far)[rules.RUN] == 2 * rules.weights(near)[rules.RUN]
+
+
+def test_his_stream_at_the_character_is_walked_not_hopped_while_walk_around_is_on(monkeypatch):
+    from inventory_tracking.combat.threats import Acting, baal, of
+
+    here = (14.0, 0.0)
+    at_it = tuple(((0.88 * k, 0.0), 0.0) for k in range(1, 6))
+    elsewhere = tuple(((0.0, 0.88 * k), math.pi / 2) for k in range(1, 6))
+    assert threat.walked(Acting((0.0, 0.0), threat.MODE, 3), here)  # the cast begun: it comes at the character
+    assert threat.walked(Acting((0.0, 0.0), threat.MODE, 20, at_it), here)
+    assert not threat.walked(Acting((0.0, 0.0), threat.MODE, 20, elsewhere), here)  # at a companion
+    assert not threat.walked(Acting((0.0, 0.0), 1, 0), here)  # no cast under way
+    assert not threat.walked(Acting((0.0, 0.0), 8, 5), here)  # his fire ring is not his stream
+    model = of(DIABLO)
+    assert model is not None
+    assert model.walked is threat.walked
+    baal_model = baal.threat_of(544)
+    assert baal_model is not None
+    assert baal_model.walked is None  # other threats: any move, as before
+    monkeypatch.setattr(threat, 'WALK_AROUND', False)
+    assert not threat.walked(Acting((0.0, 0.0), threat.MODE, 20, at_it), here)
+
+
+def test_a_walk_round_him_goes_on_the_way_it_goes_at_a_radius_inside_his_range():
+    from inventory_tracking.combat.threats import Acting
+
+    here = (14.0, 0.0)
+    at_it = tuple(((0.88 * k, 0.0), 0.0) for k in range(1, 6))
+    found = threat.around(Acting((0.0, 0.0), threat.MODE, 20, at_it), here, 1)
+    assert found is not None
+    place, why = found
+    assert why == "round Diablo's lightning"
+    assert math.dist(place, (0.0, 0.0)) == pytest.approx(14.0)
+    assert place[1] > 0  # counterclockwise
+    assert math.atan2(place[1], place[0]) * 14.0 == pytest.approx(threat.AROUND_LEAD)
+    back = threat.around(Acting((0.0, 0.0), threat.MODE, 20, at_it), here, -1)
+    assert back is not None
+    assert back[0][1] < 0
+    # Held out of his melee and inside his lightning's range
+    near = threat.around(Acting((0.0, 0.0), threat.MODE, 3), (3.0, 0.0), 1)
+    far = threat.around(Acting((0.0, 0.0), threat.MODE, 3), (30.0, 0.0), 1)
+    assert near is not None
+    assert math.dist(near[0], (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS[0])
+    assert far is not None
+    assert math.dist(far[0], (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS[1])
+    assert rules.less_size((0.0, 0.0), far[0]) < rules.LIGHTNING_RANGE
+    assert threat.around(Acting((0.0, 0.0), 1, 0), here, 1) is None  # no cast under way

@@ -16,11 +16,13 @@ from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Teleport
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
+from inventory_tracking.macros import travel as travel_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.build import JumpSource, NoWay
 from inventory_tracking.macros.movement import SHARED, TELEPORT_JUMP, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.routines import SWAP_SETTLE
 from inventory_tracking.macros.skills import TELEPORT
+from inventory_tracking.macros.teleport import ground_fraction, in_view
 from inventory_tracking.macros.travel import (
     FIELDS,
     GROWING,
@@ -47,6 +49,7 @@ from inventory_tracking.macros.travel import (
     Walked,
     around_of,
     facts_with,
+    in_view_toward,
     move_facts,
     navigator,
     planning,
@@ -153,6 +156,36 @@ def test_a_step_is_made_by_the_jump_it_names_and_walked_when_that_can_no_longer_
     travel.make(run, Step((after.player.x + 8.0, after.player.y), TELEPORT), after, ASPECT, keys, None)
     assert play.pressed() == [KEYS[TELEPORT]]  # no second key: the staff is a swap away, the step is walked
     assert any(event[0] == 'click' for event in play.keys.events)
+
+
+def test_a_walk_whose_end_is_off_the_screen_goes_to_the_last_point_of_its_line_in_view():
+    # The Outer Steppes passage into the Plains of Despair, 37 units south below the view (23:10:47 on 2026-10-20:
+    # "the place near Plains of Despair is not in view" x52, the player walked it through by hand)
+    play = game()
+    travel, run = Travel(), play.run()
+    player = play.world.player
+    assert player is not None
+    far = (player.x + 7.5, player.y + 36.5)
+    assert not in_view(ground_fraction(player, *far, ASPECT))
+    spot = in_view_toward(player, far, ASPECT)
+    assert in_view(ground_fraction(player, *spot, ASPECT))
+    assert 10.0 < math.dist((player.x, player.y), spot) < math.dist((player.x, player.y), far)
+    # on the line to the passage
+    assert abs((spot[0] - player.x) * 36.5 - (spot[1] - player.y) * 7.5) < 1e-6
+    near = (player.x + 4.0, player.y + 4.0)
+    assert in_view_toward(player, near, ASPECT) == near
+    travel.make(run, Step(far), play.world, ASPECT, keys, None, name='Plains of Despair')
+    assert any(event[0] == 'click' for event in play.keys.events)  # walked, not "is not in view"
+
+
+def test_with_the_partway_walk_off_a_walk_off_the_screen_aborts(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_PARTWAY', False)
+    play = game()
+    travel, run = Travel(), play.run()
+    player = play.world.player
+    assert player is not None
+    with pytest.raises(Abort, match='is not in view'):
+        travel.make(run, Step((player.x + 7.5, player.y + 36.5)), play.world, ASPECT, keys, None, name='a passage')
 
 
 def test_with_no_set_that_applies_there_is_no_jump_and_no_stride():

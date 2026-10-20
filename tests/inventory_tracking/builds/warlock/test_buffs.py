@@ -12,6 +12,7 @@ from inventory_tracking.builds.warlock.buffs import (
     ENGORGE_HURT_SECONDS,
     ENGORGE_REACH,
     ENGORGE_RETRY,
+    SIGIL_LOOK,
     SIGIL_SECONDS,
     WARD_SECONDS,
     Rotation,
@@ -233,7 +234,8 @@ def test_a_sigil_off_the_screen_is_asked_again_in_a_second():
     tried = buffs.cast(run, due, lambda w, skills: {skill: KEYS[skill] for skill in skills}, WINDOW[2] / WINDOW[3])
     assert (tried.cast, tried.touched) == (False, True)
     assert play.sigils == []
-    assert buffs.cast_at[SIGIL_LETHARGY, 1] == 50.0 - SIGIL_SECONDS + 1.0
+    # an elite is kept in its sigil (SIGIL_KEEPS): looked at every SIGIL_LOOK, the try again a second on
+    assert buffs.cast_at[SIGIL_LETHARGY, 1] == 50.0 - SIGIL_LOOK + 1.0
     rotation = Rotation(buffs)
     assert rotation.sigiled[1] == buffs.cast_at[SIGIL_LETHARGY, 1]
     play.clock.now = 51.0

@@ -5,7 +5,10 @@ buff executor (macros/buffs.py) with a `Casting` and answers with a `Tried`.
 """
 
 import math
+import struct
+import weakref
 from collections.abc import Sequence
+from dataclasses import replace
 
 from inventory_tracking.builds.warlock.buffs import (
     CONSUME_RETRY,
@@ -14,7 +17,16 @@ from inventory_tracking.builds.warlock.buffs import (
     ENGORGE_LOOKS,
     ENGORGE_REACH,
     ENGORGE_RETRY,
+    SIGIL_GAP,
+    SIGIL_LOOK,
+    SIGIL_MISSILES,
     SIGIL_SECONDS,
+    SIGIL_SHOWS,
+    SIGIL_UNSHOWN,
+    UNSHOWN,
+    SigilWatch,
+    keep_reason,
+    kept,
 )
 from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY
 from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
@@ -40,6 +52,7 @@ from inventory_tracking.macros.routines import (
     world_point,
 )
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
+from inventory_tracking.macros.travel import label
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
@@ -566,13 +579,85 @@ def engorge(cast: Casting) -> Tried:
     return Tried.again(run.clock(), ENGORGE_HURT_SECONDS, ENGORGE_RETRY)
 
 
+# The sigil goes under the monster where it stands at the key, read again then (the player, 2026-10-20 ~23:05): the
+# fight's rows are asked with the look before the strike, and a Death Mark cast first makes that 0.3-0.5 s old. Diablo,
+# walking up at 10 units a second, had his sigil at 23:01:55 laid where he had stood, 11 units off him (the take
+# 20261020T195849Z-108: the sigil at (7794.5, 5293.5), Diablo at (7803.0, 5287.0) as it showed). False: the look's.
+SIGIL_AIM_AFRESH = True
+# The sigils' memory per executor (`SigilWatch`): the executor (macros/buffs.py `Buffs`) holds no caster's own.
+WATCHES: weakref.WeakKeyDictionary[object, SigilWatch] = weakref.WeakKeyDictionary()
+
+
+def watch_of(executor: object) -> SigilWatch:
+    """The memory of the sigil that lies, of this executor's casts."""
+    found = WATCHES.get(executor)
+    if found is None:
+        found = WATCHES[executor] = SigilWatch()
+    return found
+
+
+def afresh(cast: Casting) -> Casting:
+    """The cast with the world read now, the target where it stands now (SIGIL_AIM_AFRESH); as it was when the target
+    is not read again."""
+    if not SIGIL_AIM_AFRESH or cast.target is None:
+        return cast
+    world = cast.run.world()
+    found = next((m for m in world.monsters if m.unit_id == cast.target.unit_id), None)
+    if world.player is None or found is None:
+        return cast
+    return replace(cast, world=world, target=found)
+
+
+def in_flight(run: Run, world: World | None) -> tuple[bool, tuple[float, float, float] | None]:
+    """Whether the missiles were read, and the character's sigil among them as (x, y, radius) (skills.py
+    SIGIL_MISSILES), None with none."""
+    if run.flights is None or world is None or world.player is None:
+        return False, None
+    try:
+        found = run.flights(frozenset(SIGIL_MISSILES))
+    except OSError, ValueError, struct.error:
+        return False, None
+    mine = [(x, y, SIGIL_MISSILES[kind]) for owner, kind, x, y in found if owner == world.player.unit_id]
+    return True, (mine[-1] if mine else None)
+
+
 def sigil(cast: Casting) -> Tried:
     """Sigil: Lethargy on the ground under an elite (slows it, lowers its defence): the executor's
-    cast on the ground under a monster, with the sigil's own wait when that is not in view."""
-    tried = cast.buffs.shared(cast)
+    cast on the ground under a monster, with the sigil's own wait when that is not in view. A monster kept in its
+    sigil (buffs.py `kept`) is looked at every SIGIL_LOOK s and gets one when `keep_reason` names why; none sooner than
+    SIGIL_GAP after the last."""
+    run, target, world = cast.run, cast.target, cast.world
+    watch = watch_of(cast.buffs)
+    now = run.clock()
+    area = world.player.area if world is not None and world.player is not None else None
+    keeping = target is not None and kept(target)
+    every = SIGIL_LOOK if keeping else SIGIL_SECONDS
+    why, again = None, False
+    if keeping and target is not None:
+        again = watch.lies(now, area)  # one lies: this one is said with why
+        judged = watch.age(now) >= SIGIL_SHOWS
+        words = run.reads.unit_states(target) if judged else None
+        by_place = words is None or watch.unshown.get(target.unit_id, 0) >= SIGIL_UNSHOWN
+        seen, lying = in_flight(run, world) if judged and by_place else (False, None)
+        why = keep_reason(watch, target, now, area, words, lying, seen)
+        if why is None:
+            # It stands in its sigil: looked at again in SIGIL_LOOK, or when the sigil runs out or a Herald's is old
+            return Tried(min(now, watch.next_due(target) - SIGIL_LOOK), touched=False)
+        if again and watch.age(now) < SIGIL_GAP:
+            assert watch.at is not None
+            return Tried(watch.at + SIGIL_GAP - every, touched=False)
+    aimed = afresh(cast)
+    tried = cast.buffs.shared(aimed)
     if not tried.cast:
         # Off the screen (the blades reach further than it shows): no sigil now, asked again in a second.
-        return Tried.again(cast.run.clock(), SIGIL_SECONDS, 1.0)
+        return Tried.again(now, every, 1.0)
+    if aimed.target is not None and tried.at is not None:
+        if keeping and why is not None and why.startswith(UNSHOWN) and watch.unit == aimed.target.unit_id:
+            watch.unshown[aimed.target.unit_id] = watch.unshown.get(aimed.target.unit_id, 0) + 1
+        watch.lay(aimed.target.unit_id, (aimed.target.x, aimed.target.y), area, tried.at)
+        if again:
+            here = aimed.target
+            LOG.info('Macro: sigil under %s at (%.1f, %.1f): %s', label(here), here.x, here.y, why)
     return tried
 
 

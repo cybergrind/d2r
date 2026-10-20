@@ -5,7 +5,8 @@ monarch deflection -- we absolutely want to keep it"; "also start M4 field ident
 The routine runs on fake hands (`Hands`): what it identifies, what it puts down and what it never touches."""
 
 import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -79,6 +80,12 @@ class Hands:
     gives: bool = True  # the cube's items come out
     taken_out: list[int] = field(default_factory=list)
     put_in: list[int] = field(default_factory=list)
+    visits: int = 0  # the field visits held (loot/hands.py `GameHands.visit`: one opening of the inventory each)
+
+    @contextmanager
+    def visit(self) -> Iterator[None]:
+        self.visits += 1
+        yield
 
     def game(self) -> str | None:
         return self.name
@@ -1389,3 +1396,164 @@ def test_an_empty_cube_with_no_grid_in_memory_takes_the_stash_bound_items():
     rune = Carried(5, 640, 0, 0, (1, 1))
     assert api.cube_fits(Pack((cube, rune)), [rune]) == [rune]
     assert api.cube_fits(Pack((rune,)), [rune]) == []  # no cube carried: nothing goes
+
+
+# Magic rings and amulets carried unidentified to Cain (RINGS_TO_CAIN; rca/2026-10-20/lazy-work-findings.md §1, 1a; the
+# player, 2026-10-20 ~23:45: "Carry to Cain unidentified"): still picked, never the Tome's in the field but where
+# nothing else makes the room the routine must make.
+
+
+def ring_read(unit: int) -> Appraised:
+    """A magic Ring as the worker reads it identified: no roll anything wants."""
+    observation = {
+        'item': {'name': 'Ring', 'base_name': 'Ring', 'base_code': 'rin', 'rarity': 'magic', 'identified': True,
+                 'ethereal': False, 'sockets': 0},
+        'source': {'unit_id': unit},
+        'decoded_stats': [],
+    }  # fmt: skip
+    return Appraised(observation, VENDOR, 'vendor')
+
+
+def magic_ring(unit: int, x: int, y: int) -> Carried:
+    return Carried(unit, RING, x, y, (1, 1), MAGIC, False)
+
+
+def picked_ring(found: Field, unit: int) -> None:
+    assert found.pick(drop_of(unit, RING, source='material', size=(1, 1)), (GAME, 7)), unit
+
+
+def test_only_an_unidentified_magic_ring_or_amulet_goes_to_cain(monkeypatch):
+    from inventory_tracking.items.metadata import metadata
+
+    [amulet] = [int(cid) for cid, base in metadata()['bases'].items() if base['name'] == 'Amulet']
+    assert api.RINGS_TO_CAIN
+    assert api.to_cain(magic_ring(60, 0, 0))
+    assert api.to_cain(Carried(61, amulet, 0, 0, (1, 1), MAGIC, False))
+    assert not api.to_cain(Carried(62, RING, 0, 0, (1, 1), RARE, False))  # rare and unique: as before
+    assert not api.to_cain(Carried(63, RING, 0, 0, (1, 1), UNIQUE, False))
+    assert not api.to_cain(Carried(64, RING, 0, 0, (1, 1), MAGIC, True))  # identified already: decided as before
+    assert not api.to_cain(monarch(65))
+    monkeypatch.setattr(api, 'RINGS_TO_CAIN', False)
+    assert not api.to_cain(magic_ring(60, 0, 0))
+
+
+def test_a_magic_ring_is_carried_to_cain_and_the_monarch_beside_it_identified(looped, lines):
+    hands = Hands(visited(magic_ring(60, 2, 2), carried_monarch(10)), own=OWN)
+    hands.reads[10] = Appraised(read(0, 32, 15), VENDOR, 'vendor')
+    picked_ring(looped, 60)
+    picked(looped, 10)
+
+    done = looped.settle(hands, 'Town Portal')
+
+    assert hands.identified == [10]
+    assert hands.dropped == [10]
+    assert done.pending == 1
+    assert 'Macro: loot: field: Town Portal: 1 magic rings and amulets carried to Cain unidentified' in lines
+    assert 'Macro: loot: field: Town Portal: 1 identified, 1 dropped, 0 kept, 1 wait (Cain in town)' in lines
+    assert hands.pack.identifies == 19  # one scroll: the Monarch's
+
+
+def test_rings_alone_wait_for_cain_quietly_and_are_said_once(looped, lines):
+    hands = Hands(visited(magic_ring(60, 2, 2), magic_ring(61, 2, 3)), own=OWN)
+    picked_ring(looped, 60)
+    picked_ring(looped, 61)
+
+    assert looped.settle(hands, 'Town Portal').pending == 2
+    assert looped.settle(hands, 'Town Portal').pending == 2
+
+    assert hands.identified == []
+    assert hands.dropped == []
+    assert lines == ['Macro: loot: field: Town Portal: 2 magic rings and amulets carried to Cain unidentified']
+
+
+def test_with_its_switch_off_a_magic_ring_is_identified_and_dropped_in_the_field_as_before(looped, monkeypatch):
+    monkeypatch.setattr(api, 'RINGS_TO_CAIN', False)
+    hands = Hands(visited(magic_ring(60, 2, 2)), own=OWN)
+    hands.reads[60] = ring_read(60)
+    picked_ring(looped, 60)
+
+    done = looped.settle(hands, 'Town Portal')
+
+    assert hands.identified == [60]
+    assert hands.dropped == [60]
+    assert done.dropped == 1
+
+
+def fillers(*free: tuple[int, int]) -> tuple[Carried, ...]:
+    """The player's 1x1 items on every cell VISIT leaves free but `free`: nothing of theirs moves."""
+    cells = [(x, y) for y, row in enumerate(VISIT) for x, cell in enumerate(row) if cell == '.']
+    return tuple(Carried(400 + n, IST, x, y, (1, 1), 2, True) for n, (x, y) in enumerate(cells) if (x, y) not in free)
+
+
+def filled_own(*free: tuple[int, int]) -> frozenset[int]:
+    return OWN | {item.unit_id for item in fillers(*free)}
+
+
+def test_where_room_is_made_the_rings_wait_when_the_room_comes_without_them(looped, lines):
+    hands = Hands(visited(magic_ring(60, 2, 2)), own=OWN)  # column 3 free: a 1x3 is there
+    picked_ring(looped, 60)
+
+    looped.settle(hands, api.ROOM_SITE)
+
+    assert hands.identified == []
+    assert 'Macro: loot: field: room: 1 magic rings and amulets carried to Cain unidentified' in lines
+
+
+def test_where_nothing_else_makes_room_the_rings_are_identified_with_the_tome_as_before_and_said(looped, lines):
+    hands = Hands(visited(*fillers((2, 2)), magic_ring(60, 2, 2), cube=FULL_CUBE), own=filled_own((2, 2)))
+    hands.reads[60] = ring_read(60)
+    picked_ring(looped, 60)
+
+    looped.settle(hands, api.ROOM_SITE)
+
+    assert hands.identified == [60]
+    assert hands.dropped == [60]
+    assert 'Macro: loot: field: room: no room otherwise: 1 magic rings and amulets identified with the Tome' in lines
+    assert 'Macro: loot: field: room: 1 identified, 1 dropped, 0 kept' in lines
+
+
+def kriss_ring_hands(cube: tuple[str, ...]) -> Hands:
+    """Only column 3 free, the loop's magic ring on (3, 1): no 1x3 for the Kriss but where the ring goes."""
+    free = ((3, 0), (3, 1), (3, 2), (3, 3))
+    return Hands(visited(*fillers(*free), magic_ring(60, 3, 1), cube=cube), own=filled_own(*free))
+
+
+def test_room_for_a_field_item_takes_the_ring_into_the_cube_unidentified_when_nothing_else_frees_it(looped, lines):
+    hands = kriss_ring_hands(EMPTY_CUBE)
+    picked_ring(looped, 60)
+    assert looped.pick(kriss(), (GAME, 7), rows(hands.pack))
+
+    assert looped.at_once(hands)
+
+    assert hands.put_in == [60]
+    assert hands.identified == []
+    assert hands.pack.inventory.has_room(item_size(KRISS))
+    assert "Macro: loot: field: at once: rare Kriss (unit 7): room: 1 of the loop's items into the cube" in lines
+
+
+def test_room_for_a_field_item_with_the_cube_full_identifies_the_ring_with_the_tome_and_drops_it(looped, lines):
+    asked: list[str] = []
+    looped.trip = lambda label: asked.append(label) is None
+    hands = kriss_ring_hands(FULL_CUBE)
+    hands.reads[60] = ring_read(60)
+    picked_ring(looped, 60)
+    assert looped.pick(kriss(), (GAME, 7), rows(hands.pack))
+
+    assert looped.at_once(hands)
+
+    assert hands.identified == [60]
+    assert hands.dropped == [60]
+    assert asked == []  # the room made: no trip
+    assert hands.pack.inventory.has_room(item_size(KRISS))
+    assert 'Macro: loot: field: at once: no room otherwise: 1 magic rings and amulets identified with the Tome' in lines
+
+
+def test_a_field_routine_is_one_visit_of_its_hands(looped):
+    hands = Hands(visited(carried_monarch(10)), own=OWN)
+    hands.reads[10] = Appraised(read(0, 32, 15), VENDOR, 'vendor')
+    assert squeeze(looped, ground(10, MONARCH))
+
+    assert looped.at_once(hands)
+
+    assert hands.visits == 2  # the routine's and its settle's (the inner one the outer's: loot/hands.py `visit`)
+    assert hands.dropped == [10]

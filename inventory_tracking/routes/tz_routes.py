@@ -231,6 +231,36 @@ def nearest_excursion(zone: ActiveZone, area: int) -> RouteExcursion | None:
     return RouteExcursion(leg.route, leg.waypoint, nodes[-1], leg.hops, covers, leg.blockers)
 
 
+def route_excursion(zone: ActiveZone, route_name: str, area: int, waypoint: int | None = None) -> RouteExcursion | None:
+    """Route `route_name`'s trip to level `area` from `waypoint`, or (None) from the route's waypoint nearest it
+    (`route_leg`); a toured level's trip tours them all (`_whole_tour`: the Canyon's seven tombs). `covers`: its levels
+    in `zone`. None when the route has no script at `area`, or no path from the waypoint given (an act script's step,
+    macros/acts/engine.py `Trip`)."""
+    route = next((found for found in ROUTES if found.name == route_name), None)
+    if route is None:
+        return None
+    edges = _edges(route)
+    if waypoint is None:
+        leg = route_leg(area, route_name)
+        if leg is None:
+            return None
+        start, path = leg.waypoint, leg.hops
+        if not path and leg.blockers:
+            return RouteExcursion(route_name, start, start, (), (), leg.blockers)  # no path from any waypoint
+    else:
+        if not any(script.area == area for script in route.scripts):
+            return None
+        found = _path(edges, waypoint, area)
+        if found is None:
+            return None
+        start, path = waypoint, found
+    hops = _whole_tour(edges, path)
+    blockers = _trip_blockers(hops)
+    nodes = (start, *(hop.destination for hop in hops))
+    covers = tuple(dict.fromkeys(level for level in nodes if level in zone.areas))
+    return RouteExcursion(route_name, start, nodes[-1], hops, covers, blockers)
+
+
 def zone_route_plan(zone: ActiveZone, capabilities: dict[int, Capability] | None = None) -> ZoneRoutePlan:
     """Audit every level and cover reachable ones with catalog trips from waypoints.
 

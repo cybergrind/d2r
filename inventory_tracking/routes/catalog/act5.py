@@ -1,6 +1,6 @@
 """Act 5 routes (levels/routes.md)."""
 
-from inventory_tracking.routes.model import Route, enter, fight, leave, level, loot, stand, use
+from inventory_tracking.routes.model import Route, clear, enter, fight, leave, level, loot, stand, use
 
 
 CHEST = 'Super chest'
@@ -57,6 +57,42 @@ ROUTES = [
             # The hall, the five waves (Lister leads the last), then the portal Baal leaves by.
             level(131, stand('Throne'), fight('Lister the Tormentor'), loot(), use('Worldstone Chamber', 132)),
             level(132, fight('Baal', 'Baal'), loot(), leave()),
+        ),
+    ),
+    # The act 5 shard's levels no route above reaches from a waypoint (macros/acts/act5.py; the player, 2026-10-20
+    # ~22:50: "act5: act5 shard -> throne -> baal -> halls -> nihiltak -> rest of zones"). Each walks back up from a
+    # waypoint, so every script is another route's way through its level (alternate): the level card and the rotating
+    # zones keep the routes above. Unplayed in the game (2026-10-20).
+    # Up from the Halls of Pain: the up stairs are the Temple's SE quadrant ('Temple SE up', or 'SE Waypoint' when the
+    # waypoint takes it: D2MOO DrlgMaze.cpp DRLGMAZE_PlaceAct5TempleStuff), warp slot 0 = levels.txt Vis0 (122 from
+    # 123, 121 from 122), marked by levels/exits.py `warp_exits` with the level's name. Pindleskin stands at the
+    # Temple Entrance's stairs (terror/data/elites.json preset 1088), where the walk up comes in.
+    Route(
+        'Halls of Anguish',
+        (123,),
+        (
+            level(123, enter('Halls of Anguish', 122), alternate=True),
+            level(122, enter("Nihlathak's Temple", 121), alternate=True),
+            level(121, fight('Pindleskin', 'Pindleskin'), loot(), leave(), alternate=True),
+        ),
+    ),
+    # Up from the Worldstone Keep 2 waypoint: its 'Baal Prev' stairs (levels/handlers/worldstone_keep.py)
+    Route(
+        'Worldstone Keep 1',
+        (129,),
+        (
+            level(129, enter('Worldstone Keep 1', 128), alternate=True),
+            level(128, clear(), loot(), leave(), alternate=True),
+        ),
+    ),
+    # Back from the Frigid Highlands waypoint: 'Barricade To Siege' (levels/handlers/act5_outdoors.py, unconfirmed);
+    # Harrogath's way out on foot is not known (levels/town_gate.py has no act 5 town)
+    Route(
+        'Bloody Foothills',
+        (111,),
+        (
+            level(111, enter('Bloody Foothills', 110), alternate=True),
+            level(110, clear(), loot(), leave(), alternate=True),
         ),
     ),
 ]

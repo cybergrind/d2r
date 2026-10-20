@@ -64,7 +64,9 @@ BAAL_LEAVES = 30.0
 # (the recorder's list held no 563 before 2026-10-20); the earliest pointer on it named by the game's hover record was
 # 1.26 s after he was gone (10-14 16:40:40), the clicks that took 2.5-5.0 s after. The click is made only with the
 # portal under the pointer by that record, so a closed one is never clicked, only tried again
-PORTAL_OPENS = 1.0
+# 2.5 since 2026-10-20 ~23:40, the player: "wait until he moves through his portal + some extra to portal to be
+# activatable" (the clicks that took came 2.5-5.0 s after he was gone; was 1.0)
+PORTAL_OPENS = 2.5
 # Seconds since the portal stage began until the run ends with the level unchanged (agenda.py `no_way_on`)
 PORTAL_SECONDS = 30.0
 DUE_GRACE = 2.0  # seconds a wait under way covers past its last look (`Waves.due`: the no-move watchdog)

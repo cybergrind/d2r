@@ -370,6 +370,8 @@ Each row is one route: where it may start, then each level with its stages in or
 | Claw Viper Temple | Lost City | *Lost City*: enter Valley of Snakes<br>Valley of Snakes: enter Claw Viper Temple<br>Claw Viper Temple 1: enter Next level<br>Claw Viper Temple 2: fight Fangskin → loot → leave |
 | Tal Rasha's Tombs | Canyon of the Magi | Canyon of the Magi: tour Tomb → loot → leave<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi |
 | Summoner | Lut Gholein, Palace Cellar 1, Arcane Sanctuary | Harem 1: enter Harem 2<br>Harem 2: enter Palace Cellar 1<br>Palace Cellar 1: enter Palace Cellar 2<br>Palace Cellar 2: enter Palace Cellar 3<br>Palace Cellar 3: use Arcane Sanctuary<br>Arcane Sanctuary: fight The Summoner → loot → leave |
+| Harem | Palace Cellar 1 | *Palace Cellar 1*: enter Harem 2<br>*Harem 2*: enter Harem 1<br>*Harem 1*: loot → leave |
+| Sewers 1 | Sewers 2 | *Sewers 2*: enter Sewers 1<br>*Sewers 1*: loot → leave |
 
 ### Act 3
 
@@ -409,6 +411,9 @@ Each row is one route: where it may start, then each level with its stages in or
 | Icy Cellar | The Ancients' Way | The Ancients' Way: enter Icy Cellar<br>Icy Cellar: fight Snapchip Shatter → use Super chest → loot → leave |
 | Nihlathak | Halls of Pain | Nihlathak's Temple: enter Halls of Anguish<br>Halls of Anguish: enter Next level<br>Halls of Pain: enter Next level<br>Halls of Vaught: fight Nihlathak Boss → loot → leave |
 | Baal | The Worldstone Keep 2 | Arreat Summit: enter The Worldstone Keep 1<br>The Worldstone Keep 1: enter Next level<br>The Worldstone Keep 2: enter Next level<br>The Worldstone Keep 3: enter Next level<br>Throne of Destruction: stand at Throne → fight Lister the Tormentor → loot → use Worldstone Chamber<br>The Worldstone Chamber: fight Baal → loot → leave |
+| Halls of Anguish | Halls of Pain | *Halls of Pain*: enter Halls of Anguish<br>*Halls of Anguish*: enter Nihlathak's Temple<br>*Nihlathak's Temple*: fight Pindleskin → loot → leave |
+| Worldstone Keep 1 | The Worldstone Keep 2 | *The Worldstone Keep 2*: enter Worldstone Keep 1<br>*The Worldstone Keep 1*: clear → loot → leave |
+| Bloody Foothills | Frigid Highlands | *Frigid Highlands*: enter Bloody Foothills<br>*Bloody Foothills*: clear → loot → leave |
 
 ### Pending (3)
 

@@ -10,6 +10,7 @@ Offered by three presses of KP_6 and restart.py `--kind tz` / `--kind tzclear` w
 import functools
 import math
 import time
+from dataclasses import replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
@@ -343,6 +344,7 @@ def select(progress: Progress, game: str, area: int, trip: Excursion, plan: Itin
         if stage.to and stage.to not in on_trips and stage.to not in TOWNS:
             progress.selected[stage.to] = (route, Script(stage.to, ()))
     kept = kept_to(script, trip)
+    reenter(progress, area, trip, kept)
     if kept is script:
         return
     progress.selected[area] = (route, kept)  # this game's only (`Progress.note` clears it)
@@ -350,6 +352,19 @@ def select(progress: Progress, game: str, area: int, trip: Excursion, plan: Itin
         cut = [stage.text() for stage in script.stages if stage not in kept.stages]
         LOG.info('Macro: tz: %s: %s not taken: off the terror zone (the trip goes on by %s)', display_name(area),
                  ', '.join(cut), ', '.join(stage.text() for stage in kept.stages) or "the level's run")  # fmt: skip
+
+
+def reenter(progress: Progress, area: int, trip: Excursion, script: Script) -> None:
+    """The trip's way on from `area` into a level already entered in this game made its way on again: the Mausoleum's
+    trip from the Cold Plains after the Crypt's found its stage `enter Burial Grounds` done (routes/progress.py `done`:
+    entered in this game), so no way on, no card mark, and "TZ next level again and again" ended the game there (act
+    1's walk, and Act 4 with the Burial Grounds in rotation, 2026-10-20). The level is noted again as it is entered. A
+    tour keeps its levels entered (`tour_back` reads them)."""
+    onward = trip.after(area)
+    if trip.tours or onward is None or onward not in progress.facts.entered:
+        return
+    if any(stage.to == onward for stage in script.stages):
+        progress.facts = replace(progress.facts, entered=progress.facts.entered - {onward})
 
 
 def trip(loop: Loop, game: str, area: int) -> None:

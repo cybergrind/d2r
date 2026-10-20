@@ -20,14 +20,16 @@ from dataclasses import dataclass, field, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView
-from inventory_tracking.items.metadata import metadata
+from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros import visitlog
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cain import CAIN
 from inventory_tracking.macros.cube import (
+    CUBE as CUBE_GRID,
     CUBE_CLASS,
+    DROP_POINT,
     GEMS_A_TRANSMUTE,
     INVENTORY,
     PANEL_SECONDS,
@@ -35,10 +37,12 @@ from inventory_tracking.macros.cube import (
     TRANSMUTE_SECONDS,
     arrange_keys,
     cell_point,
+    close,
     drop_item,
     keys_move,
     loot,
     open_inventory,
+    opened,
     perfect_of,
     rune_slot,
     stash_transmute,
@@ -50,13 +54,23 @@ from inventory_tracking.macros.repair import (
     HALBU,
     RETRY_GAMES,
     WAYPOINT_SEEN,
+    WEAR_CARRIED,
     affordable,
     due,
     expected,
     gold,
     repair,
 )
-from inventory_tracking.macros.shop import JAMELLA, SALE_MOST, _waypoint, gold_cap, restock, short, walk_until
+from inventory_tracking.macros.shop import (
+    JAMELLA,
+    MIN_STOCK,
+    SALE_MOST,
+    _waypoint,
+    gold_cap,
+    restock,
+    short,
+    walk_until,
+)
 from inventory_tracking.macros.stash import (
     FORTRESS,
     PAGE_PRIORITY,
@@ -758,7 +772,115 @@ SELL_PASSES = 4  # the cube's junk out and sold, pass after pass, as the invento
 # kept took the 2x4 block (09:19:05 on 2026-10-20). The player, 2026-10-20 ~08:42: "we don't need money from selling
 # these items"; "we can just pickup or appraise these items and drop if ther aren't good enough". False: kept as before
 DROP_CAPPED_JUNK = True
+# Jamella only when needed (the player, 2026-10-20 ~23:45, on rca/2026-10-20/lazy-work-findings.md §4: "Only when
+# needed"; then "also, we can keep visiting jamella when we low on gold"): she is visited when the Tome of Identify is
+# under JAMELLA_IDENTIFIES charges, the keys (or a stocked Town Portal) under MIN_STOCK or the carried gold under
+# JAMELLA_GOLD_LOW (`jamella_for`), and the junk is sold as before; otherwise the loop's junk is put down in town after
+# the stash, not sold, in one inventory opening (`_put_down`). This departs from the trade contract's "all junk sold"
+# by the player's choice. False: Jamella at every visit with junk, as before
+JAMELLA_AT_NEED = True
+JAMELLA_IDENTIFIES = 10  # "under about 10": a visit-to-visit use is about 7 scrolls (the findings, act 4 tome reads)
+# Low gold: under what a durability-only repair wants carried (repair.py WEAR_CARRIED, 200k). The staff's repairs cost
+# ~11k (11,056 at 22:49:04 on 2026-10-20), an unread quote wants twice the expected and 50k more (~72k, repair.py
+# UNREAD_COVER, UNREAD_EXTRA), keys and the tome's scrolls a few thousand; the carried gold ran 214k to 950k (the cap)
+# on 2026-10-20. Under it the sales come back before a repair could go short
+JAMELLA_GOLD_LOW = WEAR_CARRIED
 STOPS = ('cain', 'stash', 'jamella', 'halbu', 'walk')
+
+
+def never_down(item: Carried) -> bool:
+    """A kind the town never puts down (loot/keep.py K1): runes, gems, potions, the Uber organs, the Sunder and set or
+    unique charms, the loop's tools; an unknown base too."""
+    from inventory_tracking.loot.keep import CHARMS, GEMS, LOOP_GEAR, ORGANS, POTIONS, RUNES, SUNDER
+
+    base = item_base(item.txt)
+    if base is None:
+        return True
+    kind = base['type']
+    return kind in RUNES | GEMS | POTIONS | ORGANS | SUNDER | LOOP_GEAR or (kind in CHARMS and item.quality in (5, 7))
+
+
+def jamella_for(pack: Pack, needs: Needs, coins: int | None, down: Sequence[Carried]) -> str | None:
+    """Why Jamella is visited under JAMELLA_AT_NEED: the keys under MIN_STOCK (or unread), the Tome under
+    JAMELLA_IDENTIFIES (or unread, or none carried), a stocked Town Portal short (shop.py `short`), the carried gold
+    under JAMELLA_GOLD_LOW (or unread), or a junk item in `down` of a kind never put down (`never_down`: she sells it
+    as before). None: she is not needed, and `down` is put down in town."""
+    if pack.keys is None or pack.keys < MIN_STOCK:
+        return f'keys {pack.keys}'
+    if pack.identifies is None or pack.identifies < JAMELLA_IDENTIFIES:
+        return f'identifies {pack.identifies}'
+    if short(pack, needs.portals):
+        return f'portals {needs.portals.count(pack)}'
+    if coins is None or coins < JAMELLA_GOLD_LOW:
+        return f'gold {coins}'
+    kept = next((item for item in down if never_down(item)), None)
+    return f'the {_name(kept)} is never put down' if kept is not None else None
+
+
+def _put_down(run: Run, key: str, items: Sequence[tuple[Carried, str]]) -> int:
+    """The loop's items put down at the feet in town, each with its reason: the inventory's, then the cube's (opened
+    within), in one inventory opening; never a protected item. Each logged as cube.py `drop_item` logs one (the watch's
+    TOWN_DROP). How many fell."""
+    rect = run.actuator.keys.focused_window_rect()
+    pack = run.reads.carried()
+    if not items or rect is None or pack is None or run.pad is not None:
+        return 0
+    loose = [(item, why) for item, why in items if item.unit_id not in pack.cube_items]
+    cubed = [(item, why) for item, why in items if item.unit_id in pack.cube_items]
+    fell = 0
+    try:
+        open_inventory(run, key)
+        for item, why in loose:
+            fell += _fall(run, rect, item, False, why)
+        cube = next((i for i in _pack(run).items if i.txt == CUBE_CLASS), None)
+        if cubed and cube is not None:
+            run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
+            run.actuator.tap('Button3')
+            opened('cube')
+            if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
+                LOG.info('Macro: town visit: the cube did not open: its %d junk items stay', len(cubed))
+            else:
+                run.actuator.rebase()
+                for item, why in cubed:
+                    fell += _fall(run, rect, item, True, why)
+    finally:
+        close(run, ('inventory', 'cube'))
+    return fell
+
+
+def _fall(run: Run, rect: Rect, item: Carried, in_cube: bool, why: str) -> bool:
+    """One item clicked up from the inventory (or the open cube) and let fall on the ground (DROP_POINT, between the
+    panels with the cube open: PARK_POINT); put back if it does not fall, `Abort` when it stays on the pointer."""
+    if spared := protected(run, item):
+        LOG.info('Macro: inventory: %s (%d) at (%d, %d) is %s: never dropped', item.txt, item.unit_id, item.x, item.y,
+                 spared)  # fmt: skip
+        return False
+    pack = _pack(run)
+    now = next((i for i in (pack.in_cube if in_cube else pack.items) if i.unit_id == item.unit_id), None)
+    if now is None:
+        return False
+    grid = CUBE_GRID if in_cube else INVENTORY
+    run.actuator.move(*cell_point(rect, grid, (now.x, now.y), now.size), scatter=(4, 4))
+    run.actuator.click()
+    if not _until(run, lambda p: p.pointer == now.unit_id):
+        held = run.reads.carried()
+        if held is not None and held.pointer is not None:
+            run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
+            _until(run, lambda p: p.pointer is None)
+        LOG.info('Macro: inventory: %s (%d) at (%d, %d) not dropped %s: not taken up', now.txt, now.unit_id, now.x,
+                 now.y, why)  # fmt: skip
+        return False
+    run.actuator.move(*(PARK_POINT if in_cube else DROP_POINT), scatter=(4, 4))
+    run.actuator.click()
+    fell = _until(run, lambda p: p.pointer is None and _gone(now)(p) and now.unit_id not in p.cube_items)
+    if not fell:
+        run.actuator.move(*cell_point(rect, grid, (now.x, now.y), now.size), scatter=(4, 4))
+        run.actuator.click()
+        if not _until(run, lambda p: p.pointer is None):
+            raise Abort(f'the {_name(now)} is still on the pointer')
+    LOG.info('Macro: inventory: %s (%d) at (%d, %d) %s %s', now.txt, now.unit_id, now.x, now.y,
+             'dropped' if fell else 'not dropped', why)  # fmt: skip
+    return fell
 
 
 @dataclass(frozen=True)
@@ -909,6 +1031,12 @@ def _class_name(txt: int) -> str:
     return metadata()['bases'].get(str(txt), {}).get('name', f'item {txt}')
 
 
+def _material(stacks: frozenset[int]) -> frozenset[int]:
+    """The full stacks' classes put down, not sold: a full stack's runes are cubed instead (the player, 2026-10-18:
+    "cubed, aim to 80 or lower")."""
+    return frozenset(txt for txt in sold_full(stacks) if txt not in RUNE_CLASSES)
+
+
 def _drop(run: Run, key: str | None, items: Sequence[Carried]) -> None:
     """The full stacks' materials put down (no vendor buys one)."""
     for item in items:
@@ -1040,8 +1168,7 @@ def visit(
         """3. Jamella (Halbu first at the gold's cap): junk sold, full materials put down, keys bought (`stock`: also
         when nothing is sold and a stock is short). Whether she was visited."""
         nonlocal failed, repaired
-        # A full stack's runes are cubed, not sold (the player, 2026-10-18: "cubed, aim to 80 or lower")
-        material = frozenset(txt for txt in sold_full(stacks) if txt not in RUNE_CLASSES)
+        material = _material(stacks)
 
         def selling(p: Pack) -> list[Carried]:
             return [i for i in loot(p, own) if i.unit_id in junk]
@@ -1087,6 +1214,38 @@ def visit(
                     drop_item(run, key, item, 'in town: the gold is at its cap and no sale is made')
         return True
 
+    def down_instead(stacks: frozenset[int]) -> bool:
+        """JAMELLA_AT_NEED: whether her visit is not needed (`jamella_for`), the junk and the full stacks' materials
+        then put down in town in one inventory opening. Runes stay carried: none is sold either."""
+        if not JAMELLA_AT_NEED or key is None:
+            return False
+        material = _material(stacks)
+        pack = _pack(run)
+        items = [*loot(pack, own), *pack.in_cube]
+        junked = [i for i in items if i.unit_id in junk and i.txt not in RUNE_CLASSES and i.txt not in material]
+        coins = gold(run)
+        why = jamella_for(pack, needs, coins, junked)
+        if why is not None:
+            if junked:
+                LOG.info('Macro: town visit: Jamella needed (%s): the junk sold', why)
+            return False
+        stacked_down = [i for i in items if i.txt in material]
+        if not junked and not stacked_down:
+            return True
+        began = run.clock()
+        fell = _put_down(
+            run,
+            key,
+            [
+                *((i, 'in town: Jamella not needed') for i in junked),
+                *((i, 'in town: its stack is full and no vendor buys it') for i in stacked_down),
+            ],
+        )
+        LOG.info("Macro: town visit: Jamella not needed (identifies %s, keys %s, gold %s): %d junk and %d full stacks' "
+                 'items put down, %d fell, %.1fs', pack.identifies, pack.keys, coins, len(junked), len(stacked_down),
+                 fell, run.clock() - began)  # fmt: skip
+        return True
+
     # Jamella before the stash when a cube keeper gets out only once the junk is sold (JAMELLA_FIRST; history/visit.md).
     # Never near the gold cap: the deposit is the stash's
     early = False
@@ -1119,8 +1278,8 @@ def visit(
         homeless = tuple(dict.fromkeys(name for planned in plans for name in named(planned.full)))
         if homeless:
             LOG.info('Macro: stash: full: %s', ', '.join(homeless))
-    # 3. Jamella after the stash (again only with something left to sell)
-    late = jamella(stacks, stock=not early)
+    # 3. Jamella after the stash (again only with something left to sell), or, not needed, the junk put down
+    late = False if down_instead(stacks) else jamella(stacks, stock=not early)
     shop = early or late
     if not repaired and _repair_due(run, waited):
         with _timed(run, took, 'halbu'):

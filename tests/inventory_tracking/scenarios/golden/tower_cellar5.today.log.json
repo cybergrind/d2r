@@ -200,11 +200,11 @@
   "Macro: Sigil: Lethargy on Button9, player mode 10"
  ],
  [
-  8.8,
+  8.81,
   "Macro: Healing potion on 3: life 1406/1783, 13% lost in the last seconds (3% a second, 13% within one)"
  ],
  [
-  8.8,
+  8.81,
   "Macro: Healing potion"
  ],
  [
@@ -540,27 +540,31 @@
   "Macro: line through the elite 55 (2960229440), 92/128, 8.9 away, focal (12588.5, 11101.5), worth 9029, pointer (3353, 477)"
  ],
  [
-  20.72,
+  20.73,
   "Macro: Sigil: Lethargy"
  ],
  [
-  20.72,
+  20.73,
   "Macro: Sigil: Lethargy on Button9, player mode 1"
  ],
  [
-  21.0,
+  20.79,
+  "Macro: sigil under the elite 55 (2960229440) at (12588.5, 11101.5): it stands 10.4 from the sigil at (12578.5, 11104.5), radius 6"
+ ],
+ [
+  21.01,
   "Macro: Healing potion on 3: life 1029/1783, 21% lost in the last seconds (5% a second, 12% within one)"
  ],
  [
-  21.0,
+  21.01,
   "Macro: Healing potion"
  ],
  [
-  21.31,
-  "Macro: line through the monster 55 (92505634), 49/128, 4.5 away, focal (12590.5, 11105.5), worth 8918, pointer (3270, 584)"
+  21.32,
+  "Macro: line through the monster 55 (92505634), 49/128, 4.5 away, focal (12590.6, 11105.4), worth 8918, pointer (3278, 584)"
  ],
  [
-  21.56,
+  21.57,
   "Macro: the sweep leaves a super healing potion for later: 3 hostiles within 12 of it or the character"
  ],
  [
@@ -572,11 +576,11 @@
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  21.82,
+  21.83,
   "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 91/128"
  ],
  [
-  21.82,
+  21.83,
   "Macro: line through the elite 55 (2960229440), 91/128, 8.9 away, focal (12588.5, 11101.5), worth 8918, pointer (3349, 476)"
  ],
  [
@@ -588,11 +592,11 @@
   "Macro: Standing well: no better place within 24"
  ],
  [
-  22.65,
+  22.66,
   "Macro: the fight stopped (no cast seen after the right click (Echoing Strike not on right click?)), 2 in a row"
  ],
  [
-  22.75,
+  22.76,
   "Macro: Attack mode off"
  ]
 ]

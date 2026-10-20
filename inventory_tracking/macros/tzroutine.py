@@ -97,6 +97,10 @@ BOSS_NEAREST = True
 # How a level the boss's trip crosses is worked on it, in either kind: straight through, the leaders near only
 # (agenda.py ON_THE_WAY); its own run comes after the boss, by a trip of its own
 CROSSING = ON_THE_WAY
+# A terrorized act played in the order its script declares (macros/acts/act<N>.py, the player, 2026-10-20 ~22:50:
+# "implement shards run for every act ... act1 shard -> catacombs 2 -> 3 -> 4 -> andariel -> marsh -> tower ->
+# countess -> rest of zones one by one"), once the script is `ready`. False: every act by the generic boss-first order
+ACT_SCRIPTS = True
 
 
 @dataclass(frozen=True)
@@ -222,38 +226,49 @@ def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
     LOG.info(
         'Macro: tz: zone %s: %s; skipped %s%s',
         name,
-        '; '.join(
-            f'{trip.route} from {trip.waypoint}: {list(trip.areas)}'
-            + (f', {list(trip.tours)} a tour from {trip.hub} one by one' if trip.tours else '')
-            + (f', {sorted(trip.passes)} crossed to the boss, worked after it' if trip.passes else '')
-            for trip in trips
-        )
-        or 'no excursion',
+        trips_said(found.excursions),
         [f'{area} ({why})' for area, why in found.skipped] or 'none',
         f'; read terrorized in no zone: {stray}' if stray else '',
     )
     return found
 
 
-def _route_trips(
-    zone: ActiveZone,
-) -> tuple[tuple[tuple[RouteExcursion, frozenset[int]], ...], tuple[int, ...]]:
+def trips_said(trips: Iterable[Excursion]) -> str:
+    """The excursions as the plan's log line says them (`Macro: tz: zone <name>: <this>; skipped ...`)."""
+    return (
+        '; '.join(
+            f'{trip.route} from {trip.waypoint}: {list(trip.areas)}'
+            + (f', {list(trip.tours)} a tour from {trip.hub} one by one' if trip.tours else '')
+            + (f', {sorted(trip.passes)} crossed to the boss, worked after it' if trip.passes else '')
+            for trip in trips
+        )
+        or 'no excursion'
+    )
+
+
+Trips = tuple[tuple[tuple[RouteExcursion, frozenset[int]], ...], tuple[int, ...]]
+
+
+def _route_trips(zone: ActiveZone) -> Trips:
     """The catalogue's trips covering `zone` (routes/tz_routes.py `zone_route_plan`), each with the levels it only
-    crosses to its boss (none but the boss's), and the levels none covers. A terrorized act's (`BOSS_FIRST`): the
-    trip to its boss first (`_boss_trip`), then the trips of its levels that trip does not work: with `BOSS_NEAREST`
-    the levels it crossed (nearest the boss first), the rest of the boss's route, then the others."""
-    plan = zone_route_plan(zone)
+    crosses to its boss (none but the boss's), and the levels none covers. A terrorized act's: its script's order when
+    the script is ready (`_scripted`, macros/acts/); else (`BOSS_FIRST`) the trip to its boss first (`_boss_trip`),
+    then the trips of its levels that trip does not work: with `BOSS_NEAREST` the levels it crossed (nearest the boss
+    first), the rest of the boss's route, then the others."""
     act = act_of_manual(zone)
+    if act is not None and (scripted := _scripted(act, zone)) is not None:
+        return scripted
+    plan = zone_route_plan(zone)
     boss = ACT_BOSS_LEVELS.get(act) if act is not None and BOSS_FIRST else None
     first = _boss_trip(zone, plan.excursions, boss) if boss is not None else None
     if first is None or boss is None:
         return tuple((trip, frozenset()) for trip in plan.excursions), plan.uncovered
-    nodes = _nodes(first)
+    nodes = trip_levels(first)
     reached = set(nodes)
     start = START_AT.get(first.route)
     if start is not None and start in nodes:
         reached = set(nodes[nodes.index(start) :])  # the levels before its start are another trip's
-    passes = frozenset(_passes(first, boss, zone)) if BOSS_NEAREST else frozenset()
+    passes = frozenset(crossed_levels(first, boss, zone)) if BOSS_NEAREST else frozenset()
     left = [area for area in zone.areas if area not in reached or area in passes]
     if not left or not zone.core - (reached - passes):
         return ((first, passes),), ()
@@ -276,6 +291,18 @@ def _route_trips(
     return tuple(trips), tuple(uncovered)
 
 
+def _scripted(act: int, zone: ActiveZone) -> Trips | None:
+    """Act `act`'s trips by its script (macros/acts/act<N>.py, `ACT_SCRIPTS`), the boss-first order it declares;
+    None while the script is not ready, or with `BOSS_FIRST` or `BOSS_NEAREST` off (the generic order then)."""
+    if not (ACT_SCRIPTS and BOSS_FIRST and BOSS_NEAREST):
+        return None
+    from inventory_tracking.macros.acts import script_of  # late: the act scripts import this module
+    from inventory_tracking.macros.acts.engine import act_trips
+
+    script = script_of(act)
+    return act_trips(script, zone) if script is not None and script.ready else None
+
+
 def _boss_trip(zone: ActiveZone, planned: Iterable[RouteExcursion], boss: int) -> RouteExcursion | None:
     """The trip to level `boss`: from the waypoint nearest it (`BOSS_NEAREST`: routes/tz_routes.py
     `nearest_excursion`), else the first of `planned` that reaches it; None when none is playable."""
@@ -283,18 +310,18 @@ def _boss_trip(zone: ActiveZone, planned: Iterable[RouteExcursion], boss: int) -
         nearest = nearest_excursion(zone, boss)
         if nearest is not None and not nearest.blockers and nearest.terminal == boss:
             return nearest
-    return next((trip for trip in planned if not trip.blockers and boss in _nodes(trip)), None)
+    return next((trip for trip in planned if not trip.blockers and boss in trip_levels(trip)), None)
 
 
-def _passes(trip: RouteExcursion, boss: int, zone: ActiveZone) -> tuple[int, ...]:
+def crossed_levels(trip: RouteExcursion, boss: int, zone: ActiveZone) -> tuple[int, ...]:
     """The levels of `zone` boss trip `trip` only crosses before `boss`: neither a fight nor a stand on the way (the
     Throne's waves, Durance 3's portal stand are the trip's own work), nearest the boss first."""
-    nodes = _nodes(trip)
+    nodes = trip_levels(trip)
     worked = boss_areas(trip.route) | stand_areas(trip.route)
     return tuple(area for area in reversed(nodes[: nodes.index(boss)]) if area in zone.areas and area not in worked)
 
 
-def _nodes(trip: RouteExcursion) -> tuple[int, ...]:
+def trip_levels(trip: RouteExcursion) -> tuple[int, ...]:
     """The levels of catalogue trip `trip`: its waypoint, then each hop's destination."""
     return (trip.waypoint, *(hop.destination for hop in trip.hops))
 
@@ -302,7 +329,7 @@ def _nodes(trip: RouteExcursion) -> tuple[int, ...]:
 def _excursion(trip: RouteExcursion, group: frozenset[int], skipped: list[tuple[int, str]]) -> Excursion:
     """Catalogue trip `trip` as an excursion over the terrorized `group` (`START_AT` cuts its start: those levels are
     added to `skipped`)."""
-    nodes = _nodes(trip)
+    nodes = trip_levels(trip)
     start = START_AT.get(trip.route)
     if start is not None and start in nodes[1:]:
         skipped += [(area, f'the {trip.route} trip starts at waypoint {start}') for area in nodes[: nodes.index(start)]]

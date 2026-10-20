@@ -7,9 +7,11 @@ Death Mark (mark.py), Sigil: Lethargy under an elite, Engorge on a corpse. Multi
 """
 
 import math
+from dataclasses import dataclass, field
 
 from inventory_tracking.builds.warlock.defiler import defiler_missing, worth_a_defiler
 from inventory_tracking.builds.warlock.mark import (
+    MARK_LEADERS,
     MARK_RECASTS,
     MARK_SHOWS,
     herald,
@@ -19,6 +21,7 @@ from inventory_tracking.builds.warlock.mark import (
     mark_said,
     mark_shows,
     mark_told,
+    state_on,
     target,
     worth_a_mark,
 )
@@ -37,6 +40,7 @@ from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
 from inventory_tracking.macros.cta import ROWS as CTA_ROWS
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.goals import is_boss
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
@@ -59,6 +63,39 @@ SIGIL_SECONDS = 10.0  # between two sigils under the same monster
 # Under a Herald (macros/hunt.py HERALD_OMEN) a sigil goes first and again this often: the Herald moves off it (the
 # player, 2026-10-18: "prioritizing keeping herald on sigil lethargy + death mark")
 HERALD_SIGIL_SECONDS = 6.0
+# Sigil: Lethargy's ground (pricing/raw/game-excel, read 2026-10-20). skills.txt 393: srvmissilea/b/c
+# sigillethargysmall, medium and large by level (prgcalc1: 1 below 10, 2 below 20, 3 after), calc3 "Missile Limit" 1
+# (each new sigil ends the last: seen in every take), auratargetstate sigillethargy on the monsters within
+# aurarangecalc (4, 6 at level 10, 8 at 20).
+SIGIL_MISSILES = {699: 4.0, 686: 6.0, 702: 8.0}  # missiles.txt *ID -> its Radius in world units: small, medium, large
+SIGIL_STATE = 192  # states.txt sigillethargy: set on a monster that stands in the sigil
+# CybergrindAA's: the medium missile in every take of 2026-10-20 (level 10-19), so radius 6 (its state is on 84% of
+# the live monsters under 6 units from it in the state words of 2026-10-20's last 60 takes, 26% of those 6-7 away, 2%
+# of those 7-15 away), and its time:
+# missiles.txt Range 100 + 25 a level frames, 475 at level 15 (18.94-18.98 s in the takes).
+SIGIL_RADIUS = 6.0
+SIGIL_LASTS = 19.0  # seconds
+# Kept in its sigil (the player, 2026-10-20 ~23:05, of Diablo's fight at 23:01:55, whose one sigil lay 11 units off him
+# from its start: "for hard/dangerous enemies - we want to keep them under sigil's effect all the time"). A dangerous
+# monster (`dangerous`) gets a sigil again as soon as it stands outside the one that lies (its state words lack
+# SIGIL_STATE, or it stands further than the sigil's radius from it) or that one runs out (SIGIL_LASTS),
+# never sooner than SIGIL_GAP after the last; a Herald also HERALD_SIGIL_SECONDS after the last under it, as before.
+# Others are left as they were: a leader that is not dangerous by SIGIL_SECONDS, trash none (casters.py `sigil`).
+# False: SIGIL_SECONDS and HERALD_SIGIL_SECONDS alone, as before.
+SIGIL_KEEPS = True
+SIGIL_LOOK = 0.5  # seconds between two looks whether a dangerous monster still stands in its sigil
+# Seconds between two sigils at least. One cast is 0.32 s (the median of 48 from a free character in the takes of
+# 2026-10-20), its missile shows 0.37 s after the key (the median of 1,957; p95 0.48 s) and its state on a monster
+# 0.48 s after (the median of 1,719; p95 0.67 s).
+SIGIL_GAP = 1.0
+SIGIL_SHOWS = 0.8  # seconds after the key before the sigil's state or missile is looked for
+# Seconds before the sigil runs out that the next is cast: a look comes within SIGIL_LOOK, the new missile shows a
+# median 0.37 s after its key (p95 0.48 s), so the new one lies before the last one ends.
+SIGIL_EARLY = 1.0
+SIGIL_EDGE = 0.5  # world units inside the radius that count as out: a walking monster is out within the next look
+SIGIL_UNSHOWN = 2  # sigils under a monster in a row whose state it never showed: then it is judged by place alone
+UNSHOWN = 'its state words show no sigil'  # `keep_reason`'s words for that
+TICK = 0.01  # seconds past a clock that a test of "older than" holds at
 # Consume (skills.txt 381) is cast again when the state lacks it and no hostile is within CONSUME_CLEAR: about two
 # seconds of summon and aim in which nothing is struck.
 CONSUME_CLEAR = 30.0  # world units
@@ -97,14 +134,109 @@ def herald_in_reach(facts: BuffFacts) -> Monster | None:
     return min(found, key=lambda m: math.dist((player.x, player.y), (m.x, m.y)))
 
 
+def dangerous(monster: Monster) -> bool:
+    """A monster kept in its sigil (SIGIL_KEEPS): a Herald, an act boss or super unique (Izual, the Countess, ...), or a
+    pack's leader while Death Mark goes on leaders (mark.py MARK_LEADERS)."""
+    return herald(monster) or is_boss(monster) or (MARK_LEADERS and monster.leader)
+
+
+def kept(monster: Monster) -> bool:
+    """Whether `monster` is kept in its sigil: SIGIL_KEEPS on and it is `dangerous`."""
+    return SIGIL_KEEPS and dangerous(monster)
+
+
 def sigil_due(facts: BuffFacts) -> bool:
-    """Whether a sigil is due: under a Herald in reach, its last one HERALD_SIGIL_SECONDS old; else under the monster
-    the strike is aimed through, an elite or boss, its last one SIGIL_SECONDS old."""
+    """Whether the sigil's caster is asked now: under a Herald in reach, else under the monster the strike is aimed
+    through, an elite or boss. One kept in its sigil (`kept`) is looked at every SIGIL_LOOK s (casters.py `sigil` asks
+    whether it still stands in one); else its last one is SIGIL_SECONDS old (a Herald's HERALD_SIGIL_SECONDS)."""
     first = herald_in_reach(facts)
     if first is not None:
-        return facts.since(SIGIL_LETHARGY, first.unit_id) > HERALD_SIGIL_SECONDS
+        every = SIGIL_LOOK if kept(first) else HERALD_SIGIL_SECONDS
+        return facts.since(SIGIL_LETHARGY, first.unit_id) > every
     prey = facts.prey
-    return prey is not None and prey.leader and facts.since(SIGIL_LETHARGY, prey.unit_id) > SIGIL_SECONDS
+    if prey is None or not (prey.leader or (SIGIL_KEEPS and is_boss(prey))):
+        return False
+    return facts.since(SIGIL_LETHARGY, prey.unit_id) > (SIGIL_LOOK if kept(prey) else SIGIL_SECONDS)
+
+
+Place = tuple[float, float]
+
+
+@dataclass
+class SigilWatch:
+    """The executor's memory of the one sigil of the character's that lies (skills.txt calc3: each new sigil ends the
+    last), for the monsters kept in it (casters.py `sigil`)."""
+
+    at: float | None = None  # clock of its key
+    place: Place | None = None  # where it was aimed, world units
+    unit: int | None = None  # the monster it was laid under
+    area: int | None = None  # its level: one left behind lies no more
+    under: dict[int, float] = field(default_factory=dict)  # unit -> clock of the last sigil laid under it
+    unshown: dict[int, int] = field(default_factory=dict)  # unit -> its sigils in a row its state did not show
+
+    def lay(self, unit: int, place: Place, area: int | None, at: float) -> None:
+        if len(self.under) > 400:
+            self.under.clear()
+            self.unshown.clear()
+        self.at, self.place, self.unit, self.area = at, place, unit, area
+        self.under[unit] = at
+
+    def lies(self, now: float, area: int | None) -> bool:
+        """Whether the last sigil may lie still: laid in this level within SIGIL_LASTS (a clock that went back is
+        another game's)."""
+        return self.at is not None and area == self.area and 0.0 <= now - self.at <= SIGIL_LASTS
+
+    def age(self, now: float) -> float:
+        return now - self.at if self.at is not None else math.inf
+
+    def next_due(self, monster: Monster) -> float:
+        """The clock `keep_reason` holds a sigil due by its time alone: the last one about to run out (SIGIL_EARLY),
+        a Herald's last HERALD_SIGIL_SECONDS old; inf with none laid."""
+        if self.at is None:
+            return math.inf
+        due = self.at + SIGIL_LASTS - SIGIL_EARLY
+        if herald(monster):
+            due = min(due, self.under.get(monster.unit_id, -math.inf) + HERALD_SIGIL_SECONDS)
+        return due + TICK
+
+
+def keep_reason(
+    watch: SigilWatch,
+    monster: Monster,
+    now: float,
+    area: int | None,
+    words: bytes | None = None,
+    lying: tuple[float, float, float] | None = None,
+    seen: bool = False,
+) -> str | None:
+    """Why a monster kept in its sigil gets one now; None while it stands in the one that lies. `words`: its state words
+    (None: unread); `lying`: the sigil's missile as read, (x, y, radius), with `seen` that the missiles were read at
+    all (none of the character's lying then is no sigil). Neither is asked within SIGIL_SHOWS of the key."""
+    if not watch.lies(now, area):
+        return 'no sigil of the character lies'
+    age = watch.age(now)
+    if herald(monster) and now - watch.under.get(monster.unit_id, -math.inf) > HERALD_SIGIL_SECONDS:
+        return f'the last under the Herald is over {HERALD_SIGIL_SECONDS:.0f} s old'
+    if age > SIGIL_LASTS - SIGIL_EARLY:
+        return f'the sigil runs out in {max(0.0, SIGIL_LASTS - age):.1f} s'
+    judged = age >= SIGIL_SHOWS
+    if judged and words is not None and watch.unshown.get(monster.unit_id, 0) < SIGIL_UNSHOWN:
+        if state_on(words, SIGIL_STATE):
+            watch.unshown.pop(monster.unit_id, None)
+            return None
+        return f'{UNSHOWN} (state {SIGIL_STATE})'
+    if judged and seen and lying is None:
+        return 'no sigil of the character is in flight'
+    if judged and lying is not None:
+        x, y, radius = lying
+    elif watch.place is not None:
+        (x, y), radius = watch.place, SIGIL_RADIUS
+    else:
+        return 'the sigil lies nowhere known'
+    away = math.dist((monster.x, monster.y), (x, y))
+    if away > radius - SIGIL_EDGE:
+        return f'it stands {away:.1f} from the sigil at ({x:.1f}, {y:.1f}), radius {radius:.0f}'
+    return None
 
 
 def prey(facts: BuffFacts) -> Monster | None:

@@ -211,10 +211,14 @@ def parse(lines: list[str]) -> list[Event]:
     return events
 
 
+# The shard act kinds (macros/loop.py ACT_KINDS), one per act: their legs are the TZ kinds'
+ACT_KINDS = tuple(f'act{act}' for act in range(1, 6))
+
+
 def kind_of_leg(leg: str, now: str | None) -> str | None:
     """The kind a leg says the loop runs (None: a leg every kind makes)."""
     if leg in TZ_LEGS:
-        return now if now in ('tz', 'tzclear', 'act4') else 'tz'
+        return now if now in ('tz', 'tzclear', *ACT_KINDS) else 'tz'
     if leg in ANDARIEL_LEGS:
         return 'andariel'
     if leg in LK_LEGS:
@@ -413,7 +417,7 @@ def main() -> None:
     now = datetime.now()
     parser.add_argument('--since', type=logwords.local, default=now - timedelta(hours=2))
     parser.add_argument('--until', type=logwords.local, default=now)
-    parser.add_argument('--kind', default='tz', choices=('tz', 'tzclear', 'act4', 'andariel', 'lk', 'any'))
+    parser.add_argument('--kind', default='tz', choices=('tz', 'tzclear', *ACT_KINDS, 'andariel', 'lk', 'any'))
     parser.add_argument('--against', nargs=2, type=logwords.local, metavar=('SINCE', 'UNTIL'))
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--runs', type=Path, default=RUNS, help="the sessions directory (default: this checkout's)")

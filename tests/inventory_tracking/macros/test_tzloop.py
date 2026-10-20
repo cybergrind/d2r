@@ -1398,10 +1398,10 @@ def test_the_act4_kind_is_offered_only_once_enabled_and_the_picker_entry_goes_by
     assert actloop.ENABLED is True  # on since the player's in-game test, 2026-10-20 ~21:18
     monkeypatch.setattr(actloop, 'ENABLED', False)
     assert 'act4' not in loop_kinds()
-    assert [coming.word for coming in coming_kinds()] == ['ACT4']  # the placeholder "Shard: Act 4"
+    assert 'ACT4' in [coming.word for coming in coming_kinds()]  # the placeholder "Shard: Act 4"
     monkeypatch.setattr(actloop, 'ENABLED', True)
     assert loop_kinds()['act4'] is ACT4
-    assert coming_kinds() == ()
+    assert 'ACT4' not in [coming.word for coming in coming_kinds()]
     assert (ACT4.name, ACT4.word, ACT4.game_seconds, ACT4.metric) == (
         'Shard: Act 4',
         'ACT4',

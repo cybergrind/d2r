@@ -249,3 +249,40 @@ To do after the in-game test:
 - If check 3 needs the stash shut, the leg needs the inventory key from the hands (`running/legs.py`, one line).
 - Fold the shard into the start visit's stash stop.
 - Acts 1, 3 and 5 as kinds (`ACTS`). Act 1's 37 levels pass `REPEATS[TZ_LEVEL] = 40`, so check that first.
+
+## 11. Act scripts: one kind per act, its order as data (2026-10-20 ~23:00)
+
+The player, ~22:50: "could you implement shards run for every act: act1: act1 shard -> catacombs 2 -> 3 -> 4 ->
+andariel -> marsh -> tower -> countess -> rest of zones one by one; act2: act2 shard -> canyon of the magi -> tombs ...
+-> duriel -> rest of tombs -> arcane sanctuary -> summoner -> rest of arcane sanctuary -> rest of zones one by one;
+act5: act5 shard -> throne -> baal -> halls -> nihlathak -> rest of zones; act3: act3 shard -> durance -> mephisto ->
+rest of zones ... we probably can separate some high level architecture into reusable framework, that will allow some
+specialization and concrete points/steps to scripting".
+
+1. **An act's order is data** (`macros/acts/act<N>.py`, one file per act): `SCRIPT = ActScript(act, steps, ready)`.
+   The steps (`macros/acts/engine.py`):
+   - `Trip(route, target, waypoint=None, crossed=AFTER)`: a catalogue route's trip to level `target` (the boss's), from
+     `waypoint` or, by default, the route's waypoint nearest it. `crossed=AFTER`: the levels on the way are only
+     crossed (ON_THE_WAY) and get their own trip right after, nearest the target first (`BOSS_NEAREST`'s rule);
+     `WORKED`: worked on the way. `missing='why'`: the catalogue lacks the route; the step is skipped and said.
+   - `Rest(levels=…, zone=…, route=…)`: the levels of a list, of an installed rotating zone (`Act1-Tower`), or of a
+     route's scripts that no earlier step works, covered by `zone_route_plan` as today.
+   - Then, always, by the engine: the rest of the act's levels, then the rotation (`itinerary`'s union, unchanged).
+   - A step is any object with `label` and `plan(act: ActPlan)`: an act file may define its own step class (Act 2's
+     tomb tour with Duriel inside) with the builder's helpers (`add`, `rest`, `skip`), never editing the engine.
+2. **The engine** (`acts/engine.py act_trips`) gives what `tzroutine._route_trips` gives (catalogue trips, each with
+   its crossed levels; the levels none covers), so `itinerary`, `Excursion`, `produce`, `policy_of` and the agenda
+   are unchanged. `tzroutine._route_trips` takes a manual zone's trips from its act's script when the script is
+   `ready` and `ACT_SCRIPTS`, `BOSS_FIRST` and `BOSS_NEAREST` are on; otherwise the generic boss-first plan as before.
+   The scripts serve the act kinds and TZ/TZ+ with a hand-used shard alike.
+3. **One kind per act** (`loop.py act_kind(n)`, `ACT_KINDS` act1…act5, "Shard: Act N", word `ACTN`, all on
+   `actloop`): `loop_kinds()` offers an act's kind only when its script is `ready` (and `tzloop.ENABLED`,
+   `actloop.ENABLED`); the KP_6 picker shows the others as `coming`. `actloop.ACTS` maps act1…act5; the shard is the
+   act's (`terrorize.SHARDS`). restart.py and elites.py take act1…act5.
+4. **Act 4** is `acts/act4.py`: `Trip('Diablo', 108)`, `Rest(route='Diablo')`; its plan line is pinned by
+   `tests/inventory_tracking/macros/acts/test_act4.py` (the live plan of 22:00-22:39).
+5. **The harness** (`tests/inventory_tracking/macros/acts/harness.py`): `plan_of(monkeypatch, act, rotation)` (the
+   script forced ready) and `ActGame(act, monkeypatch, rotation).play()` → `Walk` (waypoints, level runs, kills, the
+   shard, the legs) over test_tzloop's scripted game. The act agents write `test_act<N>.py` with it.
+6. **How to add an act**: `macros/acts/README.md`. An act agent owns `acts/act<N>.py`, its test, and any new route
+   (`routes/catalog/act<N>.py`) or level handler it needs; it sets `ready = True` when its test walks the act.

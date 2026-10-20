@@ -357,6 +357,46 @@ def offered(acting: Acting, here: Point) -> tuple[tuple[Point, str], ...]:
     return tuple((place, "across Diablo's lightning") for place in escapes(acting.at, here, aim=heading))
 
 
+# His stream is walked round, not hopped out of (`walked`). The player, 2026-10-20 ~23:10: "we're trying to teleport
+# out of it lightning attack, but it looks like he is moving immediately to our new location and we tank too much
+# damage this way, probably the best way to handle this particular his attack - just walk around of him". The rules
+# agree: each missile goes at where the character stands in its frame, so a Teleport only drops those in flight and
+# the rest of the stream comes at the landing (tests/.../combat/test_diablo.py; arena situations/diablo_duel.py
+# with a hop policy added for the check, 20 seeds, 22 strikes: 75..89 lightning a fight hopping across at each
+# stream, 46 by the priced walks across). macros/safety.py keeps a Teleport for the life-danger escape (nothing fits
+# the budget or the veto). False: Teleports priced as before.
+WALK_AROUND = True
+
+
+def walked(acting: Acting, here: Point) -> bool:
+    """His lightning is under way at the character (SC with no missile yet, or the newest one's line passes it):
+    dodged on foot while WALK_AROUND, a Teleport not being the routine way out of it."""
+    if not WALK_AROUND or acting.mode != MODE:
+        return False
+    return not acting.flying or _aim(acting, here) is not None
+
+
+AROUND_LEAD = 6.0  # units of arc ahead of the character a walk round him goes on to (`around`; the duel: 6 of 6, 8, 12)
+# The arc's radius held within: out of his melee (REACH 4.5, stance KEEP_AWAY 6) and inside LIGHTNING_RANGE (25 less
+# the target's size), where his run keeps its weight of 10 (beyond it, 20) and the blades' 22.1 still reach him
+AROUND_RADIUS = (8.0, 20.0)
+
+
+def around(acting: Acting, here: Point, side: int) -> tuple[Point, str] | None:
+    """The next place of a walk round him while his stream is at the character (`walked`): AROUND_LEAD units of arc
+    on from `here` the way it goes round (`side`: +1 counterclockwise, -1 clockwise), at its distance from him held
+    within AROUND_RADIUS. None while the stream is not walked."""
+    if not walked(acting, here):
+        return None
+    gap = math.dist(acting.at, here)
+    if gap < 1e-6:
+        return None
+    radius = min(max(gap, AROUND_RADIUS[0]), AROUND_RADIUS[1])
+    turn = math.atan2(here[1] - acting.at[1], here[0] - acting.at[0]) + side * AROUND_LEAD / radius
+    place = (acting.at[0] + radius * math.cos(turn), acting.at[1] + radius * math.sin(turn))
+    return place, "round Diablo's lightning"
+
+
 # -- his fire wall: what lies on the ground after the cast, and after his death (combat/threats `Lingering`) ---------
 # It outlives him: loot walks after his death went through it (rca/2026-10-14/run-0305-findings.md §5.6). The rules
 # are sim/diablo.py's (makers leave a flame each frame; flames burn every body within CONTACT).
@@ -481,7 +521,7 @@ WALL = Lingering(
     wall_clears,
     wall_escapes,
 )
-THREAT = Threat(frozenset({rules.LIGHTNING_MISSILE}), exposure, offered, WALL)
+THREAT = Threat(frozenset({rules.LIGHTNING_MISSILE}), exposure, offered, WALL, walked, around)
 
 
 def threat_of(txt: int) -> Threat | None:

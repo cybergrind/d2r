@@ -10,7 +10,7 @@ unit is 1/2160 of the window height), checked against a screenshot within 2 pixe
 
 import contextlib
 import time
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Generator, Iterable, Sequence
 from dataclasses import replace
 
 from inventory_tracking.common import LOG
@@ -158,9 +158,11 @@ def drop_for(
     return item if drop_item(run, inventory_key, item, f'for a {size[0]}x{size[1]} block') else None
 
 
-def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
+def drop_item(run: Run, inventory_key: str, item: Carried, why: str, *, keep_open: bool = False) -> bool:
     """Drop the inventory's `item` at the character's feet, put back if it does not fall; whether it fell. Never a
-    protected item. Mouse mode only; the panels closed after."""
+    protected item. Mouse mode only; the panels closed after (`keep_open`: left open when it ends normally, a field
+    visit's one opening; `held_shut`). With the cube held open too, the item falls between the two panels
+    (PARK_POINT): DROP_POINT is on the cube's panel then."""
     if spared := protected(run, item):
         LOG.info('Macro: inventory: %s (%d) at (%d, %d) is %s: never dropped', item.txt, item.unit_id, item.x, item.y,
                  spared)  # fmt: skip
@@ -169,8 +171,9 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
     if rect is None or run.pad is not None:
         return False
     dropped = False
-    try:
+    with held_shut(run, ('inventory',), keep_open):
         open_inventory(run, inventory_key)
+        ground = PARK_POINT if keep_open and 'cube' in run.world().open_panels else DROP_POINT
         run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p: p.pointer == item.unit_id):
@@ -179,15 +182,13 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
             return False
-        run.actuator.move(*DROP_POINT, scatter=(4, 4))
+        run.actuator.move(*ground, scatter=(4, 4))
         run.actuator.click()
         dropped = _until(run, lambda p: p.pointer is None and all(i.unit_id != item.unit_id for i in p.items))
         if not dropped:
             run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
             run.actuator.click()
             _until(run, lambda p: p.pointer is None)
-    finally:
-        close(run, ('inventory',))
     LOG.info('Macro: inventory: %s (%d) at (%d, %d) %s %s',
              item.txt, item.unit_id, item.x, item.y, 'dropped' if dropped else 'not dropped', why)  # fmt: skip
     return dropped
@@ -225,6 +226,32 @@ def close(run: Run, panels: tuple[str, ...]) -> None:
     closed(*world.open_panels)  # Escape closes every panel
     with contextlib.suppress(Abort):  # a cancelled run's wait: the Escape is sent
         run.seen(lambda w: not set(panels) & set(w.open_panels), PANEL_SECONDS)
+    run.actuator.rebase()
+
+
+@contextlib.contextmanager
+def held_shut(run: Run, panels: tuple[str, ...], keep_open: bool = False) -> Generator[None]:
+    """`close(panels)` after the block: always through a failure, the player's hand or a cancel, and after a block that
+    ends normally unless `keep_open` (a field visit's one opening, loot/api.py ONE_OPENING: the visit's end closes
+    them, loot/hands.py `GameHands.visit`)."""
+    try:
+        yield
+    except BaseException:
+        close(run, panels)
+        raise
+    if not keep_open:
+        close(run, panels)
+
+
+def open_cube(run: Run, rect: tuple[int, int, int, int], cube: Carried, keep_open: bool = False) -> None:
+    """Open the cube by a right click on it in the open inventory; `Abort` when it does not open. Held open already by
+    a field visit (`keep_open`): not clicked again."""
+    if not (keep_open and 'cube' in run.world().open_panels):
+        run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
+        run.actuator.tap('Button3')
+        opened('cube')
+        if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the cube did not open')
     run.actuator.rebase()
 
 
@@ -283,9 +310,10 @@ def tidy(run: Run, world: World) -> tuple[str, ...]:
     return left
 
 
-def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) -> int:
+def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]], *, keep_open: bool = False) -> int:
     """Move the loop's items into the cube; how many moved. Mouse mode only. `Abort` with the panels closed when a
-    panel does not open or an item is not where it should be."""
+    panel does not open or an item is not where it should be. `keep_open`: the panels left open when it ends
+    normally (a field visit's one opening, `held_shut`)."""
     if run.pad is not None:
         raise Abort('the cube needs mouse mode')
     carried = run.carried
@@ -316,40 +344,40 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
         return 0
     moved = 0
     try:
-        open_inventory(run, inventory_key)
-        run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
-        run.actuator.tap('Button3')
-        opened('cube')
-        if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the cube did not open')
-        run.actuator.rebase()
-        for item, _spot in moves:
-            # Ctrl + click sends it into the open cube wherever the game finds room; `plan` made sure it fits
-            run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
-            run.actuator.click('Control_L')
-            if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
-                pack = carried()
-                if pack is not None and all(c.unit_id != item.unit_id for c in pack.items):
-                    # On the pointer after all: put back where it was
-                    run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
-                    run.actuator.click()
-                raise Abort(f'the item at ({item.x}, {item.y}) did not go into the cube')
-            moved += 1
+        with held_shut(run, ('inventory', 'cube'), keep_open):
+            open_inventory(run, inventory_key)
+            open_cube(run, rect, cube, keep_open)
+            for item, _spot in moves:
+                # Ctrl + click sends it into the open cube wherever the game finds room; `plan` made sure it fits
+                run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
+                run.actuator.click('Control_L')
+                if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
+                    pack = carried()
+                    if pack is not None and all(c.unit_id != item.unit_id for c in pack.items):
+                        # On the pointer after all: put back where it was
+                        run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
+                        run.actuator.click()
+                    raise Abort(f'the item at ({item.x}, {item.y}) did not go into the cube')
+                moved += 1
     finally:
-        close(run, ('inventory', 'cube'))
         LOG.info("Macro: cube: %d of %d of the loop's items moved in", moved, len(moves))
     run.say(f'Cube: {moved} item{"s" if moved != 1 else ""} put in')
     return moved
 
 
 def stash_only(
-    run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]], wanted: Callable[[Carried], bool]
+    run: Run,
+    inventory_key: str,
+    own: frozenset[tuple[int, int, int]],
+    wanted: Callable[[Carried], bool],
+    *,
+    keep_open: bool = False,
 ) -> int:
     """`stash` for only the loop's items `wanted` picks (the others counted the player's); how many moved."""
     pack = run.reads.carried()
     if pack is None or not any(wanted(item) for item in loot(pack, own)):
         return 0
-    return stash(run, inventory_key, own | own_of(item for item in pack.items if not wanted(item)))
+    return stash(run, inventory_key, own | own_of(item for item in pack.items if not wanted(item)), keep_open=keep_open)
 
 
 def open_inventory(run: Run, inventory_key: str) -> None:
@@ -362,10 +390,10 @@ def open_inventory(run: Run, inventory_key: str) -> None:
     run.actuator.rebase()
 
 
-def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
+def unpack(run: Run, inventory_key: str, items: Sequence[Carried], *, keep_open: bool = False) -> int:
     """Take `items` out of the cube into the inventory by Ctrl + click; how many came out. For the stash, which takes
     from the cube only what a resource tab holds. One that does not come out after two clicks is passed over. Mouse
-    mode only; the panels closed after."""
+    mode only; the panels closed after (`keep_open`: left open when it ends normally, `held_shut`)."""
     rect = run.actuator.keys.focused_window_rect()
     pack = run.reads.carried()
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
@@ -373,33 +401,30 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
         return 0
     out = 0
     try:
-        open_inventory(run, inventory_key)
-        run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
-        run.actuator.tap('Button3')
-        opened('cube')
-        if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the cube did not open')
-        run.actuator.rebase()
-        # The tallest first, then the largest: a 1 x 3 found no free column once smaller ones were out (2026-10-17)
-        for item in sorted(items, key=lambda i: (-i.size[1], -i.size[0] * i.size[1])):
-            # No block for it: not clicked (the session's second stash takes it)
-            now = run.reads.carried()
-            if now is not None and not now.inventory.has_room(item.size):
-                LOG.info('Macro: cube: no room in the inventory for the item %d at (%d, %d)', item.txt, item.x, item.y)
-                continue
-            # Tried twice; one that does not come out is passed over, not the end ("we had space to move more item and
-            # sell them all", the player, 2026-10-17)
-            for _ in range(2):
-                run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(6, 6))
-                run.actuator.click('Control_L')
-                if _until(run, lambda p, i=item: i.unit_id not in p.cube_items):
-                    out += 1
-                    break
-                run.pace.sleep(RETRY_PAUSE)
-            else:
-                LOG.info('Macro: cube: the item %d at (%d, %d) did not come out', item.txt, item.x, item.y)
+        with held_shut(run, ('inventory', 'cube'), keep_open):
+            open_inventory(run, inventory_key)
+            open_cube(run, rect, cube, keep_open)
+            # The tallest first, then the largest: a 1 x 3 found no free column once smaller ones were out
+            # (2026-10-17)
+            for item in sorted(items, key=lambda i: (-i.size[1], -i.size[0] * i.size[1])):
+                # No block for it: not clicked (the session's second stash takes it)
+                now = run.reads.carried()
+                if now is not None and not now.inventory.has_room(item.size):
+                    LOG.info('Macro: cube: no room in the inventory for the item %d at (%d, %d)', item.txt, item.x,
+                             item.y)  # fmt: skip
+                    continue
+                # Tried twice; one that does not come out is passed over, not the end ("we had space to move more item
+                # and sell them all", the player, 2026-10-17)
+                for _ in range(2):
+                    run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(6, 6))
+                    run.actuator.click('Control_L')
+                    if _until(run, lambda p, i=item: i.unit_id not in p.cube_items):
+                        out += 1
+                        break
+                    run.pace.sleep(RETRY_PAUSE)
+                else:
+                    LOG.info('Macro: cube: the item %d at (%d, %d) did not come out', item.txt, item.x, item.y)
     finally:
-        close(run, ('inventory', 'cube'))
         LOG.info('Macro: cube: %d of %d items taken out', out, len(items))
     return out
 

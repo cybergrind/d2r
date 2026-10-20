@@ -1436,3 +1436,138 @@ def test_m6_a_give_up_the_towns_guards_keep_is_said(monkeypatch, caplog):
     assert sorted(town.sold) == [61]
     assert ('Macro: town visit: magic Ring (unit 62) kept against the keep rules: drop K8 worthless; no price, '
             'appraised check (S8)') in caplog.text  # fmt: skip
+
+
+# Jamella only when needed (visit.py JAMELLA_AT_NEED; the player, 2026-10-20 ~23:45, on
+# rca/2026-10-20/lazy-work-findings.md §4: "Only when needed", and "we can keep visiting jamella when we low on gold")
+
+RICH = 500_000  # carried gold well over JAMELLA_GOLD_LOW
+
+
+def at_need_town(monkeypatch, *, keys=24, identifies=20, coins=RICH, staff=None):
+    """A visit with a keeper and an inventory junk Amulet, a junk Ring in the cube; the inventory's openings counted."""
+    import inventory_tracking.macros.visit as visit_module
+
+    keeper = replace(thing(10, 'Ring', 6, 0), quality=4, identified=False)
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
+    cubed = replace(thing(12, 'Ring', 0, 0), quality=4)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, keeper, junk), ('#..', '...', '...', '...'), frozenset({12}), (cubed,),
+                keys=keys, identifies=identifies)  # fmt: skip
+    play = fortress(pack, [FULL_PAGE] * 5 + [OPEN_PAGE])
+    play.staff = staff
+    town = Town(monkeypatch, play, frozenset({11, 12}))
+    monkeypatch.setattr(visit_module, 'gold', lambda run: coins)
+    openings: list[str] = []
+    real = visit_module.open_inventory
+
+    def open_inventory(run, key):
+        openings.append(key)
+        return real(run, key)
+
+    monkeypatch.setattr(visit_module, 'open_inventory', open_inventory)
+    return play, town, openings
+
+
+def test_a_full_tome_and_keys_skip_jamella_and_the_junk_is_put_down_in_one_opening(monkeypatch, caplog):
+    play, town, openings = at_need_town(monkeypatch)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert town.stops() == ['cain', 'stash']  # no Jamella, no walk from her to the waypoint
+    assert town.sold == []
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]  # the inventory's junk and the cube's
+    assert openings == ['i']  # one inventory opening for both
+    assert play.page_items[5] == [10]  # the keeper stashed
+    assert done.contract.misses == ()  # the cube empty, the 2x4 block free, no junk left
+    assert done.contract.cube == 0
+    assert play.world.open_panels == ()
+    assert 'Macro: town visit: Jamella not needed (identifies 20, keys 24, gold 500000): 2 junk' in caplog.text
+    assert caplog.text.count('dropped in town: Jamella not needed') == 2  # the watch's TOWN_DROP lines
+    line = next(r.message for r in caplog.records if 'trade session done' in r.message)
+    assert line.endswith(', jamella -, halbu -, walk -)')
+
+
+@pytest.mark.parametrize(
+    ('needs', 'said'),
+    [
+        ({'identifies': 9}, 'identifies 9'),
+        ({'identifies': None}, 'identifies None'),
+        ({'keys': 2}, 'keys 2'),
+        ({'coins': 150_000}, 'gold 150000'),
+        ({'coins': None}, 'gold None'),
+    ],
+)
+def test_a_low_tome_few_keys_or_low_gold_go_to_jamella_and_sell(monkeypatch, caplog, needs, said):
+    play, town, _openings = at_need_town(monkeypatch, **needs)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    assert sorted(town.sold) == [11, 12]
+    assert play.fallen == []
+    assert done.contract.misses == ()
+    assert f'Macro: town visit: Jamella needed ({said}): the junk sold' in caplog.text
+
+
+def test_the_switch_off_keeps_jamella_at_every_visit_with_junk(monkeypatch):
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, 'JAMELLA_AT_NEED', False)
+
+    done = town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    assert sorted(town.sold) == [11, 12]
+    assert play.fallen == []
+    assert done.contract.misses == ()
+
+
+def test_a_repair_due_with_jamella_skipped_is_still_halbus(monkeypatch):
+    play, town, _openings = at_need_town(monkeypatch, staff=Teleport(5, 69, False))
+
+    done = town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'halbu', 'waypoint']
+    assert play.staff == Teleport(69, 69, False)
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert done.contract.misses == ()
+
+
+def test_the_players_item_is_never_put_down_and_a_never_dropped_kind_calls_jamella(monkeypatch, caplog):
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    town.run = play.run()
+    town.run.players_item = lambda item: item.unit_id == 11
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.WAYPOINT)
+
+    assert [i.unit_id for i in play.fallen] == [12]
+    assert all(i.unit_id != 11 for i in play.fallen)
+
+    gem = replace(thing(30, 'Flawless Sapphire', 9, 3), identified=True)
+    pack = Pack((gem,), keys=24, identifies=20)
+    assert visit_module.jamella_for(pack, LK_NEEDS, RICH, [gem]) == 'the Flawless Sapphire is never put down'
+    assert visit_module.jamella_for(pack, LK_NEEDS, RICH, []) is None
+
+
+def test_the_cubes_junk_is_put_down_from_the_open_cube_in_the_same_opening(caplog):
+    import inventory_tracking.macros.visit as visit_module
+
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
+    cubed = replace(thing(12, 'Ring', 0, 0), quality=4)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, junk), cube_items=frozenset({12}), in_cube=(cubed,)), [OPEN_PAGE])
+    run = play.run()
+
+    with caplog.at_level('INFO'):
+        fell = visit_module._put_down(run, 'i', [(cubed, 'in town: Jamella not needed'), (junk, 'in town: test')])
+
+    assert fell == 2
+    assert [i.unit_id for i in play.fallen] == [11, 12]  # the inventory's first, then the cube's
+    assert carried(play).in_cube == ()
+    assert play.world.open_panels == ()
+    assert 'Macro: inventory: 537 (12) at (0, 0) dropped in town: Jamella not needed' in caplog.text

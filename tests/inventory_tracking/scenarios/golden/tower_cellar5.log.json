@@ -180,15 +180,15 @@
   "Macro: mark: no Death Mark on the elite 55 (1816397095), 128/128: by the build's rule (no safety price): the demons sent and the mark's points save 0.02s of the fight, against the cast's 0.37s: -0.35s"
  ],
  [
-  7.81,
+  7.78,
   "Macro: Sigil: Lethargy"
  ],
  [
-  7.81,
+  7.78,
   "Macro: Sigil: Lethargy on Button9, player mode 1"
  ],
  [
-  8.81,
+  8.79,
   "Macro: Sigil: Lethargy still on the right button 1.0s after its key"
  ],
  [
@@ -196,11 +196,11 @@
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  10.19,
+  10.2,
   "Macro: Engorge"
  ],
  [
-  10.19,
+  10.2,
   "Macro: Engorge on a, player mode 1"
  ],
  [
@@ -436,71 +436,55 @@
   "Macro: Standing well: no better place within 24"
  ],
  [
-  14.93,
-  "Macro: Blade Warp still on the right button 1.0s after its key"
+  14.89,
+  "Macro: line through the elite 55 (2960229440), 128/128, 16.8 away, focal (12582.9, 11104.0), worth 38239, pointer (2781, 400)"
  ],
  [
-  14.93,
-  "Macro: Sigil: Lethargy"
- ],
- [
-  14.93,
-  "Macro: Sigil: Lethargy on Button9, player mode 1"
- ],
- [
-  15.12,
-  "Macro: line through the elite 55 (2960229440), 128/128, 16.8 away, focal (12582.9, 11104.0), worth 38239, pointer (2781, 399)"
- ],
- [
-  15.26,
-  "Macro: line through the monster 55 (740045072), 55/128, 6.1 away, focal (12590.5, 11105.5), worth 35486, pointer (3008, 567)"
+  15.06,
+  "Macro: line through the monster 55 (740045072), 75/128, 6.1 away, focal (12590.5, 11105.5), worth 37366, pointer (3011, 569)"
  ],
  [
   15.47,
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  15.5,
+  15.49,
   "Macro: step asked in the fight with 7 of 17 hostiles in reach, from (12596.5, 11106.5): no better place; pickup after: False"
  ],
  [
-  15.5,
+  15.49,
   "Macro: Standing well: no better place within 24"
  ],
  [
-  15.97,
-  "Macro: line through the elite 55 (2960229440), 127/128, 16.3 away, focal (12583.4, 11104.1), worth 27921, pointer (2800, 410)"
- ],
- [
-  16.27,
-  "Macro: line through the monster 55 (740045072), 1/128, 6.1 away, focal (12586.6, 11104.8), worth 29667, pointer (2884, 478)"
- ],
- [
   16.4,
-  "Macro: line through the monster 55 (2439033224), 127/128, 8.0 away, focal (12584.9, 11103.5), worth 27546, pointer (2870, 427)"
+  "Macro: line through the monster 55 (2439033224), 127/128, 8.0 away, focal (12584.9, 11103.5), worth 27546, pointer (2872, 425)"
  ],
  [
   16.68,
-  "Macro: line through the monster 55 (370022536), 85/128, 6.4 away, focal (12590.1, 11105.9), worth 29525, pointer (2982, 570)"
+  "Macro: line through the monster 55 (370022536), 85/128, 6.4 away, focal (12590.1, 11105.9), worth 29185, pointer (2984, 567)"
  ],
  [
-  16.95,
-  "Macro: line through the monster 55 (2439033224), 126/128, 7.6 away, focal (12592.1, 11105.3), worth 27985, pointer (3078, 596)"
+  16.96,
+  "Macro: line through the monster 55 (2439033224), 126/128, 7.6 away, focal (12592.1, 11105.3), worth 27985, pointer (3078, 593)"
  ],
  [
-  18.14,
+  18.2,
+  "Macro: line through the monster 55 (46244625), 91/128, 9.5 away, focal (12587.5, 11103.5), worth 14913, pointer (2976, 475)"
+ ],
+ [
+  18.25,
   "Macro: the sweep stops for a super healing potion, 13 away from (12596.5, 11106.5)"
  ],
  [
-  18.14,
+  18.25,
   "Macro: Attack mode paused"
  ],
  [
-  18.15,
+  18.26,
   "Macro: pickup: 2 drops (healing), belt short (0, 0), life 1156/1783; a super healing potion at (12584, 11111)"
  ],
  [
-  18.15,
+  18.26,
   "Macro: Drinking (3) to make room for a super healing potion"
  ],
  [

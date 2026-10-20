@@ -227,3 +227,99 @@ def test_a_rare_belt_short_of_its_combination_is_dropped_at_the_feet_and_a_reall
     assert play.pack is not None
     assert play.pack.identifies == 8
     assert [item.unit_id for item in play.pack.items] == [TOME.unit_id, WORN.unit_id, 80]
+
+
+# -- one opening a field visit (loot/api.py ONE_OPENING; rca/2026-10-20/lazy-work-findings.md §5; the player,
+# 2026-10-20 ~23:20: "we're not wasting time identifying individually every separate item but doing bath when we
+# actually need it") --
+
+
+def visit_case():
+    """The quiet look after a pickup: a gem to park into the cube and two magic Monarchs picked for the routine, both
+    bad (the Monarch of Blocking's read: K8 worthless)."""
+    from inventory_tracking.loot.storage import CUBE_CLASS
+
+    cube = Carried(2, CUBE_CLASS, 4, 0, (2, 2))
+    rune = Carried(5, 595, 4, 3, (1, 1), 2, True)  # a Flawless Ruby (items metadata class), stash-bound
+    other = Carried(UNIT + 1, MONARCH, 2, 0, (2, 3), 4, identified=False)
+    play, hands, put_down, _ = setup(Pack((TOME, WORN, cube, JUNK, other, rune), identifies=10))
+    field = Field()
+    field.looping = lambda: True
+    game = (play.world.game_name, 1)
+    for unit in (UNIT, UNIT + 1):
+        assert field.pick(Drop(unit, 1.0, 1.0, 'Magic Monarch', VALUABLE, (2, 3), False, 'shown', MONARCH, 4), game)
+    assert field.park(Drop(5, 1.0, 1.0, 'Flawless Ruby', VALUABLE, (1, 1), False, 'material', 595, 2), game)
+    return play, hands, put_down, field
+
+
+def test_a_visit_parks_identifies_and_drops_with_one_opening_and_one_close():
+    play, hands, put_down, field = visit_case()
+
+    assert field.at_once(hands)
+
+    assert sorted(item.unit_id for item in play.fallen) == [UNIT, UNIT + 1]
+    assert sorted(put_down.rejected) == [UNIT, UNIT + 1]
+    assert play.pack is not None
+    assert 5 in play.pack.cube_items  # parked
+    assert play.pack.identifies == 8
+    assert play.pressed().count('i') == 1  # the inventory opened once
+    assert play.pressed().count('Escape') == 1  # and closed once
+    assert play.world.open_panels == ()
+    assert hands.holding is None
+
+
+def test_with_the_switch_off_each_act_opens_and_closes_the_inventory_as_before(monkeypatch):
+    from inventory_tracking.loot import api
+
+    monkeypatch.setattr(api, 'ONE_OPENING', False)
+    play, hands, put_down, field = visit_case()
+
+    assert field.at_once(hands)
+
+    # The same items parked, dropped and kept
+    assert sorted(item.unit_id for item in play.fallen) == [UNIT, UNIT + 1]
+    assert sorted(put_down.rejected) == [UNIT, UNIT + 1]
+    assert play.pack is not None
+    assert 5 in play.pack.cube_items
+    assert play.pack.identifies == 8
+    # The park, the identify and each drop: four openings, four closes
+    assert play.pressed().count('i') == 4
+    assert play.pressed().count('Escape') == 4
+    assert play.world.open_panels == ()
+
+
+def test_a_visit_the_runner_cancels_half_way_leaves_no_panel_open():
+    """As 15:21:38 on 2026-10-20: a fight back's cancel after the Tome is armed, with the cube held open by the park."""
+    import pytest
+
+    from inventory_tracking.macros.actuator import Cancelled
+
+    play, hands, _, field = visit_case()
+    run = hands.run
+    run.actuator.cancelled = run.cancelled
+    tapped = run.actuator.tap
+
+    def tap(*names: str) -> None:
+        tapped(*names)
+        if names == ('Button3',) and 'cube' in play.world.open_panels and play.identifying:
+            run.cancelled.set()
+
+    run.actuator.tap = tap  # type: ignore[method-assign]
+    with pytest.raises(Cancelled):
+        field.at_once(hands)
+    assert play.world.open_panels == ()
+    assert play.fallen == []
+    assert hands.holding is None
+
+
+def test_inside_a_visit_its_own_panels_are_no_hand_but_any_other_is():
+    _, hands, _, _ = setup(Pack((TOME, WORN, JUNK), identifies=10), open_panels=('inventory', 'cube'))
+    assert hands.unquiet() == 'inventory, cube open'
+    with hands.visit():
+        held = hands.holding
+        assert held is not None
+        assert held == set()
+        assert hands.unquiet() == 'inventory, cube open'  # not opened by the visit: the player's
+        held.update(('inventory', 'cube'))
+        assert hands.unquiet() is None
+    assert hands.holding is None

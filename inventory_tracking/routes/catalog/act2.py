@@ -85,4 +85,23 @@ ROUTES = [
             level(74, fight('The Summoner', 'Summoner'), loot(), leave()),
         ),
     ),
+    # Act 2 by its script (macros/acts/act2.py): the levels the town's own way in leaves out, reached up the stairs
+    # from a waypoint instead (Lut Gholein marks only its way to the desert and its waypoint, levels/exits.py; the
+    # connectors 40→50 and 40→47 have no catalogue stage). The player, 2026-10-20 ~22:50: "arcane sanctuary ->
+    # summoner -> rest of arcane sanctuary -> rest of zones one by one". The stairs are the levels' warps
+    # (levels.txt Vis: 52 → 51 → 50, 48 → 47); not played yet.
+    Route(
+        'Harem',
+        (52,),
+        (
+            level(52, enter('Harem 2', 51), alternate=True),
+            level(51, enter('Harem 1', 50), alternate=True),
+            level(50, loot(), leave(), alternate=True),
+        ),
+    ),
+    Route(
+        'Sewers 1',
+        (48,),
+        (level(48, enter('Sewers 1', 47), alternate=True), level(47, loot(), leave(), alternate=True)),
+    ),
 ]

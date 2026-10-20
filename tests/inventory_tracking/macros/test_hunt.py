@@ -254,7 +254,21 @@ def test_an_elite_in_reach_gets_the_sigil_under_the_strike_and_not_again_for_a_w
     play = game(foe(20, 5008.0, 5000.0, CHAMPION))  # another elite: the first one's sigil does not count
     play.toughness[20] = 1000
     attack_mode(play, hunt, until=1.5 * SIGIL_SECONDS)
-    assert len(play.sigils) == 2  # at once, and again SIGIL_SECONDS later, within the one fight
+    # At once, and not again SIGIL_SECONDS later: it stands in it (kept in its sigil, SIGIL_KEEPS, 2026-10-20)
+    assert len(play.sigils) == 1
+
+    play = game(foe(30, 5008.0, 5000.0, CHAMPION))
+    play.toughness[30] = 1000
+
+    def walks():  # out of its sigil, 12 units on
+        play.world = replace(
+            play.world,
+            monsters=tuple(replace(m, x=5000.0, y=5009.0) if m.unit_id == 30 else m for m in play.world.monsters),
+        )
+
+    attack_mode(play, hunt, until=8.0, events=((4.0, walks),))
+    assert len(play.sigils) == 2  # at once, and again as it walked out
+    assert math.dist(play.sigils[1], (5000.0, 5009.0)) < 1.5
 
 
 def test_death_mark_goes_on_the_strongest_in_reach_now_and_then(marks_all):

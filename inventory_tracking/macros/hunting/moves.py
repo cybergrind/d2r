@@ -51,7 +51,7 @@ from inventory_tracking.macros.hunting.base import (
 from inventory_tracking.macros.pickup import Refused, pick_up
 from inventory_tracking.macros.pursuit import PASSAGE, Defer, Ended, Hold, Move as Advance, Operate, Pursuit
 from inventory_tracking.macros.routines import SUPER_UNIQUE_FLAG, take_battle_weapons
-from inventory_tracking.macros.safety import WAY_SHARE
+from inventory_tracking.macros.safety import WALK_ROUND, WAY_SHARE
 from inventory_tracking.macros.sight import clear_shot, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
@@ -198,6 +198,10 @@ def pursue(
                 assert found.place is not None
                 with self.priced_for(run, act_window(act.step)):
                     self.advance(run, world, ground, act, found.place, key_names)
+                if WALK_ROUND and act.dodge and act.step.skill is None and (act.onward or self.safety.rounds):
+                    # A walk across or round an act walked round (macros/safety.py WALK_ROUND): the next look is not
+                    # put off to the walk's end, so the walk round goes on before the character stands
+                    self.expired_motion = True
                 if pressed and not running:
                     # The key moved the character: the sweep does not walk back (2026-10-11 00:49). A level run
                     # keeps its sweep for the fights on its way

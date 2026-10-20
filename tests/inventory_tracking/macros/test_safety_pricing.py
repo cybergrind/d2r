@@ -1089,3 +1089,217 @@ def test_a_teleport_stand_chosen_look_after_look_with_the_character_still_is_dro
     later = 5.2 + module.DUD_SECONDS
     _, priced = _clump_fight(monkeypatch, offer=(stand, later - 0.2), now=later, safety=safety)
     assert stand_move(priced).harm.barred is None
+
+
+# The player, 2026-10-20 ~23:10 (combat/threats/diablo.py WALK_AROUND): "probably the best way to handle this
+# particular his attack - just walk around of him". The live fights of that evening hopped to the fight's better
+# place (a Teleport of 17 to 19 units) while his stream was under way; the stream re-aims at the landing.
+ACROSS_HOP = (0.0, 14.0)  # a Teleport stand off his line, as far from him (the fight's better place)
+
+
+def _diablo_hops(monkeypatch, here, flying, *, life=1760, frames=20, mode=7, walk_around=True, txt=243):
+    """One look in a cast of his lightning (`_diablo_looks`) under a fresh press, with the fight's better stand
+    (`Safety.offer`, as hunt.py offers it) and camp's a Teleport to ACROSS_HOP and the navigator's retreats a Teleport
+    or a walk; (the act chosen, the decision)."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
+    from inventory_tracking.combat.stance import Camp
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.combat.threats import diablo as model
+    from inventory_tracking.game.records import Loot, Monster
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(model, 'WALK_AROUND', walk_around)
+    monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    hop = Camp(ACROSS_HOP, 200.0, 100.0, 0.31, math.dist(here, ACROSS_HOP), hop=True, skill=TELEPORT)
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: hop)
+    loot = Loot(life=life, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    hostile = Monster(9, txt, mode, 0.0, 0.0, 0xFFFFFFFF, life=900, max_life=1000)
+    safety = module.Safety()
+    goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    now = frames / 25
+    reads = tuple((9, 172, at[0], at[1]) for at, _ in flying)
+    alive = world(108, player=player(108, x=here[0], y=here[1]), monsters=(hostile,))
+    look = safety.look(alive, loot, 'battle', now=now, flights=lambda k: reads)
+    safety.offer(Step.to(hop), now)
+    facts = p.Facts(now, goal, True, True, True, lambda: Step(goal.place))
+    pressed = p.Pursuit('hunt-any', now)
+    priced = safety.price(
+        facts, pressed, look, loot, CALM, SafetySettings(), Observation(here, {}), SimpleNamespace(reach=22.1),
+        lambda pt: Step(pt), options=lambda pt: (Step(pt, TELEPORT), Step(pt)),
+    )  # fmt: skip
+    return p.decide(priced, pressed), safety.decision
+
+
+def _hops(decision):
+    from inventory_tracking.macros.skills import TELEPORT
+
+    return [c for c in decision['candidates'] if c['skill'] == TELEPORT]
+
+
+def test_his_stream_at_the_character_is_walked_across_and_no_hop_is_the_routine_way_out(monkeypatch, caplog):
+    from inventory_tracking.macros import safety as module
+
+    start = (14.0, 0.0)
+    with caplog.at_level(logging.INFO, logger=LOG.name):
+        act, decision = _diablo_hops(monkeypatch, start, _stream_at(start, 10))
+    assert isinstance(act, p.Move), decision['candidates']
+    assert act.reason.startswith('stepping across')
+    assert act.step.skill is None  # a walk across his line
+    assert act.dodge
+    assert abs(math.dist(act.step.spot, (0.0, 0.0)) - 14.0) < 1.0  # round him, as near as before
+    hops = _hops(decision)
+    assert hops, 'the Teleport stand is still priced, and left out'
+    assert all(c['veto'] == module.WALKED for c in hops)
+    assert any(module.WALKED in record.getMessage() and 'a walk of' in record.getMessage() for record in caplog.records)
+
+
+def test_with_the_walk_around_off_the_hop_out_of_his_stream_is_priced_as_before(monkeypatch):
+    from inventory_tracking.macros import safety as module
+
+    start = (14.0, 0.0)
+    _, decision = _diablo_hops(monkeypatch, start, _stream_at(start, 10), walk_around=False)
+    hops = _hops(decision)
+    assert hops
+    assert not any(c['veto'] == module.WALKED for c in hops)
+
+
+def test_his_stream_at_another_or_none_under_way_leaves_the_hop_alone(monkeypatch):
+    from inventory_tracking.macros import safety as module
+
+    start = (14.0, 0.0)
+    elsewhere = _stream_at((0.0, -14.0), 10)  # at a companion south of him
+    for flying, mode in ((elsewhere, 7), ((), 1)):
+        _, decision = _diablo_hops(monkeypatch, start, flying, mode=mode)
+        assert not any(c['veto'] == module.WALKED for c in decision['candidates']), (mode, decision['candidates'])
+
+
+def test_at_low_life_the_escape_out_of_his_stream_may_still_teleport(monkeypatch):
+    # The life-danger escape the safety has: nothing fits the budget, so the retreats are priced, a Teleport among
+    # them, and not barred.
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+
+    start = (14.0, 0.0)
+    priced: list = []
+    real = p.decide
+    monkeypatch.setattr(module, 'decide', lambda facts, posted: priced.append(facts) or real(facts, posted))
+    _, decision = _diablo_hops(monkeypatch, start, _stream_at(start, 10), life=1190)
+    retreats = [c for c in decision['candidates'] if c['retreat'] and c['act'] == 'Move']
+    assert any(c['skill'] == TELEPORT and c['veto'] is None for c in retreats), decision['candidates']
+    assert not any(c['veto'] == module.WALKED for c in retreats)
+    # Here fighting out is the least harm; without it the escape made is a Teleport.
+    facts = priced[-1]
+    moves = tuple(c for c in facts.candidates if not isinstance(c.act, p.Hold))
+    act = p.decide(replace(facts, candidates=moves), None)
+    assert isinstance(act, p.Move)
+    assert act.reason.startswith('retreating')
+    assert act.step.skill == TELEPORT
+
+
+def test_another_threats_hops_are_unchanged(monkeypatch):
+    # Baal (544) has a read model with no walked act: his fight's Teleport stand is priced as before.
+    from inventory_tracking.combat.threats import baal
+    from inventory_tracking.macros import safety as module
+
+    model = baal.threat_of(544)
+    assert model is not None
+    assert model.walked is None
+    start = (14.0, 0.0)
+    _, decision = _diablo_hops(monkeypatch, start, (), txt=544, mode=1)
+    assert _hops(decision)
+    assert not any(c['veto'] == module.WALKED for c in decision['candidates'])
+
+
+# The walk round him (macros/safety.py WALK_ROUND, off by default since 2026-10-20 23:57): once a step across his
+# stream is taken, the next look, made while the character still walks, offers the next place round him the same way.
+
+
+def _round_looks(monkeypatch, *, walk_round=True):
+    """Two looks in one cast: a step across from 14 units, then a look halfway along it (the walk not over)."""
+    from inventory_tracking.macros import safety as module
+
+    monkeypatch.setattr(module, 'WALK_ROUND', walk_round)
+    start = (14.0, 0.0)
+    (first,) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
+    act = first[0]
+    assert isinstance(act, p.Move), first[1]['candidates']
+    assert act.reason.startswith('stepping across')
+    landed = act.step.spot
+    halfway = ((start[0] + landed[0]) / 2, (start[1] + landed[1]) / 2)
+    looks = [(20, start, _stream_at(start, 10)), (23, halfway, _stream_at(halfway, 12))]
+    return start, landed, halfway, _diablo_looks(monkeypatch, looks)
+
+
+def _side(at, here, spot):
+    return (here[0] - at[0]) * (spot[1] - at[1]) - (here[1] - at[1]) * (spot[0] - at[0])
+
+
+def test_a_walk_round_his_stream_goes_on_the_same_way_before_the_walk_ends(monkeypatch):
+    start, landed, halfway, looks = _round_looks(monkeypatch)
+    act, decision = looks[1]
+    onward = [c for c in decision['candidates'] if c['onward']]
+    assert onward, decision['candidates']
+    assert all(c['why'] == "stepping round Diablo's lightning" and c['skill'] is None for c in onward)
+    assert isinstance(act, p.Move)
+    assert act.onward
+    assert act.dodge
+    assert act.step.skill is None
+    # On the way the first step went round him, past where it was going, at the distance it keeps from him
+    assert _side((0.0, 0.0), start, landed) * _side((0.0, 0.0), halfway, act.step.spot) > 0
+    assert math.dist(act.step.spot, start) > math.dist(landed, start)
+    assert abs(math.dist(act.step.spot, (0.0, 0.0)) - math.dist(halfway, (0.0, 0.0))) < 1.5
+
+
+def test_with_walk_round_off_no_walk_round_is_offered(monkeypatch):
+    _, _, _, looks = _round_looks(monkeypatch, walk_round=False)
+    _, decision = looks[1]
+    assert not any(c['onward'] for c in decision['candidates'])
+
+
+def test_the_walk_round_ends_with_his_cast(monkeypatch):
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot, Monster
+    from inventory_tracking.macros import safety as module
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(module, 'WALK_ROUND', True)
+    monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    loot = Loot(life=1760, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    safety = module.Safety()
+    goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    chosen = []
+    for frames, mode, here, flying in ((20, 7, (14.0, 0.0), _stream_at((14.0, 0.0), 10)), (60, 1, (13.5, 2.0), ())):
+        diablo = Monster(9, 243, mode, 0.0, 0.0, 0xFFFFFFFF, life=900, max_life=1000)
+        reads = tuple((9, 172, at[0], at[1]) for at, _ in flying)
+        alive = world(108, player=player(108, x=here[0], y=here[1]), monsters=(diablo,))
+        look = safety.look(alive, loot, 'battle', now=frames / 25, flights=lambda k, r=reads: r)
+        facts = p.Facts(frames / 25, goal, True, True, True, lambda: Step(goal.place))
+        priced = safety.price(
+            facts, None, look, loot, CALM, SafetySettings(), Observation(here, {}), SimpleNamespace(reach=22.1),
+            lambda pt: Step(pt),
+        )  # fmt: skip
+        chosen.append((p.decide(priced, None), safety.decision))
+    assert safety.rounds == {}  # the way round is dropped with his cast
+    assert not any(c['onward'] for c in chosen[1][1]['candidates'])
+
+
+def test_a_walk_round_is_taken_over_a_cheaper_act_while_it_fits_and_never_past_the_budget():
+    goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    hold = p.Candidate(p.Hold(goal), 2.0, Harm(30, 60), strikes=True)
+    round_ = p.Move(Step((10.0, 9.0)), goal, "stepping round Diablo's lightning", dodge=True, onward=True)
+    walk = p.Candidate(round_, 4.0, Harm(40, 80), unstruck=0.8, strikes=True)
+    facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place), budget=500, life=1818, kappa=0.1, near=True)
+    assert p.decide(replace(facts, candidates=(hold, walk)), None) == round_
+    assert p.decide(replace(facts, candidates=(hold, replace(walk, harm=Harm(40, 600)))), None) == hold.act
+    vetoed = replace(walk, harm=Harm(40, 80, barred='lethal'))
+    assert p.decide(replace(facts, candidates=(hold, vetoed)), None) == hold.act

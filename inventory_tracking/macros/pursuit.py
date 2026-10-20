@@ -152,12 +152,15 @@ class Facts:
 @dataclass(frozen=True)
 class Move:
     """One move toward `goal`. `dodge`: a step out of a hostile's act under way (combat/threats `Threat.escapes`),
-    not held to the strike gap (I2) and clicked without the settle (travel.py `step_walk` `hurry`)."""
+    not held to the strike gap (I2) and clicked without the settle (travel.py `step_walk` `hurry`). `onward`: the
+    next place of a walk round an act under way (combat/threats `Threat.around`, macros/safety.py WALK_ROUND): taken
+    over the rest while it fits the budget and the veto (`arbitrate`), and clicked while the character still walks."""
 
     step: Step
     goal: Goal
     reason: str = ''
     dodge: bool = False
+    onward: bool = False
 
 
 @dataclass(frozen=True)
@@ -282,6 +285,11 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
         def price(c: Candidate) -> float:
             return c.seconds + facts.kappa * c.harm.mean
 
+        # A walk round an act under way goes on while it fits: each look prices only to the next place, so the hold
+        # at its end that a further place would spare is not seen (macros/safety.py WALK_ROUND)
+        rounding = [c for c in feasible if isinstance(c.act, Move) and c.act.onward]
+        if rounding:
+            return min(rounding, key=price).act
         chosen = min(feasible, key=price)
         holding = next((c for c in feasible if isinstance(c.act, Hold)), None)
         if holding is not None and isinstance(chosen.act, Move) and chosen.act.reason == 'firing spot':
