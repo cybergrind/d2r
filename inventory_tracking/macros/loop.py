@@ -63,6 +63,7 @@ from inventory_tracking.macros.volatile import (
 )
 from inventory_tracking.macros.waypoint import travel
 from inventory_tracking.native.layout import TOWN_IDS
+from inventory_tracking.routes.catalog.act2 import TOMBS
 from inventory_tracking.routes.model import FIGHT, LOOT, USE
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import KILLED_AT
@@ -215,7 +216,11 @@ REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS}
 TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot', 'TZ pickup'
 TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
 # The Gheed's swap: four waypoints and two portals back (agenda.py `gheeds_package`)
-REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20, TZ_NEXT_LEVEL: 30}
+REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20}
+# The Canyon's tour of its seven tombs adds up to three ways on a tomb: the Canyon's run to its entrance, the press
+# through, the way back (2026-10-20, tzroutine.py `Excursion.onward`)
+TOUR_WAYS = 3 * len(TOMBS)
+REPEATS |= {TZ_NEXT_LEVEL: 30 + TOUR_WAYS}
 REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
 TZ_OUT = 'TZ out of town'  # the walk out of a town into a trip's first level (macros/townexit.py)
 REPEATS |= {TZ_OUT: 3}

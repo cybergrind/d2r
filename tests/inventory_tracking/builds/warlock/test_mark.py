@@ -6,6 +6,7 @@ monster the demons should hold, again when it dies or its mark runs out, never o
 
 from dataclasses import replace
 
+from inventory_tracking.builds.warlock import mark
 from inventory_tracking.builds.warlock.mark import (
     MARK_AGAIN,
     MARK_DELAY,
@@ -58,12 +59,14 @@ def test_a_seal_boss_is_marked_at_the_start_of_its_fight_where_the_safety_prices
     assert target(asked) is SEAL_BOSS
     assert worth_a_mark(asked, SEAL_BOSS)
     said = mark_said(asked, SEAL_BOSS)
+    assert said is not None
     assert said.startswith('Macro: mark: Death Mark on the elite 312 (1)')
     assert 'the safety prices it: saves 300 life' in said
     assert said.endswith('+2.00s')
 
 
-def test_a_draw_the_safety_prices_below_its_cast_is_refused_and_said_once_with_the_price():
+def test_a_draw_the_safety_prices_below_its_cast_is_refused_and_said_once_with_the_price(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', False)  # the price rule for a leader: the switch off
     asked = facts(SEAL_BOSS, draws={1: price(1, life=40.0)})
     assert target(asked) is SEAL_BOSS
     assert not worth_a_mark(asked, SEAL_BOSS)
@@ -114,21 +117,23 @@ def test_no_new_mark_while_the_marked_one_lives_and_its_mark_lasts_then_one_when
     assert target(plain) is None
 
 
-def test_with_no_safety_price_the_builds_own_rule_marks_diablo_and_not_a_seal_boss():
+def test_with_no_safety_price_the_builds_own_rule_marks_diablo_and_not_a_seal_boss(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', False)  # the price rule for a leader: the switch off
     # The pursuit off: the demons' focus and the mark's points alone (mark.py `gain`) against the cast, one volley
     # of the strike; the demons' blows count from their first (`first_blow`, 1.64 s after the key), which a seal
     # boss of six or seven casts barely sees, Diablo's twenty do
     diablo = monster(9, 243)
     assert target(facts(diablo)) is diablo
     assert worth_a_mark(facts(diablo), diablo)
-    assert "by the build's rule (no safety price)" in mark_said(facts(diablo), diablo)
+    assert "by the build's rule (no safety price)" in (mark_said(facts(diablo), diablo) or '')
     assert not worth_a_mark(facts(SEAL_BOSS), SEAL_BOSS)
     # The demons standing by him already: nothing gained by sending them
     beside = replace(demon(), x=diablo.x - 2.0)
     assert not worth_a_mark(facts(diablo, demons=(beside,)), diablo)
 
 
-def test_a_plain_monster_is_not_marked_while_a_leader_of_the_same_fight_is_in_reach():
+def test_a_plain_monster_is_not_marked_while_a_leader_of_the_same_fight_is_in_reach(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', False)  # the price rule for a leader: the switch off
     # 02:22:47-48 on 2026-10-14: two marks a second apart on a plain Venom Lord and a plain Doom Knight; the
     # player: the mark goes "on the leader / most dangerous monster", "a plain monster is not marked while an elite
     # of the same fight is in reach".
@@ -186,3 +191,252 @@ def test_a_seal_boss_dropped_from_the_mark_is_said_once_with_why(caplog):
     assert 'dropped from the mark: trash now' in infector[0]
     # a plain monster or a champion a cast or two kills is not named
     assert not any('(3)' in line for line in said)
+
+
+# The player, 2026-10-20 ~14:31: "we need to engage our daemon even for regular mobs when they do have magic immunity".
+# An Unraveler (103) as the takes of 2026-10-20 read it: physical 33, magic 100, fire 20, lightning 20, cold 100,
+# poison 50.
+UNRAVELER_RESISTS = ((36, 33), (37, 100), (39, 20), (41, 20), (43, 100), (45, 50))
+IMMUNE = replace(monster(7, 103, x=5014.0), resists=UNRAVELER_RESISTS)
+
+
+def test_a_plain_monster_immune_to_magic_is_marked_whatever_its_life_and_said_once_why():
+    from inventory_tracking.builds.warlock.mark import mark_told
+
+    for draws in (None, {}, {7: price(7, life=0.0)}):  # no price, none for it, one that pays nothing
+        asked = facts(IMMUNE, PACK, draws=draws)
+        assert target(asked) is IMMUNE
+        assert worth_a_mark(asked, IMMUNE)
+    nearly_dead = replace(IMMUNE, life=4)  # trash by the strike's table: the rule does not hold for it
+    assert worth_a_mark(facts(nearly_dead), nearly_dead)
+    assert mark_said(facts(IMMUNE), IMMUNE) is None  # the cast's own line is the executor's; why is told once
+    assert mark_told(facts(IMMUNE), IMMUNE) == (
+        'Macro: mark: Death Mark on the monster 103 (7): immune to magic, cold '
+        '(resists physical 33, magic 100, fire 20, lightning 20, cold 100, poison 50)'
+    )
+    assert mark_told(facts(PACK), PACK) is None
+
+
+def test_an_immune_monster_comes_before_a_leader_and_after_a_herald():
+    priced = {1: price(1, life=300.0), 7: price(7, life=10.0)}
+    assert target(facts(SEAL_BOSS, IMMUNE, draws=priced)) is IMMUNE
+    assert target(facts(SEAL_BOSS, IMMUNE)) is IMMUNE  # with no safety price too
+    herald = monster(8, 103, x=5020.0, flags=0x08)
+    herald = replace(herald, tier=3)
+    assert target(facts(IMMUNE, herald, draws=priced)) is herald
+
+
+def test_no_mark_on_an_immune_monster_without_a_demon_and_said_once_why():
+    asked = facts(IMMUNE, demons=())
+    assert target(asked) is IMMUNE
+    assert not worth_a_mark(asked, IMMUNE)
+    assert "no demon of the character's is out" in (mark_refusal(asked, IMMUNE) or '')
+
+
+def test_a_monster_that_resists_magic_short_of_immunity_is_marked_as_before():
+    resistant = replace(monster(7, 103, x=5014.0), resists=((36, 33), (37, 95)))
+    calm = facts(resistant, draws={7: price(7, life=400.0)})
+    assert target(calm) is resistant
+    assert not worth_a_mark(calm, resistant)  # a plain monster, no pressure
+    assert mark_refusal(calm, resistant) is None
+    unread = monster(7, 103, x=5014.0)  # no resistances read: none known
+    assert not worth_a_mark(facts(unread, draws={7: price(7, life=400.0)}), unread)
+
+
+def test_the_immune_ones_mark_stays_on_it_while_it_lasts_and_is_laid_again_when_it_runs_out():
+    marked = {(DEATH_MARK, None): 100.0, (DEATH_MARK, 7): 100.0}
+    other = monster(5, 362, x=5016.0, flags=CHAMPION)
+    later = 100.0 + MARK_AGAIN + 0.1
+    # A leader the safety prices above nothing does not take the demons off it; one under pressure does
+    assert target(facts(IMMUNE, other, now=later, cast_at=marked, draws={5: price(5, life=200.0)})) is None
+    pressed = {5: replace(price(5, life=200.0), pressed=True)}
+    assert target(facts(IMMUNE, other, now=later, cast_at=marked, draws=pressed)) is other
+    assert target(facts(IMMUNE, other, now=later, cast_at=marked)) is None  # no price: none while a mark lasts
+    # A second immune one waits for the first's mark to end
+    second = replace(IMMUNE, unit_id=9, x=5004.0)
+    assert target(facts(IMMUNE, second, now=later, cast_at=marked)) is None
+    # Its mark ran out while it lives: laid again
+    out = facts(IMMUNE, other, now=100.0 + MARK_SECONDS + 0.1, cast_at=marked, draws={5: price(5, life=200.0)})
+    assert mark_due(out)
+    assert target(out) is IMMUNE
+    assert worth_a_mark(out, IMMUNE)
+
+
+def test_the_safety_stops_an_immune_ones_mark_only_while_the_cast_costs_life_over_the_budget():
+    costly = replace(price(7, life=-50.0), pressed=True)
+    asked = facts(IMMUNE, draws={7: costly})
+    assert not worth_a_mark(asked, IMMUNE)
+    line = mark_refusal(asked, IMMUNE)
+    assert line is not None
+    assert 'immune to magic, cold' in line
+    assert 'over the life budget' in line
+    assert worth_a_mark(facts(IMMUNE, draws={7: price(7, life=-50.0)}), IMMUNE)  # no pressure: the cost is in budget
+
+
+def test_mark_immune_off_marks_as_before(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_IMMUNE', False)
+    calm = facts(IMMUNE, draws={7: price(7, life=400.0)})
+    assert not worth_a_mark(calm, IMMUNE)
+    assert target(facts(SEAL_BOSS, IMMUNE, draws={1: price(1, life=300.0), 7: price(7, life=400.0)})) is SEAL_BOSS
+
+
+def test_the_executor_says_the_immune_ones_line_at_its_first_mark_only(caplog):
+    import logging
+
+    from inventory_tracking.builds.warlock.buffs import BUFFS
+    from inventory_tracking.macros.buffs import Buffs
+    from inventory_tracking.macros.build import Build
+
+    row = next(row for row in BUFFS if row.skill == DEATH_MARK)
+    assert row.told is not None
+    asked = facts(IMMUNE, PACK)
+    buffs = Buffs(Build(name='warlock', applies=lambda world: True, attack=None, movement=(), buffs=(row,)))
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for _ in range(2):
+            buffs.tell_once(row, IMMUNE, row.told(asked, IMMUNE))
+    told = [r.getMessage() for r in caplog.records if 'immune to' in r.getMessage()]
+    assert len(told) == 1
+    assert told[0].startswith('Macro: mark: Death Mark on the monster 103 (7): immune to magic')
+
+
+# The player, 2026-10-20 ~15:03: "we were fighting against pack with uniq leader, but we focused rest of the pack, not
+# leader and never death marked the leader so our daemon was still all the time" (Spider Forest, game 3 of the session
+# of 11:55Z; rca/2026-10-20/leader-not-marked-findings.md). The character's demons: the Defiler (744) and a bound Urdar
+# (189, flags 8, an ally), which data/damage.json does not measure.
+DEFILER = Monster(70, 744, 1, 4990.0, 5000.0, 0xFFFFFFFF, 0, ally=True, life=128, max_life=128)
+URDAR = Monster(71, 189, 1, 4991.0, 5000.0, 0xFFFFFFFF, 0x08, ally=True, life=128, max_life=128)
+HULK = Monster(3898117827, 127, 1, 5014.0, 5000.0, 0xFFFFFFFF, 0x08, life=128, max_life=128)  # the unique Thorned Hulk
+FETISH = Monster(1156325300, 397, 1, 5015.0, 5000.0, 0xFFFFFFFF, 0x08, life=128, max_life=128)  # the unique Fetish
+# The safety's price of 15:01:23.869: "saves -0 life over 1.9s (-0.00s at the price of life) and 0.14s of the fight,
+# against the cast's 0.37s: -0.24s"
+HULK_PRICE = DrawPrice(HULK.unit_id, -0.1, -0.001, 0.14, 0.37, 1.9)
+
+
+SPIDER_FOREST = 76
+
+
+def spider_forest(*foes, demons=(DEFILER, URDAR), **changes):
+    seen = world(SPIDER_FOREST, slots=HUNT_SLOTS, monsters=(*foes, *demons))
+    asked = BuffFacts(seen, 100.0, tuple(foes), tuple(foes), draws={HULK.unit_id: HULK_PRICE})
+    return replace(asked, **changes)
+
+
+def test_an_unmeasured_bound_demon_strikes_at_the_measured_ones_rate_by_its_damage(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table
+    from inventory_tracking.combat.mechanics.tables import points_of
+    from inventory_tracking.combat.policy import Foe, Observation
+
+    pit_lord = companion_table()[361][1]
+    assert mark.demon_rate(361) == pit_lord
+    assert mark.demon_rate(744) == companion_table()[744][1]
+    assert mark.demon_rate(338) == companion_table()[338][1]  # the mercenary as measured; never sent (`sends`)
+    assert mark.demon_rate(189) == pit_lord * 115 / 130  # monstats A1 90-140 against the Pit Lord's 100-160
+    seen = Observation((0.0, 0.0), {1: Foe(127, (10.0, 0.0), points_of(127, 76), True)})
+    # The game's price had the Defiler's blows alone: 0.14 s; with the Urdar's the mark pays for its cast
+    assert round(mark.gain(seen, 1, [744]), 2) == 0.14
+    assert mark.gain(seen, 1, [744, 189]) > mark.MARK_CAST_SECONDS
+    monkeypatch.setattr(mark, 'PRICE_ANY_DEMON', False)
+    assert mark.demon_rate(189) == 0.0
+    assert round(mark.gain(seen, 1, [744, 189]), 2) == 0.14
+
+
+def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_send():
+    asked = spider_forest(HULK, PACK)
+    assert target(asked) is HULK
+    assert worth_a_mark(asked, HULK)  # -0.24 s by the price, marked: "on the leader"
+    assert mark_refusal(asked, HULK) is None
+    # Only a life cost while holding is over the budget stops it
+    costly = DrawPrice(HULK.unit_id, -80.0, -0.8, 0.14, 0.37, 1.9, pressed=True)
+    pressed = spider_forest(HULK, PACK, draws={HULK.unit_id: costly})
+    assert not worth_a_mark(pressed, HULK)
+    assert 'over the life budget' in (mark_refusal(pressed, HULK) or '')
+    # Unpriced (a third leader of the look) or with no safety price at all: marked too
+    assert worth_a_mark(spider_forest(HULK, draws={}), HULK)
+    assert target(spider_forest(HULK, draws=None)) is HULK
+    assert worth_a_mark(spider_forest(HULK, draws=None), HULK)
+    # Never with no demon out, nor when every demon strikes it already
+    assert not worth_a_mark(spider_forest(HULK, demons=()), HULK)
+    beside = (replace(DEFILER, x=HULK.x - 2.0), replace(URDAR, x=HULK.x + 2.0))
+    by_it = spider_forest(HULK, demons=beside)
+    assert not worth_a_mark(by_it, HULK)
+    assert 'the demons stand by it already' in (mark_refusal(by_it, HULK) or '')
+    # Of two leaders, the one the demons are not striking already
+    far = replace(HULK, unit_id=5, x=5030.0)
+    assert target(replace(by_it, foes=(HULK, far), reachable=(HULK, far))) is far
+
+
+def test_a_leader_comes_after_a_herald_and_an_immune_one_and_takes_the_mark_off_plain_monsters():
+    herald = replace(monster(8, 103, x=5020.0, flags=0x08), tier=3)
+    assert target(spider_forest(HULK, herald)) is herald
+    assert target(spider_forest(HULK, IMMUNE)) is IMMUNE
+    # A mark lasting on a plain monster (a re-aggro under pressure) moves to the leader, MARK_AGAIN after
+    plain = monster(4, 310, x=5006.0)
+    marked = {(DEATH_MARK, None): 100.0, (DEATH_MARK, 4): 100.0}
+    assert target(spider_forest(HULK, plain, now=100.0 + MARK_AGAIN + 0.1, cast_at=marked)) is HULK
+    assert target(spider_forest(HULK, plain, now=100.0 + MARK_AGAIN - 0.1, cast_at=marked)) is None
+    # A lasting mark on another leader stays (a move needs a price above nothing, as before)
+    other = replace(HULK, unit_id=5, x=5008.0)
+    on_other = {(DEATH_MARK, None): 100.0, (DEATH_MARK, 5): 100.0}
+    assert target(spider_forest(HULK, other, now=100.0 + MARK_AGAIN + 0.1, cast_at=on_other)) is None
+    # A boss before a leader; of two leaders the better priced, then the nearer
+    priced = {HULK.unit_id: HULK_PRICE, 5: DrawPrice(5, 100.0, 1.0, 0.1, 0.37, 1.9)}
+    assert target(spider_forest(HULK, other, draws=priced)) is other
+    assert target(spider_forest(HULK, other, draws={})) is other  # 6 units nearer than the Hulk
+    assert target(spider_forest(HULK, SEAL_BOSS, draws={})) is SEAL_BOSS
+
+
+def test_mark_leaders_off_leaves_a_leader_to_the_price(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', False)
+    asked = spider_forest(HULK, PACK)
+    assert target(asked) is HULK
+    assert not worth_a_mark(asked, HULK)
+    assert (mark_refusal(asked, HULK) or '').endswith('-0.23s')
+
+
+def test_a_leader_the_mark_passes_over_is_said_once_with_why(caplog):
+    # 15:01:12.9-13.8: the unique Fetish 397 (1156325300) in reach a second, killed by one cast: trash by the
+    # strike's table (1.85 casts), so never marked, and nothing said
+    import logging
+
+    from inventory_tracking.builds.warlock.buffs import BUFFS
+    from inventory_tracking.builds.warlock.mark import mark_passed
+    from inventory_tracking.macros.buffs import Buffs
+    from inventory_tracking.macros.build import Build
+    from tests.inventory_tracking.macros.fakes import Game
+
+    passed = {m.unit_id: line for m, line in mark_passed(spider_forest(FETISH, PACK))}
+    assert passed[FETISH.unit_id] == (
+        'Macro: mark: no Death Mark on the elite 397 (1156325300), 128/128: trash: 1.8 casts of the strike kill it '
+        '(a mark needs more than 2)'
+    )
+    # A leader passed while the mark lasts on another, with its price; the one chosen is not named (its refusal is)
+    other = replace(HULK, unit_id=5, x=5008.0)
+    on_other = {(DEATH_MARK, None): 100.0, (DEATH_MARK, 5): 100.0}
+    held = spider_forest(HULK, other, now=101.0, cast_at=on_other)
+    lines = {m.unit_id: line for m, line in mark_passed(held)}
+    assert 'the mark lasts on the elite 127 (5) (10.8s left); the safety prices it: saves' in lines[HULK.unit_id]
+    assert 5 not in lines
+    assert not mark_passed(spider_forest(HULK, PACK))  # the Hulk is the one chosen: nothing passed
+    two = {m.unit_id: line for m, line in mark_passed(spider_forest(HULK, other, draws={}))}
+    assert two == {
+        HULK.unit_id: 'Macro: mark: no Death Mark on the elite 127 (3898117827), 128/128: the mark goes on '
+        'the elite 127 (5) first'
+    }
+    # Through the executor: once a monster
+    row = next(row for row in BUFFS if row.skill == DEATH_MARK)
+    buffs = Buffs(Build(name='warlock', applies=lambda world: True, attack=None, movement=(), buffs=(row,)))
+    asked = spider_forest(FETISH, PACK)
+    run = Game(asked.world).run()
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        buffs.due(run, row, asked)
+        buffs.due(run, row, asked)
+    said = [r.getMessage() for r in caplog.records if '1156325300' in r.getMessage()]
+    assert len(said) == 1, said
+    assert 'trash: 1.8 casts' in said[0]
+
+
+def test_say_passed_off_names_bosses_only(monkeypatch):
+    from inventory_tracking.builds.warlock.mark import mark_passed
+
+    monkeypatch.setattr(mark, 'SAY_PASSED', False)
+    assert not mark_passed(spider_forest(FETISH, PACK))

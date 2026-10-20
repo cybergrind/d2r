@@ -1097,7 +1097,7 @@
           "min": 3
         }
       ],
-      "source": "guides/pindle-anya.html:289; inventory_tracking/macros/pickmode.py:89",
+      "source": "guides/pindle-anya.html:289; inventory_tracking/macros/pickmode.py:93",
       "codes": [
         "pab"
       ],
@@ -1197,7 +1197,7 @@
           "equals": true
         }
       ],
-      "source": "inventory_tracking/macros/pickmode.py:172",
+      "source": "inventory_tracking/macros/pickmode.py:176",
       "codes": [
         "pac"
       ],
@@ -1309,7 +1309,7 @@
           "good": 3
         }
       ],
-      "source": "guides/pricing.html:330; guides/pindle-anya.html:294; inventory_tracking/macros/pickmode.py:80",
+      "source": "guides/pricing.html:330; guides/pindle-anya.html:294; inventory_tracking/macros/pickmode.py:84",
       "codes": [
         "7bl",
         "7kr",
@@ -1368,7 +1368,7 @@
           "min": 3
         }
       ],
-      "source": "inventory_tracking/macros/pickmode.py:82",
+      "source": "inventory_tracking/macros/pickmode.py:86",
       "codes": [
         "7bl",
         "7kr",
@@ -2131,6 +2131,101 @@
       "bases": [
         "Grand Charm"
       ],
+      "asks": null
+    },
+    {
+      "id": "gloves-magic-identify",
+      "class": "G19",
+      "who": "trade",
+      "label": "every magic glove: identified, then judged",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:299",
+      "asks": null
+    },
+    {
+      "id": "gloves-plus3-jav-bow-ma-alacrity",
+      "class": "G19",
+      "who": "trade",
+      "label": "Lancer's / Archer's / Kenshi's Gloves of Alacrity (+3 Javelin, Bow or Martial Arts, 20 IAS)",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "keys": [
+            "188:0",
+            "188:2",
+            "188:50"
+          ],
+          "min": 3
+        }
+      ],
+      "always_keep": true,
+      "source": "guides/pricing.html:203; pricing/triage/import_affixed_rules.py:1003; pricing/data/triage/bands.json:1019434; third-parties/d2data/json/magicsuffix.json:2936; third-parties/d2data/json/magicprefix.json:7642",
+      "asks": null
+    },
+    {
+      "id": "gloves-plus3-passive-alacrity",
+      "class": "G19",
+      "who": "trade",
+      "label": "Gloves of Alacrity +3 Passive and Magic (20 IAS)",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "188:1",
+          "min": 3
+        }
+      ],
+      "source": "guides/pricing.html:203; third-parties/d2data/json/magicprefix.json:7580",
+      "asks": null
+    },
+    {
+      "id": "gloves-plus2-jav-ma-alacrity",
+      "class": "G19",
+      "who": "trade",
+      "label": "Gloves of Alacrity +2 Javelin or Martial Arts (20 IAS): a low check",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "keys": [
+            "188:2",
+            "188:50"
+          ],
+          "min": 2
+        }
+      ],
+      "source": "guides/pricing.html:203; pricing/triage/import_affixed_rules.py:708; third-parties/d2data/json/magicprefix.json:7621",
       "asks": null
     },
     {

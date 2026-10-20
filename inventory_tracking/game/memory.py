@@ -113,6 +113,7 @@ from inventory_tracking.items.identity import (
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.loot.ground import (
+    GROUND_MODES,
     GroundItem,
     GroundMaterial,
     materials_among,
@@ -122,7 +123,7 @@ from inventory_tracking.loot.ground import (
     sightings_among,
     uniques_among,
 )
-from inventory_tracking.loot.materials import appraised_classes
+from inventory_tracking.loot.materials import appraised_classes, carry_one_classes
 from inventory_tracking.loot.runes import is_valuable_rune, rune_name
 from inventory_tracking.loot.shown import ShownRule
 from inventory_tracking.native.layout import (
@@ -150,6 +151,13 @@ CTA_CODE = 'cta'
 CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`GameMemory.cta`)
 UNPLACED_GOLD: set[int] = set()  # gold piles `loot` said it left out for an unread place: said once a pile
 CAPPED_GOLD: set[int] = set()  # gold piles `loot` said it left out for the gold cap: said once a pile
+HAD_ONE: set[int] = set()  # carry-one drops `loot` said it left out for the one had: said once a drop
+
+
+def had_already(items, classes: frozenset[int]) -> frozenset[int]:
+    """The carry-one `classes` (loot/materials.py `CARRY_ONE`) of which a walked item unit is off the ground: one in
+    the inventory, the cube, the stash or worn, so the game takes no second."""
+    return frozenset(unit['txt_id'] for unit in items if unit['txt_id'] in classes and unit['mode'] not in GROUND_MODES)
 
 
 def gold_room(stats: dict[int, int]) -> int | None:
@@ -479,6 +487,21 @@ class GameMemory:
             # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins,
             # as it does over the label of a base the filter shows).
             labelled = {item.unit_id: item for item in marked}
+            had = had_already(items, carry_one_classes())
+            if had:
+                txt_of = {unit['unit_id']: unit['txt_id'] for unit in items}
+                for unit_id in [u for u in labelled if txt_of.get(u) in had]:
+                    if unit_id not in HAD_ONE:
+                        if len(HAD_ONE) > CENSUS_KEPT:
+                            HAD_ONE.clear()
+                        HAD_ONE.add(unit_id)
+                        LOG.info(
+                            'Macro: carry-one: %s (unit %d) on the ground: one is had already, the game takes no '
+                            'second: left',
+                            labelled[unit_id].label,
+                            unit_id,
+                        )
+                    del labelled[unit_id]
             drops += [
                 Drop(
                     item.unit_id, item.x, item.y, item.label, VALUABLE, source=sources.get(item.unit_id, ''),

@@ -54,6 +54,20 @@ def test_a_level_left_says_its_gain_and_a_town_says_none():
     assert ledger.look('g1', CHAOS, Reading(6500, 94), 70.0) == ['experience: River of Flame: +5,500 in 60s (level 94)']
 
 
+def test_each_tal_rashas_tomb_is_named_by_its_number_for_its_experience_an_hour():
+    # The game shows "Tal Rasha's Tomb" on all seven; the player, 2026-10-20 ~14:03: "we need to utilize smaller tombs
+    # too - it gives a great ext/hour rate"
+    ledger = Ledger()
+    ledger.look('g1', 46, Reading(1000, 94), 0.0)
+    ledger.look('g1', 69, Reading(9000, 94), 90.0)
+    assert ledger.look('g1', 46, Reading(19000, 94), 130.0) == [
+        "experience: Tal Rasha's Tomb 4: +10,000 in 40s (level 94)"
+    ]
+    assert ledger.look('g1', 66, Reading(19000, 94), 140.0) == ['experience: Canyon of the Magi: +0 in 10s (level 94)']
+    lines = ledger.game_over(1, Reading(25000, 94), 200.0)
+    assert lines[0] == "experience: Tal Rasha's Tomb 1: +6,000 in 60s (level 94)"
+
+
 def test_an_unread_look_changes_nothing():
     ledger = Ledger()
     ledger.look('g1', RIVER, Reading(1000, 94), 0.0)

@@ -33,9 +33,10 @@ if TYPE_CHECKING:
     from inventory_tracking.macros.runner import MacroRunner
 
 
-def _picked(self: MacroRunner, loot: Loot) -> Loot:
-    """The drops the pickup goes for: those of the pickup level (macros/pickmode.py, KP_5), in every activity."""
-    loot = kept(loot, self.pickup_mode)
+def _picked(self: MacroRunner, loot: Loot, tome: Callable[[], int | None] | None = None) -> Loot:
+    """The drops the pickup goes for: those of the pickup level (macros/pickmode.py, KP_5), in every activity.
+    `tome()`: the Tome of Identify's charges (`tome_charges`), for a big field item into the free block."""
+    loot = kept(loot, self.pickup_mode, tome)
     if not self.loop.on:
         return loot
     skipped = self.loop.sold_full  # a full stash stack's rune is not picked up (macros/loop.py `sold_full`)
@@ -44,6 +45,13 @@ def _picked(self: MacroRunner, loot: Loot) -> Loot:
             loot, drops=tuple(d for d in loot.drops if d.kind != VALUABLE or d.txt not in skipped)
         )  # the potions the belt wants are taken whatever the stash holds
     return loot
+
+
+def tome_charges(memory: GameMemory) -> int | None:
+    """The Tome of Identify's charges as carried now (game/decode.py `Pack.identifies`), None unread or no tome: one
+    inventory read, made only when a big field item is weighed for the free block (loot/api.py FIELD_AT_ONCE)."""
+    pack = memory.carried()
+    return pack.identifies if pack is not None else None
 
 
 def _sighted(self: MacroRunner, memory: GameMemory, loot: Loot) -> Loot:
@@ -64,7 +72,9 @@ def _valuable_left(self: MacroRunner) -> str | None:
         memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
         memory.ground_seen = self.ground_seen
         try:
-            loot = self._sighted(memory, self._picked(self.put_down.see(memory.loot(**wanted()))))
+            loot = self._sighted(
+                memory, self._picked(self.put_down.see(memory.loot(**wanted())), lambda: tome_charges(memory))
+            )
         finally:
             memory.close()
     except Exception as exc:

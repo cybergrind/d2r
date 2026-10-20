@@ -19,7 +19,7 @@ from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
-from inventory_tracking.loot.api import FIELD, settle
+from inventory_tracking.loot.api import FIELD, at_once, settle
 from inventory_tracking.loot.hands import GameHands
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
@@ -50,6 +50,7 @@ from inventory_tracking.macros.running.base import (
     TELEPORT,
 )
 from inventory_tracking.macros.running.room import ROOM
+from inventory_tracking.macros.running.valuables import tome_charges
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import ready, step_toward
 from inventory_tracking.macros.timing import Pace
@@ -145,7 +146,10 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
                 hands=memory.hands,
                 teleport=memory.teleport,
                 loot=lambda: self._sighted(
-                    memory, self._picked(self.put_down.see(self.belt.see(memory.loot(**wanted()))))
+                    memory,
+                    self._picked(
+                        self.put_down.see(self.belt.see(memory.loot(**wanted()))), lambda: tome_charges(memory)
+                    ),
                 ),
                 build=build,
             )
@@ -159,6 +163,9 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
                 self.hunter.room_trip = self._room_trip_due  # the shared no-room routine's trip (running/room.py)
                 self.hunter.can_trip = self._room_trip_possible
                 self.hunter.looping = lambda: self.loop.on  # the sweep holds a plain valuable then (`take_one`)
+                # A big field item identified at the level run's first quiet look (loot/api.py FIELD_AT_ONCE; the
+                # player, 2026-10-20 ~14:28: "space for mid-run identifying big items")
+                self.hunter.field_now = lambda run: at_once(lambda: field_hands(self, run))
             run.wear = memory.wear
             run.cta = memory.cta
             run.arrival_swap = lambda: cast_in_hand(run, key_names)
@@ -190,6 +197,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             run.ground = self.ground
             # The field identify (loot/api.py, M4 of loot/design.md): only in the KP_6 loop, at its sites (`settle`)
             FIELD.looping = lambda: self.loop.on
+            FIELD.trip = self._field_trip  # no room in the cube either: the room rules' trip (FIELD_AT_ONCE, ~14:58)
             run.field = lambda when: FIELD.settle(field_hands(self, run), when)
             self.play_by(run, actuator, routine)
             mark('ready')
@@ -315,6 +323,7 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             key = action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
             if key is not None and self.loop.own is not None:
                 try:
+                    settle(run, 'room')  # the field identify's failures first: their room may be enough (drop_for)
                     gone = drop_for(run, key, self.loop.own, SURE_BLOCK)
                 except Abort as stop:
                     if cut(run, stop):
@@ -411,9 +420,12 @@ def staged(self: MacroRunner, run: Run, key_names, plain: Callable[[Target | Non
 
 def at_the_way_on(self: MacroRunner, player: Player) -> bool:
     """Whether the route's stage on the character's level is its way on (a door, stairs, a portal) and the
-    character is within DOOR_NEAR of its mark, where a level run ends (pursuit.py `to_the_door`)."""
+    character is within DOOR_NEAR of its mark, where a level run ends (pursuit.py `to_the_door`). A tour's mark (the
+    Canyon's tombs: the card leads with the nearest not yet entered) is one too: the TZ loop's way on through it
+    (2026-10-20: without it the way on ran the level again to the same entrance)."""
     staged = route.staged(self.progress, player.area)
-    card = self.target() if self.target is not None and staged is not None and staged[1].to else None
+    way = staged is not None and bool(staged[1].to or staged[1].tours)
+    card = self.target() if self.target is not None and staged is not None and way else None
     if card is None or staged is None or card.area != player.area or card.label != staged[1].mark:
         return False
     return math.dist((player.x, player.y), spot_of(card)) <= DOOR_NEAR

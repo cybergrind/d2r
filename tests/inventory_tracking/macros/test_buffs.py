@@ -211,11 +211,37 @@ def test_a_cast_on_a_monster_puts_the_pointer_on_its_body_and_is_remembered_unde
     assert play.said[-1].startswith('Teleport on ')
 
 
-def test_no_cast_on_a_monster_off_the_screen_or_gone_and_nothing_is_remembered():
+def test_a_casts_told_line_is_said_at_the_first_cast_on_a_monster_and_its_said_line_at_each(caplog):
+    import logging
+
+    row = replace(
+        BOLT_ROW, due=whenever, said=lambda facts, m: f'said {m.unit_id}', told=lambda facts, m: f'told {m.unit_id}'
+    )
+    play = game(NEAR)
+    buffs, run = plan(row), play.run()
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for _ in range(2):
+            seen = buffs.facts(run, play.world, foes=[NEAR])
+            assert buffs.cast(run, due_now(buffs, run, row, seen), key_names, ASPECT).cast
+    lines = [r.getMessage() for r in caplog.records if r.getMessage() in ('said 7', 'told 7')]
+    assert lines == ['said 7', 'told 7', 'said 7']
+
+
+def test_no_cast_on_a_monster_off_the_screen_or_gone_and_nothing_is_remembered(caplog):
+    import logging
+
     play = game(FAR)
     buffs, run = plan(BOLT_ROW), play.run()
-    tried = buffs.cast(run, due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[FAR])), key_names, ASPECT)
-    assert tried == Tried()
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for _ in range(2):
+            due = due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[FAR]))
+            tried = buffs.cast(run, due, key_names, ASPECT)
+            assert tried == Tried()
+    # Said once a target (the player, 2026-10-20: "never death marked the leader")
+    said = [r.getMessage() for r in caplog.records if 'off the screen' in r.getMessage()]
+    assert len(said) == 1, said
+    assert said[0].startswith('Macro: buff: no ')
+    assert 'the monster 19 (8), 100/128: its body is off the screen at' in said[0]
     seen = buffs.facts(run, replace(play.world, monsters=(NEAR,)), foes=[NEAR])  # as it was a look ago
     assert buffs.cast(run, due_now(buffs, run, BOLT_ROW, seen), key_names, ASPECT) == Tried()  # dead since
     assert play.pressed() == []

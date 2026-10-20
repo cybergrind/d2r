@@ -29,6 +29,8 @@ IST = Drop(11, 101.0, 100.0, 'Ist Rune', VALUABLE, (1, 1), True, 'rune', 640, 2)
 def looping(monkeypatch):
     monkeypatch.setattr(api.FIELD, 'looping', lambda: True)
     monkeypatch.setattr(api.FIELD, 'picked', {})
+    for name, empty in (('waiting', {}), ('parking', {}), ('roomless', {}), ('roomed', set()), ('left_said', set())):
+        monkeypatch.setattr(api.FIELD, name, empty)  # FIELD_AT_ONCE's memory: nothing of it left for another test
     return api.FIELD
 
 
@@ -108,3 +110,63 @@ def test_the_loops_own_put_down_is_said_as_its_own_and_never_picked_again(caplog
     assert put_down.at(200.0, 100.0)
     fresh = Loot(drops=(lying,), game=('game-2', 7))
     assert put_down.see(fresh).drops == (lying,)  # another game: forgotten
+
+
+WAR_CLUB = Drop(12, 102.0, 100.0, 'Unique War Club', VALUABLE, (2, 4), True, 'unique', 116, 7)  # 9m9, 2x4
+UNIQUE_RING = Drop(13, 103.0, 100.0, 'Unique Ring', VALUABLE, (1, 1), True, 'unique', 537, 7)
+
+
+def test_a_big_unique_the_pickup_takes_is_noted_for_the_field_check_and_nothing_else_changes(looping, monkeypatch):
+    """G18 (the player, 2026-10-20 ~13:28: "identify a big items in the middle of the run (like right now we have a
+    big hammer in cube)"): the drops kept are the same; the War Club is remembered for the routine, the ring not."""
+    look = Loot(drops=(WAR_CLUB, UNIQUE_RING, IST), game=GAME)
+    assert kept(look, SURE).drops == (WAR_CLUB, UNIQUE_RING, IST)
+    assert looping.class_of(WAR_CLUB.unit_id, GAME[0]) == 'G18'
+    assert looping.class_of(UNIQUE_RING.unit_id, GAME[0]) is None
+    assert not is_candidate(WAR_CLUB)  # still a valuable the guard holds the game for
+    monkeypatch.setattr(api, 'FIELD_NAMED', False)
+    monkeypatch.setattr(api.FIELD, 'picked', {})
+    assert kept(look, SURE).drops == (WAR_CLUB, UNIQUE_RING, IST)
+    assert looping.class_of(WAR_CLUB.unit_id, GAME[0]) is None
+
+
+# -- room for the big items mid-run (loot/api.py FIELD_AT_ONCE; the player, 2026-10-20 ~14:28: "we must redesign our
+# routins to actually have space for mid-run identifying big items") -------------------------------------------------
+
+VISIT = ('###..#####', '###..#####', '##...#####', '##...#####')  # the free cells after a visit (visits/142128.json)
+GRAND_CHARM = Drop(14, 104.0, 100.0, 'Grand Charm', VALUABLE, (1, 3), True, 'material', 620, 4)
+
+
+@pytest.fixture
+def fresh(looping, monkeypatch):
+    monkeypatch.setattr(api.FIELD, 'tome_seen', None)
+    monkeypatch.setattr(api.FIELD, 'judged', {})
+    return looping
+
+
+def test_the_good_pickup_takes_a_magic_monarch_into_the_visits_free_block(fresh):
+    """Game 15, 14:24:32: the Monarch was left (a 1x3 after it wanted); with the Tome read it is taken now."""
+    look = Loot(drops=(MAGIC_MONARCH, IST), game=GAME, room=VISIT)
+    assert kept(look, SURE, lambda: 20).drops == (MAGIC_MONARCH, IST)
+    assert fresh.waiting == {MAGIC_MONARCH.unit_id: GAME[0]}
+    assert is_candidate(MAGIC_MONARCH)  # still no game kept for it (the guard: valuables only)
+
+
+def test_a_grand_charm_in_the_look_keeps_its_room_and_the_monarch_is_left(fresh, caplog):
+    caplog.set_level('INFO')
+    look = Loot(drops=(MAGIC_MONARCH, GRAND_CHARM), game=GAME, room=VISIT)
+    assert kept(look, SURE, lambda: 20).drops == (GRAND_CHARM,)
+    assert 'magic Monarch (unit 10) left: Grand Charm would lose its room' in caplog.text
+
+
+def test_with_the_tome_unread_the_old_rule_holds(fresh):
+    look = Loot(drops=(MAGIC_MONARCH, IST), game=GAME, room=VISIT)
+    assert kept(look, SURE).drops == (IST,)
+
+
+def test_the_pickup_parks_a_rune_for_the_cube_and_not_a_monarch(fresh, monkeypatch):
+    """CUBE_AT_PICKUP (the player, ~15:02: "move all items that we're going to stash in town (gems/runes/statues/etc)
+    pickup and stash in cube")."""
+    look = Loot(drops=(MAGIC_MONARCH, IST), game=GAME)
+    kept(look, SURE, lambda: 20)
+    assert fresh.parking == {IST.unit_id: GAME[0]}

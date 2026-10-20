@@ -38,7 +38,9 @@ def classify(why: object) -> Cause:
 
 def _loop_stopped(self: MacroRunner, why: object) -> None:
     """A leg's stop: the loop leaves the game and goes on (macros/loop.py `recover`), or ends, saying why; the
-    rules are macros/stops.py's. Under the lock or from the run's thread."""
+    rules are macros/stops.py's. Under the lock or from the run's thread. A stand by a valuable is answered by it
+    (watch.py `stood_after_cube` acts only on a later one)."""
+    self.stand_answered = time.monotonic()
     dead = isinstance(why, Dead) or self._dead()
     cause = classify(why)
     seen = self.loop.seen[0] if self.loop.seen is not None else None
@@ -115,6 +117,40 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
             self._show([f'Loop: {why}: leaving the game'])
         else:
             self._stop_loop(why)
+
+
+def _field_trip(self: MacroRunner, label: str) -> bool:
+    """The room rules' trip to town for a field item on the ground the cube can make no room for (loot/api.py
+    `Field._room_for`, FIELD_AT_ONCE; the player, 2026-10-20 ~14:58: "if we have no room for optimization to keep
+    picking up items - we need to do town routine"), as `_loop_stopped` makes it for a valuable: the agenda's room
+    package, else the trip and back through the portal. Bounded as theirs (`Loop.may_trip`: TRIPS_A_GAME, the last
+    trip made room; something a visit takes away), asked once an item a game and only in the quiet (no hostile within
+    SIGHT: no Town Portal in a fight). The level run is ended for it as the stand's rules end it (watch.py
+    `stood_after_cube`, the stand answered). Whether a trip is due."""
+    with self.lock:
+        loop = self.loop
+        game = loop.seen[0] if loop.seen is not None else None
+        if not loop.on or game is None:
+            return False
+        if not (loop.may_trip(game) and loop.carrying):
+            LOG.info('Macro: loop: %s lies on the ground with no room in the inventory or the cube: no trip may be '
+                     'made', label)  # fmt: skip
+            return False
+        if loop.kind.packaged and self.area_seen is not None:
+            tz_trip(loop, game, self.area_seen)
+            how = "the agenda's package"
+        elif loop.kind.trips:
+            loop.trip_due = True
+            how = 'and back through the portal'
+        else:
+            return False
+        LOG.info('Macro: loop: %s lies on the ground with no room in the inventory or the cube: a trip to town for '
+                 'room (%s)', label, how)  # fmt: skip
+        self.stand_answered = time.monotonic()  # a stand by it is answered: `stood_after_cube` stays the backstop
+        self.attack_mode = False
+        if self.working:
+            self.cancelled.set()
+        return True
 
 
 def _stop_loop(self: MacroRunner, why: object) -> None:

@@ -7,6 +7,8 @@ adapters over code that exists, reads through the run, input only through its ac
   read-only), its read and result taken from the shadow's book (loot/shadow.py `BOOK`, which the worker notes into).
 - `drop`: macros/cube.py `drop_item` (the protected items refused there too: engine.py `protected`); `reject`:
   game/kept.py `PutDown.reject`.
+- `cubed` / `take_out` / `put_back`: the cube's items, out into the inventory (cube.py `unpack`) and back (cube.py
+  `stash_only`), for the field identify of the cube's items (loot/api.py, 2026-10-20 ~13:28).
 - `unquiet`: no hostile within SIGHT (macros/hunting/base.py), life not under the healer's floor (macros/stops.py
   `low_life`, as running/room.py `unsafe`), no valuable the loop could pick up now on the ground, out of town, alive,
   mouse mode, no panel open.
@@ -20,8 +22,8 @@ from inventory_tracking.game.records import VALUABLE, Carried, Loot, Pack, has_r
 from inventory_tracking.loot.facts import ItemFacts
 from inventory_tracking.loot.shadow import BOOK, Appraised, Book
 from inventory_tracking.loot.value import CollectionCopies, OwnedCopies
-from inventory_tracking.macros.cube import drop_item, loot
-from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.cube import KEPT, drop_item, loot, stash_only, unpack
+from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.hunting.base import SIGHT, hostiles
 from inventory_tracking.macros.junk import identify
 from inventory_tracking.macros.lootpolicy import GUARD, verdict
@@ -77,6 +79,31 @@ class GameHands:
     def loops(self, pack: Pack) -> Sequence[Carried]:
         own = self.own(pack)
         return loot(pack, own) if own is not None else []
+
+    def cubed(self, pack: Pack) -> Sequence[Carried]:
+        """The cube's items (the loop's: macros/volatile.py), none before the loop told the player's cells, none
+        protected (the player's by its stats: engine.py `protected`)."""
+        if self.own(pack) is None:
+            return []
+        return [item for item in pack.in_cube if item.txt not in KEPT and protected(self.run, item) is None]
+
+    def take_out(self, items: Sequence[Carried]) -> list[int]:
+        key = self.inventory_key()
+        if key is None or not items:
+            return []
+        unpack(self.run, key, items)  # Ctrl + click, two tries an item, the panels closed after
+        pack = self.carried()
+        carried = {item.unit_id for item in pack.items} if pack is not None else set()
+        return [item.unit_id for item in items if item.unit_id in carried]
+
+    def put_back(self, units: Sequence[int]) -> int:
+        key = self.inventory_key()
+        pack = self.carried()
+        own = self.own(pack) if pack is not None else None
+        if key is None or own is None or not units:
+            return 0
+        wanted = frozenset(units)
+        return stash_only(self.run, key, own, lambda item: item.unit_id in wanted)
 
     def unquiet(self) -> str | None:
         run = self.run

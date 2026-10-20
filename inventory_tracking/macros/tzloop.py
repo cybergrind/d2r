@@ -13,7 +13,7 @@ import time
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
-from inventory_tracking.levels.presets import display_name
+from inventory_tracking.levels.presets import display_name, numbered_name
 from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import (
     EXCURSION,
@@ -201,7 +201,11 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         )
     agenda.plan = plan
     game, area = world.game_name, player.area
+    tour_back(agenda, plan, progress, area)
     trip = plan.excursion_of(area, agenda.finished)
+    if trip is not None and area in trip.tours and area in agenda.finished:
+        LOG.info('Macro: tz: tour: %s entered again: no level twice in a game, the game ends here',
+                 numbered_name(area))  # fmt: skip
     if trip is not None and progress is not None:
         select(progress, game, area, trip, plan)
     step = progress.step(area) if progress is not None else None
@@ -222,6 +226,25 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
     dead = progress.dead() if progress is not None and progress.dead is not None else frozenset()
     dead = dead if area not in agenda.finished else frozenset()
     return agenda.next((player.x, player.y), valuable=tz.sighted(None), area=area, dead=dead)
+
+
+def tour_back(agenda: Agenda, plan: Itinerary, progress: Progress | None, area: int) -> None:
+    """In a tour's hub (the Canyon of the Magi): each toured level entered in this game (routes/progress.py `Facts`)
+    is done, as it was left, whatever way (its way back, or a trip to town and the waypoint to the hub). The tour then
+    goes on with the levels not entered, never one done again (the player, 2026-10-20 ~14:03: "use sub-agent, we need
+    to utilize smaller tombs too"). A level is done here, not as its way back is taken: a way back tried and failed
+    leaves it to do."""
+    if progress is None:
+        return
+    for trip in plan.excursions:
+        if trip.hub != area or not trip.tours:
+            continue
+        for level in trip.tours:
+            if level in progress.facts.entered and level not in agenda.finished:
+                agenda.finish(level)
+                done = sum(1 for each in trip.tours if each in agenda.finished)
+                LOG.info('Macro: tz: tour: %s done, back in %s: %d of %d done', numbered_name(level),
+                         display_name(area), done, len(trip.tours))  # fmt: skip
 
 
 def fetch_gheeds(world: World, loop: Loop) -> Objective | None:
@@ -462,7 +485,9 @@ def perform(
                 raise Abort(f'{goal.label}: no pickup and no trip back took it')
         elif goal.kind == NEXT_LEVEL:
             loop.settle(run)  # the way on's pickup (runner.py `_way_on`) after a boss's drops landed
-            agenda.finish(player.area)
+            plan = agenda.plan
+            if not (isinstance(plan, Itinerary) and plan.touring(player.area, agenda.finished)):
+                agenda.finish(player.area)  # (a tour's levels are done in its hub, `tour_back`)
             if tz.way_on is None:
                 raise Abort(f'{goal.label}: no way on')
             tz.way_on()

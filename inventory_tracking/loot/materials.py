@@ -33,6 +33,9 @@ GROUPS = {
 # Worth shows only once identified: one lying identified was dropped by the player and is not taken again
 # (user, 2026-10-10 night).
 APPRAISED = ('charms', 'rings', 'jewels', 'amulets')
+# One a character: the game takes no second while one is had (the player, 2026-10-20 13:33: "if we already have one,
+# we cannot pick another one => don't waste time"; three aims at a second Wirt's Leg stopped the loop in Tristram)
+CARRY_ONE = ('leg',)
 
 
 def material_classes(groups) -> dict[int, str]:
@@ -48,3 +51,8 @@ def material_classes(groups) -> dict[int, str]:
 def appraised_classes() -> frozenset[int]:
     """Item class IDs of the `APPRAISED` groups."""
     return frozenset(material_classes(APPRAISED))
+
+
+def carry_one_classes() -> frozenset[int]:
+    """Item class IDs of the `CARRY_ONE` groups."""
+    return frozenset(material_classes(CARRY_ONE))

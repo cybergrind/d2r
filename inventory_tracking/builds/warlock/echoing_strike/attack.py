@@ -11,6 +11,7 @@ wall). Two classes, as harnesses score sweeps of their own; `EchoingStrike.of` m
 """
 
 import math
+import time
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, fields, replace
 from itertools import pairwise
@@ -27,8 +28,10 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
     flown,
 )
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
+from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.combat.policy import ELITE_WEIGHT, MIN_FOCAL, MIN_SCORE, Choice, Foe, Observation, Point
 from inventory_tracking.game.records import Monster
+from inventory_tracking.takes.timeline import GAME_RATE
 
 
 DUPLICATE = 1 / (2 * BLADES)  # skills.txt calc6 (100 / count) / 2: a cast's blades after the first on a monster and leg
@@ -40,6 +43,21 @@ BLADES_A_CAST = 2.8
 # The share of casts whose blades hit the monster aimed at, by its distance: (the bin's furthest units, the share)
 # (rca/2026-10-14/run-1932-findings.md §4.1, 694 casts). At the end of the blades' flight a monster's step is a miss.
 HIT_BY_DISTANCE = ((6.0, 0.743), (10.0, 0.747), (14.0, 0.606), (18.0, 0.493), (REACH, 0.356))
+
+
+# The player, 2026-10-20 ~15:04: "and overall aim against moving enemies was pretty bad. probably we need to do some
+# smart targeting against moving enemies". True: the game's lines are laid and scored where each monster's velocity
+# has it as the blades fly (`Motion`, `sees`; `LinePolicy.lead` LIVE_LEAD frames), every monster on a line, not the
+# aimed one only. Measured on the 14,248 casts of 2026-10-20 and replayed in the simulator
+# (rca/2026-10-20/leader-not-marked-findings.md, "Moving monsters"): a monster moving across the line is missed more
+# (64% hit still, 58% walking, 54% running), but the velocity's lead lost hits in the replay of the recorded paths,
+# so it is off. False: the lines through where the monsters stand, as before.
+LEAD_MOVING = False
+LIVE_LEAD = 5  # frames from a look's decision to the blades' first frame (median of 14,248 casts; quartiles 4, 12)
+MOTION_SECONDS = (0.15, 0.5)  # a velocity is measured over the oldest sample this old at least, this old at most
+STILL_SPEED = 1.0  # units a second: slower is standing
+MOST_SPEED = 16.0  # units a second: the velocity is capped here (monstats Run of the fastest of the takes' monsters)
+LEAD_MOST = 6.0  # units: most a monster is taken to go along its velocity (one that turns drags no line far off)
 
 
 # The bins' middles with their shares: what `hit_share` runs straight between.
@@ -180,11 +198,66 @@ class LinePolicy:
 
 
 @dataclass
+class Motion:
+    """The hostiles' places as the looks saw them, by unit: (clock, place), the newest last, MOTION_SECONDS long."""
+
+    clock: Callable[[], float] = time.monotonic
+    seen: dict[int, list[tuple[float, Point]]] = field(default_factory=dict)
+
+    def note(self, foes: Mapping[int, Foe]) -> None:
+        """Remember where each of `foes` stands now; forget the units unseen for longer than MOTION_SECONDS."""
+        now = self.clock()
+        for unit, foe in foes.items():
+            samples = self.seen.setdefault(unit, [])
+            if not samples or samples[-1][0] < now:
+                samples.append((now, foe.at))
+            del samples[: len(samples) - sum(1 for at, _ in samples if now - at <= MOTION_SECONDS[1])]
+        for unit in [u for u, samples in self.seen.items() if now - samples[-1][0] > MOTION_SECONDS[1]]:
+            del self.seen[unit]
+
+    def velocity(self, unit: int) -> tuple[float, float] | None:
+        """Units a second of `unit` between its newest place and the oldest within MOTION_SECONDS (at least the
+        first's age), capped at MOST_SPEED; None with no such pair."""
+        samples = self.seen.get(unit, [])
+        if len(samples) < 2:
+            return None
+        now, here = samples[-1]
+        old = [(at, place) for at, place in samples[:-1] if MOTION_SECONDS[0] <= now - at <= MOTION_SECONDS[1]]
+        if not old:
+            return None
+        at, there = old[0]
+        vx, vy = (here[0] - there[0]) / (now - at), (here[1] - there[1]) / (now - at)
+        speed = math.hypot(vx, vy)
+        if speed > MOST_SPEED:
+            vx, vy = vx * MOST_SPEED / speed, vy * MOST_SPEED / speed
+        return vx, vy
+
+    def route(self, unit: int, at: Point) -> Route | None:
+        """A straight route along its velocity from `at`, LEAD_MOST units long; None standing (STILL_SPEED)."""
+        found = self.velocity(unit)
+        if found is None:
+            return None
+        speed = math.hypot(*found)
+        if speed < STILL_SPEED:
+            return None
+        end = (at[0] + found[0] / speed * LEAD_MOST, at[1] + found[1] / speed * LEAD_MOST)
+        return Route((end,), speed / GAME_RATE)
+
+
+@dataclass
 class EchoingStrike(LinePolicy):
-    """The strike of the Echoing Strike Warlock. `reach` is the blades' range (`LinePolicy.reach`)."""
+    """The strike of the Echoing Strike Warlock. `reach` is the blades' range (`LinePolicy.reach`). With
+    LEAD_MOVING its lines are laid where the monsters' velocities (`motion`) have them LIVE_LEAD frames on."""
 
     skill: int = ECHOING_STRIKE  # the skill whose input the fight holds
     engage: float = ENGAGE
+    motion: Motion = field(default_factory=Motion)
+
+    def choose(self, seen: Observation, through: Collection[int] | None = None) -> Choice | None:
+        """`LinePolicy.choose`, with LIVE_LEAD frames of lead under LEAD_MOVING where no lead is set."""
+        if LEAD_MOVING and self.lead is None:
+            return replace(self, lead=LIVE_LEAD).choose(seen, through)
+        return super().choose(seen, through)
 
     @classmethod
     def of(cls, policy: LinePolicy) -> EchoingStrike:
@@ -198,7 +271,14 @@ class EchoingStrike(LinePolicy):
         link_range, links, share = link_table()
         defilers = [(c.x, c.y) for c in companions if c.txt_id == DEFILER]
         linked = linked_set(defilers, {unit: foe.at for unit, foe in seen.foes.items()}, link_range, links)
-        return replace(seen, linked=linked, share=share)
+        foes = seen.foes
+        if LEAD_MOVING:
+            self.motion.note(foes)
+            foes = {
+                unit: foe if foe.route is not None else replace(foe, route=self.motion.route(unit, foe.at))
+                for unit, foe in foes.items()
+            }
+        return replace(seen, foes=foes, linked=linked, share=share)
 
     def aim(self, seen: Observation, through: Collection[int] = ()) -> Choice | None:
         """The best line worth MIN_SCORE, or None; nothing while the player is moving (`yields`).

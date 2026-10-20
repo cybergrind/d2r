@@ -30,6 +30,18 @@ def display_name(area: int) -> str:
     return DISPLAY_NAMES.get(area) or level_name(area)
 
 
+# The seven Tal Rasha's Tombs (levels.txt 66-72) show one name in the game; the terror zone rows number them 1-7
+# (terror/zones.py). Numbered in the logs so each tomb's experience an hour is told apart (the player, 2026-10-20
+# ~14:03: "we need to utilize smaller tombs too - it gives a great ext/hour rate")
+NUMBERED = {area: number for number, area in enumerate(range(66, 73), 1)}
+
+
+def numbered_name(area: int) -> str:
+    """`display_name`, numbered where several levels share it ("Tal Rasha's Tomb 3")."""
+    number = NUMBERED.get(area)
+    return display_name(area) if number is None else f'{display_name(area)} {number}'
+
+
 def linked_level(area: int, slot: int) -> int | None:
     """The level behind warp slot `slot` of `area` (levels.txt Vis0..7); None when there is none."""
     links = LEVEL_LINKS.get(area, ())

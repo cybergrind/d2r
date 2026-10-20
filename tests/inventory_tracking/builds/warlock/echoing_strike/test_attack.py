@@ -346,3 +346,111 @@ def test_the_recorded_places_are_priced_with_the_blades_stopping_at_their_walls(
 def test_some_fixture_has_a_place_worth_going_to():
     found = [stance.camp(observed(harness.load(path)), ECHOING_STRIKE_ATTACK) for path in FIXTURES]
     assert any(place is not None for place in found)
+
+
+# The player, 2026-10-20 ~15:04: "and overall aim against moving enemies was pretty bad. probably we need to do some
+# smart targeting against moving enemies". attack.py LEAD_MOVING: the lines laid where the monsters' velocities have
+# them as the blades fly (rca/2026-10-20/leader-not-marked-findings.md, "Moving monsters").
+
+
+class Clock:
+    def __init__(self) -> None:
+        self.now = 100.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def tracked(clock, *places_by_look, unit=1):
+    """An attack whose motion has seen `unit` at each place, one look every 0.2 s."""
+    from inventory_tracking.builds.warlock.echoing_strike.attack import Motion
+
+    attack = EchoingStrike(damage_of=flat, motion=Motion(clock=clock))
+    for place in places_by_look:
+        attack.motion.note({unit: Foe(310, place, 5000.0)})
+        clock.now += 0.2
+    clock.now -= 0.2
+    return attack
+
+
+def test_a_standing_monster_gets_no_lead():
+    clock = Clock()
+    attack = tracked(clock, (5015.0, 5000.0), (5015.0, 5000.0), (5015.1, 5000.0))  # 0.25 units a second
+    assert attack.motion.route(1, (5015.1, 5000.0)) is None
+    assert tracked(Clock(), (5015.0, 5000.0)).motion.route(1, (5015.0, 5000.0)) is None  # one look: no velocity
+
+
+def test_a_walking_monster_is_led_by_its_velocity_times_the_frames_to_come():
+    from inventory_tracking.takes.timeline import GAME_RATE
+
+    clock = Clock()
+    attack = tracked(clock, (5015.0, 4996.0), (5015.0, 4996.8))  # 4 units a second across the line
+    velocity = attack.motion.velocity(1)
+    assert velocity is not None
+    assert velocity == pytest.approx((0.0, 4.0))
+    route = attack.motion.route(1, (5015.0, 4996.8))
+    assert route is not None
+    frames = 17  # the blades' first frame (LIVE_LEAD) and their flight to it
+    assert route.after((5015.0, 4996.8), frames) == pytest.approx((5015.0, 4996.8 + 4.0 / GAME_RATE * frames))
+    # A sample older than MOTION_SECONDS is forgotten: a unit unseen that long has no velocity
+    clock.now += 1.0
+    attack.motion.note({})
+    assert attack.motion.velocity(1) is None
+
+
+def test_the_lead_is_capped_in_speed_and_in_length():
+    from inventory_tracking.builds.warlock.echoing_strike.attack import LEAD_MOST, MOST_SPEED
+
+    clock = Clock()
+    attack = tracked(clock, (5010.0, 5000.0), (5018.0, 5000.0))  # 40 units a second: a misread
+    assert attack.motion.velocity(1) == pytest.approx((MOST_SPEED, 0.0))
+    route = attack.motion.route(1, (5018.0, 5000.0))
+    assert route is not None
+    assert route.after((5018.0, 5000.0), 1000) == pytest.approx((5018.0 + LEAD_MOST, 5000.0))  # turns drag no further
+
+
+def test_with_lead_moving_the_line_goes_through_where_the_monster_will_be(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack as module
+
+    clock = Clock()
+    attack = tracked(clock, (5015.0, 4995.0), (5015.0, 4996.0))  # 5 units a second across the line
+    seen = Observation(HERE, {1: Foe(310, (5015.0, 4996.0), 5000.0)})
+    monkeypatch.setattr(module, 'LEAD_MOVING', False)
+    standing = attack.aim(attack.sees(seen, []))
+    assert standing is not None
+    assert math.atan2(standing.focal[1] - HERE[1], standing.focal[0] - HERE[0]) == pytest.approx(
+        math.atan2(-4.0, 15.0), abs=0.01
+    )
+    monkeypatch.setattr(module, 'LEAD_MOVING', True)
+    looked = attack.sees(seen, [])
+    route = looked.foes[1].route
+    assert route is not None
+    led = attack.aim(looked)
+    assert led is not None
+    away = math.dist(HERE, (5015.0, 4996.0))
+    frames = module.LIVE_LEAD + min(round(away / module.SPEED), module.OUT_FRAMES)
+    ahead = route.after((5015.0, 4996.0), frames)
+    bearing = math.atan2(ahead[1] - HERE[1], ahead[0] - HERE[0])
+    assert math.atan2(led.focal[1] - HERE[1], led.focal[0] - HERE[0]) == pytest.approx(bearing, abs=0.01)
+    assert seen.foes[1].route is None  # the look's own observation is left as it was
+
+
+def test_with_lead_moving_a_line_is_worth_what_it_takes_off_every_monster_where_it_will_be(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack as module
+
+    monkeypatch.setattr(module, 'LEAD_MOVING', True)
+    clock = Clock()
+    attack = tracked(clock, (5015.0, 4994.8), (5015.0, 4996.0), unit=2)  # 6 units a second toward the line
+    standing, walking = Foe(310, (5015.0, 5000.0), 5000.0), Foe(310, (5015.0, 4996.0), 5000.0)
+    attack.motion.note({1: standing})
+    seen = attack.sees(Observation(HERE, {1: standing, 2: walking}), [])
+    assert seen.foes[1].route is None
+    assert seen.foes[2].route is not None
+    through = attack.choose(seen, through={1})
+    assert through is not None
+    # The walker crosses the line through the standing one as the blades fly: both are on it
+    assert through.worth > 1.5 * BLADES_A_CAST * 1000.0
+    monkeypatch.setattr(module, 'LEAD_MOVING', False)
+    unled = attack.choose(Observation(HERE, {1: standing, 2: walking}), through={1})
+    assert unled is not None
+    assert unled.worth < through.worth

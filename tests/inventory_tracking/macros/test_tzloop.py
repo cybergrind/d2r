@@ -1084,3 +1084,113 @@ def test_the_players_own_input_is_no_failure_of_the_leg(monkeypatch):
     with pytest.raises(Abort):
         tzloop.perform(game.loop, game.play.run(), keys, game.progress, LEAVING, game.hands())
     assert agenda.failures[LEAVING.key] == 1  # any other stop still counts
+
+
+CANYON, LUT_GHOLEIN = 46, 40
+TOMBS = (66, 67, 68, 69, 70, 71, 72)
+TAL_RASHAS = frozenset((CANYON, *TOMBS, 73))
+NEAREST = (69, 66, 72, 67, 71, 68, 70)  # the order the tour's entrances come nearest in, in this game
+
+
+def tomb_tour(game: Script, order: tuple[int, ...] = NEAREST, noted: bool = True):
+    """The way on of the Canyon's game: from the Canyon the press through the nearest entrance not yet entered, noted
+    gone through as macros/route.py `note_toured` does (`noted`); from a tomb its way back to the Canyon."""
+
+    def door() -> None:
+        if game.area != CANYON:
+            game.go('back', CANYON)
+            return
+        used = {place for _, _, place in game.progress.facts.used}
+        tomb = next(level for level in order if (float(level), 0.0) not in used)
+        if noted:
+            game.progress.used(CANYON, 'Tomb', (float(tomb), 0.0), ())
+        game.go('tomb', tomb)
+
+    return door
+
+
+def test_a_canyon_game_clears_the_canyon_then_each_tomb_once_by_the_nearest_entrance_and_ends_in_the_last(
+    monkeypatch, caplog
+):
+    # 14:02:17 on 2026-10-20: the Canyon's run over at a tomb's entrance, no goals left, Save and Exit. The player,
+    # 2026-10-20 ~14:03: "we need to utilize smaller tombs too - it gives a great ext/hour rate"
+    caplog.set_level('INFO')
+    game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
+    game.door = tomb_tour(game)
+    legs = [game.leg() for _ in range(40) if game.play.world.in_game]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    assert legs == [
+        TZ_WAYPOINT,
+        TZ_LEVEL,  # the Canyon first
+        TZ_NEXT_LEVEL,  # through the nearest entrance
+        *[TZ_LEVEL, TZ_NEXT_LEVEL, TZ_NEXT_LEVEL] * 6,  # a tomb's run, its way back, the next entrance
+        TZ_LEVEL,  # the last tomb's run
+        LEAVE,  # no way back: Save and Exit from there
+    ]
+    assert game.runs == [CANYON, *NEAREST]  # each tomb once
+    assert [area for what, area in game.calls if what == 'tomb'] == list(NEAREST)
+    assert game.loop.agenda.finished == set(TOMBS)
+    assert 'Save and Exit' in game.play.said
+    said = [record.getMessage() for record in caplog.records]
+    assert "Macro: tz: tour: Tal Rasha's Tomb 4 done, back in Canyon of the Magi: 1 of 7 done" in said
+    assert any("next level: the Tal Rasha's Tomb 1 run (toured level 2 of 7)" in line for line in said)
+    assert not any('entered again' in line for line in said)
+
+
+def test_a_room_trip_from_a_tomb_comes_back_through_the_portal_and_the_tour_goes_on(monkeypatch):
+    game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
+    game.door = tomb_tour(game)
+    exits: list[Exit] = []
+
+    def run_of(area: int) -> None:
+        if area == NEAREST[1] and not exits:
+            tzloop.trip(game.loop, GAME, area)  # no room for a valuable in the second tomb
+
+    game.on_run = run_of
+    legs = [game.leg(visit=exits.append) for _ in range(50) if game.play.world.in_game]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    trip = legs.index(TZ_PORTAL)
+    assert legs[trip : trip + 6] == [TZ_PORTAL, TZ_WAYPOINT, TOWN, TZ_WAYPOINT, TZ_BACK, TZ_NEXT_LEVEL]
+    assert ('through', NEAREST[1]) in game.calls  # back into that tomb, its way back next
+    assert game.runs == [CANYON, *NEAREST]  # no tomb from scratch, none twice
+    assert exits == [Exit.PORTAL]
+
+
+def test_back_by_the_waypoint_mid_tour_the_tombs_entered_are_done_and_the_rest_follow(monkeypatch):
+    # A trip to town that comes back by the Canyon's waypoint, not the portal: the tomb half done counts done (no level
+    # twice in a game), the tour goes on with those not entered
+    game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
+    game.door = tomb_tour(game)
+    legs = []
+    while game.area != NEAREST[2]:
+        legs.append(game.leg())
+    game.go('portal', LUT_GHOLEIN)  # out of the third tomb before its run
+    legs += [game.leg() for _ in range(30) if game.play.world.in_game]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    assert game.runs == [CANYON, *NEAREST[:2], *NEAREST[3:]]
+    assert [area for what, area in game.calls if what == 'tomb'] == list(NEAREST)  # each entrance once
+    assert legs.count(TZ_WAYPOINT) == 2  # the zone's, then the Canyon's again
+    assert game.loop.agenda.finished == set(TOMBS)
+
+
+def test_a_tomb_entered_again_ends_the_game_and_no_tomb_is_run_twice(monkeypatch, caplog):
+    # The entrance not noted gone through (route.py `note_toured`): the tour still leads to it
+    caplog.set_level('INFO')
+    game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
+    game.door = tomb_tour(game, noted=False)
+    legs = [game.leg() for _ in range(20) if game.play.world.in_game]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    assert legs == [TZ_WAYPOINT, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_NEXT_LEVEL, LEAVE]
+    assert game.runs == [CANYON, NEAREST[0]]
+    assert any("Tal Rasha's Tomb 4 entered again" in record.getMessage() for record in caplog.records)
+
+
+def test_the_canyons_tour_takes_fewer_ways_on_than_the_loops_repeat_guard():
+    from inventory_tracking.macros.loop import REPEATS
+
+    # Per tomb: the Canyon's run to its entrance, the press through, its way back; the Catacombs' and the others' 30
+    assert REPEATS[TZ_NEXT_LEVEL] >= 30 + 3 * len(TOMBS)

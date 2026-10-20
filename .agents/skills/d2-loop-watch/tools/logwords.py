@@ -165,6 +165,8 @@ EXPERIENCE_GAME = re.compile(
 )
 # A terror zone level left: (its name, gain, seconds, level). experience.py Ledger._level `f'experience: {name}: ...'`.
 # 2026-10-19 21:58:10,000 INFO Macro: experience: The Chaos Sanctuary: +912,000 in 140s (level 94)
+# The seven Tal Rasha's Tombs are numbered (levels/presets.py `numbered_name`, 2026-10-20: the Canyon's tour of them):
+# 2026-10-20 14:10:00,000 INFO Macro: experience: Tal Rasha's Tomb 4: +410,000 in 52s (level 94)
 EXPERIENCE_LEVEL = re.compile(r'Macro: experience: (?!game \d+:)(.+?): ([+-][\d,]+) in (\d+)s \(level (\d+)\)')
 
 

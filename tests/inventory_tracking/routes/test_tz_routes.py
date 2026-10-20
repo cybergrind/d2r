@@ -141,3 +141,21 @@ def test_the_zones_entered_from_a_town_on_foot_are_one_trip_from_the_town():
         'Act2-RockyWaste': [(40, [(40, 41, 'stage'), (41, 55, 'stage'), (55, 59, 'stage')], ())],
         'Act4_OuterSteppes': [(103, [(103, 104, 'stage'), (104, 105, 'stage')], ())],
     }
+
+
+def test_the_tal_rashas_zone_is_one_trip_touring_the_canyon_and_its_seven_tombs():
+    # 14:00:21 on 2026-10-20 the tombs were skipped ('tour 46→66 cannot designate one entrance') and the Canyon alone
+    # was played. The player, 2026-10-20 ~14:03: "we need to utilize smaller tombs too - it gives a great ext/hour
+    # rate". A trip touring them all needs no entrance designated: the tour reads the level on arrival
+    zone = next(zone for zone in installed_active_zones() if zone.name == 'Act2-TalRashas')
+    plan = zone_route_plan(zone)
+
+    (trip,) = plan.excursions
+    assert (trip.route, trip.waypoint, trip.terminal, trip.blockers) == ("Tal Rasha's Tombs", 46, 72, ())
+    assert trip.covers == (46, 66, 67, 68, 69, 70, 71, 72)
+    assert [(hop.source, hop.kind) for hop in trip.hops] == [(46, 'tour')] * 7
+    assert plan.uncovered == (73,)  # Duriel's Lair: no route script (the Orifice is left out)
+    # One tomb alone is still no leg: which entrance leads into it is not in the room data
+    tomb = route_leg(69)
+    assert tomb is not None
+    assert 'cannot designate one entrance' in ' '.join(tomb.blockers)

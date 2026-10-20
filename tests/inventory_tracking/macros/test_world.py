@@ -13,7 +13,7 @@ from inventory_tracking.game.decode import (
     unit_census,
     unit_stats,
 )
-from inventory_tracking.game.layout import PATH_RECORD
+from inventory_tracking.game.layout import COLD_RESIST, MAGIC_RESIST, PATH_RECORD, PHYSICAL_RESIST
 from inventory_tracking.input.keybindings import RECORD
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_keys
 from inventory_tracking.native.layout import LEVEL_AREA_ID, PATH_ROOM1, ROOM1_ROOM2, ROOM2_LEVEL
@@ -183,8 +183,8 @@ def test_no_character_when_none_or_several_have_life():
     assert local_player(memory.read, TABLE) is None
 
 
-def monster(memory, index, txt_id, *, flags=0, alignment=0, owner=0xFFFFFFFF, mode=1):
-    """A monster unit in bucket 2 with its type flags, owner and alignment stat."""
+def monster(memory, index, txt_id, *, flags=0, alignment=0, owner=0xFFFFFFFF, mode=1, more=()):
+    """A monster unit in bucket 2 with its type flags, owner and alignment stat, and `more` stats as (id, raw)."""
     unit_id = 128 * index + 2
     address, data, path, stats = (base + index * 0x400 for base in (0x700000, 0x800000, 0x900000, 0xA00000))
     header = memory.block(address, 0x160)
@@ -196,7 +196,7 @@ def monster(memory, index, txt_id, *, flags=0, alignment=0, owner=0xFFFFFFFF, mo
     block[0x1A] = flags
     struct.pack_into('<I', block, 84, owner)
     struct.pack_into('<HHHH', memory.block(path, 0x28), 0, 0, 5010 + index, 0, 5020)
-    full = [(172, alignment)] if alignment else [(12, 85)]
+    full = ([(172, alignment)] if alignment else [(12, 85)]) + list(more)
     block = memory.block(stats, 0x100)
     struct.pack_into('<QQ', block, 0xE8, stats + 0x200, len(full))
     raw = memory.block(stats + 0x200, 0x100)
@@ -230,6 +230,30 @@ def test_monsters_carry_their_type_flags_and_whether_they_are_allies():
         (386, 0, False, 1, False),
     ]
     assert (found[0].x, found[0].y) == (5010.0, 5020.0)
+
+
+def test_a_monsters_resistances_are_read_off_its_stat_list_and_an_immunity_is_100_or_more():
+    # An Unraveler as a take of 2026-10-20 read it (units.jsonl): damageresist 36, magicresist 37, fireresist 39,
+    # lightresist 41, coldresist 43, poisonresist 45 (itemstatcost.txt), beside its level (12)
+    memory = Memory()
+    read = ((36, 33), (37, 100), (39, 20), (41, 20), (43, 100), (45, 50))
+    units = [monster(memory, 0, 103, more=read), monster(memory, 1, 19)]
+    heads = memory.block(TABLE + 1024, 1024)
+    previous = 0
+    for address in reversed(units):
+        struct.pack_into('<Q', memory.blocks[address], 0x158, previous)
+        previous = address
+    struct.pack_into('<Q', heads, 2 * 8, previous)
+
+    unraveler, plain = monsters(memory.read, TABLE)
+
+    assert unraveler.resists == read
+    assert unraveler.resist(MAGIC_RESIST) == 100
+    assert unraveler.immune(MAGIC_RESIST)
+    assert unraveler.immune(COLD_RESIST)
+    assert not unraveler.immune(PHYSICAL_RESIST)
+    assert plain.resists == ()  # none on its list: 0 each, no immunity
+    assert not plain.immune(MAGIC_RESIST)
 
 
 def test_dead_monsters_are_read_on_request_with_their_stat_list_address():

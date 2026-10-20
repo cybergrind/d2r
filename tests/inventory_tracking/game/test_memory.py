@@ -185,6 +185,7 @@ def make_game(gold: int | None = None) -> Game:
     BASE_ROLLS_SEEN.clear()
     game_memory.UNPLACED_GOLD.clear()
     game_memory.CAPPED_GOLD.clear()
+    game_memory.HAD_ONE.clear()
     play = Game()
     carried = play.item(RING, 128 * 10 + 5, 0, quality=RARE, owner=PLAYER)  # in the inventory
     cubed = play.item(SHARD, 128 * 11 + 5, 0, owner=PLAYER)  # in the cube
@@ -319,6 +320,30 @@ def test_a_gold_pile_over_the_gold_cap_is_left_out_of_the_look(game, caplog):
     assert [m for record in caplog.records if 'over the cap' in (m := record.getMessage())] == [
         'Macro: gold pile 2697: 4200 gold over the cap (room for 4199): left'
     ]
+
+
+def test_a_second_wirts_leg_is_left_while_one_is_had(game, caplog):
+    # The game takes no second Wirt's Leg: three aims at one in Tristram stopped the loop at 13:33:17 on 2026-10-20,
+    # the player's in the stash (the player: "if we already have one, we cannot pick another one => don't waste time")
+    leg = next(iter(material_classes(['leg'])))
+    materials = {**MATERIALS, **material_classes(['leg'])}
+    game.item(leg, 128 * 24 + 9, 3, at=(5026, 5036))
+    game.chain()
+    memory = game.game_memory()
+
+    def legs() -> list[str]:
+        return [drop.label for drop in memory.loot(rune_minimum='r01', unique_minimum=None, materials=materials)
+                .drops if drop.txt == leg]  # fmt: skip
+
+    assert legs() == ["Wirt's Leg"]  # none had: taken
+    game.item(leg, 128 * 25 + 9, 0, owner=PLAYER)  # one in the stash
+    game.chain()
+    with caplog.at_level('INFO'):
+        assert legs() == []
+        assert legs() == []
+    assert [m for record in caplog.records if 'had already' in (m := record.getMessage())] == [
+        "Macro: carry-one: Wirt's Leg (unit 3081) on the ground: one is had already, the game takes no second: left"
+    ]  # once, not at every look
 
 
 def test_a_belt_item_that_is_unread_leaves_the_belt_unread_and_the_rest_of_the_look_kept(game, caplog):

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, NO_OWNER, STACK_MOST
+from inventory_tracking.game.layout import IMMUNE, LEADER_FLAGS, MINION_FLAG, NO_OWNER, STACK_MOST
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.items.identity import ETHEREAL_FLAG
 from inventory_tracking.items.metadata import metadata
@@ -72,6 +72,9 @@ class Monster:
     path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request
     modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
     tier: int = field(default=0, compare=False)  # its Herald's tier (stat 367); 0: none
+    # (stat, percent) of its resistances (game/layout.py MONSTER_RESISTS) its full stat list holds at the look; a
+    # resistance the list does not hold is 0. (): unread
+    resists: tuple[tuple[int, int], ...] = field(default=(), compare=False)
     # On request (`records`): the unit record and monster data raw, for unnamed fields (takes/record.py).
     record: bytes = field(default=b'', compare=False, repr=False)
     states: bytes = field(default=b'', compare=False, repr=False)  # state words (STATE_RUN), with `records`
@@ -90,6 +93,14 @@ class Monster:
     def leader(self) -> bool:
         """A unique, champion or super unique: what the seek step hunts (macros/hunt.py); minions are not."""
         return bool(self.flags & LEADER_FLAGS) and not self.flags & MINION_FLAG
+
+    def resist(self, stat: int) -> int:
+        """Its resistance `stat` in percent as read (`resists`); 0 where none was read."""
+        return dict(self.resists).get(stat, 0)
+
+    def immune(self, stat: int) -> bool:
+        """Whether it takes nothing of that element: its resistance IMMUNE or over."""
+        return self.resist(stat) >= IMMUNE
 
 
 VALUABLE, HEALING, REJUVENATION = 'valuable', 'healing', 'rejuvenation'  # what a drop is to the pickup step

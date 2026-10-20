@@ -20,8 +20,12 @@ want to check them and drop in the middle of the run"; ~12:00 "start all three")
   when the ground read picks them (white) or the field identify takes them (magic, rare: loot/api.py G15).
 - With the loop on, the MOST level's magic and rare items are remembered for the field identify too (loot/api.py
   `Field.pick`), so a bad one is dropped in the field, not carried to town.
+- Since ~14:28 (the player: "we must redesign our routins to actually have space for mid-run identifying big items"):
+  a big field item is taken into the free block though no Grand Charm's room is left after it, one at a time, with
+  the Tome's charges (`kept`'s `tome`) and no sure valuable losing its room (loot/api.py FIELD_AT_ONCE).
 """
 
+from collections.abc import Callable
 from dataclasses import replace
 
 from inventory_tracking.common import LOG
@@ -206,19 +210,31 @@ def is_candidate(drop: Drop) -> bool:
     return candidate(drop, base['type'] if base is not None else None) or FIELD.takes(drop) is not None
 
 
-def kept(loot: Loot, mode: str) -> Loot:
-    """`loot` with only the drops `mode` takes."""
+def kept(loot: Loot, mode: str, tome: Callable[[], int | None] | None = None) -> Loot:
+    """`loot` with only the drops `mode` takes; `tome()` the Tome of Identify's charges, read only for a big field item
+    taken into the free block (loot/api.py `Field.pick`, FIELD_AT_ONCE)."""
     try:  # the loot design's shadow (loot/design.md §7 M1): the new ground verdicts beside this mode's; log only
         from inventory_tracking.loot.shadow import ground as shadow
 
         shadow(loot, lambda drop: mode == MOST or sure(drop))
     except Exception as error:  # never into the look
         LOG.debug('Macro: loot: shadow: ground not logged: %s', error)
-    drops = tuple(found for drop in loot.drops if (found := _kept(drop, mode, loot)) is not None)
+    drops = tuple(found for drop in loot.drops if (found := _kept(drop, mode, loot, tome)) is not None)
     return replace(loot, drops=drops)
 
 
-def _kept(drop: Drop, mode: str, loot: Loot) -> Drop | None:
+def _kept(drop: Drop, mode: str, loot: Loot, tome: Callable[[], int | None] | None = None) -> Drop | None:
+    """`drop` as `mode` takes it (`_taken`); a big set or unique one taken is remembered for the field check (G18,
+    loot/api.py `Field.note`; the player, 2026-10-20 ~13:28: "identify a big items in the middle of the run"): what
+    is taken does not change."""
+    found = _taken(drop, mode, loot, tome)
+    if found is not None:
+        FIELD.note(found, loot.game)
+        FIELD.park(found, loot.game)  # stash-bound: into the cube at the next quiet look (loot/api.py CUBE_AT_PICKUP)
+    return found
+
+
+def _taken(drop: Drop, mode: str, loot: Loot, tome: Callable[[], int | None] | None = None) -> Drop | None:
     """`drop` as `mode` takes it (a must-have base `prized`), None when it does not (the module text)."""
     based = ground_base(drop)
     if based is not None and based.pick and based.must_have and not drop.prized:
@@ -227,14 +243,25 @@ def _kept(drop: Drop, mode: str, loot: Loot) -> Drop | None:
         # Over the cell cap only what the ground read or the field identify judges, in every level
         if based is not None:
             return drop if based.pick else None
-        return drop if FIELD.pick(drop, loot.game, loot.room) else None
+        return drop if _field_pick(drop, loot, tome) else None
     if mode == MOST:
         if field_api.FIELD_BIG and not sure(drop):
-            FIELD.pick(drop, loot.game, loot.room)  # remembered: identified in the field, the bad ones dropped there
+            _field_pick(drop, loot, tome)  # remembered: identified in the field, the bad ones dropped there
         return drop
     # M4 (the player, 2026-10-20: "just get it, identify with scroll, and drop if it is bad"): the loop takes the
     # classes of the field identify too, each remembered for its routine (loot/api.py `Field.pick`)
-    return drop if sure(drop) or FIELD.pick(drop, loot.game, loot.room) else None
+    return drop if sure(drop) or _field_pick(drop, loot, tome) else None
+
+
+def _field_pick(drop: Drop, loot: Loot, tome: Callable[[], int | None] | None) -> bool:
+    """`Field.pick` with the facts a big item is taken into the free block by (loot/api.py FIELD_AT_ONCE; the player,
+    2026-10-20 ~14:28: "we must redesign our routins to actually have space for mid-run identifying big items"): the
+    units carried, the look's other sure valuables (asked only then) and the Tome's charges."""
+
+    def waiting() -> list[Drop]:
+        return [d for d in loot.drops if d.unit_id != drop.unit_id and d.kind == VALUABLE and sure(d)]
+
+    return FIELD.pick(drop, loot.game, loot.room, carried=loot.carried, waiting=waiting, tome=tome)
 
 
 def next_mode(mode: str) -> str:

@@ -264,3 +264,68 @@ def test_the_worldstone_keep_zone_goes_through_the_thrones_waves_and_portal_to_b
     assert look(132, plan, stage=FIGHT) == [(LEVEL, 132)]  # Baal: the Chamber's run
     assert look(132, plan, stage=LOOT_STAGE, worked=((132, 1),)) == [(LOOT, 132)]
     assert look(132, plan, stage=LEAVE, worked=((132, 1),)) == []  # no goals: the game is left
+
+
+CANYON, LUT_GHOLEIN = 46, 40
+TOMBS = (66, 67, 68, 69, 70, 71, 72)
+TAL_RASHAS = frozenset((CANYON, *TOMBS, 73))
+
+
+def test_the_tal_rashas_zone_is_the_canyon_then_its_seven_tombs_one_trip_touring_them():
+    # The player, 00:45 on 2026-10-18: "for canyon of the magi loop: we should go through every tomb one by one";
+    # "Canyon first, then tombs"; 2026-10-20 ~14:03: "we need to utilize smaller tombs too"
+    plan = itinerary(TAL_RASHAS)
+    assert plan is not None
+    (trip,) = plan.excursions
+    assert (trip.waypoint, trip.areas, trip.hub, trip.tours) == (CANYON, (CANYON, *TOMBS), CANYON, TOMBS)
+    assert trip.zone == frozenset((CANYON, *TOMBS))  # Duriel's Lair is no level of the trip
+    assert plan.skipped == ((73, 'no catalogue excursion covers it'),)
+    assert [policy_of(area, trip) for area in trip.areas] == [COVER] * 8  # each cleared: leaders and rooms
+    assert not trip.over(frozenset((72,)))  # the catalogue's last tomb done first ends nothing
+    assert trip.over(frozenset(TOMBS))
+
+
+def test_the_canyons_run_then_each_tomb_by_the_nearest_entrance_its_run_and_its_way_back_until_the_last():
+    plan = itinerary(TAL_RASHAS)
+    assert plan is not None
+    assert look(LUT_GHOLEIN, plan) == [(WAYPOINT, CANYON)]
+    assert look(CANYON, plan, stage=ENTER) == [(LEVEL, CANYON)]  # the Canyon first
+    (on,) = produce(GameView(CANYON, False, plan, ENTER, 0, ((CANYON, 1),)))
+    # No tomb named ahead: the press goes through the nearest entrance not yet entered
+    assert (on.kind, on.to, on.label) == (NEXT_LEVEL, None, "on into the nearest Tal Rasha's Tomb not entered (7 of 7 "
+                                          'left)')  # fmt: skip
+    (run,) = produce(GameView(69, False, plan, ENTER, CANYON))
+    assert (run.kind, run.label) == (LEVEL, "the Tal Rasha's Tomb 4 run (toured level 1 of 7)")
+    assert look(69, plan, stage=ENTER, stage_to=CANYON, worked=((69, 1),)) == [(NEXT_LEVEL, CANYON)]  # its way back
+    done = frozenset((69, 66))
+    (on,) = produce(GameView(CANYON, False, plan, ENTER, 0, ((CANYON, 3),), finished=done))
+    assert on.label.endswith('(5 of 7 left)')
+    last = frozenset(TOMBS) - {70}
+    assert look(70, plan, stage=ENTER, stage_to=CANYON, finished=last) == [(LEVEL, 70)]
+    # The last tomb's run over: no way back, no goals: the game is left there (its valuables first)
+    assert look(70, plan, stage=ENTER, stage_to=CANYON, worked=((70, 1),), finished=last) == []
+    assert look(70, plan, stage=ENTER, stage_to=CANYON, worked=((70, 1),), finished=last, sighted='Ber Rune') == [
+        (PICKUP, 70)
+    ]
+    assert look(CANYON, plan, stage=LOOT_STAGE, worked=((CANYON, 8),), finished=frozenset(TOMBS)) == []
+
+
+def test_a_town_trip_mid_tour_comes_back_to_the_tombs_not_done_and_never_redoes_one():
+    plan = itinerary(TAL_RASHAS)
+    assert plan is not None
+    done = frozenset((69, 66, 72))
+    assert look(LUT_GHOLEIN, plan, finished=done) == [(WAYPOINT, CANYON)]  # the trip is not over
+    assert look(CANYON, plan, stage=ENTER, worked=((CANYON, 4),), finished=done) == [(NEXT_LEVEL, CANYON)]
+    # A tomb done and entered again (its entrance not seen gone through): no second run, no way back to it
+    assert look(69, plan, stage=ENTER, stage_to=CANYON, finished=done) == []
+    assert look(69, plan, stage=ENTER, stage_to=CANYON, worked=((69, 1),), finished=done) == []
+
+
+def test_a_tour_whose_canyon_runs_are_spent_ends_never_a_stuck_tour():
+    from inventory_tracking.macros.tzroutine import RUNS_A_TOURED_LEVEL
+
+    plan = itinerary(TAL_RASHAS)
+    assert plan is not None
+    spent = 1 + RUNS_A_TOURED_LEVEL * len(TOMBS)
+    assert look(CANYON, plan, stage=ENTER, worked=((CANYON, spent),)) == [(NEXT_LEVEL, CANYON)]
+    assert look(CANYON, plan, stage=ENTER, worked=((CANYON, spent + 1),)) == []  # the game is left

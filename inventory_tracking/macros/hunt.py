@@ -283,6 +283,10 @@ class Hunter:
         # Whether the KP_6 loop is on (the runner's): the sweep holds a plain valuable with no room too
         # (lootpolicy.py `NO_ROOM_PLAIN`, ruled 2026-10-18)
         self.looping: Callable[[], bool] = lambda: False
+        # The runner's (loot/api.py `at_once`): the field routine for a big item picked for it, at a quiet look between
+        # a level run's moves; whether it decided any (the player, 2026-10-20 ~14:28: "we must redesign our routins to
+        # actually have space for mid-run identifying big items")
+        self.field_now: Callable[[Run], bool] = lambda run: False
 
     def use(self, build: Build) -> None:
         """The build played from now on (runner.py `choosing`). Another build restarts what is kept per build
@@ -594,6 +598,8 @@ class Hunter:
                 # A level run keeps the sweep's look for a better place in its fights (combat/stance.py `camp`).
                 self.sweep.start(run.clock())
             between = self.running and not self.advancing(run.clock())
+            if between and self.quiet(world, foes) and self.field_now(run):
+                continue  # a big item identified at once: dropped at the feet or into the cube (loot/api.py)
             if between and self.upkeep(run, world, foes, key_names, renewing=not self.quiet(world, foes)):
                 # Between the run's moves: in the quiet the whole upkeep (run-1932-findings.md issue 3), else only a
                 # buff that would end inside the coming boss fight (buffs.py `lapsing`)

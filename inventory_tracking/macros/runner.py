@@ -150,6 +150,10 @@ class MacroRunner:
         self.generation = 0
         self.warning: tuple[str, float] | None = None  # (text, the clock it was given at)
         self.standing = False  # the warning is the level run's stand by a valuable with no room (`_stand_by`)
+        # The clock the poll or a stop last answered a stand at (watch.py `stood_after_cube` acts only on a later one),
+        # and the stand (its warning's clock) whose room rule waits for no hostile near, said once
+        self.stand_answered = -math.inf
+        self.stand_held: float | None = None
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
         # The player's toggle turned the mode off: a teleport press whose goal is a fight leaves it off (`pursues`)
         self.attack_declined = False
@@ -807,6 +811,7 @@ class MacroRunner:
     # recovery.py
     _loop_stopped = recovery._loop_stopped
     _stop_loop = recovery._stop_loop
+    _field_trip = recovery._field_trip
     _gheeds_swap = recovery._gheeds_swap
     _carry_one = recovery._carry_one
     _forget_given_up = recovery._forget_given_up

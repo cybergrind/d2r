@@ -44,6 +44,7 @@ from inventory_tracking.game.layout import (
     MODIFIERS,
     MONSTER_DATA,
     MONSTER_OWNER,
+    MONSTER_RESISTS,
     MONSTER_UNIT,
     NAME_WRAP,
     NO_OWNER,
@@ -220,7 +221,7 @@ def monsters_and_dead(
         except OSError, ValueError:
             continue
         owner = struct.unpack_from('<I', data, MONSTER_OWNER)[0]
-        ally, life, max_life, tier = False, 0, 0, 0
+        ally, life, max_life, tier, resists = False, 0, 0, 0, ()
         if unit['stats_pointer']:
             with contextlib.suppress(OSError, ValueError, struct.error):
                 full = read_stats(read, unit['stats_pointer'] + FULL_STATS)
@@ -228,6 +229,7 @@ def monsters_and_dead(
                 ally = bool(stats.get(ALIGNMENT_STAT))
                 tier = stats.get(HERALD_TIER_STAT, 0)
                 life, max_life = stats.get(LIFE_STAT, 0) >> 8, stats.get(MAX_LIFE_STAT, 0) >> 8
+                resists = tuple((stat, stats[stat]) for stat in MONSTER_RESISTS if stat in stats)
         raw = b''
         if unit['txt_id'] == DEFILER_CLASS:
             with contextlib.suppress(OSError, ValueError):
@@ -242,7 +244,9 @@ def monsters_and_dead(
                     states = read(unit['stats_pointer'] + STATE_RUN[0], STATE_RUN[1])
             if unit['mode'] in STRIKING_MODES:
                 skill = skill_in_use(read, unit.get('record', b''))
-        monster = replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier)
+        monster = replace(
+            monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier, resists=resists
+        )
         found.append(replace(monster, record=whole, states=states, skill=skill))
     return tuple(found), frozenset(corpses)
 

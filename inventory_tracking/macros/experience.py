@@ -4,13 +4,14 @@ leg's look (`look`: a level's gain when the level is left) and at Save and Exit 
 rate since the loop turned on); it returns the log lines, never reads the game.
 
 `Macro: experience: game N: +X (level L, Y to the next), Z an hour over H games` and
-`Macro: experience: <level>: +X in Ts (level L)` (d2-loop-watch tools/logwords.py EXPERIENCE_GAME, EXPERIENCE_LEVEL).
+`Macro: experience: <level>: +X in Ts (level L)` (d2-loop-watch tools/logwords.py EXPERIENCE_GAME, EXPERIENCE_LEVEL);
+the seven Tal Rasha's Tombs numbered (levels/presets.py `numbered_name`, 2026-10-20).
 """
 
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from inventory_tracking.levels.presets import display_name
+from inventory_tracking.levels.presets import numbered_name
 from inventory_tracking.native.layout import TOWN_IDS
 
 
@@ -114,6 +115,6 @@ class Ledger:
             return []
         seconds = clock - self.level_since
         return [
-            f'experience: {display_name(area)}: {gained(now.experience - start.experience)} in {seconds:.0f}s '
+            f'experience: {numbered_name(area)}: {gained(now.experience - start.experience)} in {seconds:.0f}s '
             f'(level {now.level})'
         ]

@@ -2,7 +2,10 @@
 
 Each leg names the exact route and hops from an available waypoint. A hop whose
 catalog stage is pending, is a tomb tour, or is only inferred from a level link
-is reported as blocked until the runner has a verified handler for it.
+is reported as blocked until the runner has a verified handler for it. An excursion
+that tours every level of a tour (`_whole_tour`: the Canyon of the Magi's seven tombs)
+is not blocked by it: the tour goes through the nearest entrance not yet entered and
+reads the level on arrival, so no entrance needs to be designated ahead.
 """
 
 from __future__ import annotations
@@ -168,6 +171,26 @@ def _path(edges: dict[int, tuple[RouteHop, ...]], start: int, destination: int) 
     return None
 
 
+def _whole_tour(edges: dict[int, tuple[RouteHop, ...]], path: tuple[RouteHop, ...]) -> tuple[RouteHop, ...]:
+    """`path` ending in a tour's hop goes on through every level of that tour, in the catalogue's order (the order a
+    game takes them in is the tour's own: the nearest entrance not yet entered first). The player, 2026-10-20 ~14:03:
+    "we need to utilize smaller tombs too - it gives a great ext/hour rate"; 00:45 on 2026-10-18: "Canyon first, then
+    tombs"."""
+    if not path or path[-1].kind != 'tour':
+        return path
+    last = path[-1]
+    tour = tuple(hop for hop in edges.get(last.source, ()) if hop.kind == 'tour' and hop.stage == last.stage)
+    return (*path[:-1], *tour)
+
+
+def _trip_blockers(path: tuple[RouteHop, ...]) -> tuple[str, ...]:
+    """The blockers of an excursion's hops; a tour's hops are none when the excursion takes the whole tour."""
+    tours = [hop for hop in path if hop.kind == 'tour']
+    stage = tours[0].stage if tours else None
+    whole = stage is not None and {hop.destination for hop in tours} == set(stage.tours)
+    return tuple(blocker for hop in path if not (whole and hop.kind == 'tour') and (blocker := hop.blocker) is not None)
+
+
 def route_leg(area: int, route_name: str | None = None) -> RouteLeg | None:
     """Best catalog path to an area, preferring verified stages over implicit links."""
     options = [route for route in ROUTES if any(script.area == area for script in route.scripts)]
@@ -230,10 +253,11 @@ def zone_route_plan(zone: ActiveZone, capabilities: dict[int, Capability] | None
             path = _path(edges, start, leg.area)
             if path is None:
                 continue
+            path = _whole_tour(edges, path)  # a tour's level: the trip tours them all (one leg each would be 7 trips)
             nodes = (start, *(hop.destination for hop in path))
             covers = tuple(dict.fromkeys(area for area in nodes if area in group))
-            blockers_for_path = tuple(blocker for hop in path if (blocker := hop.blocker) is not None)
-            candidates.append(RouteExcursion(route.name, start, leg.area, path, covers, blockers_for_path))
+            terminal = path[-1].destination if path else leg.area
+            candidates.append(RouteExcursion(route.name, start, terminal, path, covers, _trip_blockers(path)))
     remaining = group.copy()
     excursions = []
     while remaining:

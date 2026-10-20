@@ -158,6 +158,21 @@ BANK = 267  # objects.txt `Bank` (*ID), the stash a town's character puts its th
 
 
 RESISTS = (39, 41, 43, 45)  # fireresist, lightresist, coldresist, poisonresist (itemstatcost.txt)
+# A monster's resistances in its full stat list, by element (itemstatcost.txt damageresist 36, magicresist 37,
+# fireresist 39, lightresist 41, coldresist 43, poisonresist 45; the client's resist table in
+# rca/2026-10-13/re/notes-damage.md B2). Read live they hold the monstats Hell columns with the enchantments' changes
+# (Fire Enchanted: a Dark One's fire 125 -> 200, takes of 2026-10-20) and whatever else the game puts on them. At
+# IMMUNE or over, the element takes nothing (`v * (100 - min(r, 100)) / 100`).
+PHYSICAL_RESIST, MAGIC_RESIST, FIRE_RESIST, LIGHTNING_RESIST, COLD_RESIST, POISON_RESIST = 36, 37, 39, 41, 43, 45
+MONSTER_RESISTS = {
+    PHYSICAL_RESIST: 'physical',
+    MAGIC_RESIST: 'magic',
+    FIRE_RESIST: 'fire',
+    LIGHTNING_RESIST: 'lightning',
+    COLD_RESIST: 'cold',
+    POISON_RESIST: 'poison',
+}
+IMMUNE = 100
 DEFENSE_PERCENT = 16  # item_armor_percent: a superior armor's enhanced defense (itemstatcost.txt)
 DAMAGE_PERCENT = 17  # item_maxdamage_percent: a superior weapon's enhanced damage (itemstatcost.txt)
 

@@ -333,6 +333,9 @@ class Buff:
     passed: Callable[[BuffFacts], Sequence[tuple[Monster, str]]] | None = None
     # Log line at each cast on a target (the player, 2026-10-14: the log is how they see a cast and why)
     said: Callable[[BuffFacts, Monster], str | None] | None = None
+    # Log line at a cast on a target, said once per target (the player, 2026-10-20: why Death Mark went on a magic
+    # immune monster, a reason that holds at every mark again)
+    told: Callable[[BuffFacts, Monster], str | None] | None = None
     caster: str | None = None  # a name in `Build.casters`; None: the shared executor
     # Other skills its caster presses first; they must be on keys too (macros/buffs.py `keys_of`)
     also: tuple[int, ...] = ()

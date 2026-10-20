@@ -908,3 +908,126 @@ Three switches, each on, each alone:
   hold). Tests: 11 new acceptance cases in `fixtures/valuables.json` (the harness counts `owned` per case and never
   reads the host's collection), `test_value.py` (the count), `test_pickmode.py` (the cap in the GOOD level).
 - 2026-10-20 ~13:35 note: design.md §9's 'Not live: Cure helms are not shown by the filter' is superseded by the filter pass (SHOW Cure Helms Gray).
+
+### Big uniques and sets in the field, the cube's items (2026-10-20, the player ~13:28: "probably it is good idea to identify a big items in the middle of the run (like right now we have a big hammer in cube) and probably drop them without bringing to the town, for sake of efficiency")
+
+- **G18** (`loot.api.FIELD_NAMED = True`): a unique or set item of `BIG_CELLS` (4) cells or more, not a ring or amulet
+  (`NAMED_SMALL`) nor a charm, jewel or any never-dropped kind, that the pickup takes by its own rules is remembered
+  for the field routine (`Field.note`, from `pickmode._kept`, which now wraps `_taken`): what is picked is unchanged,
+  and it stays a valuable the guard holds the game for (not an identify candidate). Identified when quiet at the same
+  sites (level end / Town Portal, before `make_room`, Save and Exit; in town the Cain rule), decided by `keep.decide`
+  with the collection's copies (`CollectionCopies`, read-only).
+- The drop rule (`api.surplus`, the only way `droppable` lets a set/unique down): the decision is DROP **and** it is
+  appraised, no want row names it, its worth by its own rolls is under `DUPLICATE_IST` (1 Ist), a comparable owned
+  copy exists, and it is not better than every owned copy on the rolls that matter (`value.better_than`, mixed by
+  score). With no price by its rolls (Q13): only the same item with equal or worse rolls than an owned copy and a KB
+  band (q1 and median) under 1 Ist; no band → kept. So: the first copy kept (K4), a better copy kept even when the
+  appraisal says vendor (K8 decided, the guard refuses), a 1 Ist+ copy kept (K5), unique charms never (K1 and
+  NEVER_DROPPED). Drop reason in the log: `in the field: <rule> a surplus copy, not better, cheap: <reason>`.
+- **The cube**: `Field.settle` also reads the loop's items in the cube (`FieldHands.cubed`: `pack.in_cube`, not
+  KEPT, not `protected` by the player's prints, only once the loop told the player's cells). An item picked for a
+  field class this game, or by its kind alone (`carried_class`: unidentified, G18 big set/unique or G14 big magic/rare;
+  an item carried into a new game or picked before a restart has a new unit) is taken out into the inventory
+  (`cube.unpack`, Ctrl + click) where the inventory takes it with a SURE_BLOCK still free, the Tome's charges and
+  MOST_A_BATCH allow; identified there; the bad ones dropped from the inventory; the kept and the not identified put
+  back (`cube.stash_only`); after the player's hand or a cancel nothing is put back (the loop's cube leg takes them).
+  A take-out that fails counts as a try (MOST_TRIES, then Cain). The tome on an item inside the open cube: no evidence
+  in the code, history or rca that it works (`junk.identify` clicks only the inventory's cells; Cain's identify covers
+  the cube), so the item is moved first. The cube's contract is kept: an item goes back to the cube it came from, and
+  the routine never runs during a visit (Cain ahead → wait).
+- Mid-run (task 3): the loop's trips for room all go through `portal.to_town` (`settle(run, 'Town Portal')` first:
+  the remedies TRIP and PACKAGE, `tzloop` 435, `loop.py` 904/942/1168/1171), the CUBE remedy and the town's
+  `make_room` through `settle(run, 'room')` in `running/execution.py`; the DROP remedy (`drop_for`, an unidentified
+  candidate dropped for room) had none: `settle(run, 'room')` now runs before it. `running/room.py` (`_room_in_cube`,
+  `_trip`) is the hand activities' (loop off), where the field routine never runs (`FIELD.looping`). "Room low" (under
+  TRADE_ROOM cells) out of town is no trigger of its own: it only makes the next game's visit due.
+- The War Club of 13:19 (Bloodtree Stump, `9m9`, 2x4): put into the cube for room, carried, identified by Cain at the
+  13:25 visit (vendor, asks q1 0.198 / median 1.0, 15 sellers, 2026-10-04; "an owned copy rolls at least as well";
+  shadow K8 0.719 Ist) and sold for 9280 gold. With G18 it is noted at its pickup and identified at the next quiet
+  site (`room` before the cube, or the level's Town Portal) and dropped at the feet as a surplus copy.
+- Tests: `test_api.py` (note, the surplus rule, the routine on 7 War Club cases, the cube: out / dropped / put back,
+  by kind, no room, a stuck take-out bounded, a hostile near), `test_hands.py` (the fake game's Ctrl + click out,
+  tome, drop; a kept one back in), `test_field_hooks.py` (the pickup notes it, nothing else changes),
+  `fixtures/valuables.json` §6.6 (6 cases, a `field` aspect) and the four unique charm cases (`field: keep`).
+
+### G19 magic gloves (2026-10-20, the player ~13:30: "for pickups: we want to identify magic gloves that can roll something like 40ias + annother valuable roll, like skills / that is required for javazon or something like that")
+
+- What can roll (d2data; itype `glov`, Equiv `armo`): the IAS suffixes are of Readiness 10 (magicsuffix.json:12399,
+  affix level 20) and of Alacrity 20 (:2936, level 43), one group (7): **20 IAS is the most a magic glove has**; 40 IAS
+  is of Quickness (:2916, itype `mele`: the Amazon javelins). The +tab prefixes (group 125; +1/+2/+3 at affix levels
+  20/40/60, +3 magic only): Bow and Crossbow (Archer's :7517), Passive and Magic (Athlete's :7580), Javelin and Spear
+  (Spearmaiden's :7621, Lancer's :7642), Martial Arts (Kenshi's :9218); stat 188 layer 0 / 1 / 2 / 50. No other tree
+  rolls on gloves (no Warlock, Warcries, Shadow, Fire).
+- Rows (`loot/build_wants.py` G19, sourced on guides/pricing.html:203, the asks of bands.json skill-gloves-20-ias:
+  Gauntlets 27 sellers q1 3.32 median 4.05, 2026-08-21..09-19; the guide's pull of 2026-09-19: +3 Jav 1-2 Jah, +3 Bow
+  4-22, +3 MA 4-11, +2 Jav 1, +3 Passive 1 Ist): `gloves-magic-identify` (every magic glove is picked, the loop on,
+  for the field identify, class G19, before G14's size rule); `gloves-plus3-jav-bow-ma-alacrity` (20 IAS and +3
+  Javelin, Bow or Martial Arts: always kept); `gloves-plus3-passive-alacrity` and `gloves-plus2-jav-ma-alacrity` (the
+  guide's "+2 Jav or +2 MA of Alacrity is a low CHECK"): wants, never field-dropped. Everything else of a magic glove
+  is junk (`keep.JUNK_MAGIC`, K8, priced or not) unless worth 1 Ist or more by its own rolls (K5 before it;
+  `api.droppable` spares 1 Ist+ too): "+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of
+  Alacrity = vendor".
+- `loot.api.CLASSES` / `IMPLEMENTED` gain G19; `ORDER` puts it after G9. In the KP_6 loop magic gloves (2x2, shown)
+  were already picked and identified since ~12:00 by G14 (4+ cells) and judged by the KB alone; now the rows keep the
+  paid combinations whatever the band says and the junk rule drops the rest (before: a cheap or unpriced pair was kept,
+  K9/K10).
+- Item level: not read on the ground (`Drop` has no ilvl; `inventory_tracking/history/item_level_research.md`: no
+  verified D2R offset, +0x2C reads 0), so no skip of bases whose affix level cannot reach 40/43/60. By the purediablo
+  rule (pindle-anya.html:174) a +3/20 pair needs affix level 60: at Lower Kurast Hell (ilvl 80) every base but Crusader
+  and Ogre Gauntlets can roll it, at Andariel (75) only normal bases and Demonhide.
+- The filter: `SHOW Magic ARMOR` (lootfilter/warlock_lean_v2.json:471-517) already lists all 15 glove codes, every
+  tier: no change.
+- Tests: `fixtures/valuables.json` §6.7 (10 cases: Lancer's / Kenshi's / Archer's / Athlete's / Spearmaiden's of
+  Alacrity kept, Bowyer's of Alacrity, +3 without IAS, IAS alone dropped in the field, +3 Bow 1.4 Ist kept by K5, an
+  unidentified pair picked to identify), `test_api.py` (`takes` says G19), `test_shadow.py` (its unpriced magic item is
+  now a pair of Boots).
+
+### Room for the big items mid-run (2026-10-20, the player ~14:28: "we must redesign our routins to actually have space for mid-run identifying big items"; "could you analyze why unique tresher wasn't identified min-run?")
+
+- Why: after a visit the player's items fill 30 of 40 cells; the free cells are rows 0-1 columns 3-4 and rows 2-3
+  columns 2-4 (`visits/142128.json`, the `end` stop). A 2x3 Monarch, a 2x2 glove or a 2x4 Thresher at its first spot
+  leaves no 1x3 (`leaves_room`), so the big field items were never picked (14:24:32 magic Monarch, 13:53 two magic
+  gloves) and a big item the room rules put in the cube never came out for the Tome (the Unique Thresher, 14:39:30,
+  game 4 of 20261020T112607Z-7288f87b: to town unidentified). Sizes are sizes.json's (`game/decode.py item_size`).
+- `loot.api.FIELD_AT_ONCE = True` (off alone): (1) `Field.pick` takes a big field item into the free block without the
+  1x3 after it (`_squeeze`) when it fits, no other big field item of the game is carried undecided (`Loot.carried`: one
+  at a time), no sure valuable of the look would lose its room (`pickmode._field_pick` passes them) and the Tome has a
+  charge (`kept(..., tome)`, one inventory read, kept TOME_FRESH 5 s); else `Macro: loot: field: <item> (unit N) left:
+  <why>`, once a drop. (2) Every big item picked or noted (G6, G9-G11, G14, G15, G18, G19 of 4+ cells) is identified at
+  the level run's first quiet look (`hunt.py` `field_now` between the run's moves, no hostile within QUIET_UNITS ->
+  `api.at_once` -> `Field.at_once`, every AT_ONCE_EVERY 1 s, the site 'at once'; `settle`'s own waits: SIGHT, a panel,
+  a valuable to pick, life): a bad one put down at the feet (`PutDown.reject`), a kept one into the cube where it fits
+  (`put_back` = `cube.stash_only`), else it stays and the room rules answer the next valuable (the stand, the cube,
+  `stood_after_cube`, the Gheed's swap, a trip). (3) `_take_out` brings one big cube item a batch into the block without
+  the 1x3 after it, at every site but 'room' (room made for a valuable waiting), and puts it back after; `at_once`
+  looks at the cube's waiting big items too.
+- A rune or charm seen while a big item waits (hostiles near): the room rules as before: the press stops for it
+  (`lootpolicy.verdict` holds in the loop), `make_room` runs `settle(run, 'room')` (waits near a hostile) and stashes
+  the loop's items, the undecided big one with them, into the cube; then `stood_after_cube`. The at-once identify
+  frees the block as soon as it is quiet. Big field items stay identify candidates: no game is kept for them.
+- Measure (shadow lines vs pickups, 2026-10-20 13:51-14:49, 25 games): 10 big field items the old rule left (2 magic
+  Monarchs, 8 magic gloves), none picked: ~0.4 a game; plus the Thresher's cube case (1).
+- Tests: `test_api.py` (the visit's exact cells; Monarch, Demonhide Gloves, Vambraces taken; each leave reason; one
+  at a time; at once: dropped, kept into the cube, kept with the cube full and the next charm's room stop, a hostile
+  near then quiet, still on the ground, no charge, the hook; the Thresher out of the cube at Save and Exit, the
+  reserve at 'room', one a batch, at once from the cube), `test_field_hooks.py` (pickmode), `test_hunt.py` (the hook
+  asked only in the quiet).
+- Room for any field item left for want of it (the rare Kriss of 14:52:26, gems in the free cells; 14:55-14:58 a Blood
+  Spirit, two Codices, a Horned Helm, a Tiara "left: no room for its 2x2"): `Field.pick` notes it (`roomless`); at the
+  next quiet look `_room_for` makes the routine's drops, then moves the loop's decided items into the cube where that
+  frees its block (`room_moves`); the cube full too, the room rules' trip (`Field.trip` = running/recovery.py
+  `_field_trip`: the agenda's package or the trip and back, `Loop.may_trip` bounds it: TRIPS_A_GAME; once a drop a game;
+  only in the quiet; the level run ended as `stood_after_cube` ends it, `stand_answered` set). The player, ~14:58: "we
+  need to optimize space (move to cube) and identify items during games / if we have no room for optimization to keep
+  picking up items - we need to do town routine". Valuables keep their own room rules (the stand, the cube, the trip).
+- `loot.api.CUBE_AT_PICKUP = True` (the player, ~15:02: "move all items that we're going to stash in town
+  (gems/runes/statues/etc) pickup and stash in cube, to have space for identifying items along the way"): a drop of the
+  resource tabs' classes (`stash_bound`: runes, gems, keys, statues, shards, essences, organs; no potion) the pickup
+  takes is noted (`Field.park`, pickmode `_kept`); at the next quiet look every such loop item carried goes into the
+  cube in one batch (`_park` -> `put_back` = `cube.stash_only`, its `plan`), once a pickup: `Macro: loot: cube: N of
+  the loop's stash-bound items moved in (<names>)`. The visit takes resources from the cube onto the tabs as before
+  (the level end's cube leg puts them there already; `test_stash.py`, `test_visit.py` unchanged and green).
+- Measure, 2026-10-20 (124 games in today's logs): 150 picks of stash-bound kinds (flawless gems 68, Southern Shards 10,
+  Tal 9, ...), each now off the free block at the next quiet look; identify candidates left for room: the 10 big ones
+  above, the rare Kriss, and 5 "no room for its 2x2" in the first 3 games after 14:55. Live since 14:55: 5 identifies at
+  once, 5 dropped.

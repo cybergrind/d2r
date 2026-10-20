@@ -16,6 +16,7 @@ import pytest
 from inventory_tracking.game.kept import PutDown
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.loot import today, value as loot_value
+from inventory_tracking.loot.api import droppable
 from inventory_tracking.loot.facts import (
     MAGIC,
     ItemFacts,
@@ -65,6 +66,7 @@ def facts_of(spec: dict[str, Any], unit: int = 1, *, owner: Owner | None = None)
         observation(spec, unit),
         where=Where(spec.get('where', 'inventory')),
         owner=owner or Owner(spec.get('owner', 'loop')),
+        size=(spec['size'][0], spec['size'][1]) if 'size' in spec else None,
     )
     return replace(found, unit_id=unit)
 
@@ -154,6 +156,18 @@ def test_todays_town_judgement_on_each_valuable(case):
     decision = today.decide(facts, value_of(case, facts), owned_of(case))
     outcome = KEPT.get(decision.action, decision.action.value)
     assert outcome == EXPECTED[case['expect']['decision']], f'{case["id"]}: {decision.said()}'
+
+
+@pytest.mark.parametrize('case', params('field', 'new'))
+def test_the_field_check_puts_down_only_a_surplus_big_set_or_unique_item(case):
+    """G18 (loot/api.py, the player 2026-10-20 ~13:28: "identify a big items in the middle of the run ... and probably
+    drop them without bringing to the town"): the decision, then the field's guard with the owned copies."""
+    facts = facts_of(case['item'])
+    value, owned = value_of(case, facts), owned_of(case)
+    decision = decide(facts, value, owned)
+    refused = droppable(facts, value, owned) if decision.action == Action.DROP else 'kept by the decision'
+    outcome = 'drop' if refused is None else 'keep'
+    assert outcome == case['expect']['field'], f'{case["id"]}: {decision.said()}; {refused} ({case["source"]})'
 
 
 def test_every_fixture_names_its_base_by_the_game_datas_code_and_says_its_source():

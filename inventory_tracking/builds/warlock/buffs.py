@@ -15,6 +15,7 @@ from inventory_tracking.builds.warlock.mark import (
     mark_passed,
     mark_refusal,
     mark_said,
+    mark_told,
     target,
     worth_a_mark,
 )
@@ -186,6 +187,7 @@ BUFFS: tuple[Buff, ...] = (
         refused=mark_refusal,
         passed=mark_passed,
         said=mark_said,
+        told=mark_told,
     ),
     Buff(SIGIL_LETHARGY, 'fight', sigil_due, on='ground', target=prey, caster='sigil'),
     Buff(ENGORGE, 'fight', engorge_on_a_key, on='corpse', caster='engorge'),

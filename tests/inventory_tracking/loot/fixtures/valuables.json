@@ -1603,12 +1603,17 @@
       20,
       40
      ]
-    }
+    },
+    "size": [
+     1,
+     3
+    ]
    },
    "expect": {
     "ground": "pick",
     "decision": "keep",
-    "rule": "K1"
+    "rule": "K1",
+    "field": "keep"
    },
    "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
    "value": {
@@ -1639,12 +1644,17 @@
       20,
       40
      ]
-    }
+    },
+    "size": [
+     1,
+     1
+    ]
    },
    "expect": {
     "ground": "pick",
     "decision": "keep",
-    "rule": "K1"
+    "rule": "K1",
+    "field": "keep"
    },
    "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
    "value": {
@@ -1675,12 +1685,17 @@
       20,
       40
      ]
-    }
+    },
+    "size": [
+     1,
+     2
+    ]
    },
    "expect": {
     "ground": "pick",
     "decision": "keep",
-    "rule": "K1"
+    "rule": "K1",
+    "field": "keep"
    },
    "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
    "value": {
@@ -1711,12 +1726,17 @@
       20,
       40
      ]
-    }
+    },
+    "size": [
+     1,
+     3
+    ]
    },
    "expect": {
     "ground": "pick",
     "decision": "keep",
-    "rule": "K1"
+    "rule": "K1",
+    "field": "keep"
    },
    "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
    "value": {
@@ -2622,6 +2642,549 @@
    "owned": [],
    "today_fails": {
     "decision": "today: junk.junk_of sells only a vendor verdict; with none the item is carried to town and stashed"
+   }
+  },
+  {
+   "id": "bloodtree_stump_surplus_not_better_cheap_dropped_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "War Club",
+    "code": "9m9",
+    "quality": "unique",
+    "name": "Bloodtree Stump",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      220
+     ]
+    },
+    "rolls": {
+     "17:0": 190
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4)",
+   "value": {
+    "worth": 0.719,
+    "verdict": "vendor",
+    "band": {
+     "q1": 0.19808333333333333,
+     "median": 1.0,
+     "sellers": 15,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 205
+     }
+    }
+   ]
+  },
+  {
+   "id": "bloodtree_stump_first_copy_kept_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "War Club",
+    "code": "9m9",
+    "quality": "unique",
+    "name": "Bloodtree Stump",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      220
+     ]
+    },
+    "rolls": {
+     "17:0": 190
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K4",
+    "field": "keep"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); S3 keep one copy",
+   "value": {
+    "worth": 0.719,
+    "verdict": "vendor",
+    "band": {
+     "q1": 0.19808333333333333,
+     "median": 1.0,
+     "sellers": 15,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": []
+  },
+  {
+   "id": "bloodtree_stump_better_copy_kept_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "War Club",
+    "code": "9m9",
+    "quality": "unique",
+    "name": "Bloodtree Stump",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      220
+     ]
+    },
+    "rolls": {
+     "17:0": 218
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K6",
+    "field": "keep"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); the player: \"we can keep cheaper items (like 0.6 ist) only in case new items better than what we already have\"",
+   "value": {
+    "worth": 0.85,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.19808333333333333,
+     "median": 1.0,
+     "sellers": 15,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 200
+     }
+    },
+    {
+     "rolls": {
+      "17:0": 210
+     }
+    }
+   ]
+  },
+  {
+   "id": "bloodtree_stump_better_but_vendor_kept_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "War Club",
+    "code": "9m9",
+    "quality": "unique",
+    "name": "Bloodtree Stump",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      220
+     ]
+    },
+    "rolls": {
+     "17:0": 219
+    }
+   },
+   "expect": {
+    "field": "keep"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); keep.decide says K8 (worthless), the field guard keeps a copy better than every owned one (loot/api.py surplus)",
+   "value": {
+    "worth": 0.9,
+    "verdict": "vendor",
+    "band": {
+     "q1": 0.19808333333333333,
+     "median": 1.0,
+     "sellers": 15,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 205
+     }
+    }
+   ]
+  },
+  {
+   "id": "bloodtree_stump_expensive_copy_kept_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "War Club",
+    "code": "9m9",
+    "quality": "unique",
+    "name": "Bloodtree Stump",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      220
+     ]
+    },
+    "rolls": {
+     "17:0": 190
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K5",
+    "field": "keep"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); the player: \"we keep dublicates only for expensive items\" (1 Ist, Q1)",
+   "value": {
+    "worth": 1.2,
+    "verdict": "sell",
+    "band": {
+     "q1": 0.19808333333333333,
+     "median": 1.0,
+     "sellers": 15,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 205
+     }
+    }
+   ]
+  },
+  {
+   "id": "sigons_shelter_owned_unknown_worth_kept_in_field",
+   "section": "6.6",
+   "item": {
+    "base": "Gothic Plate",
+    "code": "gth",
+    "quality": "set",
+    "name": "Sigon's Shelter",
+    "size": [
+     2,
+     3
+    ]
+   },
+   "expect": {
+    "field": "keep"
+   },
+   "source": "setitems.json:3449 (fixed stats); armor.json:3890 (Gothic Plate gth, 2x3); KB lookup 2026-10-20: price_status unresolved; Q13 never given up on no evidence",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": [
+    {}
+   ]
+  },
+  {
+   "id": "gloves_lancers_of_alacrity_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:2": 3,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:203 (\"Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA), or +3 Passive and Magic, of Alacrity\"); pricing/data/triage/bands.json:1019434 skill-gloves-20-ias Gauntlets asks q1 3.32 median 4.05, 27 sellers, 2026-08-21..09-19; magicsuffix.json:2936 of Alacrity 20 IAS (the most on magic gloves)",
+   "value": {
+    "worth": 4.053,
+    "verdict": "slow",
+    "band": {
+     "q1": 3.319,
+     "median": 4.053,
+     "sellers": 27,
+     "observed": "2026-09-19"
+    }
+   },
+   "owned": null,
+   "today_fails": {
+    "ground": "today: pickmode.sure (loot/today.py) takes no magic glove; the KP_6 loop's field identify (loot/api.py Field.pick, G19, or G14 by size before it) picks them"
+   }
+  },
+  {
+   "id": "gloves_kenshis_of_alacrity_heavy_bracers_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Heavy Bracers",
+    "code": "xmg",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:50": 3,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K3",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:203 (\"Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA), or +3 Passive and Magic, of Alacrity\"); pricing/data/triage/bands.json:1019434 skill-gloves-20-ias Gauntlets asks q1 3.32 median 4.05, 27 sellers, 2026-08-21..09-19; magicsuffix.json:2936 of Alacrity 20 IAS (the most on magic gloves); KB Heavy Bracers +3 MA / 20 IAS one seller 11.42 Ist, 2026-09-18",
+   "value": {
+    "worth": 11.42,
+    "verdict": "slow"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_archers_of_alacrity_unpriced_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Chain Gloves",
+    "code": "mgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:0": 3,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K3",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:203 (\"Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA), or +3 Passive and Magic, of Alacrity\"); pricing/data/triage/bands.json:1019434 skill-gloves-20-ias Gauntlets asks q1 3.32 median 4.05, 27 sellers, 2026-08-21..09-19; magicsuffix.json:2936 of Alacrity 20 IAS (the most on magic gloves); no band for this base: kept by the row",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_athletes_of_alacrity_wanted_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:1": 3,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:203 (\"Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA), or +3 Passive and Magic, of Alacrity\"); pricing/data/triage/bands.json:1019434 skill-gloves-20-ias Gauntlets asks q1 3.32 median 4.05, 27 sellers, 2026-08-21..09-19; magicsuffix.json:2936 of Alacrity 20 IAS (the most on magic gloves); +3 Passive & Magic 1 Ist (the guide's pull, 8 sellers)",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_spearmaidens_of_alacrity_low_check_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:2": 2,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:203 (\"+2 Jav or +2 MA of Alacrity is a low CHECK (2026-10-08: 9 and 5 priced sellers, lower quartiles 1 and 3 Ist)\")",
+   "value": {
+    "worth": 0.6,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_bowyers_of_alacrity_dropped_in_field",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:0": 2,
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "guides/pricing.html:203 (\"+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity = vendor\")",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_lancers_without_ias_dropped_in_field",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:2": 3
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "guides/pricing.html:203 (\"+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity = vendor\")",
+   "value": {
+    "worth": 0.5,
+    "verdict": "vendor"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_of_alacrity_alone_unpriced_dropped_in_field",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "93:0": 20
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "guides/pricing.html:203 (\"+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity = vendor\"); keep.py JUNK_MAGIC: no want row names it, not 1 Ist by its rolls",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null,
+   "today_fails": {
+    "decision": "today: an unpriced magic item with no verdict is kept (junk_of sells only a vendor verdict)"
+   }
+  },
+  {
+   "id": "gloves_plus3_bow_without_ias_priced_at_1_ist_kept",
+   "section": "6.7",
+   "item": {
+    "base": "Gauntlets",
+    "code": "hgl",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "188:0": 3
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K5",
+    "field": "keep"
+   },
+   "source": "the request (2026-10-20 ~13:30): \"kept when the KB values it >= 1 Ist\"; keep.py K5 before JUNK_MAGIC",
+   "value": {
+    "worth": 1.4,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "gloves_magic_unidentified_picked_to_identify",
+   "section": "6.7",
+   "item": {
+    "base": "Vambraces",
+    "code": "umg",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {},
+    "identified": false
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "identify",
+    "rule": "K2"
+   },
+   "source": "guides/pindle-anya.html:299 (\"Lancer's/Archer's/Kenshi's Gloves of Alacrity\"); the item level is not read on the ground (inventory_tracking/history/item_level_research.md): no affix-level skip",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null,
+   "today_fails": {
+    "ground": "today: pickmode.sure (loot/today.py) takes no magic glove; the KP_6 loop's field identify (loot/api.py Field.pick, G19, or G14 by size before it) picks them"
    }
   }
  ]

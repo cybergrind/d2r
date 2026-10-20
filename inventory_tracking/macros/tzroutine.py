@@ -5,6 +5,9 @@ on the level depends on the level itself"; "levels with bosses we end with killi
   (routes/tz_routes.py `zone_route_plan`); an excursion with a blocked hop, or an area none covers, is skipped and said.
 - `policy_of`: how an area is worked (agenda.py COVER / ON_THE_WAY / FULL_CLEAR); `kept_to`: a script held to its trip.
 - `produce`: the goals wanted now, derived afresh from a `GameView` at every leg so nothing goes stale.
+- A tour (routes/model.py `tour`: the Canyon of the Magi's seven tombs) is one excursion: the hub's run, then each
+  toured level by the nearest entrance not yet entered, worked and left by its way back to the hub, until every one is
+  done (`Excursion.onward`; macros/tzloop.py `tour_back` marks a toured level done once the hub is stood in again).
 
 Pure: macros/tzloop.py reads the views.
 """
@@ -14,7 +17,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
-from inventory_tracking.levels.presets import display_name
+from inventory_tracking.levels.presets import display_name, numbered_name
 from inventory_tracking.macros.agenda import (
     COVER,
     ERRAND,
@@ -47,6 +50,9 @@ from inventory_tracking.routes.tz_routes import zone_route_plan
 # Self-ended level runs of one area after which it counts as worked whatever its stage ("the loop never stands",
 # the player, 2026-10-18)
 RUNS_AN_AREA = 4
+# Self-ended runs of a tour's hub a toured level may take (the run to the next entrance, one more): past them the tour
+# ends, never a stuck tour. The hub's first run is its own
+RUNS_A_TOURED_LEVEL = 2
 # Per-area policy overrides (goals-plan.md §6, open question 1)
 POLICY: dict[int, str] = {}
 # The route stages a level run performs: an area at one of them is still a level's work
@@ -62,12 +68,17 @@ START_AT = {'Andariel': 35}
 
 @dataclass(frozen=True)
 class Excursion:
-    """One waypoint's trip: `areas` from the waypoint on; `zone` the terrorized ones worked, the rest crossed."""
+    """One waypoint's trip: `areas` from the waypoint on; `zone` the terrorized ones worked, the rest crossed.
+    `hub`, `tours`: a tour's level and the levels its marks lead into, one by one (routes/model.py `tour`), each left
+    by its way back to the hub; the trip is over once each is done (`ends`). The player, 00:45 on 2026-10-18: "for
+    canyon of the magi loop: we should go through every tomb one by one"; "Canyon first, then tombs"."""
 
     route: str
     waypoint: int
     areas: tuple[int, ...]
     zone: frozenset[int]
+    hub: int | None = None
+    tours: tuple[int, ...] = ()
 
     def after(self, area: int) -> int | None:
         """The level after `area` on the excursion; None at its end (or off it)."""
@@ -76,9 +87,32 @@ class Excursion:
         index = self.areas.index(area)
         return self.areas[index + 1] if index + 1 < len(self.areas) else None
 
+    def onward(self, area: int, finished: Iterable[int]) -> int | None:
+        """The level `area` goes on into: from a tour's hub the first toured level not done (which one the press
+        enters is the tour's: the nearest entrance not yet entered), from a toured level the hub while another is left
+        (None after the last: the game ends there); else `after`."""
+        done = set(finished)
+        if self.tours and area == self.hub:
+            return next((level for level in self.tours if level not in done), None)
+        if area in self.tours:
+            return self.hub if any(level not in done for level in self.tours if level != area) else None
+        return self.after(area)
+
+    def touring(self, area: int) -> bool:
+        """Whether `area` is the tour's hub or one of its levels: done only when left for good (`ends`)."""
+        return bool(self.tours) and (area == self.hub or area in self.tours)
+
     @property
     def terminal(self) -> int:
         return self.areas[-1]
+
+    @property
+    def ends(self) -> frozenset[int]:
+        """The levels whose being done ends the excursion: each toured level, else the terminal."""
+        return frozenset(self.tours) if self.tours else frozenset((self.terminal,))
+
+    def over(self, finished: Iterable[int]) -> bool:
+        return self.ends <= set(finished)
 
 
 @dataclass(frozen=True)
@@ -91,14 +125,20 @@ class Itinerary:
     skipped: tuple[tuple[int, str], ...] = ()
 
     def excursion_of(self, area: int, finished: Iterable[int]) -> Excursion | None:
-        """The first unfinished excursion (terminal not in `finished`) that has `area`."""
+        """The first unfinished excursion (`Excursion.over`: its terminal, or each toured level, not in `finished`)
+        that has `area`."""
         done = set(finished)
-        return next((trip for trip in self.excursions if area in trip.areas and trip.terminal not in done), None)
+        return next((trip for trip in self.excursions if area in trip.areas and not trip.over(done)), None)
 
     def next_excursion(self, finished: Iterable[int]) -> Excursion | None:
         """The first excursion not over."""
         done = set(finished)
-        return next((trip for trip in self.excursions if trip.terminal not in done), None)
+        return next((trip for trip in self.excursions if not trip.over(done)), None)
+
+    def touring(self, area: int, finished: Iterable[int]) -> bool:
+        """Whether `area` is on the tour of the excursion under way (`Excursion.touring`): not done as it is left."""
+        trip = self.excursion_of(area, finished)
+        return trip is not None and trip.touring(area)
 
 
 @functools.cache
@@ -121,14 +161,22 @@ def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
                 (area, f'the {trip.route} trip starts at waypoint {start}') for area in nodes[: nodes.index(start)]
             ]
             nodes = nodes[nodes.index(start) :]
-        trips.append(Excursion(trip.route, nodes[0], nodes, group & frozenset(nodes)))
+        toured = [hop for hop in trip.hops if hop.kind == 'tour']
+        hub = toured[0].source if toured else None
+        tours = tuple(hop.destination for hop in toured)
+        trips.append(Excursion(trip.route, nodes[0], nodes, group & frozenset(nodes), hub, tours))
     covered = set().union(*(trip.zone for trip in trips)) if trips else set()
     skipped = [(area, why) for area, why in dict(skipped).items() if area not in covered]
     found = Itinerary(zone.name, group, tuple(trips), tuple(sorted(skipped)))
     LOG.info(
         'Macro: tz: zone %s: %s; skipped %s',
         zone.name,
-        '; '.join(f'{trip.route} from {trip.waypoint}: {list(trip.areas)}' for trip in trips) or 'no excursion',
+        '; '.join(
+            f'{trip.route} from {trip.waypoint}: {list(trip.areas)}'
+            + (f', {list(trip.tours)} a tour from {trip.hub} one by one' if trip.tours else '')
+            for trip in trips
+        )
+        or 'no excursion',
         [f'{area} ({why})' for area, why in found.skipped] or 'none',
     )
     return found
@@ -226,7 +274,13 @@ def produce(view: GameView) -> list[Objective]:
         return goals  # off the itinerary (a level the player went to): nothing more of the zone's here
     runs = dict(view.worked).get(area, 0)
     zoned = area in trip.zone
-    onward = trip.after(area)
+    onward = trip.onward(area, view.finished)
+    if area in trip.tours and area in view.finished:
+        # A toured level done and entered again (its entrance not seen gone through: macros/route.py `note_toured`):
+        # no level twice in a game, and no way back to an entrance the tour still leads to: the game ends here
+        return goals
+    if area == trip.hub and runs > 1 + RUNS_A_TOURED_LEVEL * len(trip.tours):
+        onward = None  # the tour's runs spent: it ends, never a stuck tour
     if view.stage == USE and view.stage_to in TOWNS and view.stage_to != onward:
         # A route's own way to a town leaves the excursion: no level work, the excursion's end (no Town Portal spent).
         # As a level run, Durance 3's Red portal took the run to the Fortress with the trip unfinished, and the trip
@@ -235,13 +289,26 @@ def produce(view: GameView) -> list[Objective]:
         label = f'to {display_name(view.stage_to)} by the route: the excursion ends'
         goals.append(Objective(LEVEL, label, WORK, area, to=view.stage_to))
     elif zoned and runs < RUNS_AN_AREA and (runs == 0 or view.stage in WORKED_BY_RUNS):
-        goals.append(Objective(LEVEL, f'the {display_name(area)} run', WORK, area))
+        goals.append(Objective(LEVEL, f'the {numbered_name(area)} run{toured(trip, area, view.finished)}', WORK, area))
     elif zoned and view.stage == LOOT_STAGE:
         # (A crossed level's loot is none: its script is its way on only, `kept_to`; Travincal's Council on the Durance
         # trip left its loot stage and spun "next level" 30 times, F3)
         goals.append(Objective(LOOT, f'the loot of {display_name(area)}', LOOTING, area))
+    elif onward is not None and area == trip.hub and trip.tours:
+        # Which level the press enters is the tour's (the nearest entrance not yet entered): no level named ahead
+        left = sum(1 for level in trip.tours if level not in view.finished)
+        label = f'on into the nearest {display_name(onward)} not entered ({left} of {len(trip.tours)} left)'
+        goals.append(Objective(NEXT_LEVEL, label, ONWARD, area))
     elif onward is not None and (view.stage != ENTER or view.stage_to in (0, onward)):
         goals.append(Objective(NEXT_LEVEL, f'on into {display_name(onward)}', ONWARD, area, to=onward))
-    elif plan.next_excursion(view.finished | {trip.terminal}) is not None:
+    elif plan.next_excursion(view.finished | trip.ends) is not None:
         goals.append(Objective(PORTAL_TO_TOWN, 'Town Portal for the next excursion', EXCURSION, area))
     return goals
+
+
+def toured(trip: Excursion, area: int, finished: frozenset[int]) -> str:
+    """' (tomb N of 7)' for a toured level of `trip`, by the levels done before it; '' for any other."""
+    if area not in trip.tours:
+        return ''
+    done = sum(1 for level in trip.tours if level in finished)
+    return f' (toured level {done + 1} of {len(trip.tours)})'

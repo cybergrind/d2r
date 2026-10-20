@@ -413,7 +413,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [at_least(RESISTS, 40), at_least('194:0', 3)],
         'must': [at_least(RESISTS, 40), at_least('194:0', 3)],
-        'source': f'{PINDLE}:289; inventory_tracking/macros/pickmode.py:89',
+        'source': f'{PINDLE}:289; inventory_tracking/macros/pickmode.py:93',
         'quote': 'sell 40–44@',  # ruff: ignore[ambiguous-unicode-character-string] (the guide's dash)
     },
     {
@@ -437,7 +437,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [at_least(RESISTS, 45), eth()],
         'must': [at_least(RESISTS, 45), eth()],
-        'source': 'inventory_tracking/macros/pickmode.py:172',
+        'source': 'inventory_tracking/macros/pickmode.py:176',
         'quote': 'found.ethereal',
     },
     {
@@ -468,7 +468,7 @@ ROWS: list[dict[str, Any]] = [
             spec('107:401', '+3 Apocalypse', 1, 3, good=3),
         ],
         'asks': ('legend-spike', '3os/noneth/normal/affixed'),
-        'source': f'{PRICING}:330; {PINDLE}:294; inventory_tracking/macros/pickmode.py:80',
+        'source': f'{PRICING}:330; {PINDLE}:294; inventory_tracking/macros/pickmode.py:84',
         'quote': 'a second 3os elite dagger with +3 Abyss / Chaos staff-mods',
     },
     {
@@ -480,7 +480,7 @@ ROWS: list[dict[str, Any]] = [
         'qualities': WHITE,
         'ground': [sockets(0), at_least('107:402', 3)],
         'must': [sockets(0), at_least('107:402', 3)],
-        'source': 'inventory_tracking/macros/pickmode.py:82',
+        'source': 'inventory_tracking/macros/pickmode.py:86',
         'quote': '0 socket +3 abyss',
     },
     # G9 Warlock class items (PK-blue-class-items; pricing.html §7)
@@ -718,6 +718,66 @@ ROWS: list[dict[str, Any]] = [
         'must': [at_least(WARLOCK_TABS, 1)],
         'source': f'{WARLOCK}:165; {PINDLE}:303',
         'quote': 'Warlock skillers (Chaos / Eldritch / Demon GCs)',
+    },
+    # G19 magic gloves (the player, 2026-10-20 ~13:30: "we want to identify magic gloves that can roll something like
+    # 40ias + annother valuable roll, like skills / that is required for javazon or something like that"). From the game
+    # data (d2data, itype glov, Equiv armo): the IAS suffixes on gloves are of Readiness 10 (magicsuffix.json:12399) and
+    # of Alacrity 20 (:2936), one suffix group (7): 20 IAS is the most a magic glove rolls (40 is of Quickness, itype
+    # mele, :2916: javelins). The tab prefixes on gloves (group 125, +1 / +2 / +3 at affix levels 20 / 40 / 60, +3 magic
+    # only): Bow and Crossbow (Fletcher's / Bowyer's / Archer's, magicprefix.json:7476-7517), Passive and Magic
+    # (:7537-7580), Javelin and Spear (Harpoonist's / Spearmaiden's / Lancer's, :7601-7642), Martial Arts (Shogukusha's
+    # / Sensei's / Kenshi's, :9173-9218); stat 188, layer class*8+tree: 188:0 Bow, 188:1 Passive, 188:2 Javelin, 188:50
+    # Martial Arts. The asks (pricing/data/triage/bands.json skill-gloves-20-ias, Gauntlets: 27 sellers, q1 3.32, median
+    # 4.05, 2026-08-21..09-19; the guide's pull of 2026-09-19: +3 Jav 1-2 Jah, +3 Bow 4-22, +3 MA 4-11, +2 Jav 1, +3
+    # Passive 1 Ist). +3 skills without IAS, IAS alone, +2 Passive or +2 Bow of Alacrity: vendor (the guide), dropped in
+    # the field unless the KB prices the read at 1 Ist or more (keep.py JUNK_MAGIC, K5)
+    {
+        'id': 'gloves-magic-identify',
+        'class': 'G19',
+        'who': 'trade',
+        'label': 'every magic glove: identified, then judged',
+        'types': ['glov'],
+        'qualities': ['magic'],
+        'then': 'identify',
+        'source': f'{PINDLE}:299',
+        'quote': "Lancer's/Archer's/Kenshi's Gloves of Alacrity",
+    },
+    {
+        'id': 'gloves-plus3-jav-bow-ma-alacrity',
+        'class': 'G19',
+        'who': 'trade',
+        'label': "Lancer's / Archer's / Kenshi's Gloves of Alacrity (+3 Javelin, Bow or Martial Arts, 20 IAS)",
+        'types': ['glov'],
+        'qualities': ['magic'],
+        'must': [at_least('93:0', 20), at_least(['188:0', '188:2', '188:50'], 3)],
+        'always_keep': True,
+        'source': f'{PRICING}:203; pricing/triage/import_affixed_rules.py:1003; '
+        'pricing/data/triage/bands.json:1019434; third-parties/d2data/json/magicsuffix.json:2936; '
+        'third-parties/d2data/json/magicprefix.json:7642',
+        'quote': "Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA)",
+    },
+    {
+        'id': 'gloves-plus3-passive-alacrity',
+        'class': 'G19',
+        'who': 'trade',
+        'label': 'Gloves of Alacrity +3 Passive and Magic (20 IAS)',
+        'types': ['glov'],
+        'qualities': ['magic'],
+        'must': [at_least('93:0', 20), at_least('188:1', 3)],
+        'source': f'{PRICING}:203; third-parties/d2data/json/magicprefix.json:7580',
+        'quote': 'or +3 Passive and Magic',
+    },
+    {
+        'id': 'gloves-plus2-jav-ma-alacrity',
+        'class': 'G19',
+        'who': 'trade',
+        'label': 'Gloves of Alacrity +2 Javelin or Martial Arts (20 IAS): a low check',
+        'types': ['glov'],
+        'qualities': ['magic'],
+        'must': [at_least('93:0', 20), at_least(['188:2', '188:50'], 2)],
+        'source': f'{PRICING}:203; pricing/triage/import_affixed_rules.py:708; '
+        'third-parties/d2data/json/magicprefix.json:7621',
+        'quote': '+2 Jav or +2 MA of Alacrity is a low CHECK',
     },
 ]
 

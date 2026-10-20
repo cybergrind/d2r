@@ -2593,3 +2593,27 @@ def test_the_runners_cancel_racing_the_strike_check_is_a_cancel_not_a_false_stop
     monkeypatch.setattr(hunt_module, 'strike_input', raced)
     with pytest.raises(Cancelled):
         hunter(play).attack_mode(run, keys)
+
+
+@pytest.mark.parametrize('near', [False, True])
+def test_a_level_runs_quiet_look_asks_the_field_routine_for_a_big_item_and_a_near_hostile_does_not(near):
+    """loot/api.py FIELD_AT_ONCE (the player, 2026-10-20 ~14:28: "we must redesign our routins to actually have space
+    for mid-run identifying big items"): between a level run's moves, with no hostile within QUIET_UNITS, the runner's
+    `field_now` is asked (it identifies a big item at once); never while one is near (the fight first)."""
+    from inventory_tracking.macros.pursuit import FULL, Pursuit
+
+    monsters = (foe(70, 5000.0 + QUIET_UNITS / 2, 5000.0),) if near else ()
+    play = game(*monsters)
+    hunt = hunter(play)
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=101))
+    calls: list[int] = []  # the hostiles within QUIET_UNITS at each ask
+
+    def field_now(run) -> bool:
+        here = me(run.world())
+        calls.append(sum(math.dist((m.x, m.y), (here.x, here.y)) <= QUIET_UNITS for m in hostiles(run.world())))
+        return False  # nothing decided: the look goes on
+
+    hunt.field_now = field_now
+    attack_mode(play, hunt, until=1.0)
+    assert calls  # asked (with a hostile near: once it is dead)
+    assert not any(calls)  # never with a hostile near

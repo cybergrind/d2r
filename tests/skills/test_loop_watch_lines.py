@@ -578,6 +578,19 @@ def test_the_experience_of_a_tz_game_and_its_levels() -> None:
     assert logwords.EXPERIENCE_LEVEL.search(game) is None
 
 
+def test_each_tal_rashas_tombs_experience_is_its_own_level() -> None:
+    # The Canyon's tour of its seven tombs (2026-10-20): each tomb's line names its number, so games.py `experience`
+    # tells their rates apart
+    from inventory_tracking.macros.experience import Ledger, Reading
+
+    ledger = Ledger()
+    ledger.look('cyber5', 69, Reading(2_000_000, 94), 0.0)
+    (line,) = ledger.look('cyber5', 46, Reading(2_410_000, 94), 52.0)
+    found = logwords.EXPERIENCE_LEVEL.search(logged(f'Macro: {line}'))
+    assert found is not None
+    assert found.groups() == ("Tal Rasha's Tomb 4", '+410,000', '52', '94')
+
+
 def test_games_and_watch_report_a_tz_games_experience(tmp_path: Path, capsys) -> None:
     lines = [
         '2026-10-19 22:00:00,000 INFO Macro: Loop: game 3, TZ level',

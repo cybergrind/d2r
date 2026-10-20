@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.macros.actuator import Abort, Cause
+from inventory_tracking.macros.hunting.base import SIGHT
 from inventory_tracking.macros.loop import GAME_SECONDS, STILL_SECONDS
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.running.base import (
@@ -67,15 +68,19 @@ def poll(self: MacroRunner, now: float) -> None:
                 and game is not None
                 and now - warned[1] > MAKE_ROOM_AFTER
                 and self.loop.on
-                and self.loop.room_tried != game
             ):
-                # Room is made before the watchdog stops the stand; the Gheed's swap first when it is one
-                if not self._gheeds_swap(warned[0], self.valuable_left(), game):
-                    self.loop.make_room, self.loop.room_tried = True, game
-                    LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
-                self.attack_mode = False
-                if self.working:
-                    self.cancelled.set()
+                if self.loop.room_tried != game:
+                    # Room is made before the watchdog stops the stand; the Gheed's swap first when it is one. The
+                    # stand is answered: only one made after it is `stood_after_cube`'s
+                    self.stand_answered = now
+                    if not self._gheeds_swap(warned[0], self.valuable_left(), game):
+                        self.loop.make_room, self.loop.room_tried = True, game
+                        LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
+                    self.attack_mode = False
+                    if self.working:
+                        self.cancelled.set()
+                else:
+                    stood_after_cube(self, warned)
             kills = self.hunter.score.killed if self.hunter is not None else 0  # a fight in place is no stall
             # The Throne's wave wait is no stall either (hunting/throne.py `Waves.due`, bounded by its WAVE_WAIT)
             waves = self.hunter is not None and self.hunter.waves.due(now)
@@ -113,6 +118,43 @@ def poll(self: MacroRunner, now: float) -> None:
         self.unread = True
     finally:
         self.capture_lock.release()
+
+
+def stood_after_cube(self: MacroRunner, warned: tuple[str, float]) -> None:
+    """The run's stand by a valuable with no room (`warned`: the warning and its clock), the cube already tried in
+    this game (`Loop.room_tried`, once a game): the next room rule now, not after the still watchdog's 45 s. Under the
+    lock. In the Canyon of the Magi at 14:03:35 on 2026-10-20 the run stood 45 s by a magic Ring, the cube made room
+    for a Unique Razor Bow 40 s before; the watchdog's stop found no valuable the guard keeps a game for (the Ring is
+    an identify candidate, the field identify's) and left the game, the Ring on the ground; at 01:24:02 that day a
+    Grand Charm's stand got its trip (the room package) only after 40 s (rca/2026-10-20/stand-after-fight-findings.md).
+
+    - No valuable the guard keeps a game for (`valuable_left` None): the stood one is given up (the hunt's `waived`)
+      and the run goes on; the game is not left for it.
+    - Else the stop rules (macros/stops.py `decide`: the room package, a trip, a drop, the loop held), as the
+      watchdog's 'stall' stop would, once no hostile is within SIGHT (a Town Portal is not cast in a fight); while
+      one is, the stand is held (said once) and the watchdog stays the backstop."""
+    text, since = warned
+    if since <= self.stand_answered:
+        return  # answered already (the cube's room, a stop's rules): the watchdog stays its backstop
+    left = self.valuable_left()
+    if left is None:
+        self.standing = False
+        hunter = self.hunter
+        if hunter is not None and hunter.warned is not None:
+            hunter.waived.add(hunter.warned)
+        LOG.info('Macro: loop: %s: the cube was tried in this game and no game is kept for it: the run goes on', text)
+        return
+    if self.attacker_near():
+        if self.stand_held != since:
+            self.stand_held = since
+            LOG.info('Macro: loop: %s: the cube was tried in this game; %s lies on the ground: the next room rule '
+                     'once no hostile is within %.0f', text, left, SIGHT)  # fmt: skip
+        return
+    self.standing = False
+    self._loop_stopped(Abort(f'{text}: the cube was tried in this game', cause='room'))
+    self.attack_mode = False
+    if self.working:
+        self.cancelled.set()
 
 
 def _place(self: MacroRunner) -> tuple[str | None, int | None]:

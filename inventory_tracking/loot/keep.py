@@ -14,7 +14,8 @@
   names it, else DROP; never compared as copies
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
 - K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
-  (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not
+  (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; and magic
+  gloves no want row names (JUNK_MAGIC, ~13:30: the IAS + skills gloves are the rows)
 - K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2)
 - K9 no price, no want: KEEP the first, logged `unknown` for the update-kb skill (Q13)
 - K10 else KEEP: a cheap first copy, or a want
@@ -37,6 +38,7 @@ __all__ = [
     'DECIDED_WITHOUT_COPIES',
     'GEMS',
     'JEWELS',
+    'JUNK_MAGIC',
     'JUNK_UNWANTED',
     'LOOP_GEAR',
     'POTIONS',
@@ -71,6 +73,11 @@ MULTIPLES = CHARMS | JEWELS
 # is not worth DUPLICATE_IST by its own rolls (K5) is junk, dropped in the field (loot/api.py `droppable` still spares
 # 1 Ist or more)
 JUNK_UNWANTED = frozenset(('circ', 'helm'))
+# The magic item types kept only by a want row or a price of DUPLICATE_IST by their own rolls (K5): gloves (the player,
+# 2026-10-20 ~13:30: "identify magic gloves that can roll something like 40ias + annother valuable roll, like skills";
+# guides/pricing.html:203: "+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity =
+# vendor"; the rows: loot/build_wants.py G19). Anything else of them is junk, dropped in the field
+JUNK_MAGIC = frozenset(('glov',))
 
 
 class Action(StrEnum):
@@ -147,6 +154,8 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
     if facts.quality == RARE and kind in JUNK_UNWANTED and not value.wants:
         return Decision(Action.DROP, 'K8', f'a rare circlet or helm no want row names ({value.said()})')
+    if facts.quality == MAGIC and kind in JUNK_MAGIC and not value.wants:
+        return Decision(Action.DROP, 'K8', f'magic gloves no want row names ({value.said()})')
     if same:
         compared = better_than(facts, same, value.matters)
         told = f'{len(same)} owned: {compared.said()}'

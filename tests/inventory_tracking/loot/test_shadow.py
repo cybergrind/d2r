@@ -10,6 +10,7 @@ from tests.inventory_tracking.loot.test_valuables import GOBLIN, observation
 
 
 GOBLIN_TOE = 342  # Light Plated Boots (items metadata)
+BOOTS = 339  # Boots (lbt)
 RESULT = {'triage': {'verdict': 'slow', 'band': {'q1_ist': 0.647125, 'median_ist': 1.0, 'sellers': 3,
                                                  'observed_at': '2026-10-04'}}}  # fmt: skip
 
@@ -67,7 +68,8 @@ def test_an_item_is_said_once_per_decision_and_the_summary_each_visit():
 
 def test_the_players_items_are_never_touched_and_sold_ones_say_so():
     shadow, _, toe = shadow_with_toe()
-    junk = Carried(22, 380, 0, 0, (2, 2), 4, True)  # an unappraised magic item the visit sells
+    # An unappraised magic item the visit sells (Boots: magic gloves no want row names are junk since ~13:30, K8)
+    junk = Carried(22, BOOTS, 0, 0, (2, 2), 4, True)
 
     lines = shadow.town([toe, junk], junk=frozenset({22}), spared=frozenset({21}), copies=Copies(53))
 

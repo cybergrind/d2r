@@ -98,6 +98,7 @@ class Buffs:
         self.unseen: dict[int, int] = {}  # skill -> casts of it in a row that the character's state did not show after
         self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
         self.refusals: set[tuple[int, int]] = set()  # (skill, unit) a refusal of `Buff.worth` was said for
+        self.told: set[tuple[int, int]] = set()  # (skill, unit) a row's `Buff.told` line was said for
         # skill -> clock of its last cast that took: a self-ending buff's age; shared via `Run.lasting` (`took_of`)
         self.took: dict[int, float] = {}
         # `hurt`'s last life read, its clock, and when life last went down
@@ -218,6 +219,15 @@ class Buffs:
         self.refusals.add((row.skill, monster.unit_id))
         LOG.info('%s', said)
 
+    def tell_once(self, row: Buff, monster: Monster, told: str | None) -> None:
+        """Log a cast's `Buff.told` line once per monster and row."""
+        if told is None or (row.skill, monster.unit_id) in self.told:
+            return
+        if len(self.told) > 400:
+            self.told.clear()
+        self.told.add((row.skill, monster.unit_id))
+        LOG.info('%s', told)
+
     def first(self, run: Run, phase: str, facts: BuffFacts, *, renewing: bool = False) -> Due | None:
         """The first due row of the phase, in plan order. `renewing`: only `lapsing` rows."""
         for row in self.plan:
@@ -260,6 +270,8 @@ class Buffs:
             said = row.said(due.facts, target)
             if said is not None:
                 LOG.info('%s', said)
+        if tried.cast and target is not None and row.told is not None:
+            self.tell_once(row, target, row.told(due.facts, target))
         if tried.cast and row.state is not None:
             self.unseen[row.skill] = self.unseen.get(row.skill, 0) + 1
         return tried
@@ -320,6 +332,13 @@ class Buffs:
         else:
             point = screen_fraction(world.player, target.x, target.y, cast.aspect)
             if not on_screen(point):
+                # Once a target: a due cast not made is never silent (the player, 2026-10-20: "never death marked
+                # the leader"; rca/2026-10-20/leader-not-marked-findings.md)
+                self.say_once(
+                    cast.row, target,
+                    f'Macro: buff: no {skill_name(skill)} on {label(target)}, {life(target)}: its body is off the '
+                    f'screen at ({point[0]:.2f}, {point[1]:.2f})',
+                )  # fmt: skip
                 return Tried()
             run.actuator.aim(*point, scatter=(3, 3))
         if all(m.unit_id != target.unit_id for m in run.world().monsters):

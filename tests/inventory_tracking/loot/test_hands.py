@@ -125,3 +125,44 @@ def test_in_town_with_a_visit_due_cain_identifies_them_there():
     assert done.dropped == 0
     assert play.pack is not None
     assert play.pack.identifies == 10  # no scroll spent
+
+
+def test_a_field_item_in_the_cube_comes_out_is_identified_in_the_inventory_and_dropped_from_it():
+    """The cube's items (the player, 2026-10-20 ~13:28: "like right now we have a big hammer in cube"): out by Ctrl +
+    click (cube.py `unpack`), the Tome in the inventory, put down at the feet from there; the panels closed."""
+    from inventory_tracking.loot.storage import CUBE_CLASS
+
+    cube = Carried(2, CUBE_CLASS, 7, 2, (2, 2))  # the inventory's first free cell takes the 2x3 (the fake's `unpack`)
+    boxed = replace(JUNK, x=0, y=0)
+    # The fake's cube rows stay as given (the game reads them anew): free, so the put back finds room
+    pack = Pack((TOME, WORN, cube), ('...',) * 4, frozenset({UNIT}), (boxed,), identifies=10)
+    play, hands, put_down, asked = setup(pack)
+
+    done = looped(play.world.game_name).settle(hands, 'Town Portal')
+
+    assert asked == [[UNIT]]
+    assert [item.unit_id for item in play.fallen] == [UNIT]
+    assert done.dropped == 1
+    assert play.pack is not None
+    assert play.pack.in_cube == ()
+    assert UNIT not in {item.unit_id for item in play.pack.items}
+    assert UNIT in put_down.rejected
+    assert play.world.open_panels == ()
+
+
+def test_a_kept_item_taken_out_of_the_cube_goes_back_into_it():
+    from inventory_tracking.loot.storage import CUBE_CLASS
+
+    cube = Carried(2, CUBE_CLASS, 7, 2, (2, 2))  # the inventory's first free cell takes the 2x3 (the fake's `unpack`)
+    boxed = replace(JUNK, x=0, y=0)
+    # The fake's cube rows stay as given (the game reads them anew): free, so the put back finds room
+    pack = Pack((TOME, WORN, cube), ('...',) * 4, frozenset({UNIT}), (boxed,), identifies=10)
+    play, hands, _, _ = setup(pack)
+    hands.appraiser = lambda units: {}  # no appraisal: kept (S8)
+
+    looped(play.world.game_name).settle(hands, 'Town Portal')
+
+    assert play.fallen == []
+    assert play.pack is not None
+    assert [item.unit_id for item in play.pack.in_cube] == [UNIT]
+    assert play.world.open_panels == ()
