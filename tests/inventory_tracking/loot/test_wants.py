@@ -78,3 +78,44 @@ def test_the_rare_boots_and_belts_rows_keep_only_the_really_good_ones_and_the_pr
     assert rows['boots-rare-identify'].then == rows['belt-rare-identify'].then == 'identify'
     assert not any(row.always_keep or row.must_have for row in rows.values())  # no price: a want, never a must-have
     assert {'boot', 'belt'} <= keep.JUNK_UNWANTED
+
+
+def test_the_claw_rows_take_a_fast_base_and_one_skill_each():
+    """The player, 2026-10-20 ~21:05 ("look up only elite claws with a specific base, not just random +3 skill";
+    "yes" to two own-use trap claws): W1-W3 market rows, O1 own use capped at 2 (loot/build_wants.py)."""
+    rows = {row.id: row for row in load() if 'claw-white' in row.id}
+    assert set(rows) == {
+        'claw-white-plus3-phoenix-strike', 'claw-white-plus3-lightning-sentry', 'claw-white-plus3-claws-of-thunder',
+        'own-claw-white-plus3-traps',
+    }  # fmt: skip
+    talons = {code for code, row in metadata()['bases'].items() if row['name'] in ('Greater Talons', 'Runic Talons')}
+    codes = {metadata()['bases'][txt]['code'] for txt in talons}
+    assert codes == {'9tw', '7tw'}
+    for row in rows.values():
+        assert row.codes == codes, row.id
+        assert row.qualities == {'normal', 'superior'}, row.id
+        assert not row.always_keep, row.id
+        assert not row.must_have, row.id
+    assert [row.id for row in rows.values() if row.keep_up_to is not None] == ['own-claw-white-plus3-traps']
+    assert rows['own-claw-white-plus3-traps'].keep_up_to == build_wants.TRAP_CLAW_CAP == 2
+
+
+def test_a_lightning_sentry_claw_with_a_paid_second_plus3_ranks_higher():
+    """W2's `matters` (Weapon Block, Mind Blast, Death Sentry beside Lightning Sentry): the copy compared and kept
+    first (loot/value.py score, better_than); its price stays the appraisal's."""
+    from inventory_tracking.loot.facts import ItemFacts
+    from inventory_tracking.loot.value import better_than, matters_for, score
+    from inventory_tracking.loot.wants import matching
+
+    def talons(unit: int, rolls: dict[str, int]) -> ItemFacts:
+        return ItemFacts(unit_id=unit, code='9tw', base_type='h2h2', size=(1, 3), quality=2, identified=True,
+                         ethereal=False, sockets=0, rolls=rolls)  # fmt: skip
+
+    alone, blocking = talons(1, {'107:271': 3}), talons(2, {'107:271': 3, '107:263': 3})
+    wanted = {row.id for row in matching(blocking)}
+    assert wanted == {'claw-white-plus3-lightning-sentry', 'own-claw-white-plus3-traps'}
+    matters = matters_for(blocking, matching(blocking))
+    assert score(blocking, matters) > score(alone, matters)
+    assert better_than(blocking, [alone], matters).better
+    assert not better_than(alone, [blocking], matters).better
+    assert {row.id for row in matching(talons(3, {'107:267': 3}))} == set()  # +3 Fade alone: no row

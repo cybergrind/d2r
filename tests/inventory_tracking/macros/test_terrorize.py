@@ -189,7 +189,8 @@ def use(game: Stash, **kwargs) -> terrorize.Used | None:
     return terrorize.terrorize(run, 'i', terrorized=terrorized, **kwargs)  # pyrefly: ignore[bad-argument-type] the fake run
 
 
-def test_with_the_clicks_off_the_request_chooses_and_says_and_clicks_nothing(caplog):
+def test_with_the_clicks_off_the_request_chooses_and_says_and_clicks_nothing(caplog, monkeypatch):
+    monkeypatch.setattr(terrorize, 'CLICKS', False)
     game = Stash({DEEP: 97, WESTERN: 40})
     with caplog.at_level('INFO'):
         assert use(game) is None
@@ -276,3 +277,22 @@ def test_a_use_the_client_does_not_list_is_said_not_read_terrorized(caplog, clic
     assert used.confirmed
     assert used.listed is False
     assert 'the act not read terrorized' in caplog.text
+
+
+def test_the_act_kinds_use_with_no_inventory_key_terrorizes_with_the_stash_open(clicks_on):
+    # Session 20261020T184216Z-86b2d9c3, game 1 (21:42:42): the act kind (actloop.py `use_shard`) passes no inventory
+    # key; "no inventory key read" stopped the shard and left the game. The right click is made with the stash open
+    # (USE_WITH_STASH_OPEN): the key opens nothing
+    assert terrorize.USE_WITH_STASH_OPEN
+    game = Stash({DEEP: 97})
+    run = Run(game)
+    used = terrorize.terrorize(run, None, 4, lambda area: area in game.listed)  # pyrefly: ignore[bad-argument-type] the fake run
+    assert used is not None
+    assert used.confirmed
+    assert game.used == [DEEP]
+
+
+def test_with_the_stash_closed_first_the_use_needs_the_inventory_key(clicks_on, monkeypatch):
+    monkeypatch.setattr(terrorize, 'USE_WITH_STASH_OPEN', False)
+    with pytest.raises(Abort, match='no inventory key read'):
+        terrorize.terrorize(Run(Stash({DEEP: 97})), None, 4)  # pyrefly: ignore[bad-argument-type] the fake run

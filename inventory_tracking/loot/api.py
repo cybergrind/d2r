@@ -406,8 +406,10 @@ def town_kept(
     named = facts.quality in (SET, UNIQUE)
     if named and (why := surplus_copy(facts, value, owned)) is not None:
         return why
-    if value.wants and not named:  # a set or unique copy's wants are `surplus_copy`'s
-        return f'wanted: {value.wants[0].label}'
+    # A set or unique copy's wants are `surplus_copy`'s. A capped want (`keep_up_to`) was applied by keep.py K3
+    # already: a copy over its cap is not kept by it (the trap claws' cap of 2, the player 2026-10-20 ~21:05: "yes")
+    if (wanted := [want for want in value.wants if want.keep_up_to is None]) and not named:
+        return f'wanted: {wanted[0].label}'
     if value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
         return f'expensive ({value.worth_ist:.3g} Ist)'
     if value.verdict == VENDOR:

@@ -126,6 +126,7 @@ class Script:
             sighted=self.sighted,
             terrorized=lambda area: area in self.zone,
             walk_out=lambda to: self.go('walk out', to),
+            inventory_key=lambda: 'i',
         )
 
     def leg(self, visit=None) -> str:
@@ -569,6 +570,9 @@ def test_a_game_with_no_zone_read_is_a_stop_and_a_dead_character_stops_the_loop(
 
 
 def test_the_terror_zone_kinds_are_offered_only_once_promoted(monkeypatch):
+    from inventory_tracking.macros import actloop
+
+    monkeypatch.setattr(actloop, 'ENABLED', False)
     monkeypatch.setattr(tzloop, 'ENABLED', False)
     assert set(loop_kinds()) == {'lk', 'andariel'}
     monkeypatch.setattr(tzloop, 'ENABLED', True)
@@ -1207,12 +1211,62 @@ def test_tz_with_a_hand_used_shard_plays_the_act_and_the_rotation_instead_of_sto
     # read in this game" (rca/2026-10-20/act-terrorize-findings.md §4)
     game = Script(FORTRESS, monkeypatch, zone=ACT4 | CATACOMBS)
     assert game.leg() == TZ_WAYPOINT
-    assert game.calls == [('waypoint', 106)]  # the act's boss first: Diablo's trip from the City of the Damned
+    assert game.calls == [('waypoint', 107)]  # the act's boss first: Diablo's trip from the River of Flame
     plan = game.loop.agenda.plan
     assert isinstance(plan, Itinerary)
     assert plan.zone == 'Act4-Manual + Act1-Catacombs'
     assert game.leg() == TZ_LEVEL
-    assert game.runs == [106]
+    assert game.runs == [107]
+
+
+def test_a_terrorized_act_4_game_is_diablo_from_the_river_then_its_rest_the_city_the_steppes_and_the_plains(
+    monkeypatch, caplog
+):
+    # The player, 2026-10-20 ~21:27: "we must go river of flame -> CS -> kill diablo -> do rest of flame river -> city
+    # of damned/planes of despair and etc" (game 21, 21:22:11: the City's waypoint first, City and River before him)
+    game = Script(FORTRESS, monkeypatch, zone=ACT4)
+    policies: list[tuple[int, str]] = []
+
+    def run_of(area: int) -> None:
+        plan = game.loop.agenda.plan
+        assert isinstance(plan, Itinerary)
+        from inventory_tracking.macros.tzroutine import policy_of
+
+        policies.append((area, policy_of(area, plan.excursion_of(area, game.loop.agenda.finished))))
+        if area == 108:
+            game.killed.add('Diablo')
+            game.progress.looted(108)
+        if area == 105:
+            game.killed.add('Izual')
+            game.progress.looted(105)
+
+    game.on_run = run_of
+    hands = walked_hands(game)
+    with caplog.at_level('INFO'):
+        legs = [
+            game.loop.leg(game.play.run(), keys, game.progress, hands) for _ in range(30) if game.play.world.in_game
+        ]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    moves = [call for call in game.calls if call[0] != 'prebuff']
+    assert moves == [
+        ('waypoint', 107),
+        ('door', 108),  # straight through the River to the Sanctuary
+        ('portal', FORTRESS),  # Diablo dead: home for the next trip
+        ('waypoint', 107),  # the River's rest
+        ('portal', FORTRESS),
+        ('waypoint', 106),  # the City of the Damned
+        ('portal', FORTRESS),
+        ('walk out', 104),  # the Steppes, then the Plains and Izual
+        ('door', 105),
+    ]
+    assert game.runs.index(107, 1) > game.runs.index(108)  # the River's own run after Diablo's
+    assert list(dict.fromkeys(game.runs)) == [107, 108, 106, 104, 105]
+    assert policies[0] == (107, ON_THE_WAY)  # crossed to him: the leaders near only
+    assert (107, 'tz+') in policies[2:]  # its own run after Diablo: TZ+
+    assert legs[-1] == LEAVE
+    assert 'Macro: tz: River of Flame was crossed to the boss: its own run now (1 run(s) on the way)' in caplog.text
+    assert 'Diablo from 107: [107, 108], [107] crossed to the boss, worked after it' in caplog.text
 
 
 def test_tz_while_an_act_is_read_group_by_group_plays_what_is_read(monkeypatch):
@@ -1236,6 +1290,7 @@ def act4_game(monkeypatch, area: int = FORTRESS, deep: int = 97, outcome: str = 
     from inventory_tracking.macros.loop import ACT4
 
     game = Script(area, monkeypatch, zone=zone)
+    game.keys_given = []  # pyrefly: ignore[missing-attribute] the fake's record of the inventory keys
     game.loop.kind = ACT4
     game.play.stash_pages = [('.' * 10,) * 10]
     game.play.stacks = {DEEP: deep}
@@ -1243,6 +1298,7 @@ def act4_game(monkeypatch, area: int = FORTRESS, deep: int = 97, outcome: str = 
 
     def used(run, key, act, terrorized):
         game.calls.append(('terrorize', act))
+        game.keys_given.append(key)  # pyrefly: ignore[missing-attribute]
         if outcome == 'stops':
             raise Abort('no stash in sight')
         if outcome == 'failed':
@@ -1261,13 +1317,21 @@ def test_an_act4_game_uses_the_deep_shard_first_then_diablo_first_whatever_the_l
         assert game.calls == [('terrorize', 4)]
         assert game.loop.agenda.acts == frozenset((4,))
         assert game.leg() == TZ_WAYPOINT  # the act planned with the rotation, the act and its boss first
-    assert game.calls[-1] == ('waypoint', 106)
+    assert game.calls[-1] == ('waypoint', 107)
     plan = game.loop.agenda.plan
     assert isinstance(plan, Itinerary)
     assert plan.zone == 'Act4-Manual + Act1-Catacombs'
     assert 'Macro: act: act 4 terrorized by a Deep Worldstone Shard' in caplog.text
-    assert game.leg() == TZ_LEVEL  # the City of the Damned's run: no shard again in the game
+    assert game.leg() == TZ_LEVEL  # the River of Flame's run: no shard again in the game
     assert [call for call in game.calls if call[0] == 'terrorize'] == [('terrorize', 4)]
+
+
+def test_the_shard_step_gets_the_characters_inventory_key(monkeypatch):
+    # 21:42:42 and 21:42:54 on 2026-10-20: "no inventory key read" left the first two act4 games at once (the player:
+    # "something is wrong, we have restarted game twice ... with no obvious reasons")
+    game = act4_game(monkeypatch)
+    assert game.leg() == TZ_SHARD
+    assert game.keys_given == ['i']  # pyrefly: ignore[missing-attribute]
 
 
 def test_an_act4_game_with_no_deep_shard_at_90_plays_tz_plus_on_the_rotation(monkeypatch, caplog):
@@ -1331,7 +1395,8 @@ def test_the_act4_kind_is_offered_only_once_enabled_and_the_picker_entry_goes_by
     from inventory_tracking.macros import actloop
     from inventory_tracking.macros.loop import ACT4, coming_kinds
 
-    assert actloop.ENABLED is False  # until the player's in-game test
+    assert actloop.ENABLED is True  # on since the player's in-game test, 2026-10-20 ~21:18
+    monkeypatch.setattr(actloop, 'ENABLED', False)
     assert 'act4' not in loop_kinds()
     assert [coming.word for coming in coming_kinds()] == ['ACT4']  # the placeholder "Shard: Act 4"
     monkeypatch.setattr(actloop, 'ENABLED', True)
@@ -1349,3 +1414,45 @@ def test_the_act4_kind_is_offered_only_once_enabled_and_the_picker_entry_goes_by
     assert not ACT4.full_clear
     monkeypatch.setattr(tzloop, 'ENABLED', False)
     assert 'act4' not in loop_kinds()
+
+
+STEPPES = frozenset((104, 105))
+
+
+@pytest.mark.parametrize('carried', [False, True])
+def test_the_izual_trip_works_the_plains_under_tz_plus_and_fights_izual_before_its_loot(monkeypatch, carried):
+    # Game 21 (21:33:35-21:38:12 on 2026-10-20): the Steppes' run carried across the open passage into the Plains
+    # (21:35:26), worked them 136 s (159 kills), killed Izual (21:37:20) and a Herald, then the loot and the portal. The
+    # Plains' own line, "+0 in 5s", was the loot leg's: the run's experience is booked to the level it began in
+    from inventory_tracking.macros.agenda import PLUS
+    from inventory_tracking.macros.tzroutine import policy_of
+    from inventory_tracking.routes.model import FIGHT
+
+    game = Script(FORTRESS, monkeypatch, zone=STEPPES)
+    seen: list[tuple[int, str, str | None]] = []
+
+    def run_of(area: int) -> None:
+        plan = game.loop.agenda.plan
+        assert isinstance(plan, Itinerary)
+        if carried and area == 104:
+            game.go('passage', 105)  # the run goes on across the way out (pursuit.py `carried`)
+            area = 105
+        step = game.progress.step(area)
+        policy = policy_of(area, plan.excursion_of(area, game.loop.agenda.finished))
+        seen.append((area, policy, step.stage.kind if step is not None else None))
+        if area == 105:
+            game.killed.add('Izual')
+
+    game.on_run = run_of
+    hands = walked_hands(game)
+    legs = [game.loop.leg(game.play.run(), keys, game.progress, hands) for _ in range(12) if game.play.world.in_game]
+    legs = legs[: legs.index(LEAVE) + 1]
+
+    plains = [entry for entry in seen if entry[0] == 105]
+    assert plains[0] == (105, PLUS, FIGHT)  # the Plains worked TZ+, Izual still to fight
+    assert 'Izual' in game.killed
+    assert legs.index(TZ_LOOT) > legs.index(TZ_LEVEL)  # his loot only after the run that fought him
+    assert legs[-1] == LEAVE
+    if not carried:
+        assert legs[:4] == [TZ_OUT, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_LEVEL]
+        assert [call for call in game.calls if call[0] != 'prebuff'][:2] == [('walk out', 104), ('door', 105)]

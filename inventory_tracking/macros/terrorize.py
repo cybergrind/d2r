@@ -39,9 +39,10 @@ SHARD_FLOOR = 90
 # Ties to the cheaper (Traderie SC/NL/PC asks of 2026-09-18: Western 0.03, Eastern 0.03, Southern 0.05, Deep 0.12,
 # Northern 0.17 Ist; findings §3)
 SHARD_ORDER = (674, 675, 676, 677, 678)
-# The clicks (take out, use): False until the player's in-game test (findings §6 checks 2-4). False: the request reads
-# the stash, chooses and says, and clicks nothing
-CLICKS = False
+# The clicks (take out, use). On 2026-10-20 ~21:18 after the player's in-game test (findings §6 checks 2-4: "ctrl left
+# click moves exactly one shard into inventory", "any variant, you can right click on it", "it shows Act 4"; the
+# client's list read 104-108 at 21:17:26). False: the request reads the stash, chooses and says, and clicks nothing
+CLICKS = True
 # How one shard leaves its stack for the inventory (findings §6 check 2, unknown until the test): CTRL a Ctrl + left
 # click on the stack; CURSOR a plain left click (one onto the pointer), then a click on a free inventory cell
 CTRL, CURSOR = 'ctrl', 'cursor'
@@ -126,7 +127,9 @@ def terrorize(
                  "the player's test", name_of(shard), shard_act, before, stacks_said(view))  # fmt: skip
         run.say(f'Terrorize: {name_of(shard)} ({before}) would be used: clicks off')
         return None
-    if inventory_key is None:
+    if inventory_key is None and not USE_WITH_STASH_OPEN:
+        # Only the stash closed first needs the key (the inventory opened for the click). The act kind passes none
+        # (actloop.py `use_shard`): every act4 game was left at its shard (21:42:42 on 2026-10-20)
         raise Abort('no inventory key read')
     try:
         rect = run.actuator.keys.focused_window_rect() if 'stash' in world.open_panels else open_stash(run)
@@ -137,6 +140,7 @@ def terrorize(
             return None
         if not USE_WITH_STASH_OPEN:
             close(run, ('stash', 'inventory', 'cube'))
+            assert inventory_key is not None  # refused before the clicks without it
             open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (taken.x, taken.y), taken.size), scatter=(4, 4))
         run.actuator.tap('Button3')

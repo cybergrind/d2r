@@ -1071,9 +1071,32 @@ ROWS += OWN_BASES
 # a base with no paid mod is left. `evidence` says the numbers where no wp-b bucket holds them (`asks` None).
 GRIMOIRE_PAID = ['107:376', '107:381', '107:382', '107:400']  # Summon Tainted, Consume, Bind Demon, Sigil: Death
 GRIMOIRE_COMMON = ['107:402', '107:401']  # Abyss, Apocalypse
-CLAW_PAID = ['107:271', '107:280', '107:273', '107:267', '107:278', '107:272', '107:276']
 PELT_PAID = ['107:245', '107:244', '107:249', '107:250', '107:248']  # Tornado, Volcano, Armageddon, Hurricane, Fury
-ELITE_CLAWS = ['Greater Talons', 'Runic Talons']
+# Assassin claws by base and skill, not "any +3" (the player, 2026-10-20 ~21:05: "look up only elite claws with a
+# specific base, not just random +3 skill ... for claws matters: good fast base, 40 ias?, good skill";
+# rca/2026-10-20/claws-findings.md §5). The fast bases are the -30 WSM Talons (weapons.json speed; the only claws with
+# fills); a white claw carries no IAS (no affix, Superior rolls no IAS). Skill ids are skills.txt's
+# (third-parties/d2data/json/skills.json: 280 "Royal Strike" = Phoenix Strike, 262 "Wake of Fire Sentry", 272 "Inferno
+# Sentry" = Wake of Inferno). Fade, Venom, Wake of Inferno, Mind Blast and Death Sentry alone have no fill: left, but
+# for the own-use row below
+FAST_CLAWS = ['Greater Talons', 'Runic Talons']
+PHOENIX_STRIKE, LIGHTNING_SENTRY, CLAWS_OF_THUNDER = '107:280', '107:271', '107:269'
+DEATH_SENTRY, WAKE_OF_FIRE = '107:276', '107:262'
+# A Lightning Sentry claw's second +3 that the fills pay (+3 Mind Blast 22.8, +3 Weapon Block 332; +2 Death Sentry
+# 4.05): ranked higher by `matters` (loot/value.py score, better_than), its price is the appraisal's
+LS_SECONDS = {'107:263': 'Weapon Block', '107:273': 'Mind Blast', DEATH_SENTRY: 'Death Sentry'}
+# The trap skills of the own-use claws (the coordinator's question ~21:05 "keep two white +3 Lightning Sentry / Death
+# Sentry / Wake of Fire claws for your own use (a trap Assassin to try)?", the player: "yes"): kept until this many
+# are owned (`keep_up_to`; counted by base code, ethereal flag and sockets: loot/value.py owned_bases, comparable)
+TRAP_CLAWS = {LIGHTNING_SENTRY: 'Lightning Sentry', DEATH_SENTRY: 'Death Sentry', WAKE_OF_FIRE: 'Wake of Fire'}
+TRAP_CLAW_CAP = 2
+
+
+def staff_mod(key: str, name: str) -> dict:
+    """A +1..3 staff mod that decides a class item, paid at +3."""
+    return spec(key, f'+3 {name}', 1, 3, good=3)
+
+
 NECRO_WANDS = ['Bone Wand', 'Grim Wand', 'Tomb Wand', 'Grave Wand', 'Lich Wand', 'Unearthed Wand']
 WAR_SCEPTERS = ['War Scepter', 'Divine Scepter', 'Caduceus']  # the fills' bases (War, Divine Scepter), 2x3
 WHITE_CLASS_ROWS: list[dict[str, Any]] = [
@@ -1111,20 +1134,75 @@ WHITE_CLASS_ROWS: list[dict[str, Any]] = [
         'quote': 'Two-socket grimoires with +3 Abyss, Apocalypse',
     },
     {
-        'id': 'claw-elite-plus3-paid',
+        # W1: the claw the fills pay most (sockets aside: Larzuk or the cube adds 3 to a white 0os)
+        'id': 'claw-white-plus3-phoenix-strike',
         'class': 'G20',
         'who': 'trade',
-        'label': 'White Greater / Runic Talons 3os/0os +3 Phoenix Strike / Lightning Sentry / Mind Blast / Fade / '
-        'Venom / Wake of Inferno / Death Sentry',
-        'bases': ELITE_CLAWS,
+        'label': 'White Greater / Runic Talons 3os/0os +3 Phoenix Strike',
+        'bases': FAST_CLAWS,
         'qualities': WHITE,
-        'ground': [sockets(0, 3), at_least(CLAW_PAID, 3)],
-        'must': [sockets(0, 3), at_least(CLAW_PAID, 3)],
+        'ground': [sockets(0, 3), at_least(PHOENIX_STRIKE, 3)],
+        'must': [sockets(0, 3), at_least(PHOENIX_STRIKE, 3)],
+        'matters': [staff_mod(PHOENIX_STRIKE, 'Phoenix Strike')],
         'asks': ('greater-talons', '3os/noneth/normal/affixed'),
-        'evidence': 'fills 2026-10-03..09 (recent-20261009): +3 Phoenix Strike 12 trades 2.58 -> median 11.4; +3 '
-        'Lightning Sentry 4.05 / 4.05 / 22.8 / 332',
-        'source': f'{PRIMER}:366; {PRICING}:202; {WARLOCK}:267',
+        'evidence': 'fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Phoenix Strike 12 trades 2.58 -> '
+        'median 11.42 (0os 11.42 x2); no Runic Talons fills cached',
+        'source': f'{PRIMER}:366; {WARLOCK}:267',
         'quote': 'Greater Talons with +3 Phoenix Strike are CHECK candidates',
+    },
+    {
+        # W2: a second +3 Weapon Block / Mind Blast / Death Sentry ranks the copy higher (`matters`)
+        'id': 'claw-white-plus3-lightning-sentry',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White Greater / Runic Talons 3os/0os +3 Lightning Sentry',
+        'bases': FAST_CLAWS,
+        'qualities': WHITE,
+        'ground': [sockets(0, 3), at_least(LIGHTNING_SENTRY, 3)],
+        'must': [sockets(0, 3), at_least(LIGHTNING_SENTRY, 3)],
+        'matters': [
+            staff_mod(LIGHTNING_SENTRY, 'Lightning Sentry'),
+            *(staff_mod(key, name) for key, name in LS_SECONDS.items()),
+        ],
+        'asks': ('greater-talons', '3os/noneth/normal/affixed'),
+        'evidence': 'fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Lightning Sentry alone 4.05 x2 '
+        '(one with +2 Death Sentry); with +3 Mind Blast 22.84; with +3 Weapon Block 331.86',
+        'source': f'{PRICING}:202; {WARLOCK}:267',
+        'quote': 'elite-type claw: Lightning Sentry',
+    },
+    {
+        # W3 (low): one fill; the Martial Arts staff mods beside Phoenix Strike (AN-claw-ma)
+        'id': 'claw-white-plus3-claws-of-thunder',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White Greater / Runic Talons 3os/0os +3 Claws of Thunder',
+        'bases': FAST_CLAWS,
+        'qualities': WHITE,
+        'ground': [sockets(0, 3), at_least(CLAWS_OF_THUNDER, 3)],
+        'must': [sockets(0, 3), at_least(CLAWS_OF_THUNDER, 3)],
+        'matters': [staff_mod(CLAWS_OF_THUNDER, 'Claws of Thunder')],
+        'evidence': 'fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Claws of Thunder 4.00 (1 trade); '
+        'with +3 Phoenix Strike 137',
+        'source': f'{PINDLE}:325; {WARLOCK}:267',
+        'quote': 'Phoenix Strike, Claws of Thunder',
+    },
+    {
+        # O1, own use (the player, 2026-10-20 ~21:05, "yes" to two white trap claws for a trap Assassin to try): kept
+        # until TRAP_CLAW_CAP are owned (`keep_up_to`: ground_judge.py leaves it, keep.py K3 keeps it below), later
+        # copies only when better (keep.py K6) or by a market row (W2)
+        'id': 'own-claw-white-plus3-traps',
+        'class': 'G20',
+        'who': 'warlock',
+        'label': 'Trap claws (own use, 2 kept): white Greater / Runic Talons 3os/0os +3 Lightning Sentry / Death '
+        'Sentry / Wake of Fire',
+        'bases': FAST_CLAWS,
+        'qualities': WHITE,
+        'ground': [sockets(0, 3), at_least(list(TRAP_CLAWS), 3)],
+        'must': [sockets(0, 3), at_least(list(TRAP_CLAWS), 3)],
+        'keep_up_to': TRAP_CLAW_CAP,
+        'matters': [staff_mod(key, name) for key, name in TRAP_CLAWS.items()],
+        'source': f'{PINDLE}:324',
+        'quote': 'Lightning Sentry (or Death Sentry / Wake of Fire)',
     },
     {
         'id': 'wand-plus3-bone-spear-bone-spirit',

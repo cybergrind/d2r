@@ -74,3 +74,76 @@ def test_todays_judge_and_the_new_one_agree_on_the_logged_materials(monkeypatch)
     for found in (drop('xa4', 'material', 2), drop('leg', 'material', 2)):
         facts = from_drop(found)
         assert judge(facts).pick == today_judge(facts).pick, found.label
+
+
+def claw(code: str, skills: tuple[tuple[int, int], ...], sockets: int = 0, quality: int = 2) -> Drop:
+    """A white claw as the ground read gives it (game/records.py Rolls: skills as (skill id, level))."""
+    return drop(code, 'shown', quality, marked=False, rolls=Rolls(sockets, skills))
+
+
+@pytest.mark.parametrize(
+    ('found', 'label'),
+    [
+        (claw('9tw', ((280, 3),), 3), 'White Greater / Runic Talons 3os/0os +3 Phoenix Strike'),  # W1
+        (claw('7tw', ((271, 3), (263, 3))), 'White Greater / Runic Talons 3os/0os +3 Lightning Sentry'),  # W2
+        (claw('9tw', ((269, 3),), 3, quality=3), 'White Greater / Runic Talons 3os/0os +3 Claws of Thunder'),  # W3
+    ],
+)
+def test_a_fast_white_claw_with_a_paid_plus3_is_picked_off_the_ground(found, label):
+    # The player, 2026-10-20 ~21:05: "look up only elite claws with a specific base, not just random +3 skill"
+    verdict = base_verdict(from_drop(found), owned=lambda _facts: 0)
+    assert verdict is not None
+    assert (verdict.pick, verdict.klass, verdict.then, verdict.must_have) == (True, 'G20', Then.KEEP, False)
+    assert verdict.reason == label
+
+
+@pytest.mark.parametrize(
+    'found',
+    [
+        claw('9tw', ((267, 3),), 3),  # +3 Fade alone (was claw-elite-plus3-paid)
+        claw('7tw', ((273, 3), (278, 2))),  # +3 Mind Blast, +2 Venom
+        claw('9tw', ((272, 3),)),  # +3 Wake of Inferno alone
+        claw('9tw', ((264, 3),)),  # 20:39:33 "normal Greater Talons 0os +3 Cloak of Shadows ... taken (shown)"
+        claw('9tw', ((276, 2),)),  # +2 Death Sentry: under the own-use row's +3
+        claw('9tw', ((280, 3),), 2),  # +3 Phoenix Strike in 2 sockets: never 3 (Larzuk takes only 0os)
+    ],
+)
+def test_a_fast_white_claw_without_a_paid_plus3_is_left(found):
+    verdict = base_verdict(from_drop(found), owned=lambda _facts: 0)
+    assert verdict is not None
+    assert not verdict.pick
+    assert verdict.reason == 'no class takes it'
+
+
+def test_the_own_use_trap_claws_are_picked_until_two_are_owned():
+    # O1 (own-claw-white-plus3-traps; the player, 2026-10-20 ~21:05: "yes" to two trap claws): the owned count is
+    # loot/value.py owned_bases (same base code, ethereal flag and sockets)
+    death, wake = from_drop(claw('9tw', ((276, 3),))), from_drop(claw('7tw', ((262, 3),), 3))
+    for facts in (death, wake):
+        for owned in (0, 1):
+            verdict = base_verdict(facts, owned=lambda _facts, owned=owned: owned)
+            assert verdict is not None
+            assert verdict.pick, (facts.code, owned)
+            assert verdict.reason.startswith('Trap claws (own use, 2 kept)')
+        full = base_verdict(facts, owned=lambda _facts: 2)
+        assert full is not None
+        assert not full.pick
+        assert full.reason.startswith('2 owned, 2 kept at most: Trap claws')
+    # unknown count (S8): the cap does not hold
+    unknown = base_verdict(death, owned=lambda _facts: None)
+    assert unknown is not None
+    assert unknown.pick
+
+
+def test_a_lightning_sentry_claw_over_the_own_use_cap_is_still_the_markets():
+    verdict = base_verdict(from_drop(claw('9tw', ((271, 3),))), owned=lambda _facts: 5)
+    assert verdict is not None
+    assert verdict.pick
+    assert verdict.reason == 'White Greater / Runic Talons 3os/0os +3 Lightning Sentry'
+
+
+def test_only_the_fast_talons_take_the_staff_mod_rows():
+    # Greater Claws / Feral Claws (-20) and the slow h2h2 elites have no claw row yet: no fills (claws-findings.md §5)
+    for code in ('9lw', '7lw', '7ar', '7qr'):
+        verdict = base_verdict(from_drop(claw(code, ((271, 3),))), owned=lambda _facts: 0)
+        assert verdict is None or not verdict.pick, code

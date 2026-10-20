@@ -212,6 +212,7 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
     agenda.plan = plan
     game, area = world.game_name, player.area
     tour_back(agenda, plan, progress, area)
+    reopen(agenda, plan)
     trip = plan.excursion_of(area, agenda.finished)
     if trip is not None and area in trip.tours and area in agenda.finished:
         LOG.info('Macro: tz: tour: %s entered again: no level twice in a game, the game ends here',
@@ -225,7 +226,7 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         plan,
         stage=step.stage.kind if step is not None else None,
         stage_to=step.stage.to if step is not None else 0,
-        worked=tuple(agenda.worked.items()),
+        worked=tuple((level, runs - agenda.reopened.get(level, 0)) for level, runs in agenda.worked.items()),
         finished=frozenset(agenda.finished),
         sighted=tz.sighted(area),
         visit_due=loop.visit_due(game),
@@ -255,6 +256,17 @@ def tour_back(agenda: Agenda, plan: Itinerary, progress: Progress | None, area: 
                 done = sum(1 for each in trip.tours if each in agenda.finished)
                 LOG.info('Macro: tz: tour: %s done, back in %s: %d of %d done', numbered_name(level),
                          display_name(area), done, len(trip.tours))  # fmt: skip
+
+
+def reopen(agenda: Agenda, plan: Itinerary) -> None:
+    """Each level the boss's trip only crossed (tzroutine.py `Excursion.passes`: the River of Flame on Diablo's from
+    its waypoint), that trip over: its own trip's from now, the runs it had not counted against it (`produce`'s
+    RUNS_AN_AREA). The player, 2026-10-20 ~21:27: "kill diablo -> do rest of flame river -> city of damned"."""
+    for level in sorted(plan.crossed(agenda.finished)):
+        if level not in agenda.reopened:
+            agenda.reopened[level] = agenda.worked[level]
+            LOG.info('Macro: tz: %s was crossed to the boss: its own run now (%d run(s) on the way)',
+                     display_name(level), agenda.worked[level])  # fmt: skip
 
 
 def fetch_gheeds(world: World, loop: Loop) -> Objective | None:
@@ -454,7 +466,7 @@ def perform(
             # waypoint excursion's arrival (the coordinator, 2026-10-19)
             loop.prebuff_once(run, game)
         elif goal.kind == TERRORIZE:
-            actloop.use_shard(loop, run, tz.terrorized)  # once a game: the outcome on the agenda, never again
+            actloop.use_shard(loop, run, tz.terrorized, tz.inventory_key())  # once a game: the outcome on the agenda
         elif goal.kind == TOWN_ROUTINE:
             exit = Exit(goal.exit or 'waypoint')
             if exit == Exit.WAYPOINT and loop.done == game:
@@ -498,8 +510,12 @@ def perform(
         elif goal.kind == NEXT_LEVEL:
             loop.settle(run)  # the way on's pickup (runner.py `_way_on`) after a boss's drops landed
             plan = agenda.plan
-            if not (isinstance(plan, Itinerary) and plan.touring(player.area, agenda.finished)):
-                agenda.finish(player.area)  # (a tour's levels are done in its hub, `tour_back`)
+            if not (
+                isinstance(plan, Itinerary)
+                and (plan.touring(player.area, agenda.finished) or plan.crossing(player.area, agenda.finished))
+            ):
+                # (a tour's levels are done in its hub, `tour_back`; a level crossed to the boss by its own trip after)
+                agenda.finish(player.area)
             if tz.way_on is None:
                 raise Abort(f'{goal.label}: no way on')
             tz.way_on()

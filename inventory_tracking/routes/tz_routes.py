@@ -218,6 +218,19 @@ def route_leg(area: int, route_name: str | None = None) -> RouteLeg | None:
     return RouteLeg(area, route.name, start, path, blockers)
 
 
+def nearest_excursion(zone: ActiveZone, area: int) -> RouteExcursion | None:
+    """The trip to level `area` from the waypoint nearest it (`route_leg`: the route with a script there, the start
+    with the fewest blocked hops, then the fewest hops): Diablo's from the River of Flame, not the City of the Damned.
+    `covers`: its levels in `zone`. None when no route has a script there. The player, 2026-10-20 ~21:27: "we must go
+    river of flame -> CS -> kill diablo -> do rest of flame river -> city of damned/planes of despair and etc"."""
+    leg = route_leg(area)
+    if leg is None:
+        return None
+    nodes = (leg.waypoint, *(hop.destination for hop in leg.hops))
+    covers = tuple(dict.fromkeys(level for level in nodes if level in zone.areas))
+    return RouteExcursion(leg.route, leg.waypoint, nodes[-1], leg.hops, covers, leg.blockers)
+
+
 def zone_route_plan(zone: ActiveZone, capabilities: dict[int, Capability] | None = None) -> ZoneRoutePlan:
     """Audit every level and cover reachable ones with catalog trips from waypoints.
 

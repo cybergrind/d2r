@@ -1,9 +1,10 @@
 """A current TZ group's route is derived from catalog edges, including blockers."""
 
-from inventory_tracking.routes.tz_groups import installed_active_zones
+from inventory_tracking.routes.tz_groups import installed_active_zones, manual_zone
 from inventory_tracking.routes.tz_routes import (
     RouteExcursion,
     ZoneRoutePlan,
+    nearest_excursion,
     route_inventory,
     route_leg,
     zone_route_plan,
@@ -159,3 +160,24 @@ def test_the_tal_rashas_zone_is_one_trip_touring_the_canyon_and_its_seven_tombs(
     tomb = route_leg(69)
     assert tomb is not None
     assert 'cannot designate one entrance' in ' '.join(tomb.blockers)
+
+
+def test_the_nearest_excursion_to_a_boss_starts_at_the_waypoint_nearest_it():
+    # The player, 2026-10-20 ~21:27: "we must go river of flame -> CS -> kill diablo" (not from the City of the Damned)
+    act4 = manual_zone(4)
+    assert act4 is not None
+    diablo = nearest_excursion(act4, 108)
+    assert diablo is not None
+    assert (diablo.route, diablo.waypoint, diablo.terminal, diablo.covers, diablo.blockers) == (
+        'Diablo',
+        107,
+        108,
+        (107, 108),
+        (),
+    )
+    act3 = manual_zone(3)
+    assert act3 is not None
+    mephisto = nearest_excursion(act3, 102)
+    assert mephisto is not None
+    assert (mephisto.waypoint, mephisto.terminal) == (101, 102)
+    assert nearest_excursion(act4, 999) is None

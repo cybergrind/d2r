@@ -223,3 +223,16 @@ def test_an_item_the_loop_put_down_is_not_picked_up_again_this_game():
     assert put.see(Loot(drops=(lying,), game=game, classes=((11, 342),))).drops == ()
     again = replace(lying, unit_id=12)  # streamed back with a new unit id, at the same place
     assert put.see(Loot(drops=(again,), game=game, classes=((12, 342),))).drops == ()
+
+
+def test_an_own_use_claw_over_its_cap_is_sold_in_town():
+    """O1 (loot/build_wants.py own-claw-white-plus3-traps, the player 2026-10-20 ~21:05): two kept, a third copy
+    carried (left on the ground once two are owned; carried when the count missed it) is given up by keep.py K6 and,
+    appraised vendor with no market row taking it, sold."""
+    case = next(case for case in CASES if case['id'] == 'claw_own_trap_death_sentry_third_copy_given_up')
+    facts = facts_of(case['item'])
+    owned = owned_of(case)
+    [verdict] = town_verdicts([(facts, value_of(case, facts))], lambda _facts: owned)
+    assert verdict.decision is not None
+    assert verdict.decision.rule == 'K6'
+    assert verdict.sold, verdict.said()

@@ -257,7 +257,9 @@ REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS}
 TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot', 'TZ pickup'
 TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
 # The Gheed's swap: four waypoints and two portals back (agenda.py `gheeds_package`)
-REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20}
+# TZ_LEVEL 60: a shard's whole act and the rotation in one game (the player, 2026-10-20 ~21:30: "make sure, that we're
+# farming until it's done"; was 40)
+REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 60, TZ_LOOT: 20, TZ_PICKUP: 20}
 # The Canyon's tour of its seven tombs adds up to three ways on a tomb: the Canyon's run to its entrance, the press
 # through, the way back (2026-10-20, tzroutine.py `Excursion.onward`)
 TOUR_WAYS = 3 * len(TOMBS)
@@ -333,6 +335,9 @@ class LegHands:
     terrorized: Callable[[int], bool | None] = lambda area: None
     navigate: Callable[[], None] = lambda: None
     walk_out: Callable[[int], None] | None = None  # the walk out of town into level `to` (macros/townexit.py)
+    # The character's inventory key (the shard's right click, macros/actloop.py `use_shard`; 21:42:42 on 2026-10-20:
+    # "no inventory key read" left two games at once)
+    inventory_key: Callable[[], str | None] = lambda: None
 
 
 @dataclass

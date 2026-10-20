@@ -246,6 +246,7 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         terrorized=terrorized,
         navigate=navigate,
         walk_out=walk_out,
+        inventory_key=inventory_key,
     )
 
 

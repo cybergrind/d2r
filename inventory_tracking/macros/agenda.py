@@ -305,6 +305,9 @@ class Agenda:
     wayless: set[int] = field(default_factory=set)
     # Runs of a level done that ended with nothing left to go to (`nothing_left`), by area
     ended_empty: Counter[int] = field(default_factory=Counter)
+    # Runs a level had when its boss's trip, which only crossed it, was over (macros/tzloop.py `reopen`): its own trip
+    # counts its runs from there
+    reopened: dict[int, int] = field(default_factory=dict)
     said: str | None = None
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
     policies: dict[int, str] = field(default_factory=dict)  # how each level was last said to be worked (`worked_as`)
@@ -325,6 +328,7 @@ class Agenda:
         self.chests, self.opened = {}, set()
         self.worked, self.finished, self.failures, self.dropped = Counter(), set(), Counter(), set()
         self.plan, self.wayless, self.ended_empty = None, set(), Counter()
+        self.reopened = {}
         self.policies = {}
         self.shard, self.acts = None, frozenset()
         return True

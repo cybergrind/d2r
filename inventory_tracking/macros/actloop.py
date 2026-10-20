@@ -19,8 +19,9 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.terrorize import SHARD_FLOOR, choose_shard, name_of, stacks_said, terrorize
 
 
-# False until the player's in-game test (findings §6) and terrorize.CLICKS: the kind is not offered
-ENABLED = False
+# The act kind "Shard: Act 4" offered (the picker's entry). On 2026-10-20 ~21:18 after the player's in-game test
+# (findings §6) with terrorize.CLICKS on. False: the kind is not offered
+ENABLED = True
 # The kinds' acts by kind key (loop.py ACT4)
 ACTS = {'act4': 4}
 # The shard step's outcomes in a game (`Agenda.shard`)
@@ -65,7 +66,7 @@ def shard_goal(world: World, loop) -> Objective | None:
     return Objective(TERRORIZE, f'a Worldstone Shard for act {act}', ERRAND, PANDEMONIUM_FORTRESS)
 
 
-def use_shard(loop, run: Run, terrorized) -> None:
+def use_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> None:
     """TERRORIZE: the act's shard used (terrorize.py), the outcome on the agenda; a confirmed use adds the act to the
     game's acts. Nothing used: TZ+ on the rotation this game, said."""
     agenda, act = loop.agenda, act_of(loop.kind)
@@ -83,7 +84,7 @@ def use_shard(loop, run: Run, terrorized) -> None:
         return
     agenda.shard = FAILED  # tried once a game, whatever stops it (a stash out of sight)
     try:
-        used = terrorize(run, None, act, terrorized)
+        used = terrorize(run, inventory_key, act, terrorized)
     except Hand:
         agenda.shard = None  # the player's hand: tried again at the next leg
         raise

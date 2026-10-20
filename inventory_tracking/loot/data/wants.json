@@ -3310,10 +3310,10 @@
       }
     },
     {
-      "id": "claw-elite-plus3-paid",
+      "id": "claw-white-plus3-phoenix-strike",
       "class": "G20",
       "who": "trade",
-      "label": "White Greater / Runic Talons 3os/0os +3 Phoenix Strike / Lightning Sentry / Mind Blast / Fade / Venom / Wake of Inferno / Death Sentry",
+      "label": "White Greater / Runic Talons 3os/0os +3 Phoenix Strike",
       "qualities": [
         "normal",
         "superior"
@@ -3327,15 +3327,7 @@
           ]
         },
         {
-          "keys": [
-            "107:271",
-            "107:280",
-            "107:273",
-            "107:267",
-            "107:278",
-            "107:272",
-            "107:276"
-          ],
+          "key": "107:280",
           "min": 3
         }
       ],
@@ -3348,20 +3340,21 @@
           ]
         },
         {
-          "keys": [
-            "107:271",
-            "107:280",
-            "107:273",
-            "107:267",
-            "107:278",
-            "107:272",
-            "107:276"
-          ],
+          "key": "107:280",
           "min": 3
         }
       ],
-      "evidence": "fills 2026-10-03..09 (recent-20261009): +3 Phoenix Strike 12 trades 2.58 -> median 11.4; +3 Lightning Sentry 4.05 / 4.05 / 22.8 / 332",
-      "source": "guides/pricing-primer.html:366; guides/pricing.html:202; guides/warlock.html:267",
+      "matters": [
+        {
+          "key": "107:280",
+          "label": "+3 Phoenix Strike",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        }
+      ],
+      "evidence": "fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Phoenix Strike 12 trades 2.58 -> median 11.42 (0os 11.42 x2); no Runic Talons fills cached",
+      "source": "guides/pricing-primer.html:366; guides/warlock.html:267",
       "codes": [
         "7tw",
         "9tw"
@@ -3378,6 +3371,224 @@
         "observed": "2026-09-18",
         "source": "pricing/data/wp-b-prices.json#greater-talons/3os/noneth/normal/affixed"
       }
+    },
+    {
+      "id": "claw-white-plus3-lightning-sentry",
+      "class": "G20",
+      "who": "trade",
+      "label": "White Greater / Runic Talons 3os/0os +3 Lightning Sentry",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "107:271",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "107:271",
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "107:271",
+          "label": "+3 Lightning Sentry",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:263",
+          "label": "+3 Weapon Block",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:273",
+          "label": "+3 Mind Blast",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:276",
+          "label": "+3 Death Sentry",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        }
+      ],
+      "evidence": "fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Lightning Sentry alone 4.05 x2 (one with +2 Death Sentry); with +3 Mind Blast 22.84; with +3 Weapon Block 331.86",
+      "source": "guides/pricing.html:202; guides/warlock.html:267",
+      "codes": [
+        "7tw",
+        "9tw"
+      ],
+      "bases": [
+        "Greater Talons",
+        "Runic Talons"
+      ],
+      "asks": {
+        "min_ist": 22.842,
+        "median_ist": 114.21,
+        "n": 21,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#greater-talons/3os/noneth/normal/affixed"
+      }
+    },
+    {
+      "id": "claw-white-plus3-claws-of-thunder",
+      "class": "G20",
+      "who": "trade",
+      "label": "White Greater / Runic Talons 3os/0os +3 Claws of Thunder",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "107:269",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "107:269",
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "107:269",
+          "label": "+3 Claws of Thunder",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        }
+      ],
+      "evidence": "fills 2026-10-03..09 (recent-20261009/greater-talons.json): +3 Claws of Thunder 4.00 (1 trade); with +3 Phoenix Strike 137",
+      "source": "guides/pindle-anya.html:325; guides/warlock.html:267",
+      "codes": [
+        "7tw",
+        "9tw"
+      ],
+      "bases": [
+        "Greater Talons",
+        "Runic Talons"
+      ],
+      "asks": null
+    },
+    {
+      "id": "own-claw-white-plus3-traps",
+      "class": "G20",
+      "who": "warlock",
+      "label": "Trap claws (own use, 2 kept): white Greater / Runic Talons 3os/0os +3 Lightning Sentry / Death Sentry / Wake of Fire",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:276",
+            "107:262"
+          ],
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:276",
+            "107:262"
+          ],
+          "min": 3
+        }
+      ],
+      "keep_up_to": 2,
+      "matters": [
+        {
+          "key": "107:271",
+          "label": "+3 Lightning Sentry",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:276",
+          "label": "+3 Death Sentry",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:262",
+          "label": "+3 Wake of Fire",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        }
+      ],
+      "source": "guides/pindle-anya.html:324",
+      "codes": [
+        "7tw",
+        "9tw"
+      ],
+      "bases": [
+        "Greater Talons",
+        "Runic Talons"
+      ],
+      "asks": null
     },
     {
       "id": "wand-plus3-bone-spear-bone-spirit",

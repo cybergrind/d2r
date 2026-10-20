@@ -3615,12 +3615,188 @@
     "decision": "keep",
     "rule": "K5"
    },
-   "source": "guides/warlock.html:267; fills 2026-10-03..09 12 trades median 11.4; rca/2026-10-20/white-bases-findings.md §3",
+   "source": "loot/build_wants.py claw-white-plus3-phoenix-strike (W1); guides/warlock.html:267; fills 2026-10-03..09 12 trades median 11.42; rca/2026-10-20/claws-findings.md §5",
    "value": {
     "worth": 11.4,
     "verdict": "sell"
    },
    "owned": []
+  },
+  {
+   "id": "claw_runic_talons_superior_0os_plus3_phoenix_strike",
+   "section": "6.9",
+   "item": {
+    "base": "Runic Talons",
+    "code": "7tw",
+    "quality": "superior",
+    "sockets": 0,
+    "rolls": {
+     "107:280": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"look up only elite claws with a specific base, not just random +3 skill\"; W1 (claw-white-plus3-phoenix-strike): 0os fills 11.42 x2 2026-10-03..09 (recent-20261009/greater-talons.json; no Runic Talons fills); third-parties/d2data/json/weapons.json:6492",
+   "value": {
+    "worth": 11.42,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "claw_greater_talons_0os_plus3_lightning_sentry",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:271": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"look up only elite claws with a specific base, not just random +3 skill\"; W2 (claw-white-plus3-lightning-sentry): fills 4.05 x2 2026-10-03..09 (recent-20261009/greater-talons.json); guides/pricing.html:202",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "claw_greater_talons_3os_plus3_fade_left",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:267": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"look up only elite claws with a specific base, not just random +3 skill\"; +3 Fade alone: no fill, 1 seller ask 4.05 (rca/2026-10-20/claws-findings.md §2); was claw-elite-plus3-paid until 2026-10-20 ~21:05",
+   "owned": []
+  },
+  {
+   "id": "claw_runic_talons_0os_plus3_mind_blast_left",
+   "section": "6.9",
+   "item": {
+    "base": "Runic Talons",
+    "code": "7tw",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:273": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"look up only elite claws with a specific base, not just random +3 skill\"; +3 Mind Blast alone: no fill (only beside Phoenix Strike or Lightning Sentry; rca/2026-10-20/claws-findings.md §2)",
+   "owned": []
+  },
+  {
+   "id": "claw_own_trap_death_sentry_first_copy_kept",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:276": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K3",
+    "reason_has": [
+     "0 owned, kept up to 2"
+    ]
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"yes\" to keeping two white +3 Lightning Sentry / Death Sentry / Wake of Fire claws for a trap Assassin; loot/build_wants.py own-claw-white-plus3-traps (O1), TRAP_CLAW_CAP 2; +3 Death Sentry alone: no fill (no market row)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "claw_own_trap_wake_of_fire_second_copy_kept",
+   "section": "6.9",
+   "item": {
+    "base": "Runic Talons",
+    "code": "7tw",
+    "quality": "superior",
+    "sockets": 3,
+    "rolls": {
+     "107:262": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K3",
+    "reason_has": [
+     "1 owned, kept up to 2"
+    ]
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"yes\" to keeping two white +3 Lightning Sentry / Death Sentry / Wake of Fire claws for a trap Assassin; loot/build_wants.py own-claw-white-plus3-traps (O1), TRAP_CLAW_CAP 2; +3 Wake of Fire: no fill, no ask (rca/2026-10-20/claws-findings.md §2)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": [
+    {}
+   ]
+  },
+  {
+   "id": "claw_own_trap_death_sentry_third_copy_given_up",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:276": 3
+    }
+   },
+   "expect": {
+    "ground": "leave",
+    "decision": "drop",
+    "rule": "K6"
+   },
+   "source": "the player, 2026-10-20 ~21:05: \"yes\" to keeping two white +3 Lightning Sentry / Death Sentry / Wake of Fire claws for a trap Assassin; loot/build_wants.py own-claw-white-plus3-traps (O1), TRAP_CLAW_CAP 2: 2 owned, the third is left on the ground and, carried, given up (not better: +3 Death Sentry vs 3, 3); no market row takes it",
+   "value": {
+    "worth": 0.5,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {},
+    {}
+   ],
+   "today_fails": {
+    "decision": "today: a white claw is not sellable (junk.junk_of), so a copy over the cap stays carried and is stashed"
+   }
   },
   {
    "id": "wand_lich_2os_plus3_bone_spear_bone_spirit",

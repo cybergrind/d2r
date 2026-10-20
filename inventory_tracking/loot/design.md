@@ -1165,7 +1165,7 @@ is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
   |---|---|---|
   | `grimoire-white-plus3-paid` | any of the 15 grimoires, 2 or 0 sockets (max 2), +3 Summon Tainted 376 / Consume 381 / Bind Demon 382 / Sigil: Death 400 | asks 2026-09-18 per mod 8.23 -> 118, 1.0 -> 29, 5.88 -> 10.4, 5.88 -> 9.32 (2-5 sellers); PK-rotw (c) |
   | `grimoire-white-2os-plus3-abyss-apocalypse` | 2os, +3 Abyss 402 / Apocalypse 401 | wp-b 2os superior affixed 4.05 -> 9.32 n4; pricing.html:191 |
-  | `claw-elite-plus3-paid` | Greater / Runic Talons 3 or 0os, +3 Phoenix Strike / LS / Mind Blast / Fade / Venom / WoI / Death Sentry | fills 12 trades median 11.4 |
+  | `claw-white-plus3-phoenix-strike`, `claw-white-plus3-lightning-sentry`, `claw-white-plus3-claws-of-thunder`, `own-claw-white-plus3-traps` | Greater / Runic Talons 3 or 0os, one +3 each (replaced `claw-elite-plus3-paid`'s seven skills on 2026-10-20 ~21:05, see the claw section below) | fills median 11.42 / 4.05 / 4.0; own use, 2 kept |
   | `wand-plus3-bone-spear-bone-spirit` | six Necro wands 0/2os, +3 Bone Spear and +3 Bone Spirit | fills 16 trades median 22.8 |
   | `scepter-plus3-fist-of-the-heavens`, `scepter-plus3-hammer-concentration` | War / Divine Scepter / Caduceus, +3 FoH; +3 Blessed Hammer with +2 Concentration | fills 9 trades median 9.32; 15.5-57.1 |
   | `pelt-3os-plus3-paid` | Druid pelt 3os, +3 Tornado / Volcano / Armageddon / Hurricane / Fury | asks 10 sellers 2.0 -> 97 |
@@ -1232,3 +1232,41 @@ is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
   left), `test_api.py` (`takes` says G21 / G22, the routine keeps the really good boots and drops a near miss, each
   §6.10 case through the routine), `test_hands.py` (two rare Mithril Coils in the fake game: one dropped, one kept),
   `test_pickmode.py` (both levels; the filter shows every rare boot and belt), `test_wants.py` (`count`, the rows).
+
+### White claws by base and skill (2026-10-20 ~21:05, the player: "probably we need to try to look up only elite claws with a specific base, not just random +3 skill ... for claws matters: good fast base, 40 ias?, good skill"; "yes" to two own-use trap claws)
+
+- Study: `rca/2026-10-20/claws-findings.md` §5 (fills `pricing/raw/traderie/recent-20261009`, white Greater Talons
+  only; no Runic Talons fills). A white claw carries no IAS (no affix; Superior rolls none): "40 ias" is the magic
+  claws' (left, not field-identified, as before). The fast bases are the -30 WSM Talons (`weapons.json` speed).
+- Rows (`loot/build_wants.py` FAST_CLAWS, G20, white or superior Greater / Runic Talons, 0 or 3 sockets, read on the
+  ground; skill ids from `third-parties/d2data/json/skills.json`):
+
+  | row | +3 | evidence |
+  |---|---|---|
+  | `claw-white-plus3-phoenix-strike` (W1) | Phoenix Strike 280 | fills median 11.42, 12 trades 2026-10-03..09 (0os 11.42 x2) |
+  | `claw-white-plus3-lightning-sentry` (W2) | Lightning Sentry 271; `matters` also Weapon Block 263, Mind Blast 273, Death Sentry 276 | fills 4.05 x2; with +3 MB 22.84, with +3 WB 331.86 |
+  | `claw-white-plus3-claws-of-thunder` (W3, low) | Claws of Thunder 269 | 1 fill 4.0 |
+  | `own-claw-white-plus3-traps` (O1, own use) | Lightning Sentry 271 / Death Sentry 276 / Wake of Fire 262; `keep_up_to` 2 (TRAP_CLAW_CAP) | the player's "yes"; `pindle-anya.html:324` AN-claw-traps |
+
+- Left now: +3 Fade, Venom, Wake of Inferno or Mind Blast alone, and Death Sentry alone past O1's cap; +2 anything;
+  2 sockets; Greater / Feral Claws and the other `h2h2` bases (no fills).
+- W2's second +3 ranks the copy, not its price: `matters` feeds `value.score` (the best copy decided first,
+  `decide_all`) and `better_than` (K6). The price is the appraisal's (K5 at 1 Ist or more).
+- The cap is the existing `keep_up_to` (no new field). It counts like the Spirit Monarch's: on the ground
+  `value.owned_bases` (same base code, ethereal flag and sockets, any staff mods), in town `keep.py` K3 over the
+  comparable copies (`value.comparable`: the same). So "2" holds per base and socket count (up to 8 white Talons in
+  all), and a market W1 / W2 claw of the same base and sockets counts toward it. Counting only the copies the row
+  holds needs `ground_judge._capped` / `keep.py` K3 to filter by `row.holds(copy)` (not done).
+- Over the cap: the ground judge leaves an O1-only claw (`2 owned, 2 kept at most: Trap claws ...`); one carried all
+  the same is given up by K6 (not better on the trap mods), but `api.town_kept` keeps every item a want names
+  (`wanted: Trap claws ...`), so it is stashed, not sold (strict xfail
+  `test_an_own_use_claw_over_its_cap_is_sold_in_town`; the Spirit Monarch over its cap is the same).
+- Log lines: `Macro: loot: shadow: ground: normal Greater Talons: new pick G20 keep / old ...` for W1-W3 / O1;
+  `new leave (no class takes it)` for Fade / Venom / WoI / MB alone; `new leave (2 owned, 2 kept at most: Trap claws
+  (own use, 2 kept): ...)` over the cap; town `K3 0 owned, kept up to 2: Trap claws ...` / `K3 1 owned ...`,
+  `K5 expensive: 11.4 Ist by its rolls` (W1), `K6 cheap (0.5 Ist), not better than the 2 owned: +3 Lightning Sentry
+  0 vs 0, 0; +3 Death Sentry 3 vs 3, 3; +3 Wake of Fire 0 vs 0, 0`.
+- Tests: `fixtures/valuables.json` §6.9 (W1 Runic Talons 0os superior, W2 0os, Fade and Mind Blast left, O1 first,
+  second, third copy), `test_ground_judge.py` (W1-W3 picks off a ground read, six leaves including the 20:39:33 +3
+  Cloak of Shadows, O1 picked under the cap and left at it, LS still W2's over the cap, other bases left),
+  `test_wants.py` (the rows, W2's ranking), `test_valuables.py` (the town xfail).

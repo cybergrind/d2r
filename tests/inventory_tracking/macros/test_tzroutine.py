@@ -395,22 +395,66 @@ def trips_of(plan: Itinerary | None) -> list[tuple[str, int, tuple[int, ...]]]:
     return [(trip.route, trip.waypoint, trip.areas) for trip in plan.excursions]
 
 
-def test_a_terrorized_act_4_is_diablo_first_then_the_steppes_and_the_plains():
+def test_a_terrorized_act_4_is_diablo_from_the_river_then_the_rivers_rest_the_city_the_steppes_and_the_plains():
+    # The player, 2026-10-20 ~21:27: "we must go river of flame -> CS -> kill diablo -> do rest of flame river -> city
+    # of damned/planes of despair and etc". Game 21 (21:18:21) took Diablo's trip from the City, City and River first
     plan = itinerary(ACT4)
     assert plan is not None
     assert plan.zone == 'Act4-Manual'
     assert plan.areas == ACT4
-    assert trips_of(plan) == [('Diablo', 106, (106, 107, 108)), ('Izual', 103, (103, 104, 105))]
+    assert trips_of(plan) == [
+        ('Diablo', 107, (107, 108)),  # the River crossed to the Sanctuary, the seals and Diablo
+        ('Diablo', 107, (107,)),  # the River's rest after the kill
+        ('Diablo', 106, (106,)),  # the City of the Damned
+        ('Izual', 103, (103, 104, 105)),  # the Steppes and the Plains
+    ]
     assert plan.skipped == ()
-    assert look(FORTRESS, plan) == [(WAYPOINT, 106)]  # the boss's trip first
+    diablo, river, city, izual = plan.excursions
+    assert diablo.passes == frozenset((107,))
+    assert not river.passes
+    assert not city.passes
+    assert look(FORTRESS, plan) == [(WAYPOINT, 107)]  # the boss's trip first, from the waypoint nearest him
+    assert look(107, plan, stage=ENTER, stage_to=108) == [(LEVEL, 107)]
+    assert look(107, plan, stage=ENTER, stage_to=108, worked=((107, 1),)) == [(NEXT_LEVEL, 108)]
+    assert plan.crossing(107, frozenset())
+    assert not plan.crossing(108, frozenset())
     assert look(108, plan, stage=FIGHT) == [(LEVEL, 108)]
     assert look(108, plan, stage=LEAVE, worked=((108, 1),)) == [(PORTAL_TO_TOWN, 108)]  # the next trip after Diablo
-    assert look(FORTRESS, plan, finished=frozenset((106, 107, 108))) == [(WALK_OUT, 104)]
-    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=frozenset((106, 107, 108))) == []  # the game ends
-    # Every level of the act is worked (TZ+), none crossed
-    diablo, izual = plan.excursions
-    assert [policy_of(area, diablo) for area in (106, 107, 108)] == [PLUS, PLUS, PLUS]
+    after = frozenset((108,))
+    assert plan.crossed(after) == frozenset((107,))
+    assert look(FORTRESS, plan, finished=after) == [(WAYPOINT, 107)]  # back for the River's rest
+    assert look(107, plan, finished=after) == [(LEVEL, 107)]
+    assert look(107, plan, worked=((107, 1),), finished=after) == [(PORTAL_TO_TOWN, 107)]
+    assert look(FORTRESS, plan, finished=after | {107}) == [(WAYPOINT, 106)]
+    assert look(106, plan, worked=((106, 1),), finished=after | {107}) == [(PORTAL_TO_TOWN, 106)]
+    assert look(FORTRESS, plan, finished=after | {106, 107}) == [(WALK_OUT, 104)]
+    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=ACT4 - {104, 105}) == []  # the game ends
+    # The River only crossed on the way (the leaders near, either kind), worked with the act after Diablo
+    assert [policy_of(area, diablo) for area in (107, 108)] == [ON_THE_WAY, PLUS]
+    assert policy_of(107, diablo, full_clear=True) == ON_THE_WAY
+    assert policy_of(107, river) == PLUS
+    assert policy_of(107, river, full_clear=True) == FULL_CLEAR
+    assert policy_of(106, city) == PLUS
     assert [policy_of(area, izual) for area in (104, 105)] == [PLUS, PLUS]
+
+
+def test_the_boss_nearest_off_is_the_trip_covering_most_as_before(monkeypatch):
+    from inventory_tracking.macros import tzroutine
+
+    monkeypatch.setattr(tzroutine, 'BOSS_NEAREST', False)
+    tzroutine.itinerary.cache_clear()
+    try:
+        assert trips_of(itinerary(ACT4)) == [('Diablo', 106, (106, 107, 108)), ('Izual', 103, (103, 104, 105))]
+    finally:
+        tzroutine.itinerary.cache_clear()
+
+
+def test_the_chaos_sanctuary_and_river_rotations_are_unchanged():
+    sanctuary = itinerary(frozenset((108,)))
+    assert trips_of(sanctuary) == [('Diablo', 107, (107, 108))]  # the River crossed (not terrorized)
+    assert sanctuary is not None
+    assert not sanctuary.excursions[0].passes
+    assert trips_of(itinerary(frozenset((106, 107)))) == [('Diablo', 106, (106, 107))]
 
 
 def test_a_terrorized_act_and_the_rotation_in_another_act_are_one_itinerary_the_act_first():
@@ -419,15 +463,16 @@ def test_a_terrorized_act_and_the_rotation_in_another_act_are_one_itinerary_the_
     assert plan.zone == 'Act4-Manual + Act1-Catacombs'
     assert plan.areas == ACT4 | CATACOMBS
     assert trips_of(plan) == [
-        ('Diablo', 106, (106, 107, 108)),
+        ('Diablo', 107, (107, 108)),
+        ('Diablo', 107, (107,)),
+        ('Diablo', 106, (106,)),
         ('Izual', 103, (103, 104, 105)),
         ('Andariel', 35, (35, 36, 37)),
     ]
+    assert not plan.excursions[-1].passes  # the rotation's Catacombs: worked on the way, as alone
     assert {area for area, _ in plan.skipped} == {32, 33, 34}  # as the Catacombs zone alone
-    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=frozenset((106, 107, 108))) == [
-        (PORTAL_TO_TOWN, 105)
-    ]
-    assert look(FORTRESS, plan, finished=frozenset((106, 107, 108, 105))) == [(WAYPOINT, 35)]
+    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=ACT4 - {104, 105}) == [(PORTAL_TO_TOWN, 105)]
+    assert look(FORTRESS, plan, finished=ACT4 - {104}) == [(WAYPOINT, 35)]
 
 
 def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_first():
@@ -438,13 +483,32 @@ def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_firs
     plan = itinerary(act1.core)
     assert plan is not None
     assert plan.zone == 'Act1-Manual'
-    first, rest = plan.excursions[0], plan.excursions[1]
-    assert (first.route, first.waypoint, first.areas) == ('Andariel', 35, (35, 36, 37))
+    first, back, rest = plan.excursions[:3]
+    assert (first.route, first.waypoint, first.areas, first.passes) == ('Andariel', 35, (35, 36, 37), {35, 36})
+    assert (back.route, back.waypoint, back.areas) == ('Andariel', 35, (35, 36))  # Catacombs 2-3 after her
     # The levels before her waypoint are a trip of their own (the Outer Cloister's, through the Jail and the Cathedral)
     assert (rest.route, rest.waypoint, rest.areas) == ('Andariel', 27, (27, 28, 29, 30, 31, 32, 33, 34))
     covered = {area for trip in plan.excursions for area in trip.zone}
     assert covered == set(act1.areas)  # every level of the act, the Forgotten Tower too
     assert plan.skipped == ()
+
+
+def test_terrorized_acts_3_and_5_take_their_boss_from_the_nearest_waypoint_and_the_way_after():
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act3, act5 = manual_zone(3), manual_zone(5)
+    assert act3 is not None
+    assert act5 is not None
+    durance = itinerary(act3.core)
+    assert trips_of(durance)[:3] == [
+        ('Mephisto', 101, (101, 102)),  # Durance 2's waypoint; Durance 3's stand is the trip's own
+        ('Mephisto', 101, (101,)),
+        ('Mephisto', 81, (81, 82, 83, 100)),  # the rest of his route: Travincal's Council, Durance 1
+    ]
+    throne = itinerary(act5.core)
+    assert throne is not None
+    assert trips_of(throne)[:2] == [('Baal', 129, (129, 130, 131, 132)), ('Baal', 129, (129, 130))]
+    assert throne.excursions[0].passes == frozenset((129, 130))  # the Throne's waves are the trip's own work
 
 
 def test_a_partly_read_act_plays_its_groups_read_and_never_stops_the_loop():
