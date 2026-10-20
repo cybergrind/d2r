@@ -295,7 +295,8 @@ def test_his_stream_at_the_character_is_walked_not_hopped_while_walk_around_is_o
     assert not threat.walked(Acting((0.0, 0.0), threat.MODE, 20, at_it), here)
 
 
-def test_a_walk_round_him_goes_on_the_way_it_goes_at_a_radius_inside_his_range():
+def test_a_walk_round_him_goes_on_the_way_it_goes_close_to_him_and_inside_his_range():
+    # The player, 2026-10-21: "diablo fight - we need cycle around him, close to him"
     from inventory_tracking.combat.threats import Acting
 
     here = (14.0, 0.0)
@@ -304,18 +305,17 @@ def test_a_walk_round_him_goes_on_the_way_it_goes_at_a_radius_inside_his_range()
     assert found is not None
     place, why = found
     assert why == "round Diablo's lightning"
-    assert math.dist(place, (0.0, 0.0)) == pytest.approx(14.0)
+    assert math.dist(place, (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS)
     assert place[1] > 0  # counterclockwise
-    assert math.atan2(place[1], place[0]) * 14.0 == pytest.approx(threat.AROUND_LEAD)
+    assert math.atan2(place[1], place[0]) * threat.AROUND_RADIUS == pytest.approx(threat.AROUND_LEAD)
     back = threat.around(Acting((0.0, 0.0), threat.MODE, 20, at_it), here, -1)
     assert back is not None
     assert back[0][1] < 0
-    # Held out of his melee and inside his lightning's range
+    # Out of his melee, inside his lightning's range (his run keeps its weight) and the blades' reach
+    assert threat.AROUND_RADIUS > rules.REACH + 2
+    assert rules.less_size((0.0, 0.0), (threat.AROUND_RADIUS, 0.0)) < rules.LIGHTNING_RANGE
+    assert threat.AROUND_RADIUS < 22.1
     near = threat.around(Acting((0.0, 0.0), threat.MODE, 3), (3.0, 0.0), 1)
-    far = threat.around(Acting((0.0, 0.0), threat.MODE, 3), (30.0, 0.0), 1)
     assert near is not None
-    assert math.dist(near[0], (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS[0])
-    assert far is not None
-    assert math.dist(far[0], (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS[1])
-    assert rules.less_size((0.0, 0.0), far[0]) < rules.LIGHTNING_RANGE
+    assert math.dist(near[0], (0.0, 0.0)) == pytest.approx(threat.AROUND_RADIUS)  # out to it from his melee
     assert threat.around(Acting((0.0, 0.0), 1, 0), here, 1) is None  # no cast under way

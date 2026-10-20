@@ -82,15 +82,19 @@ DUD = 'a Teleport there cast nothing'
 # the player 2026-10-20, combat/threats/diablo.py WALK_AROUND): barred but as a retreat, the life-danger escape (nothing
 # else fits the budget or the veto: `Safety.retreats`)
 WALKED = "Diablo's lightning is walked round, not hopped out of"
-# A walk round an act under way that is walked out of (combat/threats `Threat.around`): once a step across it is
-# taken, each look offers the next place on round him the same way (`Safety.rounds`), taken over the rest while it fits
-# (pursuit.py `Move.onward`) and clicked while the character still walks (hunting/moves.py), until the act ends. The
-# player, 2026-10-20: "just walk around of him"; the coordinator the same night: keep moving on an arc round him, not
-# a 4-unit step and a stand (take 20261020T195849Z-108: 205 life lost a median 2 s after a step that ends in a stand).
-# The arena duel, 20 seeds, the loop's latency modelled (a stand between walks; a click while walking lands in 3
-# frames): lightning lost 45 -> 33 and 107 -> 80 from 9 units, 17 -> 15 and 68 -> 53 from 18 (22 and 44 strikes),
-# for 0.4 to 1.1 s more a kill and, in the longer fights, more of his fire wall. False: steps across as before.
-WALK_ROUND = False  # held off for the restart of 2026-10-20 night: untested in the arena yet
+# A walk round an act under way that is walked out of (combat/threats `Threat.around`: Diablo's lightning), from the
+# look that first sees it at the character to its end: each look offers the next place round him (both ways at the
+# first, then the way taken: `Safety.rounds`), taken over the rest while it fits the budget and the veto (pursuit.py
+# `Move.onward`; else the retreats, as before) and clicked while the character still walks (hunting/moves.py). The
+# player, 2026-10-21 ~00:05: "diablo fight - we need cycle around him, close to him" (2026-10-20: "just walk around of
+# him"). The arena duel against the walks across alone (WALK_AROUND), 20 seeds, at combat/threats/diablo.py
+# AROUND_RADIUS 14, 22 / 44 strikes, from 9 units: life lost 137 -> 71 and 398 -> 269 (lightning 45 -> 6, 107 -> 9;
+# fire wall 67 -> 36, 229 -> 198; ring 25 -> 29, 50 -> 62; melee 0, 12 -> 0); from 18 units, where the walks across
+# stand off his wall, 58 -> 69 and 223 -> 267 (lightning 17 -> 3, 68 -> 6; wall 16 -> 37, 85 -> 203). Kills 1.7 to
+# 3.6 s longer (10.2 -> 12.1, 19.7 -> 23.3; from 18 10.0 -> 11.8, 19.5 -> 23.1): no strike while the stream comes (a
+# strike between the steps took the stream back: 122..174 lost). Circling between his casts too, a strike between
+# steps, tripled the kill (30.5 s for 22 strikes) and lost more (212..297). False: steps across as before.
+WALK_ROUND = True
 RESISTS = ((36, 'physical'), (39, 'fire'), (41, 'lightning'), (43, 'cold'), (45, 'poison'), (37, 'magic'))
 # Stats are unpenalized and difficulty is not observed: Hell assumed, never capped gear.
 HELL_PENALTY = 100.0
@@ -900,24 +904,24 @@ class Safety:
         return tuple(found)
 
     def rounding(self, p: Pricing, walkers: tuple[int, ...]) -> None:
-        """The next place of a walk round each act under way it goes round (`rounds`, WALK_ROUND), priced as a dodge
-        that goes on (`Move.onward`)."""
+        """The next place of a walk round each act under way that is walked (WALK_ROUND), both ways round at first and
+        then the way taken (`rounds`), priced as a dodge that goes on (`Move.onward`)."""
         if not WALK_ROUND:
             return
         for m in p.look.hostiles:
-            kept = self.rounds.get(m.unit)
             model = threats.of(m.txt)
-            if m.unit not in walkers or kept is None or kept[0] != self.modes.get(m.unit) or model is None:
+            if m.unit not in walkers or model is None or model.around is None:
                 continue
-            if model.around is None or p.clock.late():
-                continue
-            flying, kinds = threats.flying_of(p.look.missiles, m.unit)
-            found = model.around(threats.Acting(m.at, m.mode, m.mode_frames, flying, kinds), p.here, kept[1])
-            if found is None:
-                continue
-            spot = footing(p.field_, p.here, found[0])
-            if spot is not None and math.dist(p.here, spot) > 2:
-                p.move_price(Step(spot), firing=True, why=f'{STEPPING} {found[1]}', dodge=True, onward=True)
+            kept = self.rounds.get(m.unit)
+            sides = (kept[1],) if kept is not None and kept[0] == self.modes.get(m.unit) else (1, -1)
+            acting = threats.Acting(m.at, m.mode, m.mode_frames, *threats.flying_of(p.look.missiles, m.unit))
+            for side in sides:
+                found = model.around(acting, p.here, side)
+                if found is None or p.clock.late():
+                    continue
+                spot = footing(p.field_, p.here, found[0])
+                if spot is not None and math.dist(p.here, spot) > 2:
+                    p.move_price(Step(spot), firing=True, why=f'{STEPPING} {found[1]}', dodge=True, onward=True)
 
     def went_round(self, chosen: Act, look: Look, here: Point, walkers: tuple[int, ...]) -> None:
         """A step across or round an act walked out of (STEPPING, a walk) sets the way round it for the next looks

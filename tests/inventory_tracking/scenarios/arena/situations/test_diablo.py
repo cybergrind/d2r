@@ -54,7 +54,9 @@ def test_attack_mode_alone_steps_across_his_lightning_and_strikes_on():
     situation, presses = {label: (s, p) for label, s, p in diablo.variants()}['attack mode alone: new']
     assert situation.pursuit
     outcome = situation.play(presses, seed=1)
-    assert outcome.said_count("Stepping across Diablo's lightning") >= 1
+    assert outcome.said_count("Stepping round Diablo's lightning") >= 1  # macros/safety.py WALK_ROUND
     assert outcome.taken_by()['Diablo', 'spell'] < 150
-    assert outcome.moved < 30  # steps of a few units each, no walk away
+    # Round him while his streams come (14 units off, 8 of arc a look: 67 in seed 1, 2026-10-21; the steps across
+    # alone moved 39.7 that night, over the 30 this held before), never a walk away
+    assert outcome.moved < 100
     assert not outcome.dead

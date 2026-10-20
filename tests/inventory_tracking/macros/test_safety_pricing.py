@@ -296,6 +296,10 @@ def _price_against(monkeypatch, look):
 def test_his_stream_under_way_makes_a_step_across_his_line_the_act_not_the_hold(monkeypatch):
     # rca/2026-10-13/diablo.md section 5.3, item 5: Diablo at 15 units in SC, age 20, his missiles in flight at the
     # character: the chosen act is a move across his line (an escape priced against holding, not only when unsafe).
+    # The steps across as such, without the walk round him (WALK_ROUND: its own tests below).
+    from inventory_tracking.macros import safety as module
+
+    monkeypatch.setattr(module, 'WALK_ROUND', False)
     priced, decision = _price_against(monkeypatch, _diablo_look(7, 20, 10))
     assert decision['dear'] == 10.0  # a dear class in the fight
     chosen = p.decide(priced, None)
@@ -640,6 +644,10 @@ def _stream_at(here, frames_flown: int):
 
 
 def test_no_step_across_his_lightning_is_offered_before_a_missile_flies(monkeypatch):
+    # Of the steps across as such: the walk round him (WALK_ROUND) begins with his cast, as it keeps moving
+    from inventory_tracking.macros import safety as module
+
+    monkeypatch.setattr(module, 'WALK_ROUND', False)
     here = (14.0, 0.0)
     ((act, decision),) = _diablo_looks(monkeypatch, [(SC_START, here, ())])
     assert not any(c['why'].startswith('stepping across') for c in decision['candidates'])
@@ -647,6 +655,9 @@ def test_no_step_across_his_lightning_is_offered_before_a_missile_flies(monkeypa
 
 
 def test_a_step_across_his_lightning_never_goes_back_to_the_place_it_left_in_the_same_cast(monkeypatch):
+    from inventory_tracking.macros import safety as module
+
+    monkeypatch.setattr(module, 'WALK_ROUND', False)  # the steps across as such (the walk round: its own tests)
     start = (14.0, 0.0)
     (first,) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
     act = first[0]
@@ -683,7 +694,7 @@ def test_a_step_across_his_stream_in_flight_is_a_dodge_and_the_threats_geometry_
     ((act, decision),) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
     assert isinstance(act, p.Move), decision['candidates']
     assert act.dodge
-    stepping = [c for c in decision['candidates'] if c['why'].startswith('stepping across')]
+    stepping = [c for c in decision['candidates'] if c['why'].startswith(('stepping across', 'stepping round'))]
     assert stepping
     assert all(c['dodge'] for c in stepping)
     assert not any(c['dodge'] for c in decision['candidates'] if c not in stepping)
@@ -1149,7 +1160,7 @@ def test_his_stream_at_the_character_is_walked_across_and_no_hop_is_the_routine_
     with caplog.at_level(logging.INFO, logger=LOG.name):
         act, decision = _diablo_hops(monkeypatch, start, _stream_at(start, 10))
     assert isinstance(act, p.Move), decision['candidates']
-    assert act.reason.startswith('stepping across')
+    assert act.reason.startswith(('stepping across', 'stepping round'))
     assert act.step.skill is None  # a walk across his line
     assert act.dodge
     assert abs(math.dist(act.step.spot, (0.0, 0.0)) - 14.0) < 1.0  # round him, as near as before
@@ -1216,12 +1227,14 @@ def test_another_threats_hops_are_unchanged(monkeypatch):
     assert not any(c['veto'] == module.WALKED for c in decision['candidates'])
 
 
-# The walk round him (macros/safety.py WALK_ROUND, off by default since 2026-10-20 23:57): once a step across his
-# stream is taken, the next look, made while the character still walks, offers the next place round him the same way.
+# The walk round him (macros/safety.py WALK_ROUND; the player 2026-10-21: "we need cycle around him, close to him"):
+# the first look that sees his stream at the character offers a walk round him either way; the next looks, made while
+# the character still walks, the next place round him the way taken.
 
 
 def _round_looks(monkeypatch, *, walk_round=True):
-    """Two looks in one cast: a step across from 14 units, then a look halfway along it (the walk not over)."""
+    """Two looks in one cast: the first step from 14 units (round him, or across with WALK_ROUND off), then a look
+    halfway along it (the walk not over)."""
     from inventory_tracking.macros import safety as module
 
     monkeypatch.setattr(module, 'WALK_ROUND', walk_round)
@@ -1229,7 +1242,7 @@ def _round_looks(monkeypatch, *, walk_round=True):
     (first,) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
     act = first[0]
     assert isinstance(act, p.Move), first[1]['candidates']
-    assert act.reason.startswith('stepping across')
+    assert act.reason == ("stepping round Diablo's lightning" if walk_round else "stepping across Diablo's lightning")
     landed = act.step.spot
     halfway = ((start[0] + landed[0]) / 2, (start[1] + landed[1]) / 2)
     looks = [(20, start, _stream_at(start, 10)), (23, halfway, _stream_at(halfway, 12))]
@@ -1241,6 +1254,8 @@ def _side(at, here, spot):
 
 
 def test_a_walk_round_his_stream_goes_on_the_same_way_before_the_walk_ends(monkeypatch):
+    from inventory_tracking.combat.threats.diablo import AROUND_RADIUS
+
     start, landed, halfway, looks = _round_looks(monkeypatch)
     act, decision = looks[1]
     onward = [c for c in decision['candidates'] if c['onward']]
@@ -1253,7 +1268,7 @@ def test_a_walk_round_his_stream_goes_on_the_same_way_before_the_walk_ends(monke
     # On the way the first step went round him, past where it was going, at the distance it keeps from him
     assert _side((0.0, 0.0), start, landed) * _side((0.0, 0.0), halfway, act.step.spot) > 0
     assert math.dist(act.step.spot, start) > math.dist(landed, start)
-    assert abs(math.dist(act.step.spot, (0.0, 0.0)) - math.dist(halfway, (0.0, 0.0))) < 1.5
+    assert abs(math.dist(act.step.spot, (0.0, 0.0)) - AROUND_RADIUS) < 1.5  # close to him
 
 
 def test_with_walk_round_off_no_walk_round_is_offered(monkeypatch):

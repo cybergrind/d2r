@@ -20,10 +20,16 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
 
 
-__all__ = ['FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']
+__all__ = ['ARRIVAL_SECONDS', 'FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']
 
 GONE_UNITS = 20.0  # world units: a valuable not read this near is off the ground (the pickup's PICK_UNITS)
 FETCH_TRIES = 2  # trips back to one valuable before the loop stops for the player
+# Seconds after the character enters a level in which a valuable not read near it is not yet judged off the ground:
+# the client fills the level's units after the arrival. On 2026-10-21 00:55:22 the first read back through the portal
+# held no ground units; the Unique Double Bow 2 units off was forgotten as "taken", the guard read none and the game
+# was left with it on the ground (the player: "we returned to item on the ground, and instead of picking it - we exit
+# the game / that is VERY BAD"). 0: judged at the first read, as before
+ARRIVAL_SECONDS = 3.0
 FETCH_SECONDS = 40.0  # a game's trips back, all of them
 
 
@@ -48,6 +54,8 @@ class Sightings:
         self.game: tuple[str, int] | None = None
         self.items: dict[int, Sighting] = {}
         self.fetching: float | None = None  # the clock of the game's first trip back
+        self.area: int | None = None  # the level of the last read, and the clock the character entered it
+        self.entered: float | None = None
 
     def update(self, loot: Loot, here: tuple[float, float] | None, area: int | None, now: float) -> None:
         """A read of the ground (`loot`: the drops the loop's pickup takes) with the character at `here` in `area`."""
@@ -63,12 +71,17 @@ class Sightings:
             else:
                 # Kept at its first place: a read mid-pickup gives inventory-cell coordinates (2026-10-17 19:02:23)
                 found.read = True
+        if area != self.area:
+            self.area, self.entered = area, now
         if here is None:
             return
+        settling = self.entered is not None and now - self.entered < ARRIVAL_SECONDS
         for found in list(self.items.values()):
             if found.unit_id in read or found.area != area:
                 continue
             away = math.dist(here, (found.x, found.y))
+            if away <= GONE_UNITS and settling and self.entered is not None and found.seen < self.entered:
+                continue  # seen before this arrival, the level's units maybe not read yet: judged once it settles
             if away <= GONE_UNITS:
                 del self.items[found.unit_id]
                 if found.tries:

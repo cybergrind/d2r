@@ -188,3 +188,41 @@ def test_a_sling_cast_with_no_portal_does_not_ask_about_the_tome():
 
     with pytest.raises(Abort, match=r'no Town Portal opened 2.5s after the cast from the Sling$'):
         to_town(play.run(), sling_keys)
+
+
+def test_a_walk_to_the_portal_that_goes_through_it_is_the_arrival_not_a_failure(monkeypatch):
+    # 2026-10-21 00:55:22: the walk toward the portal took it; the step then clicked for the town's portal from the
+    # City of the Damned, read "not under the pointer at any aim", and the recovery left a Double Bow on the ground
+    from inventory_tracking.macros import portal as portal_module, shop
+
+    play = Game(world(KURAST_DOCKS))
+
+    def walked_through(run, place, bounds, label):
+        play.arrive(LOWER_KURAST)
+        return run.world()
+
+    monkeypatch.setattr(shop, 'walk_until', walked_through)
+    monkeypatch.setattr(portal_module, 'portals', lambda run: [])
+    used = []
+    monkeypatch.setattr(portal_module, 'use_thing', lambda *a, **k: used.append(a))
+
+    portal_module.through_portal(play.run(), near=(5048.0, 5049.0))
+
+    assert used == []  # no click for the town's portal from the level
+    assert play.character.area == LOWER_KURAST
+
+
+def test_with_the_switch_off_a_walk_through_the_portal_still_clicks_as_before(monkeypatch):
+    from inventory_tracking.macros import portal as portal_module, shop
+
+    monkeypatch.setattr(portal_module, 'THROUGH_ON_THE_WAY', False)
+    play = Game(world(KURAST_DOCKS))
+
+    def walked_through(run, place, bounds, label):
+        play.arrive(LOWER_KURAST)
+        return run.world()
+
+    monkeypatch.setattr(shop, 'walk_until', walked_through)
+    monkeypatch.setattr(portal_module, 'portals', lambda run: [])
+    with pytest.raises(Abort, match='no Town Portal in sight'):
+        portal_module.through_portal(play.run(), near=(5048.0, 5049.0))

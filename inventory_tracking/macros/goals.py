@@ -51,6 +51,12 @@ GUARD_NEAR = 12.0
 # off over 56 visits)
 BOSS_MARK_UNITS = 60.0
 SAME_PLACE = 1.0  # units: two of the tracker's last-seen places this near are one monster's
+# A seal boss not seen, with no hostile and no unexplored room left to look in, is looked for by the seal that called
+# him (`fight_goal` `appears`). 00:45:49-00:45:59 on 2026-10-21: after De Seis seal the seek went to a remembered
+# hostile 150 units off, De Seis came by the seal behind the Teleports (seen 0.12 s), nothing else was known and the
+# level run ended "no route stage, no boss known": De Seis, his pack, the Infector seals and Diablo were left.
+# Off: the run ends with nothing known, as before.
+SEAL_BOSS_BY_SEAL = False  # off for the 2026-10-21 ~01:00 restart: no regression tests or wide suite yet
 # Units: on a level run hostiles this near, in line of sight, are fought before going on ("go to the level's goal
 # clearing everything along the way", the player, 2026-10-14)
 CLEAR_WAY = 30.0
@@ -126,8 +132,11 @@ def fight_goal(
     elsewhere: Callable[[], tuple[Point, str] | None] | None,
     reach: float,
     spend: Intent,
+    appears: tuple[Point, str] | None = None,
 ) -> Goal | None:
-    """The goal of a `fight` stage: the boss, by the first of its places that is known."""
+    """The goal of a `fight` stage: the boss, by the first of its places that is known. `appears`: (place, label) of
+    the seal that called a markless stage's boss (`summoner`): gone back to when nothing else is known
+    (SEAL_BOSS_BY_SEAL), so a seal boss not seen yet does not end the run."""
     name = stage.boss
     at = spot_of(mark) if mark is not None else None
     bosses = [m for m in foes if is_boss(m)]
@@ -147,7 +156,21 @@ def fight_goal(
     if looked is not None:
         place, what = looked
         return Goal(f'seek {name}: toward {what}', place, known=False, **made)
+    if appears is not None and SEAL_BOSS_BY_SEAL:
+        # Nothing else known: back to the seal he came by, the fight on the way (hunting/judging.py `empty_mark`
+        # bounds the stand there by SEEK_WAIT)
+        return Goal(f'seek {name}: by {appears[1]}', appears[0], known=False, **made)
     return None
+
+
+def summoner(stages: Sequence[Stage], stage: Stage) -> Stage | None:
+    """The `use` right before a markless `fight` stage (the last seal of a Chaos Sanctuary arm): where its boss comes;
+    None for another stage."""
+    if stage.kind != FIGHT or stage.mark or stage not in stages:
+        return None
+    index = list(stages).index(stage)
+    before = stages[index - 1] if index else None
+    return before if before is not None and before.kind == USE and before.mark and not before.to else None
 
 
 def first_fight(goal: Goal, here: Point, blockers: Sequence[Monster], reach: float) -> Goal:
@@ -230,13 +253,15 @@ def goal_of(
     side: Drop | None = None,
     stay: Drop | None = None,
     entry: Point | None = None,
+    appears: tuple[Point, str] | None = None,
 ) -> Goal | None:
     """The goal a press of the teleport key means now. `stage`: the level's current stage; `card`: the level
     card's first mark; `foes`: hostiles in the world; `remembered`, `supers`, `gone`: the tracker's memory and units
     to skip; `elsewhere()`: (place, what) to look in when nothing is known of a boss, asked only then; `drop`: a
     valuable beside the character, taken first; `side`: a drop a level run takes on its way (guarded when a potion);
     `stay`: a valuable with no room, stood by; `reach`: the build's strike distance; `entry`: the card door's
-    remembered click spot. None: nothing to go to."""
+    remembered click spot; `appears`: the seal a markless fight's boss comes by (`fight_goal`). None: nothing to go
+    to."""
     if drop is not None:
         return Goal(f'{drop.label}, before leaving', (drop.x, drop.y), PICK_UP, PICK_NEAR, spend, unit=drop.unit_id)
     if side is not None:
@@ -259,6 +284,7 @@ def goal_of(
         gone=gone,
         elsewhere=elsewhere,
         entry=entry,
+        appears=appears,
     )
 
 
@@ -291,6 +317,7 @@ def route_goal(
     gone: frozenset[int] = frozenset(),
     elsewhere: Callable[[], tuple[Point, str] | None] | None = None,
     entry: Point | None = None,
+    appears: tuple[Point, str] | None = None,
 ) -> Goal | None:
     """The route's own goal, nothing on the side: `goal_of` with no drop and no valuable to stand by; the level
     card's first row points at it too (macros/card_goal.py). Arguments as `goal_of`'s. None: nothing to go to."""
@@ -298,7 +325,7 @@ def route_goal(
     if stage is not None and stage.kind in (LOOT, LEAVE):
         return Goal(stage.text(), here, stage.kind, math.inf, spend, route=route, stage=stage)
     if stage is not None and stage.kind == FIGHT:
-        found = fight_goal(stage, route, mark, here, foes, remembered, supers, gone, elsewhere, reach, spend)
+        found = fight_goal(stage, route, mark, here, foes, remembered, supers, gone, elsewhere, reach, spend, appears)
         if found is not None or not stage.mark:
             return found
     if card is None:

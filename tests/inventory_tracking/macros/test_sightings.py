@@ -1,8 +1,9 @@
 import pytest
 
 from inventory_tracking.game.records import GOLD, VALUABLE, Drop, Loot
+from inventory_tracking.macros import sightings as sightings_module
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.sightings import FETCH_SECONDS, FETCH_TRIES, Sightings
+from inventory_tracking.macros.sightings import ARRIVAL_SECONDS, FETCH_SECONDS, FETCH_TRIES, Sightings
 
 
 LK = 79
@@ -110,3 +111,31 @@ def test_fetch_goes_to_another_level_only_with_none_left_here_and_only_one_it_ca
     seen.update(loot(emerald(5250.0, 5230.0)), (5248.0, 5223.0), 105, 6.0)
     assert seen.fetch((5248.0, 5223.0), 105, 7.0, lambda found: gone_to.append(found.label), across=lambda a: True)
     assert gone_to[-1] == 'Flawless Emerald'  # one on this level first
+
+
+CITY = 106
+
+
+def bow(x=5628.0, y=4499.0) -> Drop:
+    return Drop(43, x, y, 'Unique Double Bow', VALUABLE)
+
+
+def test_back_through_the_portal_a_valuable_unread_at_the_arrival_is_not_taken_for_gone():
+    # 2026-10-21 00:55:22: back from the trip for room, the first read held no ground units, the Double Bow 2 units
+    # off was forgotten as taken and the game was left with it ("that is VERY BAD")
+    seen = Sightings()
+    seen.update(loot(bow()), (5640.0, 4492.0), CITY, 0.0)
+    seen.update(loot(), (5048.0, 5049.0), 103, 1.0)  # the town
+    seen.update(loot(), (5626.5, 4497.5), CITY, 20.0)  # back: the level's units not read yet
+    assert seen.left() == 'Unique Double Bow at (5628, 4499)'
+    seen.update(loot(), (5626.5, 4497.5), CITY, 20.0 + ARRIVAL_SECONDS + 0.1)  # settled, still unread: taken
+    assert seen.left() is None
+
+
+def test_with_no_arrival_grace_the_first_read_judges_as_before(monkeypatch):
+    monkeypatch.setattr(sightings_module, 'ARRIVAL_SECONDS', 0.0)
+    seen = Sightings()
+    seen.update(loot(bow()), (5640.0, 4492.0), CITY, 0.0)
+    seen.update(loot(), (5048.0, 5049.0), 103, 1.0)
+    seen.update(loot(), (5626.5, 4497.5), CITY, 20.0)
+    assert seen.left() is None

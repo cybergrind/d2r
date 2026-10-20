@@ -993,8 +993,9 @@ def engorging(play, hunt, corpses, until=6.0, hovered=None):
 
 
 def test_a_hurt_demon_gets_engorge_on_the_nearest_corpse_under_the_held_strike():
-    # user, 2026-10-10 night: Engorge (skills.txt 379, on a corpse) heals and buffs the demon.
-    demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=300, max_life=1000)
+    # user, 2026-10-10 night: Engorge (skills.txt 379, on a corpse) heals and buffs the demon. Its life in the
+    # client's 128ths (buffs.py ENGORGE_LIFE_SHARE): 38 is 30%.
+    demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=38, max_life=230)
     play = game(foe(10, 5008.0, 5000.0), demon)
     play.toughness[10] = 1000
     engorging(play, hunter(play), [(90, 5030.0, 5000.0), (91, 5006.0, 5004.0), (92, 5200.0, 5000.0)])
@@ -1021,17 +1022,19 @@ def test_no_engorge_without_a_demon_or_without_a_corpse():
 def test_a_healthy_demon_is_engorged_now_and_then_for_the_buff():
     from inventory_tracking.builds.warlock.buffs import ENGORGE_SECONDS
 
+    # Three hostiles: the fight does not end (buffs.py ENGORGE_SPARE_ENDS).
     demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=1000, max_life=1000)
-    play = game(foe(10, 5008.0, 5000.0), demon)
-    play.toughness[10] = 10**6
+    play = game(foe(10, 5008.0, 5000.0), foe(11, 5009.0, 5001.0), foe(12, 5009.0, 4999.0), demon)
+    play.toughness.update({10: 10**6, 11: 10**6, 12: 10**6})
     engorging(play, hunter(play), [(91, 5006.0, 5004.0)], until=ENGORGE_SECONDS + 5.0)
     assert len(play.engorges) == 2  # at the start of the fight, and ENGORGE_SECONDS later
 
 
 def test_engorge_is_not_cast_with_a_live_monster_or_a_label_under_the_pointer():
     # Tower Cellar 5, 23:12 on 2026-10-10: the corpse lay 1.7 from the character, under the monster
-    # being fought, and the record named that monster under the pointer.
-    demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=300, max_life=1000)
+    # being fought, and the record named that monster under the pointer. The demon hurt (38 of the client's 128ths):
+    # the strike is let go before the pointer moves (casters.py ENGORGE_HOVER_FIRST) and the record read at the corpse.
+    demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=38, max_life=230)
     for over in ((1, 10), (4, 777)):
         play = game(foe(10, 5008.0, 5000.0), demon)
         play.toughness[10] = 1000

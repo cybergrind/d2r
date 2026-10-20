@@ -98,6 +98,20 @@ if TYPE_CHECKING:
     from inventory_tracking.macros.hunt import Hunter
 
 
+# The route's `use` stage whose object shows used at its operate still waits what the object brings: the click before
+# may have taken late. 00:45:48 on 2026-10-21: De Seis seal "did not take the click" (the walk began after
+# STILL_SECONDS), the act expired, the seal opened (mode 1 at the character beside it), the next look said "At De Seis
+# seal" and went on with no wait; De Seis came 0.9 s after the seal, behind the Teleports, and was never fought.
+# Off: an object found used brings nothing, as before.
+SETTLE_FOUND_USED = False  # off for the 2026-10-21 ~01:00 restart: no regression tests or wide suite yet
+
+
+def found_used_settles(goal: Goal) -> bool:
+    """Whether an object found used at `goal`'s operate is waited out as one just used (SETTLE_FOUND_USED): the
+    route's `use` stage, noted done by this operate, so the wait comes once (no renewal at the same object)."""
+    return SETTLE_FOUND_USED and goal.stage is not None and goal.stage.kind == USE
+
+
 def dead_end(self: Hunter, spot: Point, now: float) -> None:
     """A move failed to reach `spot`: it is passed for DEAD_END_SECONDS (`barred`); a second within STUCK_WINDOW
     near it is stuck, and the loop's moves may take Teleport for STUCK_SECONDS (`looped_now`)."""
@@ -433,8 +447,10 @@ def operate(self: Hunter, run: Run, world: World, goal: Goal, key_names) -> None
             ):
                 return
         use_thing(run, goal.mark, player, thing, rect[2] / rect[3])
-        if not used_already(USES[goal.mark.use], thing):  # `thing` as read before: one used then brings nothing
-            self.settled_at = run.clock() + USES[goal.mark.use].brings  # (45 s at an opened chest on 2026-10-20)
+        # `thing` as read before: one used then brings nothing (45 s at an opened chest on 2026-10-20), unless it is
+        # the route's `use` stage noted done now (SETTLE_FOUND_USED)
+        if not used_already(USES[goal.mark.use], thing) or found_used_settles(goal):
+            self.settled_at = run.clock() + USES[goal.mark.use].brings
         route.note_used(run, goal.mark, bearings.progress, bearings.marks)
     elif goal.do == STAND and goal.stage is not None and bearings.progress is not None:
         bearings.progress.stood(player.area, goal.stage.mark)

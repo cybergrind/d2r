@@ -13,6 +13,7 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Pack, Thing, World
 from inventory_tracking.levels.model import TOWN_PORTAL, Target
 from inventory_tracking.loot.api import settle
@@ -122,6 +123,8 @@ def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[
 
 
 PORTAL_SEEN = (0.15, 0.85, 0.15, 0.8)  # window fractions the portal is walked to be drawn within
+# A walk or a click that went through the portal is the arrival, not a failure (2026-10-21 00:55:22). False: as before
+THROUGH_ON_THE_WAY = True
 
 
 def through_portal(run: Run, near: tuple[float, float] | None = None) -> None:
@@ -149,10 +152,31 @@ def through_portal(run: Run, near: tuple[float, float] | None = None) -> None:
     world = walk_until(run, place, PORTAL_SEEN, 'the portal')
     world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or run.world()
     here = world.player or player
+    if THROUGH_ON_THE_WAY and _out_of_town(run, here):
+        # The walk's own click took the portal: 2026-10-21 00:55:22, the character in the City of the Damned by the
+        # Double Bow while the step clicked for the town's portal ("the level is not under the pointer at any aim")
+        # and the recovery left the game (the player: "that is VERY BAD")
+        LOG.info('Macro: the walk to the portal went through it: in the level')
+        arrived(run, 'the level')
+        return
     shown = [t for t in portals(run) if t.mode == OPEN]
     if not shown:
         raise Abort('no Town Portal in sight')
     found = min(shown, key=lambda t: math.dist((t.x, t.y), (here.x, here.y)))
     mark = Target(here.area, (), (found.x / TILE_UNITS, found.y / TILE_UNITS), 'the level', 'target', use=TOWN_PORTAL)
-    use_thing(run, mark, here, found, rect[2] / rect[3])
+    try:
+        use_thing(run, mark, here, found, rect[2] / rect[3])
+    except Abort:
+        if not (THROUGH_ON_THE_WAY and _out_of_town(run, None)):
+            raise
+        LOG.info('Macro: the click on the portal did not read as taken, but the character is in the level')
     arrived(run, 'the level')
+
+
+def _out_of_town(run: Run, here) -> bool:
+    """Whether the character reads out of town now (`here`, else a fresh read): through a portal already."""
+    player = here if here is not None else run.world().player
+    if player is not None and not player.in_town:
+        return True
+    now = run.world().player
+    return now is not None and not now.in_town

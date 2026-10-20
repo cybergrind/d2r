@@ -376,24 +376,30 @@ def walked(acting: Acting, here: Point) -> bool:
     return not acting.flying or _aim(acting, here) is not None
 
 
-AROUND_LEAD = 6.0  # units of arc ahead of the character a walk round him goes on to (`around`; the duel: 6 of 6, 8, 12)
-# The arc's radius held within: out of his melee (REACH 4.5, stance KEEP_AWAY 6) and inside LIGHTNING_RANGE (25 less
-# the target's size), where his run keeps its weight of 10 (beyond it, 20) and the blades' 22.1 still reach him
-AROUND_RADIUS = (8.0, 20.0)
+# The walk round him (`around`, macros/safety.py WALK_ROUND). The player, 2026-10-21 ~00:05: "diablo fight - we need
+# cycle around him, close to him". The arena duel (situations/diablo_duel.py, 20 seeds, the loop's latency modelled,
+# circling from his cast's start to its end, a lead of 8), life lost from 9 units at 22 / 44 strikes: radius 6 161 /
+# 415 (his fire wall), 8 120 / 327, 10 78 / 268, 12 75 / 281, 13 72 / 291, 14 71 / 269; from 18 units 10 96 / 291,
+# 12 73 / 275, 14 69 / 267. 10 to 14 are alike there; nearer than about 13 the safety's stand-in for his melee
+# (combat/harm.py: 370 mean, 1061 worst over 1.5 s at 10 units; 35 and 454 at 14) puts the walk over the life budget
+# at full life (578 points at 1760 of 1818), so it would never be taken. 14: the nearest the budget lets it go, out
+# of his melee (sim/diablo.py REACH 4.5), inside his lightning's range (LIGHTNING_RANGE 25: his run keeps its weight
+# of 10) and the blades' 22.1. His fire ring (64 missiles 176, Range 50 x 1.44 a frame) closes round any radius under
+# 50: no radius dodges it.
+AROUND_RADIUS = 14.0  # units from him a walk round him goes at
+AROUND_LEAD = 8.0  # units of arc on from the character a walk round him goes to at each look (the duel: 8 of 6, 8, 12)
 
 
 def around(acting: Acting, here: Point, side: int) -> tuple[Point, str] | None:
     """The next place of a walk round him while his stream is at the character (`walked`): AROUND_LEAD units of arc
-    on from `here` the way it goes round (`side`: +1 counterclockwise, -1 clockwise), at its distance from him held
-    within AROUND_RADIUS. None while the stream is not walked."""
+    on from the character's bearing from him the way it goes round (`side`: +1 counterclockwise, -1 clockwise), at
+    AROUND_RADIUS from him. None while the stream is not walked."""
     if not walked(acting, here):
         return None
-    gap = math.dist(acting.at, here)
-    if gap < 1e-6:
+    if math.dist(acting.at, here) < 1e-6:
         return None
-    radius = min(max(gap, AROUND_RADIUS[0]), AROUND_RADIUS[1])
-    turn = math.atan2(here[1] - acting.at[1], here[0] - acting.at[0]) + side * AROUND_LEAD / radius
-    place = (acting.at[0] + radius * math.cos(turn), acting.at[1] + radius * math.sin(turn))
+    turn = math.atan2(here[1] - acting.at[1], here[0] - acting.at[0]) + side * AROUND_LEAD / AROUND_RADIUS
+    place = (acting.at[0] + AROUND_RADIUS * math.cos(turn), acting.at[1] + AROUND_RADIUS * math.sin(turn))
     return place, "round Diablo's lightning"
 
 

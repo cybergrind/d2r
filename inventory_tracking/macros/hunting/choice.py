@@ -62,6 +62,7 @@ from inventory_tracking.macros.goals import (
     in_the_way,
     nearer,
     rest_of_level,
+    summoner,
 )
 from inventory_tracking.macros.hunting.base import (
     ALONE_BOSS_UNITS,
@@ -88,6 +89,7 @@ from inventory_tracking.macros.hunting.base import (
     TAKE_BACK,
     VANISH_UNITS,
     WAYS,
+    Bearings,
     Judging,
     door_entry,
     hostiles,
@@ -124,7 +126,7 @@ from inventory_tracking.macros.supply import detour, low, worth
 from inventory_tracking.macros.travel import PRESSED, STANDING, Point, clear_line, label, open_reaches, walked_length
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.routes.model import FIGHT, USE
+from inventory_tracking.routes.model import FIGHT, USE, Stage
 from inventory_tracking.terror.zones import level_population
 
 
@@ -519,6 +521,19 @@ def blockers(self: Hunter, goal: Goal | None, foes: Sequence[Monster], now: floa
 UNEXPLORED = 'an unexplored room'  # what a tour stop is called (`next_room`, `elsewhere`)
 
 
+def seal_of(bearings: Bearings, area: int, here: Point, stage: Stage) -> tuple[Point, str] | None:
+    """(place in world units, label) of the seal that calls a markless fight stage's boss on level `area` (goals.py
+    `summoner`), its card mark nearest `here`; None for another stage or with the mark not on the card."""
+    script = bearings.script(area)
+    before = summoner(script.stages, stage) if script is not None else None
+    if before is None or bearings.marks is None:
+        return None
+    places = [(x * TILE_UNITS, y * TILE_UNITS) for x, y in bearings.marks(before.mark)]
+    if not places:
+        return None
+    return min(places, key=lambda place: math.dist(here, place)), before.mark
+
+
 def goal(
     self: Hunter, run: Run, world: World, foes: list[Monster], pressed: bool, posted: Pursuit | None
 ) -> Goal | None:
@@ -597,6 +612,7 @@ def goal(
         drop=drop,
         side=side,
         stay=stay,
+        appears=seal_of(bearings, area, here, staged[1]) if staged is not None else None,
     )
     if (
         found is not None

@@ -13,7 +13,6 @@ from dataclasses import replace
 from inventory_tracking.builds.warlock.buffs import (
     CONSUME_RETRY,
     CONSUME_SOON,
-    ENGORGE_HURT_SECONDS,
     ENGORGE_LOOKS,
     ENGORGE_REACH,
     ENGORGE_RETRY,
@@ -25,6 +24,8 @@ from inventory_tracking.builds.warlock.buffs import (
     SIGIL_UNSHOWN,
     UNSHOWN,
     SigilWatch,
+    demon_hurt,
+    engorge_every,
     keep_reason,
     kept,
 )
@@ -523,9 +524,30 @@ def defiler_out(cast: Casting) -> Tried:
     return Tried(started, cast=True)
 
 
+# Under the held strike the game's record of the unit under the pointer (`Run.hovered`) stays on what it named before,
+# mostly the strike's own target, wherever the pointer goes: all 276 Engorge misses of the takes 20261020T2* came with
+# the strike held, the live monster named stood a median 8.6 units off the corpse aimed at (96 of 172 more than 8),
+# and 217 of 253 pairs of misses named the same unit at two corpses. So the record read before the pointer moves says
+# what the read after it would. True (the player, 2026-10-20 ~23:20, of the batch identify: "we're not wasting time
+# identifying individually every separate item but doing batch when we actually need it", "I'd like to see more this
+# kind of mindset in other areas"; rca/2026-10-20/lazy-work-findings.md §2): with the strike held, a record that names
+# a live monster or an item is a try not made, nothing touched, the next in ENGORGE_HOVER_RETRY; for a hurt demon
+# (buffs.py `demon_hurt`) the strike is let go first instead, so that the record follows the pointer. A unit among the
+# corpses read now is no live monster (26 of those misses named one the strike had just killed). False: the pointer
+# put on the corpses and the record read there, the look's live monsters as they were.
+ENGORGE_HOVER_FIRST = False
+ENGORGE_HOVER_RETRY = 1.0  # seconds to the next look at the record while the held strike keeps it
+
+
+def covers(over: tuple[int, int] | None, alive: set[int]) -> bool:
+    """Whether the unit the record names keeps Engorge off the corpse: a live monster or an item's label."""
+    return over is not None and (over[0] == ITEM_UNIT or (over[0] == MONSTER_UNIT and over[1] in alive))
+
+
 def engorge(cast: Casting) -> Tried:
     """Engorge on the nearest corpse in view within ENGORGE_REACH. With no corpse there nothing is
-    touched; with one that the pointer could not be kept on, the pointer was moved and no cast made."""
+    touched; with one that the pointer could not be kept on, the pointer was moved and no cast made.
+    Under the held strike the record of what is under the pointer is read first (ENGORGE_HOVER_FIRST)."""
     run, world, aspect = cast.run, cast.world, cast.aspect
     assert world is not None
     assert aspect is not None
@@ -534,15 +556,28 @@ def engorge(cast: Casting) -> Tried:
     assert player is not None
     assert run.corpses is not None
     here = (player.x, player.y)
+    corpses = run.corpses()
     near = [
         corpse
-        for corpse in run.corpses()
+        for corpse in corpses
         if math.dist(here, corpse[1:]) <= ENGORGE_REACH and on_screen(ground_fraction(player, *corpse[1:], aspect))
     ]
+    every = engorge_every(world)
     if not near:
-        return Tried.again(run.clock(), ENGORGE_HURT_SECONDS, ENGORGE_RETRY, touched=False)
-    run.keys.update(cast.key_names(world, (ENGORGE,)))
+        return Tried.again(run.clock(), every, ENGORGE_RETRY, touched=False)
     alive = {m.unit_id for m in world.monsters}
+    if ENGORGE_HOVER_FIRST:
+        alive -= {unit for unit, _, _ in corpses}
+        let_go = getattr(cast.buffs, 'let_go', None)
+        if run.pad is None and run.hovered is not None and let_go is not None:
+            over = run.hovered()
+            if covers(over, alive):
+                if not demon_hurt(world):
+                    LOG.info('Macro: no Engorge: the held strike keeps the pointer record on %s; not moved', over)
+                    return Tried.again(run.clock(), every, ENGORGE_HOVER_RETRY, touched=False)
+                LOG.info('Macro: Engorge for a hurt demon: the strike let go, the pointer record on %s', over)
+                let_go()
+    run.keys.update(cast.key_names(world, (ENGORGE,)))
     # The nearest corpse the pointer really has under it (a live monster often stands on one).
     for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:ENGORGE_LOOKS]:
         if run.pad is not None:
@@ -565,7 +600,7 @@ def engorge(cast: Casting) -> Tried:
             over = run.hovered()
             # Not cast with a live monster or an item's label under the pointer; with nothing
             # there it is (whether the record shows a corpse at all is not known yet).
-            if over is not None and (over[0] == ITEM_UNIT or (over[0] == MONSTER_UNIT and over[1] in alive)):
+            if covers(over, alive):
                 LOG.info('Macro: no Engorge at (%.1f, %.1f): under the pointer %s, not the corpse %d', x, y, over, unit)
                 continue
         cast.buffs.key(run, ENGORGE)
@@ -576,7 +611,7 @@ def engorge(cast: Casting) -> Tried:
         )  # fmt: skip
         return Tried(at, cast=True)
     # the pointer was moved: the strike's aim is put back
-    return Tried.again(run.clock(), ENGORGE_HURT_SECONDS, ENGORGE_RETRY)
+    return Tried.again(run.clock(), every, ENGORGE_RETRY)
 
 
 # The sigil goes under the monster where it stands at the key, read again then (the player, 2026-10-20 ~23:05): the

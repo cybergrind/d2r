@@ -53,6 +53,28 @@ ENGORGE_BELOW = 0.7
 ENGORGE_REACH = 20.0  # world units: a corpse further off is not looked for
 ENGORGE_RETRY = 2.0  # seconds before another look when no corpse lay in reach
 ENGORGE_LOOKS = 2  # corpses the pointer is put on for one cast at most
+# Engorge only where it does some good and can land (the player, 2026-10-20 ~23:20, of the batch identify: "we're not
+# wasting time identifying individually every separate item but doing batch when we actually need it", "I like how it
+# feels in time and fast", "I'd like to see more this kind of mindset in other areas"; rca/2026-10-20/
+# lazy-work-findings.md §2). Engorge gives the character nothing (skills.txt 379: pettype demon, requirespettype): it
+# heals the demon (calc1 ln34: 30% of its life, 1% more a level) and buffs it (aurastate engorge for ln56 frames:
+# damage resist, life drain, attack rate, Blood Oath's armour and regeneration), for mana.
+#
+# A monster's life reads in 128ths of its maximum (stat 6 >> 8, the client's, "79/128" in the logs) and a pet's
+# maximum in whole points: CybergrindAA's Defiler read 128 of 230 at full life (86% of its frames in the takes
+# 20261020T2*, its life never over 128), so by `life < ENGORGE_BELOW * max_life` it was always hurt and Engorge came
+# every ENGORGE_HURT_SECONDS instead of ENGORGE_SECONDS: 276 casts and 165 tries that missed an hour (probe.log of
+# 22:00-23:57). True: hurt by its life against the client's LIFE_SHARE (`demon_hurt`): 14 of the takes' 447 tries
+# had one hurt, and a replay of them leaves 155 of 340 casts. False: against max_life, as before.
+ENGORGE_LIFE_SHARE = False
+LIFE_SHARE = 128  # a monster's life as the client holds it: 128ths of its maximum
+# No Engorge for the buff alone (a demon hurt still gets one) while a fight ends: ENGORGE_ENDING_FOES hostiles or
+# fewer left, none a leader or a boss. 28-31% of the casts of 2026-10-20 came in the last 1.5 s before "Nothing left
+# in reach"; the buff runs out on the way to the next fight. The replay of the takes (with ENGORGE_LIFE_SHARE): 155
+# casts become 139, those in a fight's last 1.5 s 34 become 16. To be judged by kills/h and Summon Defiler casts/h.
+# False: the buff cast whatever is left.
+ENGORGE_SPARE_ENDS = False
+ENGORGE_ENDING_FOES = 2
 # Hex: Purge (skills.txt 389): the strikes deal their damage through it, so it is cast whenever the state lacks it
 # (macros/buffs.py STATE_RETRY). Psychic Ward (skills.txt 387, a pool used up by damage) is kept up the same way
 # (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us sometimes"), under the strike no
@@ -244,22 +266,62 @@ def prey(facts: BuffFacts) -> Monster | None:
     return herald_in_reach(facts) or facts.prey
 
 
-def engorge_due(facts: BuffFacts) -> bool:
-    """Whether Engorge is worth a cast now: a demon of the character's is out, and it is hurt or
-    the last cast is ENGORGE_SECONDS old."""
-    world = facts.world
+def engorged(world: World) -> list[Monster]:
+    """The units Engorge is for: the character's own and the Defilers, not the mercenary."""
     player = world.player
-    if facts.corpses is None or player is None:
-        return False
-    demons = [
+    if player is None:
+        return []
+    return [
         m
         for m in world.monsters
         if (m.ally or m.owner == player.unit_id or m.txt_id == DEFILER_CLASS) and m.txt_id != HIRELING_CLASS_ID
     ]
+
+
+def hurt(monster: Monster) -> bool:
+    """Whether a demon is under ENGORGE_BELOW of its life: by the client's 128ths (ENGORGE_LIFE_SHARE), else by its
+    max_life as read."""
+    if not monster.max_life:
+        return False
+    whole = min(monster.max_life, LIFE_SHARE) if ENGORGE_LIFE_SHARE else monster.max_life
+    return monster.life < ENGORGE_BELOW * whole
+
+
+def demon_hurt(world: World) -> bool:
+    """Whether a demon Engorge is for is hurt (`hurt`)."""
+    return any(hurt(m) for m in engorged(world))
+
+
+def engorge_every(world: World) -> float:
+    """Seconds between two Engorges now: ENGORGE_HURT_SECONDS while a demon is hurt, else ENGORGE_SECONDS. Without
+    ENGORGE_LIFE_SHARE always the first, as the casters counted before."""
+    if not ENGORGE_LIFE_SHARE:
+        return ENGORGE_HURT_SECONDS
+    return ENGORGE_HURT_SECONDS if demon_hurt(world) else ENGORGE_SECONDS
+
+
+def fight_ending(facts: BuffFacts) -> bool:
+    """Whether the fight the look is of ends soon (ENGORGE_SPARE_ENDS): a prey struck, ENGORGE_ENDING_FOES hostiles or
+    fewer left, none a leader or a boss. Outside a fight (no prey) never."""
+    if facts.prey is None or len(facts.foes) > ENGORGE_ENDING_FOES:
+        return False
+    return not any(m.leader or is_boss(m) for m in facts.foes)
+
+
+def engorge_due(facts: BuffFacts) -> bool:
+    """Whether Engorge is worth a cast now: a demon of the character's is out, and it is hurt (`hurt`) or the last
+    cast is ENGORGE_SECONDS old and the fight does not end (`fight_ending`, ENGORGE_SPARE_ENDS)."""
+    world = facts.world
+    if facts.corpses is None or world.player is None:
+        return False
+    demons = engorged(world)
     if not demons:
         return False
-    hurt = any(m.max_life and m.life < ENGORGE_BELOW * m.max_life for m in demons)
-    return facts.since(ENGORGE) > (ENGORGE_HURT_SECONDS if hurt else ENGORGE_SECONDS)
+    if any(hurt(m) for m in demons):
+        return facts.since(ENGORGE) > ENGORGE_HURT_SECONDS
+    if ENGORGE_SPARE_ENDS and fight_ending(facts):
+        return False
+    return facts.since(ENGORGE) > ENGORGE_SECONDS
 
 
 def engorge_on_a_key(facts: BuffFacts) -> bool:
