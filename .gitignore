@@ -16,6 +16,7 @@ __pycache__/
 
 # Local KB datasets, observations, indexes and backups (distributed separately)
 /pricing/data/*
+/pricing/archive/
 !/pricing/data/triage/
 /pricing/data/triage/*
 !/pricing/data/triage/own.json

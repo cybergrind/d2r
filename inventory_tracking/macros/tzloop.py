@@ -156,7 +156,12 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         raise Dead('the character is dead')
     if tz is None:
         raise Abort('no terror zone hands')
+    played = bool(agenda.worked)  # the game before had a level run (one carried on across a way out counts too)
     if agenda.begin(loop.game_id or world.game_name):
+        if played:
+            # The Chaos Sanctuary zone: the River of Flame's crossing carries on into the Sanctuary (seals, Diablo) in
+            # one run, no LEVEL leg; two Diablo games stopped the loop as idle (08:38:04 on 2026-10-20)
+            loop.idle = 0
         loop.idle += 1
         if loop.idle > IDLE_GAMES:
             loop.idle = 0  # turned on again, the loop counts afresh
@@ -172,6 +177,12 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         assert top is not None
         return top
     plan = zone_of(tz)
+    if plan is None and not player.in_town and (left := tz.sighted(None)) is not None:
+        # The zone turned under the game with a valuable still on the ground: it is picked up first, then the game's
+        # end. A Set Occult Codex by Andariel, room just made in the cube, stopped the loop at the 08:30 turn
+        # (08:30:01 on 2026-10-20)
+        agenda.refresh(())
+        return agenda.next((player.x, player.y), valuable=left, area=player.area)
     if plan is None:
         raise Abort('no terror zone is read in this game')
     if not plan.excursions and player.in_town:

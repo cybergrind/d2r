@@ -441,6 +441,15 @@ def test_games_in_a_row_with_no_level_run_stop_the_loop_and_a_level_run_counts_a
     worked.loop.idle = tzloop.IDLE_GAMES - 1  # its game is the IDLE_GAMES-th: played
     assert worked.leg() == TZ_LEVEL
     assert worked.loop.idle == 0
+    # A game whose level run carried on across a way out (River of Flame into the Chaos Sanctuary, no LEVEL leg) is
+    # played too (08:38:04 on 2026-10-20: two Diablo games then a stop)
+    crossed = Script(ROGUE_ENCAMPMENT, monkeypatch)
+    crossed.loop.idle = tzloop.IDLE_GAMES
+    crossed.loop.agenda.begin('cyber1')
+    crossed.loop.agenda.ran(108)
+    crossed.play.world = replace(at(ROGUE_ENCAMPMENT), game_name='cyber2')
+    crossed.leg()  # no idle stop
+    assert crossed.loop.idle == 1
 
 
 def test_a_recovery_in_act_3_leaves_the_game_where_it_stands(monkeypatch):
@@ -538,6 +547,19 @@ def test_a_game_with_no_zone_read_is_a_stop_and_a_dead_character_stops_the_loop(
     game = Script(ROGUE_ENCAMPMENT, monkeypatch, zone=frozenset())
     with pytest.raises(Abort, match='no terror zone is read'):
         game.leg()
+    # The zone turned under a game with a valuable on the ground (Set Occult Codex by Andariel, 08:30:01 on
+    # 2026-10-20): picked up first, no stop
+    turned = Script(37, monkeypatch, zone=frozenset())
+    turned.sightings[37] = 'Set Occult Codex at (22548, 9559)'
+
+    def take_one() -> bool:
+        turned.sightings.clear()
+        return True
+
+    turned.take_one = take_one
+    assert turned.leg() == TZ_PICKUP
+    with pytest.raises(Abort, match='no terror zone is read'):
+        turned.leg()  # then the game is left
     dead = Script(35, monkeypatch)
     dead.play.world = replace(at(35), player=player(35, mode=0))
     with pytest.raises(Dead):
