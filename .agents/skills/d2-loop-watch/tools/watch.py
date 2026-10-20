@@ -49,6 +49,7 @@ from logwords import (
     REQUEST_LOOP,
     RESUMED_OFF,
     SAID,
+    TOWN_DROP,
     WAITING,
     stamp,
 )
@@ -168,6 +169,8 @@ class Watch:
         if (m := FULL.search(line)) is not None:
             self.full.add(m.group(1))
             self.said_full.add(m.group(1))
+        elif TOWN_DROP.search(line):
+            games.put_down(self.items.values(), self.number)
         elif (m := PICKED.search(line)) is not None:
             self.picks.append(m.group(1))
         elif (m := AIMED.search(line)) is not None:
@@ -180,7 +183,8 @@ class Watch:
             quality, name, place = m.group(1), m.group(2), (int(m.group(6)), int(m.group(7)))
             number = self.game[0] if self.game is not None else None
             item = self.items.setdefault(
-                (quality, name, place), games.Seen(line[11:19], '', number, quality, name, m.group(5) or '', place)
+                (quality, name, place),
+                games.Seen(line[11:19], '', number, quality, name, m.group(5) or '', place, first=self.number),
             )
             item.last = self.number
             if m.group(8):

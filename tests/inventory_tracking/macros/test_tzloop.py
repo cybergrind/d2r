@@ -1024,3 +1024,26 @@ def test_the_next_zone_is_waited_for_to_just_after_the_half_hour():
     assert turn % tzloop.ZONE_TURN == 0
     assert tzloop.zone_wait(turn + 10) == tzloop.ZONE_TURN - 10 + tzloop.ZONE_SETTLE
     assert tzloop.zone_wait(turn + tzloop.ZONE_TURN - 1) == 1 + tzloop.ZONE_SETTLE
+
+
+def test_an_elite_outside_this_levels_rooms_is_no_agenda_target():
+    # 08:43:48 on 2026-10-20: just across into the Chaos Sanctuary, a River of Flame elite still in the client's units
+    # was the agenda's kill target; the Teleport toward it took the run back into the River and the Diablo game was
+    # lost (rca/2026-10-20/crossing-teleport-back-findings.md F1)
+    from inventory_tracking.levels.route import room_at
+    from inventory_tracking.native.layout import TILE_UNITS
+    from tests.inventory_tracking.macros.test_hunt import CHAMPION, ROOMS, foe
+
+    play, hunt, run = agenda_hunt(ON_THE_WAY)
+    me = play.world.player
+    assert me is not None
+    here = (me.x, me.y)  # in ROOMS[0], whose west edge is 20 units off
+    inside = foe(31, me.x + 30.0, me.y, CHAMPION)  # in ROOMS[1]
+    across = foe(32, me.x - 30.0, me.y, CHAMPION)  # past ROOMS[0]'s west edge: the level before's
+    assert room_at(ROOMS, (inside.x / TILE_UNITS, inside.y / TILE_UNITS)) is not None
+    assert room_at(ROOMS, (across.x / TILE_UNITS, across.y / TILE_UNITS)) is None
+    assert hunt.agenda_target(run, play.world, [across], here, frozenset(), ROOMS, None) is None
+    assert hunt.agenda_target(run, play.world, [across], here, frozenset(), (), None) is None  # no map read: none
+    target = hunt.agenda_target(run, play.world, [inside, across], here, frozenset(), ROOMS, None)
+    assert target is not None
+    assert target.unit == 31

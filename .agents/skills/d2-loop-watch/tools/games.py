@@ -53,6 +53,7 @@ from logwords import (
     PICKED,
     REQUEST_LOOP,
     STOPS_HERE,
+    TOWN_DROP,
     amount,
     stamp,
 )
@@ -79,10 +80,14 @@ class Seen:
     verdicts: set[str] = field(default_factory=set)  # the census's words after 'taken (...)'; empty: only "left"
     picked: bool = False
     last: int = 0  # the log line the census last said it on
+    first: int = 0  # the log line the census first said it on
+    put_down: bool = False  # the loop's own, put down in town (`put_down`)
 
     def missed(self, full: set[str]) -> str | None:
         """Why the sure mode would have taken it (pickmode.py `sure`), None for an item left by design."""
         name, said = self.name, self.verdicts
+        if self.put_down:
+            return None
         if name in full:
             return None  # a full stash stack's kind (runes, gems): not picked up by design (macros/loop.py `full`)
         if said & {'unique', 'named'}:
@@ -96,6 +101,18 @@ class Seen:
         if said and MARKED.search(name):
             return 'what the marks point at'
         return None
+
+
+# The census lines a town drop's own sighting comes before its "dropped in town" line by, at most (2 at 09:23:02 on
+# 2026-10-20: the drop, the census, then the line)
+DROP_LINES = 20
+
+
+def put_down(items: Iterable[Seen], line: int) -> None:
+    """Mark the items first seen within DROP_LINES before a town drop's line as the loop's own put down."""
+    for item in items:
+        if 0 <= line - item.first <= DROP_LINES:
+            item.put_down = True
 
 
 def full_stacks() -> set[str]:
@@ -208,6 +225,9 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
             asked = True
         if (m := FULL.search(line)) is not None:
             full.add(m.group(1))
+        if TOWN_DROP.search(line):
+            put_down(items.values(), number_of_line)
+            continue
         if (m := LEG.search(line)) is not None:
             number, name = int(m.group(1)), m.group(2).strip()
             if game is None or game.number != number:
@@ -268,6 +288,7 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
                 item = items[quality, name, place] = Seen(
                     line[11:19], directory.name, game.number if game else None, quality, name, label, place
                 )
+                item.first = number_of_line
             elif item.game is None and game is not None:
                 item.game = game.number
             item.last = number_of_line

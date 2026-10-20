@@ -98,7 +98,7 @@ class Game:
             struct.pack_into('<HHi', raw, slot * 8, *entry)
         return holder
 
-    def player(self, unit_id, name, *, life, grids=None) -> int:
+    def player(self, unit_id, name, *, life, grids=None, gold=None) -> int:
         data, raw = self.block(16)
         raw[: len(name)] = name.encode()
         path, block = self.block(0x28)
@@ -111,6 +111,7 @@ class Game:
         struct.pack_into('<Q', at, ROOM1_ROOM2, room2)
         struct.pack_into('<Q', block, PATH_ROOM1, room1)
         full = [(0, 12, 91)] + ([(0, 6, life[0] << 8), (0, 7, life[1] << 8)] if life else [])
+        full += [(0, GOLD_STAT, gold)] if gold is not None else []
         inventory = self.inventory(grids) if grids else 0
         address = self.unit(0, 7, unit_id, 1, data=data, path=path, stats=self.stats(full), inventory=inventory)
         if inventory:
@@ -175,13 +176,19 @@ SHOWN = (
 @pytest.fixture
 def game(monkeypatch) -> Game:
     monkeypatch.setattr(game_memory, 'ProcessMemory', lambda pid: ProcessMemory())  # unbound
+    return make_game()
+
+
+def make_game(gold: int | None = None) -> Game:
+    """The ground and the character of the looks below; `gold` the character carries (stat 14), None unset."""
     GOLD_SEEN.clear()
     BASE_ROLLS_SEEN.clear()
     game_memory.UNPLACED_GOLD.clear()
+    game_memory.CAPPED_GOLD.clear()
     play = Game()
     carried = play.item(RING, 128 * 10 + 5, 0, quality=RARE, owner=PLAYER)  # in the inventory
     cubed = play.item(SHARD, 128 * 11 + 5, 0, owner=PLAYER)  # in the cube
-    play.player(PLAYER, 'CybergrindAA', life=(900, 1200), grids={
+    play.player(PLAYER, 'CybergrindAA', life=(900, 1200), gold=gold, grids={
         INVENTORY_GRID: (10, 4, {0: carried}),
         CUBE_GRID: (3, 4, {4: cubed, 7: cubed}),
     })  # fmt: skip
@@ -297,6 +304,21 @@ def test_a_gold_pile_whose_place_is_unread_is_left_out_and_the_rest_of_the_look_
         'Macro: gold pile 2953: 5000 gold (the full stat list)',
         'Macro: gold pile 2953: its place is unread: left out of this look',
     ]  # once, not at every look
+
+
+def test_a_gold_pile_over_the_gold_cap_is_left_out_of_the_look(game, caplog):
+    # At the cap the game puts a clicked pile back down under a new unit id: 45 s of clicks on one 7679 gold pile
+    # ended game 5 at 09:22:12 on 2026-10-20 (carried 920k+ of 940k)
+    del game  # its patch of ProcessMemory only
+    with caplog.at_level('INFO'):
+        full = look(make_game(gold=910_000 - 4199).game_memory())  # level 91: room for 4199 of the 4200 pile
+        fits = look(make_game(gold=910_000 - 4200).game_memory())
+
+    assert full.drops == tuple(drop for drop in LOOT_DROPS if drop.kind != GOLD)
+    assert fits.drops == LOOT_DROPS
+    assert [m for record in caplog.records if 'over the cap' in (m := record.getMessage())] == [
+        'Macro: gold pile 2697: 4200 gold over the cap (room for 4199): left'
+    ]
 
 
 def test_a_belt_item_that_is_unread_leaves_the_belt_unread_and_the_rest_of_the_look_kept(game, caplog):

@@ -16,7 +16,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import GOLD_STAT, KEY_STACK, MONSTER_UNIT, TOME_CHARGES
+from inventory_tracking.game.layout import GOLD_PER_LEVEL, GOLD_STAT, KEY_STACK, LEVEL_STAT, MONSTER_UNIT, TOME_CHARGES
 from inventory_tracking.game.records import Carried, Monster, Pack, Stocked, World
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
@@ -77,8 +77,6 @@ STOCK_SECONDS = 2.0  # for her stock to be read after her trade window shows
 BUY_CLICKS = 2  # Shift + right clicks on one item that bought nothing, in a row, at most
 # Shift + right clicks on one item in all: the second key stack comes 3 keys a click, between clicks that buy nothing
 BUY_MOST = 9
-LEVEL_STAT = 12  # itemstatcost.txt 'level'
-GOLD_PER_LEVEL = 10_000  # the gold a character carries at most, a level
 SALE_MOST = 35_000  # the most a vendor pays for an item (every best sale of 2026-10-17)
 GOLD_SECONDS = 1.0  # for the gold carried to settle after a purchase, or to change after a sale
 GOLD_SETTLE = 0.25

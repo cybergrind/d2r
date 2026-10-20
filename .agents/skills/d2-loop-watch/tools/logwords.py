@@ -190,6 +190,12 @@ GROUND = re.compile(
     r'Macro: ground: (\w+) (.+?)( eth)?( socketed)?(?: "([^"]*)")? at \((-?\d+), (-?\d+)\): (?:taken \((\w+)\)|left)'
 )
 
+# An item of the loop's own put down in town (cube.py `drop_item`, visit.py DROP_CAPPED_JUNK since 2026-10-20): the
+# census sees it on the ground a few lines before this one, and it is no miss.
+# 2026-10-20 09:23:02,883 INFO Macro: inventory: 537 (3504973515) at (3, 3) dropped in town: the gold is at its cap and
+#     no sale is made
+TOWN_DROP = re.compile(r'Macro: inventory: \d+ \(\d+\) at \(\d+, \d+\) dropped in town')
+
 # An item picked up: (its label). pickup.py click `'Macro: picked up %s %.2fs after the click %s pixels from its
 # ground, ...'`, and pickup.py late `'Macro: picked up %s %.2fs after the click, late: ...'` (said so for this
 # pattern: pickup.py's docstring).

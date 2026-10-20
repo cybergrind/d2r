@@ -709,6 +709,10 @@ class TownMap:
 
 FORTRESS_MAP = TownMap(FORTRESS, (5044.0, 5019.0), USUAL, CAIN, JAMELLA, HALBU)
 SELL_PASSES = 4  # the cube's junk out and sold, pass after pass, as the inventory's room allows
+# The loop's junk no sale takes (the gold at its cap, the stash's gold full) is put down in town, not carried: 4 items
+# kept took the 2x4 block (09:19:05 on 2026-10-20). The player, 2026-10-20 ~08:42: "we don't need money from selling
+# these items"; "we can just pickup or appraise these items and drop if ther aren't good enough". False: kept as before
+DROP_CAPPED_JUNK = True
 STOPS = ('cain', 'stash', 'jamella', 'halbu', 'walk')
 
 
@@ -1011,6 +1015,18 @@ def visit(
                 restock(run, sell, back=False, keys=needs.keys)
                 if not sell or not cubed(_pack(run)):
                     break
+            left = selling(_pack(run))
+            coins, cap = gold(run), gold_cap(run)
+            if (
+                DROP_CAPPED_JUNK
+                and left
+                and key is not None
+                and coins is not None
+                and cap is not None
+                and coins + SALE_MOST > cap
+            ):
+                for item in left:
+                    drop_item(run, key, item, 'in town: the gold is at its cap and no sale is made')
         return True
 
     # Jamella before the stash when a cube keeper gets out only once the junk is sold (JAMELLA_FIRST; history/visit.md).

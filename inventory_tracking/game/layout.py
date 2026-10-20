@@ -100,7 +100,9 @@ FULL_REJUVENATION = 531
 # The only healing potion worth one (user, 2026-10-10: "only super hp or full rejuv"); the filter hides the rest.
 SUPER_HEALING = 606
 GOLD_CLASS = 538  # misc.txt `gld` (items/data/item_metadata.json bases)
-GOLD_STAT = 14  # itemstatcost.txt `gold`: a pile's amount
+GOLD_STAT = 14  # itemstatcost.txt `gold`: a pile's amount, and the gold a character carries
+LEVEL_STAT = 12  # itemstatcost.txt 'level'
+GOLD_PER_LEVEL = 10_000  # the gold a character carries at most, a level
 BASE_STATS = 0x30  # the unit's own stat list (terror/monsters.py)
 ROLLED_QUALITIES = frozenset((2, 3, 4))  # ItemData quality: normal, superior, magic (loot/shown.py RARITIES)
 # The item types whose rolls are read off the ground (items metadata): the Void line's daggers, shields (Monarch),

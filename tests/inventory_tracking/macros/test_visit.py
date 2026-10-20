@@ -411,6 +411,30 @@ def test_junk_left_unsold_is_short_of_the_contract(monkeypatch, caplog):
     assert 'Macro: trade session done (short of the contract: junk left 1): cube 0 items' in caplog.text
 
 
+def test_junk_no_sale_takes_at_the_gold_cap_is_put_down_in_town(monkeypatch, caplog):
+    # 09:19:05 on 2026-10-20: the gold 920,176 of 940,000, the stash's full: 4 junk items kept took the 2x4 block. The
+    # player: "we don't need money from selling these items"
+    import inventory_tracking.macros.visit as visit_module
+
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, junk), keys=24), [OPEN_PAGE] * 6)
+    town = Town(monkeypatch, play, frozenset({11}))
+    monkeypatch.setattr(visit_module, 'restock', lambda run, sell=(), back=True, keys=None: None)  # none sold
+    monkeypatch.setattr(visit_module, 'gold', lambda run: 920_176)
+    monkeypatch.setattr(visit_module, 'gold_cap', lambda run: 940_000)
+    dropped: list[int] = []
+    monkeypatch.setattr(visit_module, 'drop_item', lambda run, key, item, why: dropped.append(item.unit_id) or True)
+
+    town.visit()
+
+    assert dropped == [11]
+    monkeypatch.setattr(visit_module, 'DROP_CAPPED_JUNK', False)
+    dropped.clear()
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, junk), keys=24), [OPEN_PAGE] * 6)
+    Town(monkeypatch, play, frozenset({11})).visit()
+    assert dropped == []  # off: kept as before
+
+
 # A cube keeper whose block the inventory's junk holds (rca/2026-10-18/town-remaining-findings.md §1)
 
 

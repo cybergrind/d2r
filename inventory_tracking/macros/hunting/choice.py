@@ -23,6 +23,7 @@ from inventory_tracking.game.records import (
 )
 from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, Room, Target
 from inventory_tracking.levels.presets import display_name
+from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import lootpolicy, route, supply
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import (
@@ -816,7 +817,14 @@ def agenda_target(
         policy = COVER  # no way to the route's goal: the rooms are explored for it (`judge`)
     everyone = policy == FULL_CLEAR
     out = skip | set(self.passed)
-    live = [m for m in foes if everyone or m.leader or m.tier]
+
+    def here_on(x: float, y: float) -> bool:
+        # A leader of this level only: the client holds the level before's for a moment after a crossing, and a River
+        # of Flame elite chased from the Chaos Sanctuary's side took the run back across before its map was read
+        # (08:43:48 on 2026-10-20, rca/2026-10-20/crossing-teleport-back-findings.md F1). No rooms read: none
+        return room_at(rooms, (x / TILE_UNITS, y / TILE_UNITS)) is not None
+
+    live = [m for m in foes if (everyone or m.leader or m.tier) and here_on(m.x, m.y)]
     leaders = [Leader(m.unit_id, (m.x, m.y), label(m), bool(m.tier and m.leader)) for m in live]
     seen = {m.unit_id for m in foes}
     gone = seen | self.vanished | set(self.untouchable)
@@ -824,7 +832,7 @@ def agenda_target(
     leaders += [
         Leader(unit, (x, y), 'the remembered monster', live=False)
         for unit, x, y, leader in known
-        if unit not in gone and (everyone or leader)
+        if unit not in gone and (everyone or leader) and here_on(x, y)
     ]
     omens = tuple((spot, omen_stand(spot, here)) for spot in self.omens_now(run, area, now))
 

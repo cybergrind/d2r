@@ -50,6 +50,8 @@ from inventory_tracking.game.layout import (
     GAME_NAME_RVA,
     GAME_NAME_SIZE,
     GOLD_CLASS,
+    GOLD_PER_LEVEL,
+    GOLD_STAT,
     HANDS,
     HOVER_RVA,
     IN_GAME,
@@ -57,6 +59,7 @@ from inventory_tracking.game.layout import (
     ITEM_OWNER,
     ITEM_PAGE,
     ITEM_UNIT,
+    LEVEL_STAT,
     MONSTER_UNIT,
     NO_OWNER,
     OBJECT_PATH,
@@ -146,6 +149,13 @@ from inventory_tracking.native.units import read_stats, walk_units
 CTA_CODE = 'cta'
 CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`GameMemory.cta`)
 UNPLACED_GOLD: set[int] = set()  # gold piles `loot` said it left out for an unread place: said once a pile
+CAPPED_GOLD: set[int] = set()  # gold piles `loot` said it left out for the gold cap: said once a pile
+
+
+def gold_room(stats: dict[int, int]) -> int | None:
+    """The gold the character can still take (its level x GOLD_PER_LEVEL less the gold carried); None unread."""
+    level = stats.get(LEVEL_STAT)
+    return max(0, level * GOLD_PER_LEVEL - stats.get(GOLD_STAT, 0)) if level else None
 
 
 def belt_cells(read, items: list[dict], owner: int) -> tuple[tuple[int | None, ...], bool]:
@@ -494,11 +504,27 @@ class GameMemory:
             units = {unit['unit_id']: unit for unit in items}
             drops = [rolled(read, drop, units.get(drop.unit_id)) for drop in drops]
             self._census(ground, drops, player.unit_id)
+            stats = unit_stats(read, player.stats_at) if player.stats_at else {}
+            room_for = gold_room(stats)
             for item in ground:
                 if gold_minimum is None or item.txt != GOLD_CLASS or not item.unit['path_pointer']:
                     continue
                 amount = gold_amount(read, item.unit)
                 if amount < gold_minimum:
+                    continue
+                if room_for is not None and amount > room_for:
+                    # At the cap the game puts a click's pile back down under a new unit id: 45 s of clicks on one
+                    # 7679 gold pile at 920k+ of 940k ended game 5 at 09:22:12 on 2026-10-20
+                    if item.unit_id not in CAPPED_GOLD:
+                        if len(CAPPED_GOLD) > CENSUS_KEPT:
+                            CAPPED_GOLD.clear()
+                        CAPPED_GOLD.add(item.unit_id)
+                        LOG.info(
+                            'Macro: gold pile %d: %d gold over the cap (room for %d): left',
+                            item.unit_id,
+                            amount,
+                            room_for,
+                        )
                     continue
                 if item.at is None:
                     # Left out alone: it used to empty the whole look, every other drop unseen (2026-10-19)
@@ -521,7 +547,6 @@ class GameMemory:
                     )
                 )
             belt, belt_read = belt_cells(read, items, player.unit_id)
-            stats = unit_stats(read, player.stats_at) if player.stats_at else {}
             room, cube, held = carried_rows(read, _unit_of(players, player))
             carried = frozenset(unit['unit_id'] for unit in items if unit['address'] in held)
             return Loot(

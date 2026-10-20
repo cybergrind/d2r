@@ -718,6 +718,24 @@ def test_a_full_stack_put_down_is_no_miss(tmp_path: Path) -> None:
     assert unpicked_by_games(lines, tmp_path) == [('Perfect Ruby', None)]
 
 
+def test_the_loops_own_town_drop_is_no_miss(tmp_path: Path, capsys) -> None:
+    """visit.py DROP_CAPPED_JUNK puts a vendor rare Ring down in town (09:23:02 on 2026-10-20): the census sees it
+    before the drop's line, and the watch said MISSED."""
+    lines = [
+        '2026-10-20 09:22:30,000 INFO Macro: Loop: game 1, town visit',
+        '2026-10-20 09:23:02,841 INFO Macro: ground: rare Ring at (5094, 5062): left',
+        '2026-10-20 09:23:02,883 INFO Macro: inventory: 537 (3504973515) at (3, 3) dropped in town: the gold is at its'
+        ' cap and no sale is made',
+        '2026-10-20 09:23:02,892 INFO Macro: ground: rare Ring at (5094, 5062): left',
+        '2026-10-20 09:26:03,000 INFO Macro: Loop: game 2, next game',
+    ]
+    assert unpicked_by_games(lines, tmp_path) == [('Ring', None)]
+    assert 'MISSED' not in missed_by_watch(lines, capsys)
+    seen_later = [lines[0], lines[2], lines[1], lines[4]]  # a ring first seen after the drop: not the drop's
+    (later := tmp_path / 'later').mkdir()
+    assert unpicked_by_games(seen_later, later) == [('Ring', 'a rare ring')]
+
+
 def test_trade_counts_cains_identification(tmp_path: Path) -> None:
     session = tmp_path / '20261018T120000Z-test'
     session.mkdir()
