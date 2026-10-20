@@ -359,7 +359,8 @@ def carried_items(read, unit: dict | None, items: Sequence[dict]) -> Pack | None
         return None
     units = {u['unit_id']: u for u in by_address.values()}
 
-    def quantity(item: Carried, offset: int | None) -> int | None:
+    def quantity(item: Carried, offset: int | None, empty: int | None = None) -> int | None:
+        """The item's quantity stat; None unread, `empty` with its stat list read and no quantity in it."""
         unit = units.get(item.unit_id)
         if offset is None or unit is None or not unit['stats_pointer']:
             return None
@@ -367,7 +368,7 @@ def carried_items(read, unit: dict | None, items: Sequence[dict]) -> Pack | None
             stats = read_stats(read, unit['stats_pointer'] + offset)
         except OSError, ValueError, struct.error:
             return None
-        return next((s['raw'] for s in stats if s['id'] == QUANTITY_STAT and s['layer'] == 0), None)
+        return next((s['raw'] for s in stats if s['id'] == QUANTITY_STAT and s['layer'] == 0), empty)
 
     def state(item: Carried) -> Carried:
         unit = units.get(item.unit_id)
@@ -392,7 +393,10 @@ def carried_items(read, unit: dict | None, items: Sequence[dict]) -> Pack | None
     )
     keys = [quantity(item, KEY_STATS) for item in pack.items if item.txt == KEY_CLASS_ID]
     tomes = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == TOME_CLASS_ID]
-    identifies = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == IDENTIFY_TOME]
+    # An empty Tome of Identify holds no quantity stat: 0 charges, not unread (2026-10-20: read None from 15:12 to the
+    # player's refill at 20:05, so the field identified nothing and the shop never filled it). The Town Portal tome's
+    # is left as it was: the loop casts Town Portal from the Sling
+    identifies = [quantity(item, PORTAL_STATS, 0) for item in pack.items if item.txt == IDENTIFY_TOME]
     return replace(
         pack,
         identifies=identifies[0] if identifies else None,

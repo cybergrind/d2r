@@ -35,6 +35,7 @@ from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
     LEVEL_AREA_ID,
     PATH_ROOM1,
+    QUANTITY_STAT,
     ROOM1_ROOM2,
     ROOM2_LEVEL,
 )
@@ -432,3 +433,35 @@ def test_the_carried_items_and_the_stash_are_read_with_one_walk_of_each_table(ga
     game.memory.reads.clear()
     assert memory.stash_view() is None  # no stash page in this game: no view
     assert (game.memory.walks(ITEM_UNIT), game.memory.walks(0)) == (1, 1)
+
+
+def tome_game(stats: list[tuple[int, int, int]] | None) -> Game:
+    """The character carrying a Tome of Identify at (8, 0) with the stat list `stats` (None: no stat list)."""
+    from inventory_tracking.game.layout import IDENTIFY_TOME
+
+    play = Game()
+    tome = play.item(IDENTIFY_TOME, 128 * 10 + 5, 0, owner=PLAYER, flags=IDENTIFIED_FLAG)
+    if stats is not None:
+        struct.pack_into('<Q', play.memory.blocks[tome], 0x88, play.stats(stats))
+    play.player(PLAYER, 'CybergrindAA', life=(900, 1200), grids={INVENTORY_GRID: (10, 4, {8: tome, 18: tome})})
+    play.chain()
+    return play
+
+
+@pytest.mark.parametrize(
+    ('stats', 'charges'),
+    [
+        ([(0, QUANTITY_STAT, 7)], 7),
+        # 15:12-20:05 on 2026-10-20: the Tome used up held no quantity stat and read None ("unread"): the field
+        # identified nothing and the shop never filled it. An empty Tome: 0 charges
+        ([], 0),
+        ([(0, 12, 1)], 0),  # another stat only
+        (None, None),  # no stat list: unread
+    ],
+)
+def test_the_tome_of_identify_reads_its_quantity_and_0_with_none_in_a_read_stat_list(monkeypatch, stats, charges):
+    monkeypatch.setattr(game_memory, 'ProcessMemory', lambda pid: ProcessMemory())  # unbound
+    pack = tome_game(stats).game_memory().carried()
+    assert pack is not None
+    assert [(item.txt, item.x, item.y) for item in pack.items] == [(534, 8, 0)]
+    assert pack.identifies == charges

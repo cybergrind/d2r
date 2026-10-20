@@ -1112,6 +1112,40 @@ retired functions and `loot/today.py`'s uses of them, and answer Q-M6-1..3 (the 
 the design's M6 row (`Loot`, `Item`, `TownRoutine` in `running/legs.py` and `running/room.py`, the HUD's `Item.why()`)
 is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
 
+### M6 fixes: a want spares the first copy only; the first copy only when a build names it (2026-10-20 ~20:10)
+
+- **The 19:57:52 Skullder's Ire** (20261020T164916Z-454aec6d, game 3): K6 gave up an equal cheap `slow` copy (0.842
+  Ist, ED 193 vs the owned 193), the shadow said drop, and the town kept it without a line. Its own-use row
+  (`own-88-skullder-s-ire`: an Echoing Strike MF body alternative, no `always_keep`, no cap) made `surplus_copy`
+  answer "wanted". Leviathan, Spirit Forge and Stoutnail were sold the same way because no row names them. Now a
+  want row spares only the first copy. A later copy is kept by a want only as keep.py keeps it: K3, always kept or
+  under its cap. `town_kept`'s want guard holds for items that are neither set nor unique. Each give-up the town's
+  guards keep is logged: `Macro: town visit: <title> (unit N) kept against the keep rules: <decision>; <guard>`.
+- **The first copy** (`keep.FIRST_COPY_USABLE_ONLY`, `FIRST_COPY_SETS`). The player, ~20:10: "ok, let's probably keep
+  only uniques that are mentioned in guides as something that I probably could use". ~20:17: "we shouldn't limit to
+  just warlock's guide. actually I'd like to try paladin, sorc, barb, necro, traps and amazon builds". K4 now gives
+  up a told first copy of the loop's when all of these hold (`keep.unusable_first`):
+  - it is a unique, or a set item;
+  - it is not a charm or jewel;
+  - no want row names it;
+  - it is priced under 1 Ist by its own rolls;
+  - it is appraised `vendor` or `slow` (`FIRST_COPY_SELLS_OVER`).
+
+  The town sells it (`TOWN_RULED` K4), and the field's G18 step puts a big one down (`surplus_copy`). No price,
+  unread copies, 1 Ist or more, `self` / `sell` / `check` / `keep`, a want row: kept as before.
+- **The usable rows** (`build_wants.usable_rows`, class `usable`, by name, 190 on 2026-10-20). They are every set and
+  unique item that a loadout of these builds names. The builds are the Paladin, Sorceress, Barbarian, Necromancer
+  and Amazon S/A guides, the Assassin trap builds (Lightning Sentry, Wake of Fire, Fire Blast) and the Echoing Strike
+  Warlock. The loadouts are taken from `pricing/data/wp-a-builds.json` (main and merc tables) and from
+  `pricing/data/wp-a-variants/<build>.json` (each variant's player and merc slots, Starter included). After them come
+  warlock.html §0-§2 and §4 and pricing.html §6, less what the guide rejects or says to sell (`GUIDE_NOT_GEAR`).
+  Each item keeps its first source: the file and JSON pointer, checked to name it, with the build and variant.
+  Today's first copies the rule now sells: The Patriarch (0.4, vendor), Steel Pillar (0.904, slow), Demonhorn's Edge
+  (0.925, slow), Corpsemourn (0.562, slow), Messerschmidt's Reaver (0.196, vendor). Waterwalk stays (usable).
+- Tests: `test_api_town.py` (Skullder's Ire, Corpsemourn, the switches, the kept log), `test_api.py` (the field
+  drops a big first copy no build names), `fixtures/valuables.json` (Bloodtree Stump: dropped; Demon Limb, now
+  usable, by K6), `test_visit.py` (the kept line).
+
 ### Every white base read on the ground, G20 staff-mod class items, grimoires (2026-10-20, the player ~18:45: "implement [grimoire pickup rules], also find out if we need to pickup other white/grey items. it looks like we don't need to pickup them to assess, so it worth to assess every item => we need a proper list and rules to determine expensive items (matron bow? offhands? shields?)")
 
 - **The read** (`game/layout.py BASE_ROLLED_TYPES`): every weapon and armor type of the items metadata but the

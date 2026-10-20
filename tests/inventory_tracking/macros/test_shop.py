@@ -235,6 +235,42 @@ def test_the_tome_of_identify_under_its_reserve_is_a_visit_with_the_field_identi
     assert not short(Pack(keys=12, portals=20, identifies=0))
 
 
+def test_an_empty_tome_of_identify_is_filled_and_the_buy_checked_by_its_count(caplog):
+    # 15:12-20:05 on 2026-10-20: the empty Tome read None (no quantity stat), "identifies: None carried, no room for
+    # more" at every visit, and the field identified nothing; it reads 0 now (game/decode.py `carried_items`)
+    from inventory_tracking.game.layout import IDENTIFY_TOME
+    from inventory_tracking.macros.shop import IDENTIFY_SCROLL
+
+    play = fortress(keys=24, portals=20)
+    assert play.pack is not None
+    tome = Carried(2, IDENTIFY_TOME, 8, 0, (1, 2), identified=True)
+    play.pack = replace(play.pack, items=(*play.pack.items, tome), key_room=False, identifies=0)
+    play.stock = (*STOCK, Stocked(IDENTIFY_SCROLL, 3, 8, 4))
+    caplog.set_level('INFO')
+
+    restock(play.run())
+
+    assert play.pack.identifies == 20
+    assert 'identifies 0 -> 20' in caplog.text
+    scroll = play.stock_cell
+    buys = [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' in e[3]]
+    assert [scroll(*e[2]) for e in buys] == [(8, 4)]  # one Shift + right click on her Identify scrolls
+
+
+def test_an_unread_tome_of_identify_gets_no_buy():
+    from inventory_tracking.macros.shop import IDENTIFY_SCROLL
+
+    play = fortress(keys=24, portals=20)
+    assert play.pack is not None
+    play.pack = replace(play.pack, key_room=False, identifies=None)  # unread, or no tome: a scroll would take a cell
+    play.stock = (*STOCK, Stocked(IDENTIFY_SCROLL, 3, 8, 4))
+
+    restock(play.run())
+
+    assert play.pack.identifies is None
+    assert not [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' in e[3]]
+
+
 def test_a_kind_full_already_gets_no_tab_click():
     # 14:38:57-58 on 2026-10-17: each full kind took a tab click and its wait, 0.7 s, on every visit
     play = fortress(keys=24, portals=20)

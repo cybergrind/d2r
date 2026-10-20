@@ -1410,3 +1410,29 @@ def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monk
         visit(town2.run, judged(town2.hands()), LK_NEEDS, own, Exit.WAYPOINT)
     assert town2.sold == []
     assert 'the keep rules failed (OSError: the collection is locked): nothing sold' in caplog.text
+
+
+def test_m6_a_give_up_the_towns_guards_keep_is_said(monkeypatch, caplog):
+    # 19:57:52 on 2026-10-20 (20261020T164916Z-454aec6d, game 3): Skullder's Ire was given up by K6 and kept by the
+    # town's want guard with no line; each such keep is now said
+    from inventory_tracking.loot import api as loot_api, keep
+    from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
+
+    rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
+    pack, own = grid(BLOCK_BUT_ONE, rings)
+    monkeypatch.setattr(keep, 'TOWN_DECIDES', True)
+
+    def town_sold(carried, spared, book, copies, kept):
+        kept[62] = ('magic Ring', 'drop K8 worthless; no price, appraised check (S8)')
+        return {61: ('magic Ring', 'K8 worthless')}
+
+    monkeypatch.setattr(loot_api, 'town_sold', town_sold)
+    play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset())
+    town.run = play.run()
+    hands = replace(town.hands(), appraise=lambda units: {})
+    with caplog.at_level('INFO'):
+        visit(town.run, hands, LK_NEEDS, own, Exit.WAYPOINT)
+    assert sorted(town.sold) == [61]
+    assert ('Macro: town visit: magic Ring (unit 62) kept against the keep rules: drop K8 worthless; no price, '
+            'appraised check (S8)') in caplog.text  # fmt: skip

@@ -271,7 +271,7 @@ class Pack:
     key_room: bool | None = None
     # The item on the pointer (CURSOR_MODE), None with none: a click that picked it up instead (macros/stash.py).
     pointer: int | None = None
-    # Tome of Identify charges: None unread or no tome (macros/junk.py).
+    # Tome of Identify charges: None unread or no tome, 0 an empty tome (no quantity stat; macros/junk.py).
     identifies: int | None = None
     # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py).
     stashed: tuple[Carried, ...] = ()

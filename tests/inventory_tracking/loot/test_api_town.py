@@ -214,3 +214,109 @@ def test_the_shadow_logs_the_merged_decision_beside_the_visits_while_the_switch_
     monkeypatch.setattr(keep, 'TOWN_DECIDES', True)
     said.clear()
     assert not [line for line in shadow.town(carried, frozenset({5, 9}), copies=Copies()) if 'merge' in line]
+
+
+SKULLDER = {'base': 'Russet Armor', 'code': 'xpl', 'quality': 'unique', 'name': "Skullder's Ire",
+            'ranges': {'16:0': [150, 200]}}  # fmt: skip
+
+
+def test_an_equal_cheap_slow_copy_an_own_use_row_names_is_sold_as_the_shadow_says():
+    # Game 3 of 20261020T164916Z-454aec6d, 19:57:52 (probe.log): Skullder's Ire (Russet Armor) at (3, 0), identified at
+    # Cain, `slow`, 0.842 Ist, ED 193 vs the one owned 193. The shadow said "drop K6 cheap (0.842 Ist), not better than
+    # the 1 owned", the town kept it unsaid: the own-use row own-88-skullder-s-ire (an Echoing Strike MF body
+    # alternative, no always_keep, no cap) made `surplus_copy` say "wanted". A want row spares one copy, not an equal
+    # cheap duplicate ("we keep dublicates only for expensive items", the player, 2026-10-20)
+    unit = 2945455011
+    book = Book()
+    book.put(unit, Appraised(observation({**SKULLDER, 'rolls': {'16:0': 193}}, unit),
+                             {'triage': {'decision_ist': 0.842, 'verdict': 'slow'}}, 'slow'))  # fmt: skip
+    mine = facts_of({**SKULLDER, 'rolls': {'16:0': 193}}, 9, owner=Owner.PLAYER)
+
+    class Copies:
+        def copies(self, facts):
+            return [mine]
+
+    carried = [Carried(unit, class_of('xpl'), 3, 0, (2, 3), 7, True)]
+    kept: dict[int, tuple[str, str]] = {}
+    found = town_sold(carried, frozenset(), book, Copies(), kept)
+    assert list(found) == [unit], kept
+    assert found[unit][1].startswith('K6 cheap (0.842 Ist), not better than the 1 owned')
+    assert kept == {}
+
+
+# The first copy no build names (keep.py FIRST_COPY_USABLE_ONLY; the player, 2026-10-20 ~20:10, after Corpsemourn
+# 0.48 Ist was stashed as K4 "the first copy": "ok, let's probably keep only uniques that are mentioned in guides as
+# something that I probably could use"; ~20:17: "... paladin, sorc, barb, necro, traps and amazon builds")
+CORPSEMOURN = {'base': 'Ornate Armor', 'code': 'xar', 'quality': 'unique', 'name': 'Corpsemourn'}
+SHELTER = {'base': 'Gothic Plate', 'code': 'gth', 'quality': 'set', 'name': "Sigon's Shelter"}
+
+
+def first(spec: dict, worth: float | None, verdict: str):
+    facts = facts_of(spec)
+    [found] = town_verdicts([(facts, assess(facts, worth=worth, verdict=verdict))], lambda _facts: [])
+    return found
+
+
+def test_a_cheap_first_copy_no_build_names_is_sold_and_a_usable_one_kept():
+    sold = first(CORPSEMOURN, 0.48, 'slow')
+    assert sold.sold, sold.said()
+    assert sold.said() == 'sell: K4 the first copy, no build names it (0.48 Ist, slow)'
+    assert first(CORPSEMOURN, 0.3, 'vendor').sold
+    usable = first(SKULLDER, 0.84, 'slow')  # an Echoing Strike MF body alternative (and Barbarian/Paladin/Sorc gear)
+    assert not usable.sold
+    assert usable.decision is not None
+    assert (usable.decision.action, usable.decision.rule) == (Action.KEEP, 'K4')
+    assert any(want.klass == 'usable' for want in (usable.value.wants if usable.value else ()))
+
+
+@pytest.mark.parametrize(
+    ('worth', 'verdict', 'why'),
+    [
+        (None, 'slow', 'no price (S8)'),
+        (1.5, 'slow', 'expensive'),
+        (0.48, 'self', 'own use'),
+        (0.48, 'check', 'a question for the player'),
+        (0.48, 'sell', 'a question for the player'),
+    ],
+)
+def test_an_unpriced_expensive_or_not_vendor_or_slow_first_copy_is_kept(worth, verdict, why):
+    found = first(CORPSEMOURN, worth, verdict)
+    assert not found.sold, (why, found.said())
+
+
+def test_the_first_copy_rule_and_its_set_switch_and_never_the_players(monkeypatch):
+    assert first(SHELTER, 0.3, 'slow').sold  # a set item no build names (FIRST_COPY_SETS)
+    spec = {**CORPSEMOURN, 'owner': 'player'}
+    assert not first(spec, 0.48, 'slow').sold  # the player's item: never (K0)
+    unread = facts_of(CORPSEMOURN)
+    [told] = town_verdicts([(unread, assess(unread, worth=0.48, verdict='slow'))], lambda _facts: None)
+    assert not told.sold  # copies cannot be told (S8)
+    monkeypatch.setattr(keep, 'FIRST_COPY_SETS', False)
+    assert not first(SHELTER, 0.3, 'slow').sold
+    assert first(CORPSEMOURN, 0.48, 'slow').sold
+    monkeypatch.setattr(keep, 'FIRST_COPY_USABLE_ONLY', False)
+    kept = first(CORPSEMOURN, 0.48, 'slow')
+    assert not kept.sold
+    assert kept.why == 'K4 the first copy (0.48 Ist)'
+
+
+def test_town_sold_says_the_give_ups_its_guards_keep():
+    book = Book()
+    book.put(5, Appraised(observation({**CORPSEMOURN, 'rolls': {'16:0': 190}}, 5), {}, 'check'))
+    book.put(6, Appraised(observation({**CORPSEMOURN, 'rolls': {'16:0': 190}}, 6),
+                          {'triage': {'decision_ist': 0.48}}, 'slow'))  # fmt: skip
+    mine = facts_of({**CORPSEMOURN, 'rolls': {'16:0': 200}}, 9, owner=Owner.PLAYER)
+
+    class Copies:
+        def copies(self, facts):
+            return [mine]
+
+    carried = [Carried(5, class_of('xar'), 0, 0, (2, 3), 7, True), Carried(6, class_of('xar'), 2, 0, (2, 3), 7, True)]
+    kept: dict[int, tuple[str, str]] = {}
+    found = town_sold(carried, frozenset(), book, Copies(), kept)
+    assert list(found) == [6]
+    assert list(kept) == [5]  # no price, `check`: K6 gives it up, the town keeps it (S8)
+    title, why = kept[5]
+    assert title == 'Corpsemourn (Ornate Armor)'
+    assert why.startswith('drop K6 ')
+    assert 'no price by its rolls' in why

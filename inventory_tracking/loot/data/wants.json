@@ -4894,6 +4894,3072 @@
       ],
       "asks": null,
       "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "usable-aldur-s-advance",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Aldur's Advance",
+      "names": [
+        "Aldur's Advance"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Boots/3",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-andariel-s-visage",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Andariel's Visage",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/end/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-angelic-halo",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Angelic Halo",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-angelic-wings",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Angelic Wings",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/7",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-annihilus",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Annihilus",
+      "names": [
+        "Annihilus"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Unique Charms/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-arachnid-mesh",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Arachnid Mesh",
+      "names": [
+        "Arachnid Mesh"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-arioc-s-needle",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Arioc's Needle",
+      "names": [
+        "Arioc's Needle"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/13",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-arreat-s-face",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Arreat's Face",
+      "names": [
+        "Arreat's Face"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/9",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-ars-dul-mephistos",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide Standard player): Ars Dul'Mephistos",
+      "names": [
+        "Ars Dul'Mephistos"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/1/player/Off-Hand/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-astreon-s-iron-ward",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Astreon's Iron Ward",
+      "names": [
+        "Astreon's Iron Ward"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Weapon/3",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-atma-s-scarab",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Atma's Scarab",
+      "names": [
+        "Atma's Scarab"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Amulets/2",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-azurewrath",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Azurewrath",
+      "names": [
+        "Azurewrath"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Weapon/2",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-bartuc-s-cut-throat",
+      "class": "usable",
+      "who": "assassin",
+      "label": "usable (lightning-sentry-assassin slots): Bartuc's Cut-Throat",
+      "names": [
+        "Bartuc's Cut-Throat"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-sentry-assassin/slots/Weapon/5",
+      "build": "lightning-sentry-assassin"
+    },
+    {
+      "id": "usable-black-cleft",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin Tri-Brid player): Black Cleft",
+      "names": [
+        "Black Cleft"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json#/variants/3/player/Charms/2",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Tri-Brid"
+    },
+    {
+      "id": "usable-blade-of-ali-baba",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Blade of Ali Baba",
+      "names": [
+        "Blade of Ali Baba"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-bloodfist",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Bloodfist",
+      "names": [
+        "Bloodfist"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Gloves/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-bloodpact-shard",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Bloodpact Shard",
+      "names": [
+        "Bloodpact Shard"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/9",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-bone-break",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Bone Break",
+      "names": [
+        "Bone Break"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Unique Charms/0",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-bul-kathos-wedding-band",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Bul-Kathos' Wedding Band",
+      "names": [
+        "Bul-Kathos' Wedding Band"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Rings/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-buriza-do-kyanon",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Buriza-Do Kyanon",
+      "names": [
+        "Buriza-Do Kyanon"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon/4",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-chance-guards",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Chance Guards",
+      "names": [
+        "Chance Guards"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-cold-rupture",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Cold Rupture",
+      "names": [
+        "Cold Rupture"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Unique Charms/3",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-crack-of-the-heavens",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Crack of the Heavens",
+      "names": [
+        "Crack of the Heavens"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Unique Charms/0",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-credendum",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-strike-amazon slots): Credendum",
+      "names": [
+        "Credendum"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-strike-amazon/slots/Belts/6",
+      "build": "lightning-strike-amazon"
+    },
+    {
+      "id": "usable-crescent-moon",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Crescent Moon",
+      "names": [
+        "Crescent Moon"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Weapon/1",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-crown-of-ages",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Crown of Ages",
+      "names": [
+        "Crown of Ages"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/10",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-crown-of-thieves",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Crown of Thieves",
+      "names": [
+        "Crown of Thieves"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-darkforce-spawn",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Darkforce Spawn",
+      "names": [
+        "Darkforce Spawn"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Off-Hand/3",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-death-s-fathom",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Death's Fathom",
+      "names": [
+        "Death's Fathom"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Weapon/5",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-death-s-guard",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Death's Guard",
+      "names": [
+        "Death's Guard"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/7",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-death-s-hand",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Death's Hand",
+      "names": [
+        "Death's Hand"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-death-s-web",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Death's Web",
+      "names": [
+        "Death's Web"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Weapon/0",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-deathbit",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Deathbit",
+      "names": [
+        "Deathbit"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/4",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-defender-s-bile",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer Standard player): Defender's Bile",
+      "names": [
+        "Defender's Bile"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/poison-nova-necromancer.json#/variants/1/player/Weapon/0",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-defender-s-fire",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress Standard player): Defender's Fire",
+      "names": [
+        "Defender's Fire"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/enchant-sorceress.json#/variants/1/player/Helmet/0",
+      "build": "enchant-sorceress",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-demon-limb",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide Standard player): Demon Limb",
+      "names": [
+        "Demon Limb"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/1/player/Prebuff/0",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-demon-machine",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Demon Machine",
+      "names": [
+        "Demon Machine"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Weapon/0",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-demon-s-arch",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Demon's Arch",
+      "names": [
+        "Demon's Arch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/8",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-dracul-s-grasp",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin Ubers player): Dracul's Grasp",
+      "names": [
+        "Dracul's Grasp"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/blessed-hammer-paladin.json#/variants/3/player/Gloves/0",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers"
+    },
+    {
+      "id": "usable-duriel-s-shell",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Duriel's Shell",
+      "names": [
+        "Duriel's Shell"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/mid/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-dwarf-star",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Dwarf Star",
+      "names": [
+        "Dwarf Star"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-eaglehorn",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Eaglehorn",
+      "names": [
+        "Eaglehorn"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon/6",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-entropy-locket",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Entropy Locket",
+      "names": [
+        "Entropy Locket"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Amulets/2",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-eschuta-s-temper",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Eschuta's Temper",
+      "names": [
+        "Eschuta's Temper"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Weapon/4",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-flame-rift",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Flame Rift",
+      "names": [
+        "Flame Rift"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Unique Charms/2",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-fleshripper",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (smite-paladin slots): Fleshripper",
+      "names": [
+        "Fleshripper"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/smite-paladin/slots/Weapon/5",
+      "build": "smite-paladin"
+    },
+    {
+      "id": "usable-frostburn",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Frostburn",
+      "names": [
+        "Frostburn"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Gloves/3",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-gargoyle-s-bite",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Gargoyle's Bite",
+      "names": [
+        "Gargoyle's Bite"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/12",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-gerke-s-sanctuary",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (lightning-sorceress slots): Gerke's Sanctuary",
+      "names": [
+        "Gerke's Sanctuary"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-sorceress/slots/Off-Hand/2",
+      "build": "lightning-sorceress"
+    },
+    {
+      "id": "usable-gheed-s-fortune",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Gheed's Fortune",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Unique Charms/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-gheed-s-wager",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Gheed's Wager",
+      "names": [
+        "Gheed's Wager"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Belts/1",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-giant-skull",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Giant Skull",
+      "names": [
+        "Giant Skull"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Helmets/9",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-gimmershred",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Gimmershred",
+      "names": [
+        "Gimmershred"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/10",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-goblin-toe",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Goblin Toe",
+      "names": [
+        "Goblin Toe"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Boots/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-goldskin",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Goldskin",
+      "names": [
+        "Goldskin"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/early/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-goldwrap",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Goldwrap",
+      "names": [
+        "Goldwrap"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-gore-rider",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Gore Rider",
+      "names": [
+        "Gore Rider"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Boots/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-griffon-s-eye",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin slots): Griffon's Eye",
+      "names": [
+        "Griffon's Eye"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/fist-of-the-heavens-paladin/slots/Helmets/0",
+      "build": "fist-of-the-heavens-paladin"
+    },
+    {
+      "id": "usable-guardian-angel",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Guardian Angel",
+      "names": [
+        "Guardian Angel"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/mid/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-guardian-s-light",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian Standard player): Guardian's Light",
+      "names": [
+        "Guardian's Light"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/1/player/Helmet/0",
+      "build": "berserk-barbarian",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-guardian-s-thunder",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin Standard player): Guardian's Thunder",
+      "names": [
+        "Guardian's Thunder"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json#/variants/2/player/Helmet/0",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-guillaume-s-face",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Guillaume's Face",
+      "names": [
+        "Guillaume's Face"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/8",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-gull",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Gull",
+      "names": [
+        "Gull"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-hand-of-blessed-light",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin Holy Bolt Support player): Hand of Blessed Light",
+      "names": [
+        "Hand of Blessed Light"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json#/variants/4/player/Weapon/0",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Holy Bolt Support"
+    },
+    {
+      "id": "usable-harlequin-crest",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Harlequin Crest",
+      "names": [
+        "Harlequin Crest"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-heaven-s-light",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin Tri-Brid player): Heaven's Light",
+      "names": [
+        "Heaven's Light"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json#/variants/3/player/Weapon/0",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Tri-Brid"
+    },
+    {
+      "id": "usable-hellfire-torch",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Hellfire Torch",
+      "names": [
+        "Hellfire Torch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Unique Charms/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-hellwarden-s-will",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Hellwarden's Will",
+      "names": [
+        "Hellwarden's Will"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Helmets/0",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-herald-of-zakarum",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Herald of Zakarum",
+      "names": [
+        "Herald of Zakarum"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Off-Hand/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-highlord-s-wrath",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Highlord's Wrath",
+      "names": [
+        "Highlord's Wrath"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-homunculus",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Homunculus",
+      "names": [
+        "Homunculus"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Off-Hand/2",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-immortal-king-s-detail",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Immortal King's Detail",
+      "names": [
+        "Immortal King's Detail"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-immortal-king-s-forge",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Immortal King's Forge",
+      "names": [
+        "Immortal King's Forge"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-immortal-king-s-pillar",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Immortal King's Pillar",
+      "names": [
+        "Immortal King's Pillar"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Boots/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-immortal-king-s-will",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Immortal King's Will",
+      "names": [
+        "Immortal King's Will"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-infernostride",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (gold-find-barbarian slots): Infernostride",
+      "names": [
+        "Infernostride"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/gold-find-barbarian/slots/Boots/0",
+      "build": "gold-find-barbarian"
+    },
+    {
+      "id": "usable-kira-s-guardian",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Kira's Guardian",
+      "names": [
+        "Kira's Guardian"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-kuko-shakaku",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress Budget player): Kuko Shakaku",
+      "names": [
+        "Kuko Shakaku"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/enchant-sorceress.json#/variants/0/player/Weapon/0",
+      "build": "enchant-sorceress",
+      "variant": "Budget"
+    },
+    {
+      "id": "usable-lacerator",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Lacerator",
+      "names": [
+        "Lacerator"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/0",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-lava-gout",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Lava Gout",
+      "names": [
+        "Lava Gout"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Gloves/1",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-laying-of-hands",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Laying of Hands",
+      "names": [
+        "Laying of Hands"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-lidless-wall",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Lidless Wall",
+      "names": [
+        "Lidless Wall"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Off-Hand-Swap/3",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-lightsabre",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Lightsabre",
+      "names": [
+        "Lightsabre"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Weapon/3",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-m-avina-s-caster",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): M'avina's Caster",
+      "names": [
+        "M'avina's Caster"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon/3",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-m-avina-s-embrace",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): M'avina's Embrace",
+      "names": [
+        "M'avina's Embrace"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/5",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-m-avina-s-icy-clutch",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): M'avina's Icy Clutch",
+      "names": [
+        "M'avina's Icy Clutch"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Gloves/3",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-m-avina-s-tenet",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): M'avina's Tenet",
+      "names": [
+        "M'avina's Tenet"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Belts/4",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-m-avina-s-true-sight",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): M'avina's True Sight",
+      "names": [
+        "M'avina's True Sight"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Helmets/7",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-magefist",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Magefist",
+      "names": [
+        "Magefist"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Gloves/0",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-manald-heal",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-fury-amazon-guide slots): Manald Heal",
+      "names": [
+        "Manald Heal"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Rings/6",
+      "build": "lightning-fury-amazon-guide"
+    },
+    {
+      "id": "usable-mang-song-s-lesson",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Mang Song's Lesson",
+      "names": [
+        "Mang Song's Lesson"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/14",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-mara-s-kaleidoscope",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Mara's Kaleidoscope",
+      "names": [
+        "Mara's Kaleidoscope"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Amulets/0",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-marrowwalk",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (meteor-sorceress slots): Marrowwalk",
+      "names": [
+        "Marrowwalk"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/meteor-sorceress/slots/Boots/3",
+      "build": "meteor-sorceress"
+    },
+    {
+      "id": "usable-metalgrid",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Metalgrid",
+      "names": [
+        "Metalgrid"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-moser-s-blessed-circle",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Moser's Blessed Circle",
+      "names": [
+        "Moser's Blessed Circle"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/6",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-nagelring",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Nagelring",
+      "names": [
+        "Nagelring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-naj-s-puzzler",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Naj's Puzzler",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Weapon-Swap/7",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-natalya-s-soul",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-fury-amazon-guide slots): Natalya's Soul",
+      "names": [
+        "Natalya's Soul"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Boots/5",
+      "build": "lightning-fury-amazon-guide"
+    },
+    {
+      "id": "usable-nature-s-peace",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Nature's Peace",
+      "names": [
+        "Nature's Peace"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Rings/4",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-nightsmoke",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Nightsmoke",
+      "names": [
+        "Nightsmoke"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Belts/5",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-nightwing-s-veil",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Nightwing's Veil",
+      "names": [
+        "Nightwing's Veil"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Helmets/1",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-nosferatu-s-coil",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Nosferatu's Coil",
+      "names": [
+        "Nosferatu's Coil"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Belts/2",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-ondal-s-wisdom",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Ondal's Wisdom",
+      "names": [
+        "Ondal's Wisdom"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/15",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-opalvein",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide Standard player): Opalvein",
+      "names": [
+        "Opalvein"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/1/player/Rings/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-ormus-robes",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Ormus' Robes",
+      "names": [
+        "Ormus' Robes"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Body Armor/3",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-peasant-crown",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (fist-of-the-heavens-paladin slots): Peasant Crown",
+      "names": [
+        "Peasant Crown"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/fist-of-the-heavens-paladin/slots/Helmets/4",
+      "build": "fist-of-the-heavens-paladin"
+    },
+    {
+      "id": "usable-protector-s-frost",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress Standard player): Protector's Frost",
+      "names": [
+        "Protector's Frost"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/blizzard-sorceress.json#/variants/1/player/Helmet/0",
+      "build": "blizzard-sorceress",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-protector-s-stone",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide Magic Find player): Protector's Stone",
+      "names": [
+        "Protector's Stone"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/2/player/Helmet/0",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Magic Find"
+    },
+    {
+      "id": "usable-que-hegan-s-wisdom",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Que-Hegan's Wisdom",
+      "names": [
+        "Que-Hegan's Wisdom"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Body Armors/3",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-rainbow-facet",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Rainbow Facet",
+      "names": [
+        "Rainbow Facet"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Off-Hand/1",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-raven-claw",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Raven Claw",
+      "names": [
+        "Raven Claw"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Weapon/1",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-raven-frost",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian Standard player): Raven Frost",
+      "names": [
+        "Raven Frost"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/1/player/Rings/1",
+      "build": "berserk-barbarian",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-razorswitch",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Razorswitch",
+      "names": [
+        "Razorswitch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/16",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-razortail",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Razortail",
+      "names": [
+        "Razortail"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Belts/0",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-renewed-black-cleft",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian Standard player): Renewed Black Cleft",
+      "names": [
+        "Renewed Black Cleft"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/1/player/Charms/3",
+      "build": "berserk-barbarian",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-renewed-bone-break",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide Standard player): Renewed Bone Break",
+      "names": [
+        "Renewed Bone Break"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/1/player/Charms/3",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-renewed-cold-rupture",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress Standard player): Renewed Cold Rupture",
+      "names": [
+        "Renewed Cold Rupture"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/blizzard-sorceress.json#/variants/1/player/Charms/2",
+      "build": "blizzard-sorceress",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-renewed-crack-of-the-heavens",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (dream-paladin Standard player): Renewed Crack of the Heavens",
+      "names": [
+        "Renewed Crack of the Heavens"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/dream-paladin.json#/variants/0/player/Charms/3",
+      "build": "dream-paladin",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-renewed-flame-rift",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress Standard player): Renewed Flame Rift",
+      "names": [
+        "Renewed Flame Rift"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/enchant-sorceress.json#/variants/1/player/Charms/3",
+      "build": "enchant-sorceress",
+      "variant": "Standard"
+    },
+    {
+      "id": "usable-rockfleece",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Rockfleece",
+      "names": [
+        "Rockfleece"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/early/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-rockstopper",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Rockstopper",
+      "names": [
+        "Rockstopper"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-rotting-fissure",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Rotting Fissure",
+      "names": [
+        "Rotting Fissure"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Unique Charms/0",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-rune-master",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Rune Master",
+      "names": [
+        "Rune Master"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-sander-s-riprap",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Sander's Riprap",
+      "names": [
+        "Sander's Riprap"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Boots/5",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-sander-s-taboo",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-fury-amazon-guide slots): Sander's Taboo",
+      "names": [
+        "Sander's Taboo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Gloves/3",
+      "build": "lightning-fury-amazon-guide"
+    },
+    {
+      "id": "usable-sandstorm-trek",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Sandstorm Trek",
+      "names": [
+        "Sandstorm Trek"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Boots/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-sazabi-s-cobalt-redeemer",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (echoing-strike-warlock-guide Ubers merc): Sazabi's Cobalt Redeemer",
+      "names": [
+        "Sazabi's Cobalt Redeemer"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/3/merc/Weapon/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers"
+    },
+    {
+      "id": "usable-sazabi-s-ghost-liberator",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (echoing-strike-warlock-guide Ubers merc): Sazabi's Ghost Liberator",
+      "names": [
+        "Sazabi's Ghost Liberator"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/3/merc/Body Armor/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers"
+    },
+    {
+      "id": "usable-sazabi-s-mental-sheath",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (echoing-strike-warlock-guide Ubers merc): Sazabi's Mental Sheath",
+      "names": [
+        "Sazabi's Mental Sheath"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/3/merc/Helmet/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers"
+    },
+    {
+      "id": "usable-seraph-s-hymn",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Seraph's Hymn",
+      "names": [
+        "Seraph's Hymn"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Amulets/1",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-shaftstop",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Shaftstop",
+      "names": [
+        "Shaftstop"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/mid/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-sigon-s-gage",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Sigon's Gage",
+      "names": [
+        "Sigon's Gage"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-sigon-s-sabot",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Sigon's Sabot",
+      "names": [
+        "Sigon's Sabot"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Boots/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-sigon-s-visor",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide Starter player): Sigon's Visor",
+      "names": [
+        "Sigon's Visor"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/0/player/Helmet/0",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter"
+    },
+    {
+      "id": "usable-sigon-s-wrap",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Sigon's Wrap",
+      "names": [
+        "Sigon's Wrap"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/6",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-silkweave",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Silkweave",
+      "names": [
+        "Silkweave"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Boots/4",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-skin-of-the-flayed-one",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Skin of the Flayed One",
+      "names": [
+        "Skin of the Flayed One"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/early/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-skin-of-the-vipermagi",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Skin of the Vipermagi",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Body Armors/1",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-skull-collector",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide slots): Skull Collector",
+      "names": [
+        "Skull Collector"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/17",
+      "build": "echoing-strike-warlock-guide"
+    },
+    {
+      "id": "usable-skullder-s-ire",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Skullder's Ire",
+      "names": [
+        "Skullder's Ire"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Body Armor/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-sling",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Sling",
+      "names": [
+        "Sling"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Rings/0",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-snowclash",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Snowclash",
+      "names": [
+        "Snowclash"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Belts/2",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-spectral-shard",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Spectral Shard",
+      "names": [
+        "Spectral Shard"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Weapon/5",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-spellsteel",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Spellsteel",
+      "names": [
+        "Spellsteel"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon-Swap/4",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-stealskull",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Stealskull",
+      "names": [
+        "Stealskull"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-stormshield",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Stormshield",
+      "names": [
+        "Stormshield"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-string-of-ears",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): String of Ears",
+      "names": [
+        "String of Ears"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Belts/6",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-suicide-branch",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Suicide Branch",
+      "names": [
+        "Suicide Branch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Weapon-Swap/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-tal-rasha-s-adjudication",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Tal Rasha's Adjudication",
+      "names": [
+        "Tal Rasha's Adjudication"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/5",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-tal-rasha-s-fine-spun-cloth",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Tal Rasha's Fine-Spun Cloth",
+      "names": [
+        "Tal Rasha's Fine-Spun Cloth"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-tal-rasha-s-guardianship",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Tal Rasha's Guardianship",
+      "names": [
+        "Tal Rasha's Guardianship"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Body Armor/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-tal-rasha-s-horadric-crest",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Tal Rasha's Horadric Crest",
+      "names": [
+        "Tal Rasha's Horadric Crest"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-tal-rasha-s-lidless-eye",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Tal Rasha's Lidless Eye",
+      "names": [
+        "Tal Rasha's Lidless Eye"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Weapon/7",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-tarnhelm",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Tarnhelm",
+      "names": [
+        "Tarnhelm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/6",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-telling-of-beads",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Telling of Beads",
+      "names": [
+        "Telling of Beads"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Amulets/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-the-cat-s-eye",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): The Cat's Eye",
+      "names": [
+        "The Cat's Eye"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Amulets/1",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-the-face-of-horror",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): The Face of Horror",
+      "names": [
+        "The Face of Horror"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/early/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-the-gladiator-s-bane",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): The Gladiator's Bane",
+      "names": [
+        "The Gladiator's Bane"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/mid/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-the-gnasher",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (smite-paladin slots): The Gnasher",
+      "names": [
+        "The Gnasher"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/smite-paladin/slots/Weapon/7",
+      "build": "smite-paladin"
+    },
+    {
+      "id": "usable-the-oculus",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): The Oculus",
+      "names": [
+        "The Oculus"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Weapon/4",
+      "build": "blizzard-sorceress"
+    },
+    {
+      "id": "usable-the-reaper-s-toll",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (dream-paladin merc): The Reaper's Toll",
+      "names": [
+        "The Reaper's Toll"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/merc/Weapon/mid/0",
+      "build": "dream-paladin"
+    },
+    {
+      "id": "usable-the-scalper",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): The Scalper",
+      "names": [
+        "The Scalper"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/6",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-the-stone-of-jordan",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): The Stone of Jordan",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Rings/1",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-thundergod-s-vigor",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Thundergod's Vigor",
+      "names": [
+        "Thundergod's Vigor"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Belts/3",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-thunderstroke",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-fury-amazon-guide slots): Thunderstroke",
+      "names": [
+        "Thunderstroke"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Weapon/3",
+      "build": "lightning-fury-amazon-guide"
+    },
+    {
+      "id": "usable-titan-s-revenge",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-fury-amazon-guide slots): Titan's Revenge",
+      "names": [
+        "Titan's Revenge"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Weapon/0",
+      "build": "lightning-fury-amazon-guide"
+    },
+    {
+      "id": "usable-tomb-reaver",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Tomb Reaver",
+      "names": [
+        "Tomb Reaver"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Weapon/end/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-trang-oul-s-claws",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Trang-Oul's Claws",
+      "names": [
+        "Trang-Oul's Claws"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/7",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-trang-oul-s-girth",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Trang-Oul's Girth",
+      "names": [
+        "Trang-Oul's Girth"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/2",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-trang-oul-s-guise",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Trang-Oul's Guise",
+      "names": [
+        "Trang-Oul's Guise"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Helmets/7",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-trang-oul-s-scales",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Trang-Oul's Scales",
+      "names": [
+        "Trang-Oul's Scales"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Body Armor/4",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-trang-oul-s-wing",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (poison-nova-necromancer slots): Trang-Oul's Wing",
+      "names": [
+        "Trang-Oul's Wing"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Off-Hand/1",
+      "build": "poison-nova-necromancer"
+    },
+    {
+      "id": "usable-twitchthroe",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Twitchthroe",
+      "names": [
+        "Twitchthroe"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/8",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-tyrael-s-might",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Tyrael's Might",
+      "names": [
+        "Tyrael's Might"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/9",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-undead-crown",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Undead Crown",
+      "names": [
+        "Undead Crown"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/early/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-valkyrie-wing",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (lightning-strike-amazon slots): Valkyrie Wing",
+      "names": [
+        "Valkyrie Wing"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/lightning-strike-amazon/slots/Helmets/6",
+      "build": "lightning-strike-amazon"
+    },
+    {
+      "id": "usable-vampire-gaze",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (blessed-hammer-paladin merc): Vampire Gaze",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/merc/Helmet/mid/2",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-venom-ward",
+      "class": "usable",
+      "who": "merc",
+      "label": "usable (enchant-sorceress merc): Venom Ward",
+      "names": [
+        "Venom Ward"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/merc/Body Armor/early/6",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-verdungo-s-hearty-cord",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Verdungo's Hearty Cord",
+      "names": [
+        "Verdungo's Hearty Cord"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/3",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-war-traveler",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): War Traveler",
+      "names": [
+        "War Traveler"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Boots/0",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-warshrike",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Warshrike",
+      "names": [
+        "Warshrike"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/2",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-waterwalk",
+      "class": "usable",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Waterwalk",
+      "names": [
+        "Waterwalk"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Boots/1",
+      "build": "blessed-hammer-paladin"
+    },
+    {
+      "id": "usable-widowmaker",
+      "class": "usable",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Widowmaker",
+      "names": [
+        "Widowmaker"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Weapon/2",
+      "build": "enchant-sorceress"
+    },
+    {
+      "id": "usable-windforce",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon slots): Windforce",
+      "names": [
+        "Windforce"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon/1",
+      "build": "strafe-amazon"
+    },
+    {
+      "id": "usable-wisp-projector",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Wisp Projector",
+      "names": [
+        "Wisp Projector"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/4",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-witchwild-string",
+      "class": "usable",
+      "who": "amazon",
+      "label": "usable (strafe-amazon Magic Find player): Witchwild String",
+      "names": [
+        "Witchwild String"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/strafe-amazon.json#/variants/2/player/Weapon/0",
+      "build": "strafe-amazon",
+      "variant": "Magic Find"
+    },
+    {
+      "id": "usable-wizardspike",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (berserk-barbarian slots): Wizardspike",
+      "names": [
+        "Wizardspike"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Weapon-Swap/1",
+      "build": "berserk-barbarian"
+    },
+    {
+      "id": "usable-wormskull",
+      "class": "usable",
+      "who": "necromancer",
+      "label": "usable (summoner-necromancer-guide slots): Wormskull",
+      "names": [
+        "Wormskull"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/summoner-necromancer-guide/slots/Helmets/6",
+      "build": "summoner-necromancer-guide"
+    },
+    {
+      "id": "usable-wraith-flight",
+      "class": "usable",
+      "who": "barbarian",
+      "label": "usable (double-throw-barbarian-guide slots): Wraith Flight",
+      "names": [
+        "Wraith Flight"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/13",
+      "build": "double-throw-barbarian-guide"
+    },
+    {
+      "id": "usable-wraithstep",
+      "class": "usable",
+      "who": "warlock",
+      "label": "usable (echoing-strike-warlock-guide Standard player): Wraithstep",
+      "names": [
+        "Wraithstep"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json#/variants/1/player/Boots/0",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Standard"
     }
   ]
 }

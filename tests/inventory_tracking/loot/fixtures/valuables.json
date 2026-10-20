@@ -2701,7 +2701,7 @@
    ]
   },
   {
-   "id": "bloodtree_stump_first_copy_kept_in_field",
+   "id": "bloodtree_stump_unusable_first_copy_dropped_in_field",
    "section": "6.6",
    "item": {
     "base": "War Club",
@@ -2723,11 +2723,12 @@
     }
    },
    "expect": {
-    "decision": "keep",
+    "decision": "drop",
     "rule": "K4",
-    "field": "keep"
+    "field": "drop",
+    "town": "sell"
    },
-   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); S3 keep one copy",
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); S3 kept one copy until the player, 2026-10-20 ~20:10: \"keep only uniques that are mentioned in guides as something that I probably could use\" (keep.py FIRST_COPY_USABLE_ONLY: no build of loot/data/wants.json usable rows names Bloodtree Stump)",
    "value": {
     "worth": 0.719,
     "verdict": "vendor",
@@ -2738,7 +2739,10 @@
      "observed": "2026-10-04"
     }
    },
-   "owned": []
+   "owned": [],
+   "today_fails": {
+    "decision": "today: the first copy of a unique is always kept (copies.keep_copy); the keep rules keep it only when a build names it (keep.py FIRST_COPY_USABLE_ONLY, 2026-10-20 ~20:10)"
+   }
   },
   {
    "id": "bloodtree_stump_better_copy_kept_in_field",
@@ -3346,7 +3350,7 @@
    },
    "expect": {
     "decision": "drop",
-    "rule": "K8",
+    "rule": "K6",
     "field": "keep",
     "town": "sell"
    },
@@ -3496,7 +3500,7 @@
    },
    "expect": {
     "decision": "drop",
-    "rule": "K8",
+    "rule": "K6",
     "field": "keep",
     "town": "sell"
    },

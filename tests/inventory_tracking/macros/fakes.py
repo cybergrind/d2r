@@ -303,7 +303,7 @@ class Game:
         # click on a stock cell buys it (`full`: what the count of that class then is)
         self.vendor: Monster | None = None
         self.stock: tuple[Stocked, ...] = ()
-        self.full: dict[int, tuple[str, int]] = {558: ('keys', 12), 544: ('portals', 20)}
+        self.full: dict[int, tuple[str, int]] = {558: ('keys', 12), 544: ('portals', 20), 545: ('identifies', 20)}
         self.trade_line_off = 0.0  # where her menu's Trade line is drawn against the measured place
         self.vendor_drift = 0.0  # units a second she walks along x (the vendors walk about)
         self.vendor_named = True  # the game's record of what is under the pointer names her when she is
@@ -512,6 +512,8 @@ class Game:
                         now = self.pack.keys or 0
                         keys = full if now < full else min(now + 3, 2 * full)
                         self.pack = replace(self.pack, keys=keys, key_room=keys % full != 0)
+                    elif field_name == 'identifies':  # into the Tome of Identify carried (shop.py IDENTIFY_SCROLL)
+                        self.pack = replace(self.pack, identifies=full)
                     else:
                         self.pack = replace(self.pack, portals=full)
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:

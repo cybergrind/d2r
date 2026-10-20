@@ -551,12 +551,15 @@ def _town_decided(hands: Hands, carried: Sequence[Carried]) -> frozenset[int]:
         units = [i.unit_id for i in carried if loot_api.town_asks(i)]
         if units and hands.appraise is not None:
             hands.appraise(units)
-        found = loot_api.town_sold(carried, frozenset())
+        kept: dict[int, tuple[str, str]] = {}
+        found = loot_api.town_sold(carried, frozenset(), None, None, kept)
     except Exception as error:  # the reads, the KB or the collection failing: nothing sold
         LOG.info('Macro: town visit: the keep rules failed (%s: %s): nothing sold', type(error).__name__, error)
         return frozenset()
     for unit, (title, why) in found.items():
         LOG.info('Macro: town visit: %s (unit %d) sold by the keep rules: %s', title, unit, why)
+    for unit, (title, why) in kept.items():  # a give-up the town's guards keep (19:57:52 on 2026-10-20 said nothing)
+        LOG.info('Macro: town visit: %s (unit %d) kept against the keep rules: %s', title, unit, why)
     return frozenset(found)
 
 

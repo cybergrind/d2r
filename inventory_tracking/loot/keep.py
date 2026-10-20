@@ -9,7 +9,9 @@
 - K3 an always-keep want (the BiS rows of loot/data/wants.json): KEEP, duplicates included; after K5, a want with
   `keep_up_to` (the Spirit base Monarch, 2026-10-20 ~12:50): KEEP while fewer comparable copies are owned, then by
   the rules below (K6: only a better copy)
-- K4 a unique or set with no comparable owned copy, or owned copies that cannot be told: KEEP (S3, S8)
+- K4 a unique or set with no comparable owned copy, or owned copies that cannot be told: KEEP (S3, S8); but with
+  FIRST_COPY_USABLE_ONLY a told first copy no build the player may play names (`unusable_first`: no want row, the
+  usable rows included; priced under DUPLICATE_IST; appraised vendor or slow; no charm or jewel): DROP
 - K7 a charm or jewel (used in multiples, appraisal/owned.py MULTIPLE_COPY_BASES): KEEP when worth KEEP_IST, a want
   names it or it has no price (S8), else DROP; never compared as copies
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
@@ -39,6 +41,9 @@ __all__ = [
     'CHARMS',
     'DECIDED_WITHOUT_COPIES',
     'DECIDES',
+    'FIRST_COPY_SELLS_OVER',
+    'FIRST_COPY_SETS',
+    'FIRST_COPY_USABLE_ONLY',
     'GEMS',
     'JEWELS',
     'JUNK_MAGIC',
@@ -56,6 +61,7 @@ __all__ = [
     'KeepRules',
     'decide',
     'decide_all',
+    'unusable_first',
 ]
 
 # Shadow mode, M1 (the player, 2026-10-20 ~09:33: "start M0+M1"): every town visit and ground look logs the new
@@ -75,6 +81,19 @@ DECIDES = True
 # the unified decision beside it (`Macro: loot: shadow: town merge: ...`). On 2026-10-20 ~18:45 (the player: "switch on
 # new rules"), after 3 visits of the shadow with 0 differ
 TOWN_DECIDES = True
+# The first copy of a set or unique item is kept only when a build the player may play names it (the player,
+# 2026-10-20 ~20:10, after Skullder's Ire 0.84 Ist and Corpsemourn 0.48 Ist were stashed: "ok, let's probably keep only
+# uniques that are mentioned in guides as something that I probably could use"; ~20:17: "we shouldn't limit to just
+# warlock's guide. actually I'd like to try paladin, sorc, barb, necro, traps and amazon builds"): the `usable` rows of
+# loot/data/wants.json (loot/build_wants.py `usable_rows`) and every other want row spare it; else a priced first copy
+# under DUPLICATE_IST appraised FIRST_COPY_SELLS_OVER is given up (K4 DROP: sold in town, put down by the field's G18
+# step). No price, unread copies, expensive, wanted: kept as before. False: every first copy kept (K4)
+FIRST_COPY_USABLE_ONLY = True
+# Sets too (the coordinator's reading, 2026-10-20 ~20:10: the player's complaint included a Tal Rasha's belt). False:
+# the first copy of a set item is kept as before
+FIRST_COPY_SETS = True
+# The verdicts a first copy is given up over: `self`, `sell`, `check` and `keep` stay kept until the player rules
+FIRST_COPY_SELLS_OVER = frozenset(('vendor', 'slow'))
 
 # Item types (itemtypes codes of items/metadata.py; the tests check them against macros/pickmode.py and the data)
 RUNES = frozenset(('rune',))
@@ -146,6 +165,22 @@ def _price(value: Value) -> str:
     return f'{value.worth_ist:.3g} Ist' if value.worth_ist is not None else 'no price'
 
 
+def unusable_first(facts: ItemFacts, value: Value, rules: KeepRules = RULES) -> str | None:
+    """Why the loop's set or unique item `facts`, with no comparable owned copy, is given up (FIRST_COPY_USABLE_ONLY),
+    None when it is kept: a unique (or a set item, FIRST_COPY_SETS) of no charm or jewel kind, no want row names it
+    (the usable rows included), priced under DUPLICATE_IST by its own rolls and appraised FIRST_COPY_SELLS_OVER.
+    Pure."""
+    if not FIRST_COPY_USABLE_ONLY or facts.owner != Owner.LOOP or not facts.identified:
+        return None
+    if facts.quality != UNIQUE and not (facts.quality == SET and FIRST_COPY_SETS):
+        return None
+    if facts.base_type in MULTIPLES or value.wants or value.verdict not in FIRST_COPY_SELLS_OVER:
+        return None
+    if value.worth_ist is None or value.worth_ist >= rules.duplicate_ist:
+        return None
+    return f'the first copy, no build names it ({_price(value)}, {value.verdict})'
+
+
 def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, rules: KeepRules = RULES) -> Decision:
     """The decision on one item (the module text); `owned`: its owned copies, None when they cannot be told."""
     if facts.owner != Owner.LOOP:
@@ -165,6 +200,8 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     named = facts.quality in (SET, UNIQUE)
     same = [copy for copy in owned if comparable(facts, copy)] if owned is not None else None
     if named and not same:
+        if same is not None and (given_up := unusable_first(facts, value, rules)) is not None:
+            return Decision(Action.DROP, 'K4', given_up)
         why = 'owned copies cannot be told' if same is None else 'the first copy'
         return Decision(Action.KEEP, 'K4', f'{why} ({_price(value)})')
     wanted = f'; wanted: {value.wants[0].label}' if value.wants else ''

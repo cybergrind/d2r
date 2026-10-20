@@ -1329,6 +1329,141 @@ WHITE_CLASS_ROWS: list[dict[str, Any]] = [
 ROWS += WHITE_CLASS_ROWS
 
 
+# The usable list (loot/keep.py FIRST_COPY_USABLE_ONLY): the set and unique items a build the player may play names as
+# gear, one `usable` row each, by name alone (no rolls). The player, 2026-10-20 ~20:10: "ok, let's probably keep only
+# uniques that are mentioned in guides as something that I probably could use"; ~20:17: "we shouldn't limit to just
+# warlock's guide. actually I'd like to try paladin, sorc, barb, necro, traps and amazon builds". The builds: the S/A
+# guides of those classes (the Assassin's trap builds only: Lightning Sentry, Wake of Fire, Fire Blast, all Traps-tree
+# skills; not Dragon Talon) and the Echoing Strike Warlock, every loadout of each (main table, merc table, and each
+# variant's player and merc slots from the maxroll planners, Starter / leveling included); then the Echoing Strike
+# pages of the guides (warlock.html §0-§2 and §4, pricing.html §6) for what the data lacks. Each item keeps its first
+# source: the build and variant, the file and the JSON pointer of the entry (or the guide line), checked at build time.
+BUILDS = 'pricing/data/wp-a-builds.json'
+VARIANTS = 'pricing/data/wp-a-variants'
+USABLE_CLASSES = frozenset(('Paladin', 'Sorceress', 'Barbarian', 'Necromancer', 'Amazon'))
+USABLE_BUILDS = ('echoing-strike-warlock-guide', 'lightning-sentry-assassin', 'wake-of-fire-assassin',
+                 'fire-blast-assassin')  # fmt: skip
+# The guide sections read (h2/h3 ids: from the first id up to the second)
+USABLE_SECTIONS = ((WARLOCK, 's0', 's3'), (WARLOCK, 's4', 's5'), (PRICING, 's6', 's7'))
+# Named there but not as this build's gear: a line saying it (its words -> the names it rejects, None: all on the line)
+GUIDE_NOT_GEAR: dict[str, tuple[str, ...] | None] = {
+    'all cost 1\u20132 skills — rejected': ("Kira's Guardian", "Duriel's Shell", 'The Spirit Shroud'),  # §0 step 6
+    'Fire Warlock item; sell': None,  # §4 Wraithstep
+    'sell — these fund your Zod / Enigma': None,  # §4 Ars Al'Diabolos / Dul'Mephistos / Tor'Baalos, Opalvein, Sling
+    'Assess each piece and roll': None,  # §4 Bane's Garments, Horazon's Splendor
+}
+
+
+@cache
+def _named() -> dict[str, str]:
+    """Set and unique item name -> 'set' / 'unique', from the game data the decoder uses."""
+    found = {}
+    for table in metadata()['identities'].values():
+        for row in table.values():
+            if row.get('rarity') in ('unique', 'set') and row.get('name'):
+                found[row['name']] = row['rarity']
+    return found
+
+
+@cache
+def _name_pattern() -> re.Pattern[str]:
+    names = sorted(_named(), key=len, reverse=True)  # the longest first: Renewed Bone Break before Bone Break
+    return re.compile(r"(?<![\w'])(" + '|'.join(re.escape(name) for name in names) + r")(?![\w'])")
+
+
+def names_in(text: str) -> list[str]:
+    """The set and unique item names in a build entry or a guide line ("Gull Dagger" -> Gull)."""
+    return _name_pattern().findall(text.replace('\u2019', "'"))
+
+
+def _entries(node: Any, pointer: str) -> Iterable[tuple[str, str]]:
+    """(JSON pointer, text) of every string under `node`."""
+    if isinstance(node, str):
+        yield pointer, node
+    elif isinstance(node, dict):
+        for key, value in node.items():
+            yield from _entries(value, f'{pointer}/{key}')
+    elif isinstance(node, list):
+        for index, value in enumerate(node):
+            yield from _entries(value, f'{pointer}/{index}')
+
+
+def _resolve(data: Any, pointer: str) -> Any:
+    for part in pointer.strip('/').split('/'):
+        data = data[int(part)] if isinstance(data, list) else data[part]
+    return data
+
+
+def usable_builds(builds: dict[str, Any]) -> list[str]:
+    return [slug for slug, row in builds.items() if row.get('class') in USABLE_CLASSES or slug in USABLE_BUILDS]
+
+
+def _section_lines(path: str, first: str, last: str) -> range:
+    lines = _lines(path)
+    start = next(n for n, line in enumerate(lines, 1) if f'id="{first}"' in line)
+    end = next(n for n, line in enumerate(lines, 1) if f'id="{last}"' in line)
+    return range(start, end)
+
+
+def _usable_row(name: str, who: str, label: str, source: str, **extra: Any) -> dict[str, Any]:
+    slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+    return {'id': f'usable-{slug}', 'class': 'usable', 'who': who, 'label': f'usable ({label}): {name}',
+            'names': [name], 'qualities': [_named()[name]], 'must': [], 'asks': None, 'source': source,
+            **extra}  # fmt: skip
+
+
+def usable_rows() -> list[dict[str, Any]]:
+    """The `usable` rows (the module text above BUILDS), the first source of each name; every source checked."""
+    found: dict[str, dict[str, Any]] = {}
+    builds = json.loads((ROOT / BUILDS).read_text())
+    for slug in usable_builds(builds):
+        klass = builds[slug]['class']
+        for part in ('slots', 'merc'):
+            for pointer, text in _entries(builds[slug].get(part, {}), f'/{slug}/{part}'):
+                for name in names_in(text):
+                    who = 'merc' if part == 'merc' else klass.lower()
+                    found.setdefault(name, _usable_row(name, who, f'{slug} {part}', f'{BUILDS}#{pointer}', build=slug))
+        variants = json.loads((ROOT / VARIANTS / f'{slug}.json').read_text())
+        for index, variant in enumerate(variants.get('variants', ())):
+            for side in ('player', 'merc'):
+                for pointer, text in _entries(variant.get(side, {}), f'/variants/{index}/{side}'):
+                    if pointer.endswith('/type'):  # the merc's kind ("Act 2 Holy Freeze"), not gear
+                        continue
+                    for name in names_in(text):
+                        who = 'merc' if side == 'merc' else klass.lower()
+                        label = f'{slug} {variant["name"]} {side}'
+                        source = f'{VARIANTS}/{slug}.json#{pointer}'
+                        found.setdefault(name, _usable_row(name, who, label, source, build=slug,
+                                                           variant=variant['name']))  # fmt: skip
+    said = set()
+    for path, first, last in USABLE_SECTIONS:
+        lines = _lines(path)
+        for number in _section_lines(path, first, last):
+            plain = html.unescape(re.sub(r'<[^>]+>', '', lines[number - 1]))
+            rejected = {quote: names for quote, names in GUIDE_NOT_GEAR.items() if quote in plain}
+            said |= set(rejected)
+            if any(names is None for names in rejected.values()):
+                continue
+            for name in names_in(plain):
+                if any(name in names for names in rejected.values() if names is not None):
+                    continue
+                found.setdefault(name, _usable_row(name, 'warlock', f'{path} #{first}', f'{path}:{number}',
+                                                   quote=name))  # fmt: skip
+    if missing := set(GUIDE_NOT_GEAR) - said:
+        raise ValueError(f'the guides no longer say {sorted(missing)}')
+    rows = []
+    for name, row in sorted(found.items()):
+        path, _, pointer = row['source'].partition('#')
+        if pointer:
+            entry = _resolve(json.loads((ROOT / path).read_text()), pointer)
+            if name not in names_in(entry):
+                raise ValueError(f'source {row["source"]!r} does not name {name!r}')
+        else:
+            check_source(row['source'], row.pop('quote'))
+        rows.append(row)
+    return rows
+
+
 @cache
 def _bases() -> dict[str, list[tuple[str, str]]]:
     """Base name -> [(code, type)] from the game data the decoder uses."""
@@ -1443,6 +1578,7 @@ def build() -> dict[str, Any]:
     for row in own_rows(own):
         check_source(row['source'], None)
         rows.append(row)
+    rows += usable_rows()
     ids = [row['id'] for row in rows]
     if len(ids) != len(set(ids)):
         raise ValueError('duplicate want ids')

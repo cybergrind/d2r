@@ -615,7 +615,10 @@ def test_only_a_big_set_or_unique_item_is_noted_with_the_loop_and_the_switch_on(
     [
         pytest.param(190, 0.719, 'vendor', (205,), True, id='surplus_not_better_cheap_dropped'),
         pytest.param(205, 0.719, 'vendor', (205,), True, id='equal_cheap_dropped'),
-        pytest.param(190, 0.719, 'vendor', (), False, id='first_copy_kept'),
+        # The player, 2026-10-20 ~20:10: "keep only uniques that are mentioned in guides as something that I probably
+        # could use" (keep.py FIRST_COPY_USABLE_ONLY): no build names Bloodtree Stump
+        pytest.param(190, 0.719, 'vendor', (), True, id='first_copy_no_build_names_dropped'),
+        pytest.param(190, 0.719, 'check', (), False, id='first_copy_check_kept'),
         pytest.param(215, 0.8, 'vendor', (200,), False, id='better_than_every_owned_kept_though_vendor'),
         pytest.param(215, 0.8, 'slow', (200, 210), False, id='better_cheap_kept'),
         pytest.param(190, 1.4, 'sell', (205,), False, id='expensive_duplicate_kept'),
@@ -647,7 +650,9 @@ def test_the_surplus_rule_is_pure_and_never_drops_without_evidence():
     owned = stumps(205)
     assert api.surplus(stump, assess(stump, worth=0.5, verdict='slow'), owned) is None
     assert api.surplus(stump, assess(stump, worth=0.5, verdict='slow'), None) == 'its owned copies cannot be told'
-    assert api.surplus(stump, assess(stump, worth=0.5, verdict='slow'), []) == 'the first copy'
+    assert api.surplus(stump, assess(stump, worth=0.5, verdict='slow'), []) is None  # no build names it (K4)
+    assert api.surplus(stump, assess(stump, worth=0.5, verdict='self'), []) == 'the first copy'
+    assert api.surplus(stump, assess(stump, worth=None, verdict='slow'), []) == 'the first copy'  # no price (S8)
     # No price by its rolls: dropped only as the same item, equal or worse, with a KB band under 1 Ist
     under = Band(0.2, 0.6, 15, '2026-10-04')
     assert api.surplus(stump, assess(stump, worth=None, band=under), owned) is None
@@ -1345,7 +1350,8 @@ def town_book(*entries: tuple[int, Appraised]):
     [
         ('a surplus copy, not better, cheap: sold', 190, 0.653, 'slow', (205,), True),
         ('equal and cheap: sold', 205, 0.653, 'vendor', (205,), True),
-        ('the first copy: kept', 190, 0.653, 'slow', (), False),
+        ('the first copy no build names: sold (FIRST_COPY_USABLE_ONLY)', 190, 0.653, 'slow', (), True),
+        ('the first copy appraised check: kept', 190, 0.653, 'check', (), False),
         ('better than every owned copy: kept', 219, 0.8, 'slow', (200,), False),
         ('1 Ist or more by its rolls: kept', 190, 1.4, 'sell', (205,), False),
         ('no price by its rolls: kept (Q13)', 190, None, 'vendor', (205,), False),

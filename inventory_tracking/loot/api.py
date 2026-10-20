@@ -132,6 +132,7 @@ from inventory_tracking.loot.keep import (
     Action,
     Decision,
     decide_all,
+    unusable_first,
 )
 from inventory_tracking.loot.shadow import Appraised
 from inventory_tracking.loot.storage import RESOURCES, SURE_BLOCK, is_potion, roomed
@@ -271,18 +272,24 @@ def surplus(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | 
 
 def surplus_copy(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | None) -> str | None:
     """`surplus` whatever the item's size (the field's G18 check and the town's, M6): why the set or unique item
-    `facts` is kept as a copy, None when it is a surplus copy. Pure."""
+    `facts` is kept as a copy, None when it is a surplus copy. A want row spares the first copy only (keep.py K4); a
+    later copy is kept by a want only as keep.py keeps it (K3: always kept, or under its cap): the 19:57:52 Skullder's
+    Ire on 2026-10-20 (0.842 Ist, `slow`, ED 193 vs the owned 193) was kept unsaid by its own-use row though K6 gave it
+    up ("we keep dublicates only for expensive items", the player, 2026-10-20). The first copy goes only as
+    keep.py `unusable_first` gives it up (FIRST_COPY_USABLE_ONLY). Pure."""
     if value is None:
         return 'a set or unique item with no appraisal'
-    if value.wants:
-        return f'wanted: {value.wants[0].label}'
+    if keepers := [want for want in value.wants if want.always_keep]:
+        return f'always kept: {keepers[0].label}'
     if value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
         return f'expensive ({value.worth_ist:.3g} Ist)'
     if owned is None:
         return 'its owned copies cannot be told'
     same = [copy for copy in owned if comparable(facts, copy)]
     if not same:
-        return 'the first copy'
+        if value.wants:
+            return f'the first copy, wanted: {value.wants[0].label}'
+        return None if unusable_first(facts, value) is not None else 'the first copy'
     compared = better_than(facts, same, value.matters)
     if compared.better:
         return f'better than the {len(same)} owned ({compared.said()})'
@@ -343,7 +350,9 @@ VENDOR = 'vendor'  # identify/service.py `verdict_for`: no reason to keep it
 # ~19:25 rare boots and belts: "we can keep really good ones";
 # JUNK_MAGIC ~13:30, magic gloves only the IAS + skills rows). Anything else appraised other than vendor is kept, and
 # the shadow names it (a question for the player, not decided here)
-TOWN_RULED = frozenset(('K6',))
+# K4 the first copy no build names (keep.py FIRST_COPY_USABLE_ONLY, the player 2026-10-20 ~20:10: "keep only uniques
+# that are mentioned in guides as something that I probably could use"), over the same verdicts
+TOWN_RULED = frozenset(('K4', 'K6'))
 # The verdicts a K6 give-up sells over besides `vendor`: `slow` alone, the M2 case the player ruled on at 15:05 ("Sell
 # cheap duplicates": The Reaper's Toll, slow, 0.653 Ist, 1 owned). Not `self` (own use: Trang-Oul's Claws, 0.2 Ist, 2
 # owned, 17:05:27, was kept), `sell`, `check` or `keep` until the player rules (the coordinator, 2026-10-20 ~17:05)
@@ -394,9 +403,10 @@ def town_kept(
     kind = facts.base_type
     if kind in TOWN_NEVER_SOLD or facts.code in NEVER_SOLD_CODES or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
         return "never sold (runes, gems, potions, set/unique charms, shards, Wirt's Leg, tools)"
-    if facts.quality in (SET, UNIQUE) and (why := surplus_copy(facts, value, owned)) is not None:
+    named = facts.quality in (SET, UNIQUE)
+    if named and (why := surplus_copy(facts, value, owned)) is not None:
         return why
-    if value.wants:
+    if value.wants and not named:  # a set or unique copy's wants are `surplus_copy`'s
         return f'wanted: {value.wants[0].label}'
     if value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
         return f'expensive ({value.worth_ist:.3g} Ist)'
@@ -406,7 +416,7 @@ def town_kept(
     if value.verdict == OWN_USE:
         return f'appraised {verdict} (own use), not vendor'
     by_kind = _junk_by_kind(facts) and decision.rule == 'K8'
-    if value.worth_ist is None and not by_kind and facts.quality not in (SET, UNIQUE):
+    if value.worth_ist is None and not by_kind and not named:
         return f'no price, appraised {verdict} (S8)'
     if decision.rule in TOWN_RULED and value.verdict in K6_SELLS_OVER:
         return None
@@ -458,11 +468,13 @@ def town_sold(
     spared: frozenset[int],
     book: Any = None,
     copies: Any = None,
+    kept: dict[int, tuple[str, str]] | None = None,
 ) -> dict[int, tuple[str, str]]:
     """M6 (keep.TOWN_DECIDES): the carried items (inventory and cube) the town visit sells, unit -> (title, the rule
     and why): `town_verdicts` on the loop's identified items with the identify worker's reads (`book`, loot/shadow.py
     BOOK) and the owned copies (`copies`, loot/value.py CollectionCopies). `spared` (the player's by its stats) are the
-    player's (K0). No read: kept (S8)."""
+    player's (K0). No read: kept (S8). `kept`, when given, gets the items `keep.decide` gave up that a town guard keeps,
+    unit -> (title, the decision and the guard), for the visit's log."""
     from inventory_tracking.loot.shadow import BOOK
     from inventory_tracking.loot.value import CollectionCopies
 
@@ -476,9 +488,14 @@ def town_sold(
         owner = Owner.PLAYER if item.unit_id in spared else Owner.LOOP
         facts = from_carried(item, owner=owner, observation=entry.observation if entry is not None else None)
         items.append((facts, appraise_result(facts, entry.result, entry.verdict) if entry is not None else None))
+    verdicts = town_verdicts(items, copies.copies)
+    if kept is not None:
+        for verdict in verdicts:
+            if not verdict.sold and verdict.decision is not None and verdict.decision.gives_up:
+                kept[verdict.facts.unit_id] = (verdict.facts.title(), f'{verdict.decision.said()}; {verdict.why}')
     return {
         verdict.facts.unit_id: (verdict.facts.title(), verdict.said().removeprefix('sell: '))
-        for verdict in town_verdicts(items, copies.copies)
+        for verdict in verdicts
         if verdict.sold
     }
 
