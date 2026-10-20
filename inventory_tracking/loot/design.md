@@ -732,3 +732,112 @@ the new rules would drop.
 - "+3 Apocalypse" is a Chaos-tree **staff mod** (stat 107, skill 401), not a tab; today's `VOID_STAFFMODS` lacks it
   (`pickmode.py:63`), so in the default GOOD pickup level a 3os dagger with +3 Apocalypse is not taken (only the MOST level takes it,
   through the filter's base rule).
+
+---
+
+## 9. M0 + M1 done (2026-10-20, the player's "start M0+M1", 09:33; Q1-Q13 as recommended)
+
+Built (log only; the loop's behaviour is unchanged):
+
+- `loot/facts.py` (`ItemFacts`, `from_drop` / `from_carried` / `from_observation`), `loot/wants.py` +
+  `loot/data/wants.json` (built by `loot/build_wants.py`: every row sourced and its guide quote checked, codes
+  resolved from the game data and checked in d2data, asks from `pricing/data/wp-b-prices.json`, the triage own-use
+  uniques/sets imported), `loot/value.py` (`value_ist` moved here, identify/service.py imports it back; `assess`,
+  `appraise_result`, `matters_for`, `better_than`, `CollectionCopies`), `loot/keep.py` (`decide`, `decide_all`,
+  `SHADOW = True`), `loot/ground_judge.py` (`judge`), `loot/today.py` (today's judgements in the new types, for the
+  acceptance table only), `loot/shadow.py` (the two hooks: `macros/visit.py` after the junk is judged, and
+  `macros/pickmode.py` `kept`; the identify worker notes its KB results for it).
+- Acceptance: `tests/inventory_tracking/loot/test_valuables.py` over `fixtures/valuables.json` (72 cases, §6.1-6.4),
+  each against the new layers and against today's code; today's failures are strict xfails with the reason.
+- Research R1-R3: `rca/2026-10-20/loot-m0-research.md`. R1 no (an unidentified item holds no affix and no socket
+  count), R2 sockets/staff mods/eth yes, ED never read (stat 16 is in the +0xD0 chain), R3 no (+0x34 is 0 until
+  identified). Consequences taken into the layers: magic rows have no ground conditions; ED is unread on the ground.
+
+Deviations from the text above, on purpose: K7 runs before K5 (a charm is never a duplicate) and K8 before K6 (a
+worthless item is not "cheap"); a fallback K10 keeps a cheap first copy; Matriarchal Spear (`amd`, type `aspe`) is
+not in the merc polearm rows yet; Jeweler's Archon of the Whale is an always-keep row (K3, not K5).
+
+Shadow lines: `Macro: loot: shadow: <item>: new <action> <rule> <reason> / old <keep|sell> <verdict> [(differ)]`,
+`Macro: loot: shadow: town: N items, D differ (...)`, `Macro: loot: shadow: ground: <item>: new <pick|leave> ... /
+old <pick|leave> [(differ)]`, and once per error kind `Macro: loot: shadow: <town|ground> failed (...)`.
+
+Two live fixes outside the shadow period (2026-10-20, the player's 08:42 "+3os daggers with +3 apocalypse",
+"superior bases"; each made an existing rule never fire):
+
+- `macros/pickmode.py` `VOID_STAFFMODS` takes Apocalypse 401 (`third-parties/d2data/json/skills.json`) beside
+  Abyss 402 and Hex: Purge 389 (Q9: only those three at +3): the GOOD level now picks a white or superior 3os
+  Void-line dagger with +3 Apocalypse. `loot/build_wants.py` already had it; `test_wants.py` keeps the two equal.
+  The fixture case `warlock_dagger_3os_plus3_apocalypse` passes today's code too (its strict xfail removed).
+- `game/decode.py` `base_rolls` reads the enhanced defense (16) from the item's +0xD0 modifier chain
+  (`chain_defense`, `items/modifiers.py` `owned_chain`; a socket filler's list passed over); `Rolls.defense` is None
+  while the chain is not read whole (not cached, read again). The superior 15 % ED Monarch rule (`shield_base`) can
+  fire, and `loot/facts.py` `GROUND_STATS` holds 16 for white and superior bases. `ROLLED_TYPES` is unchanged (M5).
+
+### M3 done (2026-10-20, the game closed; no behaviour change)
+
+- `loot/storage.py` holds the pure planning, moved verbatim: from `macros/cube.py` `loot`, `roomed`, `plan`,
+  `overflow`, `keys_move`, `KEPT`, `SURE_BLOCK`, `BIG_BLOCK`, `perfect_of`, `rune_recipe`/`RuneRecipe`; from
+  `macros/town.py` the stash stop (`stash_stop`, `place`, `_make_way`, `_opening`, `_settled`, the parks, `after`,
+  `out_now`, `unread_way_for_cube`, the rune transmutes), `surplus` and their types (`Holdings`, `Put`, `StashStop`,
+  `RuneCube`) and constants (`TRADE_ROOM`, `PARK_JUNK`, `RUNES_AIM`, `GEMS_*`, `BER`); and, to keep the layer free of
+  an import cycle (`macros/stash.py` imports the cube), the stash's page order and resource tabs (`PAGE_PRIORITY`,
+  `SHARED_PRIORITY`, `RESOURCES`, `resource_tabs`, `MATERIALS_TAB`, `is_potion`, `INVENTORY_CELLS`). Every name is
+  re-exported from its old module; `town.stash_stop` (NEEDS, PARK_JUNK), `town.rune_transmutes` and `town.uncubed`
+  (`rune_recipe`) stay thin wrappers so the tests that patch those module names keep working. `storage.stash_stop`
+  takes the block to leave free (`Needs.block`), not `Needs`, which stays with the town routine (`contract`, `Exit`,
+  `Needs`, `deposit_to`, `sold_full`, `kept_gem` stay in town.py).
+- New: `Storage(pack, own)`, `room(storage) -> Room(inventory, cube, free, rows)` (the count `Loop.look` computed
+  inline, the duplicated arithmetic now gone from `loop.py`), `room_low(storage)` = `cells_low(free)` = today's rule
+  (Q3: under TRADE_ROOM free cells, the inventory's alone when the cube's room fits no loop item, no SURE_BLOCK free
+  → low), `occupied(storage)` (the loop's items' share of its inventory and cube room; HUD/log only). Deviation:
+  `occupied`/`room_low` take `Storage` (pack + the player's cells) instead of §1.1's grids + volatile cells, since the
+  loop tells the player's items by `own`; a `view`/pages field waits for M6.
+- Proof: `tests/inventory_tracking/loot/test_storage_replay.py` replays 13 recorded visits (52 stops, kept in
+  `fixtures/visits`, chosen to cover each planning path) against golden plans written by the code before the move
+  (SHA-256 of each plan's canonical text, through the re-exports and through storage directly), and, opt-in (`slow`),
+  every visit recorded on the host (184 files, 714 stops on 2026-10-20) plus the macros fixtures through the code of
+  commit 8c7b1c3 loaded from git: all equal. `test_storage.py`: `room`, `room_low`, `occupied`.
+
+### M4 field identify (2026-10-20, the player's "also start M4 field identify"; Q5, Q6, Q12 as recommended)
+
+Built, behind `loot.api.FIELD_IDENTIFY = True` and `loot.api.CLASSES = {'G6'}` (G9 magic/rare daggers and grimoires,
+G10 magic/rare circlets, G11 magic rings and amulets are built and tested — `IMPLEMENTED` — and off until the player
+rules). Only in the KP_6 loop (`FIELD.looping`, set by `running/execution.py`); KP_1, attack mode and the other keys by
+hand pick and carry as before.
+
+- Pickup: `macros/pickmode.py` `kept` (GOOD level) also takes a drop `Field.pick` names — magic or rare, filter-shown,
+  not prized, a ground verdict of IDENTIFY in a class of `CLASSES` (loot/ground_judge.py over loot/data/wants.json) —
+  and remembers its unit id for the game as picked for the field identify. `is_candidate` says such a drop is an
+  identify candidate: the guard keeps no game and the room routine makes no trip for it (S5 counts must-haves only).
+  `pickmode.sure` and `loot/today.py` are unchanged (the acceptance table's today xfails stay).
+- Routine (`loot/api.py` `Field.settle`, live hands `loot/hands.py` `GameHands`): only the items picked for it, still
+  in the inventory (the cube's wait for Cain), are identified with the Tome (`junk.identify`: one inventory opening,
+  the identified flag checked in memory), read and appraised now (the worker's `appraise`, its read and KB result from
+  the shadow's `BOOK`), decided (`keep.decide_all` with the collection's copies), and the DROP ones put down at the
+  feet (`cube.drop_item`, refused for protected items there too) and remembered (`game/kept.py` `PutDown.reject`: not
+  picked, stood by or warned about again this game, logged as the loop's own put-down). A second guard below the
+  decision (`api.droppable`) refuses the player's, unidentified, set/unique items, runes, gems, potions, charms,
+  jewels, the loop's tools, any item a want row names (a 4os magic Monarch, of Deflecting 3os/4os) and anything worth
+  1 Ist or more. No identified read or no appraisal: kept (S8), Cain and today's town path decide.
+- When: `api.settle(run, site)`, one call at each site — `macros/portal.py` `to_town` before the cast (Lower Kurast's
+  and the terror zones' level end, every trip for room), `macros/loop.py` `Loop.leave` before Save and Exit (not a
+  game given up), `running/execution.py` before the loop's `make_room` cube. Never: within SIGHT of a hostile, life
+  under the healer's floor, a valuable the loop could pick up now on the ground (one with no room does not hold it:
+  the routine may make that room), in town, dead, in controller mode, a panel open. Bounded: 2 identifies of an item a
+  game (`MOST_TRIES`), 8 a batch, the tome's charges. The player's hand and a cancel go on up, counted as no failure;
+  anything else is logged and the leg goes on.
+- Reserve: `IDENTIFY_RESERVE = 5`; `shop.short` is true under it (a visit for the tome alone: superseding the
+  2026-10-17 "only on a visit made anyway" for the field identify's tome; `test_shop.py` updated), and the visit's
+  contract misses `identifies N` (`town.contract`). Purchases as before: Jamella, carried gold only.
+- Logs: `Macro: loot: field: <item> (unit N): <decision>`, `Macro: inventory: <class> (<unit>) at (x, y) dropped in
+  the field: <rule> <reason>` (d2-loop-watch `logwords.FIELD_DROP`: games.py and watch.py count it no MISSED, the
+  census seeing it after the line), `Macro: loot: field: <site>: N identified, D dropped, K kept[, W wait (Cain in
+  town)]` (`FIELD_SETTLED`), `Macro: loot: field: <site>: N to identify wait: <why>` (once a game and site), `Macro:
+  put down: ... the loop's own field drop (...)`.
+- Tests: `tests/inventory_tracking/loot/test_api.py` (the routine on fake hands; the real unit 1728653239 read
+  dropped; every magic Monarch case of `fixtures/valuables.json` kept or dropped as `keep.decide` says; the 4os and
+  Deflecting reads kept even when appraised vendor), `test_hands.py` (the fake game's tome clicks and drop),
+  `test_field_hooks.py` (the hooks), `tests/skills/test_loop_watch_lines.py` (the lines).
+- Not in this step: `cube.droppable` / `drop_for` stay (M3 moves cube.py); M2 (town sales by `keep.decide`) waits for
+  the shadow log. Side finding: R1's unit 1728653239 (chain 20:10, 102:15, native suffix 172) is a Monarch **of
+  Blocking** (magicsuffix.json "172": block 10, faster block 15), not of Deflecting (row 173: 20 and 30).

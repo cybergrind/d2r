@@ -14,7 +14,7 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import (
     EXCURSION,
     LEAVE_GAME,
@@ -468,6 +468,10 @@ def perform(
             tz.way_on()
         else:
             raise Abort(f'the agenda has no leg for {goal.kind}')
+    except Hand:
+        # The player's own input is no failure of the leg: three mouse moves in a second dropped the town visit and
+        # made a Save and Exit under the player's hand (09:54:25-09:54:28 on 2026-10-20)
+        raise
     except Abort:
         agenda.failed(goal)
         raise

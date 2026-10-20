@@ -43,6 +43,7 @@ from logwords import (
     EVENT,
     EXPERIENCE_GAME,
     EXPERIENCE_LEVEL,
+    FIELD_DROP,
     FULL,
     GAME_LEFT,
     GROUND,
@@ -81,7 +82,7 @@ class Seen:
     picked: bool = False
     last: int = 0  # the log line the census last said it on
     first: int = 0  # the log line the census first said it on
-    put_down: bool = False  # the loop's own, put down in town (`put_down`)
+    put_down: bool = False  # the loop's own, put down in town or in the field (`put_down`, `field_dropped`)
 
     def missed(self, full: set[str]) -> str | None:
         """Why the sure mode would have taken it (pickmode.py `sure`), None for an item left by design."""
@@ -113,6 +114,13 @@ def put_down(items: Iterable[Seen], line: int) -> None:
     for item in items:
         if 0 <= line - item.first <= DROP_LINES:
             item.put_down = True
+
+
+def field_dropped(item: Seen, drop: int | None) -> None:
+    """Mark `item`, first seen now, as the loop's own put down when a field drop's line (`drop`) came within
+    DROP_LINES before: the census sees a field drop after its line, where the character stands."""
+    if drop is not None and 0 <= item.first - drop <= DROP_LINES:
+        item.put_down = True
 
 
 def full_stacks() -> set[str]:
@@ -199,6 +207,7 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
     game: Game | None = None
     leg: tuple[str, datetime] | None = None
     asked = False
+    dropped_at: int | None = None  # the last field drop's line (`field_dropped`)
 
     def settle() -> None:
         clicked(items.values(), clicks)
@@ -225,8 +234,10 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
             asked = True
         if (m := FULL.search(line)) is not None:
             full.add(m.group(1))
-        if TOWN_DROP.search(line):
+        if TOWN_DROP.search(line) or FIELD_DROP.search(line):
             put_down(items.values(), number_of_line)
+            if FIELD_DROP.search(line):
+                dropped_at = number_of_line
             continue
         if (m := LEG.search(line)) is not None:
             number, name = int(m.group(1)), m.group(2).strip()
@@ -289,6 +300,7 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
                     line[11:19], directory.name, game.number if game else None, quality, name, label, place
                 )
                 item.first = number_of_line
+                field_dropped(item, dropped_at)
             elif item.game is None and game is not None:
                 item.game = game.number
             item.last = number_of_line

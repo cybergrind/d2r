@@ -37,8 +37,6 @@ from inventory_tracking.appraisal.owned import (
     multiple_copy_use,
     overall,
     owned_summary,
-    perfection,
-    variable_rolls,
 )
 from inventory_tracking.appraisal.presentation import item_tone
 from inventory_tracking.appraisal.triage import LABELS, TONES, demand_unmeasured, description, tone as triage_tone
@@ -50,6 +48,8 @@ from inventory_tracking.identify.attention import (
     starter_only,
 )
 from inventory_tracking.identify.capture import capture_inventory_state, capture_records, decode_records
+from inventory_tracking.loot import shadow as loot_shadow
+from inventory_tracking.loot.value import value_ist  # moved to the loot layers (loot/design.md §1.2); used here
 from inventory_tracking.presentation import StyledLine, Tone
 from inventory_tracking.reports import publish
 
@@ -162,25 +162,6 @@ def notable_stats(observation, limit=3) -> list[str]:
 # Rolled items whose duplicates the owned copies decide (`owned_verdict`): no charm or jewel (used in multiples,
 # `multiple_copy_use`), rune, gem, base or runeword
 ROLLED = frozenset(('unique', 'set', 'magic', 'rare', 'crafted'))
-
-
-def value_ist(result, observation=None) -> float | None:
-    """The item's price in Ist by its own rolls (the player, 2026-10-19: "it should be priced according our rols"): the
-    triage's own price where it compares the rolls (`roll_comparison`, `roll_placement`); else its place in the asks'
-    band by its rolls, the lower quartile for the worst and the median for perfect ones (`perfection`), the median for
-    fixed stats; else the estimate. None unknown."""
-    triage = result.get('triage') or {}
-    if (triage.get('roll_comparison') or (triage.get('roll_placement') or {}).get('valid')) and triage.get(
-        'decision_ist'
-    ) is not None:
-        return triage['decision_ist']
-    band = triage.get('band') or {}
-    low, middle = band.get('q1_ist'), band.get('median_ist')
-    if low is not None and middle is not None:
-        place = perfection(variable_rolls(observation if observation is not None else result.get('extraction', {})))
-        return middle if place is None else low + place * (middle - low)
-    price = low if low is not None else middle
-    return price if price is not None else (result.get('price_estimate') or {}).get('estimate_ist')
 
 
 def trade_reason(result) -> bool:
@@ -629,6 +610,7 @@ class IdentifyWorker:
                     if error is not None:
                         raise error
                     items.append(item_summary(observation, evidence, self.owned(observation)))
+                    loot_shadow.note(observation, evidence, items[-1])  # the loot shadow's values (log only)
                 except Exception as exc:
                     LOG.warning('Identify assessment of %s failed: %s', name, exc)
                     issues.append(f'{name}: {exc}')
@@ -686,6 +668,7 @@ class IdentifyWorker:
                     if error is not None:
                         continue
                     row = item_summary(observation, evidence, self.owned(observation))
+                    loot_shadow.note(observation, evidence, row)  # the loot shadow's values (log only)
                     with self.lock, suppress(TypeError, ValueError):
                         self.verdicts[int(row['unit_id'])] = row['verdict']
             except Exception as exc:  # the loop keeps what has no verdict

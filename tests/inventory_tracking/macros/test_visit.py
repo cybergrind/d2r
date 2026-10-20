@@ -1230,3 +1230,34 @@ def test_a_stash_unread_with_nothing_to_put_in_is_not_read_again(monkeypatch, ca
 
     assert 'Macro: stash: the view' not in caplog.text
     assert len(reads) == 2
+
+
+@pytest.mark.parametrize('broken', [False, True])
+def test_the_loot_shadow_only_logs_beside_the_visit_and_never_changes_it(monkeypatch, caplog, broken):
+    # loot/design.md §7 M1 (the player, 2026-10-20 ~09:33: "start M0+M1"): the new decisions are logged beside the
+    # visit's; the visit does the same with the shadow working or broken
+    import inventory_tracking.loot.shadow as shadow_module
+
+    shadow = shadow_module.Shadow(shadow_module.Book())
+    if broken:
+        monkeypatch.setattr(shadow, '_town', lambda *args: 1 / 0)
+    monkeypatch.setattr(shadow_module, 'SHADOW', shadow)
+    keeper = replace(thing(10, 'Ring', 6, 0), quality=4, identified=False)
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4, identified=False)
+    cubed = replace(thing(12, 'Ring', 0, 0), quality=4)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, keeper, junk), ('#..', '...', '...', '...'), frozenset({12}), (cubed,), keys=5)
+    play = fortress(pack, [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({11, 12}))
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    assert play.page_items[5] == [10]
+    assert sorted(town.sold) == [11, 12]
+    assert done.contract.misses == ()
+    if broken:
+        assert 'Macro: loot: shadow: town failed (ZeroDivisionError' in caplog.text
+    else:
+        assert 'Macro: loot: shadow: town: 3 items' in caplog.text
+        assert 'old sell' in caplog.text

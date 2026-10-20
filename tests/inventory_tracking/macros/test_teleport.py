@@ -1234,3 +1234,22 @@ def test_a_portal_left_already_is_not_clicked():
     use_thing(play.run(), portal_mark((1001.0, 1000.0)), me, play.thing, 16 / 9)
 
     assert play.keys.events == []
+
+
+def test_the_thrones_portal_from_afar_walks_to_its_foot_and_the_next_click_from_there_takes_it():
+    # The take of 16:37 on 2026-10-14 (rca/2026-10-20/throne-waves-findings.md §5): a click on the portal from 12 away
+    # walked the character to 3.9 south of its ground point, 0.8 s passed with the level unchanged, and the second
+    # click from there took it. The first of PORTAL_AIMS, (0, -45), is among the clicks that took (-1, -49 at 20:49 on
+    # 2026-10-17, the game's hover record naming an object)
+    from inventory_tracking.levels.model import THRONE_PORTAL
+
+    assert teleport.USES[THRONE_PORTAL].aims[0] == (0, -45)
+    play = game()
+    play.thing = Thing(5634, THRONE_PORTAL, 2, 5012.0, 5004.0)
+    mark = placed(THRONE_PORTAL, 'Worldstone Chamber', (5012.0 / 5, 5004.0 / 5))
+    step_toward(play.run(), mark, keys)
+    # The first aim walked it to the portal's foot and did not take; an aim after it, from there, did
+    assert [event[0] for event in play.keys.events] == ['click', 'click']
+    assert math.dist((play.character.x, play.character.y), (5012.0, 5007.5)) < 0.1
+    assert play.character.area == 110
+    assert play.said == ['Through the portal to Worldstone Chamber, 13 away', 'Worldstone Chamber: there']

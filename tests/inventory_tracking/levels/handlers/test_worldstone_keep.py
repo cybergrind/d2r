@@ -63,7 +63,13 @@ def test_the_throne_of_destruction_marks_a_stand_north_west_of_where_the_waves_a
     poi, portal = guidance.pois
     assert (poi.label, poi.kind) == ('Throne', 'target')
     assert (portal.label, portal.point) == ('Worldstone Chamber', (15090, 5005))  # the file's FinalPortal
-    assert portal.use == 0  # how it is clicked is not known yet: a place only
+    # Clicked by its picture since 2026-10-20 (the player: "tz leveling should do baal and trone fight"; the
+    # player's own click into it at 00:18 on 2026-10-11)
+    from inventory_tracking.levels.model import THRONE_PORTAL
+    from inventory_tracking.macros.teleport import USES
+
+    assert portal.use == THRONE_PORTAL
+    assert USES[THRONE_PORTAL].leaves
     # user, 2026-10-11: "west-north off actual throne"; the waves appear around (90, 25) units
     assert math.dist(poi.point, (15082, 5014)) <= 3
     assert guidance.problems == ()

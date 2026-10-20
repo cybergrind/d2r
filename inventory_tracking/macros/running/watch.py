@@ -77,6 +77,8 @@ def poll(self: MacroRunner, now: float) -> None:
                 if self.working:
                     self.cancelled.set()
             kills = self.hunter.score.killed if self.hunter is not None else 0  # a fight in place is no stall
+            # The Throne's wave wait is no stall either (hunting/throne.py `Waves.due`, bounded by its WAVE_WAIT)
+            waves = self.hunter is not None and self.hunter.waves.due(now)
             if self.loop.waiting:
                 pass  # for the game window's focus: the player's time, not the loop's
             elif self.loop.on and self.loop.overdue(game, now):
@@ -87,7 +89,7 @@ def poll(self: MacroRunner, now: float) -> None:
                 # player, 2026-10-19: "we must not die or we lose exp and our gear"; "Fight back first")
                 life = self.life_seen or (0, 0)
                 why, cause = f'the character is hit standing outside a fight (life {life[0]}/{life[1]})', 'beset'
-            elif self.loop.on and game is not None and self.loop.still(self.where, now, game, kills):
+            elif self.loop.on and game is not None and self.loop.still(self.where, now, game, kills, waves):
                 why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
             if why is not None:
                 # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS) or beset: the run is cancelled,

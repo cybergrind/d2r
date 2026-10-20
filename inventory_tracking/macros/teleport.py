@@ -47,6 +47,7 @@ from inventory_tracking.levels.model import (
     PORTAL,
     SEALS,
     SUPER_CHEST,
+    THRONE_PORTAL,
     TOWN_PORTAL,
     UNIQUE_CHEST,
     WIRTS_BODY,
@@ -292,6 +293,21 @@ USES = {
     ARCANE_PORTAL: Use(
         ((0, -40), (0, -65), (0, -15)), 10.0, True,
         'Through the portal to {}', '{}: there', 'no portal to {} is here',
+    ),
+    # The portal Baal leaves the Throne of Destruction by (FinalPortal), into the Worldstone Chamber: objects.txt gives
+    # it no box, so it is taken by its picture, standing on its ground point (the mark, wthrone.ds1's (15090, 5005)), by
+    # the permanent portals' aims. The player's four entries (takes of 2026-10-11 00:12 and 00:18, 10-14 16:37, 10-17
+    # 20:49; rca/2026-10-20/throne-waves-findings.md §5): the clicks that took were (+11, -26), (-36, -61), (-14, -31)
+    # and (-1, -49) pixels from its ground point, the last two with the game's hover record naming an object (the
+    # portal: no other object class was read there); PORTAL_AIMS' first, (0, -45), is among them. A click walks the
+    # character to 3.4-3.9 units south of the ground point, (15090, 5008.5), and the level changed 0.12 s after it
+    # stopped (from 6.6 and 7.1 away), or not in 0.8 s and then at a second click from there (10-14, from 12 away):
+    # `use_thing`'s next aim from where it stands.
+    # Clicks at (-147, +85) and (-159, +87) were ground (a walk, no portal). Not yet clicked by the step (the player,
+    # 2026-10-20: "tz leveling should do baal and trone fight"; macros/hunting/throne.py)
+    THRONE_PORTAL: Use(
+        PORTAL_AIMS, 10.0, True,
+        'Through the portal to {}', '{}: there', 'no portal to {} is open here',
     ),
     # The glowing chest, where the game's files place it (the mark is on it). The aims are the ones that
     # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
@@ -919,8 +935,10 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
         return
     run.say(f'{use.begun.format(target.label)}, {math.dist((player.x, player.y), at):.0f} away')
     LOG.info(
-        'Macro: object %d (class %d) of %s at (%.1f, %.1f), %.1f from the mark; the character at (%.1f, %.1f)',
-        thing.unit_id, thing.txt_id, target.label, *at, math.dist(at, scaled(target.point)), player.x, player.y,
+        'Macro: object %d (class %d, mode %d, selectable %s) of %s at (%.1f, %.1f), %.1f from the mark; the character '
+        'at (%.1f, %.1f)',
+        thing.unit_id, thing.txt_id, thing.mode, thing.selectable, target.label, *at,
+        math.dist(at, scaled(target.point)), player.x, player.y,
     )  # fmt: skip
 
     def took_in(world: World) -> bool:

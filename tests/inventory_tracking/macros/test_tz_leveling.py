@@ -434,3 +434,388 @@ def test_a_super_chest_found_open_at_its_use_waits_for_nothing_and_its_goal_is_l
         assert hunt.settled_at == settled
     after = hunt.cleared(run, play.world, [], Ground(()), None)
     assert after is None or after.place != place
+
+
+# -- the Maggot Lair's super chests (the player, ~09:35 on 2026-10-20: "we need to open superchests when we
+# encountering them"; rca/2026-10-20/superchest-findings.md): TombChest1/2 at the treasure rooms' PlaceUniqueChest
+# spots, passed closed because only class 397 counted --
+
+LAIR = 505  # Act 2 - Lair Treasure W: its one layout places the unique chests at (35, 21) and (26, 34) units
+TOMB_CHEST = 88  # TombChest2, the class the game rolled at those spots in the takes
+
+
+def lair_run(*things):
+    """TZ leveling with a Lair treasure room south of the character's; the chest spots 44 and 54 units away."""
+    from inventory_tracking.levels.model import Level, Room
+
+    play, hunt, run = agenda_hunt(COVER)
+    room = Room(LAIR, 996, 1004, 10, 10, 0, (996, 1004, 10, 10))
+    rooms = (*ROOMS, room)
+    hunt.level = lambda: Level(me(play.world).area, rooms, ())
+    run.things = lambda: things
+    return play, hunt, run
+
+
+def lair_chest(unit: int = 1803365275, mode: int = 0, spot: tuple[float, float] = (5015.0, 5041.0)):
+    from inventory_tracking.game.records import Thing
+
+    return Thing(unit, TOMB_CHEST, mode, *spot)
+
+
+def test_a_chest_at_a_unique_chest_spot_is_a_super_chest_the_agenda_opens_by_its_class(monkeypatch):
+    # 09:33:24 on 2026-10-20: TombChest2 3814233991 at the Lair Prev W spot 9 units from the character, left closed
+    from inventory_tracking.levels.model import UNIQUE_CHEST
+    from inventory_tracking.macros import superchests
+    from inventory_tracking.macros.teleport import marked_thing
+    from inventory_tracking.routes.model import USE
+
+    chest = lair_chest()
+    play, hunt, run = lair_run(chest)
+    goal = hunt.cleared(run, play.world, [], Ground(()), None)
+    assert goal is not None
+    assert (goal.do, goal.unit, goal.place) == (USE, chest.unit_id, (chest.x, chest.y))
+    assert goal.mark is not None
+    assert goal.mark.use == UNIQUE_CHEST
+    assert marked_thing(run, goal.mark) == chest  # the act finds the rolled class at the mark
+    monkeypatch.setattr(superchests, 'ENABLED', False)  # as before: the glowing chest alone
+    play, hunt, run = lair_run(chest)
+    before = hunt.cleared(run, play.world, [], Ground(()), None)
+    assert before is None or before.unit != chest.unit_id
+
+
+def test_a_chest_off_the_spots_or_opened_is_no_super_chest():
+    off = lair_chest(70, spot=(5010.0, 5041.0))  # a plain chest 5 units beside the spot
+    opened = lair_chest(71, mode=2)
+    play, hunt, run = lair_run(off, opened)
+    goal = hunt.cleared(run, play.world, [], Ground(()), None)
+    assert goal is None or goal.unit not in (70, 71)
+
+
+def test_a_valuable_on_the_ground_and_a_leader_in_sight_come_before_the_super_chest():
+    from inventory_tracking.macros.goals import PICK_UP
+    from inventory_tracking.routes.model import FIGHT
+    from tests.inventory_tracking.macros.test_hunt import CHAMPION
+
+    chest = lair_chest()
+    play, hunt, run = lair_run(chest)
+    ko = Goal('Ko Rune', (5003.0, 5000.0), PICK_UP, PLACE_NEAR, PRESSED, unit=9)
+    assert hunt.cleared(run, play.world, [], Ground(()), ko) == ko
+    champion = foe(5, 5010.0, 5000.0, flags=CHAMPION)
+    goal = hunt.cleared(run, play.world, [champion], Ground(()), None)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (FIGHT, 5)
+
+
+# The Throne of Destruction's waves and portal (macros/hunting/throne.py; the player, 2026-10-20 ~09:33: "tz leveling
+# should do baal and trone fight"). Places of the takes of 2026-10-11 to 2026-10-20: Baal on his throne (543) at
+# (15090.5, 5011.5), the Throne mark (the stand) at (15080, 5015), the waves round (15090, 5025)
+SEAT, STAND = (15090.5, 5011.5), (15080.0, 5015.0)
+
+
+def wave_look(waves, found, here, hostiles=(), now=0.0, seat=SEAT, stage=None):
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.routes.model import fight
+
+    return throne.wave_goal(
+        waves, area=throne.THRONE, stage=stage or fight('Lister the Tormentor'), route='Baal', found=found,
+        here=here, hostiles=hostiles, seat=seat, stand=STAND, reach=20.0, spend=PRESSED, now=now,
+    )  # fmt: skip
+
+
+def test_the_throne_clears_its_hall_then_waits_for_the_waves_at_the_stand_and_fights_each_wave():
+    # The waves came only with the hall clear and the character by the throne (takes of 2026-10-11 00:18, 10-14, 10-17
+    # 23:49); today's runs sought Lister over the whole level, 135-194 units off, and no wave came (01:43, 01:55 UTC)
+    from inventory_tracking.macros.goals import REACH
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.routes.model import fight
+
+    waves = throne.Waves()
+    waves.begin('g')
+    seek = Goal('seek Lister the Tormentor: toward an unexplored room', (15150.0, 5130.0), FIGHT, 20.0, PRESSED,
+                known=False, route='Baal', stage=fight('Lister the Tormentor'))  # fmt: skip
+    far = (15148.0, 5134.0)
+    hall = foe(41, 15094.0, 5060.0, txt_id=478)  # a Hell Witch 49 from the seat, in the hall (torches to y 5064)
+    outside = foe(42, 15176.0, 5066.0, txt_id=697)  # behind the east wall, 98 from the seat: not the hall's
+    first = wave_look(waves, seek, far, [hall, outside])
+    assert isinstance(first, Goal)
+    assert (first.do, first.unit, first.clearing) == (FIGHT, 41, True)  # the hall first
+    to_stand = wave_look(waves, seek, far, [outside], now=1.0)
+    assert isinstance(to_stand, Goal)
+    assert (to_stand.do, to_stand.place, to_stand.stage) == (REACH, STAND, seek.stage)
+    assert not waves.due(1.0)  # away from the stand nothing is waited for
+    at = (15081.0, 5016.0)
+    waiting = wave_look(waves, seek, at, [], now=2.0)
+    assert waiting == to_stand
+    assert waves.due(2.0)
+    assert waves.due(2.0 + throne.DUE_GRACE)
+    assert not waves.due(2.1 + throne.DUE_GRACE)
+    # A wave: its boss in sight is the fight (goal_of names him), and the wait counts afresh from its end
+    colenzo = Goal('Lister the Tormentor', (15090.0, 5026.0), FIGHT, 20.0, PRESSED, unit=61, route='Baal',
+                   stage=seek.stage)  # fmt: skip
+    assert wave_look(waves, colenzo, at, [], now=2.0 + throne.WAVE_WAIT - 1) == colenzo
+    minion = foe(43, 15092.0, 5030.0, txt_id=23)  # its boss dead, a minion left: fought before the next wave
+    left = wave_look(waves, seek, at, [minion], now=2.0 + throne.WAVE_WAIT)
+    assert isinstance(left, Goal)
+    assert left.unit == 43
+    again = 3.0 + throne.WAVE_WAIT
+    assert wave_look(waves, seek, at, [], now=again) == to_stand
+    assert wave_look(waves, seek, at, [], now=again + throne.WAVE_WAIT - 0.1) == to_stand  # still waited
+    assert throne.THRONE_WAVES  # the dated switch is on
+
+
+def test_a_throne_where_no_wave_comes_gives_its_stage_up_and_the_level_is_explored(monkeypatch):
+    # The loop never hangs: WAVE_WAIT at the stand with nothing coming leaves the stage as an empty mark does; a seek's
+    # SEEK_WAIT (20 s) no longer ends the Throne's wait
+    from inventory_tracking.macros.hunt import Bearings
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.macros.hunting.base import SEEK_WAIT
+    from inventory_tracking.routes.model import fight
+
+    play = game(area=throne.THRONE)
+    play.world = replace(play.world, player=replace(me(play.world), x=STAND[0] + 1, y=STAND[1]))
+    hunt = hunter(play)
+    hunt.agenda, hunt.agenda_policy = Agenda(), lambda area: ON_THE_WAY
+    hunt.agenda.begin('g')
+    hunt.pursuit = Pursuit('pickup', 10.0, advance=False, leash=FULL, looped=True, agenda=True)
+    hunt.mode = Mode(True, AGENDA, agenda=True)
+    hunt.bearings = Bearings(marks=lambda label: ((3016.0, 1003.0),) if label == 'Throne' else ())
+    stage = fight('Lister the Tormentor')
+    seek = Goal('seek Lister the Tormentor: toward an unexplored room', (15150.0, 5130.0), FIGHT, 20.0, PRESSED,
+                known=False, route='Baal', stage=stage)  # fmt: skip
+    monkeypatch.setattr(choice.route, 'staged', lambda progress, area: ('Baal', stage))
+    monkeypatch.setattr(choice, 'goal_of', lambda *_a, **_k: seek)
+    clock = [100.0]
+    run = play.run()
+    run.clock = lambda: clock[0]
+    found = hunt.goal(run, play.world, [], False, hunt.pursuit)
+    assert found is not None
+    assert found.label.endswith(throne.WAVES_STAND)
+    clock[0] += SEEK_WAIT + 1
+    assert hunt.goal(run, play.world, [], False, hunt.pursuit) == found  # waited past a seek's give-up
+    key = (play.world.game_name, throne.THRONE, 'Lister the Tormentor')
+    assert key not in hunt.marks_empty
+    clock[0] = 100.0 + throne.WAVE_WAIT
+    assert hunt.goal(run, play.world, [], False, hunt.pursuit) is None
+    assert key in hunt.marks_empty
+    assert (play.world.game_name, throne.THRONE) in hunt.wayless  # the agenda explores the level (COVER), then ends
+    assert not hunt.waves.due(clock[0])
+    assert hunt.goal(run, play.world, [], False, hunt.pursuit) is None  # given up for the game
+    # A run that is not the agenda's (a KP_1 press) keeps the route's goal as before
+    hunt.marks_empty.clear()
+    hunt.pursuit = Pursuit('pickup', 10.0, advance=False, leash=FULL)
+    assert hunt.goal(run, play.world, [], False, hunt.pursuit) == seek
+
+
+def test_after_the_waves_the_stand_is_kept_until_baal_leaves_then_the_portal_and_a_portal_that_never_opens_ends():
+    # 00:18 on 2026-10-11: the fifth wave died ~119 s, Baal (543) gone into the portal at 127.5 s, the player's click
+    # on the portal at 133.3 s, the Worldstone Chamber at 133.6 s
+    from inventory_tracking.macros.goals import USE
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.routes.model import use
+
+    waves = throne.Waves()
+    waves.begin('g')
+    stage = use('Worldstone Chamber', throne.CHAMBER)
+    portal = Goal('Worldstone Chamber', (15090.0, 5005.0), USE, 25.0, PRESSED, route='Baal', stage=stage)
+    at = (15081.0, 5016.0)
+    waiting = wave_look(waves, portal, at, now=10.0, stage=stage)
+    assert isinstance(waiting, Goal)
+    assert waiting.label.endswith(throne.PORTAL_WAIT)
+    assert waiting.place == STAND
+    assert waves.due(10.0)
+    opening = wave_look(waves, portal, at, now=12.0, seat=None, stage=stage)  # he left: the portal opens
+    assert isinstance(opening, Goal)
+    assert (opening.label, opening.place) == (f'Worldstone Chamber: {throne.PORTAL_OPENING}', STAND)
+    assert waves.due(12.0)
+    assert wave_look(waves, portal, at, now=12.0 + throne.PORTAL_OPENS, seat=None, stage=stage) == portal
+    stuck = throne.Waves()
+    stuck.begin('g')
+    assert wave_look(stuck, portal, at, now=0.0, stage=stage) != portal
+    assert wave_look(stuck, portal, at, now=throne.BAAL_LEAVES, stage=stage) == portal  # clicked whatever
+    assert wave_look(stuck, portal, at, now=throne.BAAL_LEAVES + throne.PORTAL_SECONDS, stage=stage) is None
+    # A new game forgets
+    stuck.begin('h')
+    assert wave_look(stuck, portal, at, now=500.0, stage=stage) != portal
+    # Off the Throne nothing changes
+    assert (
+        throne.wave_goal(
+            waves, area=throne.CHAMBER, stage=stage, route='Baal', found=portal, here=at, hostiles=(), seat=SEAT,
+            stand=STAND, reach=20.0, spend=PRESSED, now=0.0,
+        )
+        == portal
+    )  # fmt: skip
+
+
+def test_baal_walking_into_the_portal_is_still_baal_and_the_portal_waits_until_he_is_gone_and_it_opens():
+    # The four takes that saw him go (2026-10-11 00:12 and 00:18, 10-14 16:37, 10-17 20:49): the same unit turned from
+    # 543 into 559 (`baalcrabstairs`) 10.1-11.3 s after the fifth wave's last monster died, walked from y 5012 to 5008
+    # and was gone from the read 0.5-1.6 s later. 00:18: 543 to 559 at 127.57 s, gone at 128.33 s
+    from inventory_tracking.game.records import Monster
+    from inventory_tracking.macros.goals import USE
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.macros.hunting.base import hostiles
+    from inventory_tracking.routes.model import use
+
+    seated = Monster(1179846619, 543, 1, 15090.0, 5012.0)
+    walking = replace(seated, txt_id=559, mode=2, y=5009.0)
+    assert throne.seat_of([seated]) == (15090.0, 5012.0)
+    assert throne.seat_of([walking]) == (15090.0, 5009.0)
+    assert throne.seat_of([]) is None
+    play = game(area=throne.THRONE)
+    assert not hostiles(replace(play.world, monsters=(seated, walking)))  # neither is ever struck
+
+    waves = throne.Waves()
+    waves.begin('g')
+    stage = use('Worldstone Chamber', throne.CHAMBER)
+    portal = Goal('Worldstone Chamber', (15090.0, 5005.0), USE, 25.0, PRESSED, route='Baal', stage=stage)
+    at = (15081.0, 5016.0)
+    assert wave_look(waves, portal, at, now=118.5, stage=stage) != portal  # the hall clear, 543 on his throne
+    on_his_way = wave_look(waves, portal, at, now=127.6, seat=throne.seat_of([walking]), stage=stage)
+    assert isinstance(on_his_way, Goal)
+    assert on_his_way.label.endswith(throne.PORTAL_WAIT)  # 559: not clicked under him
+    assert wave_look(waves, portal, at, now=128.3, seat=None, stage=stage) != portal  # gone: the portal opens
+    # A read that has him again (a look from farther that missed him) counts his going afresh
+    assert wave_look(waves, portal, at, now=128.4, seat=SEAT, stage=stage) != portal
+    assert wave_look(waves, portal, at, now=128.5, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, at, now=128.5 + throne.PORTAL_OPENS - 0.01, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, at, now=128.5 + throne.PORTAL_OPENS, seat=None, stage=stage) == portal
+
+
+def test_with_baal_on_his_throne_the_portal_stage_clears_the_hall_and_his_wait_counts_from_its_clear():
+    # He left 10-11 s after the fifth wave's last monster died, never with one alive (the four takes); a minion of
+    # Lister's left in the hall is fought, and the BAAL_LEAVES wait counts from the hall's clear
+    from inventory_tracking.macros.goals import USE
+    from inventory_tracking.macros.hunting import throne
+    from inventory_tracking.routes.model import use
+
+    waves = throne.Waves()
+    waves.begin('g')
+    stage = use('Worldstone Chamber', throne.CHAMBER)
+    portal = Goal('Worldstone Chamber', (15090.0, 5005.0), USE, 25.0, PRESSED, route='Baal', stage=stage)
+    at = (15081.0, 5016.0)
+    minion = foe(44, 15095.0, 5040.0, txt_id=571)  # 29 from the seat
+    far = foe(45, 15200.0, 5200.0, txt_id=571)  # off in the level: not the hall's
+    fought = wave_look(waves, portal, at, [minion, far], now=0.0, stage=stage)
+    assert isinstance(fought, Goal)
+    assert (fought.do, fought.unit, fought.clearing) == (FIGHT, 44, True)
+    assert fought.label == 'Worldstone Chamber: the throne hall first (1 left)'
+    assert not waves.due(0.0)  # a fight moves: no wait to cover
+    assert wave_look(waves, portal, at, [far], now=20.0, stage=stage) != portal  # clear from 20 s
+    assert wave_look(waves, portal, at, [far], now=20.0 + throne.BAAL_LEAVES - 0.1, stage=stage) != portal
+    assert wave_look(waves, portal, at, [far], now=20.0 + throne.BAAL_LEAVES, stage=stage) == portal  # whatever
+    # A passed one (the clearing judge's: no progress) does not hold it
+    passed = throne.wave_goal(
+        throne.Waves(), area=throne.THRONE, stage=stage, route='Baal', found=portal, here=at, hostiles=[minion],
+        seat=SEAT, stand=STAND, reach=20.0, spend=PRESSED, now=0.0, passed=lambda m: m.unit_id == 44,
+    )  # fmt: skip
+    assert isinstance(passed, Goal)
+    assert passed.label.endswith(throne.PORTAL_WAIT)
+    # The stage's bound stands whatever the hall holds: the run ends
+    assert wave_look(waves, portal, at, [minion], now=throne.BAAL_LEAVES + throne.PORTAL_SECONDS, stage=stage) is None
+
+
+def test_the_portal_stage_clicks_the_thrones_portal_and_in_the_chamber_baal_is_the_goal():
+    # The portal hop (levels/model.py CLICKED, teleport.py USES[THRONE_PORTAL]) and Baal (544) in the Worldstone
+    # Chamber by the boss lairs' mark (135, 160) of wstone01.ds1
+    from inventory_tracking.game.records import Monster, Thing
+    from inventory_tracking.levels.model import THRONE_PORTAL
+    from inventory_tracking.macros.goals import USE, route_goal
+    from inventory_tracking.macros.teleport import USES, marked_thing
+    from inventory_tracking.routes.catalog import ROUTES
+    from inventory_tracking.routes.model import use
+
+    baal = next(found for found in ROUTES if found.name == 'Baal')
+    throne = next(script for script in baal.scripts if script.area == 131)
+    chamber = next(script for script in baal.scripts if script.area == 132)
+    portal_stage = next(stage for stage in throne.stages if stage.kind == USE)
+    assert portal_stage == use('Worldstone Chamber', 132)
+    card = Target(131, (), (3018.0, 1001.0), 'Worldstone Chamber', 'target', use=THRONE_PORTAL)
+    goal = route_goal((15081.0, 5016.0), spend=PRESSED, reach=20.0, stage=portal_stage, route='Baal', card=card)
+    assert goal is not None
+    assert (goal.do, goal.place, goal.mark) == (USE, (15090.0, 5005.0), card)
+    assert USES[THRONE_PORTAL].leaves  # it took when the level changed
+
+    class Seen:
+        things = staticmethod(lambda: (Thing(9, THRONE_PORTAL, 0, 15090, 5005),))
+
+    found = marked_thing(Seen(), card)  # pyrefly: ignore[bad-argument-type] a stand-in run with the reads only
+    assert found is not None
+    assert found.unit_id == 9
+    fight_baal = next(stage for stage in chamber.stages if stage.kind == FIGHT)
+    mark = Target(132, (), (3027.0, 1176.0), 'Baal', 'target')
+    baal_544 = Monster(77, 544, 1, 15137.0, 5880.0, 0xFFFFFFFF, 0)
+    goal = route_goal(
+        (15173.5, 5888.5), spend=PRESSED, reach=20.0, stage=fight_baal, route='Baal', card=mark, foes=[baal_544]
+    )
+    assert goal is not None
+    assert (goal.do, goal.unit) == (FIGHT, 77)
+
+
+# -- the level's super chests before it is left (the player, ~09:52 on 2026-10-20: "nope, in maggot layer 3 superchest
+# wasn't opened", "in coldworm's room there was a glowing chest - we always should try to open such chests whenever we
+# encountered them"; the take 20261020T065019Z-64) --
+
+COLDWORM = 509  # Act 2 - Lair Tight Spot S: the Staff of Kings' chest at (10, 30) units from its origin
+
+
+def boss_run(monkeypatch, rooms, player):
+    from inventory_tracking.levels.model import Level
+    from inventory_tracking.macros import superchests
+    from inventory_tracking.routes.model import FIGHT
+
+    monkeypatch.setattr(superchests, 'BOOK', superchests.Book())
+    play, hunt, run = agenda_hunt(ON_THE_WAY)
+    hunt.level = lambda: Level(me(play.world).area, rooms, ())
+    run.things = lambda: ()
+    world = replace(play.world, player=replace(me(play.world), x=player[0], y=player[1]))
+    boss = Goal('Coldworm the Burrower', (player[0], player[1] - 200.0), FIGHT, 10.0, PRESSED, route='Maggot Lair')
+    return world, hunt, run, boss
+
+
+def test_a_treasure_rooms_spot_far_off_the_way_is_gone_to_before_the_boss_and_dropped_once_seen_empty(monkeypatch):
+    # 09:50:19-46: the Lair Treasure W spots (17676, 8234) and (17685, 8221) were 97 units east of the way north to
+    # Coldworm, never read, never a goal
+    from inventory_tracking.levels.model import Room
+    from inventory_tracking.macros import superchests
+    from inventory_tracking.macros.goals import REACH
+
+    treasure = Room(LAIR, 996, 1030, 10, 10, 0, (996, 1030, 10, 10))  # spots (5015, 5171) and (5006, 5184)
+    world, hunt, run, boss = boss_run(monkeypatch, (*ROOMS, treasure), (5000.0, 5000.0))
+    goal = hunt.cleared(run, world, [], Ground(()), boss)
+    assert goal is not None
+    assert (goal.do, goal.place) == (REACH, (5015.0, 5171.0))
+    at = replace(world, player=replace(me(world), x=5010.0, y=5178.0))  # both spots in sight: no chest read there
+    assert hunt.cleared(run, at, [], Ground(()), boss) == boss
+    monkeypatch.setattr(superchests, 'LEVEL_SPOTS', False)  # as before: the boss's goal, the spot left
+    world, hunt, run, boss = boss_run(monkeypatch, (*ROOMS, treasure), (5000.0, 5000.0))
+    assert hunt.cleared(run, world, [], Ground(()), boss) == boss
+
+
+def test_the_glowing_staff_chest_in_coldworms_room_is_read_and_opened_after_coldworm(monkeypatch):
+    # 09:50:35-46: the character stood at (17532.5, 8023.5), 23 units from the Staff of Kings' chest on Coldworm's
+    # mark (17510, 8030); class 356 was no class the read took (game/decode.py USED), so nothing saw it
+    from inventory_tracking.game.decode import USED, usable
+    from inventory_tracking.game.records import Thing
+    from inventory_tracking.levels.model import STAFF_CHEST, UNIQUE_CHEST, Room
+    from inventory_tracking.macros.teleport import marked_thing
+    from inventory_tracking.routes.model import FIGHT, USE
+    from tests.inventory_tracking.macros.test_hunt import CHAMPION
+
+    room = Room(COLDWORM, 3500, 1600, 10, 10, 0, (3500, 1600, 10, 10))
+    chest = Thing(2207425023, STAFF_CHEST, 0, 17510.0, 8030.0)
+    assert STAFF_CHEST in USED
+    assert usable(chest)
+    world, hunt, run, boss = boss_run(monkeypatch, (*ROOMS, room), (17532.5, 8023.5))
+    run.things = lambda: (chest,)
+    coldworm = foe(9, 17512.1, 8030.4, flags=CHAMPION)
+    goal = hunt.cleared(run, world, [coldworm], Ground(()), boss)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (FIGHT, 9)  # the boss first, the chest after
+    goal = hunt.cleared(run, world, [], Ground(()), boss)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (USE, chest.unit_id)
+    assert goal.mark is not None
+    assert goal.mark.use == UNIQUE_CHEST
+    assert marked_thing(run, goal.mark) == chest
+    run.things = lambda: (replace(chest, mode=2),)  # opened: the route's own goal again
+    assert hunt.cleared(run, world, [], Ground(()), boss) == boss

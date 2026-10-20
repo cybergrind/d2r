@@ -3,6 +3,8 @@ items.txt row as the bundled metadata names them (items/metadata.py `item_base`)
 
 from dataclasses import replace
 
+import pytest
+
 from inventory_tracking.game.records import GOLD, HEALING, VALUABLE, Drop, Loot, Rolls
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.pickmode import (
@@ -108,7 +110,7 @@ def test_the_ground_census_says_what_an_item_is_and_whether_a_rule_takes_it():
     )
 
 
-ABYSS, HEX_PURGE, CONSUME, PSYCHIC_WARD = 402, 389, 381, 387  # skills metadata ids
+ABYSS, HEX_PURGE, APOCALYPSE, CONSUME, PSYCHIC_WARD = 402, 389, 401, 381, 387  # skills metadata ids
 
 
 def test_a_white_void_base_is_taken_only_with_three_sockets_and_a_paid_staff_mod_at_three():
@@ -129,6 +131,20 @@ def test_a_white_void_base_is_taken_only_with_three_sockets_and_a_paid_staff_mod
     assert not is_candidate(replace(kriss, rolls=Rolls(3)))  # no staff mod
     assert not is_candidate(kriss)  # unread: not taken
     assert not sure(replace(kriss, rolls=Rolls(1, ((ABYSS, 3),))))
+
+
+def test_a_three_socket_dagger_with_plus_three_apocalypse_is_a_sure_valuable():
+    # The player, 08:42 on 2026-10-20: "+3os daggers with +3 apocalypse"; Q9 as recommended (loot/design.md §8): "only
+    # +3 Abyss / Hex: Purge / Apocalypse". Apocalypse 401 in third-parties/d2data/json/skills.json (charclass war)
+    for name, quality in (('Legend Spike', 2), ('Fanged Knife', 3), ('Cinquedeas', 2)):
+        dagger = replace(drop(name, source='shown', quality=quality), rolls=Rolls(3, ((APOCALYPSE, 3),)))
+        assert sure(dagger), name  # taken at the default GOOD level, kept without an identify
+        assert kept(Loot(drops=(dagger,)), SURE).drops == (dagger,)
+    legend = drop('Legend Spike', source='shown', quality=2)
+    assert not sure(replace(legend, rolls=Rolls(3, ((APOCALYPSE, 2),))))  # +2: not paid
+    assert not sure(replace(legend, rolls=Rolls(2, ((APOCALYPSE, 3),))))  # Void needs exactly three
+    assert not sure(replace(legend, rolls=Rolls(0, ((APOCALYPSE, 3),))))  # 0os: only +3 Abyss waits for Larzuk
+    assert not sure(replace(drop('Dagger', source='shown', quality=2), rolls=Rolls(3, ((APOCALYPSE, 3),))))
 
 
 def test_the_candidates_for_an_identify_are_skilled_magic_or_rare_items_the_filter_shows_and_white_void_bases():
@@ -158,6 +174,7 @@ def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():
     assert is_candidate(replace(monarch, rolls=Rolls(4, defense=15)))
     assert is_candidate(replace(monarch, rolls=Rolls(0, defense=15)))  # Larzuk's sockets
     assert not is_candidate(replace(monarch, rolls=Rolls(4, defense=12)))  # asked 2 Ist
+    assert not is_candidate(replace(monarch, rolls=Rolls(4, defense=None)))  # ED unread: not taken
     assert not is_candidate(replace(monarch, quality=2, rolls=Rolls(4)))  # a white 4os asked 0.79
     assert is_candidate(replace(monarch, quality=4, rolls=Rolls(4)))  # magic 4os: identified, then appraised
     assert not is_candidate(replace(monarch, quality=4, rolls=Rolls(2)))
@@ -172,3 +189,29 @@ def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():
     assert not is_candidate(replace(rondache, rolls=Rolls(3, resists=45)))
     assert not is_candidate(replace(rondache, rolls=Rolls(4, resists=44)))
     assert not is_candidate(targe)  # unread: not taken
+
+
+@pytest.mark.parametrize('broken', [False, True])
+def test_the_loot_shadow_logs_beside_the_look_and_never_changes_what_it_takes(monkeypatch, caplog, broken):
+    # loot/design.md §7 M1: the new ground verdicts logged once per item beside the mode's; a broken shadow changes
+    # nothing either
+    import inventory_tracking.loot.shadow as shadow_module
+
+    shadow = shadow_module.Shadow(shadow_module.Book())
+    if broken:
+        monkeypatch.setattr(shadow, '_ground', lambda *args: 1 / 0)
+    monkeypatch.setattr(shadow_module, 'SHADOW', shadow)
+    monarch = Drop(5, 0.0, 0.0, 'Monarch', VALUABLE, (2, 3), prized=False, source='shown', txt=447, quality=4,
+                   rolls=Rolls(0))  # fmt: skip
+    gold = Drop(6, 0.0, 0.0, 'Gold', GOLD, source='', txt=538)
+    loot = Loot(drops=(monarch, gold), game=('game-1', 7))
+
+    with caplog.at_level('INFO'):
+        first, again = kept(loot, SURE), kept(loot, SURE)
+
+    assert first.drops == again.drops == (gold,)  # the magic Monarch left, as before
+    if broken:
+        assert caplog.text.count('Macro: loot: shadow: ground failed (ZeroDivisionError') == 1
+    else:
+        lines = [r.message for r in caplog.records if r.message.startswith('Macro: loot: shadow: ground:')]
+        assert lines == ['Macro: loot: shadow: ground: magic Monarch: new pick G6 identify / old leave (differ)']

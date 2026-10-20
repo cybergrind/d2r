@@ -196,6 +196,16 @@ GROUND = re.compile(
 #     no sale is made
 TOWN_DROP = re.compile(r'Macro: inventory: \d+ \(\d+\) at \(\d+, \d+\) dropped in town')
 
+# An item the loop picked for the field identify, identified and put down at its feet (loot/api.py `Field`, M4 since
+# 2026-10-20; cube.py `drop_item`): the census sees it lying there just after this line, and it is no miss either. Its
+# decision is the line before it (`Macro: loot: field: <item> (unit N): drop K8 ...`).
+# 2026-10-20 12:00:00,000 INFO Macro: inventory: 447 (1728653239) at (3, 0) dropped in the field: K8 worthless (no
+#     price, worthless, verdict vendor), no want
+FIELD_DROP = re.compile(r'Macro: inventory: \d+ \(\d+\) at \(\d+, \d+\) dropped in the field')
+# The field identify's summary (loot/api.py `Field.settle`): '<site>: N identified, D dropped, K kept[, W wait ...]'
+# 2026-10-20 12:00:00,100 INFO Macro: loot: field: Town Portal: 1 identified, 1 dropped, 0 kept
+FIELD_SETTLED = re.compile(r'Macro: loot: field: (.+?): (\d+) identified, (\d+) dropped, (\d+) kept')
+
 # An item picked up: (its label). pickup.py click `'Macro: picked up %s %.2fs after the click %s pixels from its
 # ground, ...'`, and pickup.py late `'Macro: picked up %s %.2fs after the click, late: ...'` (said so for this
 # pattern: pickup.py's docstring).

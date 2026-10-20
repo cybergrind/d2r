@@ -1,0 +1,2521 @@
+{
+  "_meta": {
+    "built_by": "uv run --offline python -m inventory_tracking.loot.build_wants",
+    "design": "inventory_tracking/loot/design.md \u00a74.4",
+    "asks": "pricing/data/wp-b-prices.json (Traderie asks SC/NL/PC/RotW, pulled 2026-09-18)",
+    "own_use": "pricing/data/triage/own.json (reviewed 2026-10-06)"
+  },
+  "rows": [
+    {
+      "id": "merc-polearm-eth-4os-superior",
+      "class": "G3",
+      "who": "merc",
+      "label": "Insight / Infinity base: eth 4os Superior merc polearm",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:291",
+      "codes": [
+        "7br",
+        "7h7",
+        "7pa",
+        "7s8",
+        "7vo",
+        "7wc"
+      ],
+      "bases": [
+        "Thresher",
+        "Giant Thresher",
+        "Cryptic Axe",
+        "Great Poleaxe",
+        "Colossus Voulge",
+        "Mancatcher"
+      ],
+      "asks": {
+        "min_ist": 57.105,
+        "median_ist": 85.657,
+        "n": 10,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#giant-thresher/4os/eth/superior"
+      }
+    },
+    {
+      "id": "merc-insight-gt-eth-4os",
+      "class": "G3",
+      "who": "merc",
+      "label": "Insight base: eth 4os Giant Thresher",
+      "qualities": [
+        "normal"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "source": "guides/pindle-anya.html:291; guides/warlock.html:166",
+      "codes": [
+        "7wc"
+      ],
+      "bases": [
+        "Giant Thresher"
+      ],
+      "asks": {
+        "min_ist": 5.885,
+        "median_ist": 11.421,
+        "n": 20,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#giant-thresher/4os/eth/normal"
+      }
+    },
+    {
+      "id": "merc-polearm-eth-4os-plain",
+      "class": "G3",
+      "who": "trade",
+      "label": "eth 4os plain merc polearm (sell)",
+      "qualities": [
+        "normal"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "source": "guides/pindle-anya.html:291",
+      "codes": [
+        "7br",
+        "7h7",
+        "7pa",
+        "7s8",
+        "7vo"
+      ],
+      "bases": [
+        "Thresher",
+        "Cryptic Axe",
+        "Great Poleaxe",
+        "Colossus Voulge",
+        "Mancatcher"
+      ],
+      "asks": {
+        "min_ist": 2.585,
+        "median_ist": 8.106,
+        "n": 13,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#thresher/4os/eth/normal"
+      }
+    },
+    {
+      "id": "merc-polearm-eth-0os-superior-15ed",
+      "class": "G3",
+      "who": "trade",
+      "label": "eth 0os Superior 15 ED Giant Thresher / Great Poleaxe",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:291",
+      "codes": [
+        "7h7",
+        "7wc"
+      ],
+      "bases": [
+        "Giant Thresher",
+        "Great Poleaxe"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 10.37,
+        "n": 4,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#giant-thresher/0os/eth/superior/15ed"
+      }
+    },
+    {
+      "id": "merc-polearm-eth-6os-superior-15ed",
+      "class": "G3",
+      "who": "trade",
+      "label": "eth 6os Superior 15 ED Giant Thresher / Great Poleaxe",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            6
+          ]
+        },
+        {
+          "key": "17:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:291",
+      "codes": [
+        "7h7",
+        "7wc"
+      ],
+      "bases": [
+        "Giant Thresher",
+        "Great Poleaxe"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 85.657,
+        "n": 9,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#giant-thresher/6os/eth/superior/15ed"
+      }
+    },
+    {
+      "id": "merc-fortitude-dusk-eth-4os",
+      "class": "G4",
+      "who": "merc",
+      "label": "Fortitude base: eth 4os Dusk Shroud",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "source": "guides/warlock.html:139",
+      "codes": [
+        "uui"
+      ],
+      "bases": [
+        "Dusk Shroud"
+      ],
+      "asks": {
+        "min_ist": 0.25,
+        "median_ist": 0.789,
+        "n": 5,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#dusk-shroud/4os/eth/normal"
+      }
+    },
+    {
+      "id": "merc-coh-archon-eth-4os",
+      "class": "G4",
+      "who": "merc",
+      "label": "CoH / Fortitude base: eth 4os Archon Plate",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "source": "guides/warlock.html:139; guides/pindle-anya.html:286",
+      "codes": [
+        "utp"
+      ],
+      "bases": [
+        "Archon Plate"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 9.32,
+        "n": 3,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#archon-plate/4os/eth/normal"
+      }
+    },
+    {
+      "id": "archon-eth",
+      "class": "G4",
+      "who": "merc",
+      "label": "any eth Archon Plate",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        }
+      ],
+      "source": "guides/pindle-anya.html:286",
+      "codes": [
+        "utp"
+      ],
+      "bases": [
+        "Archon Plate"
+      ],
+      "asks": null
+    },
+    {
+      "id": "archon-superior-15ed",
+      "class": "G4",
+      "who": "runeword-base",
+      "label": "Enigma / CoH base: Superior 15 ED Archon Plate 0/3/4os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:286",
+      "codes": [
+        "utp"
+      ],
+      "bases": [
+        "Archon Plate"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 22.842,
+        "n": 8,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#archon-plate/0os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "dusk-wire-superior-15ed",
+      "class": "G4",
+      "who": "runeword-base",
+      "label": "Superior 15 ED Dusk Shroud / Wire Fleece 3/4os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            3,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            3,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:286",
+      "codes": [
+        "utu",
+        "uui"
+      ],
+      "bases": [
+        "Dusk Shroud",
+        "Wire Fleece"
+      ],
+      "asks": null
+    },
+    {
+      "id": "enigma-mage-plate-superior-15ed",
+      "class": "G4",
+      "who": "runeword-base",
+      "label": "Enigma base: Superior 15 ED Mage Plate 0/3os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            3
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:287",
+      "codes": [
+        "xtp"
+      ],
+      "bases": [
+        "Mage Plate"
+      ],
+      "asks": {
+        "min_ist": 0.789,
+        "median_ist": 9.32,
+        "n": 14,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#mage-plate/3os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "merc-sacred-armor-eth",
+      "class": "G4",
+      "who": "merc",
+      "label": "eth Sacred Armor 0/4os",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        }
+      ],
+      "source": "guides/pindle-anya.html:286",
+      "codes": [
+        "uar"
+      ],
+      "bases": [
+        "Sacred Armor"
+      ],
+      "asks": null
+    },
+    {
+      "id": "spirit-monarch-superior-15ed",
+      "class": "G5",
+      "who": "runeword-base",
+      "label": "Spirit base: Superior 15 ED Monarch 0/4os",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0,
+            4
+          ]
+        },
+        {
+          "key": "16:0",
+          "min": 15
+        }
+      ],
+      "matters": [
+        {
+          "key": "16:0",
+          "label": "Enhanced Defense (superior)",
+          "low": 1,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pindle-anya.html:288",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 17.131,
+        "n": 4,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#monarch/4os/noneth/superior/15ed"
+      }
+    },
+    {
+      "id": "spirit-monarch-plain-4os",
+      "class": "G5",
+      "who": "warlock",
+      "label": "Spirit base: plain 4os Monarch",
+      "qualities": [
+        "normal"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "source": "guides/pindle-anya.html:288; guides/warlock.html:156",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": {
+        "min_ist": 0.417,
+        "median_ist": 0.789,
+        "n": 19,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#monarch/4os/noneth/normal"
+      }
+    },
+    {
+      "id": "monarch-of-deflecting-4os",
+      "class": "G6",
+      "who": "trade",
+      "label": "Jeweler's Monarch of Deflecting (4os)",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        },
+        {
+          "key": "20:0",
+          "min": 20
+        },
+        {
+          "key": "102:0",
+          "min": 30
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "source": "guides/pricing.html:331; guides/pindle-anya.html:296; third-parties/d2data/json/magicsuffix.json:2990",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": {
+        "min_ist": 74.56,
+        "median_ist": 114.21,
+        "n": 17,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#_blues/Jeweler's Monarch of Deflecting (4os magic, 30 FBR/20 block)"
+      }
+    },
+    {
+      "id": "monarch-jewelers-4os",
+      "class": "G6",
+      "who": "trade",
+      "label": "Jeweler's Monarch (4os, any suffix)",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must_have": true,
+      "source": "guides/pindle-anya.html:296",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 71.543,
+        "n": 50,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#_blues/Monarch 4os magic, any affix (context)"
+      }
+    },
+    {
+      "id": "monarch-of-deflecting-3os",
+      "class": "G6",
+      "who": "trade",
+      "label": "Monarch of Deflecting (3os)",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            3
+          ]
+        },
+        {
+          "key": "20:0",
+          "min": 20
+        },
+        {
+          "key": "102:0",
+          "min": 30
+        }
+      ],
+      "source": "guides/pricing.html:199; third-parties/d2data/json/magicsuffix.json:2990",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": {
+        "min_ist": 5.885,
+        "median_ist": 5.885,
+        "n": 1,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#monarch/3os/noneth/magic"
+      }
+    },
+    {
+      "id": "elite-armor-magic-identify",
+      "class": "G12",
+      "who": "trade",
+      "label": "every magic elite armor and Sacred Targe: identified, then judged",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:296",
+      "codes": [
+        "pab",
+        "uar",
+        "utp",
+        "utu",
+        "uui"
+      ],
+      "bases": [
+        "Archon Plate",
+        "Dusk Shroud",
+        "Wire Fleece",
+        "Sacred Armor",
+        "Sacred Targe"
+      ],
+      "asks": null
+    },
+    {
+      "id": "monarch-magic-identify",
+      "class": "G6",
+      "who": "trade",
+      "label": "every magic Monarch: identified, then judged",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:296",
+      "codes": [
+        "uit"
+      ],
+      "bases": [
+        "Monarch"
+      ],
+      "asks": null
+    },
+    {
+      "id": "sacred-targe-45-res",
+      "class": "G7",
+      "who": "trade",
+      "label": "Sacred Targe 45 all res",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        }
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        }
+      ],
+      "matters": [
+        {
+          "key": "39:0",
+          "label": "All Resistances",
+          "low": 30,
+          "high": 45,
+          "good": 45
+        }
+      ],
+      "source": "guides/pindle-anya.html:289",
+      "codes": [
+        "pab"
+      ],
+      "bases": [
+        "Sacred Targe"
+      ],
+      "asks": {
+        "min_ist": 5.885,
+        "median_ist": 18.478,
+        "n": 9,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#sacred-targe/0os/noneth/normal/res45"
+      }
+    },
+    {
+      "id": "sacred-targe-40-res-3os",
+      "class": "G7",
+      "who": "trade",
+      "label": "Sacred Targe 40-44 all res, 3+os",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 40
+        },
+        {
+          "key": "194:0",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 40
+        },
+        {
+          "key": "194:0",
+          "min": 3
+        }
+      ],
+      "source": "guides/pindle-anya.html:289; inventory_tracking/macros/pickmode.py:75",
+      "codes": [
+        "pab"
+      ],
+      "bases": [
+        "Sacred Targe"
+      ],
+      "asks": null
+    },
+    {
+      "id": "sacred-rondache-45-4os",
+      "class": "G7",
+      "who": "trade",
+      "label": "Sacred Rondache 45 all res 4os",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "source": "guides/pindle-anya.html:289",
+      "codes": [
+        "pac"
+      ],
+      "bases": [
+        "Sacred Rondache"
+      ],
+      "asks": null
+    },
+    {
+      "id": "sacred-rondache-45-eth",
+      "class": "G7",
+      "who": "trade",
+      "label": "Sacred Rondache 45 all res eth",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        },
+        {
+          "key": "ethereal",
+          "equals": true
+        }
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        },
+        {
+          "key": "ethereal",
+          "equals": true
+        }
+      ],
+      "source": "inventory_tracking/macros/pickmode.py:135",
+      "codes": [
+        "pac"
+      ],
+      "bases": [
+        "Sacred Rondache"
+      ],
+      "asks": null
+    },
+    {
+      "id": "sacred-rondache-45-superior",
+      "class": "G7",
+      "who": "trade",
+      "label": "Superior Sacred Rondache 45 all res",
+      "qualities": [
+        "superior"
+      ],
+      "ground": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        }
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 45
+        }
+      ],
+      "source": "guides/pindle-anya.html:289",
+      "codes": [
+        "pac"
+      ],
+      "bases": [
+        "Sacred Rondache"
+      ],
+      "asks": null
+    },
+    {
+      "id": "void-dagger-3os-plus3",
+      "class": "G8",
+      "who": "warlock",
+      "label": "Void base: 3os elite-line dagger, +3 Abyss / Hex: Purge / Apocalypse",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            3
+          ]
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:401"
+          ],
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            3
+          ]
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:401"
+          ],
+          "min": 3
+        }
+      ],
+      "matters": [
+        {
+          "key": "107:389",
+          "label": "+3 Hex: Purge",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:402",
+          "label": "+3 Abyss",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        },
+        {
+          "key": "107:401",
+          "label": "+3 Apocalypse",
+          "low": 1,
+          "high": 3,
+          "good": 3
+        }
+      ],
+      "source": "guides/pricing.html:330; guides/pindle-anya.html:294; inventory_tracking/macros/pickmode.py:66",
+      "codes": [
+        "7bl",
+        "7kr",
+        "9bl",
+        "9kr",
+        "bld",
+        "kri"
+      ],
+      "bases": [
+        "Kriss",
+        "Blade",
+        "Cinquedeas",
+        "Stilleto",
+        "Fanged Knife",
+        "Legend Spike"
+      ],
+      "asks": {
+        "min_ist": 4.053,
+        "median_ist": 17.306,
+        "n": 37,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#legend-spike/3os/noneth/normal/affixed"
+      }
+    },
+    {
+      "id": "void-dagger-0os-plus3-abyss",
+      "class": "G8",
+      "who": "warlock",
+      "label": "0os elite-line dagger with +3 Abyss (Larzuk)",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "107:402",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "107:402",
+          "min": 3
+        }
+      ],
+      "source": "inventory_tracking/macros/pickmode.py:68",
+      "codes": [
+        "7bl",
+        "7kr",
+        "9bl",
+        "9kr",
+        "bld",
+        "kri"
+      ],
+      "bases": [
+        "Kriss",
+        "Blade",
+        "Cinquedeas",
+        "Stilleto",
+        "Fanged Knife",
+        "Legend Spike"
+      ],
+      "asks": null
+    },
+    {
+      "id": "warlock-class-item-identify",
+      "class": "G9",
+      "who": "warlock",
+      "label": "every magic / rare dagger and grimoire: identified, then judged",
+      "types": [
+        "knif",
+        "grim"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:298",
+      "asks": null
+    },
+    {
+      "id": "warlock-plus2-dagger-grimoire",
+      "class": "G9",
+      "who": "warlock",
+      "label": "+2 Warlock dagger / grimoire",
+      "types": [
+        "knif",
+        "grim"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": [
+        {
+          "key": "83:7",
+          "min": 2
+        }
+      ],
+      "source": "guides/pricing.html:346; guides/pricing.html:349",
+      "asks": null
+    },
+    {
+      "id": "warlock-grimoire-plus3-tree",
+      "class": "G9",
+      "who": "warlock",
+      "label": "magic grimoire +3 to a Warlock tree",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "keys": [
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "guides/pricing.html:347",
+      "asks": null
+    },
+    {
+      "id": "circlet-identify",
+      "class": "G10",
+      "who": "warlock",
+      "label": "every magic / rare circlet: identified, then judged",
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:297",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
+      "id": "warlock-circlet-fcr-plus2",
+      "class": "G10",
+      "who": "warlock",
+      "label": "Warlock helm: circlet 20 FCR with +2 Warlock or +3 Eldritch",
+      "qualities": [
+        "magic",
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 20
+        }
+      ],
+      "any": [
+        {
+          "key": "83:7",
+          "min": 2
+        },
+        {
+          "key": "188:57",
+          "min": 3
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "105:0",
+          "label": "Faster Cast Rate",
+          "low": 10,
+          "high": 20,
+          "good": 20
+        }
+      ],
+      "source": "guides/warlock.html:158; guides/pricing.html:332; guides/pricing.html:233",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
+      "id": "ring-dual-leech-fcr",
+      "class": "G11",
+      "who": "trade",
+      "label": "ring: 10 FCR, life leech and mana leech",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "60:0",
+          "min": 1
+        },
+        {
+          "key": "62:0",
+          "min": 1
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "60:0",
+          "label": "Life stolen",
+          "low": 1,
+          "high": 9
+        },
+        {
+          "key": "62:0",
+          "label": "Mana stolen",
+          "low": 1,
+          "high": 6
+        }
+      ],
+      "source": "guides/pricing.html:230; guides/pricing.html:232",
+      "codes": [
+        "rin"
+      ],
+      "bases": [
+        "Ring"
+      ],
+      "asks": null
+    },
+    {
+      "id": "warlock-ring-fcr-res-life",
+      "class": "G11",
+      "who": "warlock",
+      "label": "Warlock ring: 10 FCR, res and life",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 1,
+          "scale": 256
+        }
+      ],
+      "always_keep": true,
+      "source": "guides/warlock.html:164; guides/pricing.html:230",
+      "codes": [
+        "rin"
+      ],
+      "bases": [
+        "Ring"
+      ],
+      "asks": null
+    },
+    {
+      "id": "warlock-amulet-plus2-fcr",
+      "class": "G11",
+      "who": "warlock",
+      "label": "Warlock amulet: +2 Warlock and 10 FCR",
+      "qualities": [
+        "magic",
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "83:7",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        }
+      ],
+      "always_keep": true,
+      "source": "guides/warlock.html:163; guides/pricing.html:229",
+      "codes": [
+        "amu"
+      ],
+      "bases": [
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "id": "rare-amulet-fcr-life-skills",
+      "class": "G11",
+      "who": "trade",
+      "label": "rare / crafted amulet with any FCR, any life or +2 skills",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [],
+      "any": [
+        {
+          "key": "105:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 1,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "127:0",
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7"
+          ],
+          "min": 2
+        }
+      ],
+      "always_keep": true,
+      "source": "inventory_tracking/macros/keepers.py:3",
+      "codes": [
+        "amu"
+      ],
+      "bases": [
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "id": "jewelry-identify",
+      "class": "G11",
+      "who": "trade",
+      "label": "every magic+ ring and amulet: identified",
+      "qualities": [
+        "magic",
+        "rare",
+        "crafted",
+        "set",
+        "unique"
+      ],
+      "then": "identify",
+      "source": "guides/pindle-anya.html:299",
+      "codes": [
+        "amu",
+        "rin"
+      ],
+      "bases": [
+        "Ring",
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "id": "jewelers-archon-of-the-whale",
+      "class": "G12",
+      "who": "merc",
+      "label": "Jeweler's Archon Plate of the Whale (4os, life 90-100)",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 90,
+          "scale": 256
+        }
+      ],
+      "always_keep": true,
+      "must_have": true,
+      "matters": [
+        {
+          "key": "7:0",
+          "label": "Life",
+          "low": 81,
+          "high": 100,
+          "good": 90,
+          "scale": 256
+        }
+      ],
+      "source": "guides/pindle-anya.html:296",
+      "codes": [
+        "utp"
+      ],
+      "bases": [
+        "Archon Plate"
+      ],
+      "asks": {
+        "min_ist": 57.105,
+        "median_ist": 342.63,
+        "n": 10,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#_blues/Jeweler's Archon Plate of the Whale (4os magic, +life 90-100)"
+      }
+    },
+    {
+      "id": "jewelers-elite-armor-4os",
+      "class": "G12",
+      "who": "trade",
+      "label": "Jeweler's elite armor (4os magic Archon / Dusk / Wire / Sacred Armor)",
+      "qualities": [
+        "magic"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must_have": true,
+      "source": "guides/pindle-anya.html:296",
+      "codes": [
+        "uar",
+        "utp",
+        "utu",
+        "uui"
+      ],
+      "bases": [
+        "Archon Plate",
+        "Dusk Shroud",
+        "Wire Fleece",
+        "Sacred Armor"
+      ],
+      "asks": {
+        "min_ist": 11.421,
+        "median_ist": 91.368,
+        "n": 29,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#_blues/Archon Plate 4os magic, any affix (context)"
+      }
+    },
+    {
+      "id": "warlock-skiller-gc",
+      "class": "G12",
+      "who": "warlock",
+      "label": "Warlock skiller grand charm",
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "keys": [
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 1
+        }
+      ],
+      "source": "guides/warlock.html:165; guides/pindle-anya.html:303",
+      "codes": [
+        "cm3"
+      ],
+      "bases": [
+        "Grand Charm"
+      ],
+      "asks": null
+    },
+    {
+      "id": "own-0-harlequin-crest",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike helm: Harlequin Crest",
+      "names": [
+        "Harlequin Crest"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-1-arachnid-mesh",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike belt: Arachnid Mesh",
+      "names": [
+        "Arachnid Mesh"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-2-the-stone-of-jordan",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike ring: The Stone of Jordan",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-3-bul-kathos-wedding-band",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike ring: Bul-Kathos' Wedding Band",
+      "names": [
+        "Bul-Kathos' Wedding Band"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-4-entropy-locket",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike amulet: Entropy Locket",
+      "names": [
+        "Entropy Locket"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-5-hellwarden-s-will",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike helm: Hellwarden's Will",
+      "names": [
+        "Hellwarden's Will"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-6-mara-s-kaleidoscope",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike resistance amulet: Mara's Kaleidoscope",
+      "names": [
+        "Mara's Kaleidoscope"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s0"
+    },
+    {
+      "id": "own-7-trang-oul-s-claws",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike 20 FCR gloves: Trang-Oul's Claws",
+      "names": [
+        "Trang-Oul's Claws"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-8-magefist",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike 20 FCR gloves: Magefist",
+      "names": [
+        "Magefist"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-9-natalya-s-soul",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike movement and lightning-resist boots: Natalya's Soul",
+      "names": [
+        "Natalya's Soul"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s0"
+    },
+    {
+      "id": "own-10-waterwalk",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide boot alternative: Waterwalk",
+      "names": [
+        "Waterwalk"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-11-sandstorm-trek",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide boot alternative: Sandstorm Trek",
+      "names": [
+        "Sandstorm Trek"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-12-war-traveler",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide boot alternative: War Traveler",
+      "names": [
+        "War Traveler"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-13-aldur-s-advance",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide boot alternative: Aldur's Advance",
+      "names": [
+        "Aldur's Advance"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-14-silkweave",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide boot alternative: Silkweave",
+      "names": [
+        "Silkweave"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-30-lidless-wall",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike buff-swap shield: Lidless Wall",
+      "names": [
+        "Lidless Wall"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-31-annihilus",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike inventory charm: Annihilus",
+      "names": [
+        "Annihilus"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-32-gheed-s-fortune",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike inventory charm: Gheed's Fortune",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-33-renewed-bone-break",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike inventory charm: Renewed Bone Break",
+      "names": [
+        "Renewed Bone Break"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-34-hellfire-torch",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike Warlock torch: Hellfire Torch",
+      "names": [
+        "Hellfire Torch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-73-andariel-s-visage",
+      "class": "own",
+      "who": "merc",
+      "label": "Act 2 mercenary helm upgrade: Andariel's Visage",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s0-1"
+    },
+    {
+      "id": "own-74-guillaume-s-face",
+      "class": "own",
+      "who": "merc",
+      "label": "Act 2 mercenary helm upgrade: Guillaume's Face",
+      "names": [
+        "Guillaume's Face"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s0-1"
+    },
+    {
+      "id": "own-75-sazabi-s-mental-sheath",
+      "class": "own",
+      "who": "merc",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set: Sazabi's Mental Sheath",
+      "names": [
+        "Sazabi's Mental Sheath"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1; guides/pricing.html#s8"
+    },
+    {
+      "id": "own-76-sazabi-s-ghost-liberator",
+      "class": "own",
+      "who": "merc",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set: Sazabi's Ghost Liberator",
+      "names": [
+        "Sazabi's Ghost Liberator"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1; guides/pricing.html#s8"
+    },
+    {
+      "id": "own-77-sazabi-s-cobalt-redeemer",
+      "class": "own",
+      "who": "merc",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set: Sazabi's Cobalt Redeemer",
+      "names": [
+        "Sazabi's Cobalt Redeemer"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1; guides/pricing.html#s8"
+    },
+    {
+      "id": "own-86-crown-of-ages",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike defensive helm alternative: Crown of Ages",
+      "names": [
+        "Crown of Ages"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-87-skin-of-the-vipermagi",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike resistance / FCR body alternative: Skin of the Vipermagi",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-88-skullder-s-ire",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find body alternative: Skullder's Ire",
+      "names": [
+        "Skullder's Ire"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-89-tal-rasha-s-guardianship",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find body alternative: Tal Rasha's Guardianship",
+      "names": [
+        "Tal Rasha's Guardianship"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-90-chance-guards",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find gloves: Chance Guards",
+      "names": [
+        "Chance Guards"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-91-goldwrap",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find belt: Goldwrap",
+      "names": [
+        "Goldwrap"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-92-blade-of-ali-baba",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike gold-find swap: Blade of Ali Baba",
+      "names": [
+        "Blade of Ali Baba"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-93-gull",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find swap: Gull",
+      "names": [
+        "Gull"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-94-naj-s-puzzler",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike teleport-charge swap before Enigma: Naj's Puzzler",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-95-tomb-reaver",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide weapon alternative: Tomb Reaver",
+      "names": [
+        "Tomb Reaver"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-96-arioc-s-needle",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide weapon alternative: Arioc's Needle",
+      "names": [
+        "Arioc's Needle"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-97-mang-song-s-lesson",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide caster staff alternative: Mang Song's Lesson",
+      "names": [
+        "Mang Song's Lesson"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-98-ondal-s-wisdom",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike guide caster staff alternative: Ondal's Wisdom",
+      "names": [
+        "Ondal's Wisdom"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-99-skull-collector",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike magic-find staff alternative: Skull Collector",
+      "names": [
+        "Skull Collector"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    },
+    {
+      "id": "own-100-suicide-branch",
+      "class": "own",
+      "who": "warlock",
+      "label": "Echoing Strike FCR caster weapon alternative: Suicide Branch",
+      "names": [
+        "Suicide Branch"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": false
+        }
+      ],
+      "asks": null,
+      "source": "pricing/data/triage/own.json; guides/warlock.html#s1"
+    }
+  ]
+}

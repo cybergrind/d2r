@@ -19,6 +19,8 @@ from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.loot.api import FIELD, settle
+from inventory_tracking.loot.hands import GameHands
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
@@ -186,6 +188,9 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             run.supers = self.supers
             run.ending = self.progress.ending if self.progress is not None else None
             run.ground = self.ground
+            # The field identify (loot/api.py, M4 of loot/design.md): only in the KP_6 loop, at its sites (`settle`)
+            FIELD.looping = lambda: self.loop.on
+            run.field = lambda when: FIELD.settle(field_hands(self, run), when)
             self.play_by(run, actuator, routine)
             mark('ready')
             try:
@@ -197,6 +202,19 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
         memory.close()
         if press is not None:
             press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))
+
+
+def field_hands(self: MacroRunner, run: Run) -> GameHands:
+    """The field routine's hands over `run` (loot/hands.py): the loop's cells (`Loop.own`), the identify worker's
+    appraisal, the runner's put-downs."""
+
+    def inventory_key() -> str | None:
+        player = run.world().player
+        return action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
+
+    return GameHands(
+        run, inventory_key=inventory_key, own=lambda pack: self.loop.own, appraise=self.appraise, put_down=self.put_down
+    )
 
 
 def play_by(self: MacroRunner, run: Run, actuator: Actuator, routine: str) -> None:
@@ -277,6 +295,7 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             key = action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
             if key is not None and self.loop.own is not None:
                 try:
+                    settle(run, 'room')  # the field identify's failures put down first (loot/design.md §2.4)
                     # A key stack out of the 2 x 4 block first: the room is often there already, in pieces
                     arrange_keys(run, key)
                     stash(run, key, self.loop.own)  # the loop's items into the cube: room for what lies there

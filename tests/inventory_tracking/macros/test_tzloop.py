@@ -735,17 +735,25 @@ def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never
     assert hunt.cleared(run, play.world, [], Ground(()), door) == door
 
 
-def test_a_super_chest_far_off_is_no_detour_for_the_agenda_run():
+def test_a_super_chest_far_off_is_opened_before_the_level_is_left_and_no_detour_with_the_level_spots_off(monkeypatch):
+    # The player, 2026-10-20: "we always should try to open such chests whenever we encountered them"
+    # (macros/superchests.py LEVEL_SPOTS); before, one past CHEST_NEAR was no detour the metric paid for
     from inventory_tracking.game.records import Thing
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
+    from inventory_tracking.macros import superchests
     from inventory_tracking.macros.agenda import CHEST_NEAR
     from inventory_tracking.macros.goals import PLACE_NEAR, Goal
     from inventory_tracking.macros.travel import PRESSED
-    from inventory_tracking.routes.model import ENTER
+    from inventory_tracking.routes.model import ENTER, USE
 
+    monkeypatch.setattr(superchests, 'BOOK', superchests.Book())
     play, hunt, run = agenda_hunt(ON_THE_WAY)
     door = Goal('Next level', (5000.0, 5300.0), ENTER, PLACE_NEAR, PRESSED, route='Andariel')
     play.thing = Thing(70, SUPER_CHEST, 0, 5000.0 + CHEST_NEAR + 5.0, 5000.0, True)
+    goal = hunt.cleared(run, play.world, [], Ground(()), door)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (USE, 70)
+    monkeypatch.setattr(superchests, 'LEVEL_SPOTS', False)
     assert hunt.cleared(run, play.world, [], Ground(()), door) == door
 
 
@@ -1047,3 +1055,32 @@ def test_an_elite_outside_this_levels_rooms_is_no_agenda_target():
     target = hunt.agenda_target(run, play.world, [inside, across], here, frozenset(), ROOMS, None)
     assert target is not None
     assert target.unit == 31
+
+
+def test_the_players_own_input_is_no_failure_of_the_leg(monkeypatch):
+    # 09:54:25-09:54:28 on 2026-10-20: three mouse moves of the player in a second each stopped the town visit, the
+    # agenda dropped it (TRIES) and made a Save and Exit under the player's hand
+    from inventory_tracking.macros.actuator import Hand
+    from inventory_tracking.macros.agenda import TRIES
+
+    game = Script(37, monkeypatch)
+    agenda = game.loop.agenda
+    agenda.begin('g')
+
+    def moved(*_args, **_kwargs):
+        raise Hand('the mouse was moved')
+
+    monkeypatch.setattr(game.loop, 'leave', moved)
+    for _ in range(TRIES + 1):
+        with pytest.raises(Hand):
+            tzloop.perform(game.loop, game.play.run(), keys, game.progress, LEAVING, game.hands())
+    assert not agenda.failures[LEAVING.key]
+    assert LEAVING.key not in agenda.dropped
+
+    def stopped(*_args, **_kwargs):
+        raise Abort('not in the lobby')
+
+    monkeypatch.setattr(game.loop, 'leave', stopped)
+    with pytest.raises(Abort):
+        tzloop.perform(game.loop, game.play.run(), keys, game.progress, LEAVING, game.hands())
+    assert agenda.failures[LEAVING.key] == 1  # any other stop still counts

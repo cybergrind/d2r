@@ -460,11 +460,13 @@ def test_a_white_daggers_sockets_and_staff_mods_are_read_off_the_ground_and_said
     }
 
     def read(address: int, size: int) -> bytes:
+        if address not in memory:
+            raise ValueError(f'unmapped {address:#x}')  # as the process reader: the +0xD0 chain is not mapped here
         return memory[address][:size]
 
     kriss = Drop(7, 0.0, 0.0, 'Kriss', VALUABLE, source='shown', txt=41, quality=2)
     found = rolled(read, kriss, {'unit_id': 7, 'stats_pointer': stats_at, 'data_pointer': data_at})
-    assert found.rolls == Rolls(3, ((402, 3),))
+    assert found.rolls == Rolls(3, ((402, 3),), defense=None)  # no modifier chain read: its ED unread
     assert rolls(found) == ' 3os +3 Abyss'
     rare = Drop(8, 0.0, 0.0, 'Kriss', VALUABLE, source='shown', txt=41, quality=6)
     assert rolled(read, rare, {'unit_id': 8, 'stats_pointer': stats_at, 'data_pointer': data_at}) == rare  # identified

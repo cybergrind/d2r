@@ -1,0 +1,13 @@
+{
+ "source": "d2data json/objects.json: Overlay 1 and PopulateFn 3 (macros/superchests.py build_glowing)",
+ "chests": {
+  "354": "HoradricCubeChest",
+  "355": "HoradricScrollChest",
+  "356": "StaffOfKingsChest",
+  "397": "ConsolationChest",
+  "405": "KhalimHeartChest",
+  "406": "KhalimBrainChest",
+  "407": "KhalimEyeChest",
+  "455": "SpecialChest100"
+ }
+}

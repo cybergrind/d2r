@@ -19,6 +19,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import GOLD_PER_LEVEL, GOLD_STAT, KEY_STACK, LEVEL_STAT, MONSTER_UNIT, TOME_CHARGES
 from inventory_tracking.game.records import Carried, Monster, Pack, Stocked, World
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
+from inventory_tracking.loot.api import reserve_short
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, cell_point
@@ -85,12 +86,14 @@ WALKING = (2, 3, 6)  # the character's walk, run and town walk: the view moves w
 
 def short(pack: Pack | None, source: PortalSource = FROM_TOME) -> bool:
     """Whether keys or Town Portal charges are under MIN_STOCK (unread counts say nothing): a visit for them alone.
-    Identify charges are only filled on a visit made anyway: "refill when we have to sell something, and keep bare
-    refills at minimum" (the player, 2026-10-17). With the Sling's Town Portal only keys count: "do not track, do not
-    buy" (2026-10-18)."""
+    Identify charges were only filled on a visit made anyway ("refill when we have to sell something, and keep bare
+    refills at minimum", the player, 2026-10-17); with the field identify on (loot/api.py, M4: "identify with scroll,
+    and drop if it is bad", 2026-10-20) the Tome under IDENTIFY_RESERVE charges is short too (loot/design.md §5). With
+    the Sling's Town Portal only keys count: "do not track, do not buy" (2026-10-18)."""
     if pack is None:
         return False
-    return any(count is not None and count < MIN_STOCK for count in (pack.keys, source.count(pack)))
+    stock = (pack.keys, source.count(pack))
+    return any(count is not None and count < MIN_STOCK for count in stock) or reserve_short(pack.identifies)
 
 
 def _drawn(world: World, place: tuple[float, float], aspect: float) -> tuple[float, float] | None:

@@ -239,3 +239,28 @@ def test_a_trip_from_the_town_it_stands_in_walks_out_and_one_from_another_town_t
     assert look(2, moor, stage=ENTER, stage_to=8) == [(LEVEL, 2)]
     assert look(2, moor, stage=ENTER, stage_to=8, worked=((2, 1),)) == [(NEXT_LEVEL, 8)]
     assert look(8, moor, stage=FIGHT) == [(LEVEL, 8)]
+
+
+WORLDSTONE_KEEP = frozenset((128, 129, 130, 131, 132))
+
+
+def test_the_worldstone_keep_zone_goes_through_the_thrones_waves_and_portal_to_baal_and_his_loot():
+    # The player, 2026-10-20 ~09:33: "tz leveling should do baal and trone fight". The zone of 04:30 that day:
+    # 'Baal from 129: [129, 130, 131, 132]' (128 skipped)
+    from inventory_tracking.routes.model import USE
+
+    plan = itinerary(WORLDSTONE_KEEP)
+    assert plan is not None
+    trip = next(each for each in plan.excursions if each.route == 'Baal')
+    assert (trip.waypoint, trip.areas) == (129, (129, 130, 131, 132))
+    assert {131, 132} <= trip.zone
+    assert policy_of(131, trip) == ON_THE_WAY  # the leaders on the way, then the route's own goals
+    assert policy_of(132, trip) == ON_THE_WAY
+    assert look(131, plan, stage=FIGHT) == [(LEVEL, 131)]  # the waves: the level's run
+    assert look(131, plan, stage=FIGHT, worked=((131, 1),)) == [(LEVEL, 131)]  # Lister not dead: the run again
+    assert look(131, plan, stage=LOOT_STAGE, worked=((131, 1),)) == [(LOOT, 131)]  # after Lister, his loot
+    # Then the portal Baal leaves by: a run of the level, whose stage is the portal's use (hunting/throne.py)
+    assert look(131, plan, stage=USE, stage_to=132, worked=((131, 1),)) == [(LEVEL, 131)]
+    assert look(132, plan, stage=FIGHT) == [(LEVEL, 132)]  # Baal: the Chamber's run
+    assert look(132, plan, stage=LOOT_STAGE, worked=((132, 1),)) == [(LOOT, 132)]
+    assert look(132, plan, stage=LEAVE, worked=((132, 1),)) == []  # no goals: the game is left

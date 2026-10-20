@@ -19,6 +19,8 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, World
 from inventory_tracking.items.grid import Grid
 from inventory_tracking.levels.presets import display_name
+from inventory_tracking.loot.api import settle as settle_field
+from inventory_tracking.loot.storage import Storage, cells_low, room
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.charms import (
@@ -36,10 +38,8 @@ from inventory_tracking.macros.cube import (
     KEPT,
     SURE_BLOCK,
     loot,
-    overflow,
     own_of,
     perfect_of,
-    roomed,
 )
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.experience import Ledger, Reading, reading
@@ -49,7 +49,7 @@ from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_sou
 from inventory_tracking.macros.repair import RETRY_GAMES, due, gold, wants, worn_out, worn_text
 from inventory_tracking.macros.routines import DEAD, Dead, character_keys, create_next_game, leave_game, prebuff
 from inventory_tracking.macros.shop import KEYS_ONE_STACK, KEYS_WANTED, gold_cap, short
-from inventory_tracking.macros.stash import INVENTORY_CELLS, RESOURCES
+from inventory_tracking.macros.stash import RESOURCES
 from inventory_tracking.macros.town import GEMS_A_KIND, TRADE_ROOM, Exit, sold_full, surplus, tops_up
 from inventory_tracking.macros.visit import Remembered
 from inventory_tracking.macros.volatile import (
@@ -434,18 +434,28 @@ class Loop:
         allowed = (self.kind.game_seconds or GAME_SECONDS) + TRIP_SECONDS * self.trips_in(game)
         return now - self.seen[1] > allowed and not self.abandon
 
-    def still(self, where: tuple[float, float] | None, now: float, game: str | None = None, kills: int = 0) -> bool:
+    def still(
+        self,
+        where: tuple[float, float] | None,
+        now: float,
+        game: str | None = None,
+        kills: int = 0,
+        waiting: bool = False,
+    ) -> bool:
         """Whether the character has stood within STILL_UNITS over STILL_SECONDS in `game`. A new game counts afresh:
         every game starts at the same waypoint. `now`: time.monotonic(). `kills`: the hunt's running kill count
         (combat/score.py `LiveScore.killed`): a kill counts the stand afresh, a fight in place is no stall (Worldstone
         Keep 2 at 04:45:58-04:46:43 on 2026-10-20: 45 s in one place, full life, 13 of 35 Stone Skin hostiles killed,
-        the game left mid-fight)."""
+        the game left mid-fight). `waiting`: the run waits by design (the Throne's waves, hunting/throne.py
+        `Waves.due`, bounded there by WAVE_WAIT): the stand counts afresh (the player, 2026-10-20: "tz leveling should
+        do baal and trone fight")."""
         if where is None:
             return False
         cooling = now < self.cooling  # the recoveries' pause is the loop's own wait
         if (
             self.moved is None
             or cooling
+            or waiting
             or math.dist(where, self.moved[0]) > STILL_UNITS
             or game != self.moved_in
             or kills != self.moved_kills
@@ -607,7 +617,7 @@ class Loop:
     def room_low(self) -> bool:
         """Whether the room is low for a visit: under TRADE_ROOM cells, or a route starting with the cube full
         (`route_full`)."""
-        return (self.free is not None and self.free < TRADE_ROOM) or self.route_full
+        return (self.free is not None and cells_low(self.free)) or self.route_full
 
     def route_starts_full(
         self, world: World, cube: tuple[str, ...], items: list[Carried], carried: list[Carried]
@@ -815,7 +825,10 @@ class Loop:
             say_experience(self.experience.look(game_id, world.player.area, experience_now(run), time.monotonic()))
 
     def leave(self, run: Run, game: str) -> None:
-        """The LEAVE leg: Save and Exit, the game done and counted."""
+        """The LEAVE leg: Save and Exit, the game done and counted. A game's planned end in a level first makes the
+        loot's field routine (loot/api.py `settle`, M4); a game given up does not."""
+        if not self.abandon:
+            settle_field(run, 'Save and Exit')
         self.done = game
         if self.kind.key in TZ_KINDS:
             say_experience(self.experience.game_over(self.games + 1, experience_now(run), time.monotonic()))
@@ -1035,17 +1048,11 @@ class Loop:
             self.fresh = bool(candidates(pack, self.parked, self.swap_units))
         if pack is not None and self.own is not None:  # unread in the lobby: the last look's stands
             carried = [*items, *pack.in_cube]
-            cube = roomed(pack).cube or ()
-            in_inventory = INVENTORY_CELLS - sum(item.size[0] * item.size[1] for item in pack.items)
-            in_cube = sum(row.count('.') for row in cube)
-            self.free = in_inventory + in_cube  # the trade waits until both are full
-            if in_inventory < TRADE_ROOM and overflow(pack, self.own):
-                # Cube room in pieces no loop item fits is no room
-                self.free = min(self.free, in_inventory)
-            if not any(rows and Grid(rows).has_room(SURE_BLOCK) for rows in (pack.inventory, cube)):
-                # No SURE_BLOCK free in either: no room, whatever the cell count
-                self.free = min(self.free, TRADE_ROOM - 1)
-            if in_town and self.free < TRADE_ROOM:
+            # The trade waits until the inventory and the cube are both full (loot/storage.py `room`)
+            space = room(Storage(pack, self.own))
+            cube, in_inventory, in_cube = space.rows, space.inventory, space.cube
+            self.free = space.free
+            if in_town and space.low:
                 LOG.info('Macro: loop: room low: %d cells free (inventory %d, cube %d, loop items %d in the inventory '
                          'and %d in the cube; cube rows %s)', self.free, in_inventory, in_cube, len(items),
                          len(pack.in_cube), '/'.join(cube))  # fmt: skip
@@ -1060,7 +1067,7 @@ class Loop:
             )
             self.route_full = self.route_starts_full(world, cube, items, carried)
             visiting = world.in_game and self.visiting == world.game_name and self.visited != world.game_name
-            if in_town and in_inventory < TRADE_ROOM <= self.free and in_cube >= 3 and items and not visiting:
+            if in_town and cells_low(in_inventory) and not space.low and in_cube >= 3 and items and not visiting:
                 # The loop's items into the cube for pickup room, between visits only (runner.py `make_room`)
                 self.make_room = True
         staff = run.teleport() if world.in_game and run.teleport is not None else None

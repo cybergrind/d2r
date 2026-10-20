@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 from inventory_tracking.game.records import Pack, Thing, World
 from inventory_tracking.levels.model import TOWN_PORTAL, Target
+from inventory_tracking.loot.api import settle
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import arrived, press_skill
@@ -86,7 +87,9 @@ PICKS_AT_PORTAL = 4
 def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[[], bool] | None = None) -> None:
     """Cast Town Portal and go through the portal it opens: done in town. `Abort` in town already, with the skill on no
     key, and with no portal open after the cast. `first`: a pickup made once the portal is open, repeated while it
-    picks something up (a chest's drops land over a second and more)."""
+    picks something up (a chest's drops land over a second and more). Before the cast, the loot's field routine: a
+    level's end or a trip for room (loot/api.py `settle`, M4)."""
+    settle(run, 'Town Portal')
     with run.lightly():
         world, rect = ready_world(run)
     player = world.player

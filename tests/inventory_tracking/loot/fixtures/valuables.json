@@ -1,0 +1,2018 @@
+{
+ "_meta": {
+  "design": "inventory_tracking/loot/design.md §6",
+  "written": "2026-10-20",
+  "note": "item rolls are raw memory values keyed \"stat id:layer\" (maxhp in 256ths); ranges are the roll ranges of the variable stats (the decoder's roll_range); value is what the appraisal said (worth in Ist by the item's own rolls, the triage verdict); owned: the owned copies (overrides of the item), null when they cannot be told; today_fails: why today's functions fail the case (xfail strict)"
+ },
+ "cases": [
+  {
+   "id": "monarch_of_deflecting_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "magic",
+    "sockets": 4,
+    "rolls": {
+     "20:0": 20,
+     "102:0": 30
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "must_have": false,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pricing.html:331; guides/pindle-anya.html:296; third-parties/d2data/json/magicsuffix.json:2990; asks 74.6->114 n17 (pricing/data/wp-b-prices.json _blues)",
+   "value": {
+    "worth": 74.6,
+    "verdict": "sell"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "20:0": 20,
+      "102:0": 30
+     }
+    }
+   ],
+   "today_fails": {
+    "ground": "today: pickmode.shield_base takes a magic Monarch only with 4 sockets read off the ground, and an unidentified item holds no socket count (R1, rca/2026-10-20/loot-m0-research.md: all 36 magic Monarch census lines say 0os)"
+   }
+  },
+  {
+   "id": "monarch_of_deflecting_4os_unidentified",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "magic",
+    "sockets": 4,
+    "rolls": {
+     "20:0": 20,
+     "102:0": 30
+    },
+    "identified": false
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "identify",
+    "rule": "K2"
+   },
+   "source": "design.md §6.1; S8",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: pickmode.shield_base takes a magic Monarch only with 4 sockets read off the ground, and an unidentified item holds no socket count (R1, rca/2026-10-20/loot-m0-research.md: all 36 magic Monarch census lines say 0os)"
+   }
+  },
+  {
+   "id": "jewelers_monarch_other_suffix",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "magic",
+    "sockets": 4,
+    "rolls": {
+     "7:0": 2048
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:296; Monarch 4os magic asks 9.3->71.5 n50 (wp-b _blues)",
+   "value": {
+    "worth": 9.3,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: pickmode.shield_base takes a magic Monarch only with 4 sockets read off the ground, and an unidentified item holds no socket count (R1, rca/2026-10-20/loot-m0-research.md: all 36 magic Monarch census lines say 0os)"
+   }
+  },
+  {
+   "id": "monarch_of_deflecting_3os",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "magic",
+    "sockets": 3,
+    "rolls": {
+     "20:0": 20,
+     "102:0": 30
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:199; q1 6, 20 sellers, 2026-10-08 (design.md §4.2 G6)",
+   "value": {
+    "worth": 6.0,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: pickmode.shield_base takes a magic Monarch only with 4 sockets read off the ground, and an unidentified item holds no socket count (R1, rca/2026-10-20/loot-m0-research.md: all 36 magic Monarch census lines say 0os)"
+   }
+  },
+  {
+   "id": "magic_monarch_2os_plain_dropped_in_field",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "magic",
+    "sockets": 2,
+    "rolls": {
+     "7:0": 2048
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "drop",
+    "rule": "K8"
+   },
+   "source": "guides/pindle-anya.html:296 (no Jeweler's -> vendor); of the Fox magicsuffix.json",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: pickmode.shield_base takes a magic Monarch only with 4 sockets read off the ground, and an unidentified item holds no socket count (R1, rca/2026-10-20/loot-m0-research.md: all 36 magic Monarch census lines say 0os)"
+   }
+  },
+  {
+   "id": "merc_gt_eth_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Giant Thresher",
+    "code": "7wc",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291; guides/warlock.html:166; wp-b giant-thresher 4os/eth/normal 5.9->11.4 n20",
+   "value": {
+    "worth": 5.885,
+    "verdict": "sell"
+   },
+   "owned": [
+    {}
+   ],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_giant_thresher_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Giant Thresher",
+    "code": "7wc",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_thresher_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Thresher",
+    "code": "7s8",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_cryptic_axe_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Cryptic Axe",
+    "code": "7pa",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_great_poleaxe_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Great Poleaxe",
+    "code": "7h7",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_colossus_voulge_eth_4os_superior",
+   "section": "6.1",
+   "item": {
+    "base": "Colossus Voulge",
+    "code": "7vo",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 4,
+    "rolls": {
+     "17:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:291 (Keep eth 4os Superior of any); wp-b giant-thresher 4os/eth/superior 57->86 n10",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_gt_eth_0os_superior_15ed",
+   "section": "6.1",
+   "item": {
+    "base": "Giant Thresher",
+    "code": "7wc",
+    "quality": "superior",
+    "ethereal": true,
+    "sockets": 0,
+    "rolls": {
+     "17:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:291; wp-b giant-thresher 0os/eth/superior/15ed 9.3->10.4",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES reads only knif/shie/ashd off the ground and pickmode.sure has no merc polearm rule (M5)"
+   }
+  },
+  {
+   "id": "merc_dusk_eth_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Dusk Shroud",
+    "code": "uui",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:139 (Fortitude in an eth 4os Dusk Shroud, base 0.25-0.8)",
+   "value": {
+    "worth": 0.5,
+    "verdict": "slow"
+   },
+   "owned": [
+    {}
+   ],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
+   }
+  },
+  {
+   "id": "merc_archon_eth_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Archon Plate",
+    "code": "utp",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "must_have": true,
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:139 (eth 4os Archon asks 9.3); guides/pindle-anya.html:286",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
+   }
+  },
+  {
+   "id": "merc_andariels_visage_first",
+   "section": "6.1",
+   "item": {
+    "base": "Demonhead",
+    "code": "usk",
+    "quality": "unique",
+    "name": "Andariel's Visage",
+    "rolls": {
+     "0:0": 27,
+     "60:0": 9
+    },
+    "ranges": {
+     "0:0": [
+      25,
+      30
+     ],
+     "60:0": [
+      8,
+      10
+     ]
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K4"
+   },
+   "source": "guides/pricing.html:252 (Andariel's eth 30/10); S3",
+   "value": {
+    "worth": 2.0,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_void_legend_spike_3os_plus3_hex_purge",
+   "section": "6.1",
+   "item": {
+    "base": "Legend Spike",
+    "code": "7bl",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:389": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "inventory_tracking/macros/pickmode.py:61 (+3 Abyss / Hex: Purge filled 8.2 / 17.5 Ist)",
+   "value": {
+    "worth": 17.5,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_void_fanged_knife_3os_plus3_abyss",
+   "section": "6.1",
+   "item": {
+    "base": "Fanged Knife",
+    "code": "7kr",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:402": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "inventory_tracking/macros/pickmode.py:61 (+3 Abyss / Hex: Purge filled 8.2 / 17.5 Ist)",
+   "value": {
+    "worth": 8.2,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_void_kriss_3os_plus3_abyss",
+   "section": "6.1",
+   "item": {
+    "base": "Kriss",
+    "code": "kri",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:402": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "inventory_tracking/macros/pickmode.py:61 (+3 Abyss / Hex: Purge filled 8.2 / 17.5 Ist)",
+   "value": {
+    "worth": 8.2,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "dagger_3os_without_paid_staffmod_left",
+   "section": "6.1",
+   "item": {
+    "base": "Legend Spike",
+    "code": "7bl",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:401": 1
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-17 17:45 (history/pickmode.md)",
+   "owned": []
+  },
+  {
+   "id": "warlock_dagger_3os_plus3_apocalypse",
+   "section": "6.1",
+   "item": {
+    "base": "Cinquedeas",
+    "code": "9kr",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:401": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player 2026-10-20 08:42 (\"+3 apocalypse\"); guides/pricing.html:353; +3 Apocalypse ~5 n24",
+   "value": {
+    "worth": 5.0,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_dagger_0os_elite_plus3_abyss",
+   "section": "6.1",
+   "item": {
+    "base": "Legend Spike",
+    "code": "7bl",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:402": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "inventory_tracking/macros/pickmode.py:66 (0os +3 Abyss asks 11.4)",
+   "value": {
+    "worth": 11.4,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_spirit_monarch_superior_15ed_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:288; wp-b monarch 4os/noneth/superior/15ed 9.3->17.1",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "warlock_enigma_mage_plate_superior_15ed_3os",
+   "section": "6.1",
+   "item": {
+    "base": "Mage Plate",
+    "code": "xtp",
+    "quality": "superior",
+    "sockets": 3,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep"
+   },
+   "source": "guides/pindle-anya.html:287",
+   "value": {
+    "worth": 1.0,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
+   }
+  },
+  {
+   "id": "warlock_coh_archon_superior_15ed_4os",
+   "section": "6.1",
+   "item": {
+    "base": "Archon Plate",
+    "code": "utp",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:286",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: game/layout.py ROLLED_TYPES does not read body armor off the ground; pickmode.sure has no armor base rule (M5)"
+   }
+  },
+  {
+   "id": "rare_ring_dual_leech_fcr",
+   "section": "6.1",
+   "item": {
+    "base": "Ring",
+    "code": "rin",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 10,
+     "60:0": 5,
+     "62:0": 5
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "the player 2026-10-20 08:42 (dual leech FCR ring); guides/pricing.html:230-232; worst case: no reviewed triage pattern",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "105:0": 10,
+      "60:0": 5,
+      "62:0": 5
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_ring_fcr_res_life",
+   "section": "6.1",
+   "item": {
+    "base": "Ring",
+    "code": "rin",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 10,
+     "39:0": 15,
+     "7:0": 7680
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:164 (Rare Ring 10 FCR + res + life)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_tiara_fcr_plus2_warlock",
+   "section": "6.1",
+   "item": {
+    "base": "Tiara",
+    "code": "ci2",
+    "quality": "rare",
+    "sockets": 2,
+    "rolls": {
+     "105:0": 20,
+     "83:7": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:158; guides/pricing.html:233; primer rare +2/20 FCR/2os Tiara 34->143",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "105:0": 20,
+      "83:7": 2
+     }
+    }
+   ],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_diadem_fcr_plus3_eldritch",
+   "section": "6.1",
+   "item": {
+    "base": "Diadem",
+    "code": "ci3",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 20,
+     "188:57": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:158; magicprefix.json:13068 (Forbidden = +3 Eldritch)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "magic_diadem_arch_devils_of_the_magus",
+   "section": "6.1",
+   "item": {
+    "base": "Diadem",
+    "code": "ci3",
+    "quality": "magic",
+    "rolls": {
+     "83:7": 2,
+     "105:0": 20
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pricing.html:200; magicprefix.json:13176 (Arch-Devil's +2 Warlock); of the Magus = 20 FCR",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
+    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "amulet_plus2_warlock_10fcr",
+   "section": "6.1",
+   "item": {
+    "base": "Amulet",
+    "code": "amu",
+    "quality": "magic",
+    "rolls": {
+     "83:7": 2,
+     "105:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/warlock.html:163 (Forbidden Amulet of the Apprentice, +2 Warlock / 10 FCR)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: pickmode.sure takes rings and amulets only when rare, set or unique",
+    "decision": "today: macros/keepers.amulet_keeper spares only rare/crafted amulets; today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+   }
+  },
+  {
+   "id": "rare_amulet_fcr_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Amulet",
+    "code": "amu",
+    "quality": "rare",
+    "rolls": {
+     "105:0": 10
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "rare_amulet_life_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Amulet",
+    "code": "amu",
+    "quality": "rare",
+    "rolls": {
+     "7:0": 10240
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "rare_amulet_two_skills_kept",
+   "section": "6.1",
+   "item": {
+    "base": "Amulet",
+    "code": "amu",
+    "quality": "rare",
+    "rolls": {
+     "127:0": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "rare_grimoire_plus2_warlock",
+   "section": "6.1",
+   "item": {
+    "base": "Blasphemous Grimoire",
+    "code": "waf",
+    "quality": "rare",
+    "rolls": {
+     "83:7": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:346 (+2 Warlock grimoire q1 4, median 15)",
+   "value": {
+    "worth": 4.0,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
+   }
+  },
+  {
+   "id": "magic_grimoire_plus3_tree_all_res",
+   "section": "6.1",
+   "item": {
+    "base": "Blasphemous Grimoire",
+    "code": "waf",
+    "quality": "magic",
+    "rolls": {
+     "188:58": 3,
+     "39:0": 15,
+     "41:0": 15,
+     "43:0": 15,
+     "45:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:347 (median ~51)",
+   "value": {
+    "worth": 51.0,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
+   }
+  },
+  {
+   "id": "gc_eldritch_skiller_life",
+   "section": "6.1",
+   "item": {
+    "base": "Grand Charm",
+    "code": "cm3",
+    "quality": "magic",
+    "rolls": {
+     "188:57": 1,
+     "7:0": 7680
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K7"
+   },
+   "source": "guides/warlock.html:165; guides/pindle-anya.html:303",
+   "value": {
+    "worth": 2.0,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "jewelers_archon_of_the_whale",
+   "section": "6.1",
+   "item": {
+    "base": "Archon Plate",
+    "code": "utp",
+    "quality": "magic",
+    "sockets": 4,
+    "rolls": {
+     "7:0": 24320
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "keep",
+    "rule": "K3"
+   },
+   "source": "guides/pindle-anya.html:296; wp-b _blues Jeweler's Archon of the Whale 57->343",
+   "value": {
+    "worth": 57.105,
+    "verdict": "sell"
+   },
+   "owned": [],
+   "today_fails": {
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
+   }
+  },
+  {
+   "id": "sacred_targe_45_res",
+   "section": "6.1",
+   "item": {
+    "base": "Sacred Targe",
+    "code": "pab",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "39:0": 45,
+     "41:0": 45,
+     "43:0": 45,
+     "45:0": 45
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:289 (45@ 0os Sacred Targe filled 9.3)",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "goblin_toe_third_copy_worse_is_dropped",
+   "section": "6.2",
+   "item": {
+    "base": "Light Plated Boots",
+    "code": "tbt",
+    "quality": "unique",
+    "name": "Goblin Toe",
+    "rolls": {
+     "16:0": 50
+    },
+    "ranges": {
+     "16:0": [
+      50,
+      60
+     ]
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K6",
+    "reason_has": [
+     "50",
+     "53",
+     "56"
+    ]
+   },
+   "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
+   "value": {
+    "worth": 0.647,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.647125,
+     "median": 1.0,
+     "sellers": 3,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "16:0": 53
+     }
+    },
+    {
+     "rolls": {
+      "16:0": 56
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: the identify worker has no owned-copy lookup (appraisal/service.py:752 builds IdentifyWorker without owned=, identify/service.py:445 default None), so owned_verdict never runs in the loop; copies.keep_copy judges only vendor items, and a slow verdict is stashed"
+   }
+  },
+  {
+   "id": "goblin_toe_equal_is_dropped",
+   "section": "6.2",
+   "item": {
+    "base": "Light Plated Boots",
+    "code": "tbt",
+    "quality": "unique",
+    "name": "Goblin Toe",
+    "rolls": {
+     "16:0": 53
+    },
+    "ranges": {
+     "16:0": [
+      50,
+      60
+     ]
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K6"
+   },
+   "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
+   "value": {
+    "worth": 0.753,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.647125,
+     "median": 1.0,
+     "sellers": 3,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "16:0": 53
+     }
+    },
+    {
+     "rolls": {
+      "16:0": 56
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: the identify worker has no owned-copy lookup (appraisal/service.py:752 builds IdentifyWorker without owned=, identify/service.py:445 default None), so owned_verdict never runs in the loop; copies.keep_copy judges only vendor items, and a slow verdict is stashed"
+   }
+  },
+  {
+   "id": "goblin_toe_better_than_all_is_kept",
+   "section": "6.2",
+   "item": {
+    "base": "Light Plated Boots",
+    "code": "tbt",
+    "quality": "unique",
+    "name": "Goblin Toe",
+    "rolls": {
+     "16:0": 58
+    },
+    "ranges": {
+     "16:0": [
+      50,
+      60
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K6"
+   },
+   "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
+   "value": {
+    "worth": 0.929,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.647125,
+     "median": 1.0,
+     "sellers": 3,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": [
+    {
+     "rolls": {
+      "16:0": 53
+     }
+    },
+    {
+     "rolls": {
+      "16:0": 56
+     }
+    }
+   ]
+  },
+  {
+   "id": "goblin_toe_first_copy_is_kept",
+   "section": "6.2",
+   "item": {
+    "base": "Light Plated Boots",
+    "code": "tbt",
+    "quality": "unique",
+    "name": "Goblin Toe",
+    "rolls": {
+     "16:0": 50
+    },
+    "ranges": {
+     "16:0": [
+      50,
+      60
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K4"
+   },
+   "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
+   "value": {
+    "worth": 0.647,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.647125,
+     "median": 1.0,
+     "sellers": 3,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": []
+  },
+  {
+   "id": "goblin_toe_owned_unreadable_is_kept",
+   "section": "6.2",
+   "item": {
+    "base": "Light Plated Boots",
+    "code": "tbt",
+    "quality": "unique",
+    "name": "Goblin Toe",
+    "rolls": {
+     "16:0": 50
+    },
+    "ranges": {
+     "16:0": [
+      50,
+      60
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K4"
+   },
+   "source": "S8: unknown is kept",
+   "value": {
+    "worth": 0.647,
+    "verdict": "slow",
+    "band": {
+     "q1": 0.647125,
+     "median": 1.0,
+     "sellers": 3,
+     "observed": "2026-10-04"
+    }
+   },
+   "owned": null
+  },
+  {
+   "id": "expensive_duplicate_worse_is_kept",
+   "section": "6.2",
+   "item": {
+    "base": "Spiderweb Sash",
+    "code": "ulc",
+    "quality": "unique",
+    "name": "Arachnid Mesh",
+    "rolls": {
+     "16:0": 95
+    },
+    "ranges": {
+     "16:0": [
+      90,
+      120
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "design.md §3.3 (Arachnid 2.29); N1",
+   "value": {
+    "worth": 2.3,
+    "verdict": "sell"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "16:0": 110
+     }
+    }
+   ]
+  },
+  {
+   "id": "cheap_mixed_decided_by_worth_tie_dropped",
+   "section": "6.2",
+   "item": {
+    "base": "Demonhead",
+    "code": "usk",
+    "quality": "unique",
+    "name": "Andariel's Visage",
+    "ethereal": false,
+    "rolls": {
+     "0:0": 30,
+     "60:0": 8
+    },
+    "ranges": {
+     "0:0": [
+      25,
+      30
+     ],
+     "60:0": [
+      8,
+      10
+     ]
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K6"
+   },
+   "source": "design.md §3.2 step 4, Q2 (a tie is not better)",
+   "value": {
+    "worth": 0.8,
+    "verdict": "slow"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "0:0": 25,
+      "60:0": 10
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: the identify worker has no owned-copy lookup (appraisal/service.py:752 builds IdentifyWorker without owned=, identify/service.py:445 default None), so owned_verdict never runs in the loop; copies.keep_copy judges only vendor items, and a slow verdict is stashed"
+   }
+  },
+  {
+   "id": "cheap_mixed_decided_by_worth_better_kept",
+   "section": "6.2",
+   "item": {
+    "base": "Demonhead",
+    "code": "usk",
+    "quality": "unique",
+    "name": "Andariel's Visage",
+    "ethereal": false,
+    "rolls": {
+     "0:0": 30,
+     "60:0": 9
+    },
+    "ranges": {
+     "0:0": [
+      25,
+      30
+     ],
+     "60:0": [
+      8,
+      10
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K6"
+   },
+   "source": "design.md §3.2 step 4, Q2",
+   "value": {
+    "worth": 0.8,
+    "verdict": "slow"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "0:0": 25,
+      "60:0": 10
+     }
+    }
+   ]
+  },
+  {
+   "id": "eth_and_non_eth_are_different_items",
+   "section": "6.2",
+   "item": {
+    "base": "Demonhead",
+    "code": "usk",
+    "quality": "unique",
+    "name": "Andariel's Visage",
+    "ethereal": true,
+    "rolls": {
+     "0:0": 25,
+     "60:0": 8
+    },
+    "ranges": {
+     "0:0": [
+      25,
+      30
+     ],
+     "60:0": [
+      8,
+      10
+     ]
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K4"
+   },
+   "source": "appraisal/owned.py match_kind (ethereal)",
+   "value": {
+    "worth": 0.9,
+    "verdict": "slow"
+   },
+   "owned": [
+    {
+     "ethereal": false,
+     "rolls": {
+      "0:0": 30,
+      "60:0": 10
+     }
+    }
+   ]
+  },
+  {
+   "id": "charms_are_not_compared_as_copies",
+   "section": "6.2",
+   "item": {
+    "base": "Grand Charm",
+    "code": "cm3",
+    "quality": "magic",
+    "rolls": {
+     "188:57": 1,
+     "7:0": 7680
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K7"
+   },
+   "source": "appraisal/owned.py MULTIPLE_COPY_BASES",
+   "value": {
+    "worth": 2.0,
+    "verdict": "sell"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "188:57": 1,
+      "7:0": 7680
+     }
+    }
+   ]
+  },
+  {
+   "id": "cheap_unknown_price_first_kept_logged",
+   "section": "6.2",
+   "item": {
+    "base": "Heavy Boots",
+    "code": "vbt",
+    "quality": "magic",
+    "rolls": {
+     "96:0": 10
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K9"
+   },
+   "source": "Q13",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "vendor_band_item_dropped",
+   "section": "6.2",
+   "item": {
+    "base": "Sash",
+    "code": "lbl",
+    "quality": "magic",
+    "rolls": {
+     "7:0": 2048
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8"
+   },
+   "source": "design.md §6.2",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "players_item_on_protected_cell",
+   "section": "6.3",
+   "item": {
+    "base": "Sash",
+    "code": "lbl",
+    "quality": "magic",
+    "rolls": {
+     "7:0": 2048
+    },
+    "owner": "player"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K0"
+   },
+   "source": "S1",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "players_item_by_print_in_cube",
+   "section": "6.3",
+   "item": {
+    "base": "Ring",
+    "code": "rin",
+    "quality": "magic",
+    "rolls": {
+     "7:0": 2048
+    },
+    "owner": "player",
+    "where": "cube"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K0"
+   },
+   "source": "S1; macros/volatile.py is_players",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "owner_unknown_is_the_players",
+   "section": "6.3",
+   "item": {
+    "base": "Sash",
+    "code": "lbl",
+    "quality": "magic",
+    "rolls": {
+     "7:0": 2048
+    },
+    "owner": "unknown"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K0"
+   },
+   "source": "S1",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "gheeds_fortune_duplicate",
+   "section": "6.3",
+   "item": {
+    "base": "Grand Charm",
+    "code": "cm3",
+    "quality": "unique",
+    "name": "Gheed's Fortune",
+    "rolls": {
+     "80:0": 20
+    },
+    "ranges": {
+     "80:0": [
+      20,
+      40
+     ]
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
+   "value": {
+    "worth": 0.1,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "80:0": 40
+     }
+    }
+   ]
+  },
+  {
+   "id": "annihilus_duplicate",
+   "section": "6.3",
+   "item": {
+    "base": "Small Charm",
+    "code": "cm1",
+    "quality": "unique",
+    "name": "Annihilus",
+    "rolls": {
+     "80:0": 20
+    },
+    "ranges": {
+     "80:0": [
+      20,
+      40
+     ]
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
+   "value": {
+    "worth": 0.1,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "80:0": 40
+     }
+    }
+   ]
+  },
+  {
+   "id": "torch_duplicate",
+   "section": "6.3",
+   "item": {
+    "base": "Large Charm",
+    "code": "cm2",
+    "quality": "unique",
+    "name": "Hellfire Torch",
+    "rolls": {
+     "80:0": 20
+    },
+    "ranges": {
+     "80:0": [
+      20,
+      40
+     ]
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
+   "value": {
+    "worth": 0.1,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "80:0": 40
+     }
+    }
+   ]
+  },
+  {
+   "id": "sunder_duplicate",
+   "section": "6.3",
+   "item": {
+    "base": "Grand Charm",
+    "code": "cm3",
+    "quality": "unique",
+    "name": "Bone Break",
+    "rolls": {
+     "80:0": 20
+    },
+    "ranges": {
+     "80:0": [
+      20,
+      40
+     ]
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
+   "value": {
+    "worth": 0.1,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "80:0": 40
+     }
+    }
+   ]
+  },
+  {
+   "id": "cheap_rune_kept",
+   "section": "6.3",
+   "item": {
+    "base": "Hel Rune",
+    "code": "r15",
+    "quality": "normal"
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2",
+   "value": {
+    "worth": 0.05,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "cheap_gem_kept",
+   "section": "6.3",
+   "item": {
+    "base": "Chipped Sapphire",
+    "code": "gcb",
+    "quality": "normal"
+   },
+   "expect": {
+    "ground": "pick",
+    "decision": "keep",
+    "rule": "K1"
+   },
+   "source": "S2; PK-gems",
+   "value": {
+    "worth": 0.01,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "unidentified_never_dropped",
+   "section": "6.3",
+   "item": {
+    "base": "Heavy Boots",
+    "code": "vbt",
+    "quality": "rare",
+    "identified": false
+   },
+   "expect": {
+    "decision": "identify",
+    "rule": "K2"
+   },
+   "source": "S8",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "tome_of_identify_never_moved",
+   "section": "6.3",
+   "item": {
+    "base": "Tome of Identify",
+    "code": "ibk",
+    "quality": "normal"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K1"
+   },
+   "source": "design.md §6.3 (classes 533, 534, 558, 564)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "tome_of_town_portal_never_moved",
+   "section": "6.3",
+   "item": {
+    "base": "Tome of Town Portal",
+    "code": "tbk",
+    "quality": "normal"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K1"
+   },
+   "source": "design.md §6.3 (classes 533, 534, 558, 564)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "key_never_moved",
+   "section": "6.3",
+   "item": {
+    "base": "Key",
+    "code": "key",
+    "quality": "normal"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K1"
+   },
+   "source": "design.md §6.3 (classes 533, 534, 558, 564)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "horadric_cube_never_moved",
+   "section": "6.3",
+   "item": {
+    "base": "Horadric Cube",
+    "code": "box",
+    "quality": "normal"
+   },
+   "expect": {
+    "decision": "never-touch",
+    "rule": "K1"
+   },
+   "source": "design.md §6.3 (classes 533, 534, 558, 564)",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "white_plain_0os_monarch_left",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "normal",
+    "sockets": 0
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:310",
+   "owned": []
+  },
+  {
+   "id": "monarch_3os_white_left",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "normal",
+    "sockets": 3
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:288 (3os = vendor)",
+   "owned": []
+  },
+  {
+   "id": "merc_polearm_non_eth_left",
+   "section": "6.4",
+   "item": {
+    "base": "Giant Thresher",
+    "code": "7wc",
+    "quality": "normal",
+    "ethereal": false,
+    "sockets": 4
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:291 (any non-eth: floor)",
+   "owned": []
+  },
+  {
+   "id": "merc_polearm_eth_6os_plain_left",
+   "section": "6.4",
+   "item": {
+    "base": "Giant Thresher",
+    "code": "7wc",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 6
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:291 (eth 5/6os plain: floor)",
+   "owned": []
+  },
+  {
+   "id": "one_socket_dagger_mithral_point_left",
+   "section": "6.4",
+   "item": {
+    "base": "Mithral Point",
+    "code": "7di",
+    "quality": "normal",
+    "sockets": 1
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:294",
+   "owned": []
+  },
+  {
+   "id": "one_socket_dagger_bone_knife_left",
+   "section": "6.4",
+   "item": {
+    "base": "Bone Knife",
+    "code": "7dg",
+    "quality": "normal",
+    "sockets": 1
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:294",
+   "owned": []
+  },
+  {
+   "id": "rare_non_elite_armor_left",
+   "section": "6.4",
+   "item": {
+    "base": "Ring Mail",
+    "code": "rng",
+    "quality": "rare"
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:300",
+   "owned": []
+  },
+  {
+   "id": "unread_rolls_not_taken",
+   "section": "6.4",
+   "item": {
+    "base": "Monarch",
+    "code": "uit",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "inventory_tracking/macros/pickmode.py void_base (unread bases filled the stash, 2026-10-17)",
+   "owned": [],
+   "ground_rolls": null
+  }
+ ]
+}

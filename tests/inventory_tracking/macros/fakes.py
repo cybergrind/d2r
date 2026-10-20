@@ -38,7 +38,7 @@ from inventory_tracking.game.records import (
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
 from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, STASH_SIZE, Grid
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
-from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
+from inventory_tracking.levels.model import HELL_GATE, PORTAL, THRONE_PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cta import BATTLE_ORDERS
@@ -91,6 +91,9 @@ Event = tuple[Any, ...]
 
 CAIN_CLASS = 246  # Deckard Cain in Pandemonium Fortress (macros/cain.py CAIN)
 CAIN_LINE = 0.2052  # window heights over his drawn point: his Identify Items line in the fake
+
+# World units from the Throne's portal within which a click on it takes the level at once (fakes only)
+THRONE_PORTAL_TAKES = 8.0
 
 
 class FakeConnection:
@@ -562,7 +565,16 @@ class Game:
                         me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
                         self.world = replace(w, player=me)
                         self.opens(('waypoint',))
-                    elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
+                    elif (
+                        self.thing.txt_id == THRONE_PORTAL
+                        and math.dist((character_of(w).x, character_of(w).y), (self.thing.x, self.thing.y))
+                        > THRONE_PORTAL_TAKES
+                    ):
+                        # The Throne's portal from 12 away (the take of 16:37 on 2026-10-14): the walk to its foot,
+                        # 3.5 south of its ground point, and no level change until a click from there
+                        me = replace(character_of(w), x=self.thing.x, y=self.thing.y + 3.5)
+                        self.world = replace(w, player=me)
+                    elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL, THRONE_PORTAL):
                         self.arrive(self.next_area)
                     else:
                         self.thing = replace(self.thing, mode=2)

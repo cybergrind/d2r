@@ -9,8 +9,6 @@ move checked in memory. Click points are the game's `bankexpansionlayouthd.json`
 the left panel. Design notes: history/stash.md.
 """
 
-import functools
-import json
 import math
 import subprocess
 import time
@@ -20,9 +18,21 @@ from pathlib import Path
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import BANK
 from inventory_tracking.game.records import Carried, Pack, World
-from inventory_tracking.items.grid import INVENTORY_SIZE
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.levels.model import Target
+
+# The stash's page order and resource tabs are the loot storage layer's (loot/design.md §7 M3, 2026-10-20), which the
+# stash stop's plan needs without this module's clicks; re-exported here for every importer
+from inventory_tracking.loot.storage import (
+    INVENTORY_CELLS,
+    MATERIALS_TAB as MATERIALS_TAB,
+    PAGE_PRIORITY,
+    RESOURCES,
+    SHARED_PRIORITY as SHARED_PRIORITY,
+    is_potion as is_potion,
+    resource_classes as resource_classes,
+    resource_tabs,
+)
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import (
     INVENTORY,
@@ -69,9 +79,6 @@ SHARED_LEFT = (369 + 29 + 32, 1211 + 13 + 32)
 STASH_SEEN = (0.2, 0.8, 0.2, 0.75)  # window fractions the stash is walked to be drawn within
 SHARED_PAGES = 5  # the shared pages ("Page 1 / 5")
 TAB_SETTLE = 0.4
-# The player's stash priority, 2026-10-18: shared 3 > 4 > 5 > 2 > 1 > personal (page 0)
-PAGE_PRIORITY = (3, 4, 5, 2, 1, 0)
-SHARED_PRIORITY = PAGE_PRIORITY[:-1]
 
 
 @dataclass
@@ -82,30 +89,9 @@ class Pages:
     first: int = PAGE_PRIORITY[0]
 
 
-@functools.cache
-def resource_classes() -> frozenset[int]:
-    """The item classes the stash's resource tabs hold (data/stash_tabs.json)."""
-    tabs = json.loads((Path(__file__).parent / 'data' / 'stash_tabs.json').read_text())['tabs']
-    codes = {code for names in tabs.values() for code in names}
-    return frozenset(int(cid) for cid, base in metadata()['bases'].items() if base.get('code') in codes)
-
-
-RESOURCES = resource_classes()
-
-
-@functools.cache
-def resource_tabs() -> dict[int, int]:
-    """The stash tab (2 Gems, 3 Materials, 4 Runes) each resource class goes onto."""
-    tabs = json.loads((Path(__file__).parent / 'data' / 'stash_tabs.json').read_text())['tabs']
-    index = {'gems': 2, 'materials': 3, 'runes': 4}
-    by_code = {code: index[name] for name, codes in tabs.items() for code in codes}
-    return {int(cid): by_code[base['code']] for cid, base in metadata()['bases'].items() if base.get('code') in by_code}
-
-
 FORTRESS = 103
 USUAL = (5019.0, 5040.0)  # the stash in Pandemonium Fortress, beside Deckard Cain
 STASH_ABOVE = 0.5  # the share of the room the loop's items take over which the loop goes to the stash
-INVENTORY_CELLS = INVENTORY_SIZE[0] * INVENTORY_SIZE[1]
 
 
 def occupied(pack: Pack, own: frozenset[tuple[int, int, int]] = frozenset()) -> float:
@@ -434,15 +420,6 @@ def _sent(run: Run, rect, item: Carried, grid, gone) -> bool:
         run.actuator.click()
         raise Abort(f'the {_name(item)} went onto the pointer, not into the stash')
     return True
-
-
-MATERIALS_TAB = 3  # `resource_tabs`: the essences, shards, keys and the rest
-
-
-def is_potion(txt: int) -> bool:
-    """Whether the class is a potion's (misc.txt types `rpot`, `hpot`, ...)."""
-    base = metadata()['bases'].get(str(txt))
-    return base is not None and str(base.get('type', '')).endswith('pot')
 
 
 def _potion(item: Carried) -> bool:

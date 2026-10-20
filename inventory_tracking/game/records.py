@@ -364,11 +364,12 @@ class Thing:
 @dataclass(frozen=True)
 class Rolls:
     """A base's rolls read off the ground (`base_rolls`; itemstatcost.txt ids): sockets (194), single class skills
-    as (skill id, level) (107, skill in the layer), enhanced defense (16), the least of the four resistances
-    (39, 41, 43, 45) and the ethereal flag."""
+    as (skill id, level) (107, skill in the layer), enhanced defense (16; None when the item's +0xD0 modifier chain,
+    where this build keeps it, was not read whole), the least of the four resistances (39, 41, 43, 45) and the
+    ethereal flag."""
 
     sockets: int
     skills: tuple[tuple[int, int], ...] = ()
-    defense: int = 0
+    defense: int | None = 0
     resists: int = 0
     ethereal: bool = False

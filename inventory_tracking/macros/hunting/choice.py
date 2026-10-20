@@ -21,7 +21,7 @@ from inventory_tracking.game.records import (
     World,
     has_room,
 )
-from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, Room, Target
+from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import lootpolicy, route, supply
@@ -92,6 +92,15 @@ from inventory_tracking.macros.hunting.base import (
     passing_key,
     threat,
 )
+from inventory_tracking.macros.hunting.throne import (
+    GIVEN_UP,
+    STAND_MARK,
+    THRONE,
+    THRONE_WAVES,
+    seat_of,
+    stand_of,
+    wave_goal,
+)
 from inventory_tracking.macros.movement import HOPS
 from inventory_tracking.macros.pickup import (
     POTION_UNITS,
@@ -107,6 +116,7 @@ from inventory_tracking.macros.pursuit import Pursuit
 from inventory_tracking.macros.runmode import AGENDA, DOUBLE, Mode, aim_of, doubles, mode_of, said
 from inventory_tracking.macros.shacks import shack_thing
 from inventory_tracking.macros.sight import clear_shot
+from inventory_tracking.macros.superchests import level_goal, mark_use, super_chests
 from inventory_tracking.macros.supply import detour, low, worth
 from inventory_tracking.macros.travel import PRESSED, STANDING, Point, clear_line, label, open_reaches, walked_length
 from inventory_tracking.models import PotionType
@@ -464,9 +474,8 @@ def super_chest_goal(
         return None
     chests = [
         thing
-        for thing in run.things()
-        if thing.txt_id == SUPER_CHEST
-        and thing.mode == 0
+        for thing in super_chests(run.things(), rooms)  # the glowing ones and the unique-chest spots' (superchests.py)
+        if thing.mode == 0
         and thing.selectable is not False
         and self.shack_tries.get(thing.unit_id, 0) < SUPER_TRIES
         and math.dist(here, (thing.x, thing.y)) <= SUPER_NEAR
@@ -476,7 +485,7 @@ def super_chest_goal(
         return None
     thing = min(chests, key=lambda t: math.dist(here, (t.x, t.y)))
     place = (thing.x / TILE_UNITS, thing.y / TILE_UNITS)
-    mark = Target(player.area, (), place, 'Super chest', 'target', use=SUPER_CHEST)
+    mark = Target(player.area, (), place, 'Super chest', 'target', use=mark_use(thing))
     return Goal('full clear: Super chest', (thing.x, thing.y), USE, USE_NEAR, spend, unit=thing.unit_id, mark=mark,
                 route=route, clearing=True)  # fmt: skip
 
@@ -609,6 +618,18 @@ def goal(
             label = f'seek {staged[1].mark} (not marked yet): an unexplored room'
             found = Goal(label, place, REACH, PLACE_NEAR, found.spend, known=False, route=staged[0], clearing=True)
     if (
+        THRONE_WAVES
+        and area == THRONE
+        and staged is not None
+        and posted is not None
+        and posted.agenda
+        and (found is None or found.stage == staged[1])
+        and (world.game_name, area, staged[1].boss) not in self.marks_empty
+    ):
+        # The Throne's waves, then the portal (the player, 2026-10-20 ~09:33: "tz leveling should do baal and trone
+        # fight"; hunting/throne.py)
+        found = throne_goal(self, run, world, here, staged, found)
+    if (
         found is not None
         and found.do == FIGHT
         and found.unit is None
@@ -632,6 +653,40 @@ def goal(
         known = {m.unit_id for m in barring}
         barring += [m for m in in_the_way(found, foes, here) if m.unit_id not in known]
     return first_fight(found, here, barring, self.reach) if found is not None and barring else found
+
+
+def throne_goal(self: Hunter, run: Run, world: World, here: Point, staged, found: Goal | None) -> Goal | None:
+    """The Throne's goal for the route's stage `staged` (route, stage) from goal_of's `found` (hunting/throne.py
+    `wave_goal`): the hall, the stand, the wait for Baal to leave, the portal. A wait that ends with no wave leaves
+    the stage as an empty mark does (judging.py `empty_mark`): the level is explored, then the run ends."""
+    route_name, stage = staged
+    marks = self.bearings.marks(STAND_MARK) if self.bearings.marks is not None else ()
+    seat = seat_of(world.monsters)
+    now = run.clock()
+    self.waves.begin(world.game_name)
+    found_now = wave_goal(
+        self.waves,
+        area=THRONE,
+        stage=stage,
+        route=route_name,
+        found=found,
+        here=here,
+        hostiles=hostiles(world),
+        seat=seat,
+        stand=stand_of([(x * TILE_UNITS, y * TILE_UNITS) for x, y in marks], seat),
+        reach=self.reach,
+        spend=found.spend if found is not None else PRESSED,
+        now=now,
+        passed=lambda m: m.unit_id in self.passed,
+    )
+    if found_now is GIVEN_UP:
+        if len(self.marks_empty) > 200:
+            self.marks_empty.clear()
+        self.marks_empty.add((world.game_name, THRONE, stage.boss))
+        self.wayless.add((world.game_name, THRONE))
+        return None
+    assert found_now is None or isinstance(found_now, Goal)
+    return found_now
 
 
 def cleared(
@@ -770,9 +825,10 @@ def agenda_cleared(
     def candidate(skip: frozenset[object]) -> Goal | None:
         target = self.agenda_target(run, world, foes, here, skip, rooms, None, things, use_at)
         if target is None:
-            base = found
+            # The level's super chests before the route's own goal, a crossed level's left (superchests.py LEVEL_SPOTS)
+            base = (None if crossed else level_chest(self, run, world, rooms, things, skip, found, spend)) or found
         elif target.kind == OPEN:
-            base = self.agenda_chest(area, target, found, spend)
+            base = self.agenda_chest(area, target, found, spend, things)
         else:
             unit = target.unit if target.kind == KILL else None
             assert target.place is not None
@@ -851,7 +907,7 @@ def agenda_target(
         policy,
         lambda place, unit: passing_key(place, unit, rooms) in out or (unit is not None and unit in out),
         OMEN_NEAR,
-        *self.agenda_chests(things),
+        *self.agenda_chests(things, rooms),
         use_at=use_at,
     )
     target = agenda.in_level(view)
@@ -866,13 +922,36 @@ def agenda_target(
     return target
 
 
-def agenda_chests(self: Hunter, things: Sequence[Thing]) -> tuple[tuple[tuple[int, Point], ...], frozenset[int]]:
-    """Super chests (objects.txt 397) among `things` for the agenda's CHEST tier ("open them along the way", the
-    player, 2026-10-19): (closed (unit, place)s, units open or tried SUPER_TRIES times)."""
+def level_chest(
+    self: Hunter,
+    run: Run,
+    world: World,
+    rooms: Sequence[Room],
+    things: Sequence[Thing],
+    skip: frozenset[object],
+    found: Goal | None,
+    spend: Intent,
+) -> Goal | None:
+    """The level's next super chest or chest spot (superchests.py `level_goal`), its tries and passes the run's."""
+    player = world.player
+    assert player is not None
+    out = skip | set(self.passed)
+    return level_goal(
+        world.game_name, player.area, (player.x, player.y), rooms, things, self.shack_tries,
+        lambda place, unit: passing_key(place, unit, rooms) in out or (unit is not None and unit in out),
+        run.clock(), spend, found.route if found is not None else '',
+    )  # fmt: skip
+
+
+def agenda_chests(
+    self: Hunter, things: Sequence[Thing], rooms: Sequence[Room] = ()
+) -> tuple[tuple[tuple[int, Point], ...], frozenset[int]]:
+    """Super chests among `things` for the agenda's CHEST tier ("open them along the way", the player, 2026-10-19):
+    (closed (unit, place)s, units open or tried SUPER_TRIES times). The glowing ones and, on `rooms`, the chests at
+    the unique-chest spots (superchests.py: the Maggot Lair's, "we need to open superchests when we encountering
+    them", the player, 2026-10-20)."""
     closed, spent = [], set()
-    for thing in things:
-        if thing.txt_id != SUPER_CHEST:
-            continue
+    for thing in super_chests(things, rooms):
         if thing.mode != 0 or self.shack_tries.get(thing.unit_id, 0) >= SUPER_TRIES:
             spent.add(thing.unit_id)
         elif thing.selectable is not False:
@@ -882,12 +961,15 @@ def agenda_chests(self: Hunter, things: Sequence[Thing]) -> tuple[tuple[tuple[in
     return tuple(closed), frozenset(spent)
 
 
-def agenda_chest(self: Hunter, area: int, target: Objective, found: Goal | None, spend: Intent) -> Goal:
+def agenda_chest(
+    self: Hunter, area: int, target: Objective, found: Goal | None, spend: Intent, things: Sequence[Thing] = ()
+) -> Goal:
     """The agenda's OPEN `target` as a clearing goal, opened as `super_chest_goal`'s; `found`'s route kept for the
-    log."""
+    log. `things`: this look's objects, the chest's class among them (superchests.py `mark_use`)."""
     assert target.place is not None
     x, y = target.place
-    mark = Target(area, (), (x / TILE_UNITS, y / TILE_UNITS), 'Super chest', 'target', use=SUPER_CHEST)
+    use = mark_use(next((thing for thing in things if thing.unit_id == target.unit), None))
+    mark = Target(area, (), (x / TILE_UNITS, y / TILE_UNITS), 'Super chest', 'target', use=use)
     route = found.route if found is not None else ''
     return Goal(f'agenda: {target.label}', (x, y), USE, USE_NEAR, spend, unit=target.unit, mark=mark, route=route,
                 clearing=True)  # fmt: skip

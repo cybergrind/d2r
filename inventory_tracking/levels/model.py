@@ -34,9 +34,10 @@ THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
 # opens whatever container is there (the player, 2026-10-16).
 UNIQUE_CHEST = 1000
 PLACEHOLDERS = {'PlaceUniqueChest': UNIQUE_CHEST}  # objpreset ObjectClass -> the id it is marked by
-# Placed objects the teleport step clicks at their mark (macros/teleport.py USES), carried as `Poi.use`.
-# Not the Throne's portal: objects.txt gives it no click box.
-CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL, UNIQUE_CHEST))
+# Placed objects the teleport step clicks at their mark (macros/teleport.py USES), carried as `Poi.use`. The Throne's
+# portal too since 2026-10-20 (the player, ~09:33: "tz leveling should do baal and trone fight"): objects.txt gives it
+# no click box, so it is taken by its picture, as the player clicked it at 00:18 on 2026-10-11
+CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL, UNIQUE_CHEST, THRONE_PORTAL))
 MARKABLE = frozenset((
     SUPER_CHEST, *SEALS, ARCANE_PORTAL, MEPHISTO_BRIDGE, HELL_GATE, CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST,
     SEWER_STAIRS, SEWER_LEVER, HEART_CHEST, BRAIN_CHEST, EYE_CHEST, FROZEN_ANYA, ANCIENTS_ALTAR,

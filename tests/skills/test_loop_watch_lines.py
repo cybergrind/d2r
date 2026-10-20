@@ -736,6 +736,39 @@ def test_the_loops_own_town_drop_is_no_miss(tmp_path: Path, capsys) -> None:
     assert unpicked_by_games(seen_later, later) == [('Ring', 'a rare ring')]
 
 
+def test_the_field_drop_and_summary_lines_from_the_loot_layer() -> None:
+    """loot/api.py (M4, 2026-10-20) drops through cube.py `drop_item` with an 'in the field: ...' reason and sums each
+    batch up; built from both modules' own format strings."""
+    form = one('macros/cube.py', 'Macro: inventory: %s (%d) at (%d, %d) %s %s')
+    reason = one('loot/api.py', 'in the field: ').format('K8', 'worthless (no price, worthless, verdict vendor)')
+    line = logged(form % (447, 1728653239, 3, 0, 'dropped', reason))
+    assert logwords.FIELD_DROP.search(line) is not None
+    assert logwords.TOWN_DROP.search(line) is None
+    summary = one('loot/api.py', 'identified, %d dropped, %d kept')
+    line = logged(summary % ('Macro: loot: field:', 'Town Portal', 1, 1, 0, ''))
+    found = logwords.FIELD_SETTLED.search(line)
+    assert found is not None
+    assert found.groups() == ('Town Portal', '1', '1', '0')
+
+
+def test_the_loops_own_field_drop_is_no_miss(tmp_path: Path, capsys) -> None:
+    """A rare ring picked for the field identify (G11 on) and put down: the census sees it at the feet after the
+    drop's line. An item first seen later than DROP_LINES after it is the census's as usual."""
+    lines = [
+        '2026-10-20 12:00:00,000 INFO Macro: Loop: game 1, the chests',
+        '2026-10-20 12:00:05,000 INFO Macro: loot: field: rare Ring (unit 5): drop K8 worthless, no want',
+        '2026-10-20 12:00:05,500 INFO Macro: inventory: 537 (5) at (3, 3) dropped in the field: K8 worthless, no want',
+        '2026-10-20 12:00:05,700 INFO Macro: ground: rare Ring at (5094, 5062): left',
+        '2026-10-20 12:00:06,000 INFO Macro: loot: field: Town Portal: 1 identified, 1 dropped, 0 kept',
+        '2026-10-20 12:01:00,000 INFO Macro: Loop: game 2, next game',
+    ]
+    assert unpicked_by_games(lines, tmp_path) == [('Ring', None)]
+    assert 'MISSED' not in missed_by_watch(lines, capsys)
+    far = [*lines[:3], *[f'2026-10-20 12:00:05,6{n:02d} INFO Macro: ground: left' for n in range(25)], *lines[3:]]
+    (later := tmp_path / 'later').mkdir()
+    assert unpicked_by_games(far, later) == [('Ring', 'a rare ring')]
+
+
 def test_trade_counts_cains_identification(tmp_path: Path) -> None:
     session = tmp_path / '20261018T120000Z-test'
     session.mkdir()

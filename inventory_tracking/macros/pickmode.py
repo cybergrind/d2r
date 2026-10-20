@@ -14,8 +14,10 @@ are the game's (items/metadata.py `item_base`), not written from memory.
 
 from dataclasses import replace
 
+from inventory_tracking.common import LOG
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.items.metadata import item_base
+from inventory_tracking.loot.api import FIELD
 from inventory_tracking.loot.shown import RARITIES
 
 
@@ -57,9 +59,12 @@ VOID_BASES = frozenset((41, 42, 134, 135, 237, 238))
 # A Void base worth its cells: exactly 3 sockets and a staff mod buyers pay for ("we need good staff mod and we need
 # 3os; we shouldn't waste shared stash tab", the player, 2026-10-17)
 VOID_SOCKETS = 3
-# Abyss and Hex: Purge (skills metadata ids): +3 filled 8.2 and 17.5 Ist, +2 at best 1.0-1.4 (Traderie, 2026-09-18 to
-# 10-09; history/pickmode.md)
-VOID_STAFFMODS = frozenset((402, 389))
+# The staff mods a 3os Void base is kept for, at +3: the Warlock's useful skills (skills.json ids, checked in
+# third-parties/d2data/json/skills.json 2026-10-20): Abyss 402 and Hex: Purge 389, +3 filled 8.2 and 17.5 Ist, +2 at
+# best 1.0-1.4 (Traderie, 2026-09-18 to 10-09; history/pickmode.md); Apocalypse 401, +3 asks ~5 (n24; loot/design.md
+# §4.2 G8). The player, 2026-10-20 08:42: "+3os daggers with +3 apocalypse"; Q9 as recommended: "only +3 Abyss /
+# Hex: Purge / Apocalypse"
+VOID_STAFFMODS = frozenset((402, 389, 401))
 VOID_LEVEL = 3
 # Or no socket and +3 Abyss, socketed by Larzuk ("0 socket +3 abyss - let's pickup them", the player, 2026-10-17)
 ABYSS = 402
@@ -120,7 +125,9 @@ def shield_base(drop: Drop) -> bool:
     if drop.txt == MONARCH:
         if drop.quality == MAGIC:
             return found.sockets == SHIELD_SOCKETS  # identified, then appraised: of Deflecting or not
-        return drop.quality == SUPERIOR and found.defense >= SUPERIOR_MOST and found.sockets in (0, SHIELD_SOCKETS)
+        # ED unread (None: its +0xD0 chain was not read whole) is not taken
+        ed = found.defense or 0
+        return drop.quality == SUPERIOR and ed >= SUPERIOR_MOST and found.sockets in (0, SHIELD_SOCKETS)
     if drop.quality not in WHITE:
         return False  # a magic Paladin shield is an identify candidate (`identified_for`)
     if drop.txt == SACRED_TARGE:
@@ -154,16 +161,27 @@ def identified_for(kind: str | None, quality: int) -> bool:
 
 def is_candidate(drop: Drop) -> bool:
     """Whether the drop is only an identify candidate. The guards that keep a game for a valuable on the ground
-    (runner.py `_valuable_left`) skip these: one left behind costs nothing."""
+    (runner.py `_valuable_left`) skip these: one left behind costs nothing. With the loop on, a drop picked for the
+    field identify too (loot/api.py `Field.takes`, M4: a magic Monarch is no must-have, design.md §4.2 G6)."""
     base = item_base(drop.txt) if drop.txt else None
-    return drop.kind == VALUABLE and not drop.prized and candidate(drop, base['type'] if base is not None else None)
+    if drop.kind != VALUABLE or drop.prized:
+        return False
+    return candidate(drop, base['type'] if base is not None else None) or FIELD.takes(drop) is not None
 
 
 def kept(loot: Loot, mode: str) -> Loot:
     """`loot` with only the drops `mode` takes."""
+    try:  # the loot design's shadow (loot/design.md §7 M1): the new ground verdicts beside this mode's; log only
+        from inventory_tracking.loot.shadow import ground as shadow
+
+        shadow(loot, lambda drop: mode == MOST or sure(drop))
+    except Exception as error:  # never into the look
+        LOG.debug('Macro: loot: shadow: ground not logged: %s', error)
     if mode == MOST:
         return loot
-    return replace(loot, drops=tuple(drop for drop in loot.drops if sure(drop)))
+    # M4 (the player, 2026-10-20: "just get it, identify with scroll, and drop if it is bad"): the loop takes the
+    # classes of the field identify too, each remembered for its routine (loot/api.py `Field.pick`)
+    return replace(loot, drops=tuple(drop for drop in loot.drops if sure(drop) or FIELD.pick(drop, loot.game)))
 
 
 def next_mode(mode: str) -> str:

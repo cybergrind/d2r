@@ -131,6 +131,30 @@ def test_a_closed_super_chest_near_is_the_full_clears_goal_before_the_rest_and_a
     assert getattr(hunt.cleared(run, play.world, [far], Ground(()), None), 'unit', None) == 1
 
 
+def test_a_full_clear_opens_a_chest_at_a_unique_chest_spot_as_a_super_chest():
+    # The Maggot Lair's sparkling chests are TombChest1/2 at PlaceUniqueChest spots (rca/2026-10-20/
+    # superchest-findings.md): "we need to open superchests when we encountering them" (the player, 2026-10-20)
+    from inventory_tracking.game.records import Thing
+    from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Level, Room
+    from inventory_tracking.macros.goals import USE
+    from inventory_tracking.macros.runmode import SWITCHED, Mode
+    from tests.inventory_tracking.macros.test_hunt import ROOMS
+
+    play, hunt, run, here = setup()
+    hunt.mode = Mode(True, SWITCHED)
+    lair = Room(505, 996, 1004, 10, 10, 0, (996, 1004, 10, 10))  # Lair Treasure W: a spot at (35, 21) units
+    rooms = (*ROOMS, lair)
+    hunt.level = lambda: Level(me(play.world).area, rooms, ())
+    chest = Thing(70, 88, 0, 996 * 5 + 35.0, 1004 * 5 + 21.0)
+    run.things = lambda: (chest,)
+    far = foe(1, here[0] - 40.0, here[1])
+    goal = hunt.cleared(run, play.world, [far], Ground(()), None)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (USE, 70)
+    assert goal.mark is not None
+    assert goal.mark.use == UNIQUE_CHEST
+
+
 def test_a_route_chest_no_try_opens_is_left_as_gone_after_route_use_tries(monkeypatch):
     # 01:37:56-01:38:42 on 2026-10-18: another object under the pointer at every aim at Lower Kurast's chest, 46 tries
     # in 47 s, until the loop's watchdog left the game

@@ -9,16 +9,31 @@ unit is 1/2160 of the window height), checked against a screenshot within 2 pixe
 """
 
 import contextlib
-import functools
-import json
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import dataclass, replace
-from pathlib import Path
+from dataclasses import replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack
-from inventory_tracking.items.grid import CUBE_SIZE, Grid
-from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.items.metadata import item_base
+
+# The pure planning lives in loot/storage.py (loot/design.md §7 M3, 2026-10-20), re-exported here for every importer
+from inventory_tracking.loot.storage import (
+    BIG_BLOCK as BIG_BLOCK,
+    CUBE_CLASS,
+    KEPT,
+    KEY_CLASS as KEY_CLASS,
+    SURE_BLOCK as SURE_BLOCK,
+    Move,
+    RuneRecipe,
+    keys_move,
+    loot,
+    overflow,
+    perfect_of,
+    plan,
+    roomed,
+    rune_cube,
+    rune_recipe,
+)
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run, protected
@@ -48,20 +63,13 @@ REFERENCE_HEIGHT = 2160
 CELL = 98  # $ItemCellSize
 INVENTORY = ((1.0, 0.397), (-1394, -651), (93, 897))  # anchor, panel origin, grid origin
 CUBE = ((0.0, 0.397), (236, -651), (431, 534))
-CUBE_CLASS = 564  # Horadric Cube (items metadata, 2026-10-16)
-# Never moved: the cube, the tomes, the keys (items metadata: Horadric Cube, Tome of Town Portal, Tome of Identify, Key)
-KEPT = frozenset((CUBE_CLASS, 533, 534, 558))
 PANEL_SECONDS = 1.5  # for a panel to open or close
 ITEM_SECONDS = 1.0  # for an item to leave a grid or land in one
 RETRY_PAUSE = 0.3  # seconds before an item that did not come out is clicked again
-# A Grand Charm's block (across, down), the tallest sure valuable: room is a block, not a cell count (9 cells free in
-# pieces left one on the ground, 2026-10-17 21:00:03)
-SURE_BLOCK = (1, 3)
 DROP_POINT = (0.3, 0.5)  # the ground left of the inventory's panel: what the pointer holds falls at the feet
 # With the cube's panel open too: the ground between the two panels, below the character
 PARK_POINT = (0.5, 0.7)
 
-Move = tuple[Carried, tuple[int, int]]  # an item and the cube's cell its top-left goes to
 # The cube's Transmute button's top-left in `$LeftPanelRect` (`horadriccubelayouthd.json` "convert", 2026-10-18),
 # clicked TRANSMUTE_INSIDE units in
 TRANSMUTE = (520, 969)
@@ -73,80 +81,6 @@ TRANSMUTE_SECONDS = 1.5  # for the perfect gem to show in the cube after the cli
 def own_of(items: Iterable[Carried]) -> frozenset[tuple[int, int, int]]:
     """The inventory as the player keeps it: each item's class and cell."""
     return frozenset((item.txt, item.x, item.y) for item in items)
-
-
-def roomed(pack: Pack) -> Pack:
-    """`pack` with a carried cube whose unread grid is taken as empty (an empty cube's grid is not read)."""
-    if pack.cube is not None or all(item.txt != CUBE_CLASS for item in pack.items):
-        return pack
-    return replace(pack, cube=Grid.empty(CUBE_SIZE))
-
-
-def overflow(pack: Pack, own: frozenset[tuple[int, int, int]]) -> bool:
-    """Whether some of the loop's items in `pack` fit nowhere in the cube."""
-    pack = roomed(pack)
-    return len(plan(pack, own)) < len(loot(pack, own))
-
-
-def loot(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Carried]:
-    """The loop's items in `pack`: neither the player's (`own`) nor KEPT."""
-    return [item for item in pack.items if item.txt not in KEPT and (item.txt, item.x, item.y) not in own]
-
-
-def plan(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Move]:
-    """The loop's items in `pack` and the cube cell each goes to, each in the first free block that fits: larger
-    first, or smaller first where that places more (smaller first alone left a 2 x 2 out of an empty cube,
-    2026-10-17)."""
-    if pack.cube is None:
-        return []
-    items = loot(pack, own)
-    larger = _placed(pack.cube, sorted(items, key=lambda i: (-i.size[0] * i.size[1], -i.size[1], i.y, i.x)))
-    smaller = _placed(pack.cube, sorted(items, key=lambda i: (i.size[0] * i.size[1], i.y, i.x)))
-    return larger if len(larger) >= len(smaller) else smaller
-
-
-def _placed(rows: Sequence[str], items: Sequence[Carried]) -> list[Move]:
-    """`items` in their order, each into the first free block of `rows` that fits it."""
-    moves: list[Move] = []
-    grid = Grid(rows)
-    for item in items:
-        spot = grid.first_spot(item.size)
-        if spot is not None:
-            moves.append((item, spot))
-            grid = grid.take(spot, item.size)
-    return moves
-
-
-KEY_CLASS = 558  # Key (items metadata, 2026-10-16; macros/shop.py KEY)
-
-
-# The largest item's cells (an armour, a polearm): the room a session leaves (the player, 2026-10-18)
-BIG_BLOCK = (2, 4)
-
-
-def keys_move(pack: Pack, size: tuple[int, int] = BIG_BLOCK) -> Move | None:
-    """A key stack and the free cell to move it to that frees a block of `size`, else grows the largest free block
-    most; None when no move does ("move key two cells left to make continuous 2x4 space", the player, 2026-10-17).
-    A block of `size` ranks first: a 3 x 3 counted larger than the only 2 x 4 once (2026-10-18 12:36)."""
-    rows = pack.inventory
-
-    def score(lines: Grid) -> tuple[bool, int]:
-        return lines.has_room(size), lines.largest_block()
-
-    best, found = score(rows), None
-    for key in (item for item in pack.items if item.txt == KEY_CLASS and item.size == (1, 1)):
-        without = Grid(
-            ''.join('.' if (col, row) == (key.x, key.y) else cell for col, cell in enumerate(line))
-            for row, line in enumerate(rows)
-        )
-        for y, line in enumerate(without):
-            for x, cell in enumerate(line):
-                if cell != '.' or (x, y) == (key.x, key.y):
-                    continue
-                block = score(without.take((x, y), (1, 1)))
-                if block > best:
-                    best, found = block, (key, (x, y))
-    return found
 
 
 def arrange_keys(run: Run, inventory_key: str) -> bool:
@@ -402,17 +336,6 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
     return out
 
 
-def perfect_of(txt: int) -> int | None:
-    """The perfect gem class three flawless gems of class `txt` transmute into, by the items metadata's names; None
-    for any other class."""
-    base = item_base(txt)
-    name = base['name'] if base is not None else ''
-    if not name.startswith('Flawless '):
-        return None
-    wanted = 'Perfect ' + name.removeprefix('Flawless ')
-    return next((int(cid) for cid, other in metadata()['bases'].items() if other['name'] == wanted), None)
-
-
 def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None] | None = None) -> bool:
     """Three flawless gems of class `txt` into one perfect gem ("for gems - we need to cube 3 flawless -> perfect",
     the player, 2026-10-17), for a gem whose stash stack is full. Transmute is clicked only when the cube holds
@@ -517,42 +440,17 @@ def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callab
              item.unit_id)  # fmt: skip
 
 
-@dataclass(frozen=True)
-class RuneRecipe:
-    """A cube recipe (cubemain.txt via data/rune_cube.json): `runes` of the input's class and the `gems` into one rune
-    of class `into`."""
-
-    into: int
-    runes: int
-    gems: tuple[int, ...] = ()
-    description: str = ''
-
-
-@functools.cache
-def _rune_cube() -> dict:
-    return json.loads((Path(__file__).parent / 'data' / 'rune_cube.json').read_text())
-
-
-def rune_recipe(txt: int) -> RuneRecipe | None:
-    """The recipe that takes runes of class `txt` into the next one (built by build_rune_cube.py from the installed
-    game); None for no such recipe."""
-    row = _rune_cube()['recipes'].get(str(txt))
-    if row is None:
-        return None
-    return RuneRecipe(row['into'], row['runes'], tuple(row['gems']), row['description'])
-
-
 def rune_slot(txt: int) -> tuple[float, float] | None:
     """The middle of the Runes or Gems tab's stack of class `txt` (the layout's `AdvancedStashSlotWidget`), in layout
     units of the left panel; None for a class neither tab has a slot for."""
-    rect = _rune_cube()['slots'].get(str(txt))
+    rect = rune_cube()['slots'].get(str(txt))
     return None if rect is None else (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
 
 
 def stash_transmute() -> tuple[float, float]:
     """The cube's Transmute button on a resource tab (`advancedstash_horadriccube/convert`), clicked TRANSMUTE_INSIDE
     units in as cube mode's, in layout units of the left panel."""
-    x, y = _rune_cube()['convert']
+    x, y = rune_cube()['convert']
     return x + TRANSMUTE_INSIDE, y + TRANSMUTE_INSIDE
 
 

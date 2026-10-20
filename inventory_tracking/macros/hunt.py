@@ -89,6 +89,7 @@ from inventory_tracking.macros.hunting.base import (
     strike_input,
     threat,
 )
+from inventory_tracking.macros.hunting.throne import Waves
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import NONE, SETTLE, Move as Advance, Pursuit, Told, settled
 from inventory_tracking.macros.rotation import ELITE_LIFE
@@ -231,6 +232,7 @@ class Hunter:
         # (`empty_mark`)
         self.mark_since: dict[tuple[str, int, str], float] = {}
         self.marks_empty: set[tuple[str, int, str]] = set()
+        self.waves = Waves()  # the Throne's waves and portal this game (hunting/throne.py; the player, 2026-10-20)
         self.zone_left: tuple[str, int] | None = None  # (game, level) whose run ended as its zone moved on
         self.stop_kept: tuple[int, Bounds] | None = None  # (level, room) of the tour's stop gone to (`next_room`)
         # (the goal's label, the monsters the hands found in the way of its act, until when): `first_fight`
@@ -647,6 +649,10 @@ class Hunter:
                 strike_input(run, world, key_names, attack.skill)
                 unready_since = None
             except Abort as stop:
+                if run.cancelled.is_set():
+                    # The runner's own cancel raced the check: "Attack mode off", not a false stop on "... is on no
+                    # skill key" (rca/2026-10-20/crossing-teleport-back-findings.md F2)
+                    raise Cancelled from stop
                 if run.stops(stop):
                     raise
                 # Right after a hop or a mark the right button holds that skill for a moment: wait. Only an input
@@ -678,6 +684,8 @@ class Hunter:
             except Cancelled:
                 raise  # the mode's own pause for a valuable (`asked_step`), or the runner's cancel
             except Abort as stop:
+                if run.cancelled.is_set():
+                    raise Cancelled from stop  # the runner's cancel raced the fight's own check (F2)
                 if run.stops(stop):
                     raise
                 misses += 1

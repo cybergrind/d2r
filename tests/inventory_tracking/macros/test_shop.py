@@ -220,9 +220,18 @@ def test_a_vendors_grids_give_each_item_its_tab_and_first_cell():
     assert stock_of(grids, units) == (Stocked(SCROLL, 3, 9, 3), Stocked(KEY, 3, 9, 5))
 
 
-def test_the_tome_of_identify_alone_is_no_visit():
-    # Cain identifies (macros/cain.py); the tome is filled on a visit made anyway (the player: "keep bare refills at
-    # minimum")
+def test_the_tome_of_identify_under_its_reserve_is_a_visit_with_the_field_identify_on(monkeypatch):
+    # M4 (the player, 2026-10-20: "identify with scroll, and drop if it is bad"; loot/design.md §5): the field identify
+    # spends the tome, so under IDENTIFY_RESERVE (5) charges it is short. With the switch off, as before: Cain
+    # identifies (macros/cain.py) and the tome is filled on a visit made anyway ("keep bare refills at minimum",
+    # 2026-10-17)
+    from inventory_tracking.loot import api
+
+    assert short(Pack(keys=12, portals=20, identifies=0))
+    assert short(Pack(keys=12, portals=20, identifies=4))
+    assert not short(Pack(keys=12, portals=20, identifies=5))
+    assert not short(Pack(keys=12, portals=20, identifies=None))  # unread, or no tome
+    monkeypatch.setattr(api, 'FIELD_IDENTIFY', False)
     assert not short(Pack(keys=12, portals=20, identifies=0))
 
 

@@ -326,6 +326,18 @@ def test_a_stand_that_kills_is_no_stall():
     assert loop.still((5384.3, 2614.3), 2 * STILL_SECONDS - 4, 'g', 3)  # no kill since: a stall
 
 
+def test_a_wave_wait_at_the_throne_is_no_stall_and_the_stand_counts_from_its_end():
+    # The player, 2026-10-20 ~09:33: "tz leveling should do baal and trone fight": the stand waits for the waves
+    # (hunting/throne.py `Waves.due`, bounded by its WAVE_WAIT, 60 s, over the watchdog's 45)
+    loop = Loop()
+    stand = (15080.0, 5015.0)
+    assert not loop.still(stand, 0.0, 'g', 0)
+    assert not loop.still(stand, STILL_SECONDS + 5, 'g', 0, waiting=True)
+    assert not loop.still(stand, 60.0, 'g', 0, waiting=True)
+    assert not loop.still(stand, 60.0 + STILL_SECONDS - 1, 'g', 0)  # the wait over: counted from its end
+    assert loop.still(stand, 60.0 + STILL_SECONDS + 1, 'g', 0)
+
+
 def test_a_new_game_and_the_recovery_pause_count_no_stand():
     """09:22:44-09:23:50 on 2026-10-19: the stand of the game before and the 30 s pause counted on into the next game,
     left 5 s in, 5 recoveries in a row."""

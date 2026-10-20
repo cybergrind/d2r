@@ -40,7 +40,19 @@ class PutDown:
         self.places: list[tuple[int | None, float, float]] = []  # (class, x, y) of each item put down
         # Units the macro itself put down to take back (macros/cube.py `transmute`'s parked gems): not the player's.
         self.parked: set[int] = set()
+        # Units the loop put down for good (loot/api.py `Field`, the field drop of M4, 2026-10-20): never picked up
+        # again this game, and said as the loop's own, not the player's (unit id -> why)
+        self.rejected: dict[int, str] = {}
         self.lock = threading.Lock()
+
+    def reject(self, unit_id: int, why: str) -> None:
+        """The loop put `unit_id` down for good (the field drop, loot/api.py): never picked up, stood by or warned about
+        again this game, whatever unit id it is streamed back with (its place is kept at the first look that shows it),
+        and logged as the loop's own put-down (design.md Q5: the game, PutDown's scope)."""
+        with self.lock:
+            self.parked.discard(unit_id)
+            self.rejected[unit_id] = why
+            self.carried.add(unit_id)
 
     def park(self, unit_id: int) -> None:
         """`unit_id` is put down by the macro to be picked up again: never taken for the player's."""
@@ -52,6 +64,8 @@ class PutDown:
             return loot
         with self.lock:
             if loot.game != self.game:
+                if self.game is not None:
+                    self.rejected = {}  # another game's (a reject before the first look of a game is this one's)
                 self.game, self.carried, self.places = loot.game, set(), []
             if len(self.carried) > self.KEPT:
                 self.carried.clear()
@@ -62,6 +76,14 @@ class PutDown:
             for drop in loot.drops:
                 kind = kinds.get(drop.unit_id)
                 if self._at(drop.x, drop.y, kind):
+                    continue
+                if drop.unit_id in self.rejected:
+                    self.places.append((kind, drop.x, drop.y))
+                    LOG.info(
+                        "Macro: put down: %s at (%.0f, %.0f), unit %d, the loop's own field drop (%s): not picked up, "
+                        'stood by or warned about again this game',
+                        drop.label, drop.x, drop.y, drop.unit_id, self.rejected[drop.unit_id],
+                    )  # fmt: skip
                     continue
                 if drop.unit_id in self.carried and drop.unit_id not in self.parked:
                     self.places.append((kind, drop.x, drop.y))

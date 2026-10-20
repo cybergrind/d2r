@@ -1,0 +1,100 @@
+"""The field routine's live hands (loot/hands.py) in the fake game: the Tome's clicks, the drop at the feet, the
+put-down remembered, the player's items and the quiet rules (loot/design.md §5, M4)."""
+
+import json
+from dataclasses import replace
+from pathlib import Path
+
+from inventory_tracking.game.kept import PutDown
+from inventory_tracking.game.layout import IDENTIFY_TOME
+from inventory_tracking.game.records import VALUABLE, Carried, Drop, Loot, Monster, Pack
+from inventory_tracking.loot.api import Field
+from inventory_tracking.loot.facts import ItemFacts
+from inventory_tracking.loot.hands import GameHands, waiting_valuable
+from inventory_tracking.loot.shadow import Appraised, Book
+from inventory_tracking.macros.cube import own_of
+from inventory_tracking.macros.pickmode import MONARCH
+from tests.inventory_tracking.macros.fakes import Game, player, world
+
+
+BLOCKING = json.loads((Path(__file__).parent / 'fixtures' / 'field' / 'monarch-of-blocking.json').read_text())
+UNIT = BLOCKING['observation']['source']['unit_id']
+CATACOMBS_4 = 37
+TOME = Carried(3, IDENTIFY_TOME, 9, 0, (1, 2))
+WORN = Carried(4, MONARCH, 6, 0, (2, 3), 4)  # the player's own identified magic Monarch: never touched
+JUNK = Carried(UNIT, MONARCH, 0, 0, (2, 3), 4, identified=False)  # picked for the field identify
+
+
+class NoCopies:
+    def copies(self, facts: ItemFacts) -> list[ItemFacts]:
+        return []
+
+
+def setup(pack: Pack, **changes) -> tuple[Game, GameHands, PutDown, list[list[int]]]:
+    play = Game(world(CATACOMBS_4, player=player(CATACOMBS_4, x=5029.0, y=2860.0), **changes))
+    play.pack = pack
+    book, asked, put_down = Book(), [], PutDown()
+
+    def appraise(units: list[int]) -> dict[int, str]:
+        asked.append(units)
+        for unit in units:
+            book.put(unit, Appraised(BLOCKING['observation'], BLOCKING['result'], BLOCKING['verdict']))
+        return dict.fromkeys(units, 'vendor')
+
+    hands = GameHands(play.run(), inventory_key=lambda: 'i', own=lambda p: own_of((TOME, WORN)), appraise=appraise,
+                      put_down=put_down, book=book, owned=NoCopies())  # fmt: skip
+    return play, hands, put_down, asked
+
+
+def looped(game: str) -> Field:
+    found = Field()
+    found.looping = lambda: True
+    drop = Drop(UNIT, 1.0, 1.0, 'Magic Monarch', VALUABLE, (2, 3), False, 'shown', MONARCH, 4)
+    assert found.pick(drop, (game, 1))
+    return found
+
+
+def test_the_monarch_is_identified_with_the_tome_dropped_at_the_feet_and_remembered():
+    play, hands, put_down, asked = setup(Pack((TOME, WORN, JUNK), identifies=10))
+
+    done = looped(play.world.game_name).settle(hands, 'Town Portal')
+
+    assert asked == [[UNIT]]
+    assert [item.unit_id for item in play.fallen] == [UNIT]
+    assert done.dropped == 1
+    assert play.pack is not None
+    assert play.pack.identifies == 9
+    assert [item.unit_id for item in play.pack.items] == [TOME.unit_id, WORN.unit_id]
+    assert UNIT in put_down.rejected
+    assert play.world.open_panels == ()
+    # Streamed back on the ground: not the macro's to pick up again this game (the place kept by the first look)
+    lying = Drop(UNIT, 5029.0, 2861.0, 'Monarch', VALUABLE, (2, 3), False, 'shown', MONARCH, 4)
+    game = (play.world.game_name, 1)
+    assert put_down.see(Loot(drops=(lying,), game=game)).drops == ()
+    again = replace(lying, unit_id=UNIT + 1)
+    assert put_down.see(Loot(drops=(again,), game=game, classes=((UNIT + 1, MONARCH),))).drops == ()
+
+
+def test_near_a_hostile_nothing_is_clicked():
+    zombie = Monster(70, 1, 1, 5035.0, 2860.0)
+    play, hands, _, asked = setup(Pack((TOME, WORN, JUNK), identifies=10), monsters=(zombie,))
+    assert (hands.unquiet() or '').endswith('hostiles within 30')
+    done = looped(play.world.game_name).settle(hands, 'Town Portal')
+    assert done.waited is not None
+    assert asked == []
+    assert play.fallen == []
+    assert play.pack is not None
+    assert play.pack.identifies == 10  # no scroll spent
+
+
+def test_a_valuable_the_loop_can_pick_up_now_holds_it_one_with_no_room_does_not():
+    rune = Drop(9, 1.0, 1.0, 'Ist Rune', VALUABLE, (1, 1), True, 'rune', 640, 2)
+    roomy = ('.' * 10,) * 4
+    assert waiting_valuable(Loot(drops=(rune,), room=roomy)) == 'Ist Rune'
+    assert waiting_valuable(Loot(drops=(rune,), room=('#' * 10,) * 4)) is None
+    assert waiting_valuable(Loot(drops=(replace(rune, kind='healing'),), room=roomy)) is None
+
+
+def test_in_controller_mode_or_with_a_panel_open_it_waits():
+    _, hands, _, _ = setup(Pack((TOME, WORN, JUNK), identifies=10), open_panels=('stash',))
+    assert hands.unquiet() == 'stash open'

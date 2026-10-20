@@ -970,6 +970,12 @@ def visit(
     if spared:
         LOG.info('Macro: town visit: %s: kept, not sold', ', '.join(f'{_name(i)} ({why})' for i, why in spared))
         junk -= {i.unit_id for i, _why in spared}
+    try:  # the loot design's shadow (loot/design.md §7 M1): the new decisions logged beside these; log only
+        from inventory_tracking.loot.shadow import town as shadow
+
+        shadow(carried, junk, frozenset(i.unit_id for i, _why in spared))
+    except Exception as error:  # never into the visit
+        LOG.debug('Macro: loot: shadow: town not logged: %s', error)
     LOG.info('Macro: town visit (%s): %d of the loop\'s items, %d identified at Cain, %d junk; full stacks %d',
              exit.value, len(carried), len(unknown), len(junk), len(stacks))  # fmt: skip
     record = Recorder(visitlog.session_directory())

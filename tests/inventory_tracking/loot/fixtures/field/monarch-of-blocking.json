@@ -1,0 +1,176 @@
+{
+ "_meta": {
+  "source": "runs/alt-d/20261017T205752Z-4166cd37/identified/07e23095f49b4189943006c094558d40.json (observation; item, the source subset, decoded_stats)",
+  "note": "magic Monarch 0os, suffix 172 (third-parties/d2data/json/magicsuffix.json \"of Blocking\": block 10, faster block 15); picked at 00:04:34 and identified at 00:06:54 on 2026-10-18 (20261017T205752Z-4166cd37/probe.log:1901, :2852); the identify worker said vendor ('no supported trade combination for these stats')"
+ },
+ "observation": {
+  "item": {
+   "name": "Monarch",
+   "base_name": "Monarch",
+   "base_code": "uit",
+   "item_type": "shie",
+   "identified": true,
+   "category": "armor",
+   "rarity": "magic",
+   "requirements": {},
+   "affixes": [
+    {
+     "property_id": "446",
+     "value": 32,
+     "label": "Shield blocking (base + bonuses): {{value}}%",
+     "memory_stat": {
+      "layer": 0,
+      "id": 20,
+      "raw": 32
+     },
+     "descriptor_offset": 232
+    },
+    {
+     "property_id": "449",
+     "value": 15,
+     "label": "+{{value}}% Faster Block Rate",
+     "memory_stat": {
+      "layer": 0,
+      "id": 102,
+      "raw": 15
+     },
+     "descriptor_offset": 232
+    }
+   ],
+   "sockets": 0,
+   "ethereal": false,
+   "socket_contents": "empty",
+   "socket_items": [],
+   "empty_sockets": 0,
+   "filled_sockets": 0
+  },
+  "source": {
+   "engine": "memory_snapshot",
+   "native_affixes": {
+    "prefix": [],
+    "suffix": [
+     172
+    ],
+    "auto": []
+   },
+   "container": {
+    "page": 0,
+    "name": "Main inventory"
+   },
+   "unit_id": 1728653239,
+   "position": [
+    3,
+    0
+   ],
+   "captured_at": "2026-10-17T21:06:54.637012+00:00"
+  },
+  "decoded_stats": [
+   {
+    "memory_stat": {
+     "layer": 0,
+     "id": 20,
+     "raw": 32
+    },
+    "status": "decoded",
+    "name": "toblock",
+    "text": "Shield blocking (base + bonuses): 32%",
+    "value": 32,
+    "label": "Shield blocking (base + bonuses): {{value}}%",
+    "origin": "shield_block_total"
+   },
+   {
+    "memory_stat": {
+     "layer": 0,
+     "id": 31,
+     "raw": 135
+    },
+    "status": "decoded",
+    "name": "armorclass",
+    "text": "Defense: 135",
+    "value": 135
+   },
+   {
+    "memory_stat": {
+     "layer": 0,
+     "id": 72,
+     "raw": 67
+    },
+    "status": "decoded",
+    "name": "durability",
+    "text": "Durability: 67",
+    "value": 67
+   },
+   {
+    "memory_stat": {
+     "layer": 0,
+     "id": 73,
+     "raw": 86
+    },
+    "status": "decoded",
+    "name": "maxdurability",
+    "text": "Maximum durability: 86",
+    "value": 86
+   },
+   {
+    "memory_stat": {
+     "layer": 0,
+     "id": 102,
+     "raw": 15
+    },
+    "status": "decoded",
+    "name": "item_fasterblockrate",
+    "text": "+15% (15-30%) Faster Block Rate [T2; T1: 30-30%]",
+    "value": 15,
+    "label": "+{{value}}% Faster Block Rate",
+    "roll_range": {
+     "stat_id": 102,
+     "min": 15,
+     "max": 15,
+     "property": "block2",
+     "better": "higher",
+     "affix": "of Blocking",
+     "affix_id": 172,
+     "source": {
+      "path": "third-parties/d2data/json/magicsuffix.json",
+      "source_date": "2026-09-23",
+      "record_key": "172"
+     },
+     "tiers": [
+      {
+       "min": 30,
+       "max": 30
+      },
+      {
+       "min": 15,
+       "max": 15
+      }
+     ],
+     "quality_range": {
+      "min": 15,
+      "max": 30
+     },
+     "scope": "captured affix tier"
+    },
+    "roll_quality": "low",
+    "roll_quality_range": {
+     "min": 15,
+     "max": 30,
+     "scope": "all eligible tiers for this base and rarity"
+    },
+    "roll_tier": 2,
+    "roll_tier_count": 2
+   }
+  ]
+ },
+ "result": {
+  "triage": {
+   "verdict": "vendor",
+   "reason": "no supported trade combination for these stats",
+   "band": null,
+   "decision_ist": null,
+   "roll_comparison": null,
+   "roll_placement": null
+  }
+ },
+ "verdict": "vendor"
+}

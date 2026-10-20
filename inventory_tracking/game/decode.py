@@ -97,10 +97,12 @@ from inventory_tracking.items.identity import (
     SOCKETED_FLAG,
 )
 from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.items.modifiers import owned_chain
 from inventory_tracking.items.stat_constants import StatId
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
 from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
+from inventory_tracking.native.item_diagnostics import capture_stat_candidates
 from inventory_tracking.native.layout import (
     DEAD_MODES,
     KEY_CLASS_ID,
@@ -521,12 +523,23 @@ def warps(read, table: int) -> tuple[Warp, ...]:
 
 
 @functools.cache
+def glowing_chests() -> dict[int, str]:
+    """Object class id -> objects.txt Class of the glowing chests: drawn with an overlay over a chest's drops, the
+    quest chests among them (data/glowing_chests.json, macros/superchests.py `build_glowing`)."""
+    data = json.loads((Path(__file__).parents[1] / 'macros' / 'data' / 'glowing_chests.json').read_text())
+    return {int(txt): name for txt, name in data['chests'].items()}
+
+
+@functools.cache
 def container_table() -> dict[int, tuple[str, frozenset[int]]]:
     """Object class id -> (objects.txt Class, the modes it can be clicked or struck in) of what is opened
     for what it holds: chests, caskets, urns, corpses and the like (data/containers.json,
-    macros/build_containers.py)."""
+    macros/build_containers.py), and the glowing chests, opened in mode 0 (`Selectable0` in each row): the quest
+    chests build_containers.py leaves out drop a chest's items too (the player, 2026-10-20: "we always should try to
+    open such chests whenever we encountered them"; macros/superchests.py)."""
     data = json.loads((Path(__file__).parents[1] / 'macros' / 'data' / 'containers.json').read_text())
-    return {int(txt): (row['class'], frozenset(row['modes'])) for txt, row in data['containers'].items()}
+    table = {int(txt): (row['class'], frozenset(row['modes'])) for txt, row in data['containers'].items()}
+    return {**{txt: (name, frozenset((0,))) for txt, name in glowing_chests().items()}, **table}
 
 
 def container_names() -> dict[int, str]:
@@ -607,9 +620,27 @@ def gold_amount(read, unit: dict) -> int:
 BASE_ROLLS_SEEN: dict[int, Rolls] = {}  # unit id -> `base_rolls`, of the items read
 
 
+def chain_defense(read, unit: dict) -> int | None:
+    """An item's enhanced defense (16, layer 0) from its own +0xD0 modifier chain; 0 when the chain holds none; None
+    when the chain is not read whole (items/modifiers.py `owned_chain`: owner and links checked; a socket filler's
+    list passed over). This build keeps a superior armor's local ED there and never in the +0xE8 totals ([verified]
+    0 of 5,610 captured white, superior or magic units have 16 in the totals, 720 in the chain:
+    rca/2026-10-20/loot-m0-research.md R2). The chain walk is the collection and Alt+D captures' (`owned_defense_
+    modifiers`); [verified] 2026-10-20 by replaying the bytes of 600 collection captures (106,658 white, superior and
+    magic item reads) through `base_rolls`: every ED equals the capture's own, e.g. a superior Tome's 8 and a superior
+    Grimoire's 12. On the ground the same unit structure is [inferred]: no superior shield lay in a capture.
+    Read only."""
+    diagnostics = capture_stat_candidates(read, unit['stats_pointer'])
+    chain = owned_chain(diagnostics, unit, fillers=True)
+    if chain is None:
+        return None
+    return sum(s['raw'] for s in chain if s['id'] == DEFENSE_PERCENT and s['layer'] == 0)
+
+
 def base_rolls(read, unit: dict) -> Rolls | None:
-    """An item's `Rolls` from its full stat list and its data's flags; None unreadable. An item's rolls do not change:
-    read once a unit."""
+    """An item's `Rolls` from its full stat list, its +0xD0 modifier chain (the ED, `chain_defense`) and its data's
+    flags; None unreadable. An item's rolls do not change: read once a unit, unless its chain was not read whole
+    (`Rolls.defense` None: read again at the next look)."""
     if unit['unit_id'] in BASE_ROLLS_SEEN:
         return BASE_ROLLS_SEEN[unit['unit_id']]
     try:
@@ -620,13 +651,18 @@ def base_rolls(read, unit: dict) -> Rolls | None:
     if stats is None or data is None:
         return None
     plain = {s['id']: s['raw'] for s in stats if s['layer'] == 0}
+    # The totals' 16 first, should a build keep it there; else the chain's (2026-10-20: the superior Monarch rule,
+    # "superior bases" the player asked for at 08:42, never fired on a ground ED read always 0)
+    defense = plain.get(DEFENSE_PERCENT) or chain_defense(read, unit)
     rolls = Rolls(
         plain.get(StatId.SOCKETS, 0),
         tuple((s['layer'], s['raw']) for s in stats if s['id'] == StatId.CLASS_SINGLE_SKILL),
-        plain.get(DEFENSE_PERCENT, 0),
+        defense,
         min(plain.get(stat, 0) for stat in RESISTS),
         bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & ETHEREAL_FLAG),
     )
+    if defense is None:
+        return rolls
     if len(BASE_ROLLS_SEEN) > 500:
         BASE_ROLLS_SEEN.clear()
     BASE_ROLLS_SEEN[unit['unit_id']] = rolls

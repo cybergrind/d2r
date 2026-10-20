@@ -172,6 +172,9 @@ class Run:
         self.hurry: Callable[[], None] | None = None  # asks the service to read the level now (teleport.card_for)
         # The pad back end in controller mode (macros/pad.py); None: keys and mouse
         self.pad: PadActs | None = None
+        # The loot's field routine (loot/api.py `settle`: identify the items picked for it and put down the ones that
+        # fail, M4 of loot/design.md), given the site's name; None: no field routine (running/execution.py)
+        self.field: Callable[[str], object] | None = None
 
     def world(self) -> World:
         if self.cancelled.is_set():

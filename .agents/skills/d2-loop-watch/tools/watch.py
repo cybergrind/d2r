@@ -35,6 +35,7 @@ import logwords
 from logwords import (
     AIMED,
     EXPERIENCE_GAME,
+    FIELD_DROP,
     FULL,
     GROUND,
     LEG,
@@ -109,6 +110,7 @@ class Watch:
         self.aims: dict[str, set[tuple[int, int]]] = {}
         self.clicks: list[tuple[tuple[int, int], int]] = []  # games.py `clicked`: the press's clicks, by line number
         self.number = 0
+        self.field_drop: int | None = None  # the last field drop's line (games.py `field_dropped`)
         # The full stacks: the file as it is at each game's end (a stash visit or an agent may change it while the watch
         # runs: 02:10 on 2026-10-19) and those the log said full since
         self.full = games.full_stacks()
@@ -169,8 +171,10 @@ class Watch:
         if (m := FULL.search(line)) is not None:
             self.full.add(m.group(1))
             self.said_full.add(m.group(1))
-        elif TOWN_DROP.search(line):
+        elif TOWN_DROP.search(line) or FIELD_DROP.search(line):
             games.put_down(self.items.values(), self.number)
+            if FIELD_DROP.search(line):
+                self.field_drop = self.number
         elif (m := PICKED.search(line)) is not None:
             self.picks.append(m.group(1))
         elif (m := AIMED.search(line)) is not None:
@@ -182,10 +186,13 @@ class Watch:
         elif (m := GROUND.search(line)) is not None:
             quality, name, place = m.group(1), m.group(2), (int(m.group(6)), int(m.group(7)))
             number = self.game[0] if self.game is not None else None
+            fresh = (quality, name, place) not in self.items
             item = self.items.setdefault(
                 (quality, name, place),
                 games.Seen(line[11:19], '', number, quality, name, m.group(5) or '', place, first=self.number),
             )
+            if fresh:
+                games.field_dropped(item, self.field_drop)
             item.last = self.number
             if m.group(8):
                 item.verdicts.add(m.group(8))

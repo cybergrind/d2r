@@ -2575,3 +2575,21 @@ def test_a_closed_door_across_a_passages_walk_is_found_and_an_open_one_is_not():
     aside = Door(1, 24, 0, 15180.0, 4802.0)
     assert door_across(SimpleNamespace(doors=(aside,)), here, place) is None  # type: ignore[arg-type]
     assert 24 in USES  # clicked open by `use_thing`
+
+
+def test_the_runners_cancel_racing_the_strike_check_is_a_cancel_not_a_false_stop(monkeypatch):
+    # 08:43:48 on 2026-10-20 (rca/2026-10-20/crossing-teleport-back-findings.md F2): the runner cancelled the mode as
+    # the strike check failed, and the run ended on "Echoing Strike is on no skill key and on neither mouse button"
+    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros.actuator import Cancelled
+
+    play = game(foe(10, 5008.0, 5000.0))
+    run = play.run()
+
+    def raced(run, world, key_names, skill):
+        run.cancelled.set()
+        raise Abort('Echoing Strike is on no skill key and on neither mouse button (left Death Mark, right Teleport)')
+
+    monkeypatch.setattr(hunt_module, 'strike_input', raced)
+    with pytest.raises(Cancelled):
+        hunter(play).attack_mode(run, keys)
