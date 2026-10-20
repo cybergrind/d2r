@@ -20,6 +20,8 @@ from inventory_tracking.appraisal.owned import (
     compare_rolls,
     connect_readonly,
     match_kind,
+    offline_characters,
+    online_only,
     overall,
     perfection,
     same_item,
@@ -78,15 +80,16 @@ def owned_copies(observation: Observation, database: Path = DEFAULT_DATABASE) ->
     if kind is None or not database.exists():
         return None
     _, condition, params = kind
+    online, online_params = online_only(offline_characters())  # offline characters own nothing (appraisal/owned.py)
     try:
         with closing(connect_readonly(database)) as db:
             playing = db.execute('SELECT name FROM characters ORDER BY last_seen DESC LIMIT 1').fetchone()
             sql = (
                 'SELECT p.*, i.* FROM placements p JOIN items i ON i.fingerprint = p.fingerprint '
                 f'WHERE p.gone_at IS NULL AND {condition} '
-                f'AND NOT (p.owner = ? AND p.container IN ({", ".join("?" for _ in TRANSIT)})) ORDER BY p.id'
+                f'AND NOT (p.owner = ? AND p.container IN ({", ".join("?" for _ in TRANSIT)})){online} ORDER BY p.id'
             )
-            found = db.execute(sql, [*params, playing['name'] if playing else '', *TRANSIT]).fetchall()
+            found = db.execute(sql, [*params, playing['name'] if playing else '', *TRANSIT, *online_params]).fetchall()
             rows = [(_row_item(row), _row_placement(row)) for row in found]
     except (sqlite3.Error, ValueError) as error:
         LOG.info('Macro: copies: the collection cannot be read: %s', error)

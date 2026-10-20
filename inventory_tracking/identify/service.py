@@ -31,7 +31,15 @@ import time
 from contextlib import nullcontext, suppress
 from typing import Any
 
-from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, overall, owned_summary
+from inventory_tracking.appraisal.owned import (
+    AT_LEAST_AS_GOOD,
+    multiple_copy_item,
+    multiple_copy_use,
+    overall,
+    owned_summary,
+    perfection,
+    variable_rolls,
+)
 from inventory_tracking.appraisal.presentation import item_tone
 from inventory_tracking.appraisal.triage import LABELS, TONES, demand_unmeasured, description, tone as triage_tone
 from inventory_tracking.common import LOG, timestamp
@@ -156,10 +164,22 @@ def notable_stats(observation, limit=3) -> list[str]:
 ROLLED = frozenset(('unique', 'set', 'magic', 'rare', 'crafted'))
 
 
-def value_ist(result) -> float | None:
-    """The item's price in Ist: the triage's band (lower quartile, else median), else the estimate; None unknown."""
-    band = (result.get('triage') or {}).get('band') or {}
-    price = band.get('q1_ist', band.get('median_ist'))
+def value_ist(result, observation=None) -> float | None:
+    """The item's price in Ist by its own rolls (the player, 2026-10-19: "it should be priced according our rols"): the
+    triage's own price where it compares the rolls (`roll_comparison`, `roll_placement`); else its place in the asks'
+    band by its rolls, the lower quartile for the worst and the median for perfect ones (`perfection`), the median for
+    fixed stats; else the estimate. None unknown."""
+    triage = result.get('triage') or {}
+    if (triage.get('roll_comparison') or (triage.get('roll_placement') or {}).get('valid')) and triage.get(
+        'decision_ist'
+    ) is not None:
+        return triage['decision_ist']
+    band = triage.get('band') or {}
+    low, middle = band.get('q1_ist'), band.get('median_ist')
+    if low is not None and middle is not None:
+        place = perfection(variable_rolls(observation if observation is not None else result.get('extraction', {})))
+        return middle if place is None else low + place * (middle - low)
+    price = low if low is not None else middle
     return price if price is not None else (result.get('price_estimate') or {}).get('estimate_ist')
 
 
@@ -178,31 +198,38 @@ def trade_reason(result) -> bool:
     )
 
 
-def owned_verdict(result, owned, verdict: str, reason: str) -> tuple[str, str]:
+def owned_verdict(result, owned, observation, verdict: str, reason: str) -> tuple[str, str]:
     """`verdict` decided again by the owned copies (the player, 2026-10-19: "we keep all expensive items 1+ ist value;
     we keep all items that have better rolls that we had; we sell all dublicated items with worse rolls than we have").
     Copies in the playing character's inventory and cube are the loop's own, not owned: two carried copies would each
-    sell the other. The first copy stays as appraised (macros/copies.py keeps a first set or unique)."""
-    item = result.get('extraction', {}).get('item', {})
-    if not owned or item.get('rarity') not in ROLLED or item.get('runeword') or multiple_copy_use(result):
+    sell the other. The first copy stays as appraised (macros/copies.py keeps a first set or unique). `observation`: the
+    read (its item and rolls); the identify card's fast triage result has none of its own."""
+    item = observation.get('item', {})
+    if not owned or item.get('rarity') not in ROLLED or item.get('runeword') or multiple_copy_item(item):
         return verdict, reason
-    kept = [copy for copy in owned.get('copies', ()) if not copy.get('carried')]
-    value = value_ist(result)
+    kept = owned.get('copies', ())
+    value = value_ist(result, observation)
     if not kept or (value is not None and value >= KEEP_IST):
         return verdict, reason
-    relation = overall([copy['relation'] for copy in kept])
+    relation = owned['relation']
     if relation == 'better' and verdict in ('vendor', 'check'):
         return 'keep', f'rolls better than the {len(kept)} owned; {reason}'
     if relation in AT_LEAST_AS_GOOD and verdict != 'vendor' and (value is not None or not trade_reason(result)):
-        price = f'asks ~{value:g} Ist' if value is not None else 'no price'
+        price = f'~{value:.2g} Ist by its rolls' if value is not None else 'no price'
         return 'vendor', f'an owned copy rolls at least as well, {price}; was {verdict}: {reason}'
     return verdict, reason
 
 
-def verdict_for(result, owned=None) -> tuple[str, str]:
+def verdict_for(result, owned=None, observation=None) -> tuple[str, str]:
     """(keep|check|vendor, reason) from what the offline assessment established, decided again by the owned copies
-    (`owned_verdict`)."""
-    return owned_verdict(result, owned, *assessed_verdict(result, owned))
+    (`owned_verdict`) for `observation` (the read; else the result's own extraction)."""
+    if observation is None:
+        observation = result.get('extraction', {})
+    if owned and owned.get('copies'):  # the carried copies are the loop's own (`owned_verdict`)
+        kept = [copy for copy in owned['copies'] if not copy.get('carried')]
+        relation = overall([copy['relation'] for copy in kept]) if kept else None
+        owned = {**owned, 'copies': kept, 'count': len(kept), 'relation': relation}
+    return owned_verdict(result, owned, observation, *assessed_verdict(result, owned))
 
 
 def assessed_verdict(result, owned=None) -> tuple[str, str]:
@@ -275,7 +302,7 @@ def item_summary(observation, result, owned=None) -> dict[str, Any]:
         name += f' ({item["base_name"]})'
     if observation['source'].get('container', {}).get('page') == 3:
         name += ' [cube]'
-    verdict, reason = verdict_for(result, owned)
+    verdict, reason = verdict_for(result, owned, observation)
     if clause := owned_summary(owned):
         reason += f'; {clause}'
     return {

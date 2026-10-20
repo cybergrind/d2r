@@ -52,3 +52,7 @@ asked 0.79 Ist (16 sellers), superior under 15% ED 4os 2.0 (5), superior 15% ED 
 - 2026-10-18 11:10: "we should sell junk rings and other junk items; imporant!: do not sell own equipment or valuable
   items". Never a charm of set/unique quality: the Sunders, Gheed's, Annihilus and the Torch are the loop's quarry
   whatever a price says.
+- 2026-10-19 21:55: a magic Matriarchal Javelin the loot filter showed was appraised `vendor` at Cain, but `sellable`
+  took magic and rare items only of the skill types, charms, jewels and jewelry, so it was stashed as a keeper (shared
+  page 1) and not sold; the player: "we had put trash item for sale and forgot to pick it and sell". Every magic or
+  rare item but a rune, gem or the Crafted Sunder Charm is now `sellable`; the appraisal's `vendor` decides.

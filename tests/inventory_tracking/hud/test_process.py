@@ -184,7 +184,7 @@ def test_the_mode_beacon_says_whether_attack_mode_is_on_and_nothing_out_of_a_gam
     beacon.poll(11.0)  # out of the game: taken off
 
     texts = [[line['text'] for line in widgets[0].payload['lines']] if widgets else None for widgets in published]
-    assert texts == [['attack off'], ['ATTACK ON'], ['ATTACK ON'], None]
+    assert texts == [None, ['ATT'], ['ATT'], None]  # nothing to say off attack mode with no macro line (2026-10-19)
     assert published[1][0].slot == 'mode'
 
 
@@ -209,36 +209,34 @@ def test_the_mode_beacon_adds_the_input_mode_and_in_controller_mode_the_pad_lege
     beacon.poll(10.3)
     beacon.poll(10.4)  # nothing changed
 
-    texts = [[line['text'] for line in widgets[0].payload['lines']] for widgets in published]
+    texts = [[line['text'] for line in widgets[0].payload['lines']] if widgets else None for widgets in published]
     assert texts == [
-        ['attack off'],
-        ['attack off · kbd'],
-        ['attack off · →pad'],
-        ['attack off · pad', 'A Attack, Y Echoing Strike', 'LT+X Town Portal'],
-    ]
+        None,
+        None,
+        ['→pad'],
+        ['pad', 'A Attack, Y Echoing Strike', 'LT+X Town Portal'],
+    ]  # the input mode only off the keyboard; no macro line in this test
 
 
-def test_the_mode_beacon_shows_the_run_mode_only_for_a_full_clear_in_a_word():
-    """The pickup key's run mode (macros/runmode.py, 2026-10-14): nothing for the goal, a word for a full clear;
-    the line stays terse, no sentence in it."""
+def test_the_mode_beacon_shows_the_macros_line_or_att_alone():
+    """The macro's line (runner.py `run_badge`, the player, 2026-10-19: "`<mode> PICK:<pickup level> NEXT:<next
+    goal>`"), else ATT while attack mode is on; the keyboard is not named."""
     from inventory_tracking.hud.process import ModeBeacon
-    from inventory_tracking.macros.runmode import TERROR, Mode, badge
     from inventory_tracking.models import InputMode
 
-    run = [badge(Mode(False))]
+    run: list[str | None] = [None]
     published = []
     beacon = ModeBeacon(
         lambda: (True, True), published.append, input_mode=lambda: InputMode(False), run_mode=lambda: run[0]
     )
     beacon.poll(10.0)
-    run[0] = badge(Mode(True, TERROR))
+    run[0] = 'ATT PICK:GOOD NEXT:clear'
     beacon.poll(10.1)
-    run[0] = badge(Mode(True))
+    run[0] = 'AND PICK:MOST NEXT:level run'
     beacon.poll(10.2)
 
     texts = [[line['text'] for line in widgets[0].payload['lines']] for widgets in published]
-    assert texts == [['ATTACK ON · kbd'], ['ATTACK ON · CLEAR TZ · kbd'], ['ATTACK ON · CLEAR · kbd']]
-    assert all(len(text) <= 26 and ':' not in text for (text,) in texts)
+    assert texts == [['ATT'], ['ATT PICK:GOOD NEXT:clear'], ['AND PICK:MOST NEXT:level run']]
 
 
 def test_controller_slots_keep_the_guide_left_of_the_life_globe_and_the_mode_line_above_the_bar():

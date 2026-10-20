@@ -45,6 +45,7 @@ def aimed(agenda: Agenda, seen: LevelView) -> Objective:
 
 
 CATACOMBS_3, ROGUE_ENCAMPMENT, FORTRESS, CITY_OF_THE_DAMNED = 36, 1, 103, 106
+KURAST_DOCKS, TRAVINCAL = 75, 83
 HERE = (5000.0, 5000.0)
 
 
@@ -105,6 +106,21 @@ def test_with_no_goals_left_the_game_is_left_but_never_with_a_valuable_on_the_gr
     assert agenda.next(None, in_game=False).kind == NEW_GAME
 
 
+def test_a_game_with_no_goals_left_in_act_3_ends_in_the_fortress_by_lower_kurasts_way():
+    # The player, 2026-10-19: "if we're doing save/exit in any act3 zone in loop, we must use the same routins as LK
+    # (teleport home -> pandemonium fortress -> save/exit)"
+    agenda = Agenda()
+    agenda.begin('g')
+    home = agenda.next(HERE, area=TRAVINCAL)
+    assert (home.kind, home.to, home.ends) == (PORTAL_TO_TOWN, KURAST_DOCKS, True)
+    fortress = agenda.next(HERE, area=KURAST_DOCKS)
+    assert (fortress.kind, fortress.to, fortress.ends) == (WAYPOINT, FORTRESS, True)
+    assert agenda.next(HERE, area=FORTRESS).kind == LEAVE_GAME
+    assert agenda.next(HERE, area=CATACOMBS_3).kind == LEAVE_GAME  # act 1's games end where they stand
+    kept = agenda.next(HERE, valuable='Ist Rune at (100, 200)', area=TRAVINCAL)
+    assert kept.kind == PICKUP  # the valuable before any way home
+
+
 def test_the_queue_gives_the_lowest_tier_then_the_nearest():
     agenda = Agenda()
     agenda.begin('g')
@@ -117,6 +133,22 @@ def test_the_queue_gives_the_lowest_tier_then_the_nearest():
     assert agenda.next(HERE) == far
     agenda.refresh([onward])
     assert agenda.next(HERE) == onward
+
+
+def test_a_level_with_no_way_on_drops_its_next_level_for_the_game():
+    # Lost City, 01:13:16-01:13:54 on 2026-10-20: 'on into Valley of Snakes' made again every 8 s, each run ending 'no
+    # way to Valley of Snakes after exploring for it 8 s', until the 45 s watchdog left the game
+    agenda = Agenda()
+    agenda.begin('g')
+    onward = Objective(NEXT_LEVEL, 'on into Valley of Snakes', 50, 44, to=45)
+    agenda.refresh([onward])
+    agenda.no_way_on(44)
+    assert agenda.queue == {}
+    agenda.refresh([onward, Objective(NEXT_LEVEL, 'on', 50, 1, to=2)])
+    assert [goal.area for goal in agenda.queue.values()] == [1]  # other levels' ways on stay
+    agenda.begin('g2')
+    agenda.refresh([onward])
+    assert agenda.next(HERE) == onward  # a new game tries it afresh
 
 
 def test_drops_come_before_every_goal_of_the_metric_at_the_games_level():
@@ -299,3 +331,64 @@ def test_the_chest_reach_is_held_to_the_full_clears():
     from inventory_tracking.macros.hunting.base import SUPER_NEAR
 
     assert CHEST_NEAR == SUPER_NEAR
+
+
+def test_the_gheeds_swap_package_is_two_trips_to_the_fortress_and_ends_where_it_began():
+    # goals-plan.md §7: [portal, Fortress, park the player's, back, through, pick the new one, portal, Fortress, Cain,
+    # choose, back, through, RESUME]; in act 4 no waypoint either way
+    from inventory_tracking.macros.agenda import (
+        RESUME,
+        SWAP_AWAY,
+        SWAP_CHOOSE,
+        SWAP_HOME,
+        SWAP_PARK,
+        SWAP_PICK,
+        THROUGH_PORTAL,
+        WAYPOINT,
+        gheeds_fetch,
+        gheeds_package,
+    )
+
+    act_3 = [(goal.kind, goal.to) for goal in gheeds_package(76)]
+    assert act_3 == [
+        (SWAP_AWAY, 75), (WAYPOINT, 103), (SWAP_PARK, None), (WAYPOINT, 75), (THROUGH_PORTAL, 76), (SWAP_PICK, None),
+        (SWAP_HOME, 75), (WAYPOINT, 103), (SWAP_CHOOSE, None), (WAYPOINT, 75), (THROUGH_PORTAL, 76), (RESUME, None),
+    ]  # fmt: skip
+    assert [goal.kind for goal in gheeds_package(105)] == [
+        SWAP_AWAY, SWAP_PARK, THROUGH_PORTAL, SWAP_PICK, SWAP_HOME, SWAP_CHOOSE, THROUGH_PORTAL, RESUME,
+    ]  # fmt: skip
+    assert [goal.kind for goal in gheeds_fetch(75)] == [WAYPOINT, SWAP_CHOOSE, RESUME]  # a game begun in a town
+    assert [goal.kind for goal in gheeds_fetch(103)] == [SWAP_CHOOSE, RESUME]
+
+
+def test_a_cut_package_keeps_its_top_and_its_resume_and_leaves_the_package_below_alone():
+    from inventory_tracking.macros.agenda import RESUME, SWAP_PICK, gheeds_package, room_package
+
+    agenda = Agenda()
+    agenda.begin('g')
+    agenda.push(*room_package(36))
+    agenda.push(*gheeds_package(76))
+    while (top := agenda.package()) is not None and top.kind != SWAP_PICK:
+        agenda.done(top)
+    below = len(room_package(36))
+    agenda.cut()
+    assert [goal.kind for goal in agenda.stack[below:]] == [RESUME, SWAP_PICK]
+    agenda.done(agenda.stack[-1])
+    assert len(agenda.stack) == below + 1
+    assert agenda.package() == room_package(36)[0]  # the swap's RESUME gone: the room trip below goes on
+
+
+def test_the_routes_object_beside_the_character_goes_before_a_farther_room(monkeypatch):
+    # Game 30 on 2026-10-19 (the Chaos Sanctuary): Vizier seal 2 40 units from seal 1, Infector seal 2 43 from seal 1,
+    # and the tour went 184 and 213 units away first (rca/2026-10-19/game30-run-findings.md S3)
+    agenda = Agenda()
+    agenda.begin('g')
+    room = ((5000.0, 5184.0), 'an unexplored room')
+    assert agenda.in_level(view(frontier=lambda: room, policy=COVER, use_at=(5040.0, 5000.0))) is None
+    near_room = ((5020.0, 5000.0), 'an unexplored room')
+    assert aimed(agenda, view(frontier=lambda: near_room, policy=COVER, use_at=(5040.0, 5000.0))).kind == EXPLORE
+    assert aimed(agenda, view(frontier=lambda: room, policy=COVER, use_at=(5100.0, 5000.0))).kind == EXPLORE
+    far = Leader(5, (5600.0, 5000.0), 'the remembered monster', live=False)
+    assert agenda.in_level(view(leaders=(far,), frontier=lambda: None, use_at=(5040.0, 5000.0))) is None
+    monkeypatch.setattr(agenda_module, 'USE_FIRST', False)  # the switch off: the tour first, as before
+    assert aimed(agenda, view(frontier=lambda: room, policy=COVER, use_at=(5040.0, 5000.0))).kind == EXPLORE

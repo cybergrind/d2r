@@ -67,9 +67,9 @@ def variants() -> list[tuple[str, Situation, list | None]]:
     key = [held('teleport', every=0.3)]
     return [
         ('KP_4 held from the pocket: new', standing(base, D).logic('new'), key),
-        ('KP_4 held from the pocket: today', standing(base, D), key),
+        ('KP_4 held from the pocket: today', standing(base, D).logic('today'), key),
         ('KP_4 held from B: new', standing(base, B).logic('new'), key),
-        ('KP_4 held from B: today', standing(base, B), key),
+        ('KP_4 held from B: today', standing(base, B).logic('today'), key),
         ('as recorded: new', base.logic('new'), None),
     ]
 

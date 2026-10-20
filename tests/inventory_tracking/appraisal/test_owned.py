@@ -110,6 +110,24 @@ def test_copies_in_the_playing_characters_inventory_and_cube_are_told_carried(tm
     assert sorted(copy['carried'] for copy in owned['copies']) == [False, True]
 
 
+def test_offline_characters_and_their_captures_own_nothing(collection, tmp_path):
+    # The player, 2026-10-19: "we need to capture only online characters for now. these are offline with top gear"
+    from inventory_tracking.appraisal.owned import offline_characters
+
+    database = collection(unique(x=0))
+    saves = tmp_path / 'saves'
+    saves.mkdir()
+    assert offline_characters(saves) == frozenset()
+    (saves / 'Mule.d2s').write_bytes(b'')
+    assert offline_characters(saves) == {'Mule'}
+    online, offline = (
+        owned_copies(unique(defense=165), database, offline=o) for o in (frozenset(), frozenset({'Mule'}))
+    )
+    assert online is not None
+    assert offline is not None
+    assert (online['count'], offline['count']) == (1, 0)
+
+
 def test_one_better_owned_copy_makes_the_new_item_worse(collection):
     database = collection(unique(defense=140, cold=10, x=0), unique(defense=170, cold=15, x=2))
     owned = owned_copies(unique(defense=150, cold=12), database)

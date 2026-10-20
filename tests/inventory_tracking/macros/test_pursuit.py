@@ -745,3 +745,21 @@ def test_the_strike_gap_holds_as_before_on_every_goal_but_the_runs_boss(monkeypa
     # A run paused by the player's hand is no run working
     look, run, hold, _ = _andariel_look()
     assert decide(look, replace(run, paused=True)) == hold.act
+
+
+def test_a_passage_no_hop_gets_nearer_is_walked_from_a_walks_reach():
+    # 00:02:18 on 2026-10-20, Outer Steppes: the Plains of Despair 23 units off, "no footing in view brings the
+    # character nearer by hops (the far way)", and the run stood 45 s
+    from inventory_tracking.macros.pursuit import PASSAGE, THROUGH_WALK, through
+
+    goal = Goal('Plains of Despair', (5420.0, 4953.8), goals.ENTER, goals.PASSAGE_NEAR, PRESSED)
+    stuck = NoWay('no footing in view brings the character nearer by hops (the far way)')
+
+    def looked(beyond: float) -> Facts:
+        return Facts(100.0, goal, False, False, True, lambda: stuck, 104, beyond=beyond)
+
+    walk = Move(Step(goal.place), goal, f'Plains of Despair: {PASSAGE}')
+    assert through(looked(23.0 - goals.PASSAGE_NEAR), goal) == walk
+    far = through(looked(THROUGH_WALK + 10.0), goal)
+    assert isinstance(far, NoWay)
+    assert not far.arrived

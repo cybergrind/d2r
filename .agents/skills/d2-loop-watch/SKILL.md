@@ -109,7 +109,7 @@ Switches for a change under test are module constants with a dated comment (e.g.
 
 | Tool | What it does |
 | --- | --- |
-| `watch.py` | Follows the newest `runs/alt-d/*/probe.log` across restarts. Prints one line per game (seconds, legs over 25 s, cube/stash/shop notes), and a `MISSED:` line for each valuable of the game never picked up. At once: stops, recoveries ("the game is left"), guard stops, identify verdicts, sales, repairs, errors, tracebacks, `PLAYER: loop on/off`, and `STALL` after `--stall` s with no leg while on. A re-armed watch reads the current log quietly first. |
+| `watch.py` | Follows the newest `runs/alt-d/*/probe.log` across restarts. Prints one line per game (seconds, legs over 25 s, cube/stash/shop notes), and a `MISSED:` line for each valuable of the game never picked up. At once: stops, recoveries ("the game is left"), guard stops, identify verdicts, sales, repairs, errors, tracebacks, `PLAYER: loop on/off`, and `STALL` after `--stall` s with no leg and no teleport, kill or pickup while on, or one leg past 300 s (`LONG_LEG`). A re-armed watch reads the current log quietly first. |
 | `restart.py --loop on\|off\|keep [--kind andariel\|lk]` | Waits for a safe moment: at once if the loop is off, else the next `next game` leg (the lobby). Then it writes `runs/alt-d/restart.request` and confirms the new service's `resumed after a restart` line. Exit 1: no safe moment, nothing written. Exit 2: no resume seen. |
 | `kind.py andariel\|lk\|tz\|tzclear` | Switches the loop's kind without a restart (`loop-kind` request, runner.py `choose_kind`): at once with the loop off, else from the next game. The card says `Loop run: <kind>[ from the next game]`; a restart keeps it. |
 | `andy.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-takes] [--json]` | **Andariel kills an hour of play** and the kill-to-kill cycle by phase (loot, next game, town/prebuff, waypoint, Catacombs 2 arrival, each level's run to the stairs and press, Catacombs 4 arrival to in reach, in reach to dead, trade sessions, recoveries); walks on the down levels; the fight per take; `--against` with a 90% bootstrap interval. About 9 s for 2 h. |
@@ -210,7 +210,7 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 ## Restart
 
 `python3 .agents/skills/d2-loop-watch/tools/restart.py --loop on --kind andariel` (or `--loop keep`), from the repo
-root, with `timeout 600`. It waits for the next lobby (`next game` leg) when the loop is on, so the town visit of the
+root, with `timeout 600` (TZ games run 4-7 min: pass `--wait 1200` and `timeout 1300`, the default 300 s wait gives up). It waits for the next lobby (`next game` leg) when the loop is on, so the town visit of the
 game before is finished ("reload on the next town visit" means this). The watch follows the new log by itself.
 After it: the journal line (time, session id, what went live, what did not), and tell the player what is live. With
 the loop off by the player, a restart keeps it off (`--loop keep`) unless the player asked otherwise.

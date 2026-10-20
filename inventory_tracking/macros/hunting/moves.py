@@ -11,6 +11,7 @@ from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.game.records import Monster, Teleport, World
+from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Expired
@@ -65,6 +66,7 @@ from inventory_tracking.macros.teleport import (
     ready,
     scaled,
     use_thing,
+    used_already,
     walk_into,
 )
 from inventory_tracking.macros.travel import (
@@ -126,8 +128,18 @@ def pursue(
     """One look of the pursuit and its act (pursuit.py): a move, a use, or the hand-over to the route's step.
     Whether something was done (the loop then looks again). An act from a `stale` look is not made."""
     looked = run.clock()
-    with self.way_time():
-        found = self.judge(run, world, foes, ground, in_reach=in_reach)
+    taken = self.yielded_act(run, world)
+    if taken is not None:
+        # The act the fight was let go for, as that look priced it (YIELD_TAKES): not judged again
+        found, looked = taken
+        LOG.info(
+            'Macro: pursuit: the act the fight was let go for is made (%.2f s old): %s',
+            run.clock() - looked, found.goal.label if found.goal is not None else type(found.act).__name__,
+        )  # fmt: skip
+        self.pursued = found.goal
+    else:
+        with self.way_time():
+            found = self.judge(run, world, foes, ground, in_reach=in_reach)
     act, goal, posted, pressed = found.act, found.goal, found.posted, found.pressed
     running = posted is not None and posted.runs
     stamp = posted.pressed_at if posted is not None else -math.inf
@@ -324,6 +336,14 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
         # The walk across an open passage (pursuit.py `through`), said whether the safety priced it or not
         self.tell(run, f'{goal.label}: {PASSAGE}')
     here = (world.player.x, world.player.y) if world.player is not None else (player.x, player.y)
+    if goal.crossed and step.skill is None and (door := door_across(world, here, place)) is not None:
+        # A closed door across the walk: opened first, the walk priced again at the next look
+        thing = next((t for t in (run.things() if run.things is not None else ()) if t.unit_id == door.unit_id), None)
+        if thing is not None:
+            mark = Target(player.area, (), (door.x / TILE_UNITS, door.y / TILE_UNITS), goal.label, 'target',
+                          use=door.txt_id)  # fmt: skip
+            use_thing(run, mark, world.player or player, thing, aspect)
+            return
     LOG.info(
         'Macro: pursuit: %s toward %s at (%.1f, %.1f), %.0f away from (%.1f, %.1f): to (%.1f, %.1f) within %s',
         by, goal.label, *place, math.dist(here, place), *here, *step.spot, goal.spend.name,
@@ -333,6 +353,22 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
     self.travel.make(
         run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place, hurry=act.dodge
     )
+
+
+DOOR_NEAR = 15.0  # world units: a closed door this near, across a passage's walk, is opened first (`door_across`)
+
+
+def door_across(world: World, here: Point, place: Point) -> Door | None:
+    """The nearest closed door within DOOR_NEAR of the character that stands across the straight walk to `place`."""
+    found = []
+    for door in world.doors:
+        if not door.closed or math.dist(here, (door.x, door.y)) > DOOR_NEAR:
+            continue
+        steps = max(1, math.ceil(math.dist(here, place) / 0.5))
+        if any(door.blocks((here[0] + (place[0] - here[0]) * i / steps, here[1] + (place[1] - here[1]) * i / steps))
+               for i in range(steps + 1)):  # fmt: skip
+            found.append(door)
+    return min(found, key=lambda door: math.dist(here, (door.x, door.y))) if found else None
 
 
 def warp_ready(
@@ -390,7 +426,8 @@ def operate(self: Hunter, run: Run, world: World, goal: Goal, key_names) -> None
             ):
                 return
         use_thing(run, goal.mark, player, thing, rect[2] / rect[3])
-        self.settled_at = run.clock() + USES[goal.mark.use].brings
+        if not used_already(USES[goal.mark.use], thing):  # `thing` as read before: one used then brings nothing
+            self.settled_at = run.clock() + USES[goal.mark.use].brings  # (45 s at an opened chest on 2026-10-20)
         route.note_used(run, goal.mark, bearings.progress, bearings.marks)
     elif goal.do == STAND and goal.stage is not None and bearings.progress is not None:
         bearings.progress.stood(player.area, goal.stage.mark)

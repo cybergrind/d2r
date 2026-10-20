@@ -115,13 +115,29 @@ __all__ = ['FORTRESS_MAP', 'Hands', 'Remembered', 'TownMap', 'Visited', 'note_vi
 Rect = tuple[int, int, int, int]
 
 
+# A new game's Shared tab opens on its first page, not on the one shown last in the game before: the Spiked Shield
+# went onto page 1, planned 3 (remembered 3 from the visit of 02:23), at 02:36:57 on 2026-10-19, the stash opened once;
+# 39 such landings that day (to 21:55), 31 onto page 1 and 8 onto page 2 after one arrow
+FIRST_SHARED = 1
+
+
 @dataclass
 class Remembered:
-    """Kept between stops: the game whose stash view was logged, and the shared page the Shared tab showed last (the
-    tab reopens on it; None: not known)."""
+    """Kept between stops: the game whose stash view was logged, and the shared page the Shared tab showed last
+    (`shared`, in the game `shared_game`; the tab reopens on it within that game; None: not known)."""
 
     game: str | None = None
     shared: int | None = None
+    shared_game: str | None = None
+
+    def shared_in(self, game: str | None) -> int | None:
+        """The page the Shared tab opens on in `game`: the one shown last in it, FIRST_SHARED in a later game."""
+        if self.shared is not None and game is not None and self.shared_game is not None and game != self.shared_game:
+            return FIRST_SHARED
+        return self.shared
+
+    def saw(self, game: str | None, page: int) -> None:
+        self.shared, self.shared_game = page, game
 
 
 def note_view(run: Run, noted: Remembered) -> None:
@@ -149,6 +165,7 @@ class Tally:
     missed: list[Carried] = field(default_factory=list)
     shown: int | None = None  # 0 personal, 1..5 a shared page, RESOURCE_TAB; None: not known (just opened)
     guessed: bool = False  # the shared page shown is the one remembered, not yet seen to take an item
+    landed: dict[int, int] = field(default_factory=dict)  # unit id -> the page a put went onto, as read after it
 
     def miss(self, item: Carried) -> None:
         if all(i.unit_id != item.unit_id for i in self.missed):
@@ -218,8 +235,10 @@ def stash_stop(
         if parked:
             LOG.warning('Macro: stash: %d junk left parked in the stash: %s', len(parked),
                         ', '.join(f'{_name(item)} on page {page}' for item, page in parked))  # fmt: skip
+    # The pages the puts went onto as read after each, not as planned (21:55:27 on 2026-10-19: planned 3, onto 1)
+    went = tuple(page for page in PAGE_PRIORITY if page in set(tally.landed.values()))
     LOG.info('Macro: stash: by the view: %d items put in (pages %s), %d dropped, %d left for the scan, %d openings, '
-             '%.1fs', tally.moved, ','.join(map(str, stop.pages())) or '-', dropped, len(tally.missed), openings,
+             '%.1fs', tally.moved, ','.join(map(str, went)) or '-', dropped, len(tally.missed), openings,
              run.clock() - began)  # fmt: skip
     if tally.missed:
         tally.moved += _scan(run, tally.missed, inventory_key, own)
@@ -285,15 +304,19 @@ def _show(run: Run, rect: Rect, page: int, tally: Tally) -> None:
         _tab(run, rect, PERSONAL_TAB)
     elif tally.shown is not None and tally.shown >= 1:
         _arrows(run, rect, page - tally.shown)
-    elif tally.memory.shared is not None:
+    elif (opens := tally.memory.shared_in(_game(run))) is not None:
         _tab(run, rect, SHARED_TAB)
-        _arrows(run, rect, page - tally.memory.shared)
+        _arrows(run, rect, page - opens)
         tally.guessed = True
     else:
         _shared(run, rect, page)
     tally.shown = page
     if page >= 1:
-        tally.memory.shared = page
+        tally.memory.saw(_game(run), page)
+
+
+def _game(run: Run) -> str | None:
+    return run.world().game_name or None
 
 
 def _pages(run: Run, rect: Rect, puts: Sequence[Put], tally: Tally) -> None:
@@ -325,12 +348,13 @@ def _pages(run: Run, rect: Rect, puts: Sequence[Put], tally: Tally) -> None:
         tally.guessed = False
         view = run.reads.stash_view()
         landed = view.page_of(held.unit_id) if view is not None else None
+        tally.landed[held.unit_id] = landed if landed is not None else put.to
         if landed is not None and landed != put.to:
             LOG.warning('Macro: stash: the %s went onto page %d, planned %d: page %d is the one shown', _name(held),
                         landed, put.to, landed)  # fmt: skip
             tally.shown = landed
             if landed >= 1:
-                tally.memory.shared = landed
+                tally.memory.saw(_game(run), landed)
 
 
 def _keepers(items: Sequence[Carried]) -> str:
@@ -405,6 +429,8 @@ def _park(
         page = landed if landed is not None else put.to
         if landed is not None and landed != put.to:
             tally.shown = landed
+            if landed >= 1:
+                tally.memory.saw(_game(run), landed)
         parked.append((held, page))
         LOG.info("Macro: stash: the %s (junk) parked on page %d for the stop: room for the cube's %s", _name(held),
                  page, _keepers(later))  # fmt: skip
@@ -415,7 +441,8 @@ def _unpark(run: Run, rect: Rect, parked: Sequence[tuple[Carried, int]], tally: 
     read. Returns those still in the stash."""
     left: list[tuple[Carried, int]] = []
     for item, page in sorted(parked, key=lambda p: (-p[0].size[0] * p[0].size[1], -p[0].size[1], p[0].unit_id)):
-        view = run.reads.stash_view()
+        # Found by its unit id on whichever page it lies, the one planned or not
+        view = run.reads.stash_view() or until(run, lambda _view: True, REREAD_SECONDS, read=run.reads.stash_view)
         lying = next(((p.index, i) for p in (view.pages if view else ()) for i in p.items if i.unit_id == item.unit_id),
                      None)  # fmt: skip
         if lying is None:
@@ -433,7 +460,8 @@ def _unpark(run: Run, rect: Rect, parked: Sequence[tuple[Carried, int]], tally: 
                 break
             tally.guessed = False
             _shared(run, rect, index)
-            tally.shown = tally.memory.shared = index
+            tally.shown = index
+            tally.memory.saw(_game(run), index)
         if back:
             tally.guessed = False
             LOG.info('Macro: stash: the parked %s taken back from page %d for Jamella', _name(item), index)
@@ -1044,8 +1072,8 @@ def visit(
                 LOG.info('Macro: town visit: toward the waypoint: %s', stop)
     pack = _pack(run)
     in_stash: list[Carried] = []
-    if any(planned.parks for planned in plans):
-        # Junk a park left on a page (`stash_stop` takes each back or names it)
+    if junk:
+        # Junk on a stash page, by its unit id (a park not taken back, wherever it landed): junk left, a miss
         after = hands.view()
         in_stash = [i for page in (after.pages if after is not None else ()) for i in page.items if i.unit_id in junk]
     # A cube keeper with no way out waits for the next visit, named, not a miss (the player, 2026-10-18: "keeper can

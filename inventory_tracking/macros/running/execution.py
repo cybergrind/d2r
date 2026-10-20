@@ -23,7 +23,7 @@ from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cta import cast_in_hand
-from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, drop_for, stash
+from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, close, drop_for, stash
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import spot_of
 from inventory_tracking.macros.hunt import Bearings, threat
@@ -34,6 +34,7 @@ from inventory_tracking.macros.pickup import SHUNNED, pick_up, wanted, worth_a_s
 from inventory_tracking.macros.routines import prebuff_keys, run_macro
 from inventory_tracking.macros.running.base import (
     ATTACK,
+    BUFF,
     DOOR_NEAR,
     DROPPED_SECONDS,
     FLIP_POLL,
@@ -46,6 +47,7 @@ from inventory_tracking.macros.running.base import (
     STEPS,
     TELEPORT,
 )
+from inventory_tracking.macros.running.room import ROOM
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import ready, step_toward
 from inventory_tracking.macros.timing import Pace
@@ -112,7 +114,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             actuator.mark = mark
             actuator.cancelled = cancelled
             actuator.noted = self.noted  # the pointer check's abort goes into the take (actuator.py)
-            if routine in STEPS or routine in (ATTACK, LOOP):
+            if routine in STEPS or routine in (ATTACK, BUFF, LOOP):
                 actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
             def key_names(world, skills=None):
@@ -152,6 +154,8 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             run.worn_skills = memory.worn_skills
             if self.hunter is not None:
                 self.hunter.room_maker = self._room_in_cube
+                self.hunter.room_trip = self._room_trip_due  # the shared no-room routine's trip (running/room.py)
+                self.hunter.can_trip = self._room_trip_possible
                 self.hunter.looping = lambda: self.loop.on  # the sweep holds a plain valuable then (`take_one`)
             run.wear = memory.wear
             run.cta = memory.cta
@@ -225,7 +229,9 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
     self.choosing(run)
     if self.hunter is not None:
         self.hunter.bearings = Bearings(self.progress, self.target, self.marks, self.supers)
-    if routine == TELEPORT and self.pursues(run, key_names):
+    if routine == TELEPORT and self.jumps:
+        self._jump(run, key_names)  # hop by hop to the next goal (running/jump.py)
+    elif routine == TELEPORT and self.pursues(run, key_names):
         pass  # one pass of the pursuit's decision made the press (hunting/moves.py `pursue_once`)
     elif routine == TELEPORT:
         self._teleport_step(run, key_names)
@@ -252,12 +258,19 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
                 return
             stepped.append(hunter.step(run, key_names))
 
-        pick_up(run, level, key_names, otherwise, threat(run))
+        # No room: the shared routine's trip may follow the stop (running/room.py, `_guarded`)
+        pick_up(run, level, key_names, otherwise, threat(run), trips=self._room_trip_possible())
         if stepped:
             self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
     elif routine == LOOP:
         self.loop.marks = self.marks
         note_view(run, self.stash_memory)  # the stash as read, once a game in the Fortress (town-plan.md step 0)
+        if self.loop.tidy_panels:
+            self.loop.tidy_panels = False
+            left = [panel for panel in ('inventory', 'cube') if panel in run.world().open_panels]
+            if left:
+                LOG.info('Macro: loop: %s open as the loop is turned on: closed', ' and '.join(left))
+                close(run, ('inventory', 'cube'))
         if self.loop.make_room:
             self.loop.make_room = False
             world = run.world()
@@ -314,6 +327,10 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             item_stats=self.item_stats,
             shown=self.stash_memory,
         )
+    elif routine == ROOM:
+        self._room_errand(run, key_names)  # an activity by hand's trip for room (running/room.py)
+    elif routine == BUFF:
+        self._keep_buffs(run, key_names)  # the buffs kept up while the player plays by hand (running/buffing.py)
     elif routine in (HUNT_ELITES, ATTACK):
         if self.hunter is None:
             raise Abort('no level guide to hunt with')

@@ -940,7 +940,7 @@ def run_service(args, directory, report):
 
                     mode_beacon = (
                         ModeBeacon(
-                            lambda: (progress.game is not None, macro.attack_mode),
+                            lambda: (progress.game is not None, macro.attack_mode or macro.buff_mode),
                             lambda widgets: publish_layer(args.hud_scene, 'mode', widgets),
                             input_mode=lambda: input_watch.current,
                             legend=pad_legend,

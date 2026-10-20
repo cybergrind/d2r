@@ -42,14 +42,17 @@ BOSS_LINE = 'Grand Vizier of Chaos, attack mode'
 SEAL_ONE = 307542651  # the unit of Vizier seal 1 (object class 396) in take 20261013T093331Z-108
 
 
+# The Vizier's moments and the experiments on the stall by today's keys, as recorded (2026-10-13, before the pursuit
+# loop; the default is on since 2026-10-19, batch E): the pursuit loop's plays of them are test_pursuit_situations.py's.
 @functools.cache
 def played(name: str, seed: int) -> Outcome:
-    return vizier.stored(name).play(seed=seed)
+    return vizier.stored(name).logic('today').play(seed=seed)
 
 
 @functools.cache
 def tried(name: str, seed: int) -> Outcome:
-    return vizier.experiment(name, seed)
+    situation, presses = vizier.experiments()[name]
+    return situation.logic('today').play(presses, seed=seed)  # type: ignore[arg-type]
 
 
 # -- the pieces -----------------------------------------------------------------------------------------
@@ -179,7 +182,7 @@ def test_attack_mode_alone_kills_the_pack_only_within_the_strikes_reach(distance
     him where the character stands when he is within the strike's reach, and stands still when he is not
     (pinned as it is today, not asked for)."""
     situation, presses = vizier.distanced(distance)['attack mode alone']
-    outcome = situation.play(presses, seed=1)
+    outcome = situation.logic('today').play(presses, seed=1)  # type: ignore[arg-type]
     assert outcome.gaps[BOSS] is not None
     assert outcome.gaps[BOSS][0] == pytest.approx(distance, abs=0.2)
     assert (outcome.boss_dead[BOSS] is not None) == dies
@@ -260,8 +263,9 @@ def test_the_example_reads_as_the_player_said_it() -> None:
 
 @pytest.mark.xdist_group('situations: the example to a death')
 def test_the_character_can_die_in_the_example_and_the_story_says_how() -> None:
+    # By today's keys: the pursuit loop lives through all eight seeds (2026-10-19), and the story needs a death.
     situation, presses = variants()['attack on']
-    trials = situation.trials(range(1, 9), presses)
+    trials = situation.logic('today').trials(range(1, 9), presses)
     dead = [play for play in trials.outcomes if play.dead]
     print(f'\nfour packs at 30% life, attack on: {len(dead)} of {len(trials.outcomes)} seeds die')
     assert dead, 'no seed of eight dies at 30% life'
@@ -322,7 +326,7 @@ def test_the_catalog_lists_the_fixtures_and_the_example_with_their_variants() ->
         assert pairs
         assert all(labels[labels.index(label) + 1] == label.removesuffix('today') + 'new' for label in pairs)
         logic = {label: situation.pursuit for label, situation, _ in found[name].variants()}
-        assert all(logic[label] == label.endswith(': new') for label in labels)
+        assert all(logic[label] is label.endswith(': new') for label in labels if label.endswith((': today', ': new')))
     assert all(entry.fixture is None or (FIXTURES / entry.fixture).exists() for entry in found.values())
     assert found['four-packs'].variants()[0][0] == 'attack on'
 
@@ -338,7 +342,7 @@ def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_pa
     from tests.inventory_tracking.scenarios.arena.situations.catalog import Entry
 
     def two() -> list:
-        base = example()
+        base = example().logic('today')  # the death is today's keys': the pursuit loop lives through it (2026-10-19)
         return [('attack on', base, []), ('attack off', base.variant(attack=False, seconds=4.0), [])]
 
     row = export_viz.write(Entry('two', 'constructed', 'a test', two), tmp_path, seed=3)

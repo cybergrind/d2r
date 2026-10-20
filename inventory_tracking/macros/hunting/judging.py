@@ -23,12 +23,21 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, Goal
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
+    COMES_TO_ITS_MARK,
     DECIDE_SECONDS,
+    EMPTY_MARK_GOES_ON,
     HURT_SECONDS,
+    MARK_WAIT,
+    NO_WAY_ENDS,
+    NO_WAY_TO,
     OPEN_NEAR,
     PAIR_NEAR,
     SAID_AGAIN,
+    SEEK_WAIT,
     SWAP_RETRY_SECONDS,
+    YIELD_FRESH,
+    YIELD_MOVED,
+    YIELD_TAKES,
     Judged,
     paired,
 )
@@ -180,6 +189,7 @@ def judge(
         act = Ended(f"the route's boss is dead: {goal.label} next, what does not hurt is not fought")
     if isinstance(act, Advance) and self.barred(act, now):
         act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
+    self.empty_mark(world, goal, act, now)
     if isinstance(act, Advance) and act.reason:
         place = act.step.spot
     if (
@@ -202,7 +212,65 @@ def judge(
         # 09:46, the player: "we stuck and exit without visiting next location")
         self.wayless.add((world.game_name, player.area))
         LOG.info('Macro: agenda: no way to %s: the level is explored for it (cover)', goal.label)
+    elif (
+        isinstance(act, NoWay)
+        and not act.arrived
+        and goal is not None
+        and self.agenda is not None
+        and act.reason.startswith('no way toward')
+        and (world.game_name, player.area) in self.wayless
+    ):
+        # Explored for it and still no way: the run ends, not the 45 s watchdog (01:04:16-01:05:01 on 2026-10-20,
+        # Lost City: "no way toward Valley of Snakes" after its rooms, the game left by the watchdog)
+        key = (world.game_name, player.area)
+        if self.no_way_since is None or self.no_way_since[0] != key:
+            self.no_way_since = (key, now)
+        elif now - self.no_way_since[1] >= NO_WAY_ENDS:
+            act = Ended(f'{NO_WAY_TO}{goal.label} after exploring for it {now - self.no_way_since[1]:.0f} s')
+    else:
+        self.no_way_since = None
     return Judged(act, goal, place, posted, pressed)
+
+
+def empty_mark(self: Hunter, world: World, goal: Goal | None, act, now: float) -> None:
+    """Notes a route's boss fight stood at with no boss (`goal.unit` None: by its mark or where one was last seen,
+    the act an arrival that strikes nothing). After MARK_WAIT the stage is given up on this level for the game
+    (`marks_empty`, read by `goal`) and the level is explored for it (`wayless`); said once. Not for a boss the game
+    brings there later (COMES_TO_ITS_MARK). EMPTY_MARK_GOES_ON off: nothing noted."""
+    player = world.player
+    if (
+        not EMPTY_MARK_GOES_ON
+        or player is None
+        or goal is None
+        or goal.do != FIGHT
+        or goal.unit is not None
+        or not goal.route
+        or goal.stage is None
+        or goal.stage.kind != FIGHT
+        or goal.stage.boss in COMES_TO_ITS_MARK
+    ):
+        return
+    key = (world.game_name, player.area, goal.stage.boss)
+    if not (isinstance(act, NoWay) and act.arrived):
+        if isinstance(act, Hold) and not goal.known:
+            self.mark_since.pop(key, None)  # a wave fought: the seek's wait counts afresh from its end
+        return
+    if key in self.marks_empty:
+        return
+    if len(self.mark_since) > 200:
+        self.mark_since.clear()
+    since = self.mark_since.setdefault(key, now)
+    # A seek of a boss not known yet (Lister, after the Throne's waves) waits SEEK_WAIT: the waves come in turn
+    if now - since < (MARK_WAIT if goal.known else SEEK_WAIT):
+        return
+    if len(self.marks_empty) > 200:
+        self.marks_empty.clear()
+    self.marks_empty.add(key)
+    self.wayless.add((world.game_name, player.area))
+    LOG.info(
+        'Macro: run: %s: no boss here after %.0f s; the stage is left and the level explored for it',
+        goal.label, now - since,
+    )  # fmt: skip
 
 
 def safety_priced(
@@ -376,7 +444,37 @@ def key_asks(
             label = found.goal.label if found.goal is not None else 'the goal'
             self.tell(run, act.reason or f'{label}: the least-time safe act is the fight', again=SAID_AGAIN)
         self.judged = (current, now, asks)
+        player = world.player
+        # The act the fight is let go for is the one the next look makes (`yielded_act`, YIELD_TAKES)
+        self.yielded = (
+            (found, now, (player.x, player.y), player.area, current)
+            if asks and YIELD_TAKES and isinstance(act, Advance | Operate) and player is not None
+            else None
+        )
     return asks
+
+
+def yielded_act(self: Hunter, run: Run, world: World) -> tuple[Judged, float] | None:
+    """The look `key_asks` let the fight go for, and its clock, while it still holds (YIELD_TAKES): within YIELD_FRESH,
+    the character within YIELD_MOVED of where that look saw it on the same level, the same press, not hurt since and
+    the move not barred since. Taken once; None: the next look judges again."""
+    kept, self.yielded = self.yielded, None
+    player = world.player
+    if kept is None or not YIELD_TAKES or player is None:
+        return None
+    found, at, there, area, pressed_at = kept
+    now = run.clock()
+    current = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
+    if (
+        not 0.0 <= now - at <= YIELD_FRESH
+        or player.area != area
+        or math.dist((player.x, player.y), there) > YIELD_MOVED
+        or current != pressed_at
+        or self.hurt_at >= at
+        or self.barred(found.act, now)
+    ):
+        return None
+    return found, at
 
 
 def tell(self: Hunter, run: Run, reason: str | None, *, aloud: bool = True, again: float | None = None) -> None:

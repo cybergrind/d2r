@@ -463,3 +463,39 @@ def test_an_inventory_already_open_is_not_closed_by_its_key():
 
     assert unpack(play.run(), 'i', [rune]) == 1
     assert 'i' not in play.pressed()
+
+
+def test_a_run_cancelled_inside_the_cube_still_closes_its_panels():
+    # 23:34:19 on 2026-10-19: a fight back cancelled the cube's room after it opened; the Escape was refused, the
+    # inventory and cube stayed open and the fight read them as the player's hand for 40 s
+    from threading import Event
+
+    from inventory_tracking.macros.actuator import Cancelled
+
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM, RUNE), EMPTY_CUBE))
+    run = play.run()
+    run.actuator.cancelled = Event()  # the runner's, as execution.py binds it
+    clicked = run.actuator.click
+
+    def cancelled(*names: str) -> None:
+        assert run.actuator.cancelled is not None
+        run.actuator.cancelled.set()
+        clicked(*names)
+
+    run.actuator.click = cancelled  # type: ignore[method-assign]
+    with pytest.raises(Cancelled):
+        stash(run, 'i', OWN)
+    assert play.world.open_panels == ()
+
+
+def test_a_dead_character_gets_no_escape():
+    from dataclasses import replace
+
+    from inventory_tracking.macros.cube import close
+
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY), EMPTY_CUBE))
+    play.world = replace(play.world, open_panels=('inventory',))
+    assert play.world.player is not None
+    play.world = replace(play.world, player=replace(play.world.player, mode=17))
+    close(play.run(), ('inventory',))
+    assert play.pressed() == []

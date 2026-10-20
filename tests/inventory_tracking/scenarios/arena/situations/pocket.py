@@ -103,9 +103,9 @@ def pocket_variants() -> list[tuple[str, Situation, list | None]]:
     base = stored(POCKET)
     key = [held('teleport', every=0.3)]
     return [
-        ('as recorded (26 presses): today', base, None),
+        ('as recorded (26 presses): today', base.logic('today'), None),
         ('as recorded (26 presses): new', base.logic('new'), None),
-        ('KP_4 held, every 0.3 s: today', base, key),
+        ('KP_4 held, every 0.3 s: today', base.logic('today'), key),
         ('KP_4 held, every 0.3 s: new', base.logic('new'), key),
     ]
 
@@ -114,10 +114,14 @@ def pack_variants() -> list[tuple[str, Situation, list | None]]:
     base = stored(PACK)
     today = replace(base.variant(), as_it_was=False)
     return [
-        ('as recorded, with the rule of that morning ("the fight first")', base, None),
-        ('as recorded: today', today, None),
+        ('as recorded, with the rule of that morning ("the fight first")', base.logic('today'), None),  # no pursuit yet
+        ('as recorded: today', today.logic('today'), None),
         ('as recorded: new', today.logic('new'), None),
-        ('attack mode on + KP_4 held, every 0.3 s: today', today.variant(attack=True), [held('teleport', every=0.3)]),
+        (
+            'attack mode on + KP_4 held, every 0.3 s: today',
+            today.variant(attack=True).logic('today'),
+            [held('teleport', every=0.3)],
+        ),
         (
             'attack mode on + KP_4 held, every 0.3 s: new',
             today.variant(attack=True).logic('new'),

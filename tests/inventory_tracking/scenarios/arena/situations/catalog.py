@@ -42,7 +42,7 @@ class Entry:
 
 def both(label: str, situation: Situation, presses: list | None) -> list[Variant]:
     """The variant by today's keys and by the pursuit loop, side by side."""
-    return [(f'{label}: today', situation, presses), (f'{label}: new', situation.logic('new'), presses)]
+    return [(f'{label}: today', situation.logic('today'), presses), (f'{label}: new', situation.logic('new'), presses)]
 
 
 STALL_PAIRS = (  # the experiments of the stall played by both logics (vizier.py `experiments`)

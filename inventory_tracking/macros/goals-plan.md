@@ -22,8 +22,9 @@ before. Offline fakes are no proof of game behaviour: §9 lists what live play m
 - **Each kind has its own metric, and drops come first** (same ruling: "every loop has it's own metric, that it must
   optimize: boss kills/elites kill/opened chest. the only thing that has more priority - proper interactions with
   drops (we cannot run without picking desired items just with killing boss alone)"): `Kind.metric` — Lower Kurast
-  chests opened an hour, Andariel kills an hour, TZ leveling elite kills an hour, Full clear TZ Herald and elite kills
-  an hour (open question 8). Every drop tier is above every metric tier in the queue (§3), tested
+  chests opened an hour, Andariel kills an hour, TZ leveling experience an hour (elite kills an hour until 2026-10-19
+  21:37, the player: "we should log experience in tz leveling"; macros/experience.py), Full clear TZ Herald and elite
+  kills an hour (open question 8). Every drop tier is above every metric tier in the queue (§3), tested
   (test_agenda.py `test_drops_come_before_every_goal_of_the_metric…`, `test_a_pickup_near_a_pack…`).
 - **Any terror zone**, with a generic adaptation: per-level knowledge where it exists, sound defaults where not.
 - **A prioritized goal queue**: navigation, killing, exploration, pickups as goals of their own priority; a
@@ -203,7 +204,7 @@ the route's last stage ("use Worldstone Chamber"), then no goals.
 | `Hunter.rest_of` (its `leaders_only` and Codex's `elite_hunt` deleted 2026-10-19, cleanup phase 1) | the in-level choice for COVER | replaced by `Agenda.in_level` on an agenda run; kept for the KP_1 full clear |
 | `loop.next_leg` legs (LK, Andariel) | each a game-level goal: NEXT_GAME = `NEW_GAME`, TO_THE_* = `WAYPOINT`, CHESTS/DOWN/FIGHT_ANDARIEL = `LEVEL`, PICK_UP = `LOOT`, PORTAL = `PORTAL_TO_TOWN`, TO_THE_FORTRESS = `WAYPOINT(103)`, TOWN = `TOWN_ROUTINE`, LEAVE = `LEAVE_GAME` | not migrated: LK and Andariel keep `next_leg` until the TZ kind is proven |
 | `TRIP`, TO_THE_ENCAMPMENT, THROUGH_PORTAL | the room package on the stack | `tzloop.trip` pushes it; the same `Loop` trip bookkeeping (`trips`, `may_trip`, `_back_from_trip`) |
-| the Gheed's swap (SWAP_OUT … GHEED_CHOOSE) | a two-trip package: [portal, Fortress, park the player's, back, through, pick the new one, portal, Fortress, Cain, choose, back, through, RESUME] | not migrated; on the TZ kind a refused charm falls to the room rules (open question 4) |
+| the Gheed's swap (SWAP_OUT … GHEED_CHOOSE) | a two-trip package: [portal, Fortress, park the player's, back, through, pick the new one, portal, Fortress, Cain, choose, back, through, RESUME] | migrated 2026-10-19: agenda.py `gheeds_package`/`gheeds_fetch` (the level's act town), tzloop.py `gheeds_swap`; Andariel's legs unchanged (live: Spider Forest 23:20, the player's 34% kept against 28%) |
 | `runner._loop_stopped` room rules | the producer of the room package | unchanged for LK/Andariel; the TZ branch pushes the package |
 | `sightings.Sightings` | `PICKUP` producer and the `LEAVE_GAME` guard | unchanged |
 | `levels/handlers`, `routes/progress` | per-area end goals and ways on | unchanged |

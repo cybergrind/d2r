@@ -50,3 +50,10 @@ def test_an_unread_cost_is_paid_only_with_the_carried_gold_far_over_it():
     assert not covered(47_449, 120_000)  # under twice the cost and 50,000 more: the stash might pay the rest
     assert not covered(None, 548_157)  # nothing to expect: no repair
     assert not covered(47_449, None)
+
+
+def test_the_ocr_data_is_kept_out_of_tmp():
+    # tmp/ deleted took the English data, and the repair at 01:58:53 on 2026-10-20 read no cost
+    from inventory_tracking.macros.repair import TESSDATA
+
+    assert 'tmp' not in TESSDATA.parts

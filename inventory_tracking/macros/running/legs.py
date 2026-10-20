@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.common import LOG
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.agenda import ZONE_LEFT
 from inventory_tracking.macros.cain import identify_all
 from inventory_tracking.macros.cube import perfect_of, stash, stash_only, transmute, unpack
 from inventory_tracking.macros.engine import Run
@@ -22,6 +23,7 @@ from inventory_tracking.macros.routines import show_items_on
 from inventory_tracking.macros.running.base import PICK_SLACK, PICKUP, TRANSMUTES, VERDICT_SECONDS
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL, skill_name
 from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem
+from inventory_tracking.macros.townexit import walk_out as walk_out_of_town
 from inventory_tracking.macros.travel import cut
 from inventory_tracking.macros.tzloop import full_clear
 from inventory_tracking.macros.tzroutine import Itinerary, policy_of
@@ -41,15 +43,34 @@ def _loop_level_run(self: MacroRunner, hunter: Hunter, rush: bool = True, agenda
         hunter.carry_one = self._carry_one  # a refused unique Grand Charm: the Gheed's swap (macros/pickup.py)
         if agenda:
             hunter.agenda, hunter.agenda_policy = self.loop.agenda, self._agenda_policy
-        post = Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True, agenda=agenda)
+        post = Pursuit(
+            PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True, agenda=agenda,
+            allowed=_trip_levels(self) if agenda else None,
+        )  # fmt: skip
         hunter.post(post)
         self.attack_mode, self.attack_declined = True, False
+
+
+def _trip_levels(self: MacroRunner) -> frozenset[int] | None:
+    """The levels a terror zone run may go on into: its trip's (macros/tzroutine.py `Excursion.areas`), else its
+    own level; None with no itinerary or level known ("it should run within terror zones", the player, 2026-10-19)."""
+    plan, area = self.loop.agenda.plan, self.area_seen
+    if not isinstance(plan, Itinerary) or area is None:
+        return None
+    trip = plan.excursion_of(area, self.loop.agenda.finished)
+    return frozenset(trip.areas) if trip is not None else frozenset((area,))
 
 
 def _agenda_policy(self: MacroRunner, area: int) -> str:
     """How a terror zone kind's level run works level `area` (macros/tzroutine.py `policy_of`)."""
     plan = self.loop.agenda.plan
     trip = plan.excursion_of(area, self.loop.agenda.finished) if isinstance(plan, Itinerary) else None
+    wanted = getattr(self.progress, 'wanted', None)
+    if trip is not None and area in trip.zone and wanted is not None and wanted(area) is False:
+        # The zone moved on under the run (23:30 on 2026-10-19: Spider Forest explored 1.5 min after the zone went to
+        # Dry Hills): the run ends here ("it should run within terror zones", the player). A level crossed on the way
+        # is never in the zone: TRANSIT as before
+        return ZONE_LEFT
     return policy_of(area, trip, full_clear(self.loop))
 
 
@@ -90,6 +111,10 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
 
     def way_on() -> None:
         self._way_on(run, key_names, take_one, level_run)
+
+    def walk_out(to: int) -> None:
+        # The town's walls and rooms from the level guide's map (macros/townexit.py)
+        walk_out_of_town(run, lambda: hunter.level() if hunter is not None and hunter.level is not None else None, to)
 
     def fight() -> None:
         if hunter is None:
@@ -220,6 +245,7 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         sighted=sighted,
         terrorized=terrorized,
         navigate=navigate,
+        walk_out=walk_out,
     )
 
 

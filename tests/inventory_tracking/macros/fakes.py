@@ -51,7 +51,7 @@ from inventory_tracking.macros.cube import (
     perfect_of,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import screen_fraction
+from inventory_tracking.macros.routines import TOWN_NPCS, screen_fraction
 from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, STASH_PAGE, tab_point
@@ -753,6 +753,9 @@ class Game:
     def pet_under_pointer(self) -> int | None:
         """Consume takes the demon nearest the pointer, the bound one as readily as a Defiler."""
         x, y = self.under_pointer()
+        # A townsperson by the pointer takes it, and Consume takes none (22:35:05 on 2026-10-19: Meshif, Kurast Docks)
+        if any(m.txt_id in TOWN_NPCS and math.hypot(m.x - x, m.y - y) < 3.0 for m in self.world.monsters):
+            return None
         # The bound demon is tall: drawn below the pointer, its body still covers it (host, 2026-10-07).
         for m in self.world.monsters:
             across, down = (m.x - m.y) - (x - y), (m.x + m.y) - (x + y)

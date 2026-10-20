@@ -1,6 +1,7 @@
 """The town's waypoint, clicked from where a game or a portal puts the character (routes/lower-kurast-loop-plan.md
 phase 1): the game walks there and opens the panel."""
 
+import math
 from dataclasses import replace
 
 import pytest
@@ -236,3 +237,59 @@ def test_a_corrected_walk_reapproaches_an_out_of_view_waypoint():
 
     assert play.corrected
     assert play.world.open_panels == ('waypoint',)
+
+
+# Kurast Docks round the start (take 20261019T174959Z-75, 2026-10-19): open ground south of y 5161, a wall block west of
+# x 5126 north of it; the waypoint (5159, 5049) is round its corner, out of sight from the start (5118.5, 5168.5)
+DOCKS_LEFT, DOCKS_TOP, DOCKS_COLUMNS, DOCKS_ROWS = 5100, 5040, 80, 140
+WAYPOINT = Thing(5, WAYPOINT_ACT3, 2, 5159.0, 5049.0)
+
+
+def docks_ground():
+    from inventory_tracking.levels.model import Ground, Walkable, pack_cells
+
+    rows = (
+        '0' if x <= 5125 and y <= 5160 else '1'
+        for y in range(DOCKS_TOP, DOCKS_TOP + DOCKS_ROWS)
+        for x in range(DOCKS_LEFT, DOCKS_LEFT + DOCKS_COLUMNS)
+    )
+    cells = pack_cells(''.join(rows))
+    return Ground((Walkable(DOCKS_LEFT // 5, DOCKS_TOP // 5, DOCKS_COLUMNS // 5, DOCKS_ROWS // 5, cells, cells),))
+
+
+def test_a_game_begun_in_kurast_docks_walks_round_the_corner_to_the_waypoint_with_no_wait():
+    # 20:49-20:51 on 2026-10-19 (games 9-11 of TZ leveling in Travincal): the walk took 10 s, 4 of them two clicks
+    # lifted onto the wall by the start that walked nowhere and stood WALK_SECONDS each. The player: "we must go
+    # without waiting and reach dest as soon as possible"
+    ground = docks_ground()
+
+    class Docks(Game):
+        into_wall: list[tuple[float, float]]
+        clicked: list[float]
+
+        def act(self, event):
+            if event[0] == 'click' and 'waypoint' not in self.world.open_panels:
+                self.clicked.append(self.clock.now)
+                gx, gy = self.ground_under_pointer()
+                if not ground.walkable(gx, gy) and not self.thing_in_reach(gx, gy):
+                    self.into_wall.append((gx, gy))  # the game walks nowhere
+                    return
+            super().act(event)
+            here = self.character
+            if self.thing is None and math.dist((here.x, here.y), (5159.0, 5049.0)) < 65:
+                self.thing = WAYPOINT  # in the read from 65 units (the take: at y 5113)
+
+    play = Docks(world(KURAST_DOCKS, player=player(KURAST_DOCKS, x=5118.5, y=5168.5)))
+    play.into_wall, play.clicked = [], []
+    play.thing = None
+    play.thing_above = 0.0
+    run = play.run()
+    run.ground = lambda: ground
+
+    open_panel(run, lambda label: ((5159.0 / 5, 5049.0 / 5),) if label == 'Waypoint' else ())
+
+    assert play.world.open_panels == ('waypoint',)
+    assert play.into_wall == []
+    assert all(ground.walkable(*spot) for spot in play.walks)
+    gaps = [later - before for before, later in zip(play.clicked, play.clicked[1:], strict=False)]
+    assert max(gaps) < 0.6  # click on click: no stand of WALK_SECONDS (1.6) between two

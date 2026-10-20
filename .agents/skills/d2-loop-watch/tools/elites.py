@@ -78,6 +78,7 @@ TZ_LEGS = {
     loop_module.TZ_LOOT,
     loop_module.TZ_PICKUP,
     loop_module.TZ_NEXT_LEVEL,
+    loop_module.TZ_OUT,
     loop_module.TZ_PORTAL,
     loop_module.TZ_BACK,
 }
@@ -117,6 +118,7 @@ PHASE_OF = {
     loop_module.TOWN: TOWN,
     loop_module.TZ_WAYPOINT: TRAVEL,
     loop_module.TZ_NEXT_LEVEL: TRAVEL,
+    loop_module.TZ_OUT: TRAVEL,
     loop_module.TZ_PORTAL: TRAVEL,
     loop_module.TZ_BACK: TRAVEL,
     loop_module.TO_THE_CATACOMBS: TRAVEL,

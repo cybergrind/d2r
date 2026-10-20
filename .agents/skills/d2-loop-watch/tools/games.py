@@ -8,6 +8,8 @@ next game, a recovery that left it, a stop, the player's KP_6). Then:
 - the slowest games with their notes (which legs took the time, what was said in them);
 - every recovery, stop and error, with its clock time;
 - what the loop did besides (stash visits, repairs, sales, shopping);
+- TZ leveling's experience (lines since 2026-10-19 21:37): a game's gain, experience an hour over the games' whole
+  time, the loop's own rate since it turned on (its last line), and the levels by experience a minute;
 - the ground: every item the census saw (`Macro: ground:`) matched against the pickups of its game, and those never
   picked up sorted: MISSED is what the sure mode takes (pickmode.py `sure`: runes but the full stash stacks, the gems
   and charms and jewels the read lists, rare / set / unique rings and amulets, uniques and sets the loot filter shows
@@ -39,6 +41,8 @@ from logwords import (
     AIMED,
     DID,
     EVENT,
+    EXPERIENCE_GAME,
+    EXPERIENCE_LEVEL,
     FULL,
     GAME_LEFT,
     GROUND,
@@ -49,6 +53,7 @@ from logwords import (
     PICKED,
     REQUEST_LOOP,
     STOPS_HERE,
+    amount,
     stamp,
 )
 
@@ -137,6 +142,10 @@ class Game:
     ended: datetime | None = None
     end: str = 'open'  # 'next', 'left' (a recovery), 'stopped', 'player'
     notes: list[str] = field(default_factory=list)
+    # A terror zone game's experience line (EXPERIENCE_GAME): its gain and the loop's rate since it turned on ('?')
+    experience: int | None = None
+    rate: str | None = None
+    levels: list[tuple[str, int, int]] = field(default_factory=list)  # (level, gain, seconds) as each was left
 
     @property
     def seconds(self) -> float | None:
@@ -227,6 +236,14 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
             elif LOOP_STOPPED in line or STOPS_HERE in line:
                 close(at, 'stopped')
             continue
+        if (m := EXPERIENCE_GAME.search(line)) is not None:
+            if game is not None and game.number == int(m.group(1)):
+                game.experience, game.rate = amount(m.group(2)), m.group(5)
+            continue
+        if (m := EXPERIENCE_LEVEL.search(line)) is not None:
+            if game is not None:
+                game.levels.append((m.group(1), amount(m.group(2)), int(m.group(3))))
+            continue
         if (m := DID.search(line)) is not None:
             kind = m.group(1).split(':')[0]
             did[kind] += 1
@@ -267,6 +284,31 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
 def quantile(values: list[float], share: float) -> float:
     ordered = sorted(values)
     return ordered[min(len(ordered) - 1, int(share * len(ordered)))]
+
+
+def experience(games: list[Game]) -> dict | None:
+    """The terror zone games' experience: per game, an hour over the ended games' whole time, the loop's last rate, the
+    levels by experience a minute; None without an experience line."""
+    told = [g for g in games if g.experience is not None]
+    if not told:
+        return None
+    timed = [g for g in told if g.end == 'next' and g.seconds]
+    seconds = sum(g.seconds or 0 for g in timed)
+    levels: dict[str, list[int]] = {}
+    for g in told:
+        for name, gain, spent in g.levels:
+            level = levels.setdefault(name, [0, 0, 0])
+            level[0], level[1], level[2] = level[0] + gain, level[1] + spent, level[2] + 1
+    return {
+        'games': len(told),
+        'median_a_game': statistics.median(g.experience for g in told if g.experience is not None),
+        'an_hour': round(3600 * sum(g.experience or 0 for g in timed) / seconds) if seconds else None,
+        'loop_rate': told[-1].rate,
+        'levels_a_minute': {
+            name: {'a_minute': round(60 * gain / spent) if spent else None, 'gain': gain, 'visits': visits}
+            for name, (gain, spent, visits) in sorted(levels.items(), key=lambda kv: -kv[1][0] / max(kv[1][1], 1))
+        },
+    }
 
 
 def main() -> None:
@@ -328,6 +370,7 @@ def main() -> None:
             for i, why in missed
         ],
         'left_by_design_worth_a_look': dict(look.most_common()),
+        'experience': experience(games),
     }
     if args.json:
         print(json.dumps(summary, indent=1, default=str))
@@ -337,6 +380,14 @@ def main() -> None:
     print(f'whole game (ended to the next): median {summary["median_s"]} s, p90 {summary["p90_s"]} s')
     print('legs (median s): ' + ', '.join(f'{n} {s}' for n, s in summary['legs_median_s'].items()))
     print(f'did: {dict(did)}')
+    if (exp := summary['experience']) is not None:
+        print(f'experience (TZ, {exp["games"]} games): median {exp["median_a_game"]:+,.0f} a game, '
+              f'{exp["an_hour"] if exp["an_hour"] is None else format(exp["an_hour"], ",")} an hour over the ended '
+              f'games\' time; the loop said {exp["loop_rate"]} an hour since it turned on')  # fmt: skip
+        print('  levels (experience a minute, gain, visits): ' + ', '.join(
+            f'{name} {row["a_minute"]:,}/min {row["gain"]:+,} x{row["visits"]}'
+            for name, row in list(exp['levels_a_minute'].items())[:8] if row['a_minute'] is not None
+        ))  # fmt: skip
     print(f'\nslowest {args.slowest}:')
     for g in sorted(ended, key=lambda g: -(g.seconds or 0))[: args.slowest]:
         top = ', '.join(f'{n} {s:.0f}s' for n, s in sorted(g.legs.items(), key=lambda kv: -kv[1])[:3])

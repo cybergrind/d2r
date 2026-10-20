@@ -28,8 +28,9 @@ AIM_TRIES = 3
 
 # Why a macro stopped, for the KP_6 loop's stop rules (runner.py `classify`): the player's hand, a Gheed's Fortune
 # carry-one refusal, no inventory room, the watchdog's stand, a keeper no stash page takes, hit outside a fight
-# (fought back or left: stops.py `first`), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
-Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'other']
+# (fought back or left: stops.py `first`), nothing to play (a terror zone with no excursion, games with no level run:
+# macros/tzloop.py `choose`, 2026-10-19), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
+Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'idle', 'zone', 'lobby', 'other']
 
 
 class Abort(Exception):
@@ -235,6 +236,17 @@ class Actuator:
             self.holding -= own
             self.holding_buttons -= own_buttons
             self._release(pressed)
+
+    @contextmanager
+    def closing(self) -> Generator[None]:
+        """Input that closes a panel the run opened goes through the run's cancel; the player's hand and the focus
+        still stop it (`guard`). A fight back cancelled the cube's room at 23:34:19 on 2026-10-19 with its Escape
+        refused: the inventory and cube stayed open, read as the player's hand, and the loop stood 40 s beset."""
+        saved, self.cancelled = self.cancelled, None
+        try:
+            yield
+        finally:
+            self.cancelled = saved
 
     def rebase(self) -> None:
         """The guard's mark (`left_at`) moved to the pointer: opening or closing a panel moves it by itself."""

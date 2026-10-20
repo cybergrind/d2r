@@ -358,6 +358,9 @@ class RoutePlay(Play):
             return replace(build, settings=with_overrides(build.settings, pursuit=on))
 
         runner = self.runner
+        # The jump came with the pursuit (macros/running/jump.py, 2026-10-19): the logic without it, the recordings'
+        # morning, has one step a press
+        runner.jumps = on
         self.build = self.arena.build = runner.fallback = runner.build = chosen(self.build)
         runner.builds = tuple(chosen(layer) for layer in runner.builds)
         self.hunter.use(self.build)

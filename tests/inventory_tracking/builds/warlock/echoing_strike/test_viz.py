@@ -102,7 +102,11 @@ def chaos() -> Case:
 
 @pytest.fixture
 def cached_export(monkeypatch):
-    """The writers' tests are about files and indexes: they get the session's export, not a new one."""
+    """The writers' tests are about files and indexes: they get the session's export, not a new one. Loaded before the
+    swap: `load` exports through `viz.export`, which the swap makes call `load` (a RecursionError in a worker that had
+    not loaded the take yet)."""
+    for name in NAMES:
+        load(name)
     monkeypatch.setattr(
         viz, 'export', lambda take, policies=viz.POLICIES, progress=viz.quiet: load(take.directory.name).data
     )

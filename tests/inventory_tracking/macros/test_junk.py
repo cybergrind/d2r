@@ -97,6 +97,22 @@ def test_a_rune_gem_or_a_set_or_unique_charm_is_never_junk_but_any_other_item_ma
     assert found == {(c.txt, c.x, c.y) for c in (charm, jewel, ring, wand, amulet, unique_ring, set_amulet)}
 
 
+def test_a_magic_or_rare_item_of_any_type_appraised_vendor_is_junk():
+    # 21:55:19 on 2026-10-19: a magic Matriarchal Javelin the loot filter showed, appraised `vendor` at Cain, was no
+    # junk (only the skill types, charms, jewels and jewelry were) and went into the stash; the player: "we had put
+    # trash item for sale and forgot to pick it and sell". Gloves the appraisal keeps, or a white base, are not
+    javelin = Carried(30, class_of('Matriarchal Javelin'), 0, 0, (1, 3), MAGIC)
+    armor = Carried(31, class_of('Sacred Armor'), 1, 0, (2, 3), RARE)
+    gloves = Carried(32, GAUNTLETS, 3, 0, (2, 2), MAGIC)
+    white = Carried(33, class_of('Sacred Armor'), 5, 0, (2, 3), 2)
+    rune = Carried(34, class_of('Ber Rune'), 7, 0, (1, 1), 2)
+    verdicts = {30: 'vendor', 31: 'vendor', 32: 'keep', 33: 'vendor', 34: 'vendor'}
+
+    found = junk_of([javelin, armor, gloves, white, rune], lambda units: {u: verdicts[u] for u in units})
+
+    assert found == [javelin, armor]
+
+
 def test_a_white_void_base_is_junk_when_the_appraisal_calls_it_vendor_and_kept_otherwise():
     # The player, 2026-10-17 17:45: "we're storing every 3os dagger, while in reality we need something that is really
     # good for void". A white Kriss the appraisal calls `vendor` (no Warlock skill worth a sale) is sold; one it keeps

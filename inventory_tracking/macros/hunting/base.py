@@ -64,6 +64,29 @@ DECIDE_SECONDS = 0.12  # between two askings of the policy while its monster liv
 # look in a row for its act still to be made.
 STALE_LOOK = 0.3
 STALE_MOVED = 2.0
+# A fight let go for the key's act (`key_asks`) makes that act at the mode's next look, not a fresh judgement of it:
+# the two looks disagreed near the arbiter's commitment line, so the strike was let go and pressed again (game 30,
+# 2026-10-19: 14 of 228 yields struck again; rca/2026-10-19/game30-run-findings.md S4). Taken within YIELD_FRESH of
+# its look, with the character within YIELD_MOVED of where it stood, the press and the life unchanged. False: the next
+# look judges again, as before.
+YIELD_TAKES = True
+YIELD_FRESH = STALE_LOOK
+YIELD_MOVED = 1.0
+# A route's boss fight reached by its mark (or where it was last seen) with no boss there: after MARK_WAIT seconds of
+# "nothing in reach here yet" the stage is given up on that level for the game (`empty_mark`): a run of the agenda
+# explores the level for it (`wayless`, COVER), any other run ends. 22:49:08-53 on 2026-10-19: 45 s at Khalim's Brain
+# with Witch Doctor Endugu never in the unit table, then the no-move watchdog left the game. Not for a boss the game
+# brings to its place later (COMES_TO_ITS_MARK: Diablo, 15.6 s after the last seal, game 30). False: waited as before.
+EMPTY_MARK_GOES_ON = True
+MARK_WAIT = 3.0
+# Seconds a seek of a boss not known yet stands with nothing in reach before its stage is given up the same way: the
+# Throne of Destruction at 04:44:37-04:45:22 on 2026-10-20, "seek Lister the Tormentor: nothing in reach here yet"
+# with no living hostile in the read, until the no-move watchdog left the game. Over the gap between two waves.
+SEEK_WAIT = 20.0
+COMES_TO_ITS_MARK = frozenset(('Diablo',))
+# Seconds a route's goal may have no way once its level was explored for it (`wayless`) before the run ends
+NO_WAY_ENDS = 8.0
+NO_WAY_TO = 'no way to '  # how such a run's end begins (runner.py `_run_over`: the way on is dropped)
 SIGHT = 30.0  # world units: hostiles further off are not part of the decision
 # World units: a boss attack mode goes to by itself (pursuit.py `decide`); farther goals are KP_1's and KP_4's
 # (the player, 2026-10-15: "only nearby"; run-2040-findings.md §5)
@@ -161,6 +184,7 @@ PAUSES = 3
 # PASS_SECONDS. A room has nothing to strike, hence the progress (rca/2026-10-14/run-1932-findings.md §1.2.1).
 # Looks further apart than JUDGE_GAP with another goal's between do not count as time gone for it.
 CLEAR_SECONDS = 10.0
+ARRIVED_SECONDS = 2.0  # a place goal reached with no strike: passed sooner (choice.py `goes_on`, 2026-10-19)
 PASS_SECONDS = 30.0
 PROGRESS_SECONDS = 0.25
 PROGRESS_LOOK = 1.0  # seconds between two askings of the way left to one clearing goal (`goes_on`)
@@ -170,6 +194,17 @@ TAKE_BACK = 6.0
 # The goals a run to its goal fights its way to (`Hunter.cleared`): a door to another level, a place, a stand.
 WAYS = frozenset((ENTER, REACH, STAND))
 REST_SECONDS = 1.0  # a full clear's look for the rest of the level (the tour's potential) is made this seldom
+# The tour's stop a run goes to is kept while the tour still has it, until it is reached or passed, unless the tour's
+# first stop is now under STOP_KEEP_SHARE of its way: 21:53:40-56 on 2026-10-19 (the Chaos Sanctuary) the run went to
+# and fro between two stops 200 units apart four times, the first stop recomputed at every look (game30-run-findings.md
+# S3). False: the tour's first stop at every look, as before.
+KEEP_STOP = True
+STOP_KEEP_SHARE = 0.5
+# TZ leveling's run fights its way to a hostile in a striking mode (game/layout.py STRIKING_MODES) within CLEAR_WAY
+# with a clear shot, not only to leaders: "don't waste time awaiting when mobs engage us and do it procatively" (the
+# player, 2026-10-19 ~21:15). 21:05:24 on 2026-10-19: skeleton archers shot at the party from 25 away for 10 s while
+# the run stood (rca/2026-10-19/tz-leveling-findings.md C4). False: leaders only, as before.
+ENGAGE_STRIKERS = True
 # A remembered monster this near is gone for before the tour's next room, one further off after the tour (the
 # player, 2026-10-18: "we starts to go from one side to another back and forward"). About half a screen.
 REMEMBERED_NEAR = 45.0

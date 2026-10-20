@@ -22,6 +22,10 @@ from inventory_tracking.macros.goals import ENTRY_GOAL_NEAR, PICK_UP, PURSUED, W
 from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
 
 
+# How a level run with no route stage left ends (runner.py `_run_over`: on a level done, its way on is dropped)
+NOTHING_LEFT = 'nothing is left to go to on this level'
+
+
 # Seconds a press stands for "go on": the longest gap between presses of a player who keeps going (kp4-findings.md
 # §2.4, §2.5); under runner.py EXPIRES, so no move begins for a press older than that.
 FRESH = 0.7
@@ -61,6 +65,9 @@ class Pursuit:
     looped: bool = False
     # The terror zone level run (macros/tzloop.py): the agenda's targets first (agenda.py `Agenda.in_level`)
     agenda: bool = False
+    # The levels the run may be carried into or walk on into (the trip's, running/legs.py `_loop_level_run`); None:
+    # any. Games 30 and 31 on 2026-10-19 walked from the River of Flame into the Chaos Sanctuary, off the trip.
+    allowed: frozenset[int] | None = None
 
     def fresh(self, now: float) -> bool:
         """Made within FRESH seconds (a clock that went back keeps nothing alive) and not handed on."""
@@ -76,6 +83,10 @@ class Pursuit:
         """A level run works now: held and not paused."""
         return self.leash == FULL and not self.paused
 
+    def may_enter(self, area: int | None) -> bool:
+        """Whether the run may go on into level `area` (`allowed`); an unknown level is not, under a limit."""
+        return self.allowed is None or (area is not None and area in self.allowed)
+
     def entering(self, now: float) -> bool:
         """The run was carried into its level less than ENTERING seconds ago."""
         return self.entered is not None and 0.0 <= now - self.entered <= ENTERING
@@ -87,7 +98,7 @@ def heading(pursuit: Pursuit, goal: Goal | None) -> Pursuit | None:
     if not pursuit.leashed or goal is None or not goal.crossed or goal.mark is None:
         return None
     into = goal.mark.into
-    if into is None or into == pursuit.area or into == pursuit.onward:
+    if into is None or into == pursuit.area or into == pursuit.onward or not pursuit.may_enter(into):
         return None
     return replace(pursuit, onward=into)
 
@@ -97,6 +108,8 @@ def carried(pursuit: Pursuit, area: int | None, now: float) -> Pursuit | None:
     it was. None otherwise; any other level change ends the run (`decide`)."""
     if not pursuit.leashed or pursuit.area is None or area is None or area == pursuit.area or area != pursuit.onward:
         return None
+    if not pursuit.may_enter(area):
+        return None  # off the trip: the run ends (`decide`, "the level was left")
     return replace(pursuit, area=area, onward=None, entered=now)
 
 
@@ -197,6 +210,7 @@ NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`
 ENTRY_REACH = 10.0  # units from a door's entry with no way nearer: the run ends there (`to_the_door`; NEAR_WARP)
 FIRING_SPOT = 'firing spot'  # reason of a move to a firing stand (macros/safety.py FIRING)
 PASSAGE = 'an open passage: walking through into the next level'
+THROUGH_WALK = 40.0  # units: a passage no hop gets nearer to is walked from this near (`through`)
 KEEPING = 'retreating within strike reach: no act here fits the life budget'
 # Moves toward a level run's boss skip the strike gap while nothing hurts (`onward`): F1 of
 # rca/2026-10-18/andariel-cadence-findings.md §5 (the player, 2026-10-18: "F1: ok"). Off: I2 as before.
@@ -324,7 +338,7 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
             if goal is None and pursuit.entering(facts.now):
                 # Carried in a moment ago: the card is not up yet, which ends nothing
                 return Hold() if facts.in_reach and facts.attacking else NoWay(ENTERING_SAID)
-            return run_level(facts, pressed)
+            return run_level(facts, pressed, pursuit)
     if pursuit is not None and pressed:
         if goal is None:
             return NoWay('the key has nothing to go to: no stage, no mark and no boss is known here')
@@ -358,7 +372,7 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     return NoWay('nothing in reach and no fight to go to')
 
 
-def run_level(facts: Facts, pressed: bool) -> Act:
+def run_level(facts: Facts, pressed: bool, pursuit: Pursuit | None = None) -> Act:
     """A level run's look without an `advance` press: what is in reach first, a drop on the way, then the route's
     stage of this level. What is left that is not this loop's ends the run, or is handed on with a fresh press."""
     goal = facts.goal
@@ -366,9 +380,9 @@ def run_level(facts: Facts, pressed: bool) -> Act:
         # No route stage on this level: the key is its own step (a pickup, a chest, the sweep)
         if pressed:
             return Defer(None)
-        return Ended('nothing is left to go to on this level: no route stage, no boss known')
+        return Ended(f'{NOTHING_LEFT}: no route stage, no boss known')
     if goal.do == ENTER and not (facts.there and pressed):
-        return to_the_door(facts, goal)
+        return to_the_door(facts, goal, pursuit)
     if goal.do not in PURSUED:
         if pressed:
             return Defer(goal)
@@ -389,12 +403,14 @@ def run_level(facts: Facts, pressed: bool) -> Act:
     return moved(facts, goal)
 
 
-def to_the_door(facts: Facts, goal: Goal) -> Act:
+def to_the_door(facts: Facts, goal: Goal, pursuit: Pursuit | None = None) -> Act:
     """The route's way to another level, fighting on the way (goals.py `clear_way`; the player, 2026-10-14: "go to
     the level's goal clearing everything along the way"). A warp ends the run at it (going through takes a press,
     U13); an open passage (`Goal.crossed`) is walked through (`through`) and the run carries on."""
     if facts.in_reach and facts.attacking:
         return Hold(goal)
+    if goal.crossed and pursuit is not None and not pursuit.may_enter(goal.mark.into if goal.mark else None):
+        return Ended(f'{goal.label} leads off the trip: going through takes a press')
     if goal.crossed:
         return through(facts, goal)
     ended = Ended(f'at {goal.label}: going through takes a press')
@@ -418,7 +434,11 @@ def through(facts: Facts, goal: Goal) -> Act:
     if facts.there:
         return walk
     found = moved(facts, goal)
-    return walk if isinstance(found, NoWay) and found.arrived else found
+    if isinstance(found, NoWay) and (found.arrived or facts.beyond + goal.near <= THROUGH_WALK):
+        # No hop lands nearer a passage a walk reaches: walked from here (Outer Steppes into the Plains of Despair,
+        # 00:02:18 on 2026-10-20: "no footing in view brings the character nearer", 23 units off, 45 s idle)
+        return walk
+    return found
 
 
 def entering(facts: Facts, goal: Goal) -> Act:

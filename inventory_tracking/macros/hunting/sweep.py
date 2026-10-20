@@ -20,6 +20,7 @@ from inventory_tracking.macros.hunting.base import (
     GATHER_SECONDS,
     HOLD_SIGHT,
     HOLD_UNITS,
+    QUIET_UNITS,
     STAND_OFF,
     SWEEP_UNITS,
     VANISH_UNITS,
@@ -91,10 +92,23 @@ def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) ->
     looped = self.looping()
     sight = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
     facts = {d.unit_id: {'room': has_room(loot.room, d.size), 'shown': d.unit_id in loot.shown} for d in sight}
-    near = [d for d in sight if lootpolicy.verdict(d, lootpolicy.SWEEP, **facts[d.unit_id], looped=looped).hold]
+    # Out of the loop what a trip is made for is held too: the shared no-room routine (running/room.py; the player,
+    # 2026-10-19: "EVERY loop and activity should have the same routines")
+    hand = bool(sight) and self.trips_by_hand(run)
+    near = [
+        d
+        for d in sight
+        if lootpolicy.verdict(d, lootpolicy.SWEEP, **facts[d.unit_id], looped=looped).hold
+        or (hand and not facts[d.unit_id]['room'] and lootpolicy.trip_for(d, shown=facts[d.unit_id]['shown']))
+    ]
     self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
     if plan is None:
         held = self.held
+        if held is not None and not looped and not has_room(loot.room, held.size):
+            # The cube, then a trip (running/room.py): only in the quiet; room made, the next look takes it
+            quiet = all(math.dist(here, (m.x, m.y)) > QUIET_UNITS for m in foes)
+            if self.no_room(run, None, held, loot, quiet=quiet):
+                return
         if held is not None and held.unit_id not in self.held_said:
             if len(self.held_said) > 200:
                 self.held_said.clear()

@@ -18,8 +18,9 @@ def test_the_fight_is_in_the_catalog_with_today_and_new():
 def test_the_recorded_fight_plays_with_his_missiles_taking_life(monkeypatch):
     # The take's macro held through his casts: its calibration is played so, without the mode alone's safety step
     # that came later (hunting/judging.py `guard`, rca/2026-10-14/baal-sim.md fix 3: seed 1 then takes 64 of his spell)
+    # and by today's keys: the pursuit loop steps across his stream (56 of his spell in seed 1, 2026-10-19).
     monkeypatch.setattr(Hunter, 'guard', lambda *args: None)
-    situation = diablo.stored()
+    situation = diablo.stored().logic('today')
     assert situation.source is not None
     assert situation.recorded is not None
     assert situation.source['take'] == diablo.TAKE

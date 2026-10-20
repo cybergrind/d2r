@@ -1,7 +1,8 @@
 """The macro runner inside the service: starts a run per request, cancels the one running, toggles attack mode.
 
 Requests come from the compositor bindings (input/compositor.py) over the appraisal socket: `macro` (routines.py),
-`teleport` (teleport.py), `hunt elites` (the seek step), `hunt any` (attack mode), `pickup` (pickup.py), `loop` (KP_6).
+`teleport` (teleport.py), `hunt elites` (the seek step), `hunt any` (the active mode: attack or buff mode,
+running/buffing.py), `pickup` (pickup.py), `loop` (KP_6).
 A run works on its own thread with its own memory handle and X connection; the cancel rules are `_dispatch`'s. The
 builds (macros/build.py) are handed in; a run plays the one that claims the character (`choosing`).
 `MacroRunner` keeps its state, the requests and the runs' lifecycle; its other methods are module functions in
@@ -22,20 +23,23 @@ from inventory_tracking.game.records import Pack
 from inventory_tracking.input.focus import FocusTracker
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
+from inventory_tracking.macros.buffmode import WORDS
 from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.charms import Parked
 from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.hunting.base import NO_WAY_TO
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.loop import ANDARIEL, Kind, Loop, loop_kinds
 from inventory_tracking.macros.pad import PadPlay
 from inventory_tracking.macros.pickmode import MODES, next_mode
 from inventory_tracking.macros.pickup import Refused
-from inventory_tracking.macros.pursuit import FULL, Pursuit
-from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
-from inventory_tracking.macros.running import execution, legs, recovery, valuables, watch
+from inventory_tracking.macros.pursuit import FULL, NOTHING_LEFT, Pursuit
+from inventory_tracking.macros.runmode import DOUBLE, TERROR
+from inventory_tracking.macros.running import buffing, execution, jump, legs, recovery, room, valuables, watch
 from inventory_tracking.macros.running.base import (
     ATTACK,
+    BUFF,
     CARD_SECONDS,
     DOOR_PRESS,
     EXPIRES,
@@ -49,8 +53,8 @@ from inventory_tracking.macros.running.base import (
     KIND_PREFIX,
     LOOP,
     LOOP_PREFIX,
-    LOOP_WORDS,
     ONWARD_PAUSE,
+    PICK_WORDS,
     PICKUP,
     PICKUP_PREFIX,
     PREBUFF,
@@ -149,6 +153,13 @@ class MacroRunner:
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
         # The player's toggle turned the mode off: a teleport press whose goal is a fight leaves it off (`pursues`)
         self.attack_declined = False
+        # The attack mode key's active mode (running/buffing.py, 2026-10-19): what one press turns on, ATTACK or BUFF;
+        # buff mode wanted; the presses not judged yet, their timer, and the mode on before their group
+        self.active = ATTACK
+        self.buff_mode = False
+        self.mode_taps: list[float] = []
+        self.mode_timer: threading.Timer | None = None
+        self.mode_was: str | None = None
         self.closed = False  # `close` was called: nothing starts any more
         # The KP_6 loop (macros/loop.py): on, it follows every run that nothing else follows.
         # Andariel first (the player, 2026-10-19: "switch loop to the andariel"); a place of another kind still tells
@@ -192,6 +203,16 @@ class MacroRunner:
         self.pad_play: PadPlay | None = None
         self.flips: list[float] = []  # when a run was made again after a flip of the input mode (`again`)
         self.settling = False  # the next run's start waits for a flip under way to be over (`play_by`)
+        # A trip for room an activity by hand asked for (running/room.py `Errand`): ROOM follows its run (`_follow`)
+        self.errand: room.Errand | None = None
+        # The teleport press is a jump to the next goal (running/jump.py; the player, 2026-10-19: "KP_4 - force jump to
+        # the next goal"); off: one step a press, as before (the arena's recorded presses). The jump working now.
+        self.jumps = True
+        self.jumping: jump.Jump | None = None
+        # The last jump ended on its own (not by the hand); the last teleport press, on the press's clock: a key held
+        # on after the jump's end is that press, not the next (`_dispatch`)
+        self.jump_over = False
+        self.jump_pressed = -math.inf
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
@@ -227,10 +248,11 @@ class MacroRunner:
                 self.trace.close(press, outcome='judged with the presses around it')
                 return True
             if routine == ATTACK:
-                toggled = self._toggle_attack_mode()
+                self._mode_tap(now)  # one press toggles, a pair cycles the active mode (running/buffing.py)
                 press.mark('accepted')
-                self.trace.close(press, outcome='attack mode on' if self.attack_mode else 'attack mode off')
-                return toggled
+                outcome = 'attack mode on' if self.attack_mode else 'buff mode on' if self.buff_mode else 'mode off'
+                self.trace.close(press, outcome=outcome)
+                return True
             if routine == PREBUFF:
                 self.attack_mode = False  # the macro request ends it
                 self.attack_declined = False  # the next game's fights want it
@@ -240,9 +262,18 @@ class MacroRunner:
                 self.attack_declined = False
             # The limit counts from the press, on the queue's clock.
             until = time.monotonic() + EXPIRES.get(routine, math.inf) - (now - requested_at)
-            if routine == TELEPORT and self.working and self.routine == ATTACK and self.pursuit:
+            if routine == TELEPORT and self.jumps:
+                held, self.jump_pressed = requested_at - self.jump_pressed <= jump.HELD, requested_at
+                if held and self.jump_over and self.working and self.routine == ATTACK:
+                    # The key held on at the jump's end: the mode fights there, not paused for a jump to where it is
+                    press.mark('accepted')
+                    self.trace.close(press, outcome='held after the jump: attack mode fights')
+                    return True
+            posting = routine == TELEPORT and self.working and self.routine == ATTACK and self.pursuit
+            if posting and (not self.jumps or self._at_the_fight()):
                 # The pursuit (macros/pursuit.py): the press is posted to the mode, nothing is cancelled and no quiet
-                # follows, so a press that resolves to "fight here" costs the fight nothing.
+                # follows, so a press that resolves to "fight here" costs the fight nothing. With the jump, only at the
+                # mode's fight (running/jump.py `_at_the_fight`); elsewhere the mode pauses for the jump.
                 assert self.hunter is not None
                 self.hunter.hand_over = self._hand_over
                 self.hunter.post(Pursuit(TELEPORT, time.monotonic() - (now - requested_at)))
@@ -258,6 +289,8 @@ class MacroRunner:
                 self.attack_mode, self.attack_declined = True, False
                 if not self.working:
                     self._start(ATTACK)
+                elif self.routine == BUFF:
+                    self.cancelled.set()  # buff mode yields to the run's attack mode and resumes after it (`_follow`)
                 press.mark('accepted')
                 self.trace.close(press, outcome='posted to attack mode')
                 return True
@@ -268,7 +301,11 @@ class MacroRunner:
                 # 25 units back between two teleport steps, 2026-10-11 00:49).
                 self.hunter.sweep.end()
             if self.working:
-                if routine in STEPS and self.routine == routine:
+                if routine == TELEPORT and self.routine == TELEPORT and self.jumping is not None:
+                    self.jumping.extend()  # a press during the jump extends it and queues nothing (running/jump.py)
+                    press.mark('accepted')
+                    self.trace.close(press, outcome='the jump goes on')
+                elif routine in STEPS and self.routine == routine:
                     self._wait(press, 'queued behind its own step', until)
                 elif routine == TELEPORT and self.routine == PICKUP:
                     # The pickup stops and the step follows at once; the step itself takes a valuable near first
@@ -282,9 +319,9 @@ class MacroRunner:
                     self.hunter.after_fight.set()
                     self.hunter.step_asked.set()
                     self._wait(press, 'waits for the fight', math.inf)  # however long the fight takes
-                elif self.routine == ATTACK:
+                elif self.routine in (ATTACK, BUFF):
                     self.cancelled.set()  # the mode pauses for the step, or ends for the macro
-                    self._wait(press, 'attack mode pauses for it', until)
+                    self._wait(press, f'{"attack" if self.routine == ATTACK else "buff"} mode pauses for it', until)
                 else:
                     self.cancelled.set()
                     press.mark('accepted')
@@ -314,14 +351,25 @@ class MacroRunner:
 
     @property
     def run_badge(self) -> str | None:
-        """The HUD's words for the run mode (macros/runmode.py `badge`) and, with the loop on, its pickup mode and kind;
-        None when none shows."""
-        words = (
-            badge(self.hunter.mode) if self.hunter is not None else None,
-            LOOP_WORDS[self.pickup_mode] if self.loop.on else None,
-            self.loop.kind.name.upper() if self.loop.on and self.loop.kind.badge else None,
-        )
-        return ' '.join(word for word in words if word) or None
+        """The HUD's mode line, `<mode> PICK:<level> NEXT:<goal>` (the player, 2026-10-19): the loop's kind word with
+        the loop on, else ATT in attack mode, BUFF in buff mode; the pickup level; the leg or goal working (a full
+        clear: `clear`)."""
+        running = self._mode_running()
+        mode = self.loop.kind.word if self.loop.on else WORDS[running] if running else None
+        goal = self._next_goal()
+        words = (mode, f'PICK:{PICK_WORDS[self.pickup_mode]}', f'NEXT:{goal}' if goal else None)
+        return ' '.join(word for word in words if word)
+
+    def _next_goal(self) -> str | None:
+        """The next planned activity: the loop's leg; else, while a run works, its run mode's full clear or its goal."""
+        if self.loop.on:
+            return self.loop.current
+        if self.hunter is None or not self.working or self.routine == BUFF:
+            return None  # buff mode has no goal: the hunt's last is stale
+        if self.hunter.mode is not None and self.hunter.mode.clear:
+            return 'clear'
+        goal = self.hunter.pursued
+        return goal.label if goal is not None else None
 
     @property
     def pursuit(self) -> bool:
@@ -343,6 +391,14 @@ class MacroRunner:
                 # A terror zone kind's run worked its level (macros/agenda.py `Agenda.ran`), unless it left it
                 area = self.hunter.ended_area if self.hunter is not None else None
                 self.loop.agenda.ran(area if area is not None else self.area_seen)
+                # A level done whose run finds nothing more is no way on either: the Throne of Destruction's next level,
+                # the Worldstone Chamber, opens only after Baal; its leg was made again every 0.3 s until the repeat
+                # guard left the game (04:32:49-04:32:58 on 2026-10-20)
+                ended = area if area is not None else self.area_seen
+                if why.startswith(NO_WAY_TO):
+                    self.loop.agenda.no_way_on(ended)
+                elif ended in self.loop.agenda.finished and why.startswith(NOTHING_LEFT):
+                    self.loop.agenda.nothing_left(ended)
             if not self.loop.on:
                 mode = self.hunter.mode if self.hunter is not None else None
                 if self.attack_mode and mode is not None and mode.why == TERROR and DOOR_PRESS in why:
@@ -397,8 +453,10 @@ class MacroRunner:
         if count == 1:
             self._toggle_loop()
         elif count == 2:
+            # The pickup level of every loop and activity (macros/pickmode.py; the player, 2026-10-19: "KP_6 - loop
+            # on/off, double - switch pickup mode, triple - switch loop type")
             self.pickup_mode = next_mode(self.pickup_mode)
-            self._say(f'Loop pickup: {self.pickup_mode}')
+            self._say(f'Pickup: {PICK_WORDS[self.pickup_mode]}')
         elif count == 3:
             # The run's kind (macros/loop.py KINDS; the player, 2026-10-18: "rebuild loop start to accept what type of
             # run we're going to run"), for a start in the Fortress or the lobby
@@ -444,22 +502,15 @@ class MacroRunner:
             return
         self.loop.start()
         self._say('Loop on')
+        if self.loop.pending is not None:
+            # A kind asked while on takes at the next start too: the player turned it on in a game of their own,
+            # which never had the loop's next game leg (21:42:37 on 2026-10-19, River of Flame)
+            self.loop.kind, self.loop.pending, self.loop.chosen = self.loop.pending, None, True
+            self._say_kind(self.loop.kind)
         if not self.working:
             self._start(LOOP)
-
-    def _toggle_attack_mode(self) -> bool:
-        """The attack mode toggle. On while a step works, it follows the step; off while it works, it is cancelled.
-        Under the lock (`request`)."""
-        self.attack_mode = not self.attack_mode
-        self.attack_declined = not self.attack_mode
-        if not self.attack_mode:
-            self._end_run('attack mode off')
-            if self.working and self.routine == ATTACK:
-                self.cancelled.set()
-            return True
-        if not self.working:
-            self._start(ATTACK)
-        return True
+        elif self.routine == BUFF:
+            self.cancelled.set()  # buff mode yields to the loop, its first leg follows (`_follow`)
 
     def _start(self, routine: str) -> None:
         """A run of `routine` on its own thread. Under the lock."""
@@ -518,9 +569,11 @@ class MacroRunner:
         with self.lock:
             self.closed = True
             self.shut.set()
-            self.attack_mode = False
+            self.attack_mode = self.buff_mode = False
             if self.loop_timer is not None:
                 self.loop_timer.cancel()
+            if self.mode_timer is not None:
+                self.mode_timer.cancel()
             self.loop.stop()
             self._end_run('the service closed')
             self.queue.clear('the service closed')
@@ -608,6 +661,8 @@ class MacroRunner:
         except Cancelled as stop:
             if routine == ATTACK:
                 self._say('Attack mode paused' if self.attack_mode else 'Attack mode off')
+            elif routine == BUFF:
+                self._say('Buff mode paused' if self.buff_mode else 'Buff mode off')
             else:
                 LOG.info('Macro stopped: %s', stop)
                 self._show([f'Macro stopped: {stop}'])
@@ -631,6 +686,9 @@ class MacroRunner:
                 with self.lock:
                     self.attack_mode = False
                     self._end_run("the Gheed's swap")
+            elif routine == PICKUP and stop.cause == 'room':
+                with self.lock:
+                    self._room_after_press(stop, routine)  # the shared no-room routine follows (`_follow`)
         except Exception as exc:
             LOG.exception('Macro failed')
             self._show([f'Macro failed: {exc}'])
@@ -645,6 +703,8 @@ class MacroRunner:
                 if failed and routine == ATTACK:
                     self.attack_mode = False  # the mode ended on its own: the game was left, or it gave up
                     self._end_run('attack mode stopped')
+                if failed and routine == BUFF:
+                    self.buff_mode = False  # a death, or its own stop
                 if self._follow(routine):
                     return
         self.shut.wait(CARD_SECONDS)
@@ -657,7 +717,7 @@ class MacroRunner:
         the mode flipped FLIPS_AGAIN times within FLIPS_WINDOW. Under the lock."""
         if self.closed or cancelled.is_set() or generation != self.generation:
             return False
-        if routine == ATTACK and not self.attack_mode:
+        if (routine == ATTACK and not self.attack_mode) or (routine == BUFF and not self.buff_mode):
             return False
         now = time.monotonic()
         self.flips = [at for at in self.flips if now - at < FLIPS_WINDOW]
@@ -672,7 +732,7 @@ class MacroRunner:
             'Macro: input mode flipped under %s (%s): the run ends and the same request starts again', routine, stop
         )
         self.settling = True
-        if routine != ATTACK:
+        if routine not in (ATTACK, BUFF):
             # As a fresh press of the key, the flip's settling on top
             self.queue.put(routine, now + FLIP_SETTLE + EXPIRES.get(routine, math.inf))
         self._start(routine)
@@ -684,8 +744,22 @@ class MacroRunner:
         run or its successor."""
         self.working = False
         following = self.queue.first()
+        errand = self.errand
+        if routine == room.ROOM:
+            self.errand = None
+            if errand is not None and errand.done and not self.loop.on and following is None:
+                self._resume_errand(errand)  # the activity goes on as the player left it
+        elif errand is not None and (following is not None or self.loop.on or self.closed):
+            # A press or the loop came first: no trip over them (the player's hand wins); the activity as it was
+            self.errand = None
+            LOG.info('Macro: room: the trip for %s dropped: %s came first', errand.label, following or 'the loop')
+            self._resume_errand(errand)
+        elif errand is not None:
+            following = room.ROOM  # a trip for room (running/room.py), before the mode resumes
         if following is None and self.attack_mode and routine != ATTACK:
             following = ATTACK  # the step is done: the mode resumes
+        if following is None and self.buff_mode and not self.loop.on and routine != BUFF:
+            following = BUFF  # after a step or attack mode; not under the loop (2026-10-19)
         if following is None and self.loop.on:
             following = LOOP  # its next leg
         if following is None or self.closed:
@@ -696,6 +770,19 @@ class MacroRunner:
             self.quiet_until = time.monotonic() + TRAVEL_QUIET
         self._start(following)
         return True
+
+    # buffing.py
+    _mode_running = buffing._mode_running
+    _mode_tap = buffing._mode_tap
+    _mode_window = buffing._mode_window
+    _judge_mode_taps = buffing._judge_mode_taps
+    _toggle_mode = buffing._toggle_mode
+    _mode_on = buffing._mode_on
+    _mode_off = buffing._mode_off
+    _keep_buffs = buffing._keep_buffs
+    _buff_cast = buffing._buff_cast
+    _swap_back = buffing._swap_back
+    _buff_flipped = buffing._buff_flipped
 
     # execution.py
     _execute = execution._execute
@@ -733,7 +820,23 @@ class MacroRunner:
     _valuable_left = valuables._valuable_left
     _fetch = valuables._fetch
     _go_back = valuables._go_back
-    _room_in_cube = valuables._room_in_cube
+
+    # jump.py
+    _jump = jump._jump
+    _leap = jump._leap
+    _jump_look = jump._jump_look
+    _jump_life = jump._jump_life
+    _jump_drop = jump._jump_drop
+    _jump_dead = jump._jump_dead
+    _at_the_fight = jump._at_the_fight
+
+    # room.py
+    _room_in_cube = room._room_in_cube
+    _room_trip_due = room._room_trip_due
+    _room_trip_possible = room._room_trip_possible
+    _room_after_press = room._room_after_press
+    _room_errand = room._room_errand
+    _resume_errand = room._resume_errand
 
     # watch.py
     poll = watch.poll

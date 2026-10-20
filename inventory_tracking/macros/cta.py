@@ -13,7 +13,7 @@ to it, casts, and swaps back to the set it found in hand.
 from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import CTA_CODE
 from inventory_tracking.game.records import World
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.buffs import STATE_RETRY
 from inventory_tracking.macros.build import Buff, BuffFacts, Casting, Tried
 from inventory_tracking.macros.routines import ACTING, cast as cast_free, swap_until
@@ -26,6 +26,10 @@ BATTLE_COMMAND = 155
 register_names({BATTLE_ORDERS: 'Battle Orders', BATTLE_COMMAND: 'Battle Command'})
 # Seconds before a try that found no Call to Arms, or its skills on no key, is made again
 MISSING_WAIT = 300.0
+# Seconds before a try is made again whose swaps did not take or that the player's own input stopped: the Call to Arms
+# is worn (`worn_and_in_front`), so the swaps were dropped (the player teleporting by hand every 0.6 s through a terror
+# zone dropped all three, and the next try came 300 s later, 18:45 on 2026-10-19: "clear tz is not doing battle orders")
+DROPPED_WAIT = 10.0
 CAST_OVER = 1.0  # seconds at most for a cast to end before the weapons are swapped
 # Seconds from the last cast's key before a weapon swap is taken, though the mode reads the cast over: 0.4 s was
 # refused 25 in 26, 0.6 s taken 44 in 44 (2026-10-18 01:05-01:56)
@@ -54,7 +58,8 @@ def holding(run) -> bool | None:
 
 def call_to_arms(cast: Casting) -> Tried:
     """Battle Command (when on a key), then Battle Orders, with the Call to Arms in hand, and the set found in hand back
-    after. No Call to Arms after the swaps, or Battle Orders on no key: said, and asked again in MISSING_WAIT."""
+    after. Swaps that did not take, or the player's input: asked again in DROPPED_WAIT; Battle Orders on no key: said,
+    and asked again in MISSING_WAIT."""
     run, world = cast.run, cast.world
     assert world is not None
     assert cast.key_names is not None
@@ -68,7 +73,7 @@ def call_to_arms(cast: Casting) -> Tried:
         if not holding(run):
             swapped = True
             if not swap_until(run, lambda: bool(holding(run))):
-                raise Abort('no Call to Arms in the other weapon set')
+                raise Hand('the swaps to the Call to Arms did not take')
         held = run.world()
         skills = tuple(skill for skill in (BATTLE_COMMAND, BATTLE_ORDERS) if skill in held.slots)
         if BATTLE_ORDERS not in skills:
@@ -82,8 +87,9 @@ def call_to_arms(cast: Casting) -> Tried:
     except (Abort, ValueError) as stop:
         if run.stops(stop):
             raise
-        LOG.info('Macro: no Battle Orders (%s); asked again in %.0fs', stop, MISSING_WAIT)
-        return Tried.again(started, STATE_RETRY, MISSING_WAIT)
+        wait = DROPPED_WAIT if isinstance(stop, Hand) else MISSING_WAIT
+        LOG.info('Macro: no Battle Orders (%s); asked again in %.0fs', stop, wait)
+        return Tried.again(started, STATE_RETRY, wait)
     finally:
         if swapped and run.hands() != before and not swap_until(run, lambda: run.hands() == before):
             LOG.warning('Macro: Call to Arms: the weapons found in hand are not back after the swaps')

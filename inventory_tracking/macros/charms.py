@@ -3,7 +3,8 @@
 
 On the ground Gheed's (uniqueitems row 359, `cm3`, carry1) and the Latent Sunder charms are alike: a unique Grand Charm,
 its row unread until identified, so one left on the ground while the player's is carried tells it (runner.py
-`_loop_stopped`). The legs are the loop's (loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE); here the stash's
+`_loop_stopped`). The legs are the loop's (loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE; on the terror zone
+kinds the agenda's package, agenda.py `gheeds_package`, 2026-10-19); here the stash's
 part: `park` puts the player's charm on a shared page (never the personal one, which blocks the pickup too); `choose`
 keeps the better Magic Find roll at the player's cell, the other on a shared page (a tie keeps the player's).
 """

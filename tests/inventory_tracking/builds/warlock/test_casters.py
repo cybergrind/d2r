@@ -1,14 +1,12 @@
 """The Warlock's casters (builds/warlock/casters.py): the Defiler's summon and its spots, Consume on a Defiler."""
 
+import logging
 import math
 from dataclasses import replace
-
-import pytest
 
 from inventory_tracking.builds.warlock.casters import NEAR_SPOTS, SUMMON_SPOTS, open_spots, renew_consume
 from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
-from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.routines import prebuff, world_point
 from tests.inventory_tracking.macros.fakes import WINDOW, Game, world
 
@@ -34,12 +32,14 @@ def follow(game, times=99):
     game.keys.on_event = on_event
 
 
-def test_consume_is_not_pressed_while_the_bound_demon_stands_by_the_defiler():
+def test_consume_is_not_pressed_while_the_bound_demon_stands_by_the_defiler(caplog):
     game = Game(world(monsters=(BOUND_DEMON,)))
     follow(game)
-    with pytest.raises(Abort, match='too close'):
-        prebuff(game.run())
+    caplog.set_level(logging.INFO)
+    prebuff(game.run())  # without Consume since 2026-10-19 (`defiler_dance`): attack mode casts it later
+    assert 'too close' in caplog.text
     assert '6' not in game.pressed()
+    assert game.pressed()[-2:] == ['g', 'r']
     assert 700 in [m.txt_id for m in game.world.monsters]
 
 
@@ -146,7 +146,7 @@ def test_consume_is_aimed_where_the_defiler_stands_after_it_walked():
     assert game.character.consume
 
 
-def test_consume_is_not_pressed_at_a_defiler_that_never_stands_still():
+def test_consume_is_not_pressed_at_a_defiler_that_never_stands_still(caplog):
     # The pointer would be where the Defiler was, and the bound demon may stand there (user,
     # 2026-10-07: the demon must never be consumed by accident).
     game = Game(world(monsters=(BOUND_DEMON,)))
@@ -160,8 +160,9 @@ def test_consume_is_not_pressed_at_a_defiler_that_never_stands_still():
         game.world = replace(game.world, monsters=walked)
 
     run.actuator.move = restless
-    with pytest.raises(Abort, match='keeps walking'):
-        prebuff(run)
+    caplog.set_level(logging.INFO)
+    prebuff(run)  # without Consume since 2026-10-19 (`defiler_dance`)
+    assert 'keeps walking' in caplog.text
     assert '6' not in game.pressed()
     assert 700 in [m.txt_id for m in game.world.monsters]
 
@@ -189,12 +190,55 @@ def test_a_consume_that_changed_nothing_is_pressed_again():
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
 
 
-def test_consume_gives_up_after_three_presses_that_changed_nothing():
+def test_consume_gives_up_after_three_presses_that_changed_nothing(caplog):
     game = Game(world())
     deaf_to_consume(game, 99)
-    with pytest.raises(Abort, match='Consume: not seen'):
-        prebuff(game.run())
-    assert game.pressed() == ['q', '6', '6', '6']
+    caplog.set_level(logging.INFO)
+    prebuff(game.run())  # and the prebuff goes on without it (22:35:13 on 2026-10-19: the game was left for it)
+    assert 'Macro: prebuff: no Consume (Consume: not seen in 2.5s, 3 times over)' in caplog.text
+    assert game.pressed() == ['q', '6', '6', '6', 'g', 'r']
+
+
+MESHIF = 264  # monstats.txt meshif2: Kurast Docks' boatman, a townsperson (routines.py TOWN_NPCS)
+
+
+def meshif_by(game, times):
+    """Meshif walks up beside each of the first `times` new Defilers (2.8 units off, as at 22:35:05 on 2026-10-19)."""
+    react, left = game.keys.on_event, [times]
+
+    def on_event(event):
+        react(event)
+        if event == ('key', 'q'):
+            others = tuple(m for m in game.world.monsters if m.txt_id != MESHIF)
+            if left[0]:
+                left[0] -= 1
+                defiler = max((m for m in others if m.txt_id == 744), key=lambda m: m.unit_id)
+                meshif = Monster(9, MESHIF, 1, defiler.x - 2.0, defiler.y - 2.0, 0xFFFFFFFF)
+                game.world = replace(game.world, monsters=(*others, meshif))
+            else:
+                game.world = replace(game.world, monsters=others)
+
+    game.keys.on_event = on_event
+
+
+def test_a_townsperson_over_the_defiler_has_another_summoned_after_the_press_that_showed_nothing():
+    # 22:35:05-13 on 2026-10-19, Kurast Docks: Meshif (class 264) 2.8 from the Defiler, three presses showed nothing
+    # and the game was left (~15 s)
+    game = Game(world())
+    meshif_by(game, 1)
+    prebuff(game.run())
+    assert game.pressed() == ['q', '6', 'q', '6', 'q', 'g', 'r']  # (the fakes keep one Defiler out at a time)
+    assert game.character.consume
+
+
+def test_a_prebuff_whose_consume_never_takes_goes_on_without_it():
+    # Attack mode casts it in the field (buffs.py `consume_due`): no game left for it
+    game = Game(world())
+    meshif_by(game, 99)
+    prebuff(game.run())
+    assert game.pressed()[-2:] == ['g', 'r']
+    assert not game.character.consume
+    assert [m.txt_id for m in game.world.monsters].count(744) >= 1  # one Defiler out
 
 
 # --- summon spots on ground a Defiler can stand on (2026-10-12) ---
@@ -262,3 +306,22 @@ def test_a_standing_defiler_out_of_view_is_not_aimed_at_and_another_is_summoned(
     prebuff(game.run())
     assert game.pressed()[:2] == ['q', '6']  # one summoned in view, and consumed
     assert game.character.consume
+
+
+def test_a_replacement_defiler_goes_to_the_spot_farthest_from_the_bound_demon_and_not_back_to_a_tried_one():
+    # 22:00:25-29 on 2026-10-19, the Chaos Sanctuary: three Defilers in a row, the first two at the side the bound
+    # demon stood ("the Defiler is crowded by class 189 ... summoning another"), 4.4 s mid-fight.
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    run = game.run()
+    player = game.world.player
+    assert player is not None
+    aspect = WINDOW[2] / WINDOW[3]
+
+    def apart(spot: tuple[float, float]) -> float:
+        x, y = world_point(player, spot[0], spot[1], aspect)
+        return math.hypot(BOUND_DEMON.x - x, BOUND_DEMON.y - y)
+
+    first = open_spots(run, game.world, skip=1)
+    assert apart(first[0]) == max(apart(spot) for spot in first)
+    assert open_spots(run, game.world, skip=1, tried=[first[0]])[-1] == first[0]
+    assert open_spots(run, game.world)[0] == SUMMON_SPOTS[0]  # the first summon's order as before

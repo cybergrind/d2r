@@ -74,13 +74,19 @@ CLICKS = 2  # clicks on an aim that has the item under it
 MISSED_AIMS = 3
 SHUN_SECONDS = 30.0
 SHUNNED: dict[int, float] = {}  # unit id -> the clock until which the pickup step leaves the drop alone
-# Valuables the macro picked up itself (unit ids survive into the inventory): outside the KP_6 loop, the ones a full
-# inventory may move into the cube (hunting/choice.py `stay_by`); the player's never are.
-TAKEN: set[int] = set()
 # Valuables clicked and not seen to leave the ground in the wait: unit id -> (drop, clock of the click); found
 # carried later, picked up late (`late`).
 CLICKED: dict[int, tuple[Drop, float]] = {}
 LATE_SECONDS = 5.0  # after its click, a valuable found carried counts as picked up by it
+# Aims looked at with the drop not under the pointer: unit id -> those aims. A level run's pickup is cut at its
+# priced 1.5 s (~10 aims), and each try began at the same aims: a Grand Charm among 9 drops never got to the pile's
+# aims in 3 tries (2026-10-20 00:04:36-41). The next try looks at the others first.
+LOOKED: dict[int, set[tuple[int, int]]] = {}
+LOOKED_MOST = 64  # drops remembered at most
+# Valuables read on the ground: unit id -> (drop, clock of the read); one found carried within LATE_SECONDS that no
+# pickup click took was taken by a move's click (`taken_by_a_move`, 2026-10-19). SEEN_MOST: cleared past it.
+SEEN: dict[int, tuple[Drop, float]] = {}
+SEEN_MOST = 200
 STOP_UNITS = 40.0  # world units: a valuable this near holds a teleport step back (`worth_a_stop`)
 STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
@@ -311,10 +317,15 @@ def _take(
     if crowd >= PILE_DROPS:
         looks.append((pile_aims(crowd), False))
     stages = [*((aims, walk, False) for aims, walk in looks), (ITEM_AIMS, False, True)]
+    if len(LOOKED) > LOOKED_MOST:
+        LOOKED.clear()
+    before = frozenset(LOOKED.get(drop.unit_id, ()))  # by the tries before: this one's own stages keep their order
+    looking = LOOKED.setdefault(drop.unit_id, set())
     for aims, walk, blind in stages if run.hovered is not None else [(ITEM_AIMS, False, True)]:
         if walk and walk_up(run, drop):
             return drop
-        for aim in aims:
+        order = aims if blind else (*(a for a in aims if a not in before), *(a for a in aims if a in before))
+        for aim in order:
             player = standing(run)
             rect = run.actuator.keys.focused_window_rect()
             if player is None or rect is None:
@@ -334,12 +345,14 @@ def _take(
             note = '' if run.hover_note is None else f' [{run.hover_note()}]'
             looked.append(f'{aim} {"blind " if blind else ""}{what}{note}')
             if under is None and (not blind or (over is not None and over[0] == ITEM_UNIT and over[1] in unwanted)):
+                looking.add(aim)
                 continue  # nothing wanted seen, or an unwanted item under the pointer
             if under is None and over is not None and over[0] == MONSTER_UNIT:
                 continue  # the click would hit the monster or its corpse
             for _ in range(CLICKS if under is not None else 1):
                 looked[-1] += ' clicked'
                 if click(run, under or drop, aim, over):
+                    LOOKED.pop(drop.unit_id, None)
                     return under or drop
                 now = run.world().player
                 refused = refusal(run, under, now) if under is not None else None
@@ -367,17 +380,40 @@ def _take(
 
 def late(loot: Loot, now: float) -> None:
     """Log `CLICKED` valuables found carried within LATE_SECONDS as picked up (the watch's tools match the line);
-    forget the rest after it."""
+    forget the rest after it. So too a valuable `SEEN` on the ground within LATE_SECONDS and carried now that no
+    pickup click took (`taken_by_a_move`)."""
     for unit, (drop, at) in list(CLICKED.items()):
         if unit in loot.carried and now - at <= LATE_SECONDS:
             LOG.info(
                 'Macro: picked up %s %.2fs after the click, late: carried at a later look; at (%.1f, %.1f)',
                 drop.label, now - at, drop.x, drop.y,
             )  # fmt: skip
-            TAKEN.add(unit)
             del CLICKED[unit]
+            SEEN.pop(unit, None)
         elif now - at > LATE_SECONDS:
             del CLICKED[unit]
+    taken_by_a_move(loot, now)
+
+
+def taken_by_a_move(loot: Loot, now: float) -> None:
+    """A valuable read on the ground within LATE_SECONDS and carried now, never clicked by the pickup: a move's click
+    on its label took it (Tal Rune at 23:42:53 on 2026-10-19, a level run's walk; no line said it, so the watch called
+    it missed). Said as picked up; this read's ground valuables noted (`SEEN`)."""
+    for unit, (drop, at) in list(SEEN.items()):
+        if unit in loot.carried and unit not in CLICKED and now - at <= LATE_SECONDS:
+            LOG.info(
+                'Macro: picked up %s %.2fs after it was last read on the ground, by a move\'s click: carried at a '
+                'later look; at (%.1f, %.1f)',
+                drop.label, now - at, drop.x, drop.y,
+            )  # fmt: skip
+            del SEEN[unit]
+        elif now - at > LATE_SECONDS:
+            del SEEN[unit]
+    if len(SEEN) > SEEN_MOST:
+        SEEN.clear()
+    for drop in loot.drops:
+        if drop.kind == VALUABLE and drop.unit_id not in loot.carried:
+            SEEN[drop.unit_id] = (drop, now)
 
 
 def lifted(run: Run, drop: Drop) -> bool:
@@ -436,8 +472,6 @@ def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> boo
         )  # fmt: skip
         if gone:
             run.say(f'{drop.label}: picked up')
-            if drop.kind == VALUABLE:
-                TAKEN.add(drop.unit_id)
             return True
     # Standing where the record puts it does not take it (user, 2026-10-11: "bad coordinates"): click it as an item.
     take(run, drop, others=others)
@@ -486,9 +520,8 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
                 'pointer %s',
                 drop.label, run.clock() - began, aim, away, over,
             )  # fmt: skip
+            SEEN.pop(drop.unit_id, None)  # said here, not again by `taken_by_a_move`
             run.say(f'{drop.label}: picked up')
-            if drop.kind == VALUABLE:
-                TAKEN.add(drop.unit_id)
             return True
         if walker is not None and walker.mode in DEAD:
             raise Dead('the character is dead')
@@ -575,11 +608,13 @@ def pick_up(
     threat: Threat | None = None,
     unit: int | None = None,
     looped: bool = False,
+    trips: bool = False,
 ) -> bool:
     """One press of the pickup action; whether there was something to pick up. `otherwise`: the press with
     nothing to pick up. `threat`: a potion with monsters near is left (valuables and gold are not). `unit`: the
     drop a goal names, in place of `choose`'s. `looped`: the KP_6 loop's press, where a valuable with no room stops
-    it whenever `lootpolicy.verdict` holds it."""
+    it whenever `lootpolicy.verdict` holds it. `trips`: a press by hand that a trip for room may follow
+    (running/room.py): what a trip is made for stops it too (lootpolicy.py `trip_for`)."""
     player, _ = ready(run)
     loot = unshunned(run.loot() if run.loot is not None else Loot(), run.clock())
     here = (player.x, player.y)
@@ -624,7 +659,12 @@ def pick_up(
         # plain valuables hold too (the player, 2026-10-18: "we should stop and clear inventory with our designated
         # town routine"); the stop is then the room rules' (runner.py `_loop_stopped`).
         facts = {drop.unit_id: {'room': False, 'shown': drop.unit_id in loot.shown, 'looped': looped} for drop in left}
-        held = [drop for drop in left if lootpolicy.verdict(drop, lootpolicy.PRESS, **facts[drop.unit_id]).hold]
+        held = [
+            drop
+            for drop in left
+            if lootpolicy.verdict(drop, lootpolicy.PRESS, **facts[drop.unit_id]).hold
+            or (trips and lootpolicy.trip_for(drop, shown=drop.unit_id in loot.shown))
+        ]
         dear = ', '.join(sorted({drop.label for drop in held}))
         if plan is None and dear:
             # Stop rather than seek away from the drop (user, 2026-10-10). Plain shown gear lets the press go on

@@ -8,6 +8,7 @@ and every reason nothing moved is logged. Click points come from the game's layo
 unit is 1/2160 of the window height), checked against a screenshot within 2 pixels.
 """
 
+import contextlib
 import functools
 import json
 from collections.abc import Callable, Iterable, Sequence
@@ -22,6 +23,7 @@ from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
+from inventory_tracking.macros.routines import DEAD
 
 
 __all__ = [
@@ -179,10 +181,7 @@ def arrange_keys(run: Run, inventory_key: str) -> bool:
         else:
             LOG.warning('Macro: inventory: the keys are still on the pointer')
     finally:
-        if 'inventory' in run.world().open_panels:
-            run.actuator.tap('Escape')
-            run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
-            run.actuator.rebase()
+        close(run, ('inventory',))
     LOG.info(
         'Macro: inventory: the keys %s (%d, %d) to (%d, %d)', 'moved' if moved else 'not moved', key.x, key.y, x, y
     )
@@ -251,10 +250,7 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
             run.actuator.click()
             _until(run, lambda p: p.pointer is None)
     finally:
-        if 'inventory' in run.world().open_panels:
-            run.actuator.tap('Escape')
-            run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
-            run.actuator.rebase()
+        close(run, ('inventory',))
     LOG.info('Macro: inventory: %s (%d) at (%d, %d) %s %s',
              item.txt, item.unit_id, item.x, item.y, 'dropped' if dropped else 'not dropped', why)  # fmt: skip
     return dropped
@@ -270,6 +266,22 @@ def cell_point(
     x = panel_x + grid_x + (at[0] + size[0] / 2) * CELL
     y = panel_y + grid_y + (at[1] + size[1] / 2) * CELL
     return (anchor_x * width + x * scale) / width, (anchor_y * height + y * scale) / height
+
+
+def close(run: Run, panels: tuple[str, ...]) -> None:
+    """Close `panels` the run opened, through a cancel too (actuator.py `closing`): Escape only with one open (with
+    nothing open it opens the game's menu instead), never with the character dead (the player: "if we died - we MUST
+    not take ANY other actions")."""
+    world = run.world()
+    if not set(panels) & set(world.open_panels):
+        return
+    if world.player is not None and world.player.mode in DEAD:
+        return
+    with run.actuator.closing():
+        run.actuator.tap('Escape')
+    with contextlib.suppress(Abort):  # a cancelled run's wait: the Escape is sent
+        run.seen(lambda w: not set(panels) & set(w.open_panels), PANEL_SECONDS)
+    run.actuator.rebase()
 
 
 def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) -> int:
@@ -324,10 +336,7 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
                 raise Abort(f'the item at ({item.x}, {item.y}) did not go into the cube')
             moved += 1
     finally:
-        if {'inventory', 'cube'} & set(run.world().open_panels):
-            run.actuator.tap('Escape')  # with nothing open it opens the game's menu instead
-            run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
-            run.actuator.rebase()
+        close(run, ('inventory', 'cube'))
         LOG.info("Macro: cube: %d of %d of the loop's items moved in", moved, len(moves))
     run.say(f'Cube: {moved} item{"s" if moved != 1 else ""} put in')
     return moved
@@ -388,10 +397,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
             else:
                 LOG.info('Macro: cube: the item %d at (%d, %d) did not come out', item.txt, item.x, item.y)
     finally:
-        if {'inventory', 'cube'} & set(run.world().open_panels):
-            run.actuator.tap('Escape')
-            run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
-            run.actuator.rebase()
+        close(run, ('inventory', 'cube'))
         LOG.info('Macro: cube: %d of %d items taken out', out, len(items))
     return out
 
@@ -480,10 +486,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
         if run.stops(stop):
             raise
     finally:
-        if {'inventory', 'cube'} & set(run.world().open_panels):
-            run.actuator.tap('Escape')
-            run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
-            run.actuator.rebase()
+        close(run, ('inventory', 'cube'))
     LOG.info('Macro: cube: three %s %s', _gem_name(txt), f'into a {_gem_name(perfect)}' if made else 'not transmuted')
     if made:
         run.say(f'Cube: a {_gem_name(perfect)} made')

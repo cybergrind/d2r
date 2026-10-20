@@ -744,7 +744,7 @@ def test_the_places_that_keep_the_fight_lie_inside_the_reach_the_nearest_first()
     assert gaps[0] < 2.0
 
 
-def _clump_fight(monkeypatch, *, offer=None, posted='run', now=5.0, harm_at_stand=0.0):
+def _clump_fight(monkeypatch, *, offer=None, posted='run', now=5.0, harm_at_stand=0.0, safety=None):
     """The Ancient's Way pack of run-1932-findings.md §4 (22:50:26.9): two hostiles 20 to 21.5 units off, at the edge
     of the reach, and the rest of their pack 24 to 28 off, just out of it (the fights ended there, "nothing left in
     reach"); a level run's fight priced near nothing against the budget. `offer`: the place the fight's own look found
@@ -773,7 +773,7 @@ def _clump_fight(monkeypatch, *, offer=None, posted='run', now=5.0, harm_at_stan
     goal = Goal('clearing the way', pack[0], FIGHT, 22.1, PRESSED, clearing=True)
     facts = p.Facts(now, goal, True, True, True, lambda: Step(goal.place), area=118, near=True)
     pursuit = p.Pursuit('pickup', 0.0, advance=False, leash=p.FULL, area=118) if posted == 'run' else None
-    safety = module.Safety()
+    safety = safety if safety is not None else module.Safety()
     if offer is not None:
         safety.offer(*offer)
     found = safety.price(
@@ -1015,3 +1015,77 @@ def test_an_unread_belt_is_priced_as_an_empty_one(monkeypatch):
     stocked = Loot(life=900, max_life=1800, belt=(531, 531, 606, 606) * 4)  # rejuvenations and super healing
     empty = Loot(life=900, max_life=1800, belt=(None,) * 16)
     assert priced(replace(stocked, belt_read=False)) == priced(empty) > priced(stocked)
+
+
+# -- a firing stand the window shows; a Teleport that casts nothing (rca/2026-10-19/game30-run-findings.md S2) -------
+
+
+def test_the_firing_stand_is_looked_for_only_where_the_window_shows_the_ground(monkeypatch):
+    # Game 30, 21:36:45-53: the stand's camp was asked with no `shown`, so a spot under the skill bar (0.93 of the
+    # window down) was chosen and Teleport pressed at it 5 times, never cast. `Hunter.better_stand` passes the view's
+    from inventory_tracking.combat.harm import Look, SafetySettings
+    from inventory_tracking.combat.policy import Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
+    from inventory_tracking.game.view import Viewport
+    from inventory_tracking.macros import safety as module
+
+    damage = Harm(100, 1000, losses=(100.0,) * 64)
+    monkeypatch.setattr(module, 'harm', lambda *a: damage)
+    monkeypatch.setattr(module, 'harm_path', lambda *a: damage)
+    monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
+    asked: list[dict] = []
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: asked.append(kw))
+    here = (7820.0, 5600.0)
+    goal = Goal('goal', (here[0] + 20.0, here[1]), 'use', 5.0, PRESSED)
+    facts = p.Facts(0.0, goal, False, False, False, lambda: Step(goal.place))
+    module.Safety().price(
+        facts, p.Pursuit('teleport', 0.0), Look((), life=1000), Loot(life=1000, max_life=1000), CALM, SafetySettings(),
+        Observation(here, {}), SimpleNamespace(reach=22), Step,
+    )  # fmt: skip
+    shown = asked[0]['shown']
+    assert shown is not None
+    view = Viewport()
+    under = next(
+        (here[0] + k / 2, here[1] + k / 2)
+        for k in range(80)
+        if view.ground(here, here[0] + k / 2, here[1] + k / 2)[1] > 0.92
+    )
+    assert not shown(under)  # under the skill bar
+    assert shown((here[0] + 6.0, here[1] - 6.0))  # beside the character
+
+
+def test_a_teleport_stand_chosen_look_after_look_with_the_character_still_is_dropped(monkeypatch, caplog):
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+
+    def stand_move(priced):
+        return next(c for c in priced.candidates if isinstance(c.act, p.Move) and c.act.step.spot == stand.spot)
+
+    stand = Step((8.0, 0.0), TELEPORT)
+    _, priced = _clump_fight(monkeypatch, offer=(stand, 4.8))
+    assert stand_move(priced).harm.barred is None
+    safety = module.Safety()
+    goal = Goal('clearing the way', (20.0, 0.0), 'fight', 22.1, PRESSED)
+    hop = p.Move(stand, goal, 'firing spot')
+    with caplog.at_level(logging.INFO, logger=LOG.name):
+        for now in (4.0, 4.5):
+            safety.hopped(hop, (0.0, 0.0), now)
+        assert not safety.duds  # two looks: a cast may still be under way
+        safety.hopped(hop, (0.3, 0.0), 5.1)  # the third, the character not moved
+    assert list(safety.duds) == [stand.spot]
+    assert 'the spot is dropped' in caplog.text
+    chosen, priced = _clump_fight(monkeypatch, offer=(stand, 4.8), safety=safety)
+    assert stand_move(priced).harm.barred == module.DUD  # never chosen over an act that is not barred
+    assert isinstance(chosen, p.Hold)
+    # A moving character, another spot or another act starts the count again; the bar lapses after DUD_SECONDS
+    other = module.Safety()
+    other.hopped(hop, (0.0, 0.0), 0.0)
+    other.hopped(hop, (5.0, 0.0), 0.6)  # it moved
+    other.hopped(hop, (5.0, 0.0), 1.2)
+    assert not other.duds
+    other.hopped(p.Hold(goal), (5.0, 0.0), 1.5)
+    assert other.hops is None
+    later = 5.2 + module.DUD_SECONDS
+    _, priced = _clump_fight(monkeypatch, offer=(stand, later - 0.2), now=later, safety=safety)
+    assert stand_move(priced).harm.barred is None

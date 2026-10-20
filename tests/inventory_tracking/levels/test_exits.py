@@ -1,21 +1,26 @@
 """Generic ways out: a room whose preset has warp tiles leads to the level in that warp slot."""
 
+import json
+import math
 from dataclasses import replace
 
 from inventory_tracking.levels.exits import (
+    EDGE_SNAP,
+    INWARD_STEP,
     PASSAGE_PAST,
     TOWN_WAYS_OUT,
     border_exits,
     guide_level,
     passage_of,
+    poi_area,
     through,
     warp_exits,
     with_exits,
 )
-from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Poi, Room
+from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Poi, Room, Walkable, pack_cells
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import handler_of, replay
+from tests.inventory_tracking.levels.fixtures import FIXTURES, handler_of, replay
 
 
 CAVE_TREASURE_2 = 104  # 'Act 1 - Cave Treasure 2', the whole of Cave Level 2: warp slot 1 at (4.5, 5.5)
@@ -182,7 +187,12 @@ def test_an_open_passages_far_place_is_a_tile_past_the_levels_edge():
     assert through(bridge, (1560.0, 1119.5), 108) == (1560.0, 1120.0 - PASSAGE_PAST)
     east = (Room(1, 100, 100, 8, 8), Room(1, 108, 100, 8, 8, leads_to=(3,)))
     assert through(east, (112.0, 104.0), 3) == (116.0 + PASSAGE_PAST, 104.0)
-    assert through(east, (112.0, 104.0), 4) is None  # no room is known to touch level 4
+    # No room known to touch level 4 yet: the mark's side of the level's middle (Upper Kurast's Kurast Causeway on its
+    # north edge, 2026-10-20 01:36:23); a mark at the middle has no side
+    assert through(east, (112.0, 104.0), 4) == (116.0 + PASSAGE_PAST, 104.0)
+    north = (Room(644, 968, 496, 8, 8), Room(1, 968, 504, 8, 8), Room(1, 968, 512, 8, 8))
+    assert through(north, (968.0, 496.0), 82) == (968.0, 496.0 - PASSAGE_PAST - INWARD_STEP)
+    assert through(east, (108.0, 104.0), 4) is None
     assert through((), (112.0, 104.0), 3) is None
 
 
@@ -196,3 +206,63 @@ def test_only_a_way_out_with_no_warp_has_a_far_place():
     assert passage_of(107, (room,), replace(sanctum, use=1), (1560.0, 1119.5)) is None
     assert passage_of(107, (room,), replace(sanctum, kind='waypoint'), (1560.0, 1119.5)) is None
     assert passage_of(107, (room,), replace(sanctum, area=None), (1560.0, 1119.5)) is None
+
+
+def test_a_handlers_way_out_names_its_level_by_its_label():
+    # The Kurast handler's 'Kurast Causeway' (2026-10-20 01:47:26) named no level: no passage, taken for a door
+    north = (Room(644, 968, 496, 8, 8), Room(1, 968, 504, 8, 8))
+    causeway = Poi('Kurast Causeway', north[0], 'stairs', (968.0, 496.0))
+    assert poi_area(causeway) == 82
+    assert passage_of(81, north, causeway, (968.0, 496.0)) == (968.0, 496.0 - PASSAGE_PAST - INWARD_STEP)
+    assert poi_area(replace(causeway, label='Sewers')) is None  # several levels' name
+    assert poi_area(replace(causeway, kind='target')) is None  # not a way out
+
+
+# Lost City to Valley of Snakes, 2026-10-20 01:09 (take 20261019T220930Z-44; rca/2026-10-20/valley-of-snakes-findings.md
+# §1): the border mark is the centre of room 379 'Desert Cliff Left Ends', all cliff; the canyon reaches the north
+# edge at tile (807, 1000), 21 tiles west.
+CLIFF_MARK = (828.0, 1004.0)
+VALLEY_OF_SNAKES = 45
+
+
+def lost_city() -> tuple[tuple[Room, ...], tuple[Walkable, ...]]:
+    """The take's rooms and the grids of its two north rows (the fixture is trimmed to those)."""
+    data = json.loads((FIXTURES / 'lost_city_valley_border.json').read_text())
+    return tuple(Room.from_row(row) for row in data['rooms']), tuple(Walkable(*grid) for grid in data['ground'])
+
+
+def test_a_border_mark_on_a_cliff_crosses_at_the_open_edge_tile():
+    rooms, grids = lost_city()
+    assert through(rooms, CLIFF_MARK, VALLEY_OF_SNAKES) == (828.0, 1000.0 - PASSAGE_PAST - 0.25)  # unread: as before
+    assert through(rooms, CLIFF_MARK, VALLEY_OF_SNAKES, grids) == (807.5, 1000.0 - PASSAGE_PAST - 0.25)
+    poi = Poi('Valley of Snakes', rooms[0], 'stairs', area=VALLEY_OF_SNAKES)
+    assert passage_of(44, rooms, poi, CLIFF_MARK, grids) == (807.5, 998.75)
+
+
+def test_the_open_edge_is_an_outer_tile_with_footing_within_edge_snap_of_the_mark():
+    """Two rows of seven rooms, the middle top room touching level 3 to the north; the grids are wall but where
+    given as floor. Only a top-row tile within EDGE_SNAP of the mark moves it; a mark beyond the rooms never moves."""
+    floor, wall = pack_cells('1' * 1600), pack_cells('0' * 1600)
+    rooms = tuple(
+        Room(1, x, y, 8, 8, leads_to=(3,) if (x, y) == (124, 100) else ())
+        for y in (100, 108)
+        for x in range(100, 156, 8)
+    )
+    mark = (128.0, 104.0)
+
+    def grids(*floors):
+        return tuple(Walkable(room.x, room.y, 8, 8, floor if (room.x, room.y) in floors else wall) for room in rooms)
+
+    straight = (128.0, 100.0 - PASSAGE_PAST - 0.25)
+    assert through(rooms, mark, 3, grids()) == straight  # no open tile read
+    assert through(rooms, mark, 3, grids((124, 108))) == straight  # floor below the mark: no edge tile
+    assert through(rooms, mark, 3, grids((148, 100))) == (148.5, 100.0 - PASSAGE_PAST - 0.25)
+    assert math.dist(mark, (148.5, 100.5)) <= EDGE_SNAP
+    wide = (*rooms, Room(1, 156, 100, 8, 8))
+    beyond = (*grids(), Walkable(156, 100, 8, 8, floor))
+    assert math.dist(mark, (156.5, 100.5)) > EDGE_SNAP
+    assert through(wide, mark, 3, beyond) == straight
+    # A mark beyond the rooms (the River of Flame's bridge end) is crossed as before, whatever the grids
+    bridge = (Room(856, 1548, 1120, 8, 8), Room(856, 1556, 1120, 8, 8), Room(856, 1564, 1120, 8, 8))
+    floors = tuple(Walkable(room.x, room.y, 8, 8, floor) for room in bridge)
+    assert through(bridge, (1560.0, 1119.5), 108, floors) == (1560.0, 1120.0 - PASSAGE_PAST)

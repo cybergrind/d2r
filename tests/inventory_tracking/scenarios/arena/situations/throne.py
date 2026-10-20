@@ -61,7 +61,7 @@ def stored() -> Situation:
 def variants() -> list[tuple[str, Situation, list | None]]:
     base = stored()
     return [
-        ('attack mode alone: today', base, []),
+        ('attack mode alone: today', base.logic('today'), []),
         ('attack mode alone: new', base.logic('new'), []),
     ]
 

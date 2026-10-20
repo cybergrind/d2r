@@ -67,6 +67,11 @@ def newest(runs: Path = RUNS) -> Path | None:
 # names are loop.py's constants (NEXT_GAME 'next game', 'the chests', 'town visit', ...).
 # 2026-10-18 15:58:35,969 INFO Macro: Loop: game 1, what is left
 LEG = re.compile(r'Macro: Loop: game (\d+), (.+)$')
+# A leg that goes on: a teleport landed, a fight's kills, a pickup (watch.py: no STALL while these come, 2026-10-19)
+PROGRESS = re.compile(r'Macro: (teleport aimed at .*; landed at|.*: [1-9]\d* down in \d+ casts|picked up )')
+# The loop's own wait before its next leg (loop.py `leg`: the next terror zone's, up to 30 min): no STALL in it
+# 2026-10-20 03:34:19,640 INFO Macro: loop: waiting 1560 s before the next leg (the next terror zone)
+WAITING = re.compile(r'Macro: loop: waiting (\d+) s before the next leg')
 
 # The player's KP_6 press reaches the runner. runner.py MacroRunner.request
 # `'Macro: request %s, %.0f ms old, while %s'` with the routine `loop`.
@@ -143,6 +148,29 @@ NOW = re.compile(
 # 2026-10-18 16:00:10,027 INFO Macro: shop: keys 17 -> 17, portals 0 -> 0 (Town Portal from the Sling: none bought),
 #     identifies 20 -> 20
 NOTE = re.compile(r'Macro: (cube: .*moved|stash: .*put in|shop: keys)')
+
+
+# --- TZ leveling's experience (games.py, watch.py) -------------------------------------------------------------------
+
+# A terror zone game's experience at its Save and Exit: (game, gain, level, to the next or None, an hour since the loop
+# turned on or '?', games over). loop.py Loop.leave with experience.py Ledger.game_over `f'experience: game {number}:
+# ...'`, said `'Macro: %s'` (loop.py say_experience); `, up N` after the level when it rose. 'experience: game N:
+# unread' when the stats were not read. New on 2026-10-19 21:37 (the player: "we should log experience in tz
+# leveling"); the test builds the line.
+# 2026-10-19 22:00:00,000 INFO Macro: experience: game 3: +1,234,567 (level 94, 130,000,000 to the next), 6,000,000 an
+#     hour over 3 games
+EXPERIENCE_GAME = re.compile(
+    r'Macro: experience: game (\d+): ([+-][\d,]+) \(level (\d+)(?:, up \d+)?(?:, ([\d,]+) to the next)?\), '
+    r'(-?[\d,]+|\?) an hour over (\d+) games?'
+)
+# A terror zone level left: (its name, gain, seconds, level). experience.py Ledger._level `f'experience: {name}: ...'`.
+# 2026-10-19 21:58:10,000 INFO Macro: experience: The Chaos Sanctuary: +912,000 in 140s (level 94)
+EXPERIENCE_LEVEL = re.compile(r'Macro: experience: (?!game \d+:)(.+?): ([+-][\d,]+) in (\d+)s \(level (\d+)\)')
+
+
+def amount(text: str) -> int:
+    """A number as the experience lines write it: '+1,234,567' -> 1234567."""
+    return int(text.replace(',', ''))
 
 
 # --- The ground and the pickups --------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ from inventory_tracking.macros.lootpolicy import (
     SWEEP,
     verdict,
 )
-from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, is_candidate
+from inventory_tracking.macros.pickmode import MODES, MOST, SURE, is_candidate
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.sightings import Sightings
@@ -164,7 +164,7 @@ def test_every_sites_answer_of_today_is_the_verdict(site, mode):
     assert len(FACTS) == len(ITEMS) * 32
 
 
-def answers(drop: Drop, *, room: bool = False, mode: str = REGULAR, **facts) -> dict[str, bool]:
+def answers(drop: Drop, *, room: bool = False, mode: str = MOST, **facts) -> dict[str, bool]:
     shown = drop.source == 'shown'
     return {site: verdict(drop, site, room=room, shown=shown, mode=mode, **facts).hold for site in SITES}
 
@@ -249,8 +249,7 @@ def test_the_guard_ignores_the_shuns_and_give_ups_the_hands_keep():
 
 def test_what_the_mode_does_not_keep_or_a_full_stash_stack_holds_nobody():
     blade = next(d for d in ITEMS if d.label == 'Phase Blade')
-    for mode in (SURE, TRADE):
-        assert answers(blade, mode=mode) == dict.fromkeys(SITES, False)
+    assert answers(blade, mode=SURE) == dict.fromkeys(SITES, False)
     assert answers(ITEMS[2], sold_full=True) == dict.fromkeys(SITES, False)
 
 

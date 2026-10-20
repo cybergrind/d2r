@@ -755,6 +755,124 @@ def test_a_stop_that_gives_up_after_the_park_takes_the_junk_back_first(monkeypat
     assert any(miss.startswith('cube 1 items (set Boots') for miss in done.contract.misses)
 
 
+def test_a_parked_junk_landing_on_another_page_than_recorded_is_still_taken_back_and_sold(monkeypatch, caplog):
+    # The parked Fuscina lies on page 1, its park recorded on page 5: taken back by its unit id from wherever it lies
+    import inventory_tracking.macros.visit as visit_module
+    from tests.inventory_tracking.macros.test_town import pack_1505, view_1505
+
+    real_park = visit_module._park
+
+    def elsewhere(run, rect, parks, tally, later, parked):
+        real_park(run, rect, [replace(put, to=1) for put in parks], tally, later, parked)
+        parked[:] = [(item, 5) for item, _page in parked]  # recorded as planned, not where it went
+
+    pack, own, junk = pack_1505()
+    play, town = replay(monkeypatch, pack, own, junk, view_1505())
+    assert play.stash_pages is not None
+    play.stash_pages[1] = OPEN_PAGE  # room on page 1 too, after page 5 in the parks' order: still planned onto 5
+    monkeypatch.setattr(visit_module, '_park', elsewhere)
+
+    with caplog.at_level('INFO'):
+        done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert 'the parked Fuscina taken back from page 1 for Jamella' in caplog.text
+    assert all(40 not in units for units in play.page_items.values())
+    assert 40 in town.sold
+    assert done.contract.junk_left == 0
+    assert done.contract.in_stash == 0
+
+
+def test_junk_left_on_a_stash_page_counts_as_junk_left(monkeypatch, caplog):
+    # 21:55:45 on 2026-10-19: "junk left 0" with junk on a stash page. A parked one not taken back is junk left
+    import inventory_tracking.macros.visit as visit_module
+    from tests.inventory_tracking.macros.test_town import pack_1505, view_1505
+
+    pack, own, junk = pack_1505()
+    _play, town = replay(monkeypatch, pack, own, junk, view_1505())
+    monkeypatch.setattr(visit_module, '_unpark', lambda run, rect, parked, tally: list(parked))
+
+    with caplog.at_level('INFO'):
+        done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert done.contract.junk_left == 1
+    assert 'junk left 1' in done.contract.misses
+    assert ', junk left 1, ' in caplog.text
+
+
+# 21:55:19-45 on 2026-10-19, game 31 (fixtures/visits/2026-10-19-215519.json): a magic Matriarchal Javelin in the cube,
+# appraised `vendor` at Cain, was no junk (pickmode.py `sellable` took magic items only of the skill types) and went
+# onto shared page 1, planned 3; the player: "we had put trash item for sale and forgot to pick it and sell"
+JAVELIN, CHECKED = 3254005591, 4042921899  # the Javelin; the Small Charm appraised `check`
+VISIT_2155 = Path(__file__).parent / 'fixtures' / 'visits' / '2026-10-19-215519.json'
+
+
+def test_the_2155_magic_javelin_appraised_vendor_is_sold_not_stashed(monkeypatch, caplog):
+    from inventory_tracking.macros.junk import junk_of
+    from inventory_tracking.macros.visitlog import load
+
+    start = load(VISIT_2155)[0]
+    assert start.view is not None
+    assert JAVELIN not in start.junk  # as the visit judged it then
+    play, town = replay(monkeypatch, start.pack, start.own, start.junk, start.view)
+    verdicts = dict.fromkeys((*start.junk, JAVELIN), 'vendor') | {CHECKED: 'check'}
+    hands = replace(town.hands(), judge=lambda items: junk_of(items, lambda units: {u: verdicts[u] for u in units}))
+
+    with caplog.at_level('INFO'):
+        done = visit(town.run, hands, start.needs, start.own, Exit.WAYPOINT)
+
+    assert '8 junk' in caplog.text  # 7 then
+    assert all(JAVELIN not in units for units in play.page_items.values())
+    assert JAVELIN in town.sold
+    assert sorted(town.sold) == sorted((*start.junk, JAVELIN))
+    assert any(CHECKED in units for units in play.page_items.values())  # `check`: stashed
+    assert done.contract.junk_left == 0
+    assert carried(play).in_cube == ()
+
+
+def test_a_new_games_shared_tab_opens_on_its_first_page_not_the_one_remembered():
+    # 02:36:57 on 2026-10-19: the Spiked Shield went onto page 1, planned 3, the Shared tab remembered on page 3 from
+    # the visit before, in another game; 21:55:27: the Javelin the same. A new game's tab opens on page 1
+    from inventory_tracking.macros.visit import Remembered
+
+    memory = Remembered(shared=5, shared_game='cyber31')
+    ring = thing(10, 'Ring', 6, 0)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, ring)), [OPEN_PAGE] * 2 + [FULL_PAGE] * 3 + [OPEN_PAGE])
+    play.shared_page = 0  # page 1 shown, the game cyber32's own
+    run = play.run()
+    view = read(run)
+    assert play.pack is not None
+    stop = plan_stop(Holdings(play.pack, OWN), view)
+    assert [put.to for put in stop.puts] == [5]
+
+    assert stash_stop(run, stop, inventory_key='i', own=OWN, memory=memory) == 1
+
+    assert play.stash_clicks == [(5, ring.unit_id)]
+    assert memory.shared == 5
+    assert memory.shared_game == 'cyber32'
+
+
+def test_the_stops_line_names_the_page_a_put_went_onto_not_the_one_planned(caplog):
+    # 21:55:29 on 2026-10-19: "7 items put in (pages 3,4)", the Javelin on page 1
+    from inventory_tracking.macros.visit import Remembered
+
+    memory = Remembered(shared=5, shared_game='cyber32')  # this game's, but the player has looked at page 1 since
+    ring = thing(10, 'Ring', 6, 0)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, ring)), [OPEN_PAGE] * 2 + [FULL_PAGE] * 3 + [OPEN_PAGE])
+    play.shared_page = 0
+    run = play.run()
+    view = read(run)
+    assert play.pack is not None
+    stop = plan_stop(Holdings(play.pack, OWN), view)
+    assert [put.to for put in stop.puts] == [5]
+
+    with caplog.at_level('INFO'):
+        assert stash_stop(run, stop, inventory_key='i', own=OWN, memory=memory) == 1
+
+    assert play.page_items[1] == [ring.unit_id]
+    assert 'Macro: stash: the Ring went onto page 1, planned 5: page 1 is the one shown' in caplog.text
+    assert 'Macro: stash: by the view: 1 items put in (pages 1),' in caplog.text
+
+
 # The 99 rune stacks cubed at the stash (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower")
 
 

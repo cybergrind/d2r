@@ -316,6 +316,16 @@ def test_a_character_standing_still_too_long_is_said_once_and_moving_counts_afre
     assert not loop.still(None, 10 * STILL_SECONDS)
 
 
+def test_a_stand_that_kills_is_no_stall():
+    # 04:45:58-04:46:43 on 2026-10-20 (Worldstone Keep 2): 45 s in one place at full life, 13 of 35 Stone Skin
+    # hostiles killed, and the no-move watchdog left the game mid-fight
+    loop = Loop()
+    assert not loop.still((5384.3, 2614.3), 0.0, 'g', 0)
+    assert not loop.still((5384.3, 2614.3), STILL_SECONDS - 5, 'g', 3)  # a kill: the stand counts afresh
+    assert not loop.still((5384.3, 2614.3), STILL_SECONDS + 1, 'g', 3)
+    assert loop.still((5384.3, 2614.3), 2 * STILL_SECONDS - 4, 'g', 3)  # no kill since: a stall
+
+
 def test_a_new_game_and_the_recovery_pause_count_no_stand():
     """09:22:44-09:23:50 on 2026-10-19: the stand of the game before and the 30 s pause counted on into the next game,
     left 5 s in, 5 recoveries in a row."""
@@ -790,11 +800,11 @@ def test_a_game_makes_several_trips_for_room_while_each_makes_room_up_to_trips_a
 def test_a_game_with_its_own_visit_every_trips_visit_and_a_cut_one_is_not_given_up():
     # REPEATS: the start's visit, TRIPS_A_GAME trips' visits and one cut by the player's hand; the trips' and the
     # Gheed's swap's ways to the Fortress and back
-    from inventory_tracking.macros.loop import THROUGH_PORTAL, TO_THE_ENCAMPMENT, TRIP, TRIPS_A_GAME
+    from inventory_tracking.macros.loop import ROUTE_VISITS, THROUGH_PORTAL, TO_THE_ENCAMPMENT, TRIP, TRIPS_A_GAME
 
     loop = Loop()
     legs = {
-        TOWN: 1 + TRIPS_A_GAME + 1,
+        TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS,  # and the routes' own (`route_starts_full`)
         TRIP: TRIPS_A_GAME,
         TO_THE_FORTRESS: 1 + TRIPS_A_GAME + 2,
         TO_THE_ENCAMPMENT: TRIPS_A_GAME + 2,
@@ -1021,6 +1031,20 @@ def test_a_kind_chosen_while_the_loop_runs_is_the_next_games_kind(monkeypatch):
     assert (loop.kind, loop.pending, loop.chosen) == (looping.ANDARIEL, None, True)
 
 
+def test_a_kind_chosen_during_a_terror_zone_game_takes_in_the_lobby(monkeypatch):
+    # Game 31, 21:55 on 2026-10-19: Andariel was asked in River of Flame; the terror zone kind made its next game by
+    # its agenda and the request never took
+    from inventory_tracking.macros import loop as looping
+
+    monkeypatch.setattr(looping, 'character_keys', lambda run, key_names: {})
+    monkeypatch.setattr(looping, 'prebuff', lambda run, fresh=None: None)
+    loop = Loop(kind=looping.TZ, pending=looping.ANDARIEL)
+    play = Game(World(False, (), GAME, ()))
+    monkeypatch.setattr(looping, 'create_next_game', lambda run, name: setattr(play, 'world', at(ROGUE_ENCAMPMENT)))
+    assert loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False)) == NEXT_GAME
+    assert (loop.kind, loop.pending, loop.chosen) == (looping.ANDARIEL, None, True)
+
+
 def test_andariels_level_is_not_left_with_nothing_picked_up_before_her_drops_land():
     # 11:52:14 on 2026-10-18: Save and Exit 0.6 s after her kill; her drops land through her death animation, the last
     # 1.7 s after the kill was said (macros/loop.py `DROPS_LAND`)
@@ -1222,6 +1246,16 @@ def test_a_character_hit_standing_outside_a_fight_is_beset_once():
     assert not loop.beset(door, (2700, 3134), 41.0, GAME, CRYSTALLINE_PASSAGE)
 
 
+def test_battle_orders_running_out_is_no_hit():
+    # Lost City, 01:08:29 on 2026-10-20: standing by an Ith Rune, life 2937/2937 -> 1886/1886 as Battle Orders ran
+    # out; the loop left the game as beset with no attacker
+    loop, rune = Loop(), (3638.0, 4558.0)
+    loop.start()
+    assert not loop.beset(rune, (2937, 2937), 0.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(rune, (1886, 1886), 0.5, GAME, CRYSTALLINE_PASSAGE)
+    assert loop.beset(rune, (1700, 1886), 1.0, GAME, CRYSTALLINE_PASSAGE)  # a hit after it still counts
+
+
 def test_a_beset_leg_fights_back_then_fetches_the_ground_then_the_kind_goes_on():
     # The player, 2026-10-19: "Fight back first: fight the attacker, then pick up the valuable; leave only if life
     # gets low (the death rules still win)"
@@ -1295,3 +1329,62 @@ def test_the_pause_after_recoveries_is_waited_in_a_town():
     recovered_past_the_limit(loop)
     assert loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False)) == LEAVE
     assert play.clock.now >= RECOVERY_PAUSE - 1  # the town: the pause kept, as before
+
+
+def test_an_andariel_game_left_on_her_level_picks_up_what_her_kill_just_dropped_first(monkeypatch):
+    # rca/2026-10-19/game30-run-findings.md S1: the kinds that leave after a boss read the ground fresh at Save and
+    # Exit, after her drops landed (loop.py `last_look`), and keep the game for what the pickup could not take
+    import time
+
+    from inventory_tracking.macros import loop as loop_module
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    killed = {'Andariel'}
+    found = Progress(ROUTES, PERFORMED, lambda: frozenset(killed))
+    found.note(GAME, CATACOMBS_4)
+    found.looted(CATACOMBS_4)
+    monkeypatch.setattr(loop_module, 'KILLED_AT', {'Andariel': time.monotonic() - 0.5})
+    play = Game(at(CATACOMBS_4))
+    loop = Loop(on=True, kind=ANDARIEL, chosen=True, prebuffed=GAME)
+    takes: list[list[str]] = []
+
+    def take_one() -> bool:
+        if play.clock.now >= 1.0 and not takes:  # her drop lands 1.5 s after the kill
+            takes.append(list(play.said))
+            return True
+        return False
+
+    assert loop.leg(play.run(), keys, found, LegHands(lambda: None, take_one, left=lambda: None)) == LEAVE
+    assert len(takes) == 1
+    assert 'Save and Exit' not in takes[0]
+    assert 'Save and Exit' in play.said
+
+    play = Game(at(CATACOMBS_4))
+    with pytest.raises(Abort, match='Ist Rune') as stop:
+        loop.leg(play.run(), keys, found, LegHands(lambda: None, lambda: False, left=lambda: 'Ist Rune at (1, 2)'))
+    assert stop.value.cause == 'room'
+    assert 'Save and Exit' not in play.said
+
+
+def test_turned_on_the_loop_closes_the_inventory_and_cube_left_open_at_its_first_leg():
+    # 23:34:19 on 2026-10-19: a cancelled cube step left them open; turned on again the loop read them as the player's
+    loop = Loop()
+    assert not loop.tidy_panels
+    loop.start()
+    assert loop.tidy_panels
+
+
+def test_the_loops_own_wait_is_not_a_game_overdue():
+    # The next terror zone's wait in the lobby (tzloop.py `zone_wait`, up to 30 min) is the loop's, not a stuck game
+    import time
+
+    from inventory_tracking.macros.loop import GAME_SECONDS
+
+    loop = Loop()
+    loop.start()
+    now = time.monotonic()
+    loop.cooling = now + 2 * GAME_SECONDS
+    assert not loop.overdue(None, now)
+    assert not loop.overdue(None, now + GAME_SECONDS + 10)  # still waiting
+    assert not loop.overdue(None, now + 2 * GAME_SECONDS + 1)  # the wait over: counted from here
+    assert loop.overdue(None, now + 3 * GAME_SECONDS + 2)

@@ -19,6 +19,7 @@ ROUTES = [
         'Stony Tomb',
         (40,),
         (
+            level(40, enter('Rocky Waste', 41), alternate=True),  # on foot, as act1.py's Rogue Encampment
             level(41, enter('Stony Tomb', 55)),
             level(55, enter('Next level', 59)),
             level(59, fight('Creeping Feature', 'Creeping Feature'), loot(), leave()),

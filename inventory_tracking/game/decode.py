@@ -547,7 +547,13 @@ def containers() -> frozenset[int]:
     return frozenset(container_names())
 
 
-USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, BANK, *CLICKED, *WAYPOINT_CLASSES)) | containers()
+# Doors too: a closed one across an open passage's walk is clicked open (macros/hunting/moves.py `door_across`; the
+# Outer Cloister's gate into the Barracks, 04:00:40 on 2026-10-20)
+USED = (
+    frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, BANK, *CLICKED, *WAYPOINT_CLASSES))
+    | containers()
+    | frozenset(door_sizes())
+)
 
 
 def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...]:

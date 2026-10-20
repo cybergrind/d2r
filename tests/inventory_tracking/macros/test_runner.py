@@ -892,6 +892,7 @@ def test_the_teleport_step_of_a_character_no_build_claims_hops_by_the_staff():
     play = steps.game()
     play.world = replace(someone(), player=replace(character_of(someone()), area=109))
     runner, run, _ = building(play)
+    runner.jumps = False  # the step a jump is made of (running/test_jump.py)
     runner.target = lambda: steps.target((1003.0, 1000.0))
     runner.perform(run, run.actuator, 'teleport', steps.keys)
     assert run.build is GENERIC
@@ -910,6 +911,7 @@ def test_with_a_pack_by_the_seal_the_teleport_step_goes_there():
     for count in (2, 5):
         play = hunts.game(*hunts.pack(count))
         runner, run, _ = building(play, hunts.hunter(play))
+        runner.jumps = False  # the step a jump is made of (running/test_jump.py)
         runner.target = lambda: hunts.seal()
         runner.perform(run, run.actuator, 'teleport', hunts.keys)
         assert play.pressed() == [hunts.KEYS[hunts.BLADE_WARP]]  # the hop, and no swap of the weapons
@@ -923,6 +925,7 @@ def test_the_teleport_step_of_the_warlock_is_the_step_it_was():
 
     play, alone = steps.game(), steps.game()
     runner, run, _ = building(play)
+    runner.jumps = False  # the step a jump is made of (running/test_jump.py)
     runner.target = lambda: steps.target((1003.0, 1000.0))
     runner.perform(run, run.actuator, 'teleport', steps.keys)
     steps.step_toward(alone.run(), steps.target((1003.0, 1000.0)), steps.keys)
@@ -1298,22 +1301,22 @@ def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows():
     runner.close()
 
 
-def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_loop_as_it_was():
-    # routes/lower-kurast-loop-plan.md phase 7 (the player, 2026-10-16): "show mode (switch with double KP_6 click)"
-    from inventory_tracking.macros.pickmode import SURE, TRADE
+def test_a_double_press_of_the_loop_key_switches_the_pickup_level_and_leaves_the_loop_as_it_was():
+    # The player, 2026-10-19: "KP_6 - loop on/off, double - switch pickup mode, triple - switch loop type"
+    from inventory_tracking.macros.pickmode import MOST, SURE
 
     shown, made = [], []
     runner = make(lambda cancelled, routine: made.append(routine), shown)
-    assert runner.pickup_mode == SURE  # the default: only the sure valuables
+    assert runner.pickup_mode == SURE  # GOOD, the default
     assert runner.request(10.0, 10.0, 'loop')
     assert runner.request(10.2, 10.2, 'loop')
     deadline = time.monotonic() + 2
     while runner.pickup_mode == SURE and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert runner.pickup_mode == TRADE  # the trade goods too (the player, 2026-10-18)
+    assert runner.pickup_mode == MOST
     assert not runner.loop.on
     assert made == []
-    assert ['Macro: Loop pickup: sure and trade goods'] in shown
+    assert ['Macro: Pickup: MOST'] in shown
 
     for at in (20.0, 20.1, 20.2, 20.3):  # a mashed key: nothing
         assert runner.request(at, at, 'loop')
@@ -1321,7 +1324,7 @@ def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_
     while ['Macro: KP_6 pressed 4 times together: nothing switched'] not in shown and time.monotonic() < deadline:
         time.sleep(0.01)
     assert ['Macro: KP_6 pressed 4 times together: nothing switched'] in shown
-    assert runner.pickup_mode == TRADE
+    assert runner.pickup_mode == MOST
     assert not runner.loop.on
     runner.close()
 
@@ -1379,26 +1382,49 @@ def test_a_kind_request_switches_at_once_with_the_loop_off_and_from_the_next_gam
     runner.close()
 
 
-def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
+def test_a_kind_asked_while_on_takes_when_the_loop_is_turned_on_again():
+    # 21:42:37 on 2026-10-19: Andariel was asked in River of Flame, the player turned the loop off, made a game of
+    # their own and turned it on: it played the terror zone, the kind waiting for a next game leg that never came
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    shown = []
+    runner = make(lambda cancelled, routine: None, shown)
+    runner.loop.kind = LK
+    runner.loop.pending = ANDARIEL
+    with runner.lock:
+        runner._toggle_loop()
+    assert (runner.loop.on, runner.loop.kind, runner.loop.pending) == (True, ANDARIEL, None)
+    assert ['Macro: Loop run: Andariel'] in shown
+    with runner.lock:
+        runner._toggle_loop()
+    runner.close()
+
+
+def test_the_pickup_level_filters_the_drops_of_every_activity():
+    # The player, 2026-10-19: "I want to enable the same drop pickup rules as for other loops - by default we pickup
+    # sure items"
     from inventory_tracking.game.records import VALUABLE, Drop, Loot
-    from inventory_tracking.macros.pickmode import REGULAR
+    from inventory_tracking.macros.loop import ANDARIEL
+    from inventory_tracking.macros.pickmode import MOST
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.kind = LK  # Lower Kurast's levels
     blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, prized=False, source='shown', txt=0, quality=4)
     loot = Loot(drops=(blade,))
-    assert runner._picked(loot) == loot  # the loop off: KP_1 and the rest take what they always did
-    assert runner.run_badge is None
+    assert runner._picked(loot).drops == ()  # the loop off too: the sure valuables only
+    assert runner.run_badge == 'PICK:GOOD'
+    runner.attack_mode = True
+    assert runner.run_badge == 'ATT PICK:GOOD'
+    runner.attack_mode = False
     runner.loop.on = True
-    assert runner._picked(loot).drops == ()  # the loop's default: the sure valuables only
-    assert runner.run_badge == 'LOOP SURE'  # on the HUD beside attack mode
-    runner.pickup_mode = REGULAR
+    assert runner._picked(loot).drops == ()
+    runner.pickup_mode = MOST
+    assert runner._picked(loot) == loot  # what KP_1 took before
+    assert runner.run_badge == 'LK PICK:MOST'
+    runner.loop.kind, runner.loop.current = ANDARIEL, 'level run'
+    assert runner.run_badge == 'AND PICK:MOST NEXT:level run'  # the loop's kind before attack mode
+    runner.loop.on = False
     assert runner._picked(loot) == loot
-    assert runner.run_badge == 'LOOP ALL'
-    from inventory_tracking.macros.loop import ANDARIEL
-
-    runner.loop.kind = ANDARIEL
-    assert runner.run_badge == 'LOOP ALL ANDARIEL'
     runner.close()
 
 
@@ -1441,10 +1467,10 @@ def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
     # 15:19:42 on 2026-10-17: a Flawless Amethyst, its stash stack at 99, was left on the ground twice (the player:
     # "we just left flawlest amethyst and left the game. something is wrong"); the ruling was the runes'
     from inventory_tracking.game.records import VALUABLE, Drop, Loot
-    from inventory_tracking.macros.pickmode import REGULAR
+    from inventory_tracking.macros.pickmode import MOST
 
     runner = make(lambda cancelled, routine: None, [])
-    runner.loop.on, runner.pickup_mode = True, REGULAR
+    runner.loop.on, runner.pickup_mode = True, MOST
     amethyst = Drop(1, 0.0, 0.0, 'Flawless Amethyst', VALUABLE, source='material', txt=575)
     tal = Drop(2, 0.0, 0.0, 'Tal Rune', VALUABLE, source='rune', txt=631)
     runner.loop.full = {575, 631}
@@ -1488,6 +1514,41 @@ def test_a_terror_zones_run_ended_at_a_door_goes_through_and_runs_the_next_level
     runner._run_over('at Next level: going through takes a press')
     time.sleep(0.05)
     assert pressed == ['teleport', 'pickup', 'teleport']
+
+
+def test_a_tz_run_ended_with_no_way_on_drops_the_levels_way_on(monkeypatch):
+    from inventory_tracking.macros.loop import TZ
+
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
+    monkeypatch.setattr(runner, 'hunter', SimpleNamespace(ended_area=44, mode=None))
+    runner.loop.kind, runner.loop.on = TZ, True
+    runner.loop.agenda.begin('g')
+    runner._run_over('nothing is left to go to on this level')
+    assert runner.loop.agenda.wayless == set()
+    runner._run_over('no way to Valley of Snakes after exploring for it 8 s')
+    assert runner.loop.agenda.wayless == {44}
+
+
+def test_a_tz_level_done_whose_run_finds_nothing_left_drops_its_way_on(monkeypatch):
+    # 04:32:49 on 2026-10-20: the Throne of Destruction done, its next level (the Worldstone Chamber, after Baal) had
+    # no way; the leg was made again every 0.3 s until the repeat guard left the game
+    from inventory_tracking.macros.loop import TZ
+
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
+    monkeypatch.setattr(runner, 'hunter', SimpleNamespace(ended_area=131, mode=None))
+    runner.loop.kind, runner.loop.on = TZ, True
+    runner.loop.agenda.begin('g')
+    runner._run_over('nothing is left to go to on this level: no route stage, no boss known')
+    assert runner.loop.agenda.wayless == set()  # not done yet: its run ends, the level goes on
+    runner.loop.agenda.finish(131)
+    from inventory_tracking.macros.agenda import NOTHING_LEFT_ENDS
+
+    for _ in range(NOTHING_LEFT_ENDS - 1):
+        # 08:22:37 on 2026-10-20: one such end on Inner Cloister, its crossing's first look, left the game
+        runner._run_over('nothing is left to go to on this level: no route stage, no boss known')
+    assert runner.loop.agenda.wayless == set()
+    runner._run_over('nothing is left to go to on this level: no route stage, no boss known')
+    assert runner.loop.agenda.wayless == {131}
 
 
 def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
@@ -1873,6 +1934,94 @@ def test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_
     runner._go_back(run_at(22556.3, 9564.3), ring, None, KEYS)
     assert len(moved) == 1  # no level map: no move
     runner.close()
+
+
+def _plains_and_steppes(monkeypatch, current: str):
+    """The live stop of 2026-10-20 00:05:52: the character in the Plains of Despair (105), a Grand Charm left in the
+    Outer Steppes (104), the levels joined by an open passage. Room tiles: 105 has a room touching 104 to its west."""
+    from inventory_tracking.levels.model import Level, Room
+    from inventory_tracking.macros.sightings import Sighting
+
+    plains = Level(105, (Room(1, 100, 100, 8, 8, leads_to=(104,)), Room(1, 108, 100, 8, 8)))
+    steppes = Level(104, (Room(1, 80, 100, 20, 8, leads_to=(105,)),))
+    calls: list[tuple] = []
+    you = SimpleNamespace(x=560.0, y=520.0, area=105)
+    shown = [plains]
+
+    def walk_until(run, place, bounds, what, *, until=None, clicks=0):
+        calls.append(('walk', what, place(None), clicks))
+        you.area, you.x, you.y = 104, 495.0, 520.0
+        shown[0] = steppes
+        return run.world()
+
+    patch_runner(monkeypatch, 'approach', lambda run, found, level, keys, hops: calls.append(('approach', found.label,
+                                                                                           level.area)))  # fmt: skip
+    patch_runner(monkeypatch, 'walk_until', walk_until)
+    patch_runner(monkeypatch, 'moved_in_hand', lambda *a: calls.append(('moved',)))
+    runner = make(lambda cancelled, routine: None, [])
+    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: shown[0], end_run=lambda *a: None))
+    runner.loop.current = current
+    charm = Sighting(3763646051, 'Grand Charm', 450.0, 520.0, 104, 0.0, read=False)
+    runner.sightings.game, runner.sightings.items = ('g', 4), {charm.unit_id: charm}
+
+    def seen(predicate, timeout):
+        return run.world() if predicate(run.world()) else None
+
+    keys = SimpleNamespace(focused_window_rect=lambda: (0, 0, 2560, 1440))
+    run = cast(
+        Run,
+        SimpleNamespace(
+            world=lambda: SimpleNamespace(player=you), actuator=SimpleNamespace(keys=keys), seen=seen, stops=lambda s: 1
+        ),
+    )
+    return runner, run, plains, calls, you
+
+
+def test_the_pickup_leg_goes_back_across_an_open_passage_for_a_valuable_on_the_level_before(monkeypatch):
+    # 00:05:52 on 2026-10-20: "next pickup: Grand Charm at (5477, 5092), before leaving" in the Plains of Despair, the
+    # charm in the Outer Steppes; the trip back looked only in the Plains and the loop stopped (3 times, then off)
+    from inventory_tracking.macros.loop import TZ_PICKUP
+
+    runner, run, plains, calls, you = _plains_and_steppes(monkeypatch, TZ_PICKUP)
+    assert runner._fetch(run, plains, KEYS)
+    assert [call[0] for call in calls] == ['approach', 'walk', 'approach', 'moved']
+    assert calls[0][1:] == ('the open passage into Outer Steppes', 105)  # within a click of it, on the Plains' map
+    assert calls[1][1] == 'the open passage into Outer Steppes'
+    assert calls[1][2][0] < 500.0  # past the Plains' west edge (tile 100), into the Steppes
+    assert calls[2][1:] == ('Grand Charm', 104)  # then the trip back as in one level, on the Steppes' map
+    assert you.area == 104
+    assert runner.sightings.items[3763646051].tries == 1
+    runner.close()
+
+
+def test_a_valuable_on_another_level_is_gone_back_for_only_by_the_pickup_leg_and_only_across_a_passage(monkeypatch):
+    # The portal's pickup has the portal open where it stands, a way on's its door: never walked off from
+    from inventory_tracking.levels.model import Level, Room
+    from inventory_tracking.macros.loop import TZ_LOOT, TZ_PICKUP
+
+    runner, run, plains, calls, _ = _plains_and_steppes(monkeypatch, TZ_LOOT)
+    assert not runner._fetch(run, plains, KEYS)  # today's: no trip, the guard keeps the game
+    runner.loop.current = TZ_PICKUP
+    assert not runner._fetch(run, None, KEYS)  # no level map
+    walled = Level(105, (Room(1, 100, 100, 8, 8),))  # no room known to touch the Steppes
+    assert not runner._fetch(run, walled, KEYS)
+    assert calls == []
+    runner.close()
+
+
+def test_the_open_passage_back_is_the_cards_mark_of_the_level_nearest_the_valuable():
+    from inventory_tracking.levels.model import Level, Room
+    from inventory_tracking.macros.running.valuables import crossing
+
+    plains = Level(105, (Room(1, 100, 100, 8, 8, leads_to=(104,)), Room(1, 100, 108, 8, 8, leads_to=(104,))))
+    marks = {'Outer Steppes': ((101.0, 101.0), (101.0, 115.0))}
+    far = crossing(plains, 104, lambda label: marks.get(label, ()), (480.0, 580.0))  # tile (96, 116): the south one
+    assert far is not None
+    assert far[1] > 540.0  # by the south mark
+    assert far[0] < 500.0  # past the west edge
+    assert crossing(plains, 105, None, (0.0, 0.0)) is None  # its own level
+    catacombs = Level(36, (Room(1, 100, 100, 8, 8, leads_to=(37,)),))
+    assert crossing(catacombs, 37, None, (0.0, 0.0)) is None  # stairs, not an open passage
 
 
 def test_classify_never_reads_the_words():

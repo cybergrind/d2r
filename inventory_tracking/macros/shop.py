@@ -26,6 +26,7 @@ from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.junk import named
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source
 from inventory_tracking.macros.routines import screen_fraction
+from inventory_tracking.macros.teleport import ground_fraction
 from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.shop.capture import VENDORS
 
@@ -53,6 +54,9 @@ STEP = 12.0  # units a walk click goes toward a place
 # Walk clicks at most toward a place (Kurast Docks' waypoint from its start: ~130 units; 16 ran out, 2026-10-17)
 WALK_CLICKS = 30
 WALK_SECONDS = 1.6  # for one walk to end
+# Seconds from a walk click to the character going: 0.03-0.05 in the Docks takes of 2026-10-19 (20261019T174959Z-75)
+TAKES = 0.4
+WALKED_LEAST = 1.0  # units a walk click is done at, however short
 TURNS = (40, -40, 80, -80)  # degrees a walk click is turned after clicks that did not move the character
 MENU_SECONDS = 5.0  # from the click on her to her menu: the game walks the character to her
 PANEL_SECONDS = 2.5
@@ -100,20 +104,38 @@ def _inside(point: tuple[float, float] | None, bounds: tuple[float, float, float
     return point is not None and bounds[0] <= point[0] <= bounds[1] and bounds[2] <= point[1] <= bounds[3]
 
 
-def walk_until(run: Run, place: Callable[[World], tuple[float, float] | None], bounds, what: str) -> World:
-    """Walk toward `place(world)` until it is drawn within `bounds` (window fractions); the world then. `Abort`."""
+def walk_until(
+    run: Run,
+    place: Callable[[World], tuple[float, float] | None],
+    bounds,
+    what: str,
+    *,
+    until: Callable[[World], bool] | None = None,
+    clicks: int = WALK_CLICKS,
+) -> World:
+    """Walk toward `place(world)` until it is drawn within `bounds` (window fractions); the world then. `Abort`.
+    With `until` the walk ends when `until(world)` holds instead (the walk out of a town, macros/townexit.py), and a
+    panel a click opened on the way (townsfolk, the stash) is closed and the next click turned."""
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')
     aspect = rect[2] / rect[3]
     stuck = 0  # clicks in a row that did not move the character (TURNS)
-    for _ in range(WALK_CLICKS + 1):
+    for _ in range(clicks + 1):
         world = run.world()
+        if until is not None and until(world):
+            return world
         player, there = world.player, place(world)
         if player is None or there is None:
             raise Abort(f'{what} is not in sight')
-        if _inside(_drawn(world, there, aspect), bounds) or 'npc_interact' in world.open_panels:
+        if until is None and (_inside(_drawn(world, there, aspect), bounds) or 'npc_interact' in world.open_panels):
             return world  # a click landed on her and opened her menu: a walk click would close it
+        if until is not None and world.open_panels:
+            LOG.info('Macro: walk: %s: %s opened on the way: closed', what, ', '.join(world.open_panels))
+            run.actuator.tap('Escape')
+            run.seen(lambda w: not w.open_panels, PANEL_SECONDS)
+            stuck += 1
+            continue
         away = math.dist((player.x, player.y), there)
         ratio = min(1.0, STEP / away) if away else 0.0
         toward = (player.x + (there[0] - player.x) * ratio, player.y + (there[1] - player.y) * ratio)
@@ -126,14 +148,25 @@ def walk_until(run: Run, place: Callable[[World], tuple[float, float] | None], b
                 player.x + dx * math.cos(angle) - dy * math.sin(angle),
                 player.y + dx * math.sin(angle) + dy * math.cos(angle),
             )
-        run.actuator.move(*screen_fraction(player, toward[0], toward[1], aspect), scatter=(4, 4))
+        # On the ground point, not lifted onto a body: the lift put Kurast Docks' first clicks into the wall by the
+        # start, and each stood WALK_SECONDS (20:49-20:51 on 2026-10-19, games 9-11)
+        run.actuator.move(*ground_fraction(player, toward[0], toward[1], aspect), scatter=(4, 4))
         run.actuator.click()
         began = (player.x, player.y)
+        # A short click (a corner, the last steps) is done once 0.6 of its own way is walked, not of STEP's
+        need = max(WALKED_LEAST, 0.6 * min(STEP, math.dist(began, toward)))
 
-        def walked(w: World, b=began) -> bool:
-            return w.player is not None and math.dist((w.player.x, w.player.y), b) >= STEP * 0.6
+        def going(w: World, b=began) -> bool:
+            return w.player is not None and (w.player.mode in WALKING or math.dist((w.player.x, w.player.y), b) >= 0.5)
 
-        stuck = 0 if run.seen(walked, WALK_SECONDS) is not None else stuck + 1
+        def walked(w: World, b=began, n=need) -> bool:
+            return w.player is not None and math.dist((w.player.x, w.player.y), b) >= n
+
+        # A click not taken (no walk TAKES after it) is turned at once, not stood WALK_SECONDS
+        taken = run.seen(going, TAKES) is not None
+        stuck = 0 if taken and run.seen(walked, WALK_SECONDS) is not None else stuck + 1
+    if until is not None and until(world := run.world()):
+        return world
     raise Abort(f'{what} not reached by walking')
 
 

@@ -29,8 +29,10 @@ def no_hop_landed_yet(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def no_drop_left_alone(monkeypatch):
-    """The drops the pickup step leaves alone for a while are kept per process: none from test to test."""
+    """The drops the pickup step leaves alone for a while, and the aims looked at for them, are kept per process: none
+    from test to test."""
     monkeypatch.setattr(pickup, 'SHUNNED', {})
+    monkeypatch.setattr(pickup, 'LOOKED', {})
 
 
 @pytest.fixture(autouse=True)

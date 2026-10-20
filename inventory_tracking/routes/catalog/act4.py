@@ -7,7 +7,11 @@ ROUTES = [
     Route(
         'Izual',
         (103,),
-        (level(104, enter('Plains of Despair', 105)), level(105, fight('Izual', 'Izual'), loot(), leave())),
+        (
+            level(103, enter('Outer Steppes', 104), alternate=True),  # on foot, as act1.py's Rogue Encampment
+            level(104, enter('Plains of Despair', 105)),
+            level(105, fight('Izual', 'Izual'), loot(), leave()),
+        ),
     ),
     Route(
         'Diablo',

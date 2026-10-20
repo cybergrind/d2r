@@ -10,7 +10,7 @@ loop on (`looped`) the press and the sweep hold `NO_ROOM_PLAIN` too; KP_1 by han
 from dataclasses import dataclass
 
 from inventory_tracking.game.records import VALUABLE, Drop
-from inventory_tracking.macros.pickmode import REGULAR, SURE, TRADE, is_candidate, sure, traded
+from inventory_tracking.macros.pickmode import MOST, SURE, is_candidate, sure
 
 
 __all__ = [
@@ -25,6 +25,7 @@ __all__ = [
     'Dispute',
     'Verdict',
     'disputed',
+    'trip_for',
     'verdict',
 ]
 
@@ -78,11 +79,7 @@ def disputed(drop: Drop, *, room: bool, shown: bool) -> bool:
 
 def kept_by(drop: Drop, mode: str) -> bool:
     """Whether the pickup mode `mode` keeps `drop` (pickmode.py `kept`, one drop)."""
-    if mode == SURE:
-        return sure(drop)
-    if mode == TRADE:
-        return traded(drop)
-    return True
+    return sure(drop) if mode == SURE else True
 
 
 def verdict(
@@ -91,7 +88,7 @@ def verdict(
     *,
     room: bool,
     shown: bool,
-    mode: str = REGULAR,
+    mode: str = MOST,
     sold_full: bool = False,
     shunned: bool = False,
     given_up: bool = False,
@@ -146,3 +143,10 @@ def verdict(
             return Verdict(False, True, LOOP_HOLDS, pending)
         return Verdict(False, False, 'not prized, no room: the sweep goes on', pending)
     raise ValueError(f'no such site: {site}')
+
+
+def trip_for(drop: Drop, *, shown: bool) -> bool:
+    """Whether the shared no-room routine (macros/running/room.py) goes to town for `drop` once the cube made no room
+    for it: what the guard keeps a game for, in the loop and by hand alike (the player, 2026-10-19: "EVERY loop and
+    activity should have the same routines"): every valuable of the pickup level but an identify candidate."""
+    return verdict(drop, GUARD, room=False, shown=shown, looped=True).hold

@@ -254,9 +254,10 @@ class Situation:
     source: dict[str, Any] | None = None  # a recorded one: the take, the start, the schema
     recorded: dict[str, Any] | None = None  # the recording's side of the window (record.py)
     next_unit: int = FIRST_UNIT
-    # The play is made with the pursuit loop on (`BuildSettings.pursuit`, macros/pursuit.py): `logic('new')`.
-    # Not part of the file: a fixture is the moment, and each of its variants says which logic plays it.
-    pursuit: bool = False
+    # The logic the play is made by (`BuildSettings.pursuit`, macros/pursuit.py): `logic('new')` the pursuit loop on,
+    # `logic('today')` off; None the build's default, on as the live loop plays (2026-10-19, batch E). Not part of the
+    # file: a fixture is the moment, and each of its variants says which logic plays it.
+    pursuit: bool | None = None
 
     # -- built by hand ----------------------------------------------------------------------------------
 
@@ -440,8 +441,8 @@ class Situation:
                 curses=self.curses, aware=self.aware, lands=self.lands, watch=watch,
             )  # fmt: skip
             play = RoutePlay(arena, given, seconds, seed, self.marks, self.opened, self.bosses, self.as_it_was)
-            if self.pursuit:
-                play.pursuing()
+            if self.pursuit is not None:
+                play.pursuing(self.pursuit)
             pressed: list[dict] = []
             play.runner.trace.noted = lambda kind, **record: pressed.append(
                 record

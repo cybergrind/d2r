@@ -534,6 +534,114 @@ def test_a_teleport_and_the_andariel_marks() -> None:
     assert opened.groups() == ('20261018T125836Z-37', '37')
 
 
+def experience_lines() -> list[str]:
+    """A terror zone game's experience lines as experience.py writes them and loop.py says them (`say_experience`)."""
+    from inventory_tracking.macros.experience import Ledger, Reading
+
+    form = 'Macro: %s'
+    assert form in produced('macros/loop.py', form)
+    ledger = Ledger()
+    ledger.look('cyber5', 103, Reading(2_000_000, 94), 0.0)
+    ledger.look('cyber5', 108, Reading(2_000_000, 94), 60.0)
+    lines = ledger.game_over(3, Reading(3_234_567, 95), 600.0)
+    return [logged(form % line) for line in lines]
+
+
+def test_the_experience_of_a_tz_game_and_its_levels() -> None:
+    level, game = experience_lines()
+    found = logwords.EXPERIENCE_LEVEL.search(level)
+    assert found is not None
+    assert found.groups() == ('The Chaos Sanctuary', '+1,234,567', '540', '95')
+    assert logwords.EXPERIENCE_GAME.search(level) is None
+    found = logwords.EXPERIENCE_GAME.search(game)
+    assert found is not None
+    number, gain, at, nxt, rate, over = found.groups()
+    assert (number, gain, at, rate, over) == ('3', '+1,234,567', '95', '7,407,402', '1')
+    assert logwords.amount(nxt) == 2717422497 - 3_234_567
+    assert logwords.amount('-1,000') == -1000
+    assert logwords.EXPERIENCE_LEVEL.search(game) is None
+
+
+def test_games_and_watch_report_a_tz_games_experience(tmp_path: Path, capsys) -> None:
+    lines = [
+        '2026-10-19 22:00:00,000 INFO Macro: Loop: game 3, TZ level',
+        '2026-10-19 22:09:00,000 INFO Macro: Loop: game 3, Save and Exit',
+        *experience_lines(),
+        '2026-10-19 22:10:00,000 INFO Macro: Loop: game 4, next game',
+    ]
+    session = tmp_path / '20261019T190000Z-test'
+    session.mkdir()
+    (session / 'probe.log').write_text('\n'.join(lines) + '\n')
+    told = games.read(session, None, None)[0]
+    assert (told[0].experience, told[0].rate) == (1_234_567, '7,407,402')
+    assert told[0].levels == [('The Chaos Sanctuary', 1_234_567, 540)]
+    summary = games.experience(told)
+    assert summary is not None
+    assert (summary['games'], summary['an_hour'], summary['loop_rate']) == (1, 7_407_402, '7,407,402')
+    assert summary['levels_a_minute']['The Chaos Sanctuary']['a_minute'] == round(60 * 1_234_567 / 540)
+    out = missed_by_watch(lines, capsys)
+    assert 'game 3: 600s, +1,234,567 exp (' in out
+
+
+def test_watch_sums_a_leg_over_its_stretches(capsys) -> None:
+    """A leg that comes back counts every stretch, not the span from its first start (game 2, 22:39-22:45 on
+    2026-10-19: 'TZ Town Portal 164s' was the waypoint and the next level's time)."""
+    lines = [
+        '2026-10-19 22:00:00,000 INFO Macro: Loop: game 3, TZ level',
+        '2026-10-19 22:00:30,000 INFO Macro: Loop: game 3, TZ next level',
+        '2026-10-19 22:00:40,000 INFO Macro: Loop: game 3, TZ level',
+        '2026-10-19 22:01:10,000 INFO Macro: Loop: game 3, TZ Town Portal',
+        '2026-10-19 22:01:15,000 INFO Macro: Loop: game 3, TZ next level',
+        '2026-10-19 22:01:20,000 INFO Macro: Loop: game 4, next game',
+    ]
+    out = missed_by_watch(lines, capsys)
+    assert 'game 3: 80s (chests 0s, TZ level 60s)' in out
+
+
+def test_watch_stalls_only_when_a_leg_does_nothing() -> None:
+    """A TZ level's leg runs minutes while it teleports and kills: no STALL then; a quiet one or one past LONG_LEG is
+    (game 2 and 4, 22:41-22:53 on 2026-10-19: STALLs while it explored room by room)."""
+    lines = [
+        '2026-10-19 22:41:48,720 INFO Macro: Loop: game 2, TZ next level',
+        '2026-10-19 22:43:00,000 INFO Macro: teleport aimed at (5188.1, 3312.9), 26.6 from (5191.5, 3286.5), 0.0 off'
+        ' the way, footing True, 173 grids, pointer (2072, 1133) in (1920, 0, 2560, 1418); landed at (5188.5, 3313.5)',
+        '2026-10-19 22:43:10,000 INFO Macro: Nothing left in reach: 7 down in 1 casts',
+    ]
+    assert all(logwords.PROGRESS.search(line) for line in lines[1:])
+    assert not logwords.PROGRESS.search('2026-10-19 22:43:10,000 INFO Macro: Yielded (the key asks): 0 down in 1 casts')
+    shown = watch.Watch(stall=75.0, again=120.0)
+    shown.loud = False
+    for line in lines:
+        shown.line(line)
+    last = watch.stamp(lines[-1])
+    assert last is not None
+    t = last.timestamp()
+    assert not shown.stalled(t + 60)
+    assert shown.stalled(t + 80)
+    leg = watch.stamp(lines[0])
+    assert leg is not None
+    shown.last_progress_wall = leg.timestamp() + watch.LONG_LEG
+    assert shown.stalled(leg.timestamp() + watch.LONG_LEG + 1)
+
+
+def test_watch_takes_the_loops_own_wait_for_no_stall() -> None:
+    """The next terror zone's wait (loop.py `leg`, tzloop.py `zone_wait`): STALLs every 2 min while the loop stood in
+    town on purpose (03:35 on 2026-10-20); counted again once the wait is over."""
+    line = '2026-10-20 03:34:19,640 INFO Macro: loop: waiting 1560 s before the next leg (the next terror zone)'
+    source = (ROOT / 'inventory_tracking' / 'macros' / 'loop.py').read_text()
+    assert "'Macro: loop: waiting %.0f s before the next leg (the next terror zone)'" in source
+    shown = watch.Watch(stall=75.0, again=120.0)
+    shown.loud = False
+    shown.line('2026-10-20 03:30:08,000 INFO Macro: Loop: game 42, next game')
+    shown.line(line)
+    at = watch.stamp(line)
+    assert at is not None
+    t = at.timestamp()
+    assert not shown.stalled(t + 600)
+    assert not shown.stalled(t + 1560 + 60)
+    assert shown.stalled(t + 1560 + 80)
+
+
 # --- The tools hold no line pattern of their own ---------------------------------------------------------------------
 
 

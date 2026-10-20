@@ -628,6 +628,26 @@ def test_the_aims_are_logged_when_the_pickup_fails_too(caplog):
     assert line.count('blind') == 7
 
 
+def test_a_try_at_a_drop_looks_first_where_the_tries_before_did_not(caplog):
+    # A Grand Charm among 9 drops, 00:04:36-41 on 2026-10-20: each level run's pickup was cut at its priced 1.5 s
+    # after the same ~10 aims, and the pile's further aims were never looked at in 3 tries
+    from inventory_tracking.macros import pickup
+
+    play = game(RUNE)
+    play.pick_above = 300.0
+    with pytest.raises(Abort):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert set(pickup.LOOK_AIMS) <= pickup.LOOKED[RUNE.unit_id]  # every aim looked at, the rune under none
+    pickup.SHUNNED.clear()
+    pickup.LOOKED[RUNE.unit_id] = set(pickup.LOOK_AIMS[:4])  # a try cut short after four
+    play.pick_above = 64.0
+    with caplog.at_level('INFO'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    line = next(r.message for r in reversed(caplog.records) if 'aims for Ist Rune' in r.message)
+    assert line.endswith('wanted and 0 other drops: (0, -14) (0, 0); (0, -64) wanted clicked')
+    assert RUNE.unit_id not in pickup.LOOKED  # picked up: forgotten
+
+
 def test_a_teleport_step_stops_for_a_valuable_in_reach_and_for_gold_but_not_for_a_potion():
     # Tower Cellar, 17:35:18 on 2026-10-11: teleport steps passed 6.5 from a Ring and left the level.
     from inventory_tracking.macros.pickup import STOP_TRIES, STOP_UNITS, STOPPED, worth_a_stop
@@ -812,7 +832,6 @@ def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_
         assert 77 in pickup.CLICKED
         pickup.unshunned(Loot(carried=frozenset({77})), 101.3)
     assert 77 not in pickup.CLICKED
-    assert 77 in pickup.TAKEN
     said = [r.getMessage() for r in caplog.records if 'late' in r.getMessage()]
     assert said
     found = re.search(r'Macro: picked up (.+?) [\d.]+s after', said[0])  # the watch's PICKED
@@ -821,6 +840,52 @@ def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_
     pickup.CLICKED[78] = (jewel, 100.0)
     pickup.unshunned(Loot(carried=frozenset({78})), 100.0 + pickup.LATE_SECONDS + 1)  # too late to be the click's
     assert 78 not in pickup.CLICKED
+
+
+def test_a_valuable_a_moves_click_took_is_said_picked_up(caplog):
+    # 23:42:53 on 2026-10-19, Halls of the Dead 1: the level run's walk toward Tal Rune clicked its label; it left the
+    # ground into the inventory (a 1x1 cell filled at the next read) and no line said so: the watch called it MISSED
+    import logging
+    import re
+
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.macros import pickup
+
+    rune = Drop(4258176654, 15126.0, 6757.0, 'Tal Rune', VALUABLE, source='rune')
+    amulet = Drop(3445073849, 15104.0, 6762.0, 'Amulet', VALUABLE, source='material')
+    pickup.CLICKED.clear()
+    pickup.SEEN.clear()
+    with caplog.at_level(logging.INFO):
+        pickup.unshunned(Loot(drops=(rune, amulet)), 465333.29)  # on the ground
+        pickup.unshunned(Loot(drops=(amulet,), carried=frozenset({rune.unit_id})), 465333.67)  # carried now
+        pickup.unshunned(Loot(drops=(amulet,), carried=frozenset({rune.unit_id})), 465334.0)  # said once
+    said = [r.getMessage() for r in caplog.records if 'picked up' in r.getMessage()]
+    assert len(said) == 1
+    found = re.search(r'Macro: picked up (.+?) [\d.]+s after', said[0])  # the watch's PICKED
+    assert found is not None
+    assert found.group(1) == 'Tal Rune'
+    assert amulet.unit_id in pickup.SEEN  # still on the ground: nothing said
+
+
+def test_a_valuable_seen_long_ago_or_said_by_its_click_is_not_said_again(caplog):
+    import logging
+
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.macros import pickup
+
+    jewel = Drop(79, 5382.0, 3219.0, 'Jewel', VALUABLE)
+    pickup.CLICKED.clear()
+    pickup.SEEN.clear()
+    with caplog.at_level(logging.INFO):
+        pickup.unshunned(Loot(drops=(jewel,)), 100.0)
+        pickup.unshunned(Loot(carried=frozenset({79})), 100.0 + pickup.LATE_SECONDS + 1)  # another game's, by now
+        pickup.unshunned(Loot(drops=(jewel,)), 200.0)
+        pickup.CLICKED[79] = (jewel, 200.1)  # the pickup's own click: its `late` line says it
+        pickup.unshunned(Loot(carried=frozenset({79})), 200.5)
+    said = [r.getMessage() for r in caplog.records if 'picked up' in r.getMessage()]
+    assert len(said) == 1
+    assert 'after the click, late' in said[0]
+    assert 79 not in pickup.SEEN
 
 
 # --- a unique Grand Charm refused for the Gheed's Fortune carried (macros/pickup.py `Refused`) ---

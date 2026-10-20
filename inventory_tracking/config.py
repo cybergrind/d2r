@@ -465,8 +465,9 @@ class AppraisalConfig(Config):
     # The pursuit loop for the builds `make serve` plays (BuildSettings.pursuit, macros/pursuit.py;
     # rca/2026-10-13/pursuit-v1.md): a teleport-key press posts a goal and cancels nothing. Off: the keys as before.
     macro_pursuit: bool = True
-    # Keypad 5 taps this button of a virtual Xbox pad, made at the first press (input/gamepad.py;
-    # rca/2026-10-13/pickup-cube.md). 'x': bindings record 1, where Loot to Cube is written below. None: no such key.
+    # Keypad 7 (keypad 5 before 2026-10-19) taps this button of a virtual Xbox pad, made at the first press
+    # (input/gamepad.py; rca/2026-10-13/pickup-cube.md). 'x': bindings record 1, where Loot to Cube is written below.
+    # None: no such key.
     gamepad_button: str | None = 'x'
     # Controller bindings `make serve` writes at its start, record -> skill (skills.txt) (gamepad.py `bind_table`;
     # rca/2026-10-13/controller-mode.md §3; user 2026-10-13: "bind everything we need"). Records 0-5 are

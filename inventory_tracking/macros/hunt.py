@@ -34,9 +34,9 @@ from inventory_tracking.combat.policy import MIN_FOCAL, RUN_MODES, STRIKE_REACH,
 from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
-from inventory_tracking.game.records import Drop, Monster, World
+from inventory_tracking.game.records import Drop, Loot, Monster, World
 from inventory_tracking.game.view import Viewport
-from inventory_tracking.levels.model import Ground, Level, Room, Target
+from inventory_tracking.levels.model import Ground, Level, Room, Target, unpack_cells
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.agenda import Agenda
@@ -45,7 +45,7 @@ from inventory_tracking.macros.build import Attack, Build, Intent
 from inventory_tracking.macros.drinking import Drinker
 from inventory_tracking.macros.drop_ledger import DropLedger
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.goals import WAIT, Goal, boss_ahead
+from inventory_tracking.macros.goals import PLACE_NEAR, WAIT, Goal, boss_ahead
 from inventory_tracking.macros.hunting import choice, judging, moves, sweep
 from inventory_tracking.macros.hunting.base import (
     BOSS_AHEAD,
@@ -59,6 +59,7 @@ from inventory_tracking.macros.hunting.base import (
     HURT_SECONDS,
     IDLE_LOG_SECONDS,
     INPUT_SECONDS,
+    KEEP_STOP,
     LABEL_SECONDS,
     LABEL_SHIFTS,
     MAIN_AFTER,
@@ -72,6 +73,7 @@ from inventory_tracking.macros.hunting.base import (
     RUSH_UNMOVED,
     SIGHT,
     SLICE,
+    STOP_KEEP_SHARE,
     STRIKE_BACK_RETRY,
     SWAP_RETRY_SECONDS,
     TOUGH_POINTS,
@@ -79,6 +81,7 @@ from inventory_tracking.macros.hunting.base import (
     UNTOUCHED_CASTS,
     WAIT_LOG_SECONDS,
     Bearings,
+    Judged,
     Judging,
     Remembered,
     Sweep,
@@ -105,7 +108,19 @@ from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
 
 
-__all__ = ['Bearings', 'Hunter', 'threat']
+__all__ = ['Bearings', 'Hunter', 'threat', 'walled']
+
+
+def walled(level: Level) -> set[Bounds]:
+    """The rooms of `level` whose loaded grid has no walkable sub-tile: nothing stands or is seen in them."""
+    rooms = {(room.x, room.y, room.width, room.height) for room in level.rooms}
+    found = set()
+    for grid in level.ground:
+        bounds = (grid.x, grid.y, grid.width, grid.height)
+        cells = unpack_cells(grid.cells, grid.width * grid.height * TILE_UNITS * TILE_UNITS) if grid.cells else None
+        if bounds in rooms and cells is not None and '1' not in cells:
+            found.add(bounds)
+    return found
 
 
 class Hunter:
@@ -202,12 +217,22 @@ class Hunter:
         self.agenda_said: tuple | None = None  # the last target said (`agenda_target`)
         # (game, level)s whose route goal the run found no way to: worked as COVER from then on (`agenda_target`)
         self.wayless: set[tuple[str, int]] = set()
+        self.no_way_since: tuple[tuple[str, int], float] | None = None  # (game, level), since: `judge`
         self.ended_area: int | None = None  # the level of the level run that ended last (`end_run`)
         self.told = Told()  # the reason last said for a decision that moved nothing
         self.told_at = -math.inf  # clock time it was last said
         self.pursued: Goal | None = None  # the goal of the last decision, for the recorder and the viewer
         self.stopped_for: tuple[float, Drop | None] = (-math.inf, None)  # (the press, the drop it takes first)
         self.judged: tuple[float, float, bool] = (-math.inf, -math.inf, False)  # (the press, when, it asks a move)
+        # The look a fight was let go for (`yielded_act`): (it, its clock, where the character stood, the level, the
+        # press)
+        self.yielded: tuple[Judged, float, Point, int, float] | None = None
+        # (game, level, boss) -> clock a route's boss fight was first stood at with no boss; those given up
+        # (`empty_mark`)
+        self.mark_since: dict[tuple[str, int, str], float] = {}
+        self.marks_empty: set[tuple[str, int, str]] = set()
+        self.zone_left: tuple[str, int] | None = None  # (game, level) whose run ended as its zone moved on
+        self.stop_kept: tuple[int, Bounds] | None = None  # (level, room) of the tour's stop gone to (`next_room`)
         # (the goal's label, the monsters the hands found in the way of its act, until when): `first_fight`
         self.blocking: tuple[str, frozenset[int], float] | None = None
         self.base: Goal | None = None  # the goal of the last look before the fight that bars it (`first_fight`)
@@ -248,6 +273,11 @@ class Hunter:
         # tried once a drop (`room_tried`)
         self.room_maker: Callable[[Run], int] | None = None
         self.room_tried: int | None = None
+        # The runner's (running/room.py `_room_trip_due`): whether a trip to town for room is due for a valuable the
+        # cube made no room for, an activity by hand's (the shared no-room routine, the player's ruling of 2026-10-19)
+        self.room_trip: Callable[[Run, Drop, World, Loot], bool] | None = None
+        # The runner's: whether such a trip could be made in this game now (none: the sites' own rules by hand)
+        self.can_trip: Callable[[], bool] | None = None
         # Whether the KP_6 loop is on (the runner's): the sweep holds a plain valuable with no room too
         # (lootpolicy.py `NO_ROOM_PLAIN`, ruled 2026-10-18)
         self.looping: Callable[[], bool] = lambda: False
@@ -703,10 +733,22 @@ class Hunter:
         )  # fmt: skip
         return Target(level.area, level.rooms, tile, name, 'hunt', False, level.ground)
 
-    def frontier(self, level: Level, player, rect) -> tuple[float, Room, tuple[int, int]] | None:
+    def frontier(
+        self,
+        level: Level,
+        player,
+        rect,
+        skip: Callable[[Point], bool] | None = None,
+        keep: Bounds | None = None,
+    ) -> tuple[float, Room, tuple[int, int]] | None:
         """(tiles by the way, room, tile) of the room to go and stand in next: the first stop of the
-        tour that shows every unexplored room (macros/tour.py), by its tile nearest by the way."""
-        seen = self.explored(level.area) if self.explored is not None else set()
+        tour that shows every unexplored room (macros/tour.py), by its tile nearest by the way past PLACE_NEAR from
+        here. `skip(place)`: a stop passed for now (hunting/choice.py `next_room`). `keep`: the stop gone to, kept
+        while the tour has it unless the first stop's way is under STOP_KEEP_SHARE of its (KEEP_STOP)."""
+        seen = set(self.explored(level.area)) if self.explored is not None else set()
+        # A loaded room of wall alone shows nothing: no stop stands by it (Frozen Tundra's edge columns, 44 of 150
+        # rooms, held each run at the level's edge until its pass; rca/2026-10-19/tz-leveling-findings.md C2)
+        seen |= walled(level)
         here = (player.x / TILE_UNITS, player.y / TILE_UNITS)
         # The far potential: the one the hop there is planned by (teleport.hop_toward).
         origin = Way(
@@ -724,8 +766,15 @@ class Hunter:
                 for y in range(room.y, room.y + room.height)
                 if (cost := origin.cost.get((x, y))) is not None
             ]
+            # Not a tile within PLACE_NEAR of here: that is "arrived" from the room beside it, which was never
+            # entered (21:05:19 on 2026-10-19: 15 s by 29 hostiles; rca/2026-10-19/tz-leveling-findings.md C1)
+            beyond = [
+                (cost, tile)
+                for cost, tile in costs
+                if math.dist(here, (tile[0] + 0.5, tile[1] + 0.5)) * TILE_UNITS > PLACE_NEAR
+            ]
             if costs:
-                cost, tile = min(costs)
+                cost, tile = min(beyond or costs)
                 nearest[room.x, room.y, room.width, room.height] = (cost, room, tile)
         bounds = [(room.x, room.y, room.width, room.height) for room in level.rooms]
         before = self.route[1] if self.route[0] == level.area else []
@@ -736,7 +785,26 @@ class Hunter:
             self.toured = (level.area, len(level.rooms), len(seen))
             LOG.info('Macro: run: the tour has no stop on level %d: %d rooms, %d explored, %d with a way from here',
                      level.area, len(level.rooms), len(seen), len(nearest))  # fmt: skip
-        return nearest[stops[0]] if stops else None
+
+        def unpassed(stop: Bounds) -> bool:
+            _, _, (x, y) = nearest[stop]
+            return skip is None or not skip(((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS))
+
+        # A passed stop yields to the next: the first alone ended the run with half the level unseen
+        # (21:05:43 on 2026-10-19; findings C3)
+        first = next((stop for stop in stops if unpassed(stop)), None)
+        if first is None:
+            return None
+        if (
+            KEEP_STOP
+            and keep is not None
+            and keep != first
+            and keep in stops
+            and unpassed(keep)
+            and nearest[first][0] >= STOP_KEEP_SHARE * nearest[keep][0]
+        ):
+            return nearest[keep]  # the stop gone to, while nothing much nearer came up (21:53:40-56; S3)
+        return nearest[first]
 
     def explore(self, run: Run, level: Level, player, rect, key_names, frontier=None) -> None:
         """A hop toward the unexplored room `frontier` names (found here when not given)."""
@@ -1263,6 +1331,8 @@ class Hunter:
     refused_potion = choice.refused_potion
     scarce = choice.scarce
     stay_by = choice.stay_by
+    no_room = choice.no_room
+    trips_by_hand = choice.trips_by_hand
     shack_goal = choice.shack_goal
     super_chest_goal = choice.super_chest_goal
     at_hand = choice.at_hand
@@ -1298,6 +1368,8 @@ class Hunter:
     guarded = judging.guarded
     take_guard = judging.take_guard
     key_asks = judging.key_asks
+    yielded_act = judging.yielded_act
+    empty_mark = judging.empty_mark
     tell = judging.tell
     defer = judging.defer
     blocked = judging.blocked

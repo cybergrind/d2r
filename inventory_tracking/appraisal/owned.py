@@ -28,16 +28,16 @@ SHOWN_COPIES = 3
 CARRIED = ('inventory', 'cube')  # the playing character's containers: the loop's items, not owned (macros/copies.py)
 
 
+# Charms fill multiple inventory cells; jewels are consumed in socket setups.
+MULTIPLE_COPY_BASES = frozenset(('Small Charm', 'Large Charm', 'Grand Charm', 'Jewel', 'Colossal Jewel'))
+
+
+def multiple_copy_item(item: dict[str, Any]) -> bool:
+    return item.get('base_name', item.get('name')) in MULTIPLE_COPY_BASES
+
+
 def multiple_copy_use(result: dict[str, Any]) -> bool:
-    """Charms fill multiple inventory cells; jewels are consumed in socket setups."""
-    item = result.get('extraction', {}).get('item', {})
-    return item.get('base_name', item.get('name')) in {
-        'Small Charm',
-        'Large Charm',
-        'Grand Charm',
-        'Jewel',
-        'Colossal Jewel',
-    }
+    return multiple_copy_item(result.get('extraction', {}).get('item', {}))
 
 
 def stat_key(row: dict[str, Any]) -> str | None:
@@ -204,26 +204,55 @@ def without_self(observation: dict[str, Any], rows: list) -> list:
     return rows
 
 
+def offline_characters(saved_games: Path | None = None) -> frozenset[str]:
+    """The characters with an offline save (`<name>.d2s`): not owners (the player, 2026-10-19: "we need to capture
+    only online characters for now. these are offline with top gear - we need to ignore them")."""
+    if saved_games is None:
+        from inventory_tracking.config import SHOW_ITEMS
+
+        saved_games = SHOW_ITEMS.saved_games
+    try:
+        return frozenset(path.stem for path in Path(saved_games).glob('*.d2s'))
+    except OSError:
+        return frozenset()
+
+
+def online_only(offline: frozenset[str]) -> tuple[str, list[str]]:
+    """The SQL and parameters leaving out placements of offline characters and of captures they made (the offline
+    shared stash is another stash under the same owner)."""
+    if not offline:
+        return '', []
+    marks = ', '.join('?' for _ in offline)
+    return (
+        f' AND p.owner NOT IN ({marks}) AND p.capture_id NOT IN (SELECT id FROM captures WHERE character IN ({marks}))',
+        [*sorted(offline), *sorted(offline)],
+    )
+
+
 def connect_readonly(database: Path) -> sqlite3.Connection:
     connection = sqlite3.connect(f'file:{database}?mode=ro', uri=True, timeout=2)
     connection.row_factory = sqlite3.Row
     return connection
 
 
-def owned_copies(observation: dict[str, Any], database: Path | str) -> dict[str, Any] | None:
-    """Owned copies of the same item and how this one compares; None without a collection or a match rule."""
+def owned_copies(
+    observation: dict[str, Any], database: Path | str, offline: frozenset[str] | None = None
+) -> dict[str, Any] | None:
+    """Owned copies of the same item and how this one compares; None without a collection or a match rule. `offline`:
+    the characters left out (`offline_characters` by default)."""
     database = Path(database)
     kind = match_kind(observation)
     if kind is None or not database.exists():
         return None
     label, condition, params = kind
+    online, online_params = online_only(offline_characters() if offline is None else offline)
     own_fingerprint = fingerprint(observation)
     sql = (
         'SELECT p.*, i.* FROM placements p JOIN items i ON i.fingerprint = p.fingerprint '
-        f'WHERE p.gone_at IS NULL AND {condition} ORDER BY p.id'
+        f'WHERE p.gone_at IS NULL AND {condition}{online} ORDER BY p.id'
     )
     with closing(connect_readonly(database)) as db:
-        rows = [(_row_item(r), _row_placement(r)) for r in db.execute(sql, params)]
+        rows = [(_row_item(r), _row_placement(r)) for r in db.execute(sql, [*params, *online_params])]
         playing = db.execute('SELECT name FROM characters ORDER BY last_seen DESC LIMIT 1').fetchone()
     carried = {(playing['name'], container) for container in CARRIED} if playing is not None else set()
     new_rolls = variable_rolls(observation)

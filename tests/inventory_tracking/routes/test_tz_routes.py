@@ -37,14 +37,14 @@ def test_cave_and_tower_legs_use_catalog_hops_and_explicit_branch_names():
 
 
 def test_implicit_town_start_pending_portal_and_tomb_tour_are_explicit_blockers():
-    blood_moor = route_leg(2)
+    sewers = route_leg(47)  # Lut Gholein's trapdoor into the Sewers: no route stage walks to it
     abaddon = route_leg(125)
     tomb = route_leg(66)
-    assert blood_moor is not None
+    assert sewers is not None
     assert abaddon is not None
     assert tomb is not None
-    assert blood_moor.hops[0].kind == 'connector'
-    assert 'town or waypoint connector' in blood_moor.blockers[0]
+    assert (sewers.hops[0].source, sewers.hops[0].kind) == (40, 'connector')
+    assert 'town or waypoint connector' in sewers.blockers[0]
     assert 'red portal' in ' '.join(abaddon.blockers)
     assert any(hop.kind == 'tour' for hop in tomb.hops)
     assert 'tour' in ' '.join(tomb.blockers)
@@ -101,3 +101,43 @@ def test_route_inventory_covers_every_herald_group_level_conservatively():
     assert set(inventory) - herald_areas == {20, 45, 50, 73, 132}
     assert all(capability.status != 'ready' for capability in inventory.values())
     assert all(capability.entry and capability.exit for capability in inventory.values())
+
+
+def test_a_trip_that_can_be_played_comes_before_a_blocked_one_covering_more():
+    # 2026-10-19 19:54: TZ leveling left every game in Act2-ArcaneSanctuary; the trip from Lut Gholein (its walk to the
+    # Harem unscripted) covered all six levels and left none to the Palace Cellar waypoint's
+    zone = next(zone for zone in installed_active_zones() if zone.name == 'Act2-ArcaneSanctuary')
+    plan = zone_route_plan(zone)
+
+    assert [(trip.waypoint, trip.terminal, trip.covers, bool(trip.blockers)) for trip in plan.excursions] == [
+        (52, 74, (52, 53, 54, 74), False),
+        (40, 51, (50, 51), True),
+    ]
+
+
+def test_the_zones_with_no_playable_excursion_are_known_and_stop_the_tz_loop():
+    # 2026-10-19 (rca/2026-10-19/tz-coverage-findings.md F1): macros/tzloop.py `choose` stops the loop in town (cause
+    # 'idle') for these rather than make games. Moo Moo Farm is entered only by the red portal the player opens with
+    # Wirt's Leg. A zone added here, or one leaving it, is a change to say
+    unplayable = {
+        zone.name
+        for zone in installed_active_zones()
+        if all(trip.blockers for trip in zone_route_plan(zone).excursions)
+    }
+    assert unplayable == {'Act1-MooMooFarm'}
+
+
+def test_the_zones_entered_from_a_town_on_foot_are_one_trip_from_the_town():
+    # The towns' walks out (catalog alternate town scripts; rca/2026-10-19/town-exit-findings.md): the town's way out
+    # is a route stage, no connector
+    trips = {
+        zone.name: [(trip.waypoint, [(hop.source, hop.destination, hop.kind) for hop in trip.hops], trip.blockers)
+                    for trip in zone_route_plan(zone).excursions]
+        for zone in installed_active_zones()
+        if zone.name in ('Act1-BloodMoor', 'Act2-RockyWaste', 'Act4_OuterSteppes')
+    }  # fmt: skip
+    assert trips == {
+        'Act1-BloodMoor': [(1, [(1, 2, 'stage'), (2, 8, 'stage')], ())],
+        'Act2-RockyWaste': [(40, [(40, 41, 'stage'), (41, 55, 'stage'), (55, 59, 'stage')], ())],
+        'Act4_OuterSteppes': [(103, [(103, 104, 'stage'), (104, 105, 'stage')], ())],
+    }

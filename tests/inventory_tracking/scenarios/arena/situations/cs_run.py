@@ -549,7 +549,7 @@ def pair(way: str, staff: str, scene: Situation | None = None, note: str = '') -
     base = scene or (stored() if staff == FULL else empty(stored()))
     situation = base.variant(attack=attack)
     label = f'{way}, {staff}{note}'
-    return [(f'{label}: today', situation, presses), (f'{label}: new', situation.logic('new'), presses)]
+    return [(f'{label}: today', situation.logic('today'), presses), (f'{label}: new', situation.logic('new'), presses)]
 
 
 def variants() -> list[Variant]:

@@ -2,7 +2,7 @@
 macros/running/)."""
 
 from inventory_tracking.macros.goals import USE_NEAR
-from inventory_tracking.macros.pickmode import REGULAR, SURE, TRADE
+from inventory_tracking.macros.pickmode import MOST, SURE
 
 
 REQUEST_PREFIX = 'macro '
@@ -14,8 +14,8 @@ LOOP_PREFIX = 'loop '
 KIND_PREFIX = 'kind '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # pick up what is worth it, else a seek step (pickup.py)
-# The HUD's word for the loop's pickup mode (macros/pickmode.py)
-LOOP_WORDS = {SURE: 'LOOP SURE', TRADE: 'LOOP TRADE', REGULAR: 'LOOP ALL'}
+# The HUD's word for the pickup level (macros/pickmode.py)
+PICK_WORDS = {SURE: 'GOOD', MOST: 'MOST'}
 TRANSMUTES = 3  # transmutes of one gem kind per stash visit, at most (macros/cube.py `transmute`)
 PICK_SLACK = 3  # pickups past the parked gems' count before the ground is taken for clear (`transmute_gems`)
 MAKE_ROOM_AFTER = 5.0  # seconds stood by a valuable with no room before the loop makes room in the cube
@@ -31,6 +31,9 @@ DOOR_PRESS = 'going through takes a press'
 ONWARD_PAUSE = 0.3
 ONWARD_SECONDS = 20.0
 ATTACK = HUNT_ANY  # the attack mode toggle
+# Buff mode (macros/buffmode.py, running/buffing.py): the other active mode the attack mode key's double press picks
+# (2026-10-19); a mode as ATTACK is, never queued
+BUFF = 'buff'
 # The order waiting requests run in: where the player wants to be, what to fight, the macro, the ground.
 PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
 # Seconds after its press a request is still worth starting (user, 2026-10-12: "teleporting after 2 seconds is way too

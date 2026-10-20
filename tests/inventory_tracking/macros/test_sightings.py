@@ -96,3 +96,17 @@ def test_a_valuable_read_at_its_inventory_cell_while_picked_up_is_still_where_it
     seen.update(loot(emerald(3.0, 3.0)), (5795.0, 2870.0), LK, 0.1)
     seen.update(loot(), (5796.0, 2870.0), LK, 0.2)
     assert seen.outstanding() == []
+
+
+def test_fetch_goes_to_another_level_only_with_none_left_here_and_only_one_it_can_cross_to():
+    # 00:05:52 on 2026-10-20: the Grand Charm in the Outer Steppes (104), the character in the Plains of Despair (105)
+    seen = Sightings()
+    seen.update(loot(Drop(7, 5477.0, 5092.0, 'Grand Charm', VALUABLE)), (5470.0, 5090.0), 104, 0.0)
+    gone_to = []
+    assert not seen.fetch((5248.0, 5223.0), 105, 5.0, lambda found: gone_to.append(found.label))  # as before
+    assert not seen.fetch((5248.0, 5223.0), 105, 5.0, gone_to.append, across=lambda area: False)
+    assert seen.fetch((5248.0, 5223.0), 105, 5.0, lambda found: gone_to.append(found.area), across=lambda a: a == 104)
+    assert gone_to == [104]
+    seen.update(loot(emerald(5250.0, 5230.0)), (5248.0, 5223.0), 105, 6.0)
+    assert seen.fetch((5248.0, 5223.0), 105, 7.0, lambda found: gone_to.append(found.label), across=lambda a: True)
+    assert gone_to[-1] == 'Flawless Emerald'  # one on this level first

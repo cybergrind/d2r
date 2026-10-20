@@ -9,13 +9,14 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.records import Pack
 from inventory_tracking.macros.actuator import Abort, Cause, Hand
+from inventory_tracking.macros.agenda import SWAP_GOALS
 from inventory_tracking.macros.charms import gheeds
 from inventory_tracking.macros.hunting.base import SIGHT, hostiles
 from inventory_tracking.macros.loop import CHOOSE, PICK
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.routines import Dead
 from inventory_tracking.macros.stops import Beset, Remedy, Stopped, decide, first, low_life
-from inventory_tracking.macros.tzloop import trip as tz_trip
+from inventory_tracking.macros.tzloop import gheeds_swap as tz_gheeds_swap, trip as tz_trip
 from inventory_tracking.native.memory import one_unit_table
 
 
@@ -42,7 +43,9 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
     cause = classify(why)
     seen = self.loop.seen[0] if self.loop.seen is not None else None
     beset = self._beset_facts(seen) if cause == 'beset' and self.loop.on and not dead and seen else None
-    early = first(cause, on=self.loop.on, dead=dead, beset=beset)
+    if cause == 'lobby':
+        self.loop.lobby_fails += 1  # made afresh by a game made (loop.py `next_game`)
+    early = first(cause, on=self.loop.on, dead=dead, beset=beset, lobby_fails=self.loop.lobby_fails)
     if early is Remedy.DEAD:
         self.attack_mode = False
         self._stop_loop(why if isinstance(why, Dead) else Dead(f'the character is dead ({why})'))
@@ -84,7 +87,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
             cubed=loop.room_tried == game,
             dropped=loop.dropped == game,
             trips=loop.kind.trips and may_trip,
-            tz_trips=loop.kind.agenda and may_trip and self.area_seen is not None,
+            packaged=loop.kind.packaged and may_trip and self.area_seen is not None,
         )
     )  # fmt: skip
     if remedy is Remedy.FETCH:
@@ -93,7 +96,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
     elif remedy is Remedy.CUBE:
         loop.make_room, loop.room_tried = True, game
         LOG.info('Macro: loop: %s; %s lies on the ground: room is made in the cube', why, left)
-    elif remedy is Remedy.TZ_TRIP:
+    elif remedy is Remedy.PACKAGE:
         assert game is not None
         assert self.area_seen is not None
         tz_trip(loop, game, self.area_seen)
@@ -125,17 +128,21 @@ def _gheeds_swap(self: MacroRunner, why: object, left: str | None, game: str | N
     """Whether the stop `why` is the Gheed's swap's (macros/charms.py; the player, 2026-10-18: "picking up another
     gheed ... put our own gheed into SHARED tab"): a unique Grand Charm on the ground in the Andariel loop with the
     player's Gheed's Fortune carried, whatever the stop's words; once a game, before every room rule. No room: the
-    cube first, then the swap all the same. The player's stashed, the new one not taken: theirs back (`CHOOSE`)."""
+    cube first, then the swap all the same. The player's stashed, the new one not taken: theirs back (`CHOOSE`).
+    An agenda kind's swap is a package (tzloop.py `gheeds_swap`, 2026-10-19): while it is on the stack it goes on."""
     loop = self.loop
     if left is None or 'Unique Grand Charm' not in left or not loop.kind.swaps_gheeds or game is None:
         return False
+    swapping = loop.kind.agenda and loop.agenda.holds(SWAP_GOALS)
     if loop.parked is not None:
         if loop.gheed != PICK:
-            return False
+            return swapping
         loop.gheed = CHOOSE
         LOG.info("Macro: charms: %s; %s is still not taken with the player's Gheed's Fortune on shared page %s: "
                  'to town for theirs', why, left, loop.parked.page)  # fmt: skip
         return True
+    if swapping:
+        return True  # pushed already, not made yet
     if loop.swap == game or loop.own is None:
         return False
     pack = self.carried_now()
@@ -154,7 +161,12 @@ def _gheeds_swap(self: MacroRunner, why: object, left: str | None, game: str | N
         LOG.info("Macro: charms: %s lies on the ground, the player's Gheed's Fortune carried, no %d x %d free and "
                  "the cube tried: the swap all the same, the player's block takes the new one", left,
                  *ours.size)  # fmt: skip
-    loop.swap_due = True
+    if loop.kind.agenda:
+        if self.area_seen is None:
+            return False
+        tz_gheeds_swap(loop, game, self.area_seen)
+    else:
+        loop.swap_due = True
     LOG.info("Macro: charms: %s; %s with the player's Gheed's Fortune carried at (%d, %d) and room for another: "
              'the swap is due', why, left, ours.x, ours.y)  # fmt: skip
     return True

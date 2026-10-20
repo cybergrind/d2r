@@ -19,7 +19,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, World
 from inventory_tracking.items.grid import Grid
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.macros.actuator import Abort, Hand
+from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.charms import (
     GHEEDS_FORTUNE,
@@ -42,6 +42,7 @@ from inventory_tracking.macros.cube import (
     roomed,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.experience import Ledger, Reading, reading
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town
@@ -105,18 +106,24 @@ class Kind:
     game_seconds: float | None = None
     # Where the kinds differ: the code asks these, never the kind itself
     agenda: bool = False  # its legs are the agenda's goals (macros/tzloop.py), not `next_leg`'s
-    trips: bool = False  # no room for a valuable: a trip to town and back (macros/stops.py)
+    trips: bool = False  # no room for a valuable: a trip to town and back by its own legs (macros/stops.py)
+    # No room: the room package (agenda.py `room_package`) between its legs, as the agenda kinds' (tzloop.py `packaged`)
+    packaged: bool = False
     swaps_gheeds: bool = False  # the Gheed's swap (macros/charms.py)
     boss: str | None = None  # whose drops may still be landing at PICK_UP (`KILLED_AT`)
-    badge: bool = True  # the HUD's badge names the kind (runner.py `run_badge`)
+    # The HUD's mode word (runner.py `run_badge`; the player, 2026-10-19: "ATT, BUFF, LK, AND (andariel), BAAL, DIAB,
+    # MEPH": the last three for kinds to come)
+    word: str = ''
     fortress_ends_game: bool = False  # leaving its level for the Fortress ends the game (`done`)
     full_clear: bool = False  # every hostile, every room: the Herald hunt (macros/tzloop.py `full_clear`)
 
 
 LK = Kind(
     'lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED, 'chests opened an hour',
-    badge=False, fortress_ends_game=True,
+    word='LK', fortress_ends_game=True, packaged=True,
 )  # fmt: skip
+# `packaged` (2026-10-19): Lower Kurast dropped an item to identify, then stopped; now the cube, then a trip (the
+# player: "move to cube, if no space after that - go to town and do town routine")
 # Andariel (routes/andariel-loop-plan.md): Catacombs 2 by waypoint, down to Level 4, her fight, loot, Save and Exit
 ANDARIEL = Kind(
     'andariel',
@@ -128,17 +135,21 @@ ANDARIEL = Kind(
     trips=True,
     swaps_gheeds=True,
     boss='Andariel',
+    word='AND',
 )
 KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
 # The terror zone kinds (macros/goals-plan.md): goals from the agenda (tzloop.py), offered only with tzloop.ENABLED
 FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM_FORTRESS, 109}
 TZ_GAME_SECONDS = 1200.0
 TZ = Kind(
-    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='elite kills an hour', game_seconds=TZ_GAME_SECONDS,
-    agenda=True,
+    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='experience an hour', game_seconds=TZ_GAME_SECONDS,
+    agenda=True, packaged=True, swaps_gheeds=True, word='TZ',
 )  # fmt: skip
+# `swaps_gheeds` (2026-10-19): a Herald's Gheed's in Spider Forest fell to the room rules, then stopped the loop
 # The Herald hunt's measure is not ruled yet (goals-plan.md open question 8)
-TZ_CLEAR = replace(TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour', full_clear=True)
+TZ_CLEAR = replace(
+    TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour', full_clear=True, word='TZC'
+)
 TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key))
 
 
@@ -178,6 +189,8 @@ SWAP_OUT = "Gheed's Fortune away"
 GHEED_STASH = "Gheed's Fortune onto a shared page"
 SWAP_BACK = "Gheed's Fortunes to compare"
 GHEED_CHOOSE = "the better Gheed's Fortune"
+# The terror zone kinds' swap leg back in the level (tzloop.py, agenda.py `gheeds_package`, 2026-10-19)
+GHEED_PICK = "the new Gheed's Fortune"
 # `Loop.gheed`, the swap's stage
 OUT, PICK, CHOOSE, RETURN = 'out', 'pick', 'choose', 'return'
 # Trips for room a game (`Loop.may_trip`; the player, 2026-10-18: "one game can do several trips to the town"), each
@@ -192,13 +205,20 @@ REPEATS |= {
     TO_THE_ENCAMPMENT: TRIPS_A_GAME + 2,
     THROUGH_PORTAL: TRIPS_A_GAME + 2,
 }
-# A game's visits: the start's, each trip's, one cut by the player's hand
-REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1}
+# A route begun with the cube full and the loop's inventory cells partly filled starts with the town visit (the player,
+# 2026-10-19 21:20: "if at the beginning of route we have full cube at least partially filled inventory - we visit
+# town"): at most this many a game, each after something new was picked up (`route_full`)
+ROUTE_VISITS = 3
+# A game's visits: the start's, each trip's, one cut by the player's hand, the routes' own
+REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS}
 # The terror zone kinds' legs (tzloop.py): each bound a game's worth (~8 excursions of up to 7 levels)
 TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot', 'TZ pickup'
 TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
-REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20, TZ_NEXT_LEVEL: 30}
-REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME}
+# The Gheed's swap: four waypoints and two portals back (agenda.py `gheeds_package`)
+REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20, TZ_NEXT_LEVEL: 30}
+REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
+TZ_OUT = 'TZ out of town'  # the walk out of a town into a trip's first level (macros/townexit.py)
+REPEATS |= {TZ_OUT: 3}
 # Beset (`beset`): the level run fights the attacker, then the ground's valuables one a leg (runner.py `_fetch`)
 FIGHT_BACK = 'fight back'
 PICK_BACK = 'what the fight back left'
@@ -209,6 +229,9 @@ DROPS_LAND = 2.0
 # The same from her kill as the service saw it (terror/bosses.py KILLED_AT); DROPS_LAND covers a kill it missed
 DROPS_AFTER_KILL = 1.9
 KILL_FRESH = 120.0  # seconds: a kill older than this is another game's
+# Drops picked up at most at a game's end before the guard's read (`Loop.last_look`)
+LAST_PICKS = 8
+UNREAD = 'unread'  # the guard's word for a ground it could not read (running/valuables.py `_valuable_left`)
 REPEAT = 2
 FULL_FILE = 'full-stacks.json'
 GAME_SECONDS = 240.0  # a game longer than this is left (games take 40-75 s, 2026-10-17)
@@ -222,6 +245,7 @@ STILL_UNITS = 2.0
 RECOVERIES = 3
 RECOVERY_SECONDS = 600.0
 RECOVERY_PAUSE = 30.0  # past RECOVERIES in RECOVERY_SECONDS: a pause before the next leg, not a stop (`recover`)
+COOLING_SLICE = 1.0  # seconds: the pause is slept in slices, a cancelled run ends it (`leg`)
 # Standing outside a fight and losing BESET_LOSS of max life within BESET_SECONDS is beset (`beset`): the attacker is
 # fought back (FIGHT_BACK; the player, 2026-10-19: "we stood still while under attack and almost died"); a hit there
 # was 4-8 %
@@ -260,6 +284,7 @@ class LegHands:
     sighted: Callable[[int | None], str | None] = lambda area: None
     terrorized: Callable[[int], bool | None] = lambda area: None
     navigate: Callable[[], None] = lambda: None
+    walk_out: Callable[[int], None] | None = None  # the walk out of town into level `to` (macros/townexit.py)
 
 
 @dataclass
@@ -291,8 +316,14 @@ class Loop:
     abandon: bool = False
     fetch_again: str | None = None  # the game a leg was made again for a valuable left with room (runner.py)
     cooling: float = 0.0  # time.monotonic() before which no leg is made (`recover`, RECOVERY_PAUSE)
+    lobby_fails: int = 0  # game creations failed in a row (macros/stops.py `first`, cause 'lobby')
     fought: tuple[str, float] | None = None  # (game, run clock) at her level's first loot leg (`DROPS_LAND`)
+    # The bosses read dead in a game (routes/progress.py `dead`): name -> the run clock of the first leg that read it
+    # (`landing`: DROPS_LAND from it for a kill KILLED_AT did not see), and the game they belong to
+    slain: dict[str, float] = field(default_factory=dict)
+    slain_game: str | None = None
     recovered: list[float] = field(default_factory=list)
+    current: str | None = None  # the leg working or last made (the HUD's NEXT, runner.py `run_badge`)
     # Looks in a stand outside a fight (`beset`): (when, where, life, game)
     hurt: list[tuple[float, tuple[float, float], int, str]] = field(default_factory=list)
     # Beset (runner.py `_loop_stopped`): the game a fight back is due in, the game whose valuables are fetched after
@@ -323,7 +354,15 @@ class Loop:
     repair_failed: int | None = None
     # No room for a valuable: the loop's items into the cube at the next leg, once a game (`room_tried`)
     make_room: bool = False
+    # The inventory and cube closed at the loop's first leg: turned on, the game is the loop's (a cancelled cube step
+    # left them open at 23:34:19 on 2026-10-19 and the loop read them as the player's hand)
+    tidy_panels: bool = False
     room_tried: str | None = None
+    # In town at a route's start with the cube full and the loop's items in the inventory (`ROUTE_VISITS`); the loop's
+    # carried units a visit left (game, units), and the route visits made (game, count)
+    route_full: bool = False
+    visit_units: tuple[str, frozenset[int]] | None = None
+    route_visits: tuple[str, int] | None = None
     # Then one of the loop's to-identify items dropped for the block (cube.py `drop_for`), once a game (`dropped`)
     drop_room: bool = False
     dropped: str | None = None
@@ -335,6 +374,7 @@ class Loop:
     waiting: bool = False  # for the game window's focus (runner.py): watchdogs pause
     moved: tuple[tuple[float, float], float] | None = None  # where the character last moved to, and when (`still`)
     moved_in: str | None = None  # the game `moved` was read in (`still`: a new game counts afresh)
+    moved_kills: int = 0  # the kills counted when `moved` was set (`still`: a stand that kills is no stall)
     counted_in: str | None = None  # where `made` counts (`count`)
     # A trip to town for room (runner.py `_loop_stopped`); `forgiven`: (game, trip number) whose sightings were forgiven
     trip_due: bool = False
@@ -358,12 +398,18 @@ class Loop:
     forget: Callable[[], None] | None = None
     # The terror zone kinds' goals (macros/agenda.py), afresh each game (`Agenda.begin`)
     agenda: Agenda = field(default_factory=Agenda)
+    idle: int = 0  # the terror zone kinds' games begun since the last level run (macros/tzloop.py IDLE_GAMES)
+    # The terror zone kinds' experience since the loop turned on (macros/experience.py; the player, 2026-10-19: "we
+    # should log experience in tz leveling")
+    experience: Ledger = field(default_factory=Ledger)
 
     def start(self) -> None:
         self.full |= self._full_stored()
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
         self.counted_in, self.placed, self.portal, self.printed = None, False, None, None
         self.beset_due, self.fetch_back, self.fought_back = None, None, None
+        self.experience = Ledger()
+        self.tidy_panels = True
 
     def recover(self, why: object, now: float) -> bool:
         """Whether the loop goes on after `why` by leaving the game: always but dead. Past RECOVERIES within
@@ -372,7 +418,7 @@ class Loop:
             return False
         self.recovered = [at for at in self.recovered if now - at < RECOVERY_SECONDS]
         if len(self.recovered) >= RECOVERIES:
-            self.cooling = now + RECOVERY_PAUSE
+            self.cooling = max(self.cooling, now + RECOVERY_PAUSE)  # a longer wait set (a zone's) kept
             LOG.warning('Macro: loop: %d recoveries in %.0f s: the next leg after %.0f s (%s)',
                         len(self.recovered) + 1, RECOVERY_SECONDS, RECOVERY_PAUSE, why)  # fmt: skip
         self.recovered.append(now)
@@ -380,21 +426,31 @@ class Loop:
         return True
 
     def overdue(self, game: str | None, now: float) -> bool:
-        """Whether the loop has been in `game` (None: the lobby) over GAME_SECONDS plus TRIP_SECONDS a trip."""
-        if self.seen is None or self.seen[0] != game:
+        """Whether the loop has been in `game` (None: the lobby) over GAME_SECONDS plus TRIP_SECONDS a trip. The
+        loop's own wait (`cooling`: the next terror zone's) is not counted."""
+        if self.seen is None or self.seen[0] != game or now < self.cooling:
             self.seen = (game, now)
             return False
         allowed = (self.kind.game_seconds or GAME_SECONDS) + TRIP_SECONDS * self.trips_in(game)
         return now - self.seen[1] > allowed and not self.abandon
 
-    def still(self, where: tuple[float, float] | None, now: float, game: str | None = None) -> bool:
+    def still(self, where: tuple[float, float] | None, now: float, game: str | None = None, kills: int = 0) -> bool:
         """Whether the character has stood within STILL_UNITS over STILL_SECONDS in `game`. A new game counts afresh:
-        every game starts at the same waypoint. `now`: time.monotonic()."""
+        every game starts at the same waypoint. `now`: time.monotonic(). `kills`: the hunt's running kill count
+        (combat/score.py `LiveScore.killed`): a kill counts the stand afresh, a fight in place is no stall (Worldstone
+        Keep 2 at 04:45:58-04:46:43 on 2026-10-20: 45 s in one place, full life, 13 of 35 Stone Skin hostiles killed,
+        the game left mid-fight)."""
         if where is None:
             return False
         cooling = now < self.cooling  # the recoveries' pause is the loop's own wait
-        if self.moved is None or cooling or math.dist(where, self.moved[0]) > STILL_UNITS or game != self.moved_in:
-            self.moved, self.moved_in = (where, now), game
+        if (
+            self.moved is None
+            or cooling
+            or math.dist(where, self.moved[0]) > STILL_UNITS
+            or game != self.moved_in
+            or kills != self.moved_kills
+        ):
+            self.moved, self.moved_in, self.moved_kills = (where, now), game, kills
             return False
         if now - self.moved[1] > STILL_SECONDS and not self.abandon:
             self.moved = (where, now)  # once: the next stand counts afresh
@@ -409,9 +465,9 @@ class Loop:
         game: str | None,
         area: int | None,
     ) -> bool:
-        """Whether the character stood (STILL_UNITS) losing BESET_LOSS of max life within BESET_SECONDS. `life`:
-        (points, maximum). Asked only outside a fight (runner.py `poll`); once, then afresh; never in town, the lobby or
-        while leaving. `now`: time.monotonic()."""
+        """Whether the character stood (STILL_UNITS) losing BESET_LOSS of max life within BESET_SECONDS, counted as life
+        missing from the maximum (a buff's end lowers both). `life`: (points, maximum). Asked only outside a fight
+        (runner.py `poll`); once, then afresh; never in town, the lobby or while leaving. `now`: time.monotonic()."""
         if where is None or life is None or game is None or area is None or area in TOWN_IDS or life[1] <= 0:
             self.hurt.clear()
             return False
@@ -420,8 +476,11 @@ class Loop:
             for look in self.hurt
             if now - look[0] <= BESET_SECONDS and look[3] == game and math.dist(look[1], where) <= STILL_UNITS
         ]
-        self.hurt.append((now, where, life[0], game))
-        if max(look[2] for look in self.hurt) - life[0] >= BESET_LOSS * life[1] and not self.abandon:
+        # Missing life, not points: Battle Orders running out took 2937/2937 to 1886/1886 with no hit and left the
+        # game as beset (Lost City, 01:08:29 on 2026-10-20)
+        missing = life[1] - life[0]
+        self.hurt.append((now, where, missing, game))
+        if missing - min(look[2] for look in self.hurt) >= BESET_LOSS * life[1] and not self.abandon:
             self.hurt.clear()
             return True
         return False
@@ -515,6 +574,19 @@ class Loop:
         if new := self.volatile.learn(name, found):
             LOG.info("Macro: volatile cells: %d more of the player's items known by their stats", new)
 
+    def told(self, pack: Pack, name: str, item_stats: Stats | None = None) -> frozenset[tuple[int, int, int]] | None:
+        """The player's items in `pack` told from the loop's (`own`), by the protected cells (`tell`) or, with no
+        store (tests), by `sort`; unidentified magic-or-better items, runes and gems count as the loop's at a first
+        look. Every activity's no-room routine asks this too (runner.py `_room_own`)."""
+        loose = frozenset(
+            (i.txt, i.x, i.y) for i in pack.items if (not i.identified and i.quality >= MAGIC) or i.txt in RESOURCES
+        )
+        if self.store is not None:
+            self.tell(pack, name, loose, item_stats)
+        else:
+            self.sort(own_of(pack.items), name, loose)
+        return self.own
+
     def players_item(self, item: Carried, stats: Mapping[int, int]) -> bool:
         """Whether `item` is the player's by its stats (volatile.py `prints`): never sold nor dropped."""
         from inventory_tracking.macros.volatile import is_players
@@ -524,12 +596,41 @@ class Loop:
     def visit_due(self, game: str) -> bool:
         """Whether a town visit is due in `game` (once): room low (or a trip) with anything to take away, or, except at
         a game's end, short stock or a repair. Any errand is the whole visit (the player, 2026-10-17)."""
-        if self.visited == game:
+        if self.visited == game and not self.route_full:
             return False
-        if self.visiting == game:
+        if self.visiting == game and self.visited != game:
             return True  # cut short: made again from what is left
-        cramped = self.tripping(game) or (self.free is not None and self.free < TRADE_ROOM)
+        cramped = self.tripping(game) or self.room_low
         return (cramped and self.carrying) or (self.done != game and (self.short or self.repair))
+
+    @property
+    def room_low(self) -> bool:
+        """Whether the room is low for a visit: under TRADE_ROOM cells, or a route starting with the cube full
+        (`route_full`)."""
+        return (self.free is not None and self.free < TRADE_ROOM) or self.route_full
+
+    def route_starts_full(
+        self, world: World, cube: tuple[str, ...], items: list[Carried], carried: list[Carried]
+    ) -> bool:
+        """Whether a route begun from where `world` is starts with the town visit: in a town, the cube's rows `cube`
+        with no SURE_BLOCK free and some of the loop's `items` in the inventory (the volatile cells: never the
+        player's), under ROUTE_VISITS this game, and, after a visit this game, something of `carried` it did not leave
+        (no visit again for a keeper that waits in the cube)."""
+        player = world.player
+        if not world.in_game or player is None or not player.in_town or not cube or not items:
+            return False
+        if Grid(cube).has_room(SURE_BLOCK):
+            return False
+        game = world.game_name
+        if self.route_visits is not None and self.route_visits[0] == game and self.route_visits[1] >= ROUTE_VISITS:
+            return False
+        left = self.visit_units[1] if self.visit_units is not None and self.visit_units[0] == game else None
+        if self.visited == game and (left is None or not {i.unit_id for i in carried} - left):
+            return False
+        if not self.route_full:
+            LOG.info("Macro: loop: a route starts with the cube full and %d of the loop's items in the inventory: the "
+                     'town visit first', len(items))  # fmt: skip
+        return True
 
     def tripping(self, game: str) -> bool:
         """Whether a trip for room is under way in `game` (begun, not back through the portal)."""
@@ -605,6 +706,7 @@ class Loop:
         self.trip_free, self.trip_gained = self.free, None
         self.returned = None
         self.visiting = self.visited = None
+        self.route_full = False  # the trip's visit is no route's start (`route_starts_full`)
 
     def back_through_portal(self, run: Run, game: str) -> None:
         """Back through the portal (`portal_at`), a trip's end told first."""
@@ -666,6 +768,7 @@ class Loop:
         self.trip_due = self.swap_due = self.fresh = False
         self.gheed = None  # a parked Gheed's Fortune is fetched from the next game's town
         trace = create_next_game(run, world.game_name)
+        self.lobby_fails = 0
         run.keys = character_keys(run, key_names)
         now = run.world()
         try:
@@ -688,18 +791,176 @@ class Loop:
         contract = visit(exit)
         self.visited = game
         self.repair = False
+        if self.route_full:
+            made = self.route_visits[1] if self.route_visits is not None and self.route_visits[0] == game else 0
+            self.route_visits, self.route_full = (game, made + 1), False  # the next look judges afresh
+        after = run.carried() if run.carried is not None else None
+        if after is not None and self.own is not None:
+            # What the visit left: a route's start visits again only for something picked up since (`route_full`)
+            self.visit_units = (game, frozenset(i.unit_id for i in (*loot(after, self.own), *after.in_cube)))
         # A keeper no stash page takes: the loop stops in town, not a recovery (the player, 2026-10-18: "if stash is
         # full - we need to stop loop")
         full = tuple(getattr(contract, 'stash_full', None) or ())
         if full:
             raise Abort(f'the stash is full: {", ".join(full)}', cause='stash')
 
+    def look_at_experience(self, run: Run, world: World) -> None:
+        """A terror zone kind's leg look (macros/experience.py `Ledger.look`): the gain of a level once it is left."""
+        if self.kind.key not in TZ_KINDS:
+            if self.experience.first is not None:
+                self.experience = Ledger()  # a TZ kind chosen again counts afresh
+            return
+        if world.in_game and world.player is not None:
+            game_id = str(self.game_id or world.game_name)
+            say_experience(self.experience.look(game_id, world.player.area, experience_now(run), time.monotonic()))
+
     def leave(self, run: Run, game: str) -> None:
         """The LEAVE leg: Save and Exit, the game done and counted."""
         self.done = game
+        if self.kind.key in TZ_KINDS:
+            say_experience(self.experience.game_over(self.games + 1, experience_now(run), time.monotonic()))
         leave_game(run)
         self.abandon = False
         self.games += 1
+
+    def note_slain(self, game: str, dead: frozenset[str], clock: float) -> None:
+        """The bosses read dead in `game` at the run clock `clock`, each kept at its first reading (`landing`)."""
+        if self.slain_game != game:
+            self.slain_game, self.slain = game, {}
+        for name in dead:
+            self.slain.setdefault(name, clock)
+
+    def landing(self, clock: float) -> float:
+        """Seconds before the drops of the last boss killed have landed, 0 when they have: DROPS_AFTER_KILL from the
+        kill the service saw (KILLED_AT: the bosses and the tracked super uniques), else DROPS_LAND from the first leg
+        that read the boss dead (`note_slain`)."""
+        now = time.monotonic()
+        waits = [DROPS_AFTER_KILL - (now - at) for at in KILLED_AT.values()]
+        waits += [
+            DROPS_LAND - (clock - at)
+            for name, at in self.slain.items()
+            if now - KILLED_AT.get(name, -math.inf) > KILL_FRESH
+        ]
+        return max([0.0, *waits])
+
+    def settle(self, run: Run) -> None:
+        """Wait for the drops of a boss just killed to land, before a level or the game is left (game 30, 21:55:06:
+        the game was left 0.8 s after Diablo died, his drop still falling)."""
+        wait = self.landing(run.clock())
+        if wait > 0:
+            LOG.info("Macro: loop: a boss's drops may still be landing: %.1fs more before the level is left", wait)
+            run.pace.sleep(wait)
+
+    def last_look(self, run: Run, hands: LegHands) -> str | None:
+        """Before a game's end: what the loop would pick up still lying on the ground, None with nothing. In a level
+        the drops of a boss just killed land first (`settle`), the ground is read again and what the loop takes is
+        picked up (`take_one`, at most LAST_PICKS), and the guard reads it once more (`left`; unread, the game's
+        sightings). In town the game's sightings alone. None with the game given up (`abandon`); `Dead` with the
+        character dead (nothing more is pressed)."""
+        player = run.world().player
+        if player is not None and player.mode in DEAD:
+            raise Dead('the character is dead')
+        if self.abandon:
+            return None
+        if player is None or player.in_town:
+            return hands.sighted(None)
+        self.settle(run)
+        for _ in range(LAST_PICKS):
+            if not hands.take_one():
+                break
+        left = hands.left() if hands.left is not None else hands.sighted(None)
+        if left == UNREAD:
+            LOG.info("Macro: loop: the ground unread at the game's end: the game's sightings decide")
+            left = hands.sighted(None)
+        return left
+
+    def swap_out(self, run: Run, world: World, key_names, item_stats: Stats | None) -> None:
+        """The swap's first leg (SWAP_OUT): the player's Gheed's Fortune read, Town Portal home with it."""
+        game = world.game_name if world.in_game else ''
+        self.swap_due, self.swap = False, game
+        now = run.reads.carried()
+        ours = gheeds(now, self.own) if now is not None and self.own is not None else None
+        if now is None or ours is None:
+            raise Abort("a unique Grand Charm the pickup could not take, and no Gheed's Fortune of the player's")
+        self.swap_units = frozenset(i.unit_id for i in (*now.items, *now.in_cube))
+        self.swap_level = world.player.area if world.player is not None else None
+        found = magic_find(item_stats, ours.unit_id)
+        LOG.info("Macro: charms: another Gheed's Fortune on the ground, the player's carried at (%d, %d) (unit %d, "
+                 'magic find %s%%): to town, it goes onto a shared stash page', ours.x, ours.y, ours.unit_id,
+                 found if found is not None else '?')  # fmt: skip
+        to_town(run, key_names)  # no pickup at the portal: the charm is refused
+        self.note_portal(run)
+        self.gheed = OUT
+
+    def stash_gheeds(self, run: Run, item_stats: Stats | None, shown: Remembered | None) -> None:
+        """GHEED_STASH: the player's Gheed's Fortune onto a shared page (charms.py `park`); the give-ups forgotten."""
+        now = run.reads.carried()
+        ours = gheeds(now, self.own) if now is not None and self.own is not None else None
+        if ours is None:
+            self.gheed = RETURN
+            raise Abort("no Gheed's Fortune of the player's carried to put onto a shared page")
+        try:
+            self.parked = park(run, ours, item_stats, shown)
+        except Abort:
+            self.gheed = RETURN  # it stays carried: back to the level, whose valuable keeps the game
+            raise
+        self.gheed = PICK
+        SHUNNED.clear()  # the refused charm is taken now
+        if self.forget is not None:
+            # and by the level run, which gave it up (rca/2026-10-18/loop-robustness-findings.md §2.3)
+            self.forget()
+        LOG.info("Macro: charms: back through the portal for the new Gheed's Fortune")
+
+    def swap_back(self, run: Run, world: World, key_names) -> None:
+        """SWAP_BACK: the new one picked up or not, Town Portal home for the choice."""
+        parked = self.parked
+        assert parked is not None
+        now = run.reads.carried()
+        found = candidates(now, parked, self.swap_units) if now is not None else []
+        if found:
+            LOG.info("Macro: charms: the new Gheed's Fortune picked up (unit %d at (%d, %d)%s): to town to compare",
+                     found[0].unit_id, found[0].x, found[0].y,
+                     ', unidentified' if not found[0].identified else '')  # fmt: skip
+        else:
+            LOG.info("Macro: charms: no new Gheed's Fortune picked up: to town for the player's, on shared page %s",
+                     parked.page)  # fmt: skip
+        self.gheed = CHOOSE
+        if world.player is not None and not world.player.in_town:
+            to_town(run, key_names)
+            self.note_portal(run)
+
+    def choose_gheeds(self, run: Run, hands: LegHands, item_stats: Stats | None, shown: Remembered | None) -> None:
+        """GHEED_CHOOSE: the new one identified at Cain, the better roll kept at the player's cell (charms.py
+        `choose`); `parked` cleared."""
+        identify, bring = hands.identify, hands.bring
+        parked = self.parked
+        assert parked is not None
+        now = run.reads.carried()
+        found = candidates(now, parked, self.swap_units) if now is not None else []
+        unread = tuple(i for i in found if not i.identified)
+        if unread and identify is not None:
+            LOG.info('Macro: charms: the new unique Grand Charm identified at Cain')
+            identify(unread)
+            now = run.carried() if run.carried is not None else now
+            found = candidates(now, parked, self.swap_units) if now is not None else []
+        rivals = [i for i in found if i.identified and i.unique == GHEEDS_FORTUNE]
+        for other in (i for i in found if i not in rivals):
+            LOG.info(
+                "Macro: charms: the new unique Grand Charm (unit %d) is %s: no Gheed's Fortune to compare",
+                other.unit_id,
+                f'unique row {other.unique}' if other.identified else 'still unidentified',
+            )
+        new = max(rivals, key=lambda i: magic_find(item_stats, i.unit_id) or 0) if rivals else None
+        if new is not None and now is not None and new.unit_id in now.cube_items and bring is not None:
+            bring([new])  # Ctrl + click to the stash works from the inventory only
+            after = run.reads.carried()
+            new = next((i for i in after.items if i.unit_id == new.unit_id), None) if after is not None else None
+        # Anything else picked up in the swap (runner.py `_gheeds_swap`) is in the player's cell: onto a shared page
+        others = newcomers(now, parked, self.swap_units) if now is not None else []
+        kept = choose(run, parked, new, item_stats, shown, others=others)
+        if self.own is not None:
+            self.own = (self.own - {parked.cell}) | {(kept.txt, kept.x, kept.y)}
+        self.parked = None
 
     def leg(
         self,
@@ -714,13 +975,20 @@ class Loop:
         """Make the next leg with the runner's `hands`; returns its name. `item_stats(unit)`: game/memory.py
         `GameMemory.item_stats`; `shown`: the shared page the stash showed last (visit.py `Remembered`)."""
         level_run, pick_up, visit, down, fight = hands.level_run, hands.take_one, hands.visit, hands.way_on, hands.fight
-        identify, bring, left = hands.identify, hands.bring, hands.left
+        left = hands.left
         world = run.world()
         if (cooling := self.cooling - time.monotonic()) > 0:
             # The recoveries' pause is stood only where nothing attacks (lobby, town); elsewhere the game is left first
             # (the player, 2026-10-19: "we stood still while under attack and almost died")
             if not world.in_game or (world.player is not None and world.player.in_town):
-                run.pace.sleep(cooling)
+                if cooling > RECOVERY_PAUSE:
+                    LOG.info('Macro: loop: waiting %.0f s before the next leg (the next terror zone)', cooling)
+                # In slices: the next zone's wait is up to 30 min, and a run cancelled (the player's KP_6, a restart)
+                # ends it at once
+                while (cooling := self.cooling - time.monotonic()) > 0:
+                    if run.cancelled.is_set():
+                        raise Cancelled
+                    run.pace.sleep(min(cooling, COOLING_SLICE))
                 world = run.world()
             else:
                 area = world.player.area if world.player is not None else 'an unread level'
@@ -732,6 +1000,8 @@ class Loop:
         self.observe(world)
         if not world.in_game:
             self.abandon = False  # left
+        elif progress is not None and progress.dead is not None:
+            self.note_slain(world.game_name, progress.dead(), run.clock())  # `landing`'s clock for a kill unseen
         if not self.placed and not self.chosen and world.player is not None:
             # The kind by where the character stands; the shared Fortress keeps the chosen one
             self.placed = True
@@ -739,6 +1009,7 @@ class Loop:
             if found is not None and found != self.kind:
                 LOG.info('Macro: loop: %s, by where the character is', found.name)
                 self.kind = found
+        self.look_at_experience(run, world)
         pack = run.carried() if world.in_game and run.carried is not None else None
         if world.in_game and world.player is not None:
             source = portal_source(run)
@@ -757,14 +1028,7 @@ class Loop:
                 for i in pack.items
             ), '; '.join(_named(i) for i in pack.in_cube))  # fmt: skip
         if pack is not None and world.player is not None:
-            # The player's items told first, so the first look counts the room too
-            loose = frozenset(
-                (i.txt, i.x, i.y) for i in pack.items if (not i.identified and i.quality >= MAGIC) or i.txt in RESOURCES
-            )
-            if self.store is not None:
-                self.tell(pack, world.player.name, loose, item_stats)
-            else:
-                self.sort(own_of(pack.items), world.player.name, loose)  # no store (tests)
+            self.told(pack, world.player.name, item_stats)  # the player's first, so the first look counts the room too
         items = loot(pack, self.own) if pack and self.own else []
         in_town = world.player is not None and world.player.area == PANDEMONIUM_FORTRESS
         if self.parked is not None and pack is not None:
@@ -794,6 +1058,7 @@ class Loop:
                 or bool(surplus(carried, stuck))
                 or any(count >= GEMS_A_KIND for count in cubable.values())
             )
+            self.route_full = self.route_starts_full(world, cube, items, carried)
             visiting = world.in_game and self.visiting == world.game_name and self.visited != world.game_name
             if in_town and in_inventory < TRADE_ROOM <= self.free and in_cube >= 3 and items and not visiting:
                 # The loop's items into the cube for pickup room, between visits only (runner.py `make_room`)
@@ -807,25 +1072,32 @@ class Loop:
         self.wear = worn_text(wear)
         coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn_out(wear) else None
         self.repair = due(staff, wear, coins, top_up=topped, waited=self.repair_waited())
+        if not world.in_game and self.pending is not None:
+            # A kind asked while on takes in the lobby, before the kind picks its leg: the terror zone kinds make the
+            # next game by their agenda, never through the NEXT_GAME branch below (game 31, 21:55 on 2026-10-19)
+            self.kind, self.pending, self.chosen = self.pending, None, True
+            run.say(f'Loop run: {self.kind.name}')
         goal = None
         if (beset := self.after_beset(world)) is not None:
             leg = beset  # before the kind's own legs: the attacker first, then its ground
-        elif self.kind.agenda:
+        elif self.kind.agenda or self.kind.packaged:
             from inventory_tracking.macros import tzloop  # late: tzloop imports this module
 
-            goal = tzloop.choose(world, progress, self, hands)
-            leg = tzloop.leg_of(goal)
+            # Lower Kurast: a trip for room under way (the room package) before its own legs
+            goal = tzloop.choose(world, progress, self, hands) if self.kind.agenda else tzloop.packaged(world, self)
+            leg = tzloop.leg_of(goal) if goal is not None else next_leg(world, progress, self)
         else:
             leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
         run.say(f'Loop: game {self.games + 1}, {leg}')
+        self.current = leg
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them (`arrived`)
         if goal is not None:
             from inventory_tracking.macros import tzloop
 
-            tzloop.perform(self, run, key_names, progress, goal, hands)
+            tzloop.perform(self, run, key_names, progress, goal, hands, item_stats=item_stats, shown=shown)
             return leg
         if leg == NEXT_GAME:
             if self.pending is not None:
@@ -892,82 +1164,13 @@ class Loop:
             to_town(run, key_names)  # no pickup at the portal: no room
             self.note_portal(run)
         elif leg == SWAP_OUT:
-            self.swap_due, self.swap = False, game
-            now = run.reads.carried()
-            ours = gheeds(now, self.own) if now is not None and self.own is not None else None
-            if now is None or ours is None:
-                raise Abort("a unique Grand Charm the pickup could not take, and no Gheed's Fortune of the player's")
-            self.swap_units = frozenset(i.unit_id for i in (*now.items, *now.in_cube))
-            self.swap_level = world.player.area if world.player is not None else None
-            found = magic_find(item_stats, ours.unit_id)
-            LOG.info("Macro: charms: another Gheed's Fortune on the ground, the player's carried at (%d, %d) (unit %d, "
-                     'magic find %s%%): to town, it goes onto a shared stash page', ours.x, ours.y, ours.unit_id,
-                     found if found is not None else '?')  # fmt: skip
-            to_town(run, key_names)  # no pickup at the portal: the charm is refused
-            self.note_portal(run)
-            self.gheed = OUT
+            self.swap_out(run, world, key_names, item_stats)
         elif leg == GHEED_STASH:
-            now = run.reads.carried()
-            ours = gheeds(now, self.own) if now is not None and self.own is not None else None
-            if ours is None:
-                self.gheed = RETURN
-                raise Abort("no Gheed's Fortune of the player's carried to put onto a shared page")
-            try:
-                self.parked = park(run, ours, item_stats, shown)
-            except Abort:
-                self.gheed = RETURN  # it stays carried: back to the level, whose valuable keeps the game
-                raise
-            self.gheed = PICK
-            SHUNNED.clear()  # the refused charm is taken now
-            if self.forget is not None:
-                # and by the level run, which gave it up (rca/2026-10-18/loop-robustness-findings.md §2.3)
-                self.forget()
-            LOG.info("Macro: charms: back through the portal for the new Gheed's Fortune")
+            self.stash_gheeds(run, item_stats, shown)
         elif leg == SWAP_BACK:
-            parked = self.parked
-            assert parked is not None
-            now = run.reads.carried()
-            found = candidates(now, parked, self.swap_units) if now is not None else []
-            if found:
-                LOG.info("Macro: charms: the new Gheed's Fortune picked up (unit %d at (%d, %d)%s): to town to compare",
-                         found[0].unit_id, found[0].x, found[0].y,
-                         ', unidentified' if not found[0].identified else '')  # fmt: skip
-            else:
-                LOG.info("Macro: charms: no new Gheed's Fortune picked up: to town for the player's, on shared page %s",
-                         parked.page)  # fmt: skip
-            self.gheed = CHOOSE
-            if world.player is not None and not world.player.in_town:
-                to_town(run, key_names)
-                self.note_portal(run)
+            self.swap_back(run, world, key_names)
         elif leg == GHEED_CHOOSE:
-            parked = self.parked
-            assert parked is not None
-            now = run.reads.carried()
-            found = candidates(now, parked, self.swap_units) if now is not None else []
-            unread = tuple(i for i in found if not i.identified)
-            if unread and identify is not None:
-                LOG.info('Macro: charms: the new unique Grand Charm identified at Cain')
-                identify(unread)
-                now = run.carried() if run.carried is not None else now
-                found = candidates(now, parked, self.swap_units) if now is not None else []
-            rivals = [i for i in found if i.identified and i.unique == GHEEDS_FORTUNE]
-            for other in (i for i in found if i not in rivals):
-                LOG.info(
-                    "Macro: charms: the new unique Grand Charm (unit %d) is %s: no Gheed's Fortune to compare",
-                    other.unit_id,
-                    f'unique row {other.unique}' if other.identified else 'still unidentified',
-                )
-            new = max(rivals, key=lambda i: magic_find(item_stats, i.unit_id) or 0) if rivals else None
-            if new is not None and now is not None and new.unit_id in now.cube_items and bring is not None:
-                bring([new])  # Ctrl + click to the stash works from the inventory only
-                after = run.reads.carried()
-                new = next((i for i in after.items if i.unit_id == new.unit_id), None) if after is not None else None
-            # Anything else picked up in the swap (runner.py `_gheeds_swap`) is in the player's cell: onto a shared page
-            others = newcomers(now, parked, self.swap_units) if now is not None else []
-            kept = choose(run, parked, new, item_stats, shown, others=others)
-            if self.own is not None:
-                self.own = (self.own - {parked.cell}) | {(kept.txt, kept.x, kept.y)}
-            self.parked = None
+            self.choose_gheeds(run, hands, item_stats, shown)
             level = self.swap_level
             seen = left() if left is not None else None
             done = progress is not None and level is not None and progress.step(level) is None and seen is None
@@ -995,8 +1198,25 @@ class Loop:
                 self.done = game
             travel(run, PANDEMONIUM_FORTRESS, self.marks)
         elif leg == LEAVE:
+            if world.player is not None and not world.player.in_town and (left := self.last_look(run, hands)):
+                # Never a game left with a valuable on the ground (the player, 2026-10-17), as tzloop.py LEAVE_GAME's
+                raise Abort(f'the game ends, but {left} lies on the ground', cause='room')
             self.leave(run, game)
         return leg
+
+
+def experience_now(run: Run) -> Reading | None:
+    """The character's experience and level (macros/experience.py), None unread: never a leg's stop."""
+    try:
+        loot = run.reads.loot()
+    except OSError, ValueError:
+        return None
+    return reading(dict(loot.stats)) if loot is not None and loot.stats else None
+
+
+def say_experience(lines: list[str]) -> None:
+    for line in lines:
+        LOG.info('Macro: %s', line)
 
 
 # Shares of the gold cap: Teleport from the first, Blade Warp alone under the second (the player, 2026-10-17: "if we
@@ -1124,8 +1344,7 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
             return LEAVE
         if loop.tripping(game):
             return TO_THE_FORTRESS if loop.fortressed != game else THROUGH_PORTAL
-        cramped = loop.free is not None and loop.free < TRADE_ROOM
-        if (cramped and loop.carrying) or loop.short or loop.repair:
+        if (loop.room_low and loop.carrying) or loop.short or loop.repair:
             return TO_THE_FORTRESS
         return TO_THE_CATACOMBS
     if player.in_town:

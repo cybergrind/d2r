@@ -770,12 +770,14 @@ def contract(
     """What a visit left (§2.2 6), from the pack read after it. `misses` names each part short of the player's
     contract ("after the loop we must have: empty cube, all designated free space cells are free in the inventory",
     2026-10-18): cube items, the block taken, junk unsold, a keeper not stashed, keys or portals short, units on the
-    ground, junk parked on a page. `stash_full` and `deferred` are named apart from the misses."""
+    ground, junk parked on a page. `junk_left` counts the junk carried, in the cube and on a stash page (`in_stash`,
+    read by unit id): a parked one not taken back is junk left too. `stash_full` and `deferred` are named apart from
+    the misses."""
     later = {i.unit_id for i in deferred if i.unit_id in pack.cube_items}
     # A full stack's flawless gem kept in the cube for its transmute is no miss either
     later |= {i.unit_id for i in pack.in_cube if kept_gem(i, full)}
     items = [*loot(pack, own), *pack.in_cube]
-    junk_left = sum(1 for i in items if i.unit_id in junk)
+    junk_left = sum(1 for i in items if i.unit_id in junk) + len(in_stash)
     keepers = [
         i
         for i in items

@@ -1,13 +1,15 @@
 """Follow the KP_6 loop live: the newest serve probe.log, across restarts of `make serve`.
 
 Prints (one stdout line = one event, for a Monitor):
-- `game N: Ts (chests Cs, <leg> Ss...); <notes>` when a game ends (legs over SLOW seconds named);
+- `game N: Ts (chests Cs, <leg> Ss...); <notes>` when a game ends (legs over SLOW seconds named), `game N: Ts, +X exp
+  (...)` for a terror zone game that logged its experience (logwords.py EXPERIENCE_GAME);
 - the loop's stops, recoveries ("the game is left"), guard stops ("stops here"), full stacks, sales, repairs, errors and
   tracebacks, the moment they are logged;
 - `MISSED: ...` when a game ends with an item the sure mode takes never picked up (games.py `Seen.missed`): the loss
   the player's hard rule is about, to trace at once;
 - `PLAYER: loop off` / `PLAYER: loop on` when the player toggles it with KP_6;
-- `STALL: ...` when the loop is on and no leg has started for --stall seconds (wall clock), again every --again;
+- `STALL: ...` when the loop is on, no leg has started for --stall seconds (wall clock) and no teleport, kill or pickup
+  was logged in them, or one leg runs past LONG_LEG seconds; again every --again;
 - `== following <session>` when a new service starts (a restart);
 - `RATE: ...` every RATE_EVERY cycles: chests an hour over the last 20 and 60 cycles (a cycle from one Lower Kurast
   arrival to the next, everything between counted; the chests from the takes, `combat.legs`), against the baseline:
@@ -32,6 +34,7 @@ import games
 import logwords
 from logwords import (
     AIMED,
+    EXPERIENCE_GAME,
     FULL,
     GROUND,
     LEG,
@@ -42,15 +45,18 @@ from logwords import (
     NOTE,
     NOW,
     PICKED,
+    PROGRESS,
     REQUEST_LOOP,
     RESUMED_OFF,
     SAID,
+    WAITING,
     stamp,
 )
 
 
 RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'alt-d'
 SLOW = 25.0
+LONG_LEG = 300.0  # seconds: one leg this long is a STALL even while it moves and fights
 COMBAT = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'combat'
 BASELINE = 279  # chests an hour of cycles, 02:43-04:31 on 2026-10-17 (the journal)
 RATE_EVERY = 5
@@ -87,11 +93,14 @@ class Watch:
         self.loud = True
         self.on = False
         self.last_leg_wall = time.time()
+        self.last_progress_wall = 0.0  # a teleport landed, a kill, a pickup: a long leg that goes on
+        self.waiting_until = 0.0  # the loop's own wait before its next leg (WAITING)
         self.last_leg = ''
         self.alarmed = 0.0
         self.game: tuple[int, datetime] | None = None
-        self.legs: dict[str, datetime] = {}
+        self.legs: list[tuple[str, datetime]] = []  # each leg as it starts; a name may come back
         self.notes: list[str] = []
+        self.exp = ''  # the game's experience gain, as its EXPERIENCE_GAME line wrote it
         self.asked_loop = False
         # The game's ground census, pickups and their aims, as games.py `read` matches them
         self.items: dict[tuple, games.Seen] = {}
@@ -127,7 +136,7 @@ class Watch:
             evidence = f'log stale ({age:.0f}s); service state unknown'
         else:
             evidence = f'log fresh ({age:.0f}s)'
-        if self.on and time.time() - self.last_leg_wall >= self.stall:
+        if self.on and self.stalled(time.time()):
             state += ', stalled'
         self.say(f'HEALTH {datetime.now():%Y-%m-%d %H:%M:%S}: {state}; {evidence}; {self.last_leg or "no loop leg"}')
 
@@ -182,16 +191,16 @@ class Watch:
             return
         self.ground(whole)
         number, started = self.game
-        order = list(self.legs.items())
-        spans = [
-            (name, (nxt[1] - t).total_seconds())
-            for (name, t), nxt in zip(order, [*order[1:], ('end', at)], strict=True)
-        ]
-        chests = sum(s for n, s in spans if n == 'the chests')
-        slow = ', '.join(f'{n} {s:.0f}s' for n, s in spans if s > SLOW and n != 'the chests')
+        order = self.legs
+        spans: dict[str, float] = {}  # each leg's seconds summed over its stretches (2026-10-19)
+        for (name, t), nxt in zip(order, [*order[1:], ('end', at)], strict=True):
+            spans[name] = spans.get(name, 0.0) + (nxt[1] - t).total_seconds()
+        chests = spans.get('the chests', 0.0)
+        slow = ', '.join(f'{n} {s:.0f}s' for n, s in spans.items() if s > SLOW and n != 'the chests')
         notes = '; '.join(self.notes)
         seconds = (at - started).total_seconds()
-        self.say(f'game {number}: {seconds:.0f}s (chests {chests:.0f}s{", " + slow if slow else ""})'
+        exp = f', {self.exp} exp' if self.exp else ''
+        self.say(f'game {number}: {seconds:.0f}s{exp} (chests {chests:.0f}s{", " + slow if slow else ""})'
                  f'{"; " + notes if notes else ""}')  # fmt: skip
         self.game = None
 
@@ -222,10 +231,17 @@ class Watch:
             self.on, self.last_leg_wall, self.last_leg = True, at.timestamp(), f'game {number}, {leg} at {line[11:19]}'
             if self.game is None or self.game[0] != number:
                 self.finish(at)
-                self.game, self.legs, self.notes = (number, at), {}, []
-            self.legs.setdefault(leg, at)
+                self.game, self.legs, self.notes, self.exp = (number, at), [], [], ''
+            if not self.legs or self.legs[-1][0] != leg:
+                self.legs.append((leg, at))
             if leg == 'the chests' and (self.cycle is None or self.cycle[0] != number):
                 self.close_cycle(number, at)
+        if PROGRESS.search(line) and at is not None:
+            self.last_progress_wall = at.timestamp()
+        if (m := WAITING.search(line)) and at is not None:
+            self.waiting_until = at.timestamp() + float(m.group(1))
+        if (m := EXPERIENCE_GAME.search(line)) and self.game is not None and self.game[0] == int(m.group(1)):
+            self.exp = m.group(2)
         if NOTE.search(line) and self.game is not None:
             self.notes.append(line[line.index(SAID) + len(SAID) :].strip()[:80])
         if NOW.search(line):
@@ -249,11 +265,21 @@ class Watch:
         chests = sum(c for _, c in last)
         return f'last {len(last)} cycles {3600 * chests / seconds:.0f} chests/h' if seconds else 'no cycles'
 
+    def stalled(self, now: float) -> bool:
+        """No leg for --stall s and nothing done in it (a TZ level's legs run minutes while it explores and fights),
+        or one leg past LONG_LEG s whatever it does."""
+        if now < self.waiting_until:
+            return False  # the loop's own wait (the next terror zone)
+        quiet = now - max(self.last_leg_wall, self.last_progress_wall, self.waiting_until)
+        return quiet > self.stall or now - max(self.last_leg_wall, self.waiting_until) > LONG_LEG
+
     def idle(self) -> None:
         now = time.time()
-        if self.on and now - self.last_leg_wall > self.stall and now - self.alarmed > self.again:
+        if self.on and self.stalled(now) and now - self.alarmed > self.again:
             self.alarmed = now
-            self.say(f'STALL: no loop leg for {now - self.last_leg_wall:.0f}s; last: {self.last_leg}')
+            quiet = now - max(self.last_leg_wall, self.last_progress_wall)
+            self.say(f'STALL: no loop leg for {now - self.last_leg_wall:.0f}s, nothing done for {quiet:.0f}s; '
+                     f'last: {self.last_leg}')  # fmt: skip
 
 
 def main() -> None:

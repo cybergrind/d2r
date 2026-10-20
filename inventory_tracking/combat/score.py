@@ -28,6 +28,7 @@ class LiveScore:
     life: dict[int, tuple[float, float, bool]] = field(default_factory=dict)  # unit -> (points left, full, near)
     last: float | None = None
     place: tuple[int, int] | None = None  # (the character's unit id, its level) at the last read
+    killed: int = 0  # every kill counted since made, never dropped (macros/loop.py `still`: a stand that kills)
 
     def note(self, clock: float, player: Any, hostiles: Iterable[Any], dead: Collection[int] = ()) -> None:
         """One read: `player` and `hostiles` are game/records.py records (None: not in a game), `dead`
@@ -61,6 +62,7 @@ class LiveScore:
         elapsed = clock - self.last if self.last is not None else 0.0
         steady = 0.0 < elapsed <= GAP
         combat = elapsed if steady and any(near for _, _, near in self.life.values()) else 0.0
+        self.killed += kills
         if steady:
             self.samples.append((clock, combat, points, kills, gone))
         self.life, self.last = now, clock

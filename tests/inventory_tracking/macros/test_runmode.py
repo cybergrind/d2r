@@ -693,7 +693,15 @@ def test_a_room_passed_is_not_taken_back_under_another_of_its_tiles(monkeypatch)
     hunt.mode = Mode(True, SWITCHED)
     ground = Ground(())
     room, tile = EAST[2], {'x': 1020}
-    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: (10.0, room, (tile['x'], 999)))
+    monkeypatch.setattr(
+        hunt,
+        'frontier',
+        lambda level, player, rect, skip=None, keep=None: (
+            10.0,
+            room,
+            (tile['x'], 999),
+        ),
+    )
     play.clock.now = 50.0
     found = hunt.cleared(run, play.world, [], ground, DOOR)
     assert found is not None
@@ -714,7 +722,15 @@ def test_a_room_the_run_gets_nearer_to_is_not_passed_for_want_of_a_strike(monkey
     run = play.run()
     hunt.mode = Mode(True, SWITCHED)
     ground = Ground(())
-    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: (30.0, EAST[3], (1034, 999)))
+    monkeypatch.setattr(
+        hunt,
+        'frontier',
+        lambda level, player, rect, skip=None, keep=None: (
+            30.0,
+            EAST[3],
+            (1034, 999),
+        ),
+    )
     play.clock.now = 50.0
     for _ in range(30):  # 15 s going toward it, 4 units a look
         found = hunt.cleared(run, play.world, [], ground, DOOR)
@@ -738,7 +754,7 @@ def test_the_judge_of_a_clearing_goal_goes_on_across_another_goal(monkeypatch) -
     run = play.run()
     hunt.mode = Mode(True, SWITCHED)
     ground = Ground(())
-    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: None)
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect, skip=None, keep=None: None)
     away = foe(51, 5040.0, 5000.0)  # off the way: a full clear's own goal, not struck from here
     play.clock.now = 50.0
     passed_at = None
@@ -761,7 +777,7 @@ def test_a_clearing_goal_left_for_another_is_not_taken_back_while_the_other_hold
     run = play.run()
     hunt.mode = Mode(True, SWITCHED)
     ground = Ground(())
-    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: None)
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect, skip=None, keep=None: None)
     east, west = foe(51, 5040.0, 5000.0), foe(52, 4960.0, 5000.0)
     play.clock.now = 50.0
 
@@ -822,13 +838,14 @@ def test_the_runner_gives_the_hud_the_run_modes_word_and_none_in_town() -> None:
 
     made = MacroRunner(None, capture_lock=threading.Lock(), saved_games=Path(), execute=lambda cancelled, routine: None)
     try:
-        assert made.run_badge is None  # no hunt
+        assert made.run_badge == 'PICK:GOOD'  # no hunt: the pickup level alone (2026-10-19)
         made.hunter = hunter(game(area=RIVER))
         made.build = made.fallback = BUILD
-        assert made.run_badge is None  # before any look
+        assert made.run_badge == 'PICK:GOOD'  # before any look
         made.hunter.mode = Mode(True, TERROR)
-        assert made.run_badge == 'CLEAR TZ'
-        made.hunter.mode = Mode(False)
-        assert made.run_badge is None
+        made.working = True
+        assert made.run_badge == 'PICK:GOOD NEXT:clear'  # a run working: its full clear is next
+        made.working = False
+        assert made.run_badge == 'PICK:GOOD'
     finally:
         made.close()

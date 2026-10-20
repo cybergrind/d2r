@@ -9,7 +9,14 @@ ROUTES = [
     Route(
         'Den of Evil',
         (1,),
-        (level(2, enter('Den of Evil', 8)), level(8, fight('Corpsefire', 'Corpsefire'), loot(), leave())),
+        (
+            # The Rogue Encampment's way out on foot, its gate found on the town's walls (macros/townexit.py): the TZ
+            # loop's trip alone takes it (alternate), the town's card and the other loops keep none
+            # (rca/2026-10-19/town-exit-findings.md)
+            level(1, enter('Blood Moor', 2), alternate=True),
+            level(2, enter('Den of Evil', 8)),
+            level(8, fight('Corpsefire', 'Corpsefire'), loot(), leave()),
+        ),
     ),
     Route(
         'Cave',

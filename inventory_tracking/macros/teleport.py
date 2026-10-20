@@ -39,6 +39,7 @@ from inventory_tracking.game.decode import containers
 from inventory_tracking.game.layout import BANK, ITEM_UNIT, MONSTER_UNIT, OBJECT_UNIT, TILE_UNIT
 from inventory_tracking.game.records import Player, Thing, Warp, World
 from inventory_tracking.game.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
+from inventory_tracking.levels.doors import door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import (
     ARCANE_PORTAL,
@@ -320,6 +321,11 @@ USES = {
         SUMMONING_SEALS,
         Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: open', '{} is not here', brings=SEAL_BRINGS),
     ),
+    # A closed door across an open passage's walk (objects.txt IsDoor, levels/doors.py): clicked open as a chest is.
+    # The Outer Cloister's gate into the Barracks stood shut and the walk did not move, 45 s a game (04:00:40 on
+    # 2026-10-20, class 24 at (15141, 4802))
+    **dict.fromkeys(door_sizes(), Use(CHEST_AIMS, 10.0, False, 'Opening the door to {}', '{}: the door is open',
+                                      'no door to {} is here')),
 }  # fmt: skip
 THING_REACH = 25.0  # world units from the character to an object it is sent to by a click
 THING_SECONDS = 4.0  # the walk to it and what follows
@@ -895,6 +901,12 @@ def marked_thing(run: Run, target: Target) -> Thing | None:
     return min(near, key=lambda t: math.dist((t.x, t.y), mark)) if near else None
 
 
+def used_already(use: Use, thing: Thing) -> bool:
+    """Whether the object was used before: its mode left 0 on one that neither leaves nor opens a panel (a chest, a
+    seal, a body). The mark is only a place then, and nothing more comes of it (no `Use.brings` wait)."""
+    return not use.leaves and not use.opens and bool(thing.mode)
+
+
 def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: float) -> None:
     """Click the object's picture and watch the walk until it took: the level changed (a portal), its panel opened
     (the stash, a waypoint) or the object's mode did (a body searched). An aim is clicked only with the object under
@@ -902,7 +914,7 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
     object with a panel or one that leaves is looked at before the first aim (PANEL_GRACE with a panel, else one
     look), before each aim after it and after the last: once it took, no aim more."""
     use, at = USES[target.use], (thing.x, thing.y)
-    if not use.leaves and not use.opens and thing.mode:
+    if used_already(use, thing):
         run.say(f'At {target.label}')  # used already: the mark is only a place now
         return
     run.say(f'{use.begun.format(target.label)}, {math.dist((player.x, player.y), at):.0f} away')

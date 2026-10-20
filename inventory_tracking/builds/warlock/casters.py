@@ -5,6 +5,7 @@ buff executor (macros/buffs.py) with a `Casting` and answers with a `Tried`.
 """
 
 import math
+from collections.abc import Sequence
 
 from inventory_tracking.builds.warlock.buffs import (
     CONSUME_RETRY,
@@ -51,6 +52,10 @@ CLEAR = 7.0  # world units around the Defiler that must be empty before Consume
 # 2026-10-07 01:46), so nothing may stand in this screen column either: across, below and above, in iso units.
 COVER_ACROSS, COVER_BELOW, COVER_ABOVE = 9.0, 26.0, 8.0
 CONSUME_ATTEMPTS = 3
+# A townsperson this near the Defiler is under the pointer on it: Consume cannot take one, so the press shows nothing.
+# 22:35:05-13 on 2026-10-19 (Kurast Docks): Meshif (class 264) 0.9-2.8 from the Defiler, three presses showed nothing
+# and the game was left. Kashya 14 off (2026-10-07) never was. Such a miss has another Defiler summoned elsewhere.
+TOWN_COVER = 4.0
 CONSUME_PAD_WAIT = 10.0  # seconds: Consume due in controller mode is asked again this often (`consume_again`)
 # World units a Defiler may walk while the pointer travels before the pointer follows it (user, 2026-10-07).
 AIM_DRIFT = 1.0
@@ -74,6 +79,16 @@ def bystanders(world: World, but: int | None = None) -> list[Monster]:
         and m.unit_id != but
         and (m.ally or m.owner != NO_OWNER or not m.max_life)
     ]
+
+
+class Unconsumed(Abort):
+    """Consume did not take on any Defiler tried (`consume`): nothing else happened, so the prebuff goes on without it
+    (`defiler_dance`)."""
+
+
+def townsfolk_over(world: World, x: float, y: float) -> list[Monster]:
+    """The townsfolk within TOWN_COVER of a Defiler at (x, y): the pointer on it may be on them."""
+    return [m for m in world.monsters if m.txt_id in TOWN_NPCS and math.hypot(m.x - x, m.y - y) < TOWN_COVER]
 
 
 def in_the_way(monster: Monster, x: float, y: float) -> bool:
@@ -100,10 +115,12 @@ def log_crowd(world: World, unit: int) -> None:
     LOG.info('Macro: the Defiler is crowded by %s; summoning another', ', '.join(near) or 'nothing now')
 
 
-def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float]]:
+def open_spots(
+    run: Run, world: World, skip: int = 0, tried: Sequence[tuple[float, float]] = ()
+) -> list[tuple[float, float]]:
     """SUMMON_SPOTS from the `skip`-th on, those with nobody near first (a Defiler next to the bound demon cannot be
     consumed safely). With the ground known (`run.ground`), only spots a summon can stand on, NEAR_SPOTS last;
-    all of them when none can."""
+    all of them when none can. A replacement (`skip`): spots `tried` last, then the farthest from a bystander first."""
     spots = list(SUMMON_SPOTS[skip % len(SUMMON_SPOTS) :] + SUMMON_SPOTS[: skip % len(SUMMON_SPOTS)])
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or world.player is None:
@@ -117,17 +134,30 @@ def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float
         if len(found) < len(spots):
             LOG.info('Macro: %d of %d summon spots are on ground a Defiler can stand on', len(found), len(known))
         spots = found or spots
-    return sorted(spots, key=lambda spot: bool(crowd(world, *world_point(player, *spot, aspect))))
+    near = bystanders(world)
+
+    def order(spot: tuple[float, float]) -> tuple[bool, bool, bool, float]:
+        x, y = world_point(player, *spot, aspect)
+        # 22:00:25-29 on 2026-10-19: three Defilers in a row at the side the bound demon (class 189) stood, 4.4 s
+        # mid-fight (rca/2026-10-19/tz-leveling-findings.md C8)
+        apart = min((math.hypot(m.x - x, m.y - y) for m in near), default=math.inf) if skip else 0.0
+        # Nor beside a townsperson, who takes the pointer (TOWN_COVER; 22:35:05 on 2026-10-19)
+        return spot in tried, bool(crowd(world, x, y)), bool(townsfolk_over(world, x, y)), -apart
+
+    return sorted(spots, key=order)
 
 
-def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Monster:
+def summon_defiler(
+    run: Run, *, until: float | None = None, skip: int = 0, tried: list[tuple[float, float]] | None = None
+) -> Monster:
     """Summon one Defiler. `until` (a clock time) keeps trying that long: a new game takes no input for a while.
-    `skip` starts that many spots further on, for a Defiler that replaces a crowded one."""
+    `skip` starts that many spots further on, for a Defiler that replaces a crowded one; `tried` (kept by the
+    caller) gets the spot it took and is taken last again."""
     start = run.world()
     before = {monster.unit_id for monster in defilers(start)}
     # A spot that cannot be walked on takes no summon (user, 2026-10-06): try the next one.
     world, spot = None, SUMMON_SPOTS[0]
-    spots = open_spots(run, start, skip)
+    spots = open_spots(run, start, skip, tried or ())
     looked = [start]  # the last world looked at: the panel check reads no world of its own
 
     def came(seen: World) -> bool:
@@ -152,6 +182,8 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
             run.pause('screen')
     if world is None:
         raise Abort('Defiler: not seen at any spot')
+    if tried is not None:
+        tried.append(spot)
     defiler = next(m for m in defilers(world) if m.unit_id not in before)
     if run.pad is not None and start.player is not None:
         window = run.actuator.keys.focused_window_rect()
@@ -304,12 +336,12 @@ def log_miss(run: Run, world: World, unit: int) -> None:
     )
 
 
-def consume(run: Run, defiler: Monster) -> None:
+def consume(run: Run, defiler: Monster, tried: list[tuple[float, float]] | None = None) -> None:
     """Consume this Defiler and nothing else (it once took the bound demon, 2026-10-06/07): the key is pressed only
     while nothing stands near the Defiler or over its drawn body (`in_the_way`); if it stays crowded, another
     Defiler is summoned at another open spot. Afterwards the Defiler must be the one gone. A press that changes
     nothing (about one in thirty) is made again under the same checks."""
-    missed = False
+    missed, tried = False, tried if tried is not None else []
     for attempt in range(CONSUME_ATTEMPTS):
 
         def clear(w: World, unit: int = defiler.unit_id) -> bool:
@@ -318,7 +350,7 @@ def consume(run: Run, defiler: Monster) -> None:
 
         if run.seen(clear, 1.0) is None:
             log_crowd(run.world(), defiler.unit_id)
-            defiler = summon_defiler(run, skip=attempt + 1)
+            defiler = summon_defiler(run, skip=attempt + 1, tried=tried)
             continue
         # Ready first, then aim: the key follows the pointer at once, on the Defiler as it stands.
         run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5)
@@ -350,9 +382,17 @@ def consume(run: Run, defiler: Monster) -> None:
         if not untouched or all(m.unit_id != defiler.unit_id for m in defilers(world)):
             raise Abort('Consume: not seen in 2.5s')  # something happened, and not what was meant
         missed = True
+        target = next((m for m in defilers(world) if m.unit_id == defiler.unit_id), None)
+        over = townsfolk_over(world, target.x, target.y) if target is not None else []
+        if over and attempt + 1 < CONSUME_ATTEMPTS:
+            LOG.info(
+                'Macro: Consume showed nothing, a townsperson (class %d) %.1f from the Defiler: another is summoned',
+                over[0].txt_id, math.hypot(over[0].x - defiler.x, over[0].y - defiler.y),
+            )  # fmt: skip
+            defiler = summon_defiler(run, skip=attempt + 1, tried=tried)
     if missed:
-        raise Abort(f'Consume: not seen in 2.5s, {CONSUME_ATTEMPTS} times over')
-    raise Abort('something stays too close to the Defiler, or it keeps walking; Consume was not pressed')
+        raise Unconsumed(f'Consume: not seen in 2.5s, {CONSUME_ATTEMPTS} times over')
+    raise Unconsumed('something stays too close to the Defiler, or it keeps walking; Consume was not pressed')
 
 
 def log_consume(run: Run, when: str) -> None:
@@ -374,7 +414,17 @@ def defiler_dance(cast: Casting) -> Tried:
         fresh.finish()
     else:
         defiler = in_view(run) or summon_defiler(run)
-    consume(run, defiler)
+    try:
+        consume(run, defiler)
+    except Unconsumed as stop:
+        if run.stops(stop):
+            raise
+        # The prebuff goes on without it: attack mode casts it in the field (buffs.py `consume_due`). 22:35:13 on
+        # 2026-10-19: the game was left for it (~15 s)
+        LOG.info('Macro: prebuff: no Consume (%s): the prebuff goes on without it; attack mode casts it later', stop)
+        if not defilers(run.world()):
+            summon_defiler(run)
+        return Tried(run.clock())
     log_consume(run, 'after')
     if not defilers(run.world()):
         summon_defiler(run)
@@ -386,7 +436,8 @@ def renew_consume(run: Run) -> None:
     buff right now"): a Defiler summoned for it is the one consumed, and another is summoned after. Not the standing
     one: it follows the character with the bound demon beside it."""
     take_prebuff_weapons(run)
-    consume(run, summon_defiler(run))
+    tried: list[tuple[float, float]] = []
+    consume(run, summon_defiler(run, tried=tried), tried)
     if not defilers(run.world()):
         summon_defiler(run)
 

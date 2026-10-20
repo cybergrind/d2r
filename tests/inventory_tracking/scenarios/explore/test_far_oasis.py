@@ -12,6 +12,10 @@ them 53/90 against 46/96):
 | its north-west            | 52 hops, 89      | 49, 96   |
 
 The nearest-room rule never saw the rooms no teleport lands in; the tour stands beside them.
+
+2026-10-19: a stop's tile lies past PLACE_NEAR from the character (hunt.py `frontier`): live, a tile within it of a
+room's edge is "arrived" from the room beside it and the room is never entered (rca/2026-10-19/tz-leveling-findings.md
+C1). This replay always hops, so it never showed that; the deeper tiles cost it two hops (49 to 51).
 """
 
 from functools import cache
@@ -34,10 +38,10 @@ def explored(rule: str) -> tuple[int, int, int]:
 def test_the_tour_sees_every_room():
     hops, seen, rooms = explored('tour')
     assert (seen, rooms) == (96, 96)
-    assert hops <= 49
+    assert hops <= 51
 
 
-def test_the_tour_takes_a_fifth_fewer_hops_than_the_nearest_room_and_sees_more():
+def test_the_tour_takes_a_sixth_fewer_hops_than_the_nearest_room_and_sees_more():
     nearest, seen, _ = explored('nearest')
     assert seen == 89
-    assert explored('tour')[0] <= 0.8 * nearest
+    assert explored('tour')[0] <= 0.83 * nearest

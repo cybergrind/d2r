@@ -22,10 +22,11 @@ class Remedy(StrEnum):
     LEAVE = 'leave'
     FIGHT = 'fight back'  # beset otherwise: the attacker fought, then the valuables fetched, the game not left
     AGAIN = 'again'  # the player's hand: the leg is made again, the game not left
-    STOP = 'stop'  # the loop stops where it is (a keeper no stash page takes)
+    STOP = 'stop'  # the loop stops where it is (a keeper no stash page takes, nothing to play)
     FETCH = 'fetch'  # a valuable left for a cause other than room: the leg made again, once a game
     CUBE = 'cube'  # the loop's items into the cube for a valuable with no room, once a game
-    TZ_TRIP = 'tz trip'  # a terror zone kind: the room package onto the agenda (macros/tzloop.py `trip`)
+    # The room package onto the agenda (macros/tzloop.py `trip`): the terror zone kinds and Lower Kurast
+    PACKAGE = 'package'
     TRIP = 'trip'  # a trip to town for room and back through the portal (macros/loop.py TRIP)
     DROP = 'drop'  # one of the loop's items to identify dropped for it, once a game
     HOLD = 'hold'  # a valuable on the ground and nothing left to try: the loop stops here, never leaves it
@@ -45,7 +46,7 @@ class Stopped:
     cubed: bool = False  # room was made in the cube in this game already (`Loop.room_tried`)
     dropped: bool = False  # an item was dropped for room in this game already (`Loop.dropped`)
     trips: bool = False  # the kind trips to town for room and may now (Andariel: `Loop.may_trip`, carrying)
-    tz_trips: bool = False  # a terror zone kind that may trip now, its level known (`tz_trip`)
+    packaged: bool = False  # a kind tripping by the room package (loop.py `Kind.packaged`) may now, its level known
 
 
 @dataclass(frozen=True)
@@ -58,15 +59,19 @@ class Beset:
     left: str | None = None  # the valuable on the ground (runner.py `valuable_left`)
 
 
+# Game creations failed in a row (`first`, cause 'lobby') that stop the loop
+LOBBY_STOPS = 2
+
+
 def low_life(life: tuple[int, int] | None) -> bool:
     """Whether `life` (points, maximum) is under the healer's critical floor (config.py `HEAL_PRIORITY.floor`, the
     macro's life budget's too); unread counts as low."""
     return life is None or life[1] <= 0 or life[0] < HEAL_PRIORITY.floor / 100 * life[1]
 
 
-def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None) -> Remedy | None:
-    """The rules before the Gheed's swap: by the cause, and a 'beset' stop's `beset` facts. None: the swap, then
-    `decide`."""
+def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None, lobby_fails: int = 0) -> Remedy | None:
+    """The rules before the Gheed's swap: by the cause, and a 'beset' stop's `beset` facts. `lobby_fails`: the game
+    creations failed in a row, this one counted. None: the swap, then `decide`."""
     if dead:
         # The player, 2026-10-19: "if we died - we MUST not take ANY other actions, no reviving, no save/exits"
         return Remedy.DEAD
@@ -84,6 +89,19 @@ def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None) -> 
     if on and cause == 'stash':
         # The player, 2026-10-18 16:50: "if stash is full - we need to stop loop"
         return Remedy.STOP
+    if on and cause == 'zone':
+        # A terror zone the loop cannot play (Moo Moo Farm): the game is left and the next zone waited for in the lobby
+        # (tzloop.py `zone_wait`), the loop on. Stopped, it stood 30 min until someone looked (03:30:20 on 2026-10-20)
+        return Remedy.LEAVE
+    if on and cause == 'lobby':
+        # A game creation failed: once is tried again (a one-off, 13:02 on 2026-10-18). Again is no lobby: Battle.net
+        # dropped the client to the character screen (05:35:30 on 2026-10-20, the Offline tab), where the lobby's
+        # clicks and keys went for 5 min. The player reconnects
+        return Remedy.STOP if lobby_fails >= LOBBY_STOPS else Remedy.LEAVE
+    if on and cause == 'idle':
+        # Nothing to play: a game made and left again and again (Battle.net limits game creation). The player,
+        # 2026-10-19: "we need to make sure that we don't stuck or die"
+        return Remedy.STOP
     return None
 
 
@@ -97,8 +115,8 @@ def decide(stop: Stopped) -> Remedy:
     if left is not None and game is not None and not stop.cubed:
         return Remedy.CUBE
     if roomy and left is not None and game is not None:
-        if stop.tz_trips:
-            return Remedy.TZ_TRIP
+        if stop.packaged:
+            return Remedy.PACKAGE
         if stop.trips:
             # The player, 2026-10-18 16:50: "one game can do several trips to the town"
             return Remedy.TRIP

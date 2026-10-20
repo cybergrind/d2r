@@ -90,7 +90,8 @@ class ModeBeacon:
     """The mode line: attack mode on/off (user, 2026-10-13: "we need to see some indicator when auto-attack is
     enabled or not on overlay"), the full-clear run mode (macros/runmode.py `badge`), the input mode (kbd, pad, a
     flip under way) and, on a pad, the button legend. Terse words, no sentences (the player, 2026-10-14).
-    Republished inside the lease and on any change; empty out of a game. `state()` -> (in a game, attack on)."""
+    Republished inside the lease and on any change; empty out of a game. `state()` -> (in a game, a mode on: attack or
+    buff mode)."""
 
     INTERVAL = LEASE_SECONDS / 3
 
@@ -111,10 +112,11 @@ class ModeBeacon:
         if not in_game:
             self.publish([])
             return
-        text = ' · '.join(part for part in ('ATTACK ON' if on else 'attack off', run, label) if part)
-        lines = [StyledLine(text, Tone.SET if on else Tone.METADATA)]
+        # The macro's line (runner.py `run_badge`), then the input mode only when it is not the keyboard
+        text = ' '.join(part for part in (run or ('ATT' if on else ''), label if label != 'kbd' else None) if part)
+        lines = [StyledLine(text, Tone.SET if on else Tone.METADATA)] if text else []
         lines += [StyledLine(line, Tone.METADATA) for line in legend]
-        self.publish([Widget('mode', 'text', 'mode', card_payload(lines))])
+        self.publish([Widget('mode', 'text', 'mode', card_payload(lines))] if lines else [])
 
 
 @contextmanager

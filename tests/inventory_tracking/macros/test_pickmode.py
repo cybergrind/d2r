@@ -7,14 +7,12 @@ from inventory_tracking.game.records import GOLD, HEALING, VALUABLE, Drop, Loot,
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.pickmode import (
     MODES,
-    REGULAR,
+    MOST,
     SURE,
-    TRADE,
     is_candidate,
     kept,
     next_mode,
     sure,
-    traded,
 )
 
 
@@ -70,18 +68,16 @@ def test_the_rest_the_regular_pickup_takes_is_left_and_the_supplies_stay():
 def test_the_mode_keeps_or_filters_and_a_double_press_goes_round():
     blade, rune = drop('Phase Blade', source='shown', quality=4), drop('Ist Rune', source='rune')
     loot = Loot(drops=(blade, rune))
-    assert kept(loot, REGULAR) == loot
+    assert kept(loot, MOST) == loot
     assert kept(loot, SURE).drops == (rune,)
-    assert kept(loot, TRADE).drops == (rune,)
-    assert MODES[0] == SURE
-    assert next_mode(SURE) == TRADE
-    assert next_mode(TRADE) == REGULAR
-    assert next_mode(REGULAR) == SURE
+    assert MODES == (SURE, MOST)  # GOOD (the default) and MOST; the trade goods' level dropped (2026-10-19)
+    assert next_mode(SURE) == MOST
+    assert next_mode(MOST) == SURE
 
 
-def test_the_trade_goods_are_taken_in_the_trade_mode_only():
+def test_the_trade_goods_are_taken_at_most_only():
     # The player, 2026-10-18: "move things that we're added for gold trades (to repair our staff charges) into separate
-    # category ... and use sure for valuable things or small things"
+    # category ... and use sure for valuable things or small things"; their own level dropped on 2026-10-19
     grimoire = drop('Possessed Compendium', source='shown', quality=4)
     claws = drop('Greater Claws', source='shown', quality=6)
     rune = drop('Ist Rune', source='rune')
@@ -89,12 +85,11 @@ def test_the_trade_goods_are_taken_in_the_trade_mode_only():
     for good in (grimoire, claws):
         assert is_candidate(good)
         assert not sure(good)
-        assert traded(good)
     assert sure(kriss)  # a base kept by its rolls is a valuable: no identify, no sale for gold
     assert sure(drop('Small Charm', quality=4))  # small things stay
     loot = Loot(drops=(grimoire, rune, kriss, claws))
     assert kept(loot, SURE).drops == (rune, kriss)
-    assert kept(loot, TRADE).drops == loot.drops
+    assert kept(loot, MOST).drops == loot.drops
 
 
 def test_the_ground_census_says_what_an_item_is_and_whether_a_rule_takes_it():
@@ -152,8 +147,8 @@ def test_the_candidates_for_an_identify_are_skilled_magic_or_rare_items_the_filt
     assert not is_candidate(drop('Phase Blade', source='shown', quality=4))  # no skills to roll
     assert not is_candidate(drop('Gauntlets', source='named', quality=5, prized=True))  # a set: a valuable, kept
     loot = Loot(drops=(drop('Kriss', source='shown', quality=4),))
-    assert kept(loot, TRADE) == loot
-    assert kept(loot, SURE).drops == ()  # a trade good: the trade mode's (2026-10-18)
+    assert kept(loot, MOST) == loot
+    assert kept(loot, SURE).drops == ()  # a trade good: MOST's
 
 
 def test_a_monarch_or_a_sacred_targe_is_taken_by_the_rolls_that_sell():

@@ -19,7 +19,7 @@ from dataclasses import replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.evidence import evidence_record
-from inventory_tracking.levels.exits import guide_level, passage_of
+from inventory_tracking.levels.exits import guide_level, passage_of, poi_area
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map, centre
 from inventory_tracking.levels.map_card import KIND_TONES
@@ -474,8 +474,8 @@ class LevelGuide:
         # (Crystalline Passage to Frozen River, 2026-10-19 09:32:49).
         warp = (poi.kind in WAYS_OUT or poi.entrance) and poi.spot is not None
         area, mark = snapshot.location.area_id, place(poi)
-        passage = passage_of(area, snapshot.rooms, poi, mark)
-        into = poi.area if passage is not None else None
+        passage = passage_of(area, snapshot.rooms, poi, mark, self._ground())
+        into = poi_area(poi) if passage is not None else None
         return Target(area, snapshot.rooms, mark, poi.label, poi.kind, warp, self._ground(), poi.use, passage, into)
 
     def target(self) -> Target | None:

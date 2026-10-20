@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.automation.priority import reserve
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
+from inventory_tracking.game.layout import STRIKING_MODES
 from inventory_tracking.game.records import (
     HEALING,
     REJUVENATION,
@@ -31,6 +32,8 @@ from inventory_tracking.macros.agenda import (
     ON_THE_WAY,
     OPEN,
     PICKUP as SIDE,
+    TRANSIT,
+    ZONE_LEFT,
     Leader,
     LevelView,
     Objective,
@@ -44,6 +47,8 @@ from inventory_tracking.macros.goals import (
     PICK_NEAR,
     PICK_REACH,
     PICK_UP,
+    PLACE_NEAR,
+    REACH,
     USE_NEAR,
     WAIT,
     Goal,
@@ -56,9 +61,11 @@ from inventory_tracking.macros.goals import (
 )
 from inventory_tracking.macros.hunting.base import (
     ALONE_BOSS_UNITS,
+    ARRIVED_SECONDS,
     BLOCK_SECONDS,
     CLEAR_SECONDS,
     DECIDE_SECONDS,
+    ENGAGE_STRIKERS,
     FAR_JUDGED,
     GATHER_CLEAR,
     JUDGE_GAP,
@@ -331,34 +338,85 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
     return None
 
 
-def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: Sequence[Monster] = ()) -> Drop | None:
+def stay_by(
+    self: Hunter,
+    run: Run,
+    here: Point,
+    *,
+    wanted: bool = True,
+    foes: Sequence[Monster] = (),
+    world: World | None = None,
+) -> Drop | None:
     """A wanted valuable within PICK_NEAR with no room for it: the run stands by it (goals.py `WAIT`; the player,
     2026-10-13: "when valuable doesn't fit: we need to stop near it"). Not equipment taken only because the filter
     shows it ("allow moving when the item isn't very valuable", 2026-10-12), but a shown unique or set item, yes
     (2026-10-14); not one a press went on from (`waived`). The card warns meanwhile. Not `wanted`: only the warning
-    is taken back."""
+    is taken back. Out of the KP_6 loop, while a trip could be made (`trips_by_hand`), the shared no-room routine
+    (`no_room`: the cube, then a trip) stands by what a trip is made for too (lootpolicy.py `trip_for`; the player,
+    2026-10-19: "EVERY loop and activity should have the same routines"); the cube is tried for the rest. The loop's
+    stand is its stops' (runner.py `poll`)."""
     loot = unshunned(run.loot(), run.clock()) if run.loot is not None and wanted else None
     found = None
+    quiet = all(math.dist(here, (m.x, m.y)) > QUIET_UNITS for m in foes)
+    hand = loot is not None and self.trips_by_hand(run)
     if loot is not None:
         near = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= PICK_NEAR]
+        roomless = [d for d in near if not has_room(loot.room, d.size) and d.unit_id not in self.waived]
         left = [
             d for d in near
             if lootpolicy.verdict(
                 d, lootpolicy.RUN, room=has_room(loot.room, d.size), shown=d.unit_id in loot.shown,
                 given_up=d.unit_id in self.waived,
             ).hold
+            or (hand and d in roomless and lootpolicy.trip_for(d, shown=d.unit_id in loot.shown))
         ]  # fmt: skip
         found = min(left, key=lambda d: math.dist(here, (d.x, d.y))) if left else None
-    if found is None:
+        if found is None and not self.looping() and roomless:
+            # An identify candidate or shown gear the run goes on from: the cube still makes its room once
+            other = min(roomless, key=lambda d: math.dist(here, (d.x, d.y)))
+            self.no_room(run, world, other, loot, quiet=quiet, trip=False)
+    if found is None or loot is None:
         if self.warned is not None:
             self.warned = None
             run.warn(None)
         return None
-    cube = loot is not None and loot.cube is not None and has_room(loot.cube, found.size)
-    quiet = all(math.dist(here, (m.x, m.y)) > QUIET_UNITS for m in foes)
-    cube_unread = loot is not None and loot.cube is None
-    if (cube or cube_unread) and quiet and self.room_maker is not None and self.room_tried != found.unit_id:
-        # "if we have cube space - we should move items there" (the player, 2026-10-17): the next look takes it
+    if self.no_room(run, world, found, loot, quiet=quiet):
+        if self.warned is not None:
+            self.warned = None
+            run.warn(None)
+        return None
+    if self.warned != found.unit_id:
+        self.warned = found.unit_id
+        cube = loot.cube is not None and has_room(loot.cube, found.size)
+        told = ' (the cube has room for it)' if cube else ''
+        LOG.info(
+            'Macro: pursuit: the inventory has no room for %s at (%.0f, %.0f), %.0f away: the run stands by it%s',
+            found.label, found.x, found.y, math.dist(here, (found.x, found.y)), told,
+        )  # fmt: skip
+        run.stand_by(f'Inventory full: {found.label} here — make room{told}')
+    return found
+
+
+def trips_by_hand(self: Hunter, run: Run) -> bool:
+    """Whether the hunt by hand holds what the shared no-room routine makes a trip for (lootpolicy.py `trip_for`):
+    the KP_6 loop off, mouse mode, and a trip possible in this game (the runner's `can_trip`). Without one the sites'
+    own rules stand: shown gear and plain valuables are gone on from, as the player ruled when no trip followed a
+    stand (2026-10-12: "allow moving when the item isn't very valuable"; 2026-10-18: "moved on from by hand")."""
+    return not self.looping() and run.pad is None and self.can_trip is not None and self.can_trip()
+
+
+def no_room(
+    self: Hunter, run: Run, world: World | None, found: Drop, loot: Loot, *, quiet: bool, trip: bool = True
+) -> bool:
+    """The shared no-room routine's first steps for `found`, a valuable with no inventory room (macros/running/room.py),
+    only in the quiet: the cube once a drop (`room_maker`: the loop's items by the protected cells, never the
+    player's; "if we have cube space - we should move items there", the player, 2026-10-17), then, with the cube tried
+    or full and `trip`, the trip's ask (`room_trip`: an activity by hand; it cancels the run when due). Whether room
+    was made in the cube: the next look takes it."""
+    if not quiet:
+        return False
+    cube = loot.cube is not None and has_room(loot.cube, found.size)
+    if (cube or loot.cube is None) and self.room_maker is not None and self.room_tried != found.unit_id:
         self.room_tried = found.unit_id
         try:
             moved = self.room_maker(run)
@@ -369,19 +427,11 @@ def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: S
             moved = 0
         if moved:
             LOG.info('Macro: pursuit: %d items into the cube: room for %s', moved, found.label)
-            if self.warned is not None:
-                self.warned = None
-                run.warn(None)
-            return None
-    if self.warned != found.unit_id:
-        self.warned = found.unit_id
-        told = ' (the cube has room for it)' if cube else ''
-        LOG.info(
-            'Macro: pursuit: the inventory has no room for %s at (%.0f, %.0f), %.0f away: the run stands by it%s',
-            found.label, found.x, found.y, math.dist(here, (found.x, found.y)), told,
-        )  # fmt: skip
-        run.stand_by(f'Inventory full: {found.label} here — make room{told}')
-    return found
+            return True
+    tried = self.room_tried == found.unit_id or not (cube or loot.cube is None)
+    if trip and tried and self.room_trip is not None:
+        self.room_trip(run, found, world if world is not None else run.world(), loot)
+    return False
 
 
 def shack_goal(self: Hunter, run: Run, world: World, player, route: str) -> Goal | None:
@@ -452,6 +502,9 @@ def blockers(self: Hunter, goal: Goal | None, foes: Sequence[Monster], now: floa
     return found
 
 
+UNEXPLORED = 'an unexplored room'  # what a tour stop is called (`next_room`, `elsewhere`)
+
+
 def goal(
     self: Hunter, run: Run, world: World, foes: list[Monster], pressed: bool, posted: Pursuit | None
 ) -> Goal | None:
@@ -466,6 +519,17 @@ def goal(
     card = bearings.card() if bearings.card is not None else None
     if card is not None and card.area != area:
         card = None  # the card is still the level just left
+    if (
+        card is not None
+        and staged is None
+        and posted is not None
+        and posted.agenda
+        and not (pressed and posted.advance)
+    ):
+        # A terror zone run with no route stage here (a pending red portal, a `clear`): the card's first mark is
+        # another level's door, no goal of the zone's (21:05:44 on 2026-10-19: "Ancients' Way" on the Frozen
+        # Tundra; rca/2026-10-19/tz-coverage-findings.md F2). The player's own teleport press keeps it.
+        card = None
     drop = side = stay = None
     if pressed and posted is not None and posted.advance:
         if self.stopped_for[0] != posted.pressed_at:
@@ -473,7 +537,7 @@ def goal(
         drop = self.stopped_for[1]
     elif running:
         side = self.side_drop(run, here, foes, world)
-        stay = self.stay_by(run, here, wanted=side is None, foes=foes)
+        stay = self.stay_by(run, here, wanted=side is None, foes=foes, world=world)
     elif self.pursuing and not pressed:
         # Attack mode's own goal: a restock potion first
         side = self.side_drop(run, here, foes, world, restocking=True)
@@ -520,6 +584,37 @@ def goal(
         side=side,
         stay=stay,
     )
+    if (
+        found is not None
+        and staged is not None
+        and staged[1].mark
+        and found.stage is None
+        and found.mark is not None
+        and found.mark.label != staged[1].mark
+        and posted is not None
+        and posted.agenda
+        and not (pressed and posted.advance)
+    ):
+        # A terror zone run whose stage's way out is not on the card yet: the card's first mark is another level's
+        # door (01:01:26 on 2026-10-20, Lost City: "at Ancient Tunnels (Valley of Snakes is not marked yet)" again
+        # and again, the game left). The nearest unexplored room instead, where the way out comes in sight
+        level, rect = self.known_level(player), run.actuator.keys.focused_window_rect()
+        frontier = self.frontier(level, player, rect) if level is not None and rect is not None else None
+        if frontier is None:
+            found = None
+        else:
+            _, _, (x, y) = frontier
+            place = ((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS)
+            label = f'seek {staged[1].mark} (not marked yet): an unexplored room'
+            found = Goal(label, place, REACH, PLACE_NEAR, found.spend, known=False, route=staged[0], clearing=True)
+    if (
+        found is not None
+        and found.do == FIGHT
+        and found.unit is None
+        and found.stage is not None
+        and (world.game_name, area, found.stage.boss) in self.marks_empty
+    ):
+        found = None  # its boss was not by its place (judging.py `empty_mark`): the level is explored or the run ends
     if opens is not None and not self.at_hand(found, player, world):
         found = opens
     missed = self.missed
@@ -648,11 +743,31 @@ def agenda_cleared(
         # `clearing`: on a level with no route a plain fight goal ended the run (Great Marsh, 2026-10-19 09:01:51)
         return replace(first_fight(found, here, [guard], self.reach), clearing=True)
     spend = found.spend if found is not None else PRESSED
-    everyone = self.agenda_policy is not None and self.agenda_policy(area) == FULL_CLEAR
+    policy = self.agenda_policy(area) if self.agenda_policy is not None else None
+    if policy == ZONE_LEFT:
+        if self.zone_left != (world.game_name, area):
+            self.zone_left = (world.game_name, area)
+            LOG.info('Macro: run: %s is no longer terrorized: the level run ends', display_name(area))
+        return None
+    everyone, crossed = policy == FULL_CLEAR, policy == TRANSIT
     things = run.things() if run.things is not None else ()  # read once a look
 
+    # The route's next object on this level (a seal, a chest; not a portal): beside the character it goes before a
+    # farther room (agenda.py USE_FIRST)
+    use_at = (
+        found.place
+        if found is not None
+        and found.do == USE
+        and found.stage is not None
+        and found.stage.kind == USE
+        and not found.stage.to
+        and not found.stage.pending
+        and not (found.mark is not None and found.mark.warp)
+        else None
+    )
+
     def candidate(skip: frozenset[object]) -> Goal | None:
-        target = self.agenda_target(run, world, foes, here, skip, rooms, None, things)
+        target = self.agenda_target(run, world, foes, here, skip, rooms, None, things, use_at)
         if target is None:
             base = found
         elif target.kind == OPEN:
@@ -663,7 +778,15 @@ def agenda_cleared(
             base = rest_of_level((target.place, target.label, unit), found, self.reach, spend)
         if base is None or (base is found and found is not None and found.do == FIGHT):
             return base
-        near = self._on_the_way(world, ground, foes, here, skip, lambda m: bool(everyone or m.leader or m.tier))
+        # A level only crossed (TRANSIT) fights nothing on its way but what strikes at the party
+        near = (
+            []
+            if crossed
+            else self._on_the_way(world, ground, foes, here, skip, lambda m: bool(everyone or m.leader or m.tier))
+        )
+        if not near and (ENGAGE_STRIKERS or crossed):
+            # What strikes at the party is met, not waited for (ENGAGE_STRIKERS)
+            near = self._on_the_way(world, ground, foes, here, skip, lambda m: m.mode in STRIKING_MODES)
         return clear_way(base, here, near, self.reach) if near else base
 
     return self._clear_through(candidate, run, world, ground, rooms, found, now)
@@ -679,9 +802,11 @@ def agenda_target(
     rooms: Sequence[Room],
     side: Objective | None,
     things: Sequence[Thing] = (),
+    use_at: Point | None = None,
 ) -> Objective | None:
     """The agenda's next target on this level (agenda.py `Agenda.in_level`) from what this look knows: leaders,
-    hostiles, omens, the side drop, super chests, the next unexplored room (lazily), the goals passed."""
+    hostiles, omens, the side drop, super chests, the next unexplored room (lazily), the goals passed, the route's
+    next object (`use_at`)."""
     agenda, player = self.agenda, world.player
     assert agenda is not None
     assert player is not None
@@ -719,6 +844,7 @@ def agenda_target(
         lambda place, unit: passing_key(place, unit, rooms) in out or (unit is not None and unit in out),
         OMEN_NEAR,
         *self.agenda_chests(things),
+        use_at=use_at,
     )
     target = agenda.in_level(view)
     said = (target.kind, target.unit, target.label) if target is not None else None
@@ -743,6 +869,8 @@ def agenda_chests(self: Hunter, things: Sequence[Thing]) -> tuple[tuple[tuple[in
             spent.add(thing.unit_id)
         elif thing.selectable is not False:
             closed.append((thing.unit_id, (thing.x, thing.y)))
+    # Tried out though out of sight: a goal's unit the client has since named anew is left all the same
+    spent.update(unit for unit, tries in self.shack_tries.items() if tries >= SUPER_TRIES)
     return tuple(closed), frozenset(spent)
 
 
@@ -798,8 +926,8 @@ def goes_on(
     self: Hunter, run: Run, world: World, ground: Ground, goal: Goal, rooms: Sequence[Room], now: float
 ) -> bool:
     """Whether a clearing goal is still gone for: False (and passed) after CLEAR_SECONDS with no strike and no eta
-    progress of PROGRESS_SECONDS. The eta is asked once in PROGRESS_LOOK and before a pass (a cold field is costly:
-    rca/2026-10-14/run-2040-findings.md)."""
+    progress of PROGRESS_SECONDS, ARRIVED_SECONDS once a place goal is reached. The eta is asked once in PROGRESS_LOOK
+    and before a pass (a cold field is costly: rca/2026-10-14/run-2040-findings.md)."""
     key = passing_key(goal.place, goal.unit, rooms)
     judging = self.judging.get(key)
     if judging is None:
@@ -822,9 +950,19 @@ def goes_on(
         if eta <= judging.best - PROGRESS_SECONDS:
             judging.idle, judging.best = 0.0, eta
             return True
-    if judging.idle <= CLEAR_SECONDS:
+    player = world.player
+    # A room's stop stood at with nothing struck shows nothing more: ARRIVED_SECONDS, not CLEAR_SECONDS (10 s by
+    # hostiles at 21:05:24 and 22:00:32 on 2026-10-19; rca/2026-10-19/tz-leveling-findings.md C1)
+    # Not a Herald's stand, which is waited at
+    at = goal.label.endswith(UNEXPLORED) and player is not None and goal.gap((player.x, player.y)) <= goal.near
+    if judging.idle <= (ARRIVED_SECONDS if at else CLEAR_SECONDS):
         return True
-    self.pass_by(goal, f'no strike and no progress by the way in {CLEAR_SECONDS:.0f} s on the way to it', now, rooms)
+    why = (
+        f'stood at it {ARRIVED_SECONDS:.0f} s with no strike'
+        if at
+        else f'no strike and no progress by the way in {CLEAR_SECONDS:.0f} s on the way to it'
+    )
+    self.pass_by(goal, why, now, rooms)
     return False
 
 
@@ -886,6 +1024,7 @@ def pass_by(self: Hunter, goal: Goal, why: str, now: float, rooms: Sequence[Room
     key = passing_key(goal.place, goal.unit, rooms)
     self.passed[key] = now + PASS_SECONDS
     self.judging.pop(key, None)
+    self.rest = None  # the tour's next stop is looked for again (`next_room`)
     LOG.info('Macro: run: passing %s at (%.0f, %.0f): %s', goal.label, *goal.place, why)
 
 
@@ -941,18 +1080,29 @@ def rest_of(
 
 
 def next_room(self: Hunter, run: Run, player, area: int, now: float) -> tuple[Point, str, int | None] | None:
-    """The first stop of the tour of the rooms not explored yet (`frontier`), looked for once in REST_SECONDS."""
+    """The first stop of the tour of the rooms not explored yet (`frontier`) that is not passed, looked for once in
+    REST_SECONDS (a pass looks again, `pass_by`)."""
     cached = self.rest
     if cached is not None and cached[1] == area and now - cached[0] < REST_SECONDS:
         room = cached[2]
     else:
         level, rect = self.known_level(player), run.actuator.keys.focused_window_rect()
-        stop = self.frontier(level, player, rect) if level is not None and rect is not None else None
+        rooms = level.rooms if level is not None else ()
+
+        def passed(place: Point) -> bool:
+            return passing_key(place, None, rooms) in self.passed
+
+        kept = self.stop_kept[1] if self.stop_kept is not None and self.stop_kept[0] == area else None
+        stop = self.frontier(level, player, rect, passed, kept) if level is not None and rect is not None else None
         room = None
+        self.stop_kept = None
         if stop is not None:
-            _, _, (x, y) = stop
+            _, chosen, (x, y) = stop
             room = ((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS), 'an unexplored room', None
-        self.rest = (now, area, room)
+            self.stop_kept = (area, (chosen.x, chosen.y, chosen.width, chosen.height))
+        # None is not kept: a look with no stop (no window, the card not up) ended the run on the next looks
+        # (rca/2026-10-19/tz-coverage-findings.md item 5)
+        self.rest = (now, area, room) if room is not None else None
     return room
 
 

@@ -90,9 +90,9 @@ def stored(start: float | None = START) -> Situation:
 def variants() -> list[tuple[str, Situation, list | None]]:
     near, portal = stored().variant(attack=True), stored(None)
     return [
-        ('attack mode alone: today', near, []),
+        ('attack mode alone: today', near.logic('today'), []),
         ('attack mode alone: new', near.logic('new'), []),
-        ('from the portal, KP_1 once: today', portal, [once('pickup', 0.2)]),
+        ('from the portal, KP_1 once: today', portal.logic('today'), [once('pickup', 0.2)]),
         ('from the portal, KP_1 once: new', portal.logic('new'), [once('pickup', 0.2)]),
     ]
 

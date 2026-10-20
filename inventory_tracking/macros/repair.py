@@ -61,8 +61,9 @@ TOOLTIP_SECONDS = 0.6  # for the button's tooltip to show
 TOOLTIP_BAND = (720, 90)  # screen pixels: the band read for the cost, across the pointer
 TOOLTIP_ABOVE = 100  # its top over the pointer (the tooltip's line is 30 to 65 over it)
 PAGE_MODES = ('7', '6', '13')  # tesseract page modes in turn: a line alone missed costs a block (6) read
-# English data for tesseract: the system's has none
-TESSDATA = Path(__file__).resolve().parents[2] / 'tmp' / 'item-ocr' / 'tessdata'
+# English data for tesseract: the system's has none. Kept with the pricing cache, not under tmp/: tmp/ deleted took
+# the copy there, and the repair at 01:58:53 on 2026-10-20 read no cost
+TESSDATA = Path(__file__).resolve().parents[2] / 'pricing' / 'raw' / 'ocr' / 'tessdata'
 QUOTE_FILE = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'repair-quote.txt'
 STASH_TOUCHED = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'repair-touched-stash.txt'
 

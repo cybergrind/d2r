@@ -12,11 +12,20 @@ import math
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import replace
+from functools import lru_cache
 
 from inventory_tracking.levels.handler import Handler, instances
-from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
-from inventory_tracking.levels.presets import display_name, linked_level, open_passage, warp_spots, waypoint_spot
+from inventory_tracking.levels.model import Ground, Guidance, LevelSnapshot, Poi, Room, Walkable
+from inventory_tracking.levels.presets import (
+    DISPLAY_NAMES,
+    display_name,
+    linked_level,
+    open_passage,
+    warp_spots,
+    waypoint_spot,
+)
 from inventory_tracking.levels.spots import WAYS_OUT
+from inventory_tracking.native.layout import TILE_UNITS
 
 
 # Town -> the levels worth an arrow from it: the first wilderness level of its act.
@@ -76,14 +85,13 @@ def border_exits(snapshot: LevelSnapshot, skip: Iterable[int] = ()) -> tuple[Poi
 PASSAGE_PAST = 1.0
 INWARD_STEP = 0.25  # tiles: the walk along a border room toward its edge, when the mark is inside the level
 INWARD_LIMIT = 200.0  # tiles: no room is that long
+EDGE_SNAP = 24.0  # tiles (three rooms): how far along the level's edge a border mark goes to its open tile
 
 
-def outward(rooms: tuple[Room, ...], to: int) -> tuple[int, int] | None:
-    """The axis direction from the middle of the level's rooms to the middle of those touching `to`; None
-    while no room is known to touch it."""
-    edge = [room for room in rooms if to in room.leads_to]
-    if not edge:
-        return None
+def outward(rooms: tuple[Room, ...], to: int, mark: tuple[float, float] | None = None) -> tuple[int, int] | None:
+    """The axis direction from the middle of the level's rooms to the middle of those touching `to`, or to `mark`
+    while no room is known to touch it (a handler's mark: Upper Kurast's Kurast Causeway, 2026-10-20 01:36:23, was
+    taken for a door and 'going through takes a press' looped until the game was left); None with neither."""
 
     def middle(found: list[Room] | tuple[Room, ...]) -> tuple[float, float]:
         return (
@@ -91,8 +99,17 @@ def outward(rooms: tuple[Room, ...], to: int) -> tuple[int, int] | None:
             sum(room.y + room.height / 2 for room in found) / len(found),
         )
 
-    (ex, ey), (lx, ly) = middle(edge), middle(rooms)
+    edge = [room for room in rooms if to in room.leads_to]
+    if edge:
+        ex, ey = middle(edge)
+    elif mark is not None:
+        ex, ey = mark
+    else:
+        return None
+    lx, ly = middle(rooms)
     dx, dy = ex - lx, ey - ly
+    if not edge and dx == dy == 0:
+        return None  # a mark at the middle has no side
     if abs(dx) >= abs(dy):
         return (1 if dx > 0 else -1, 0)
     return (0, 1 if dy > 0 else -1)
@@ -104,10 +121,54 @@ def in_rooms(rooms: Iterable[Room], point: tuple[float, float]) -> bool:
     return any(room.x <= x < room.x + room.width and room.y <= y < room.y + room.height for room in rooms)
 
 
-def through(rooms: tuple[Room, ...], mark: tuple[float, float], to: int) -> tuple[float, float] | None:
+def footed(ground: Ground, tile: tuple[int, int]) -> bool:
+    """Whether a hop lands on `tile`'s centre by the read grids: its sub-tile walkable and none a unit around known
+    unwalkable (macros/teleport.py `footing`); False where no grid covers it."""
+    x, y = (tile[0] + 0.5) * TILE_UNITS, (tile[1] + 0.5) * TILE_UNITS
+    if ground.walkable(x, y) is not True:
+        return False
+    return all(ground.walkable(x + dx, y + dy) is not False for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+
+
+@lru_cache(maxsize=16)
+def open_edge(
+    rooms: tuple[Room, ...], grids: tuple[Walkable, ...], mark: tuple[float, float], way: tuple[int, int]
+) -> tuple[float, float] | None:
+    """The centre of the tile nearest `mark` within EDGE_SNAP that lies on the rooms' edge facing `way` (the tile
+    beyond it in no room) and has footing by `grids`; None: none read there."""
+    ground = Ground(grids)
+
+    def gap(room: Room) -> float:
+        nearest = (min(max(mark[0], room.x), room.x + room.width), min(max(mark[1], room.y), room.y + room.height))
+        return math.dist(mark, nearest)
+
+    tiles = {
+        (x, y)
+        for room in rooms
+        if gap(room) <= EDGE_SNAP + 1  # the tiles beyond those within EDGE_SNAP too
+        for x in range(room.x, room.x + room.width)
+        for y in range(room.y, room.y + room.height)
+    }
+    found = [
+        (math.dist(mark, (x + 0.5, y + 0.5)), (x, y))
+        for x, y in tiles
+        if (x + way[0], y + way[1]) not in tiles
+        and math.dist(mark, (x + 0.5, y + 0.5)) <= EDGE_SNAP
+        and footed(ground, (x, y))
+    ]
+    if not found:
+        return None
+    x, y = min(found)[1]
+    return (x + 0.5, y + 0.5)
+
+
+def through(
+    rooms: tuple[Room, ...], mark: tuple[float, float], to: int, grids: tuple[Walkable, ...] = ()
+) -> tuple[float, float] | None:
     """The far place (tiles) of an open passage into `to` marked at `mark`: PASSAGE_PAST past the rooms' edge.
-    A mark beyond the rooms is approached from their nearest point; one inside walks `outward` to the edge.
-    None: no rooms, or a mark inside and no room known to touch `to`."""
+    A mark beyond the rooms is approached from their nearest point; one inside walks `outward` to the edge, from
+    the open edge tile nearest it when `grids` show one (`open_edge`). None: no rooms, or a mark inside at the
+    rooms' middle with no room known to touch `to`."""
     if not rooms:
         return None
     if not in_rooms(rooms, mark):
@@ -123,9 +184,14 @@ def through(rooms: tuple[Room, ...], mark: tuple[float, float], to: int) -> tupl
         if gap > 1e-6:
             dx, dy = (mark[0] - edge[0]) / gap, (mark[1] - edge[1]) / gap
             return (edge[0] + dx * PASSAGE_PAST, edge[1] + dy * PASSAGE_PAST)
-    way = outward(rooms, to)
+    way = outward(rooms, to, mark)
     if way is None:
         return None
+    if grids:
+        # A border mark sits at a touching room's centre, which may be cliff: straight out from it no hop lands
+        # (Lost City to Valley of Snakes, 2026-10-20 01:01-01:17, five games: the mark in room 379 'Desert Cliff Left
+        # Ends', the canyon 21 tiles west; rca/2026-10-20/valley-of-snakes-findings.md)
+        mark = open_edge(rooms, tuple(grids), mark, way) or mark
     x, y, walked = *mark, 0.0
     while in_rooms(rooms, (x, y)) and walked < INWARD_LIMIT:
         x, y, walked = x + way[0] * INWARD_STEP, y + way[1] * INWARD_STEP, walked + INWARD_STEP
@@ -134,12 +200,34 @@ def through(rooms: tuple[Room, ...], mark: tuple[float, float], to: int) -> tupl
     return (x + way[0] * PASSAGE_PAST, y + way[1] * PASSAGE_PAST)
 
 
-def passage_of(area: int, rooms: tuple[Room, ...], poi: Poi, mark: tuple[float, float]) -> tuple[float, float] | None:
+@lru_cache(maxsize=1)
+def _areas_by_name() -> dict[str, int]:
+    """Level by its shown name (and `short_name`), for the names only one level has."""
+    found: dict[str, set[int]] = defaultdict(set)
+    for area in DISPLAY_NAMES:
+        found[display_name(area)].add(area)
+        found[short_name(area)].add(area)
+    return {name: next(iter(areas)) for name, areas in found.items() if len(areas) == 1}
+
+
+def poi_area(poi: Poi) -> int | None:
+    """The level a way out leads into: its own, else the one its label names. A handler's marks name no level (the
+    Kurast handler's 'Kurast Causeway', 2026-10-20 01:47:26: no level, no passage, taken for a door; 'going through
+    takes a press' looped until the game was left)."""
+    if poi.area is not None or poi.kind not in WAYS_OUT:
+        return poi.area
+    return _areas_by_name().get(poi.label)
+
+
+def passage_of(
+    area: int, rooms: tuple[Room, ...], poi: Poi, mark: tuple[float, float], grids: tuple[Walkable, ...] = ()
+) -> tuple[float, float] | None:
     """`through` for a way out that is an open passage (presets.open_passage); None for a warp, an object
     (`Poi.use`), a mark naming no level, or no way out."""
-    if poi.kind not in WAYS_OUT or poi.area is None or poi.use or not open_passage(area, poi.area):
+    to = poi_area(poi)
+    if poi.kind not in WAYS_OUT or to is None or poi.use or not open_passage(area, to):
         return None
-    return through(rooms, mark, poi.area)
+    return through(rooms, mark, to, grids)
 
 
 def preset_waypoints(snapshot: LevelSnapshot) -> tuple[Poi, ...]:

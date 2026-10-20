@@ -1830,18 +1830,23 @@ def test_the_sweeps_one_look_strides_only_when_nothing_is_in_reach():
     assert hunt.next_step(run, play.world, foes, Ground(()), ASPECT, fighting=True) is None
 
 
-def test_exploring_goes_to_stand_beside_a_room_no_teleport_lands_in():
-    # The last room of the row has no footing at all: it is seen from the room before it.
+def test_exploring_aims_no_stop_at_a_room_of_wall_alone():
+    # The last room of the row has no footing at all: it shows nothing, so the stop is the one that sees the
+    # room before it (2026-10-19: Frozen Tundra's edge columns held the run at the level's edge; before, the tour
+    # stood in ROOMS[3] to see it). With footing in it, the tour still goes to stand beside it.
     ground = tuple(Walkable(room.x, room.y, 8, 8, pack_cells('1' * 1600)) for room in ROOMS[:-1])
-    ground += (Walkable(ROOMS[-1].x, ROOMS[-1].y, 8, 8, pack_cells('0' * 1600)),)
-    play = game()
-    hunt = hunter(play, ground=ground, explored=[(room.x, room.y, 8, 8) for room in ROOMS[:3]])
-    assert hunt.level is not None
-    level = hunt.level()
-    assert level is not None
-    found = hunt.frontier(level, me(play.world), (1920, 0, 2560, 1418))
-    assert found is not None
-    assert found[1] == ROOMS[3]
+    walled = (*ground, Walkable(ROOMS[-1].x, ROOMS[-1].y, 8, 8, pack_cells('0' * 1600)))
+    floored = (*ground, Walkable(ROOMS[-1].x, ROOMS[-1].y, 8, 8, pack_cells('0' * 1599 + '1')))
+    explored = [(room.x, room.y, 8, 8) for room in ROOMS[:3]]
+    for grids, stop in ((walled, ROOMS[2]), (floored, ROOMS[3])):
+        play = game()
+        hunt = hunter(play, ground=grids, explored=explored)
+        assert hunt.level is not None
+        level = hunt.level()
+        assert level is not None
+        found = hunt.frontier(level, me(play.world), (1920, 0, 2560, 1418))
+        assert found is not None
+        assert found[1] == stop
 
 
 # --- what the strikes do nothing to is left alone (user, 2026-10-11: the birds of Far Oasis) ---
@@ -2364,6 +2369,45 @@ def test_the_hold_that_began_a_fight_is_not_judged_again_before_the_strike_is_pr
     assert len(looks) == 2
 
 
+def test_the_act_a_fight_is_let_go_for_is_the_one_the_next_look_makes(monkeypatch):
+    # Game 30 on 2026-10-19: 14 of 228 yields ("the key asks for a move") were followed by the strike again, the next
+    # look's own judgement holding near the commitment line (rca/2026-10-19/game30-run-findings.md S4)
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros.goals import Goal
+    from inventory_tracking.macros.hunting.base import YIELD_FRESH, Judged
+    from inventory_tracking.macros.pursuit import Hold, Move
+    from inventory_tracking.macros.travel import PRESSED
+
+    play = game(foe(10, 5008.0, 5000.0))
+    hunted = hunter(play)
+    monkeypatch.setattr(type(hunted), 'pursuing', property(lambda _self: True))
+    run = play.run()
+    here = me(play.world)
+    goal = Goal('the firing spot', (here.x + 20.0, here.y), 'fight', 4.0, PRESSED)
+    move = Judged(Move(Step(goal.place), goal, 'firing spot'), goal, goal.place)
+    looks, made = [move], []
+    monkeypatch.setattr(hunted, 'judge', lambda *_a, **_k: looks.pop(0))
+    monkeypatch.setattr(hunted, 'advance', lambda _run, _world, _ground, act, place, _keys: made.append(act))
+    monkeypatch.setattr(hunted, 'pursuit', SimpleNamespace(pressed_at=1.0))
+    hunted.judged = (1.0, -10.0, False)
+    assert hunted.key_asks(run, play.world, [], Ground(()))  # the fight lets go for the move
+    looks.append(Judged(Hold(goal), goal, goal.place))  # a fresh judgement would hold now
+    assert hunted.pursue(run, play.world, [], Ground(()), keys, in_reach=True)
+    assert made == [move.act]  # made as judged, not judged again
+    assert len(looks) == 1
+    # Once only, and only while fresh: an old yield is judged again
+    assert hunted.yielded is None
+    looks[:] = [move]
+    hunted.judged = (1.0, -10.0, False)
+    assert hunted.key_asks(run, play.world, [], Ground(()))
+    play.clock.now += YIELD_FRESH + 0.1
+    looks.append(Judged(Hold(goal), goal, goal.place))
+    assert not hunted.pursue(run, play.world, [], Ground(()), keys, in_reach=True)
+    assert made == [move.act]
+    assert not looks
+
+
 def test_the_loops_fight_lets_go_when_its_run_is_over(monkeypatch):
     # 13:26:39-13:26:51 on 2026-10-18: Andariel dead, her pack fought 11.5 s; the run's end now yields the fight (the
     # loop's run only: a level run of the player's hand fights on as before)
@@ -2512,3 +2556,22 @@ def test_no_side_drop_but_a_potion_while_the_runs_boss_is_in_reach(monkeypatch, 
     potion = Drop(83, 5004.0, 5000.0, 'Super Healing Potion', HEALING, txt=SUPER_HEALING)
     play.loot = replace(play.loot, drops=(potion,))
     assert hunt.side_drop(run, here, [her], play.world) == potion
+
+
+def test_a_closed_door_across_a_passages_walk_is_found_and_an_open_one_is_not():
+    # Outer Cloister to the Barracks, 04:00:40 on 2026-10-20 (take 20261020T010037Z-27): the gate, class 24 closed at
+    # (15141, 4802), across the walk from (15140.2, 4804.5) to (15140.0, 4793.8); 'did not move' x9 and the game left
+    from types import SimpleNamespace
+
+    from inventory_tracking.levels.doors import Door
+    from inventory_tracking.macros.hunting.moves import door_across
+    from inventory_tracking.macros.teleport import USES
+
+    gate = Door(3137013020, 24, 0, 15141.0, 4802.0)
+    here, place = (15140.2, 4804.5), (15140.0, 4793.8)
+    assert door_across(SimpleNamespace(doors=(gate,)), here, place) == gate  # type: ignore[arg-type]
+    opened = Door(3137013020, 24, 2, 15141.0, 4802.0)
+    assert door_across(SimpleNamespace(doors=(opened,)), here, place) is None  # type: ignore[arg-type]
+    aside = Door(1, 24, 0, 15180.0, 4802.0)
+    assert door_across(SimpleNamespace(doors=(aside,)), here, place) is None  # type: ignore[arg-type]
+    assert 24 in USES  # clicked open by `use_thing`

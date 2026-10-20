@@ -31,7 +31,7 @@ PREFIXES = {
     'hunt-elites': 'hunt elites ',  # the seek step: one step toward the nearest elite
     'hunt-any': 'hunt any ',  # the attack mode toggle: attack mode on/off
     'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
-    'pad': 'pad ',  # the gamepad experiment: one tap of a virtual pad's button (input/gamepad.py)
+    'pad': 'pad ',  # Loot to Cube: one tap of a virtual pad's button (input/gamepad.py), keypad 7
     'loop': 'loop ',  # the KP_6 loop on/off (macros/loop.py)
     'loop-kind': 'kind ',  # the loop's kind, `loop-kind andariel`: at once with the loop off, else from the next game
 }

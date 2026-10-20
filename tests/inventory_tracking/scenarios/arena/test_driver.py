@@ -70,7 +70,8 @@ def test_a_second_press_of_the_toggle_ends_the_mode():
 
 
 def test_the_arena_can_kill():
-    result = play(pack_at_low_life(), [Press(0, ATTACK)], 20.0, seed=14)
+    # The pursuit off: with it on the safety's first move takes the character out of the pack's reach (2026-10-19).
+    result = play(pack_at_low_life(), [Press(0, ATTACK)], 20.0, seed=14, pursuit=False)
     assert not result.alive
     assert result.dead_at is not None
     assert result.dead_at < 2.0
@@ -110,13 +111,14 @@ def test_a_pickup_press_with_nothing_to_pick_up_is_a_step_and_the_mode_follows()
 
 def test_the_healer_plays_beside_the_macro():
     scene = replace(one_in_the_open(), hero=hero(0.3 * LIFE), mobs=[mob(1, HELL_BOVINE, 1.5, 0.0)])
-    result = play(scene, [Press(0, ATTACK)], 10.0, osd=PLAYER_HEALING)
+    # The pursuit off: with it on the macro's retreat drinks its own rejuvenation first, at 0.66 s (2026-10-19).
+    result = play(scene, [Press(0, ATTACK)], 10.0, osd=PLAYER_HEALING, pursuit=False)
     assert result.alive
     # At 30% of the life the healer's rejuvenation is due at its first look (under 40%), before the macro's own
     # drinking has a second reading to judge by (macros/drinking.py).
     assert (FULL_REJUVENATION, OSD) in [potion[1:] for potion in result.potions]
     # Without the healer the macro drinks by itself, a healing potion first: nothing is being lost yet.
-    alone = play(scene, [Press(0, ATTACK)], 10.0)
+    alone = play(scene, [Press(0, ATTACK)], 10.0, pursuit=False)
     assert alone.potions
     assert {who for _, _, who in alone.potions} == {SERVE}
 

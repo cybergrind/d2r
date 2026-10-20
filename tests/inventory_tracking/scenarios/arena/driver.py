@@ -46,6 +46,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from inventory_tracking.builds import pursuing
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.game.records import World
 from inventory_tracking.input.compositor import STEP_KEYS
@@ -94,9 +95,9 @@ class ArenaTime:
 
 def fresh() -> None:
     """The production code's memories of a process's life, emptied: each is stamped with the clock
-    of the play that made it (pickup.py SHUNNED and STOPPED, opening.py SHUNNED, teleport.py FAR_FAILED,
+    of the play that made it (pickup.py SHUNNED, STOPPED and LOOKED, opening.py SHUNNED, teleport.py FAR_FAILED,
     LANDED and LANDING)."""
-    for memory in (pickup.SHUNNED, pickup.STOPPED, opening.SHUNNED, teleport.FAR_FAILED):
+    for memory in (pickup.SHUNNED, pickup.STOPPED, pickup.LOOKED, opening.SHUNNED, teleport.FAR_FAILED):
         memory.clear()
     teleport.LANDED.clear()
     teleport.LANDING.clear()
@@ -289,6 +290,7 @@ def play(
     seed: int = 1,
     auras: Mapping[int, float] | None = None,
     instant_moves: bool = False,
+    pursuit: bool | None = None,
 ) -> Result:
     """Play `scene` for `seconds` of the arena's time with the production macro, started by
     `presses` as the runner starts it, and say what it came to. `seed` is the monsters' rolls and the
@@ -298,8 +300,8 @@ def play(
     blades of Echoing Strike, or what the build's attack says a cast deals (`Attack.dealt`). None: the
     blades with no build named, its own `dealt` for a build that is; who hands in a build of Echoing
     Strike says `blades=True`. `instant_moves`: every move is over in the instant of its input, as in
-    the fakes' game (game.py; otherwise a walk, a hop and a Blade Warp take their time). The play ends
-    early at the character's death."""
+    the fakes' game (game.py; otherwise a walk, a hop and a Blade Warp take their time). `pursuit`: the build's
+    pursuit loop on or off (None: as the build has it, on by default). The play ends early at the character's death."""
     for press in presses:
         if press.routine == TELEPORT:
             raise NotImplementedError('the teleport step comes to the arena in Stage 5')
@@ -311,4 +313,6 @@ def play(
     arena = Arena(
         scene, seed=seed, osd=osd, healing_scale=healing_scale, auras=auras, attack=attack, instant_moves=instant_moves
     )
+    if pursuit is not None:
+        build = pursuing(warlock(arena.world) if build is None else build, pursuit)
     return Play(arena, presses, seconds, seed, build).run()

@@ -346,7 +346,7 @@ Each row is one route: where it may start, then each level with its stages in or
 
 | Route | Start | Levels and stages |
 | --- | --- | --- |
-| Den of Evil | Rogue Encampment | Blood Moor: enter Den of Evil<br>Den of Evil: fight Corpsefire → loot → leave |
+| Den of Evil | Rogue Encampment | *Rogue Encampment*: enter Blood Moor<br>Blood Moor: enter Den of Evil<br>Den of Evil: fight Corpsefire → loot → leave |
 | Cave | Cold Plains | Cold Plains: enter Cave<br>Cave 1: fight Coldcrow → loot → enter Next level<br>Cave 2: use Super chest → loot → leave |
 | Mausoleum | Cold Plains | *Cold Plains*: enter Burial Grounds<br>Burial Grounds: fight Blood Raven → loot → enter Mausoleum<br>Mausoleum: use Chest → loot → leave |
 | Crypt | Cold Plains | *Cold Plains*: enter Burial Grounds<br>*Burial Grounds*: enter Crypt<br>Crypt: fight Bonebreaker → loot → leave |
@@ -363,7 +363,7 @@ Each row is one route: where it may start, then each level with its stages in or
 | Route | Start | Levels and stages |
 | --- | --- | --- |
 | Radament | Lut Gholein, Sewers 2 | Sewers 1: enter Next level<br>Sewers 2: enter Next level<br>Sewers 3: fight Radament → loot → leave |
-| Stony Tomb | Lut Gholein | Rocky Waste: enter Stony Tomb<br>Stony Tomb 1: enter Next level<br>Stony Tomb 2: fight Creeping Feature → loot → leave |
+| Stony Tomb | Lut Gholein | *Lut Gholein*: enter Rocky Waste<br>Rocky Waste: enter Stony Tomb<br>Stony Tomb 1: enter Next level<br>Stony Tomb 2: fight Creeping Feature → loot → leave |
 | Halls of the Dead | Dry Hills, Halls of the Dead 2 | Dry Hills: enter Halls of the Dead<br>Halls of the Dead 1: enter Next level<br>Halls of the Dead 2: enter Next level<br>Halls of the Dead 3: fight Bloodwitch the Wild → loot → leave |
 | Maggot Lair | Far Oasis | Far Oasis: enter Maggot Lair<br>Maggot Lair 1: enter Next level<br>Maggot Lair 2: enter Next level<br>Maggot Lair 3: fight Coldworm the Burrower → loot → leave |
 | Ancient Tunnels | Lost City | Lost City: enter Ancient Tunnels<br>Ancient Tunnels: use Chest → loot → leave |
@@ -394,7 +394,7 @@ Each row is one route: where it may start, then each level with its stages in or
 
 | Route | Start | Levels and stages |
 | --- | --- | --- |
-| Izual | The Pandemonium Fortress | Outer Steppes: enter Plains of Despair<br>Plains of Despair: fight Izual → loot → leave |
+| Izual | The Pandemonium Fortress | *The Pandemonium Fortress*: enter Outer Steppes<br>Outer Steppes: enter Plains of Despair<br>Plains of Despair: fight Izual → loot → leave |
 | Diablo | City of the Damned, River of Flame | City of the Damned: enter River of Flame<br>River of Flame: enter Chaos Sanctum<br>The Chaos Sanctuary: use Vizier seal 1 → use Vizier seal 2 → fight Grand Vizier of Chaos → use De Seis seal → fight Lord De Seis → use Infector seal 1 → use Infector seal 2 → fight Infector of Souls → fight Diablo → loot → leave |
 
 ### Act 5

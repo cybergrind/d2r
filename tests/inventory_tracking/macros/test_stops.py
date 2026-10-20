@@ -22,6 +22,12 @@ R = Remedy
         ('beset', True, False, R.LEAVE),  # no facts read: left as before
         ('hand', True, False, R.AGAIN),
         ('stash', True, False, R.STOP),
+        ('idle', True, False, R.STOP),  # nothing to play (macros/tzloop.py `choose`): no game churn
+        ('zone', True, False, R.LEAVE),  # a zone not playable: left, the next one waited for in the lobby
+        ('zone', False, False, None),
+        ('lobby', True, False, R.LEAVE),  # a game creation failed once: tried again
+        ('lobby', False, False, None),
+        ('idle', False, False, None),
         ('beset', False, False, None),  # off: nothing by the cause
         ('hand', False, False, None),
         ('room', True, False, None),
@@ -32,6 +38,16 @@ R = Remedy
 )
 def test_the_rules_by_the_cause_alone_come_before_the_swap(cause, on, dead, expected):
     assert first(cause, on=on, dead=dead) is expected
+
+
+def test_a_second_game_creation_failed_in_a_row_stops_the_loop():
+    # 05:35:30 on 2026-10-20: Battle.net dropped the client to the character screen (the Offline tab); the lobby's
+    # clicks and keys went there for 5 min, 9 tries
+    from inventory_tracking.macros.stops import LOBBY_STOPS
+
+    assert first('lobby', on=True, dead=False, lobby_fails=LOBBY_STOPS - 1) is R.LEAVE
+    assert first('lobby', on=True, dead=False, lobby_fails=LOBBY_STOPS) is R.STOP
+    assert first('lobby', on=True, dead=True, lobby_fails=LOBBY_STOPS) is R.DEAD
 
 
 @pytest.mark.parametrize(
@@ -77,7 +93,7 @@ ON = {'on': True, 'game': 'cyber1'}
         (Stopped('other', **ON, left='Ring', fetched=True, cubed=True, trips=True), R.HOLD),  # no trip but for room
         (Stopped('room', **ON, left='Ring'), R.CUBE),  # room: the cube first
         (Stopped('stall', **ON, left='Ring'), R.CUBE),  # the stand counts as room (ruling pending)
-        (Stopped('room', **ON, left='Ring', cubed=True, tz_trips=True, trips=True), R.TZ_TRIP),
+        (Stopped('room', **ON, left='Ring', cubed=True, packaged=True, trips=True), R.PACKAGE),
         (Stopped('room', **ON, left='Ring', cubed=True, trips=True), R.TRIP),
         (Stopped('room', **ON, left='Ring', cubed=True), R.DROP),
         (Stopped('room', **ON, left='Ring', cubed=True, dropped=True), R.HOLD),  # never a game left with it
@@ -97,8 +113,8 @@ def spec(stop: Stopped) -> Remedy:
         return R.FETCH
     if left is not None and game is not None and not stop.cubed:
         return R.CUBE
-    if roomy and left is not None and game is not None and stop.tz_trips:
-        return R.TZ_TRIP
+    if roomy and left is not None and game is not None and stop.packaged:
+        return R.PACKAGE
     if roomy and left is not None and game is not None and stop.trips:
         return R.TRIP
     if roomy and left is not None and game is not None and not stop.dropped:

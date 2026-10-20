@@ -79,14 +79,19 @@ def test_the_call_to_arms_is_swapped_in_for_battle_command_then_battle_orders_an
     assert play.sets[0] == PREBUFF_SET  # the main set back in hand
 
 
-def test_no_call_to_arms_in_the_other_set_is_said_asked_again_later_and_the_set_found_in_hand_is_back():
+def test_swaps_that_never_show_the_call_to_arms_are_tried_again_soon_and_the_set_found_in_hand_is_back():
+    # The Call to Arms is worn (the row runs only then): the swaps were dropped, as under the player's teleports by
+    # hand (18:45 on 2026-10-19), not a missing weapon: asked again in DROPPED_WAIT, not MISSING_WAIT
+    from inventory_tracking.macros.buffs import STATE_RETRY
+    from inventory_tracking.macros.cta import DROPPED_WAIT
+
     play = Game(world(LOWER_KURAST, slots=CTA_SLOTS))
     play.staff = None
     play.sets = [PREBUFF_SET, OTHER_SET]
     run, tried = cast_in(play)
     assert not tried.cast
     assert tried.at is not None
-    assert tried.at > run.clock()  # not asked again for a while (MISSING_WAIT)
+    assert run.clock() < tried.at + STATE_RETRY <= run.clock() + DROPPED_WAIT
     assert 'F8' not in play.pressed()
     assert play.sets[0] == PREBUFF_SET
 

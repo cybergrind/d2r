@@ -37,6 +37,11 @@ def record_collection(
     """Decode a live record, store it, regenerate the page, fill the run report; shared by CLI and hotkey."""
     publish(directory / 'capture.json', record)
     build = build_sightings(record, run_id=report['run_id'], captured_at=timestamp())
+    from inventory_tracking.appraisal.owned import offline_characters  # late: appraisal imports the collection
+
+    if build.character.name in offline_characters():
+        # The player, 2026-10-19: "we need to capture only online characters for now"
+        raise ValueError(f'{build.character.name} is an offline character: not recorded (online characters only)')
     run = CaptureRun(
         id=report['run_id'],
         character=build.character,

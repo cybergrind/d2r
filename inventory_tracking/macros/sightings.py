@@ -4,8 +4,9 @@ pickup reads only what the client holds now, so a drop out of the client's reach
 
 - *off the ground*: the character within GONE_UNITS of its place and the unit not read: resolved.
 - *out of the read*: further off and not read: still wanted (said once, with the distance).
-- `fetch`: the loop's "what is left" leg goes back to the nearest one; past FETCH_TRIES or FETCH_SECONDS it raises
-  `Abort` and the runner's guard (`outstanding`) keeps the game.
+- `fetch`: the loop's "what is left" leg goes back to the nearest one (on another level across an open passage,
+  2026-10-20); past FETCH_TRIES or FETCH_SECONDS it raises `Abort` and the runner's guard (`outstanding`) keeps the
+  game.
 """
 
 import dataclasses
@@ -118,10 +119,24 @@ class Sightings:
         found = self.outstanding()
         return f'{found[0].label} at ({found[0].x:.0f}, {found[0].y:.0f})' if found else None
 
-    def fetch(self, here: tuple[float, float], area: int | None, now: float, go: Callable[[Sighting], None]) -> bool:
-        """One trip back to the nearest valuable in `area` (`go` brings it within a click); whether one was made.
-        `Abort` past FETCH_TRIES or FETCH_SECONDS."""
+    def fetch(
+        self,
+        here: tuple[float, float],
+        area: int | None,
+        now: float,
+        go: Callable[[Sighting], None],
+        across: Callable[[int], bool] | None = None,
+    ) -> bool:
+        """One trip back to the nearest valuable in `area` (`go` brings it within a click); with none there, to one on
+        a level `across` says is reached from here (an open passage; `go` crosses first, 2026-10-20); whether one was
+        made. `Abort` past FETCH_TRIES or FETCH_SECONDS."""
         wanted = [found for found in self.items.values() if found.area == area]
+        if not wanted and across is not None:
+            wanted = [
+                found
+                for found in self.items.values()
+                if found.area is not None and found.area != area and across(found.area)
+            ]
         if not wanted:
             return False
         found = min(wanted, key=lambda s: math.dist(here, (s.x, s.y)))
@@ -131,7 +146,8 @@ class Sightings:
                 f'{found.label} at ({found.x:.0f}, {found.y:.0f}) was not picked up after {found.tries} trips back'
             )
         found.tries += 1
-        LOG.info('Macro: remembered %s at (%.0f, %.0f), %.0f away: gone back for it (trip %d)',
-                 found.label, found.x, found.y, math.dist(here, (found.x, found.y)), found.tries)  # fmt: skip
+        LOG.info('Macro: remembered %s at (%.0f, %.0f)%s, %.0f away: gone back for it (trip %d)', found.label, found.x,
+                 found.y, '' if found.area == area else f' in level {found.area}', math.dist(here, (found.x, found.y)),
+                 found.tries)  # fmt: skip
         go(found)
         return True

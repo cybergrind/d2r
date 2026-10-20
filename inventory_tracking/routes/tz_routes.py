@@ -240,9 +240,12 @@ def zone_route_plan(zone: ActiveZone, capabilities: dict[int, Capability] | None
         useful = [trip for trip in candidates if remaining.intersection(trip.covers)]
         if not useful:
             break
+        # A trip that can be played first: a blocked one covering more took every level from it (Act2-ArcaneSanctuary,
+        # 2026-10-19: Lut Gholein's unscripted walk to the Harem left no trip from the Palace Cellar waypoint)
         chosen = max(
             useful,
             key=lambda trip: (
+                not trip.blockers,
                 len(remaining.intersection(trip.covers)),
                 -len(trip.blockers),
                 -len(trip.hops),

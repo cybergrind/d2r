@@ -37,6 +37,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from inventory_tracking.builds import pursuing
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Loot, Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
@@ -44,12 +45,11 @@ from inventory_tracking.levels.model import Level, Room, Walkable
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter, threat
-from inventory_tracking.macros.pickup import pick_up
+from inventory_tracking.macros.pickup import LOOKED, pick_up
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.takes.takes import PlayerRow, Take, monsters_of, player_of
-from inventory_tracking.builds import pursuing
 from tests.inventory_tracking.macros.fakes import BUILD, Clock, FakeConnection, set_runner
 
 
@@ -369,6 +369,7 @@ class Replay:
         LOG.addHandler(capture)
         LOG.setLevel(logging.INFO)
         restore = set_runner(CARD_SECONDS=0, TRAVEL_QUIET=0)  # the runner and its parts (macros/running/)
+        LOOKED.clear()  # the pickup's aims of a play before (pickup.py): each replay as the first
         patched = []
         for path, value in self.script.patches.items():
             module, name = path.rsplit('.', 1)

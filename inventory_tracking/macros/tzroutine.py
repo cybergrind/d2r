@@ -3,7 +3,7 @@ on the level depends on the level itself"; "levels with bosses we end with killi
 
 - `itinerary`: the active zone (routes/tz_groups.py) covered by catalogue excursions from waypoints
   (routes/tz_routes.py `zone_route_plan`); an excursion with a blocked hop, or an area none covers, is skipped and said.
-- `policy_of`: how an area is worked (agenda.py COVER / ON_THE_WAY / FULL_CLEAR).
+- `policy_of`: how an area is worked (agenda.py COVER / ON_THE_WAY / FULL_CLEAR); `kept_to`: a script held to its trip.
 - `produce`: the goals wanted now, derived afresh from a `GameView` at every leg so nothing goes stale.
 
 Pure: macros/tzloop.py reads the views.
@@ -11,7 +11,7 @@ Pure: macros/tzloop.py reads the views.
 
 import functools
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.presets import display_name
@@ -31,12 +31,15 @@ from inventory_tracking.macros.agenda import (
     PORTAL_TO_TOWN,
     SIGHTED,
     TOWN_ROUTINE,
+    TOWNS,
+    TRANSIT,
+    WALK_OUT,
     WAYPOINT,
     WORK,
     Objective,
 )
 from inventory_tracking.routes.catalog import ROUTES
-from inventory_tracking.routes.model import ENTER, FIGHT, LOOT as LOOT_STAGE, STAND, USE
+from inventory_tracking.routes.model import ENTER, FIGHT, LOOT as LOOT_STAGE, STAND, USE, Script
 from inventory_tracking.routes.tz_groups import match_active_zone
 from inventory_tracking.routes.tz_routes import zone_route_plan
 
@@ -48,6 +51,13 @@ RUNS_AN_AREA = 4
 POLICY: dict[int, str] = {}
 # The route stages a level run performs: an area at one of them is still a level's work
 WORKED_BY_RUNS = frozenset((FIGHT, USE, STAND))
+
+
+# A route's excursion begun at a later waypoint of its own, the levels before it left out. Andariel from Catacombs 2:
+# Inner Cloister and the Cathedral have no level handler (no card mark for the way on), and every game ended in Inner
+# Cloister (08:22-08:25 on 2026-10-20). The player, 2026-10-20 ~08:24: "there are 2 options: inner cloister ->
+# cathedral -> catacombs level -> kill andy / or cat2 -> cat 3 -> cat 4 -> andy"
+START_AT = {'Andariel': 35}
 
 
 @dataclass(frozen=True)
@@ -105,7 +115,13 @@ def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
             skipped += [(area, trip.blockers[0]) for area in trip.covers]
             continue
         nodes = (trip.waypoint, *(hop.destination for hop in trip.hops))
-        trips.append(Excursion(trip.route, trip.waypoint, nodes, group & frozenset(nodes)))
+        start = START_AT.get(trip.route)
+        if start is not None and start in nodes[1:]:
+            skipped += [
+                (area, f'the {trip.route} trip starts at waypoint {start}') for area in nodes[: nodes.index(start)]
+            ]
+            nodes = nodes[nodes.index(start) :]
+        trips.append(Excursion(trip.route, nodes[0], nodes, group & frozenset(nodes)))
     covered = set().union(*(trip.zone for trip in trips)) if trips else set()
     skipped = [(area, why) for area, why in dict(skipped).items() if area not in covered]
     found = Itinerary(zone.name, group, tuple(trips), tuple(sorted(skipped)))
@@ -131,17 +147,38 @@ def boss_areas(route: str) -> frozenset[int]:
 
 
 def policy_of(area: int, trip: Excursion | None, full_clear: bool = False) -> str:
-    """How `area` is worked (goals-plan.md §6): FULL_CLEAR for the Full clear TZ kind; ON_THE_WAY on an excursion
-    still heading to a boss ("finding each elite on the way to Andariel, kill her and start a new game"); else COVER."""
+    """How `area` is worked (goals-plan.md §6): TRANSIT on a level of no excursion under way or not terrorized on it
+    (crossed), for both kinds ("when we're running tz leveling loop - it should run within terror zones", the player,
+    2026-10-19 ~21:56); FULL_CLEAR for the Full clear TZ kind; ON_THE_WAY on an excursion still heading to a boss
+    ("finding each elite on the way to Andariel, kill her and start a new game"); else COVER."""
+    if trip is None or area not in trip.zone:
+        return TRANSIT
     if full_clear:
         return FULL_CLEAR
     if area in POLICY:
         return POLICY[area]
-    if trip is None or area not in trip.areas:
-        return COVER
     bosses = boss_areas(trip.route)
     ahead = trip.areas[trip.areas.index(area) :]
     return ON_THE_WAY if any(level in bosses for level in ahead) else COVER
+
+
+def kept_to(script: Script, trip: Excursion) -> Script:
+    """`script` held to `trip` ("it should run within terror zones", the player, 2026-10-19 ~21:56): on a level not
+    terrorized on it (crossed, or off it) only the way on to the trip's next level (no boss: Travincal's Council on the
+    Durance trip); on a terrorized one no way into a level off the trip. An agenda run walks an open passage and goes
+    on in the level it leads into (pursuit.py `carried`): the River of Flame's run explored the non-terror Chaos
+    Sanctuary, its seals and Diablo too (game 30, 21:51-21:55; tz-coverage-findings.md F5). The level's run then ends
+    by itself (no route stage left). A route's own way to a town (Durance 3's Red portal) and a pending way (the act 5
+    red portals: no run performs it) are kept. `script` itself when nothing is cut."""
+    area = script.area
+    if area not in trip.zone:
+        onward = trip.after(area)
+        kept = tuple(stage for stage in script.stages if onward is not None and stage.to == onward)
+    else:
+        kept = tuple(
+            stage for stage in script.stages if not (stage.kind == ENTER and stage.to and stage.to not in trip.areas)
+        )
+    return script if len(kept) == len(script.stages) else replace(script, stages=kept)
 
 
 @dataclass(frozen=True)
@@ -174,6 +211,12 @@ def produce(view: GameView) -> list[Objective]:
         trip = plan.next_excursion(view.finished)
         if trip is None:
             return []
+        onward = trip.after(area) if trip.waypoint == area else None
+        if onward is not None:
+            # The trip starts in this town and leaves it on foot (Blood Moor, Rocky Waste, Outer Steppes: no waypoint):
+            # a waypoint to the town it stands in was the goal before (rca/2026-10-19/town-exit-findings.md)
+            label = f'out of {display_name(area)} into {display_name(onward)}'
+            return [Objective(WALK_OUT, label, EXCURSION, area, to=onward)]
         return [Objective(WAYPOINT, f'to {display_name(trip.waypoint)} ({trip.route})', EXCURSION, to=trip.waypoint)]
     goals: list[Objective] = []
     if view.sighted is not None:
@@ -183,14 +226,22 @@ def produce(view: GameView) -> list[Objective]:
         return goals  # off the itinerary (a level the player went to): nothing more of the zone's here
     runs = dict(view.worked).get(area, 0)
     zoned = area in trip.zone
-    if zoned and runs < RUNS_AN_AREA and (runs == 0 or view.stage in WORKED_BY_RUNS):
+    onward = trip.after(area)
+    if view.stage == USE and view.stage_to in TOWNS and view.stage_to != onward:
+        # A route's own way to a town leaves the excursion: no level work, the excursion's end (no Town Portal spent).
+        # As a level run, Durance 3's Red portal took the run to the Fortress with the trip unfinished, and the trip
+        # was made again (2026-10-19, rca/2026-10-19/tz-coverage-findings.md F4). Pending ways (the act 5 red portals)
+        # are not performed by a run, and stay the level's work.
+        label = f'to {display_name(view.stage_to)} by the route: the excursion ends'
+        goals.append(Objective(LEVEL, label, WORK, area, to=view.stage_to))
+    elif zoned and runs < RUNS_AN_AREA and (runs == 0 or view.stage in WORKED_BY_RUNS):
         goals.append(Objective(LEVEL, f'the {display_name(area)} run', WORK, area))
     elif zoned and view.stage == LOOT_STAGE:
+        # (A crossed level's loot is none: its script is its way on only, `kept_to`; Travincal's Council on the Durance
+        # trip left its loot stage and spun "next level" 30 times, F3)
         goals.append(Objective(LOOT, f'the loot of {display_name(area)}', LOOTING, area))
-    else:
-        onward = trip.after(area)
-        if onward is not None and (view.stage != ENTER or view.stage_to in (0, onward)):
-            goals.append(Objective(NEXT_LEVEL, f'on into {display_name(onward)}', ONWARD, area, to=onward))
-        elif plan.next_excursion(view.finished | {trip.terminal}) is not None:
-            goals.append(Objective(PORTAL_TO_TOWN, 'Town Portal for the next excursion', EXCURSION, area))
+    elif onward is not None and (view.stage != ENTER or view.stage_to in (0, onward)):
+        goals.append(Objective(NEXT_LEVEL, f'on into {display_name(onward)}', ONWARD, area, to=onward))
+    elif plan.next_excursion(view.finished | {trip.terminal}) is not None:
+        goals.append(Objective(PORTAL_TO_TOWN, 'Town Portal for the next excursion', EXCURSION, area))
     return goals

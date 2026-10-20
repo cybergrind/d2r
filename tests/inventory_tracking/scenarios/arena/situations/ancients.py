@@ -45,9 +45,9 @@ def variants() -> list[tuple[str, Situation, list | None]]:
     base = stored()
     run = [once('pickup')]
     return [
-        ('KP_1 once: today', base, run),
+        ('KP_1 once: today', base.logic('today'), run),
         ('KP_1 once: new', base.logic('new'), run),
-        ('attack mode alone: today', base, []),
+        ('attack mode alone: today', base.logic('today'), []),
         ('attack mode alone: new', base.logic('new'), []),
     ]
 

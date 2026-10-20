@@ -164,7 +164,7 @@ def test_a_fixture_loads_without_its_take_and_writes_back_the_same(name, tmp_pat
     situation = load(path)
     assert situation.source is not None
     assert situation.marks
-    assert not situation.pursuit  # which logic plays it is a variant's, never the fixture's
+    assert situation.pursuit is None  # which logic plays it is a variant's, never the fixture's
     dump(situation, tmp_path / 'again.json')
     assert (tmp_path / 'again.json').read_text(encoding='utf-8') == path.read_text(encoding='utf-8')
 
@@ -185,11 +185,11 @@ def test_the_pocket_is_the_takes_moment() -> None:
     assert base.recorded['moved'] > 250  # 12 Blade Warps and 4 walks, and nowhere
 
 
-def test_the_logic_is_one_switch_and_off_unless_asked() -> None:
+def test_the_logic_is_one_switch_and_the_builds_unless_asked() -> None:
     base = vizier.stored(STALL)
-    assert not base.pursuit
-    assert base.logic('new').pursuit
-    assert not base.logic('new').logic('today').pursuit
+    assert base.pursuit is None  # the build's default: on (2026-10-19, batch E)
+    assert base.logic('new').pursuit is True
+    assert base.logic('new').logic('today').pursuit is False
 
 
 # -- repeated presses advance to the goal ---------------------------------------------------------------
@@ -286,11 +286,13 @@ def test_a_held_key_costs_the_fight_at_the_boss_nothing() -> None:
 
 
 @STALL_ATTACK_HELD
-def test_a_posted_press_cancels_nothing() -> None:
-    """With attack mode working the press is posted: the mode is not paused for it, however often."""
+def test_a_held_key_pauses_the_mode_once_for_its_jump() -> None:
+    """With attack mode working the press is a jump to the next goal (macros/running/jump.py; the player, 2026-10-19:
+    "KP_4 - force jump to the next goal", "Ignore mobs, resume on arrival"): the mode pauses for it once, and the key
+    held on after its end is that press (runner.py `_dispatch`, jump.py HELD), however often."""
     outcome = stall('(a) attack mode on + KP_4 held, every 0.3 s', 'new', 1)
-    assert not outcome.said_count('Attack mode paused')
-    assert outcome.said_count('Attack mode on') == 1
+    assert outcome.said_count('Attack mode paused') == 1
+    assert outcome.said_count('Attack mode on') == 2  # on, then back on the jump's arrival
 
 
 # -- repeated presses do not kill, and the toggle stays the player's ------------------------------------
@@ -371,9 +373,14 @@ def test_the_toggle_off_stays_off_under_presses() -> None:
 
 @STALL_RECORDED
 def test_a_press_with_the_mode_never_touched_turns_it_on_for_a_fight() -> None:
-    """The stall began with the mode off and never toggled: the route's fight stage wants it, as before."""
+    """The stall began with the mode off and never toggled: the route's fight stage wants it, as before. Since the jump
+    (2026-10-19) the mode comes on at its arrival by the boss, and each later jump of the mashed key resumes it."""
     outcome = stall('as recorded (48 presses)', 'new', 1)
-    assert outcome.said_count('Attack mode on') == 1
+    said = [text for _, text in outcome.said]
+    jumped = next(n for n, text in enumerate(said) if 'jump: Grand Vizier of Chaos' in text)
+    assert 'Macro: Attack mode on' in said[jumped:]
+    assert 'Macro: Attack mode on' not in said[:jumped]
+    assert outcome.boss_dead[BOSS] is not None
 
 
 # -- liveness: never silence ----------------------------------------------------------------------------

@@ -1,13 +1,12 @@
-"""The KP_6 loop's pickup mode, cycled by a double press of KP_6: SURE, TRADE, REGULAR (rulings and market evidence:
-history/pickmode.md).
+"""The pickup level of every loop and activity, GOOD or MOST, switched by a KP_6 double press (the player, 2026-10-19:
+"I want to enable the same drop pickup rules as for other loops - by default we pickup sure items"; the trade goods'
+level dropped the same evening; rulings and market evidence: history/pickmode.md).
 
-- `SURE` (default): only the sure valuables of what the regular pickup takes: every rune, gem, charm and jewel; a
-  rare, set or unique ring or amulet; a unique or set item the loot marks price; whatever the loot marks point at
-  (`Drop.prized`); bases judged by their rolls off the ground (`void_base`, `shield_base`). Supplies (gold, potions
-  the belt is short of) in every mode.
-- `TRADE`: the sure valuables and the trade goods (`identified_for`): magic or rare items of types that roll skills,
-  identified, appraised and the junk sold in town (macros/junk.py).
-- `REGULAR`: the regular pickup (macros/pickup.py `wanted`, `choose`).
+- `SURE` (GOOD on the HUD, the default): only the sure valuables of what the regular pickup takes: every rune, gem,
+  charm and jewel; a rare, set or unique ring or amulet; a unique or set item the loot marks price; whatever the loot
+  marks point at (`Drop.prized`); bases judged by their rolls off the ground (`void_base`, `shield_base`). Supplies
+  (gold, potions the belt is short of) in every mode.
+- `MOST`: the regular pickup (macros/pickup.py `wanted`, `choose`): what KP_1 took before 2026-10-19.
 
 A filter over the drops the regular rules found (`kept`): no mode takes what the regular one would not. Item types
 are the game's (items/metadata.py `item_base`), not written from memory.
@@ -22,9 +21,8 @@ from inventory_tracking.loot.shown import RARITIES
 
 __all__ = [
     'MODES',
-    'REGULAR',
+    'MOST',
     'SURE',
-    'TRADE',
     'WHITE',
     'candidate',
     'identified_for',
@@ -34,14 +32,12 @@ __all__ = [
     'sellable',
     'shield_base',
     'sure',
-    'traded',
     'void_base',
 ]
 
-SURE = 'sure valuables'
-TRADE = 'sure and trade goods'
-REGULAR = 'regular'
-MODES = (SURE, TRADE, REGULAR)  # in the order a double press goes through them; the first is the default
+SURE = 'good'
+MOST = 'most'
+MODES = (SURE, MOST)  # in the order KP_5 goes through them; the first is the default
 RUNES = frozenset(('rune',))
 GEMS = frozenset(('gema', 'gemd', 'geme', 'gemr', 'gems', 'gemt', 'gemz'))  # amethyst ... skull, every grade
 CHARMS = frozenset(('scha', 'mcha', 'lcha', 'csch'))  # small, large, grand, the Crafted Sunder Charm
@@ -92,14 +88,6 @@ def sure(drop: Drop) -> bool:
     return judged_base(drop)
 
 
-def traded(drop: Drop) -> bool:
-    """Whether the trade mode takes the drop: what the sure mode takes, and a trade good."""
-    if sure(drop):
-        return True
-    base = item_base(drop.txt) if drop.txt else None
-    return candidate(drop, base['type'] if base is not None else None)
-
-
 def judged_base(drop: Drop) -> bool:
     """Whether the drop is a shown base kept by its rolls read off the ground."""
     return drop.source in ('shown', 'material') and (void_base(drop) or shield_base(drop))
@@ -146,15 +134,15 @@ def shield_base(drop: Drop) -> bool:
 
 def sellable(kind: str | None, quality: int, txt: int | None = None) -> bool:
     """Whether an item of type `kind`, `quality` and class `txt` may be the loop's junk once appraised `vendor`: the
-    identify candidates, magic or rare charms, jewels, rings and amulets, white or superior Void bases, magic Monarchs,
+    identify candidates and any other magic or rare item (a magic Matriarchal Javelin the loot filter showed was
+    stashed, not sold, at 21:55:27 on 2026-10-19: "trash item ... forgot to ... sell"), white or superior Void bases,
     and set, unique or crafted items except charms (the Sunders, Gheed's, Annihilus and the Torch are the loop's quarry
     whatever a price says). Never a rune, gem or the Crafted Sunder Charm. Rulings: history/pickmode.md."""
     return (
         identified_for(kind, quality)
         or (quality in (SET, UNIQUE, CRAFTED) and kind is not None and kind not in CHARMS)
-        or (quality in (MAGIC, RARE) and kind in (*CHARMS, *JEWELS, RING, AMULET) and kind != 'csch')
+        or (quality in (MAGIC, RARE) and kind is not None and kind not in (*RUNES, *GEMS, 'csch'))
         or (quality in WHITE and txt in VOID_BASES)
-        or (quality == MAGIC and txt == MONARCH)
     )
 
 
@@ -173,12 +161,11 @@ def is_candidate(drop: Drop) -> bool:
 
 def kept(loot: Loot, mode: str) -> Loot:
     """`loot` with only the drops `mode` takes."""
-    if mode == REGULAR:
+    if mode == MOST:
         return loot
-    takes = traded if mode == TRADE else sure
-    return replace(loot, drops=tuple(drop for drop in loot.drops if takes(drop)))
+    return replace(loot, drops=tuple(drop for drop in loot.drops if sure(drop)))
 
 
 def next_mode(mode: str) -> str:
-    """The mode a double press switches to."""
+    """The level a KP_6 double press switches to."""
     return MODES[(MODES.index(mode) + 1) % len(MODES)]

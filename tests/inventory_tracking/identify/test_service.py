@@ -5,6 +5,7 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -654,7 +655,14 @@ def owned_of(*relations, carried=()):
         {'location': f'stash {n}', 'relation': r, 'carried': n in carried, 'better': [], 'worse': []}
         for n, r in enumerate(relations)
     ]
-    return {'kind': 'magic Ring with the same stats', 'count': len(copies), 'relation': None, 'copies': copies}
+    from inventory_tracking.appraisal.owned import overall
+
+    return {
+        'kind': 'magic Ring with the same stats',
+        'count': len(copies),
+        'relation': overall(list(relations)),
+        'copies': copies,
+    }
 
 
 @pytest.mark.parametrize('relation', ['worse', 'equal', 'same'])
@@ -664,7 +672,7 @@ def test_a_duplicate_an_owned_copy_rolls_as_well_as_is_vendor_under_one_ist(rela
     result['price_estimate'] = {'estimate_ist': 0.5}
     verdict, reason = verdict_for(result, owned_of('better', relation))
     assert verdict == 'vendor'
-    assert reason.startswith('an owned copy rolls at least as well, asks ~0.5 Ist; was keep: ')
+    assert reason.startswith('an owned copy rolls at least as well, ~0.5 Ist by its rolls; was check: build use')
 
 
 def test_a_duplicate_worth_one_ist_or_more_stays_as_appraised():
@@ -688,6 +696,27 @@ def test_better_rolls_than_every_owned_copy_are_kept(verdict):
     assert verdict_for(result, owned_of('better', 'mixed'))[0] == verdict  # not better than every copy
 
 
+def test_a_duplicate_is_priced_by_its_own_rolls_within_the_asks():
+    # The player, 2026-10-19: "it should be priced according our rols": the lower quartile for the worst rolls, the
+    # median for perfect ones (Sandstorm Trek: 0.89 / 4.05 Ist), the triage's own price where it compares rolls
+    from inventory_tracking.identify.service import value_ist
+
+    band = {'q1_ist': 0.89, 'median_ist': 4.05, 'sellers': 19}
+    rolled: dict[str, Any] = observation('Ring', rarity='unique')
+    fire: dict[str, Any] = {'status': 'decoded', 'name': 'fireresist', 'value': 11, 'text': 'Fire Resist +11%'}
+    rolled['decoded_stats'] = [{**fire, 'roll_range': {'min': 5, 'max': 40}}]  # one roll: 11 of 5-40
+    place = (11 - 5) / (40 - 5)
+    assert value_ist({'triage': {'band': band}}, rolled) == pytest.approx(0.89 + place * (4.05 - 0.89))
+    fixed = {**rolled, 'decoded_stats': []}
+    assert value_ist({'triage': {'band': band}}, fixed) == 4.05
+    compared = {'band': band, 'roll_comparison': {'label': 'FR 11'}, 'decision_ist': 0.6}
+    assert value_ist({'triage': compared}, rolled) == 0.6
+    perfect = {'band': band, 'verdict': 'slow', 'reason': 'asks'}
+    best = json.loads(json.dumps(rolled))
+    best['decoded_stats'][0]['value'] = 40
+    assert item_summary(best, {'triage': perfect}, owned_of('equal'))['verdict'] == 'slow'  # 4.05 Ist: kept
+
+
 def test_carried_copies_are_the_loops_and_no_owned_copy():
     # Two equal copies picked up in one game would each sell the other
     result = saved_result()['result']
@@ -702,6 +731,16 @@ def test_a_trade_item_with_no_price_is_not_sold_for_a_duplicate():
     assert verdict_for(result, owned_of('worse')) == ('keep', 'Reviewed.')
 
 
+def test_the_identify_cards_fast_triage_result_is_decided_by_the_reads_item():
+    # pricing.api `fast_triage` returns only {'triage': ...}: the rarity comes from the read
+    result = {'triage': {'verdict': 'self', 'reason': 'own-build rule', 'band': {'q1_ist': 0.4, 'sellers': 2}}}
+    summary = item_summary(observation('Ring', rarity='rare'), result, owned_of('worse'))
+    assert summary['verdict'] == 'vendor'
+    charm = observation('Grand Charm', rarity='magic')
+    charm['item']['base_name'] = 'Grand Charm'
+    assert item_summary(charm, result, owned_of('worse'))['verdict'] == 'self'
+
+
 @pytest.mark.parametrize(
     'item', [{'base_name': 'Grand Charm'}, {'rarity': 'normal'}, {'rarity': 'unique', 'runeword': 'Spirit'}]
 )
@@ -709,7 +748,7 @@ def test_charms_bases_and_runewords_are_not_decided_by_their_copies(item):
     result = saved_result()['result']
     result['extraction']['item'].update(item)
     result.setdefault('assessment', {})['roles'] = [role('matched')]
-    assert verdict_for(result, owned_of('worse'))[0] == 'keep'
+    assert verdict_for(result, owned_of('worse'))[0] != 'vendor'  # a base's build use still turns check, as before
 
 
 @pytest.mark.parametrize(('unstable_reads', 'state'), [(2, 'complete'), (3, 'partial')])

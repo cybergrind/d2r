@@ -17,13 +17,23 @@ from dataclasses import dataclass, field
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Point
+from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.goals import GUARD_NEAR
 
 
 # Game-level goals: one leg of the loop each
 NEW_GAME, WAYPOINT, TOWN_ROUTINE = 'new game', 'waypoint', 'town routine'
 PORTAL_TO_TOWN, THROUGH_PORTAL, RESUME = 'portal to town', 'through the portal', 'resume'
+# Runs of a level done ending with nothing left to go to that are no way on (`Agenda.nothing_left`)
+NOTHING_LEFT_ENDS = 5
 LEVEL, LOOT, PICKUP, NEXT_LEVEL, LEAVE_GAME = 'level', 'loot', 'pickup', 'next level', 'leave game'
+# A trip that starts in the town it leaves on foot: Blood Moor, Rocky Waste, Outer Steppes (macros/townexit.py)
+WALK_OUT = 'walk out'
+# The Gheed's swap (macros/charms.py; the player, 2026-10-18: "put our own gheed into SHARED tab; go back and pick new
+# one; go to town, identify; check what is better"), as a package (`gheeds_package`, 2026-10-19)
+SWAP_AWAY, SWAP_PARK, SWAP_PICK = "gheed's away", "gheed's park", "gheed's pick"
+SWAP_HOME, SWAP_CHOOSE = "gheed's home", "gheed's choose"
+SWAP_GOALS = frozenset((SWAP_AWAY, SWAP_PARK, SWAP_PICK, SWAP_HOME, SWAP_CHOOSE))
 # In-level goals: a level run's targets (PICKUP is both: a side drop in a level, a remembered valuable at a leg)
 KILL, EXPLORE, NAVIGATE = 'kill', 'explore', 'navigate'
 # A closed super chest ("add superchests to intemediate goals and open them along the way", the player, 2026-10-19)
@@ -34,6 +44,13 @@ OPEN = 'open'
 COVER = 'cover'  # TZ leveling: every leader found, nearest first, and the unexplored rooms
 ON_THE_WAY = 'on the way'  # TZ leveling: the leaders in the read and remembered near, then the area's end goal
 FULL_CLEAR = 'full clear'  # Full clear TZ: every hostile and every room (the Heralds come of the group's kills)
+# Both TZ kinds on a level not terrorized (crossed to reach one, or off the trip): the route's way on only, no leader,
+# no room, no boss. The player, 2026-10-19 ~21:56: "when we're running tz leveling loop - it should run within terror
+# zones"
+TRANSIT = 'transit'
+# A level of the zone the zone moved on from under its run (the tracker reads it not terrorized now): the run ends
+# there, its drops picked up; the agenda then makes for the new zone (23:30 on 2026-10-19)
+ZONE_LEFT = 'zone left'
 
 # In-level tiers (goals-plan.md §3), lowest first. Drops come before the metric; a Herald comes to the character
 # anyway. CHEST after the leaders in the read (they come at a character standing at a chest), before the rest.
@@ -48,6 +65,12 @@ REMEMBERED_NEAR = 45.0
 # Units: a super chest (objects.txt 397 ConsolationChest) this near is opened on the way; one further is a detour the
 # metric does not pay for. A test holds it equal to hunt.py SUPER_NEAR.
 CHEST_NEAR = 60.0
+# The route's next object on the level (a seal, a chest: a `use` stage leading nowhere else) this near goes before a
+# farther room of the tour or a leader remembered far: in game 30 (2026-10-19) Vizier seal 2 stood 40 units from seal 1
+# and Infector seal 2 43 from seal 1, and the tour went 184 and 213 units away first (~29 s;
+# rca/2026-10-19/game30-run-findings.md S3). About a screen. False: the tour first, as before.
+USE_FIRST = True
+USE_NEAR = 60.0
 TRIES = 3  # a goal whose leg stopped this often in a game is dropped, said (progress-or-back-off)
 
 # levels.txt Act (d2data levels.json, 2026-10-19): each act's town is its first level
@@ -60,10 +83,22 @@ def town_of(area: int) -> int:
     return next(town for town, end in zip(TOWNS, (40, 75, 103, 109, 10**6), strict=True) if area < end)
 
 
+# A game that would end in the act of a town here ends in the town it names: the next game starts there, by the waypoint
+# (the player, 2026-10-19: "if we're doing save/exit in any act3 zone in loop, we must use the same routins as LK
+# (teleport home -> pandemonium fortress -> save/exit)"). Lower Kurast's own legs make the same way (loop.py `lk_leg`)
+KURAST_DOCKS = 75
+LEFT_FROM = {KURAST_DOCKS: PANDEMONIUM_FORTRESS}
+# A level left for that town by a way of its own once its boss is dead: (boss, way, town). The player, 2026-10-19
+# ~22:11: "when we have killed mephisto -- we must go through red portal and do save/exit only when we're in fortress"
+# (game 32 was left in Durance 3). Made by the level run, whose route's stage there is that way (catalog/act3.py)
+WAYS_OUT = {102: ('Mephisto', 'Red portal', PANDEMONIUM_FORTRESS)}
+
+
 @dataclass(frozen=True)
 class Objective:
     """One goal. `tier` orders it (lowest first, then nearest); `area` None means any; `place` in world units; `unit`
-    the monster or item; `to` the level it leads into; `exit` how a town routine ends (town.py `Exit`)."""
+    the monster or item; `to` the level it leads into; `exit` how a town routine ends (town.py `Exit`); `ends`: a step
+    of the game's end (`game_end`)."""
 
     kind: str
     label: str
@@ -73,12 +108,30 @@ class Objective:
     unit: int | None = None
     to: int | None = None
     exit: str = ''
+    ends: bool = False
 
     @property
     def key(self) -> tuple:
         if self.unit is not None:
             return (self.kind, self.unit)
         return (self.kind, self.area, self.to, self.exit)
+
+
+def game_end(area: int | None, dead: frozenset[str] = frozenset()) -> Objective:
+    """The goal that ends the game from level `area`: LEAVE_GAME, or in an act whose games end in another town
+    (LEFT_FROM) the next step there: the level's own way (WAYS_OUT) with its boss in `dead` (Durance 3's Red portal,
+    a LEVEL run to it), else Town Portal home from a field level, the waypoint from the act's town."""
+    town = town_of(area) if area is not None else None
+    there = LEFT_FROM.get(town) if town is not None else None
+    if there is None:
+        return Objective(LEAVE_GAME, 'no goals left', EXCURSION)
+    name = display_name(there)
+    way = WAYS_OUT.get(area) if area is not None else None
+    if way is not None and way[0] in dead and way[2] == there:
+        return Objective(LEVEL, f'the {way[1]} to {name}: the game ends there', ERRAND, area, to=there, ends=True)
+    if area != town:
+        return Objective(PORTAL_TO_TOWN, f'Town Portal home: the game ends in {name}', ERRAND, area, to=town, ends=True)
+    return Objective(WAYPOINT, f'to {name}: the game ends there', ERRAND, to=there, ends=True)
 
 
 @dataclass(frozen=True)
@@ -111,6 +164,7 @@ class LevelView:
     omen_near: float = 22.0  # hunt.py OMEN_NEAR, handed in
     chests: tuple[tuple[int, Point], ...] = ()
     spent: frozenset[int] = frozenset()
+    use_at: Point | None = None  # the route's next object on this level (`Agenda.in_level` USE_FIRST)
 
 
 def kill(area: int, unit: int, place: Point, label: str, tier: int = LEADER) -> Objective:
@@ -134,6 +188,39 @@ def room_package(area: int) -> tuple[Objective, ...]:
     return tuple(goals)
 
 
+def gheeds_package(area: int) -> tuple[Objective, ...]:
+    """The Gheed's swap from level `area` (goals-plan.md §7): Town Portal, the Fortress, the player's onto a shared
+    page, back through the portal, the new one picked up, then `gheeds_fetch`."""
+    town = town_of(area)
+    goals = [Objective(SWAP_AWAY, "Gheed's Fortune away", STACK, area, to=town)]
+    if town != PANDEMONIUM_FORTRESS:
+        goals.append(Objective(WAYPOINT, 'to the Fortress for the swap', STACK, to=PANDEMONIUM_FORTRESS))
+    goals.append(Objective(SWAP_PARK, "Gheed's Fortune onto a shared page", STACK))
+    if town != PANDEMONIUM_FORTRESS:
+        goals.append(Objective(WAYPOINT, "back to the portal's town", STACK, to=town))
+    goals.append(Objective(THROUGH_PORTAL, 'back through the portal', STACK, to=area))
+    goals.append(Objective(SWAP_PICK, "the new Gheed's Fortune", STACK, area))
+    return (*goals, *gheeds_fetch(area))
+
+
+def gheeds_fetch(area: int) -> tuple[Objective, ...]:
+    """The swap's second half from `area`: Town Portal from a field level, the Fortress, Cain and the choice, back
+    through the portal, on. From a town (a new game's, a restart's) the Fortress and the choice only."""
+    town, field = town_of(area), area not in TOWNS
+    goals = []
+    if field:
+        goals.append(Objective(SWAP_HOME, "Gheed's Fortunes to compare", STACK, area, to=town))
+    if (town if field else area) != PANDEMONIUM_FORTRESS:  # where the portal or the game put the character
+        goals.append(Objective(WAYPOINT, 'to the Fortress for the choice', STACK, to=PANDEMONIUM_FORTRESS))
+    goals.append(Objective(SWAP_CHOOSE, "the better Gheed's Fortune", STACK))
+    if field:
+        if town != PANDEMONIUM_FORTRESS:
+            goals.append(Objective(WAYPOINT, "back to the portal's town", STACK, to=town))
+        goals.append(Objective(THROUGH_PORTAL, 'back through the portal', STACK, to=area))
+    goals.append(Objective(RESUME, 'continue the run', STACK, area))
+    return tuple(goals)
+
+
 @dataclass
 class Agenda:
     """The game's goals; a new `game` starts them afresh. `queue`: the game-level goals last derived; `stack`: the
@@ -150,6 +237,10 @@ class Agenda:
     finished: set[int] = field(default_factory=set)
     failures: Counter[tuple] = field(default_factory=Counter)
     dropped: set[tuple] = field(default_factory=set)
+    # Levels a run found no way on from, explored (`no_way_on`): their NEXT_LEVEL goals stay out
+    wayless: set[int] = field(default_factory=set)
+    # Runs of a level done that ended with nothing left to go to (`nothing_left`), by area
+    ended_empty: Counter[int] = field(default_factory=Counter)
     said: str | None = None
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
 
@@ -162,7 +253,7 @@ class Agenda:
         self.game, self.queue, self.stack, self.kills = game, {}, [], {}
         self.chests, self.opened = {}, set()
         self.worked, self.finished, self.failures, self.dropped = Counter(), set(), Counter(), set()
-        self.plan = None
+        self.plan, self.wayless, self.ended_empty = None, set(), Counter()
         return True
 
     def push(self, *goals: Objective) -> None:
@@ -170,25 +261,78 @@ class Agenda:
         self.stack.extend(reversed(goals))
         LOG.info('Macro: agenda: package pushed: %s', ' -> '.join(goal.label for goal in goals))
 
+    def holds(self, kinds: frozenset[str]) -> bool:
+        """Whether a package goal of `kinds` is on the stack."""
+        return any(goal.kind in kinds for goal in self.stack)
+
+    def cut(self) -> None:
+        """The rest of the top goal's package dropped, its RESUME kept: the top's own leg ends it (`done`)."""
+        ends = [index for index, goal in enumerate(self.stack[:-1]) if goal.kind == RESUME]
+        if ends and ends[-1] + 1 < len(self.stack) - 1:
+            dropped = self.stack[ends[-1] + 1 : -1]
+            del self.stack[ends[-1] + 1 : -1]
+            LOG.info('Macro: agenda: the rest of the package dropped: %s', [goal.label for goal in reversed(dropped)])
+
     def refresh(self, goals: Iterable[Objective]) -> None:
         """Replace the queue with the producers' goals ("re-plan, never resume"); dropped goals stay out."""
-        self.queue = {goal.key: goal for goal in goals if goal.key not in self.dropped}
+        self.queue = {
+            goal.key: goal
+            for goal in goals
+            if goal.key not in self.dropped and not (goal.kind == NEXT_LEVEL and goal.area in self.wayless)
+        }
 
-    def next(self, here: Point | None, *, in_game: bool = True, valuable: str | None = None) -> Objective:
+    def nothing_left(self, area: int | None) -> None:
+        """A run of `area`, a level done, ended with nothing left to go to: NOTHING_LEFT_ENDS of them in a game are no
+        way on (`no_way_on`). One alone is not: a crossing's first look ends so (Inner Cloister to the Cathedral at
+        08:22:37 on 2026-10-20, the game left on the first; Outer Cloister to Barracks had 1, the Throne 28)."""
+        if area is None:
+            return
+        self.ended_empty[area] += 1
+        if self.ended_empty[area] >= NOTHING_LEFT_ENDS:
+            self.no_way_on(area)
+
+    def no_way_on(self, area: int | None) -> None:
+        """A run on `area` ended with no way on after exploring it: its NEXT_LEVEL goals are dropped for the game.
+        Made again, the leg ended the same way every 8 s until the 45 s watchdog left the game (Lost City to Valley of
+        Snakes, 01:13:16-01:13:54 on 2026-10-20)."""
+        if area is not None and area not in self.wayless:
+            self.wayless.add(area)
+            for key in [key for key, goal in self.queue.items() if goal.kind == NEXT_LEVEL and goal.area == area]:
+                del self.queue[key]
+            LOG.info('Macro: agenda: no way on from level %d: its next level is dropped for the game', area)
+
+    def next(
+        self,
+        here: Point | None,
+        *,
+        in_game: bool = True,
+        valuable: str | None = None,
+        area: int | None = None,
+        dead: frozenset[str] = frozenset(),
+    ) -> Objective:
         """The goal to work now: the stack's top (a RESUME ends its package), else the queue's best, else a PICKUP
-        of `valuable` still on the ground, else LEAVE_GAME. Out of a game, NEW_GAME."""
+        of `valuable` still on the ground, else the game's end from `area` (`game_end`: LEAVE_GAME, or the way to the
+        town it ends in; `dead` the bosses killed, for a level's own way out, the Town Portal once that is dropped).
+        Out of a game, NEW_GAME."""
         if not in_game:
             return Objective(NEW_GAME, 'the next game', STACK)
-        while self.stack and self.stack[-1].kind == RESUME:
-            done = self.stack.pop()
-            LOG.info('Macro: agenda: package done: %s', done.label)
-        if self.stack:
-            return self.told(self.stack[-1])
+        top = self.package()
+        if top is not None:
+            return top
         if self.queue:
             return self.told(min(self.queue.values(), key=lambda goal: (goal.tier, cost(goal, here))))
         if valuable is not None:
             return self.told(Objective(PICKUP, f'{valuable}, before leaving', SIGHTED))
-        return self.told(Objective(LEAVE_GAME, 'no goals left', EXCURSION))
+        end = game_end(area, dead)
+        return self.told(end if end.key not in self.dropped else game_end(area))
+
+    def package(self) -> Objective | None:
+        """The stack's top goal, a RESUME ending its package; None with no package (the shared room trip:
+        macros/tzloop.py `packaged`, `errand`)."""
+        while self.stack and self.stack[-1].kind == RESUME:
+            done = self.stack.pop()
+            LOG.info('Macro: agenda: package done: %s', done.label)
+        return self.told(self.stack[-1]) if self.stack else None
 
     def told(self, goal: Objective) -> Objective:
         """`goal`, logged when it changes."""
@@ -243,12 +387,19 @@ class Agenda:
             self.opened.add(unit)
         for unit, place in view.chests:
             if unit not in self.opened:
+                # One goal a chest: the client names a chest anew when its room is loaded again, and the name before
+                # is never seen spent (Sewers Level 1, 01:54:14 on 2026-10-20, rca/2026-10-20/super-chest-settle-*.md)
+                at = (view.area, place)
+                for old in [u for u, goal in self.chests.items() if u != unit and (goal.area, goal.place) == at]:
+                    del self.chests[old]
                 self.chests[unit] = Objective(OPEN, 'Super chest', CHEST, view.area, place, unit)
 
     def in_level(self, view: LevelView) -> Objective | None:
         """The level run's next target (goals-plan.md §3), first match: a live Herald; a Herald's omen; the side
         drop's guards, then the drop; a leader in sight; a super chest within CHEST_NEAR; a leader remembered within
-        REMEMBERED_NEAR; on COVER/FULL_CLEAR the next room, then leaders further. None: the area's end goal is next."""
+        REMEMBERED_NEAR; on COVER/FULL_CLEAR the next room, then leaders further, unless the route's next object
+        (`use_at`) is within USE_NEAR and no farther; on TRANSIT nothing after the drop. None: the area's end goal is
+        next."""
         self.observe(view)
         here = view.here
 
@@ -285,6 +436,8 @@ class Agenda:
                 unit, place = min(guards, key=lambda found: away(found[1]))
                 return kill(view.area, unit, place, f'a guard of {side.label}', DROP_GUARD)
             return side
+        if view.policy == TRANSIT:
+            return None  # the drops above, then the way on
         reach = WAY_UNITS if view.policy == ON_THE_WAY else math.inf
         seen = [goal for goal in known if goal.unit in live and away(where(goal)) <= reach]
         if seen:
@@ -303,9 +456,15 @@ class Agenda:
             return Objective(KILL, found.label, LEADER_NEAR, found.area, found.place, found.unit)
         if view.policy == ON_THE_WAY:
             return None
+        use = view.use_at if USE_FIRST else None
+        near_use = use is not None and away(use) <= USE_NEAR
         room = view.frontier() if view.frontier is not None else None
         if room is not None and not view.passed(room[0], None):
+            if near_use and use is not None and away(use) <= away(room[0]):
+                return None  # the route's object beside the character before a farther room (USE_FIRST)
             return Objective(EXPLORE, room[1], ROOM, view.area, room[0])
+        if near_use:
+            return None
         if remembered:
             found = min(remembered, key=lambda goal: away(where(goal)))
             return Objective(KILL, found.label, LEADER_FAR, found.area, found.place, found.unit)

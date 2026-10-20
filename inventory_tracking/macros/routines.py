@@ -537,7 +537,7 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
     run.pause('screen')
     world = run.world()
     if world.in_game or world.game_name != last:
-        raise Abort('not in the lobby')
+        raise Abort('not in the lobby', cause='lobby')
     for _ in range(FIELD_ATTEMPTS):
         run.actuator.move(*GAME_NAME_FIELD, scatter=(25, 4))
         run.actuator.click()
@@ -549,7 +549,7 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
         run.pause('screen')
         run.pause('screen')
     else:
-        raise Abort('the game name field did not take the keys')
+        raise Abort('the game name field did not take the keys', cause='lobby')
     # Only the end that differs is retyped (user, 2026-10-06): cyber36 -> one Backspace and `7`.
     kept = len(os.path.commonprefix((last, name)))  # ruff: ignore[os-path-commonprefix] two names, by character
     for _ in range(len(last) - kept - 1):
@@ -566,7 +566,7 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
     # The game exists within a second or two of Enter; without it there is an error dialog
     # (host, 18:35 on 2026-10-06), which the macro leaves for the player.
     if run.seen(lambda w: w.in_game and w.game_name == name, CREATE_LIMIT) is None:
-        raise Abort(f'{name} was not created (is there an error on screen?)')
+        raise Abort(f'{name} was not created (is there an error on screen?)', cause='lobby')
     # The character and the town's units exist while the loading screen is still up. The view
     # byte (world.VIEW_RVA) is 0 while the game loads and comes back when it can be played. If
     # it never shows the loading at all, the measured LOAD_MIN from Enter stands in; either way

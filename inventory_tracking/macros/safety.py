@@ -47,6 +47,7 @@ from inventory_tracking.combat.survival import Pressure, Supply
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.game.records import Loot, World
+from inventory_tracking.game.view import DEFAULT_ASPECT, Viewport
 from inventory_tracking.macros.build import Attack, Draw, DrawPrice, Leg, NoWay, PricedStep, Shield, Step
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.goals import Goal
@@ -68,6 +69,15 @@ RAYS = 8  # plain rays round the character, asked after those while time is left
 FOOTING_RINGS = (1.5, 3.0)  # units round an escape's place where footing is looked for
 FOOTING_TURNS = 8
 FALL_HORIZON = 10.0  # seconds the character's own strikes are counted over for a stand's clear time
+# A Teleport to one spot chosen DUD_HOPS looks in a row over DUD_AFTER s with the character not moved past STILL_UNITS
+# cast nothing (game 30, 21:36:45: a stand under the skill bar, pressed 5 times): the spot is barred for DUD_SECONDS,
+# within DUD_UNITS of it
+DUD_HOPS = 3
+DUD_AFTER = 1.0
+DUD_SECONDS = 20.0
+DUD_UNITS = 3.0
+STILL_UNITS = 1.5
+DUD = 'a Teleport there cast nothing'
 RESISTS = ((36, 'physical'), (39, 'fire'), (41, 'lightning'), (43, 'cold'), (45, 'poison'), (37, 'magic'))
 # Stats are unpenalized and difficulty is not observed: Hell assumed, never capped gear.
 HELL_PENALTY = 100.0
@@ -271,6 +281,9 @@ class Pricing:
     legs: list[Leg]  # the goal's way once asked (`bounded_way`)
     allowance: float
     kappa: float
+    # `shown(spot)`: the window shows the spot where a Teleport may be aimed (`Safety.shown`); None: every spot
+    shown: Callable[[Point], bool] | None = None
+    duds: tuple[Point, ...] = ()  # Teleport spots that cast nothing (`Safety.remember`): barred
     candidates: list[Candidate] = field(default_factory=list)
     # The forecast here (`__post_init__`)
     here: Point = field(init=False)
@@ -378,6 +391,8 @@ class Pricing:
         damage = replace(damage, barred=damage.barred or veto(future, look.life, settings))
         if needs == 'battle' and not self.battle_ready:
             damage = replace(damage, barred='battle weapon swap is unavailable')
+        if step.skill == TELEPORT and any(math.dist(step.spot, dud) <= DUD_UNITS for dud in self.duds):
+            damage = replace(damage, barred=DUD)
         duration = math.dist(step.spot, self.goal.place) / 20.0
         if firing and not why:
             # A firing stand: the clear time scaled by here's pace over the stand's (from its landing, as `camp`
@@ -481,7 +496,8 @@ class Pricing:
         if not self.clock.late() and (
             unsafe or lineless or (facts.in_reach and hold_harm.worst > self.allowance * 0.5)
         ):
-            found = camp(self.seen, self.attack, barred=self.barred, jumps=self.jumps)
+            # Only where the window shows it, as `Hunter.better_stand`'s (a stand under the skill bar is never cast)
+            found = camp(self.seen, self.attack, barred=self.barred, shown=self.shown, jumps=self.jumps)
             if found is not None:
                 self.move_price(Step.to(found), firing=True)
 
@@ -594,6 +610,16 @@ class Safety:
     stand: tuple[Step, float] | None = None  # the fight's last offered stand (`offer`) and its clock
     over_said: float = -math.inf
     over_since: int = 0
+    aspect: float = DEFAULT_ASPECT  # the game window's width / height (`shown`)
+    # The Teleport chosen at the last looks: (spot, where the character stood, looks in a row, clock of the first)
+    hops: tuple[Point, Point, int, float] | None = None
+    duds: dict[Point, float] = field(default_factory=dict)  # Teleport spots that cast nothing -> barred until
+
+    def shown(self, here: Point) -> Callable[[Point], bool]:
+        """Whether the window shows a spot's ground with the character at `here` (game/view.py `in_view`; the
+        skill bar and the HUD are not)."""
+        view = Viewport(self.aspect)
+        return lambda spot: view.in_view(view.ground(here, spot[0], spot[1]))
 
     def offer(self, step: Step | None, now: float) -> None:
         """The fight's better stand (None: it stands well), priced as a firing stand for STAND_FRESH seconds."""
@@ -627,6 +653,8 @@ class Safety:
             self.lying_since.clear()
             self.stepped.clear()
             self.stand = None
+            self.hops = None
+            self.duds.clear()
         here = (player.x, player.y)
         if not self.trail or math.dist(self.trail[-1], here) >= TRAIL_STEP:
             self.trail.append(here)
@@ -770,7 +798,8 @@ class Safety:
         allowance, spendable, kappa, dear = life_budget(loot, felt, settings, look, seen.origin, insisting)
         p = Pricing(
             facts, look, seen, settings, attack, leg, jumps, barred, hands, options, battle_ready, teleport_hands,
-            goal, clock, legs, allowance, kappa,
+            goal, clock, legs, allowance, kappa, shown=self.shown(seen.origin),
+            duds=tuple(spot for spot, until in self.duds.items() if facts.now < until),
         )  # fmt: skip
         clock.lap('the forecast')
         held = self.hold(p)
@@ -921,7 +950,9 @@ class Safety:
             p.candidates.append(Candidate(NoWay(WAITING), math.inf, idle, True))
 
     def remember(self, chosen: Act, look: Look, here: Point, asking: bool, key: tuple, now: float, posted) -> None:
-        """Note the acts stepped across (`stepped`) and whether the asked goal stays blocked (`insisting`)."""
+        """Note the acts stepped across (`stepped`), the Teleports that cast nothing (`hopped`) and whether the asked
+        goal stays blocked (`insisting`)."""
+        self.hopped(chosen, here, now)
         if isinstance(chosen, Move) and chosen.reason.startswith(STEPPING):
             for m in look.hostiles:
                 if threats.of(m.txt) is not None:
@@ -938,6 +969,26 @@ class Safety:
             self.last_press = now
         else:
             self.blocked_goal = None
+
+    def hopped(self, chosen: Act, here: Point, now: float) -> None:
+        """A Teleport to one spot chosen look after look with the character still: past DUD_HOPS looks over DUD_AFTER s
+        the press casts nothing (a spot the window does not show, game 30 21:36:45), and the spot is barred."""
+        self.duds = {spot: until for spot, until in self.duds.items() if now < until}
+        if not isinstance(chosen, Move) or chosen.step.skill != TELEPORT:
+            self.hops = None
+            return
+        spot, last = chosen.step.spot, self.hops
+        if last is None or math.dist(last[0], spot) > DUD_UNITS or math.dist(last[1], here) > STILL_UNITS:
+            self.hops = (spot, here, 1, now)
+            return
+        looks = last[2] + 1
+        self.hops = (last[0], last[1], looks, last[3])
+        if looks >= DUD_HOPS and now - last[3] >= DUD_AFTER:
+            self.duds[last[0]] = now + DUD_SECONDS
+            self.hops = None
+            LOG.info('Macro: safety: Teleport to (%.1f, %.1f) chosen %d looks in a row over %.1fs, the character still '
+                     'at (%.1f, %.1f): the spot is dropped for %.0fs', last[0][0], last[0][1], looks, now - last[3],
+                     here[0], here[1], DUD_SECONDS)  # fmt: skip
 
     def over(self, now: float, took: float, budget: float, laps: dict[str, float], chosen) -> None:
         """Log a look over OVER_BUDGET times its time with its three costliest stages, at most once in SAID_EVERY
