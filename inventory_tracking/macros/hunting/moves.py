@@ -19,6 +19,7 @@ from inventory_tracking.macros.build import Intent, NoWay
 from inventory_tracking.macros.drinking import key_of, on_belt
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, Goal
+from inventory_tracking.macros.hunting import shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     BOSS_MARK_UNITS,
@@ -407,6 +408,8 @@ def operate(self: Hunter, run: Run, world: World, goal: Goal, key_names) -> None
             pick_up(run, self.known_level(player), key_names, lambda: None, threat(run), unit=goal.unit)
         else:
             pick_up(run, self.known_level(player), key_names, lambda: None, unit=goal.unit)
+    elif goal.shrine:
+        shrines.use(self, run, world, goal)  # an Experience Shrine on the way (hunting/shrines.py, 2026-10-20)
     elif goal.do == USE and goal.mark is not None:
         if rect is None:
             raise Abort('no game window')

@@ -32,6 +32,7 @@ from inventory_tracking.macros.loop import (
     TZ_OUT,
     TZ_PICKUP,
     TZ_PORTAL,
+    TZ_SHARD,
     TZ_WAYPOINT,
     LegHands,
     Loop,
@@ -39,6 +40,7 @@ from inventory_tracking.macros.loop import (
 )
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.town import Exit
+from inventory_tracking.macros.tzroutine import Itinerary
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
@@ -1194,3 +1196,156 @@ def test_the_canyons_tour_takes_fewer_ways_on_than_the_loops_repeat_guard():
 
     # Per tomb: the Canyon's run to its entrance, the press through, its way back; the Catacombs' and the others' 30
     assert REPEATS[TZ_NEXT_LEVEL] >= 30 + 3 * len(TOMBS)
+
+
+ACT4 = frozenset((104, 105, 106, 107, 108))
+
+
+def test_tz_with_a_hand_used_shard_plays_the_act_and_the_rotation_instead_of_stopping(monkeypatch):
+    # The player, 2026-10-20 ~19:00: "for TZ/TZ+ modes we want to know how to handle whole terrorized act (when we
+    # terrorized it manually with stone)". Before: no single zone matched and the loop stopped, "no terror zone is
+    # read in this game" (rca/2026-10-20/act-terrorize-findings.md §4)
+    game = Script(FORTRESS, monkeypatch, zone=ACT4 | CATACOMBS)
+    assert game.leg() == TZ_WAYPOINT
+    assert game.calls == [('waypoint', 106)]  # the act's boss first: Diablo's trip from the City of the Damned
+    plan = game.loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    assert plan.zone == 'Act4-Manual + Act1-Catacombs'
+    assert game.leg() == TZ_LEVEL
+    assert game.runs == [106]
+
+
+def test_tz_while_an_act_is_read_group_by_group_plays_what_is_read(monkeypatch):
+    game = Script(FORTRESS, monkeypatch, zone=frozenset((104, 105, 106, 107)))
+    assert game.leg() == TZ_OUT  # the Steppes (the Izual trip) walked out of the Fortress
+    plan = game.loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    assert plan.zone == 'Act4_OuterSteppes + Act4-RiverOfFlame'
+
+
+# -- the shard act kind (macros/actloop.py; the player, 2026-10-20 ~19:25: "yes, let's do act 4 mode")
+# -------------------------
+
+DEEP = 677
+
+
+def act4_game(monkeypatch, area: int = FORTRESS, deep: int = 97, outcome: str = 'used', zone=CATACOMBS) -> Script:
+    """An act4 game: the tracker reads `zone` (the rotation; the client's list never names the shard's act here, the
+    open check 4), the stash `deep` Deep shards; `outcome` what the shard's clicks make ('used', 'failed', 'stops')."""
+    from inventory_tracking.macros import actloop, terrorize
+    from inventory_tracking.macros.loop import ACT4
+
+    game = Script(area, monkeypatch, zone=zone)
+    game.loop.kind = ACT4
+    game.play.stash_pages = [('.' * 10,) * 10]
+    game.play.stacks = {DEEP: deep}
+    monkeypatch.setattr(terrorize, 'CLICKS', True)
+
+    def used(run, key, act, terrorized):
+        game.calls.append(('terrorize', act))
+        if outcome == 'stops':
+            raise Abort('no stash in sight')
+        if outcome == 'failed':
+            return None
+        game.play.stacks[DEEP] -= 1
+        return terrorize.Used(DEEP, act, deep, deep - 1, gone=True, listed=False)
+
+    monkeypatch.setattr(actloop, 'terrorize', used)
+    return game
+
+
+def test_an_act4_game_uses_the_deep_shard_first_then_diablo_first_whatever_the_list_reads(monkeypatch, caplog):
+    game = act4_game(monkeypatch)
+    with caplog.at_level('INFO'):
+        assert game.leg() == TZ_SHARD
+        assert game.calls == [('terrorize', 4)]
+        assert game.loop.agenda.acts == frozenset((4,))
+        assert game.leg() == TZ_WAYPOINT  # the act planned with the rotation, the act and its boss first
+    assert game.calls[-1] == ('waypoint', 106)
+    plan = game.loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    assert plan.zone == 'Act4-Manual + Act1-Catacombs'
+    assert 'Macro: act: act 4 terrorized by a Deep Worldstone Shard' in caplog.text
+    assert game.leg() == TZ_LEVEL  # the City of the Damned's run: no shard again in the game
+    assert [call for call in game.calls if call[0] == 'terrorize'] == [('terrorize', 4)]
+
+
+def test_an_act4_game_with_no_deep_shard_at_90_plays_tz_plus_on_the_rotation(monkeypatch, caplog):
+    game = act4_game(monkeypatch, deep=89)
+    with caplog.at_level('INFO'):
+        assert game.leg() == TZ_SHARD
+        assert game.leg() == TZ_WAYPOINT
+    assert game.calls[-1] == ('waypoint', 35)  # the rotation's Catacombs: never a stop
+    assert all(call[0] != 'terrorize' for call in game.calls)
+    assert 'Macro: act: no shard for act 4 at 90 or more' in caplog.text
+
+
+def test_a_shard_that_does_not_take_twice_is_given_up_and_the_rotation_played(monkeypatch, caplog):
+    from inventory_tracking.macros import actloop
+
+    game = act4_game(monkeypatch, outcome='failed')
+    assert game.leg() == TZ_SHARD
+    assert game.loop.agenda.shard == actloop.FAILED
+    assert game.leg() == TZ_WAYPOINT  # this game: the rotation
+    assert game.calls[-1] == ('waypoint', 35)
+    # The next game's shard stops its leg (no stash in sight): the second failure in a row
+    stopped = act4_game(monkeypatch, outcome='stops')
+    stopped.loop.agenda.shard_failures = game.loop.agenda.shard_failures
+    with pytest.raises(Abort, match='no stash in sight'):
+        stopped.leg()
+    assert stopped.loop.agenda.shard_failures == actloop.SHARD_FAILURES
+    with caplog.at_level('INFO'):
+        stopped.loop.agenda.game = None  # a new game begun (the fake's keeps its name)
+        assert stopped.leg() == TZ_WAYPOINT
+    assert 'the shard did not take 2 games in a row' in caplog.text
+
+
+def test_the_shard_waits_for_a_visit_due_and_goes_to_the_fortress_from_another_town(monkeypatch):
+    game = act4_game(monkeypatch, area=ROGUE_ENCAMPMENT)
+    assert game.leg() == TZ_WAYPOINT
+    assert game.calls == [('waypoint', FORTRESS)]
+    assert game.leg() == TZ_SHARD
+    # The visit due: first (it makes the room the shard needs), then the shard
+    due = act4_game(monkeypatch)
+    due.loop.visiting = GAME
+    exits: list[Exit] = []
+
+    def visit(exit: Exit) -> None:
+        exits.append(exit)
+        due.loop.visited = GAME
+
+    assert due.leg(visit=visit) == TOWN
+    assert due.leg() == TZ_SHARD
+    joined = act4_game(monkeypatch, area=107)  # a game joined in a field level (a restart): the zones read
+    joined.leg()
+    assert all(call[0] != 'terrorize' for call in joined.calls)
+
+
+def test_no_shard_for_the_tz_kinds(monkeypatch):
+    game = Script(FORTRESS, monkeypatch)
+    assert game.leg() == TZ_WAYPOINT
+    assert game.loop.agenda.shard is None
+
+
+def test_the_act4_kind_is_offered_only_once_enabled_and_the_picker_entry_goes_by_itself(monkeypatch):
+    from inventory_tracking.macros import actloop
+    from inventory_tracking.macros.loop import ACT4, coming_kinds
+
+    assert actloop.ENABLED is False  # until the player's in-game test
+    assert 'act4' not in loop_kinds()
+    assert [coming.word for coming in coming_kinds()] == ['ACT4']  # the placeholder "Shard: Act 4"
+    monkeypatch.setattr(actloop, 'ENABLED', True)
+    assert loop_kinds()['act4'] is ACT4
+    assert coming_kinds() == ()
+    assert (ACT4.name, ACT4.word, ACT4.game_seconds, ACT4.metric) == (
+        'Shard: Act 4',
+        'ACT4',
+        2700.0,
+        'elite and Herald kills an hour',
+    )
+    assert ACT4.agenda
+    assert ACT4.packaged
+    assert ACT4.swaps_gheeds
+    assert not ACT4.full_clear
+    monkeypatch.setattr(tzloop, 'ENABLED', False)
+    assert 'act4' not in loop_kinds()

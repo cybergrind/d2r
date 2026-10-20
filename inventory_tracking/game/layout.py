@@ -116,10 +116,25 @@ MAGIC_ROLLED_TYPES = frozenset(('knif', 'shie', 'ashd'))
 # Spear), body armor (`tors`: Archon Plate, Dusk Shroud, Wire Fleece, Sacred Armor, Mage Plate), Amazon bows (`abow`:
 # Grand Matron Bow, Matriarchal Bow), swords and axes (`swor`, `axe`: Phase Blade, Colossus Blade, Berserker Axe), helms
 # (`helm`: the merc's Cure base, Corona, Spired Helm, Bone Visage, Demonhead; the player, ~12:15).
-# The Warlock's books (`grim`, all 15: Old Book wa1 to Blasphemous Grimoire waf; Warlock staff mods, up to 3
-# sockets; the player, 2026-10-20 ~17:30: "add grimoires to the ground read"): read only, no wants row picks them yet.
-# Types from third-parties/d2data/json/itemtypes.json and items/data/item_metadata.json, checked 2026-10-20
-BASE_ROLLED_TYPES = frozenset(('pole', 'spea', 'aspe', 'tors', 'abow', 'swor', 'axe', 'helm', 'grim'))
+# The Warlock's books (`grim`, all 15: Old Book wa1 to Blasphemous Grimoire waf; Warlock staff mods, up to 2
+# sockets, armor.json gemsockets; the player, 2026-10-20 ~17:30: "add grimoires to the ground read").
+# Since 2026-10-20 ~18:45 every weapon and armor type (the player: "it looks like we don't need to pickup them to
+# assess, so it worth to assess every item"): the wants rows decide which are picked (loot/ground_judge.py
+# `base_verdict`). The read is the same for every type ([verified] on 24,852 white and superior units of 2,488
+# collection captures, 2026-10-20: the staff mods (107) of every class type, grimoires 2,460, staves 47, wands 37,
+# pelts 24, scepters 8, orbs 6, Barbarian helms 5, claws 5, lie in the +0xE8 totals `base_rolls` reads, as do the
+# skill tabs (188) of the Amazon bows 459 and wands 10 and the all-res of the Paladin shields 12; rca/2026-10-20/
+# white-bases-findings.md). Only labelled drops (the filter shows them) are read, once a unit (BASE_ROLLS_SEEN).
+# Every items metadata type of category weapons or armor but the throwing potions (`tpot`), checked 2026-10-20 in
+# items/data/item_metadata.json and third-parties/d2data/json/itemtypes.json (tests/.../game/test_decode.py holds it)
+WEAPON_ROLLED_TYPES = frozenset((
+    'abow', 'ajav', 'aspe', 'axe', 'bow', 'club', 'h2h', 'h2h2', 'hamm', 'jave', 'knif', 'mace', 'orb', 'pole',
+    'scep', 'spea', 'staf', 'swor', 'taxe', 'tkni', 'wand', 'xbow',
+))  # fmt: skip
+ARMOR_ROLLED_TYPES = frozenset((
+    'ashd', 'belt', 'boot', 'circ', 'glov', 'grim', 'head', 'helm', 'pelt', 'phlm', 'shie', 'tors',
+))  # fmt: skip
+BASE_ROLLED_TYPES = WEAPON_ROLLED_TYPES | ARMOR_ROLLED_TYPES
 ROLLED_TYPES = MAGIC_ROLLED_TYPES | BASE_ROLLED_TYPES
 
 

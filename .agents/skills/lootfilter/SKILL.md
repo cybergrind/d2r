@@ -6,7 +6,7 @@ description: Explain or change the D2R in-game loot filter, the one profile in l
 # Loot filter
 
 One filter file (player, 2026-10-20: "retire other filters. and keep only one filter file at all"):
-`lootfilter/warlock_lean_v2.json`, profile "Warlock Lean2", 19 rules. Keep that name: the game saves the imported
+`lootfilter/warlock_lean_v2.json`, profile "Warlock Lean2", 23 rules (2026-10-20 ~19:30). Keep that name: the game saves the imported
 profile as `Warlock Lean2.fltr`, which `inventory_tracking/loot/shown.py` `game_filter` reads for the gems, and the
 pickup reads the repo file (`shown.FILTER`). "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable.
 The file is its own source: edit any rule by hand in it, **except** the four generated ones (SHOW Unique ARMOR /

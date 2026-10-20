@@ -10,7 +10,7 @@ import json
 import math
 import time
 from collections import Counter
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import NamedTuple
@@ -51,6 +51,7 @@ from inventory_tracking.macros.routines import DEAD, Dead, character_keys, creat
 from inventory_tracking.macros.shop import KEYS_ONE_STACK, KEYS_WANTED, gold_cap, short
 from inventory_tracking.macros.stash import RESOURCES
 from inventory_tracking.macros.town import GEMS_A_KIND, TRADE_ROOM, Exit, sold_full, surplus, tops_up
+from inventory_tracking.macros.tzroutine import TZ_PLUS
 from inventory_tracking.macros.visit import Remembered
 from inventory_tracking.macros.volatile import (
     STORE_FILE,
@@ -71,17 +72,20 @@ from inventory_tracking.terror.bosses import KILLED_AT
 
 __all__ = [
     'ANDARIEL',
+    'COMING',
     'KINDS',
     'LK',
     'LOWER_KURAST',
     'TOWN',
     'TRADE_ROOM',
     'TRIPS_A_GAME',
+    'Coming',
     'Dead',
     'GameId',
     'Kind',
     'LegHands',
     'Loop',
+    'coming_kinds',
     'kind_of',
     'next_leg',
 ]
@@ -142,23 +146,60 @@ KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
 # The terror zone kinds (macros/goals-plan.md): goals from the agenda (tzloop.py), offered only with tzloop.ENABLED
 FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM_FORTRESS, 109}
 TZ_GAME_SECONDS = 1200.0
+# The HUD's word is TZ+ while TZ+ is TZ leveling's behaviour (macros/tzroutine.py TZ_PLUS; the player, 2026-10-20
+# ~18:50: "TZ+ is default TZ mode from now")
 TZ = Kind(
     'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='experience an hour', game_seconds=TZ_GAME_SECONDS,
-    agenda=True, packaged=True, swaps_gheeds=True, word='TZ',
+    agenda=True, packaged=True, swaps_gheeds=True, word='TZ+' if TZ_PLUS else 'TZ',
 )  # fmt: skip
 # `swaps_gheeds` (2026-10-19): a Herald's Gheed's in Spider Forest fell to the room rules, then stopped the loop
 # The Herald hunt's measure is not ruled yet (goals-plan.md open question 8)
 TZ_CLEAR = replace(
     TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour', full_clear=True, word='TZC'
 )
-TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key))
+# The shard act loop (macros/actloop.py; routes/act-terrorize-plan.md): Act 4 terrorized by a Deep Worldstone Shard in
+# the Fortress, Diablo first, then the Steppes and the Plains, TZ+ on every level. The player, 2026-10-20 ~19:25: "yes,
+# let's do act 4 mode ... shard act 4 as an entry". The coordinator's answers, accepted: a game cap of 2700 s for now
+# (measured), elite and Herald kills an hour, statues reported apart. Offered only with actloop.ENABLED
+ACT_GAME_SECONDS = 2700.0
+ACT4 = replace(
+    TZ, key='act4', name='Shard: Act 4', metric='elite and Herald kills an hour', game_seconds=ACT_GAME_SECONDS,
+    word='ACT4',
+)  # fmt: skip
+TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key, ACT4.key))  # the experience lines too (`look_at_experience`)
 
 
 def loop_kinds() -> dict[str, Kind]:
-    """The kinds the player may choose (KP_6 three times, restart.py --kind); TZ kinds only with tzloop.ENABLED."""
-    from inventory_tracking.macros import tzloop  # late: tzloop imports this module
+    """The kinds the player may choose (KP_6 three times, restart.py --kind); TZ kinds only with tzloop.ENABLED, the
+    shard act kind only with actloop.ENABLED as well."""
+    from inventory_tracking.macros import actloop, tzloop  # late: tzloop imports this module
 
-    return {**KINDS, **({TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR} if tzloop.ENABLED else {})}
+    tz = {TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR} if tzloop.ENABLED else {}
+    act = {ACT4.key: ACT4} if tzloop.ENABLED and actloop.ENABLED else {}
+    return {**KINDS, **tz, **act}
+
+
+@dataclass(frozen=True)
+class Coming:
+    """A kind announced but not built yet: the KP_6 picker shows it, not choosable, until `loop_kinds` offers a kind
+    whose key is `key` or starts with it (macros/kindpick.py)."""
+
+    key: str
+    name: str
+    word: str
+    metric: str
+
+
+# The player, 2026-10-20 ~19:25: "probably we need to pop some kind of dialogue to chose the mode on 3 clicks: shard act
+# 4 as an entry". The act loop (routes/act-terrorize-plan.md §2: the kind `act`, behind actloop.ENABLED); its entry
+# goes by itself once a kind `act` or `act4` is offered.
+COMING = (Coming('act', 'Shard: Act 4', 'ACT4', 'elite and Herald kills an hour'),)
+
+
+def coming_kinds(offered: Iterable[str] | None = None) -> tuple[Coming, ...]:
+    """The announced kinds no kind of `offered` (keys; `loop_kinds()` by default) stands for yet."""
+    keys = tuple(loop_kinds() if offered is None else offered)
+    return tuple(coming for coming in COMING if not any(key.startswith(coming.key) for key in keys))
 
 
 def kind_of(area: int | None) -> Kind | None:
@@ -224,6 +265,8 @@ REPEATS |= {TZ_NEXT_LEVEL: 30 + TOUR_WAYS}
 REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
 TZ_OUT = 'TZ out of town'  # the walk out of a town into a trip's first level (macros/townexit.py)
 REPEATS |= {TZ_OUT: 3}
+TZ_SHARD = 'Worldstone Shard'  # the act kind's shard in the Fortress (macros/actloop.py): once a game, a hand again
+REPEATS |= {TZ_SHARD: 2}
 # Beset (`beset`): the level run fights the attacker, then the ground's valuables one a leg (runner.py `_fetch`)
 FIGHT_BACK = 'fight back'
 PICK_BACK = 'what the fight back left'

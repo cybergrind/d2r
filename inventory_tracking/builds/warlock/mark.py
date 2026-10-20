@@ -10,7 +10,8 @@ adds to the strike (`gain`), against one volley of blades (MARK_CAST_SECONDS). A
 magic (MARK_IMMUNE, the player 2026-10-20: the demons kill what the magic cannot); a leader or boss before a plain
 monster ("on the leader / most dangerous monster"), whatever the price unless it costs life under pressure
 (MARK_LEADERS, 2026-10-20); never with no demon, never on trash (TRASH_CASTS), never again while a mark lasts; a
-leader passed over is named once with why (SAY_PASSED). The measures behind each number:
+leader passed over is named once with why (SAY_PASSED); a mark that did not take is cast again (MARK_RECASTS). The
+measures behind each number:
 builds/history/warlock-mark.md; rca/2026-10-20/leader-not-marked-findings.md.
 """
 
@@ -84,12 +85,37 @@ BOUND_DEMON = 361  # the bound demon data/damage.json measures (a Pit Lord, 72 p
 # and one is to be sent (not every one within MARK_BESIDE + HELD of it already), after an unmarked Herald and a monster
 # immune to the magic; the safety's price stops it only where the cast costs life while holding is over the life
 # budget, as for an immune one. A mark lasting on plain monsters only moves to such a leader (MARK_AGAIN after).
-# False: the safety's price decides for a leader too (the rule of 2026-10-14). Off until the golden replays that pin
-# the price's refusals on leaders (scenarios/golden, battle/test_tower_cellar5.py) are agreed and recorded again.
-MARK_LEADERS = False
+# False: the safety's price decides for a leader too (the rule of 2026-10-14). On since 2026-10-20 ~19:00, the
+# player's answer: "ok, recast. pack leader/herald first" (the goldens recorded again: the leaders the price refused
+# are marked; rca/2026-10-20/mark-recast-leaders-findings.md).
+MARK_LEADERS = True
+# The player, 2026-10-20 ~18:45 (asked whether to cast again when the mark did not take): "ok, recast". The mark as
+# the client holds it is state 212 (states.txt `death_mark`) in the monster's state words (game/layout.py STATE_RUN,
+# states 0-255 from the first word): over the stats events of 2026-10-20's takes it is on in 1,822 of the 1,831 with
+# stat 34 < 0 (the mark's flat points) and off in 73,021 of the 73,025 without. After the key it shows on the target in
+# a median 0.43 s (p95 0.60 s, the latest of 283 at 0.80 s): not shown MARK_SHOWS s after the key, it did not take, and
+# the mark is cast again, MARK_RECASTS times a monster at most (macros/buffs.py `Buffs.settle`). 0: said, not cast
+# again (rca/2026-10-20/mark-recast-leaders-findings.md).
+MARK_STATE = 212
+MARK_SHOWS = 0.8
+MARK_RECASTS = 2
 # A leader or boss in reach the mark passes over is named once, with why (`mark_passed`): the silent "never marked" of
 # elite 397 at 15:01:12 (trash by the strike's table, no line said). False: bosses struck down to trash only.
 SAY_PASSED = True
+
+
+def state_on(words: bytes, state: int) -> bool:
+    """Whether `state` is set in a unit's state words read raw from the first (game/layout.py STATE_RUN: 32 states to
+    a little-endian word)."""
+    word, bit = divmod(state, 32)
+    if len(words) < (word + 1) * 4:
+        return False
+    return bool(int.from_bytes(words[word * 4 : word * 4 + 4], 'little') >> bit & 1)
+
+
+def mark_shows(words: bytes) -> bool:
+    """Whether a monster's state words show Death Mark on it (MARK_STATE): the cast took."""
+    return state_on(words, MARK_STATE)
 
 
 def demons(world: World) -> list[Monster]:

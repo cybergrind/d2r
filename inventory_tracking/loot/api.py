@@ -182,11 +182,14 @@ FIELD_IDENTIFY = True
 # "start all three")
 # G18 the big uniques and sets the pickup takes by its own rules (`FIELD_NAMED`). G19 every magic glove (the player,
 # ~13:30: "we want to identify magic gloves that can roll something like 40ias + annother valuable roll, like skills";
-# the want rows: loot/build_wants.py G19, junk otherwise: keep.py JUNK_MAGIC)
-CLASSES = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19'))
-IMPLEMENTED = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19'))
+# the want rows: loot/build_wants.py G19, junk otherwise: keep.py JUNK_MAGIC). G21 every rare boot and G22 every rare
+# belt (the player, 2026-10-20 ~19:05: "is there are good rolls for belts/boots? right now we're not
+# picking/identifying them", ~19:25: "we can keep really good ones"; the rows: build_wants.py G21, G22, junk otherwise:
+# keep.py JUNK_UNWANTED). Before, a rare boot was G14 by its size and judged by the KB alone; a rare belt was left
+CLASSES = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19', 'G21', 'G22'))
+IMPLEMENTED = frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19', 'G21', 'G22'))
 # The order a batch identifies the classes in (§5 `identify.order`): the dearest class first, then the larger items
-ORDER = ('G6', 'G10', 'G9', 'G19', 'G18', 'G15', 'G14', 'G11')
+ORDER = ('G6', 'G10', 'G9', 'G19', 'G21', 'G22', 'G18', 'G15', 'G14', 'G11')
 # Step 1 of the big items (module text; the player, 2026-10-20 ~11:55 "we want to check them and drop in the middle of
 # the run", ~12:00 "start all three"; Q6: "a scroll on every item >= 4 cells"). False: such an item is the GOOD
 # pickup's only by another class, and the MOST level carries it to town unjudged as before
@@ -336,7 +339,8 @@ TOWN_NEVER_SOLD = RUNES | GEMS | POTIONS | SUNDER | ORGANS | LOOP_GEAR
 VENDOR = 'vendor'  # identify/service.py `verdict_for`: no reason to keep it
 # The rules a give-up in town may come from when the appraisal does not say `vendor`, each a dated ruling of the
 # player's: K6 a cheap copy not better than an owned one (08:42: "a cheap item ... kept only if it beats what we already
-# have"; 15:05: "Sell cheap duplicates"); K8 by kind (keep.py JUNK_UNWANTED ~12:50, rare helms only "really good";
+# have"; 15:05: "Sell cheap duplicates"); K8 by kind (keep.py JUNK_UNWANTED ~12:50, rare helms only "really good",
+# ~19:25 rare boots and belts: "we can keep really good ones";
 # JUNK_MAGIC ~13:30, magic gloves only the IAS + skills rows). Anything else appraised other than vendor is kept, and
 # the shadow names it (a question for the player, not decided here)
 TOWN_RULED = frozenset(('K6',))
@@ -364,7 +368,7 @@ class TownVerdict:
 
 
 def _junk_by_kind(facts: ItemFacts) -> bool:
-    """keep.py K8's kinds kept only by a want row, priced or not: a rare circlet or helm, magic gloves."""
+    """keep.py K8's kinds kept only by a want row, priced or not: a rare circlet, helm, boot or belt, magic gloves."""
     return (facts.quality == RARE and facts.base_type in JUNK_UNWANTED) or (
         facts.quality == MAGIC and facts.base_type in JUNK_MAGIC
     )

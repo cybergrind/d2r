@@ -41,7 +41,7 @@ from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune
 from inventory_tracking.loot.shown import filter_rules, hides, shown_label
-from inventory_tracking.loot.shrines import SHRINE_NAMES
+from inventory_tracking.loot.shrines import SHRINE_CLASSES, SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
 from inventory_tracking.native.memory import game_read
@@ -97,6 +97,7 @@ class Shrine:
     unit_id: int
     x: int
     y: int
+    mode: int = UNUSED_SHRINE_MODE  # `shrines_in` reads every mode: used ones leave 0
 
     @property
     def label(self) -> str:
@@ -157,6 +158,23 @@ def shrines_among(read, units, *, types: frozenset[int]) -> list[Shrine]:
         x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
         shrines.append(Shrine(data[OBJECT_SHRINE_TYPE], unit['unit_id'], x, y))
     return shrines
+
+
+def shrines_in(rows) -> list[Shrine]:
+    """Every shrine, used or not, among GameMemory.objects' rows (unit id, class, mode, x, y and the object data's
+    head raw): an object of a shrine class (SHRINE_CLASSES) with a shrine table pointer, its type byte read as
+    `shrines_among` reads it. For the level run's Experience Shrines (macros/hunting/shrines.py, 2026-10-20)."""
+    found = []
+    for row in rows:
+        if row.get('txt_id') not in SHRINE_CLASSES or 'x' not in row or not row.get('data'):
+            continue
+        with suppress(ValueError, struct.error, IndexError):
+            data = bytes.fromhex(row['data'])
+            table = struct.unpack_from('<Q', data, OBJECT_SHRINE_TABLE)[0]
+            kind = data[OBJECT_SHRINE_TYPE]
+            if 0x10000 <= table < 2**47 and kind < len(SHRINE_NAMES):
+                found.append(Shrine(kind, row['unit_id'], row['x'], row['y'], row['mode']))
+    return found
 
 
 def item_units(read, table_address, class_ids) -> list[ItemSighting]:

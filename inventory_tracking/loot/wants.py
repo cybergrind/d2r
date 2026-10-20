@@ -6,7 +6,8 @@ qualities, the conditions readable on the ground (`ground`: pick it up), the con
 read in full (`must`, and one of `any`), and the rolls that decide its worth (`matters`). Conditions are tri-state:
 True, False, or None when the facts do not hold the stat (an unread ground roll, an unidentified affix). A row with
 no `must` is a pickup row only (it never makes an item a keeper). A row with `keep_up_to` (the Spirit base Monarch)
-keeps copies until that many are owned (loot/ground_judge.py, loot/keep.py).
+keeps copies until that many are owned (loot/ground_judge.py, loot/keep.py). A condition with `count` asks that many of
+its stats at the floor (2026-10-20, rare boots "two resistances >= 25": the second best of the four resistances).
 """
 
 import json
@@ -43,7 +44,8 @@ class RollSpec:
 @dataclass(frozen=True)
 class Need:
     """One condition: the most of `keys` (stat 'id:layer' keys) or a facet, at least `min`, at most `max`, one of
-    `among`, or equal to `equals`. Raw values are divided by `scale` first."""
+    `among`, or equal to `equals`. Raw values are divided by `scale` first. `count` > 1: the count-th most of `keys`
+    (two resistances at 25 or more: the second best of the four is 25 or more)."""
 
     keys: tuple[str, ...]
     min: int | None = None
@@ -51,6 +53,7 @@ class Need:
     among: tuple[Any, ...] | None = None
     equals: Any = None
     scale: int = 1
+    count: int = 1
 
     def value(self, facts: ItemFacts) -> Any:
         """The facts' value for this condition; None when not read."""
@@ -63,7 +66,9 @@ class Need:
             if value is None:
                 return None
             found.append(value)
-        return max(found) // self.scale if found else None
+        if len(found) < self.count:
+            return None
+        return sorted(found, reverse=True)[self.count - 1] // self.scale
 
     def holds(self, facts: ItemFacts) -> bool | None:
         value = self.value(facts)
@@ -87,7 +92,8 @@ class Need:
             else f' {self.min}-{self.max}'
         )  # fmt: skip
         read = f' (read {self.value(facts)})' if facts is not None else ''
-        return f'{name}{bound}{read}'
+        counted = f'{self.count} of ' if self.count > 1 else ''
+        return f'{counted}{name}{bound}{read}'
 
 
 def _all(needs: Sequence[Need], facts: ItemFacts) -> bool | None:
@@ -159,7 +165,7 @@ def _need(row: Mapping[str, Any]) -> Need:
     keys = tuple(row['keys']) if 'keys' in row else (row['key'],)
     among = row.get('in')
     return Need(keys, row.get('min'), row.get('max'), tuple(among) if among is not None else None,
-                row.get('equals'), row.get('scale', 1))  # fmt: skip
+                row.get('equals'), row.get('scale', 1), row.get('count', 1))  # fmt: skip
 
 
 def _spec(row: Mapping[str, Any]) -> RollSpec:

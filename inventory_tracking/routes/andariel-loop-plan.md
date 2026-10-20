@@ -7,7 +7,7 @@ Gheed's Fortune: "we cannot pickup it while having another gheed charm in our in
 to go to the shared stash tab and put our current charm there, then go back and pickup another gheed charm. go to
 shared stash tab, put new there and bring our's back."
 
-The Lower Kurast loop's plan (`lower-kurast-loop-plan.md`) and journal (`lower-kurast-loop-journal.md`) hold the
+The Lower Kurast loop's plan (`lower-kurast-loop-plan.md`) and journal ([../macros/loop-journal.md](../macros/loop-journal.md)) hold the
 machinery this one shares: the trade session, the gems, the guards, the watch.
 
 ## Facts this plan stands on (2026-10-18)

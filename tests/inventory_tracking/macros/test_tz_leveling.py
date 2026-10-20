@@ -819,3 +819,41 @@ def test_the_glowing_staff_chest_in_coldworms_room_is_read_and_opened_after_cold
     assert marked_thing(run, goal.mark) == chest
     run.things = lambda: (replace(chest, mode=2),)  # opened: the route's own goal again
     assert hunt.cleared(run, world, [], Ground(()), boss) == boss
+
+
+def test_tz_plus_runs_fight_a_reasonable_group_of_white_monsters_and_leave_a_lone_one():
+    # The player, 2026-10-20 ~18:50: "we just kill reasonable groups ... we don't want to kill alone mobs in the
+    # corners"
+    from inventory_tracking.macros.agenda import GROUP_MIN, PLUS
+
+    door = Goal('Next level', (5000.0, 5300.0), ENTER, PLACE_NEAR, PRESSED, route='Andariel')
+    play, hunt, run = agenda_hunt(PLUS)
+    play.world = replace(play.world, player=replace(me(play.world), area=35))  # Catacombs 2: 88, under BIG_LEVEL
+    whites = [foe(40 + index, 5012.0 + 6.0 * index, 5010.0) for index in range(GROUP_MIN)]
+    goal = hunt.cleared(run, play.world, whites, Ground(()), door)
+    assert goal is not None
+    assert (goal.do, goal.unit, goal.clearing) == (FIGHT, 40, True)
+    lone = foe(50, 5045.0, 4990.0)  # on the level (the east room), alone
+    left = hunt.cleared(run, play.world, [lone], Ground(()), door)
+    assert left is not None
+    assert left.unit != 50  # the next room, then the route's door
+
+
+def test_tz_plus_on_a_big_level_leaves_a_group_a_small_level_takes_and_fights_a_big_one():
+    # The player, ~18:58: "fore levels with 300+ mobs - we just clear big groups and elites/champions"
+    from inventory_tracking.macros.agenda import BIG_GROUP, PLUS
+
+    door = Goal('Next level', (5000.0, 5300.0), ENTER, PLACE_NEAR, PRESSED, route='Infernal Pit')
+    play, hunt, run = agenda_hunt(PLUS)  # the Frozen Tundra: 374
+    small = [foe(40 + index, 5012.0 + 3.0 * index, 5010.0) for index in range(BIG_GROUP - 1)]
+    left = hunt.cleared(run, play.world, small, Ground(()), door)
+    assert left is not None
+    assert left.unit not in {m.unit_id for m in small}
+    big = [*small, foe(60, 5012.0, 5016.0)]
+    goal = hunt.cleared(run, play.world, big, Ground(()), door)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (FIGHT, 40)
+    champion = foe(61, 5045.0, 4990.0, flags=0x0C)
+    elite = hunt.cleared(run, play.world, [*small, champion], Ground(()), door)
+    assert elite is not None
+    assert elite.unit == 61  # its elite packs, as on every level

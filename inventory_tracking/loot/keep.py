@@ -14,8 +14,9 @@
   names it or it has no price (S8), else DROP; never compared as copies
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
 - K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
-  (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; and magic
-  gloves no want row names (JUNK_MAGIC, ~13:30: the IAS + skills gloves are the rows)
+  (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; rare boots
+  and belts the same (~19:25: "we can keep really good ones"); and magic gloves no want row names (JUNK_MAGIC, ~13:30:
+  the IAS + skills gloves are the rows)
 - K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2)
 - K9 no price, no want: KEEP the first, logged `unknown` for the update-kb skill (Q13)
 - K10 else KEEP: a cheap first copy, or a want
@@ -71,8 +72,9 @@ DECIDES = True
 # the town's guards (loot/api.py `town_verdicts`: the player's items, runes, gems, potions, set/unique charms, shards,
 # keys, tomes and the cube never; the best copy kept; unknown kept; nothing appraised other than vendor sold but by a
 # dated rule). False: today's chain (junk.py `junk_of`, copies.py `sold`, the M2 copies) decides and the shadow logs
-# the unified decision beside it (`Macro: loot: shadow: town merge: ...`). Logging only for ~30 cycles before it is on
-TOWN_DECIDES = False
+# the unified decision beside it (`Macro: loot: shadow: town merge: ...`). On 2026-10-20 ~18:45 (the player: "switch on
+# new rules"), after 3 visits of the shadow with 0 differ
+TOWN_DECIDES = True
 
 # Item types (itemtypes codes of items/metadata.py; the tests check them against macros/pickmode.py and the data)
 RUNES = frozenset(('rune',))
@@ -92,8 +94,10 @@ MULTIPLES = CHARMS | JEWELS
 # really good - fcr + 2skills level + other valuable stats"; the rows: loot/build_wants.py G10): circlets, and plain
 # helms, which roll neither FCR nor a Warlock skill (d2data magicsuffix/magicprefix itypes). Anything else of them that
 # is not worth DUPLICATE_IST by its own rolls (K5) is junk, dropped in the field (loot/api.py `droppable` still spares
-# 1 Ist or more)
-JUNK_UNWANTED = frozenset(('circ', 'helm'))
+# 1 Ist or more). Rare boots and belts too (the player, 2026-10-20 ~19:25, on rare boots and belts: "we can keep really
+# good ones"; the rows: loot/build_wants.py G21, G22)
+JUNK_UNWANTED = frozenset(('circ', 'helm', 'boot', 'belt'))
+JUNK_NAMES = {'circ': 'circlet', 'helm': 'helm', 'boot': 'boot', 'belt': 'belt'}  # for the log
 # The magic item types kept only by a want row or a price of DUPLICATE_IST by their own rolls (K5): gloves (the player,
 # 2026-10-20 ~13:30: "identify magic gloves that can roll something like 40ias + annother valuable roll, like skills";
 # guides/pricing.html:203: "+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity =
@@ -188,7 +192,7 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     if value.tier == 'worthless' and not value.wants:
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
     if facts.quality == RARE and kind in JUNK_UNWANTED and not value.wants:
-        return Decision(Action.DROP, 'K8', f'a rare circlet or helm no want row names ({value.said()})')
+        return Decision(Action.DROP, 'K8', f'a rare {JUNK_NAMES[kind]} no want row names ({value.said()})')
     if facts.quality == MAGIC and kind in JUNK_MAGIC and not value.wants:
         return Decision(Action.DROP, 'K8', f'magic gloves no want row names ({value.said()})')
     if same:

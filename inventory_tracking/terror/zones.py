@@ -167,3 +167,14 @@ _BY_AREA = {area: group for group in GROUPS for area in group.areas}
 
 def group_of(area: int) -> HeraldGroup | None:
     return _BY_AREA.get(area)
+
+
+def level_population(area: int, level_rooms: int | None = None) -> float | None:
+    """Level `area`'s share of its group's mean population (the article's, split by the installed game's
+    `zone_completion_weight`, as terror/tracker.py `levels` assumes before a level is read); None for a level of no
+    group. Today's reads agree (2026-10-20: Frozen Tundra 374 here, 350-490 hostiles seen a visit; Outer Steppes 187,
+    86-200; macros/tzroutine.py BIG_LEVEL)."""
+    group = group_of(area)
+    if group is None:
+        return None
+    return group_population(group, level_rooms) * group.weights[group.areas.index(area)] / sum(group.weights)

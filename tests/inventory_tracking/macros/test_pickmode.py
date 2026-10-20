@@ -122,7 +122,9 @@ def test_a_white_void_base_is_taken_only_with_three_sockets_and_a_paid_staff_mod
     assert not is_candidate(replace(kriss, rolls=Rolls(2, ((ABYSS, 3),))))
     # No socket and +3 Abyss: Larzuk's sockets make it one (the player, 19:40: "0 socket +3 abyss - let's pickup them")
     assert is_candidate(replace(kriss, rolls=Rolls(0, ((ABYSS, 3),))))
-    assert not is_candidate(replace(kriss, rolls=Rolls(0, ((HEX_PURGE, 3),))))
+    # 2026-10-20 ~18:45 ("it worth to assess every item"): 0os +3 Hex: Purge too, by the wants row
+    # void-dagger-0os-plus3-hex-purge (fills 8 trades median 18.1, rca/2026-10-20/white-bases-findings.md)
+    assert is_candidate(replace(kriss, rolls=Rolls(0, ((HEX_PURGE, 3),))))
     assert not is_candidate(replace(kriss, rolls=Rolls(0, ((ABYSS, 2),))))
     assert not is_candidate(replace(kriss, rolls=Rolls(3, ((ABYSS, 2),))))  # a staff mod buyers do not pay for
     assert is_candidate(replace(kriss, rolls=Rolls(3, ((HEX_PURGE, 3),))))
@@ -301,7 +303,7 @@ def test_with_the_switch_off_only_todays_dagger_and_shield_rules_take_a_base(mon
 def test_a_big_magic_or_rare_item_is_picked_for_the_field_check_in_the_loop_only(looping):
     archon = base('Archon Plate', (2, 3), None, quality=4, unit=1)
     bow = base('Grand Matron Bow', (2, 4), None, quality=6, unit=2)
-    belt = base('Heavy Belt', (2, 1), None, quality=6, unit=3)  # 2 cells: as before (left in GOOD)
+    belt = base('Heavy Belt', (2, 1), None, quality=4, unit=3)  # a magic belt, 2 cells: as before (left in GOOD)
     loot = Loot(drops=(archon, bow, belt), game=GAME, room=EMPTY)
     assert [d.unit_id for d in kept(loot, SURE).drops] == [1, 2]
     assert looping.class_of(1, GAME[0]) == 'G14'
@@ -311,6 +313,40 @@ def test_a_big_magic_or_rare_item_is_picked_for_the_field_check_in_the_loop_only
     looping.picked.clear()
     assert kept(loot, SURE).drops == ()  # KP_1 by hand: as before
     assert [d.unit_id for d in kept(loot, MOST).drops] == [1, 3]  # MOST: the cap holds for an unjudged one
+
+
+@pytest.mark.parametrize('mode', MODES)
+def test_rare_boots_and_belts_are_picked_for_the_field_identify_and_magic_ones_are_not(looping, mode):
+    """The player, 2026-10-20 ~19:05: "is there are good rolls for belts/boots? right now we're not picking/identifying
+    them", ~19:25: "we can keep really good ones": every rare boot (G21) and belt (G22) the filter shows is picked with
+    the loop on, in both levels, and remembered for the field identify; a magic belt is no class's."""
+    boots = base('War Boots', (2, 2), None, quality=6, unit=1)
+    belt = base('Mithril Coil', (2, 1), None, quality=6, unit=2)
+    magic_belt = base('Mithril Coil', (2, 1), None, quality=4, unit=3)
+    loot = Loot(drops=(boots, belt, magic_belt), game=GAME, room=EMPTY)
+    assert [d.unit_id for d in kept(loot, mode).drops] == ([1, 2] if mode == SURE else [1, 2, 3])
+    assert (looping.class_of(1, GAME[0]), looping.class_of(2, GAME[0])) == ('G21', 'G22')
+    assert looping.class_of(3, GAME[0]) is None
+    assert is_candidate(belt)  # a field item: no game kept, no trip for it
+    looping.looping = lambda: False
+    assert not is_candidate(belt)
+    assert kept(loot, SURE).drops == ()  # KP_1 by hand: as before
+
+
+def test_the_filter_shows_every_rare_boot_and_belt_and_hides_the_magic_ones_but_the_craft_bases():
+    """`SHOW Rare ARMOR` (lootfilter/warlock_lean_v2.json) lists the boots and belts categories at every tier: no filter
+    change for G21 / G22. Magic boots and belts are shown only as the six caster-craft bases (`SHOW Craft Bases ARMOR`,
+    warlock.html §6: "no magic boot or belt roll is worth identifying")."""
+    from inventory_tracking.loot.shown import filter_rules, hides
+
+    rules = filter_rules()
+    bases = metadata()['bases']
+    kinds = {kind: [int(cid) for cid, row in bases.items() if row.get('type') == kind] for kind in ('boot', 'belt')}
+    assert len(kinds['boot']) == len(kinds['belt']) == 15
+    assert not any(hides(rules, cid, 6) for cid in kinds['boot'] + kinds['belt'])
+    crafted = {class_of(name) for name in ('Boots', 'Demonhide Boots', 'Wyrmhide Boots', 'Light Belt',
+                                           'Sharkskin Belt', 'Vampirefang Belt')}  # fmt: skip
+    assert {cid for cid in kinds['boot'] + kinds['belt'] if not hides(rules, cid, 4)} == crafted
 
 
 def test_the_most_level_remembers_its_big_items_for_the_field_identify(looping):
@@ -326,3 +362,24 @@ def test_a_big_field_item_with_no_grand_charms_room_after_it_is_left(looping):
     tight = ('########..',) * 4  # one 2x4 hole: the bow would take the room a valuable needs
     assert kept(Loot(drops=(bow,), game=GAME, room=tight), SURE).drops == ()
     assert looping.class_of(1, GAME[0]) is None
+
+
+@pytest.mark.parametrize('mode', MODES)
+def test_white_class_items_are_taken_by_their_paid_staff_mods_and_the_rest_left(mode):
+    # The player, 2026-10-20 ~18:45: "implement [grimoire pickup rules] ... it worth to assess every item": G20 by the
+    # ground read (rca/2026-10-20/white-bases-findings.md); a staff (2x4) over the cell cap is taken by the same verdict
+    tainted = base('Possessed Grimoire', (2, 2), Rolls(2, ((376, 3),)), unit=1)  # +3 Summon Tainted, 2os
+    engorge = base('Possessed Grimoire', (2, 2), Rolls(2, ((379, 3),)), unit=2)  # +3 Engorge: floor
+    plus2 = base('Possessed Grimoire', (2, 2), Rolls(2, ((376, 2),)), unit=3)  # +2 alone: left
+    wand = base('Lich Wand', (1, 2), Rolls(2, ((84, 3), (93, 3))), unit=4)  # +3 Bone Spear and +3 Bone Spirit
+    spear_only = base('Lich Wand', (1, 2), Rolls(2, ((84, 3),)), unit=5)
+    staff = base('Archon Staff', (2, 4), Rolls(5, ((58, 3),)), unit=6)  # +3 Energy Shield 5os: Call to Arms
+    staff_3os = base('Archon Staff', (2, 4), Rolls(3, ((58, 3),)), unit=7)
+    unread = base('Possessed Grimoire', (2, 2), None, unit=8)  # rolls not read: never taken
+    drops = (tainted, engorge, plus2, wand, spear_only, staff, staff_3os, unread)
+    found = kept(Loot(drops=drops, game=GAME, room=EMPTY), mode).drops
+    if mode == MOST:
+        assert [d.unit_id for d in found] == [1, 2, 3, 4, 5, 6, 8]  # MOST takes what it took; only the big ones judged
+    else:
+        assert [d.unit_id for d in found] == [1, 4, 6]
+    assert all(is_candidate(d) for d in found if d.unit_id in (1, 4, 6))  # no game is kept for one

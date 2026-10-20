@@ -22,6 +22,7 @@ from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, Dra
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import (
     ACTING,
+    DEAD,
     LOAD_LIMIT,
     LoadTrace,
     cast as cast_free,
@@ -34,6 +35,7 @@ from inventory_tracking.macros.routines import (
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.teleport import ground_fraction
 from inventory_tracking.macros.travel import label, life
+from inventory_tracking.native.layout import DEAD_MODES
 
 
 # A buff with a shown state (`Buff.state`) is cast while the state is off; an unshown cast is retried after
@@ -47,6 +49,21 @@ RESUME_WAIT = 0.25  # seconds for the macro's own cast to show before the strike
 QUIET_BY_THE_BOSS = True
 HURT_SECONDS = 2.0  # life lost this recently hurts: macros/hunt.py HURT_SECONDS (a test holds them equal)
 LIFE_LOOK = 0.25  # seconds between two reads of the life for `Buffs.hurt` (`Run.loot` reads the drops with it)
+# A cast on a monster goes on the unit under the pointer at its key, not on the one aimed at (the 483 Death Mark keys
+# of 2026-10-20's takes: of the 63 that went on a neighbour with the hover read at the key, 54 had the hover naming
+# that neighbour; of the 193 that took with it read, 170 named the target; rca/2026-10-20/
+# mark-recast-leaders-findings.md §2). True: with the hover readable (`Run.hovered`), the pointer is put on the body
+# again where the target moved since the look (MOVED_UNITS), and moved (NUDGES) while the hover names another monster;
+# the key is pressed after NUDGES whatever it names. False: the pointer on the body as the look had it, then the key.
+AIM_CHECK = True
+HOVER_WAIT = 0.06  # seconds for the game's hover record to name the unit after the pointer moved (teleport.py)
+MOVED_UNITS = 0.7  # world units the target went since the look: the pointer is put on it again
+# Window fractions the pointer is moved by while the hover names another monster: up the body (a neighbour in front
+# covers its feet: 62% of those marks went on one drawn in front, 2026-10-20), then away from that neighbour
+NUDGE_UP = 0.025
+NUDGE_AWAY = 0.015
+NUDGES = 2
+SHOWN_ON_MOST = 8  # hostiles nearest a cast's target whose state words are read for where it went instead
 
 
 @dataclass(frozen=True)
@@ -105,6 +122,10 @@ class Buffs:
         self.life_seen: int | None = None
         self.life_read_at = -math.inf
         self.hurt_at = -math.inf
+        # skill -> (unit, clock of the key, its label) of the last cast of a row with `Buff.shows`, until it shows
+        # on the unit or `shows_within` passes (`settle`)
+        self.watching: dict[int, tuple[int, float, str]] = {}
+        self.missed: dict[tuple[int, int], int] = {}  # (skill, unit) -> casts in a row that did not show on it
 
     def took_of(self, run: Run) -> dict[int, float]:
         """The casts that took, merged into the runner's cross-run record (`Run.lasting`) once a run brings it."""
@@ -185,6 +206,8 @@ class Buffs:
         """The row with its target if due now: state missing, its own `due`, a target if it names one, `worth`."""
         facts = replace(facts, now=run.clock())
         facts = replace(facts, lapsing=lapsing(row, facts))
+        if row.shows is not None:
+            self.settle(run, row, facts)
         if row.state is not None and not self.missing(row, facts):
             return None
         if not row.due(facts):
@@ -201,6 +224,66 @@ class Buffs:
             self.say_refused(row, facts, target)
             return None
         return Due(row, facts, target)
+
+    def settle(self, run: Run, row: Buff, facts: BuffFacts) -> None:
+        """Whether the last cast of `row` on a monster took (`Buff.shows` on its state words, `Run.unit_states`). Not
+        shown `shows_within` s after the key: its clock on that unit is cleared, so the row's `target` may choose it
+        again (`recasts` times a unit at most, each said). Nothing is cast again on a monster dead or gone, while the
+        character is dead (the player: "if we died - we MUST not take ANY other actions"), or with the words
+        unread."""
+        watched = self.watching.get(row.skill)
+        if watched is None or row.shows is None:
+            return
+        unit, at, name = watched
+        player = facts.world.player
+        monster = next((m for m in facts.world.monsters if m.unit_id == unit), None)
+        if player is None or player.mode in DEAD or monster is None or monster.mode in DEAD_MODES:
+            del self.watching[row.skill]
+            return
+        states = run.reads.unit_states(monster)
+        key = (row.skill, unit)
+        if states is not None and row.shows(states):
+            del self.watching[row.skill]
+            tries = self.missed.pop(key, 0)
+            if tries:
+                LOG.info('Macro: buff: %s on %s took at try %d', skill_name(row.skill), name, tries + 1)
+            return
+        if facts.now - at < row.shows_within:
+            return
+        del self.watching[row.skill]
+        if states is None:
+            return  # unread: not known whether it took
+        if len(self.missed) > 400:
+            self.missed.clear()
+        tries = self.missed.get(key, 0) + 1
+        self.missed[key] = tries
+        where = self.shown_on(run, row, facts.world, monster)
+        instead = f' (it shows on {label(where)})' if where is not None else ' (it shows on no monster near it)'
+        if tries <= row.recasts:
+            self.cast_at.pop(key, None)
+            LOG.info(
+                'Macro: buff: %s on %s did not take%s: cast again (try %d)',
+                skill_name(row.skill), name, instead, tries + 1,
+            )  # fmt: skip
+        else:
+            LOG.info(
+                'Macro: buff: %s on %s did not take%s, %d casts: not cast again on it while the last would last',
+                skill_name(row.skill), name, instead, tries,
+            )  # fmt: skip
+
+    def shown_on(self, run: Run, row: Buff, world: World, target: Monster) -> Monster | None:
+        """The hostile nearest `target` (of the SHOWN_ON_MOST nearest) whose state words show `row`'s cast: where a
+        cast that did not take on it went."""
+        assert row.shows is not None
+        near = sorted(
+            (m for m in world.monsters if m.unit_id != target.unit_id and not m.ally and m.mode not in DEAD_MODES),
+            key=lambda m: math.dist((m.x, m.y), (target.x, target.y)),
+        )
+        for m in near[:SHOWN_ON_MOST]:
+            states = run.reads.unit_states(m)
+            if states is not None and row.shows(states):
+                return m
+        return None
 
     def say_refused(self, row: Buff, facts: BuffFacts, target: Monster | None) -> None:
         """Log a `worth` refusal once per target (`Buff.refused`)."""
@@ -266,6 +349,8 @@ class Buffs:
             self.remember(row, tried.at, target.unit_id if target is not None else None)
         if tried.cast and tried.at is not None:
             self.took[row.skill] = tried.at
+        if tried.cast and target is not None and row.shows is not None and tried.at is not None:
+            self.watching[row.skill] = (target.unit_id, tried.at, f'{label(target)}, {life(target)}')
         if tried.cast and target is not None and row.said is not None:
             said = row.said(due.facts, target)
             if said is not None:
@@ -341,12 +426,60 @@ class Buffs:
                 )  # fmt: skip
                 return Tried()
             run.actuator.aim(*point, scatter=(3, 3))
-        if all(m.unit_id != target.unit_id for m in run.world().monsters):
+        fresh = run.world()
+        now = next((m for m in fresh.monsters if m.unit_id == target.unit_id), None)
+        if now is None:
             return Tried()  # it died under the strike while the pointer went over: no mark on a corpse
+        if run.pad is None and AIM_CHECK and fresh.player is not None:
+            self.onto(run, cast, now, fresh)
         self.key(run, skill)
         at = run.clock()
         run.say(f'{skill_name(skill)} on {label(target)}, {life(target)}')
         return Tried(at, cast=True)
+
+    def onto(self, run: Run, cast: Casting, target: Monster, world: World) -> None:
+        """Put the pointer on `target` as it stands now (AIM_CHECK): again where it went MOVED_UNITS since the look,
+        and moved up its body, then away from the neighbour, while the hover names another monster (NUDGES); said
+        once a cast where it was moved or still names another."""
+        assert cast.target is not None
+        assert cast.aspect is not None
+        player = world.player
+        assert player is not None
+        point = screen_fraction(player, target.x, target.y, cast.aspect)
+        if math.dist((target.x, target.y), (cast.target.x, cast.target.y)) > MOVED_UNITS and on_screen(point):
+            run.actuator.aim(*point, scatter=(3, 3))
+        if run.hovered is None:
+            return
+        named: list[str] = []
+        for nudge in range(NUDGES + 1):
+            run.pace.sleep(HOVER_WAIT)
+            over = run.hovered()
+            if over is None or over[0] != MONSTER_UNIT or over[1] == target.unit_id:
+                if named:
+                    LOG.info(
+                        'Macro: buff: %s on %s: the pointer named %s; moved %d times, now %s',
+                        skill_name(cast.row.skill), label(target), ', '.join(named), nudge,
+                        'on it' if over is not None else 'naming nothing',
+                    )  # fmt: skip
+                return
+            other = next((m for m in world.monsters if m.unit_id == over[1]), None)
+            named.append(label(other) if other is not None else f'the unit {over[1]}')
+            if nudge == NUDGES:
+                break
+            if nudge == 0 or other is None:
+                moved = (point[0], point[1] - NUDGE_UP)
+            else:
+                there = screen_fraction(player, other.x, other.y, cast.aspect)
+                dx, dy = point[0] - there[0], point[1] - there[1]
+                away = math.hypot(dx, dy) or 1.0
+                moved = (point[0] + dx / away * NUDGE_AWAY, point[1] - NUDGE_UP + dy / away * NUDGE_AWAY)
+            if on_screen(moved):
+                run.actuator.aim(*moved, scatter=(1, 1))
+        LOG.info(
+            'Macro: buff: %s on %s: the pointer names %s after %d moves (the cast goes on the unit under it): '
+            'pressed anyway',
+            skill_name(cast.row.skill), label(target), ', '.join(dict.fromkeys(named)), NUDGES,
+        )  # fmt: skip
 
     def on_ground(self, cast: Casting) -> Tried:
         """A cast on the ground under a monster: the pointer at its feet, then the key."""

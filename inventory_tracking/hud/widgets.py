@@ -23,7 +23,7 @@ from inventory_tracking.hud.ground import arrow_reach, arrow_shown, ground_marks
 from inventory_tracking.hud.map import KIND_COLOURS, LOCAL_SCALE, WHOLE_SCALE, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.levels.map_card import MapCard  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.presentation import StyledLine, Tone, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
 
 
 CARD_BACKGROUND = (0.06, 0.06, 0.08, 0.92)
@@ -215,7 +215,74 @@ class GroundMarks:
             cr.stroke()
 
 
-RENDERERS = {'guide': GuideCard(), 'text': TextCard(), 'ground': GroundMarks()}
+class PickerCard:
+    """The KP_6 kind picker (macros/kindpick.py, the player 2026-10-20): a title, a row per kind in columns (the
+    highlight's arrow, name, HUD word, metric, a tag: now / next game / coming), the highlighted row on a bar, and
+    the keys' hint."""
+
+    PAD, GAP, ROW_GAP, SLACK = 10, 14, 4, 4
+    ARROW = '▶'
+    HIGHLIGHT = (0.70, 0.61, 0.38, 0.30)  # CARD_BORDER, faint
+
+    def _cell(self, text, tone, scale):
+        return text_layout(_measuring_context(), render_markup([StyledLine(text, tone)]), scale)
+
+    def _cells(self, row, scale):
+        enabled, lit = bool(row.get('enabled')), bool(row.get('highlighted'))
+        name_tone = Tone.METADATA if not enabled else Tone.VALUABLE if lit else Tone.DEFAULT
+        tag = 'now' if row.get('current') else 'next game' if row.get('pending') else row.get('note') or ''
+        return [
+            (self.ARROW if lit else '', Tone.VALUABLE),
+            (str(row.get('name') or ''), name_tone),
+            (str(row.get('word') or ''), Tone.SET if enabled else Tone.METADATA),
+            (str(row.get('metric') or ''), Tone.METADATA),
+            (tag, Tone.SET if row.get('current') else Tone.METADATA),
+        ]
+
+    def _plan(self, payload, scale):
+        """(title, rows of cells, column widths, row heights, hint) at `scale`; the text sizes measured once."""
+        title = self._cell(str(payload.get('title') or ''), Tone.HEADING, scale).get_pixel_size()
+        hint = self._cell(str(payload.get('hint') or ''), Tone.METADATA, scale).get_pixel_size()
+        rows = [self._cells(row, scale) for row in payload.get('rows', [])]
+        sizes = [[self._cell(text, tone, scale).get_pixel_size() if text else (0, 0) for text, tone in r] for r in rows]
+        widths = [max((size[i][0] for size in sizes), default=0) for i in range(5)]
+        heights = [max(h for _, h in size) for size in sizes]
+        return title, rows, widths, heights, hint
+
+    def measure(self, payload, scale, limit=None):
+        pad, gap, row_gap, slack = self.PAD * scale, self.GAP * scale, self.ROW_GAP * scale, self.SLACK * scale
+        title, _, widths, heights, hint = self._plan(payload, scale)
+        columns = sum(w + slack + (gap if w else 0) for w in widths)  # as `draw` steps across
+        width = max(title[0], hint[0], columns) + slack
+        height = title[1] + hint[1] + sum(h + row_gap for h in heights) + 2 * row_gap
+        return math.ceil(width + 2 * pad), math.ceil(height + 2 * pad)
+
+    def draw(self, cr, width, height, payload, scale):
+        pad, gap, row_gap, slack = self.PAD * scale, self.GAP * scale, self.ROW_GAP * scale, self.SLACK * scale
+        title, rows, widths, heights, _ = self._plan(payload, scale)
+        card_background(cr, width, height, scale)
+
+        def show(text, tone, x, y):
+            cr.move_to(x, y)
+            PangoCairo.show_layout(cr, text_layout(cr, render_markup([StyledLine(text, tone)]), scale))
+
+        show(str(payload.get('title') or ''), Tone.HEADING, pad, pad)
+        y = pad + title[1] + row_gap
+        for row, cells, row_height in zip(payload.get('rows', []), rows, heights, strict=True):
+            if row.get('highlighted'):
+                cr.rectangle(pad / 2, y - row_gap / 2, width - pad, row_height + row_gap)
+                cr.set_source_rgba(*self.HIGHLIGHT)
+                cr.fill()
+            x = pad
+            for (text, tone), column in zip(cells, widths, strict=True):
+                if text:
+                    show(text, tone, x, y)
+                x += column + slack + (gap if column else 0)
+            y += row_height + row_gap
+        show(str(payload.get('hint') or ''), Tone.METADATA, pad, y + row_gap)
+
+
+RENDERERS = {'guide': GuideCard(), 'text': TextCard(), 'ground': GroundMarks(), 'picker': PickerCard()}
 
 
 def measure(widget, *, scale: float, limit: tuple[int, int] | None = None) -> tuple[int, int]:

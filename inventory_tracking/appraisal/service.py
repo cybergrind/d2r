@@ -85,6 +85,7 @@ from inventory_tracking.hud.dclone import dclone_watch
 from inventory_tracking.hud.process import (
     ModeBeacon,
     PanelBeacon,
+    canvas_running,
     card_widgets,
     guide_widgets,
     hud_process,
@@ -128,6 +129,7 @@ from inventory_tracking.macros.runner import (
     TELEPORT_PREFIX,
     MacroRunner,
 )
+from inventory_tracking.macros.running.base import TERRORIZE, TERRORIZE_PREFIX
 from inventory_tracking.macros.skills import NAMES as SKILL_NAMES
 from inventory_tracking.native.process import find_game_processes
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
@@ -336,6 +338,7 @@ MACRO_ROUTINES = (
     (PICKUP_PREFIX, PICKUP),
     (HUNT_ANY_PREFIX, HUNT_ANY),
     (LOOP_PREFIX, LOOP),
+    (TERRORIZE_PREFIX, TERRORIZE),  # a Worldstone Shard used in town (macros/terrorize.py)
 )
 
 
@@ -787,6 +790,10 @@ def run_service(args, directory, report):
                     )
                     macro.verdicts = identify.verdicts_now  # the loop's junk (macros/junk.py)
                     macro.appraise = identify.appraise
+                    if args.osd:
+                        # The KP_6 kind picker's card (macros/kindpick.py), opened only with a canvas up (2026-10-20)
+                        macro.picker_publish = lambda widgets: publish_layer(args.hud_scene, 'picker', widgets)
+                        macro.hud_up = lambda: canvas_running(args.hud_scene)
                     resumed = read_resume(args.output)
                     if resumed is not None:
                         macro.resume(resumed)
@@ -1090,6 +1097,7 @@ def run_service(args, directory, report):
                             'loot',
                             'macro',
                             'panels',
+                            'picker',
                             'terror',
                         ):
                             publish_layer(args.hud_scene, producer, [])

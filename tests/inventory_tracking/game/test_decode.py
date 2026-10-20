@@ -166,3 +166,55 @@ def test_a_magic_body_armor_is_not_read_its_ground_holds_nothing_to_judge():
     archon = Drop(UNIT, 0.0, 0.0, 'Archon Plate', VALUABLE, (2, 3), source='shown', txt=ARCHON, quality=4)
     assert rolled(item.memory.read, archon, item.unit()).rolls is None
     assert rolled(item.memory.read, replace(archon, quality=2), item.unit()).rolls == Rolls(0)
+
+
+TOMB_WAND, JAWBONE_VISOR, SCISSORS_QUHAB, BONEWEAVE_BOOTS = 105, 473, 188, 457  # 9bw, ba6, 9qr, umb (items metadata)
+
+
+def test_every_weapon_and_armor_type_of_the_item_data_is_read_off_the_ground():
+    # The player, 2026-10-20 ~18:45: "it looks like we don't need to pickup them to assess, so it worth to assess every
+    # item": every weapon and armor type of the items metadata but the throwing potions
+    from inventory_tracking.game.layout import BASE_ROLLED_TYPES
+    from inventory_tracking.items.metadata import metadata
+
+    types = {row['type'] for row in metadata()['bases'].values() if row['category'] in ('weapons', 'armor')}
+    assert types - {'tpot'} == BASE_ROLLED_TYPES
+
+
+def test_a_white_class_items_staff_mods_are_read_from_its_totals():
+    # [verified] 2026-10-20 on 24,852 captured white and superior units: a class item's staff mods (107) lie in the
+    # +0xE8 totals, e.g. a normal Jawbone Visor 107:149 = 2, 107:150 = 2, 107:154 = 2, 194 = 3; a Tomb Wand 107:92 = 2
+    item = Item([(0, 194, 3), (149, 107, 2), (150, 107, 2), (154, 107, 3)])
+    item.chain()
+    visor = Drop(UNIT, 0.0, 0.0, 'Jawbone Visor', VALUABLE, (2, 2), source='shown', txt=JAWBONE_VISOR, quality=2)
+    found = rolled(item.memory.read, visor, item.unit())
+    assert found.rolls == Rolls(3, ((149, 2), (150, 2), (154, 3)))
+    assert rolls(found) == ' 3os +2 Battle Orders +2 Grim Ward +3 War Cry'  # skills.json 149, 150, 154
+    wand = Drop(UNIT + 1, 0.0, 0.0, 'Tomb Wand', VALUABLE, (1, 2), source='shown', txt=TOMB_WAND, quality=4)
+    assert rolled(item.memory.read, wand, item.unit()).rolls is None  # a magic wand holds nothing to judge (R1)
+
+
+def test_a_look_reads_a_base_once_and_then_takes_it_from_the_cache():
+    # The cost of the wider read: one stat and chain read the first time a shown base is seen, a dict hit after
+    import time
+
+    item = Item([(0, 194, 2), (269, 107, 3)])
+    item.chain()
+    claw = Drop(UNIT, 0.0, 0.0, 'Scissors Quhab', VALUABLE, (1, 3), source='shown', txt=SCISSORS_QUHAB, quality=2)
+    reads = []
+
+    def counted(address, size):
+        reads.append(address)
+        return item.memory.read(address, size)
+
+    first = rolled(counted, claw, item.unit())
+    assert first.rolls == Rolls(2, ((269, 3),))
+    once = len(reads)
+    started = time.perf_counter()
+    for _ in range(1000):
+        assert rolled(counted, claw, item.unit()).rolls == first.rolls
+    looks = time.perf_counter() - started
+    assert len(reads) == once  # no memory read after the first
+    assert looks < 0.5  # 1,000 looks of a cached base: well under 1 ms each
+    boots = Drop(UNIT, 0.0, 0.0, 'Boneweave Boots', VALUABLE, (2, 2), source='shown', txt=BONEWEAVE_BOOTS, quality=2)
+    assert rolled(counted, boots, item.unit()).rolls is not None  # read (a cached unit id), and no wants row picks it

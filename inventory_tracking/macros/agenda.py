@@ -34,6 +34,9 @@ WALK_OUT = 'walk out'
 SWAP_AWAY, SWAP_PARK, SWAP_PICK = "gheed's away", "gheed's park", "gheed's pick"
 SWAP_HOME, SWAP_CHOOSE = "gheed's home", "gheed's choose"
 SWAP_GOALS = frozenset((SWAP_AWAY, SWAP_PARK, SWAP_PICK, SWAP_HOME, SWAP_CHOOSE))
+# A Worldstone Shard used in the Fortress at a game's start (macros/actloop.py, macros/terrorize.py; the player,
+# 2026-10-20 ~18:50: "terrorize with worldstone shards whole act and go whole act, zone by zone")
+TERRORIZE = 'terrorize act'
 # In-level goals: a level run's targets (PICKUP is both: a side drop in a level, a remembered valuable at a leg)
 KILL, EXPLORE, NAVIGATE = 'kill', 'explore', 'navigate'
 # A closed super chest ("add superchests to intemediate goals and open them along the way", the player, 2026-10-19)
@@ -51,6 +54,34 @@ TRANSIT = 'transit'
 # A level of the zone the zone moved on from under its run (the tracker reads it not terrorized now): the run ends
 # there, its drops picked up; the agenda then makes for the new zone (23:30 on 2026-10-19)
 ZONE_LEFT = 'zone left'
+# TZ+, the TZ leveling kind's default since 2026-10-20 (macros/tzroutine.py TZ_PLUS). The player, ~18:50: "add another
+# mode TZ+: it tries to kill slightly more mobs on levels with not so many mobs to get herald spawn ... we don't want
+# to clear very large levels with 300 mobs or so ... we just kill reasonable groups and if herald doesn't spawn - we're
+# fine, we don't want to kill alone mobs in the corners"; ~18:58: "fore levels with 300+ mobs - we just clear big
+# groups and elites/champions". PLUS: COVER's leaders and rooms, and the reasonable groups in the read (`groups`);
+# PLUS_WAY: ON_THE_WAY's, and the groups (a big level on the way to a boss, a boss that comes to a stand).
+PLUS = 'tz+'
+PLUS_WAY = 'tz+ on the way'
+GROUPS_TAKEN = frozenset((PLUS, PLUS_WAY))
+WAYS_ON = frozenset((ON_THE_WAY, PLUS_WAY))  # the leaders near, then the area's end goal: no room is explored
+# Hostiles: a level of this many (terror/zones.py `level_population`) and more is big: only its big groups and its
+# leaders are gone for, never a clear. The player's own number ("300 mobs or so"). Exp an hour agrees (2026-10-20,
+# 16:48-18:55, in-level time): Frozen Tundra (374), every room explored, 9.9M an hour, under the loop's 11-12M an hour
+# over whole games; the small levels made 13-20M (Halls of the Dead 1-3 14-20M, Jail 1-3 13-16M, Outer Steppes 15.6M).
+BIG_LEVEL = 300
+# Hostiles within GROUP_LINK units of one another (one linked chain) are one group. 15 units is 3 tiles: a pack as
+# it spawns and stands; under the strike's 20 (combat/policy.py STRIKE_REACH), so a group's first cast reaches more.
+GROUP_LINK = 15.0
+# A group of this many is gone for on a level under BIG_LEVEL; fewer (a pair, a lone monster in a corner) are left.
+# A detour within GROUP_NEAR is ~1 s of hops each way and ~2 s of fight for 4 kills (1.75 kills a second in combat,
+# ~2.7k exp a kill: 2026-10-20's sessions): ~11k exp in ~4 s, ~10M an hour plus the Herald's share, about the loop's
+# own rate; three would be under it.
+GROUP_MIN = 4
+# On a big level only groups of this many: twice the exp for the same detour, as its own rate is under the loop's.
+BIG_GROUP = 8
+# Units: a group's nearest member further than this is no detour the metric pays (a screen, as CHEST_NEAR, USE_NEAR);
+# the tour brings the rest near, and what is never near is left ("we don't want to hunt every mob").
+GROUP_NEAR = 60.0
 
 # In-level tiers (goals-plan.md §3), lowest first. Drops come before the metric; a Herald comes to the character
 # anyway. CHEST after the leaders in the read (they come at a character standing at a chest), before the rest.
@@ -165,10 +196,43 @@ class LevelView:
     chests: tuple[tuple[int, Point], ...] = ()
     spent: frozenset[int] = frozenset()
     use_at: Point | None = None  # the route's next object on this level (`Agenda.in_level` USE_FIRST)
+    # TZ+ (GROUPS_TAKEN): the hostiles of this level in the read the groups are made of (`groups`), and the level's
+    # population (terror/zones.py `level_population`; BIG_LEVEL), None unknown: a level under BIG_LEVEL
+    crowd: tuple[tuple[int, Point], ...] = ()
+    population: float | None = None
+
+    @property
+    def group_size(self) -> int:
+        """The fewest hostiles a group gone for has here: BIG_GROUP on a big level, else GROUP_MIN."""
+        return BIG_GROUP if self.population is not None and self.population >= BIG_LEVEL else GROUP_MIN
 
 
 def kill(area: int, unit: int, place: Point, label: str, tier: int = LEADER) -> Objective:
     return Objective(KILL, label, tier, area, place, unit)
+
+
+def groups(
+    crowd: Iterable[tuple[int, Point]], smallest: int, link: float = GROUP_LINK
+) -> list[tuple[tuple[int, Point], ...]]:
+    """The groups among `crowd` (unit, place): hostiles linked by chains of steps of at most `link` units, `smallest`
+    or more of them (TZ+, GROUP_MIN / BIG_GROUP); the rest are left."""
+    members = list(crowd)
+    parent = list(range(len(members)))
+
+    def root(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    for first, (_, at) in enumerate(members):
+        for second in range(first + 1, len(members)):
+            if math.dist(at, members[second][1]) <= link:
+                parent[root(first)] = root(second)
+    found: dict[int, list[tuple[int, Point]]] = {}
+    for index, member in enumerate(members):
+        found.setdefault(root(index), []).append(member)
+    return [tuple(group) for group in found.values() if len(group) >= smallest]
 
 
 def room_package(area: int) -> tuple[Objective, ...]:
@@ -243,6 +307,13 @@ class Agenda:
     ended_empty: Counter[int] = field(default_factory=Counter)
     said: str | None = None
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
+    policies: dict[int, str] = field(default_factory=dict)  # how each level was last said to be worked (`worked_as`)
+    # The act kind's shard this game (macros/actloop.py): None not tried yet, else how it went (actloop.USED ...);
+    # `acts` the acts a shard terrorized in this game (planned whatever the client's list reads: tzloop.py `zone_of`)
+    shard: str | None = None
+    acts: frozenset[int] = frozenset()
+    # Games in a row whose shard step failed (kept across games: actloop.py SHARD_FAILURES)
+    shard_failures: int = 0
 
     def begin(self, game: object) -> bool:
         """Start afresh (stack discarded) when `game` is new; whether it was."""
@@ -254,6 +325,8 @@ class Agenda:
         self.chests, self.opened = {}, set()
         self.worked, self.finished, self.failures, self.dropped = Counter(), set(), Counter(), set()
         self.plan, self.wayless, self.ended_empty = None, set(), Counter()
+        self.policies = {}
+        self.shard, self.acts = None, frozenset()
         return True
 
     def push(self, *goals: Objective) -> None:
@@ -396,10 +469,10 @@ class Agenda:
 
     def in_level(self, view: LevelView) -> Objective | None:
         """The level run's next target (goals-plan.md §3), first match: a live Herald; a Herald's omen; the side
-        drop's guards, then the drop; a leader in sight; a super chest within CHEST_NEAR; a leader remembered within
-        REMEMBERED_NEAR; on COVER/FULL_CLEAR the next room, then leaders further, unless the route's next object
-        (`use_at`) is within USE_NEAR and no farther; on TRANSIT nothing after the drop. None: the area's end goal is
-        next."""
+        drop's guards, then the drop; a leader in sight (on TZ+ a reasonable group too, `groups_near`); a super chest
+        within CHEST_NEAR; a leader remembered within REMEMBERED_NEAR; on COVER/PLUS/FULL_CLEAR the next room, then
+        leaders further, unless the route's next object (`use_at`) is within USE_NEAR and no farther; on TRANSIT nothing
+        after the drop. None: the area's end goal is next (on TZ+ its goals met: rooms explored, no group near)."""
         self.observe(view)
         here = view.here
 
@@ -438,8 +511,10 @@ class Agenda:
             return side
         if view.policy == TRANSIT:
             return None  # the drops above, then the way on
-        reach = WAY_UNITS if view.policy == ON_THE_WAY else math.inf
+        reach = WAY_UNITS if view.policy in WAYS_ON else math.inf
         seen = [goal for goal in known if goal.unit in live and away(where(goal)) <= reach]
+        if view.policy in GROUPS_TAKEN:
+            seen += self.groups_near(view)
         if seen:
             return min(seen, key=lambda goal: away(where(goal)))
         chests = [
@@ -454,7 +529,7 @@ class Agenda:
         if near:
             found = min(near, key=lambda goal: away(where(goal)))
             return Objective(KILL, found.label, LEADER_NEAR, found.area, found.place, found.unit)
-        if view.policy == ON_THE_WAY:
+        if view.policy in WAYS_ON:
             return None
         use = view.use_at if USE_FIRST else None
         near_use = use is not None and away(use) <= USE_NEAR
@@ -469,6 +544,31 @@ class Agenda:
             found = min(remembered, key=lambda goal: away(where(goal)))
             return Objective(KILL, found.label, LEADER_FAR, found.area, found.place, found.unit)
         return None
+
+    def worked_as(self, area: int, policy: str, population: float | None) -> None:
+        """Say how level `area` is worked when that changes (once a level a game, unless it changes): its policy, on
+        TZ+ its population and the groups it takes (`LevelView.group_size`)."""
+        if self.policies.get(area) == policy:
+            return
+        self.policies[area] = policy
+        extra = ''
+        if policy in GROUPS_TAKEN:
+            size = LevelView(area, (0.0, 0.0), population=population).group_size
+            known = f'{population:.0f} hostiles' if population is not None else 'its size unknown'
+            extra = f' ({known}: groups of {size} and more)'
+        LOG.info('Macro: agenda: %s is worked %s%s', display_name(area), policy, extra)
+
+    def groups_near(self, view: LevelView) -> list[Objective]:
+        """TZ+'s KILL goals for the reasonable groups of `view.crowd` (`groups`, `LevelView.group_size`): each group's
+        nearest member, when within GROUP_NEAR and not passed (a group behind a wall is left whole, not member by
+        member). A level under BIG_LEVEL takes groups of GROUP_MIN, a big one only of BIG_GROUP; a lone monster, a
+        pair, a group further are left."""
+        found = []
+        for group in groups(view.crowd, view.group_size):
+            unit, place = min(group, key=lambda member: math.dist(view.here, member[1]))
+            if math.dist(view.here, place) <= GROUP_NEAR and not view.passed(place, unit):
+                found.append(kill(view.area, unit, place, f'a group of {len(group)}'))
+        return found
 
     def known(self, area: int) -> int:
         """The open KILL goals of `area`."""

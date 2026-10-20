@@ -392,3 +392,83 @@ def test_the_routes_object_beside_the_character_goes_before_a_farther_room(monke
     assert agenda.in_level(view(leaders=(far,), frontier=lambda: None, use_at=(5040.0, 5000.0))) is None
     monkeypatch.setattr(agenda_module, 'USE_FIRST', False)  # the switch off: the tour first, as before
     assert aimed(agenda, view(frontier=lambda: room, policy=COVER, use_at=(5040.0, 5000.0))).kind == EXPLORE
+
+
+# -- TZ+ (the player, 2026-10-20 ~18:50/~18:58): the reasonable groups, never a lone monster in a corner, a big level's
+# big groups and its leaders only, the level left once its rooms are explored and no group is near
+# -------------------------
+
+
+def pack(first: int, x: float, y: float, size: int, step: float = 6.0) -> tuple[tuple[int, tuple[float, float]], ...]:
+    """`size` hostiles from unit `first`, `step` units apart in a row from (x, y): one linked group."""
+    return tuple((first + index, (x + index * step, y)) for index in range(size))
+
+
+def test_tz_plus_takes_a_reasonable_group_and_leaves_a_lone_monster_and_a_pair():
+    from inventory_tracking.macros.agenda import GROUP_MIN, KILL, PLUS
+
+    agenda = Agenda()
+    agenda.begin('g')
+    room = ((5300.0, 5300.0), 'an unexplored room')
+    group = pack(20, 5030.0, 5000.0, GROUP_MIN)
+    lone, pair = ((40, (5010.0, 5010.0)),), pack(50, 5000.0, 5020.0, 2)
+    found = aimed(agenda, view(crowd=(*lone, *pair, *group), frontier=lambda: room, policy=PLUS))
+    assert (found.kind, found.unit, found.label) == (KILL, 20, f'a group of {GROUP_MIN}')  # its nearest member
+    # The lone monster and the pair only: the tour goes on, then the level's end goal
+    explore = aimed(agenda, view(crowd=(*lone, *pair), frontier=lambda: room, policy=PLUS))
+    assert explore.kind == EXPLORE
+    assert agenda.in_level(view(crowd=(*lone, *pair), frontier=lambda: None, policy=PLUS)) is None
+    # COVER (TZ leveling before TZ+) takes no group
+    assert aimed(agenda, view(crowd=group, frontier=lambda: room, policy=COVER)).kind == EXPLORE
+
+
+def test_tz_plus_leaves_a_group_out_of_reach_or_passed_and_the_level_once_explored():
+    from inventory_tracking.macros.agenda import GROUP_MIN, GROUP_NEAR, PLUS
+
+    agenda = Agenda()
+    agenda.begin('g')
+    far = pack(20, HERE[0] + GROUP_NEAR + 5.0, HERE[1], GROUP_MIN)
+    assert agenda.in_level(view(crowd=far, frontier=lambda: None, policy=PLUS)) is None  # no detour the metric pays
+    near = pack(30, 5020.0, 5000.0, GROUP_MIN)
+    passed = view(crowd=near, frontier=lambda: None, policy=PLUS, passed=lambda place, unit: unit == 30)
+    assert agenda.in_level(passed) is None  # behind a wall: the group is left whole, not member by member
+    # The TZ+ goals met: every room explored, no group near, no leader: the area's end goal (the way on)
+    assert agenda.in_level(view(frontier=lambda: None, policy=PLUS)) is None
+
+
+def test_tz_plus_on_a_big_level_takes_its_big_groups_and_its_elite_packs_and_leaves_the_small_groups():
+    # The player, ~18:58: "fore levels with 300+ mobs - we just clear big groups and elites/champions"
+    from inventory_tracking.macros.agenda import BIG_GROUP, BIG_LEVEL, GROUP_MIN, KILL, PLUS, PLUS_WAY
+
+    agenda = Agenda()
+    agenda.begin('g')
+    tundra = 374.0  # Frozen Tundra (terror/zones.py `level_population`)
+    assert tundra >= BIG_LEVEL
+    assert GROUP_MIN < BIG_GROUP
+    small = pack(20, 5020.0, 5000.0, BIG_GROUP - 1)
+    big = pack(40, 5000.0, 5040.0, BIG_GROUP)
+    room = ((5300.0, 5300.0), 'an unexplored room')
+    kept = view(crowd=(*small, *big), frontier=lambda: room, policy=PLUS, population=tundra)
+    found = aimed(agenda, kept)
+    assert (found.kind, found.unit, found.label) == (KILL, 40, f'a group of {BIG_GROUP}')  # the big group
+    assert aimed(agenda, view(crowd=small, frontier=lambda: room, policy=PLUS, population=tundra)).kind == EXPLORE
+    # Its elite pack (a champion, a unique's) is taken as on every level, the small group by it left
+    champion = Leader(60, (5100.0, 5000.0), 'a champion')
+    elite = aimed(agenda, view(leaders=(champion,), crowd=small, frontier=lambda: room, policy=PLUS, population=tundra))
+    assert elite.unit == 60
+    # The same small group on a level under BIG_LEVEL is a reasonable group
+    assert aimed(agenda, view(crowd=small, frontier=lambda: room, policy=PLUS, population=88.0)).unit == 20
+    # A big level on the way to a boss: no room explored, its big groups and leaders near, then the way on
+    way = view(crowd=(*small, *big), frontier=lambda: room, policy=PLUS_WAY, population=tundra)
+    assert aimed(agenda, way).unit == 40
+    assert agenda.in_level(view(crowd=small, frontier=lambda: room, policy=PLUS_WAY, population=tundra)) is None
+
+
+def test_groups_link_hostiles_by_chains_within_the_link_and_drop_the_small_ones():
+    from inventory_tracking.macros.agenda import GROUP_LINK, groups
+
+    chain = pack(1, 0.0, 0.0, 4, step=GROUP_LINK)  # each within the link of the one before: one group
+    apart = pack(10, 500.0, 0.0, 4, step=GROUP_LINK + 1.0)  # no two linked: four lone monsters
+    found = groups((*chain, *apart), 4)
+    assert [sorted(unit for unit, _ in group) for group in found] == [[1, 2, 3, 4]]
+    assert groups((*chain, *apart), 5) == []

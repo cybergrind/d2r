@@ -29,10 +29,13 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import (
     COVER,
     FULL_CLEAR,
+    GROUPS_TAKEN,
     KILL,
     ON_THE_WAY,
     OPEN,
     PICKUP as SIDE,
+    PLUS,
+    PLUS_WAY,
     TRANSIT,
     ZONE_LEFT,
     Leader,
@@ -122,6 +125,7 @@ from inventory_tracking.macros.travel import PRESSED, STANDING, Point, clear_lin
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import FIGHT, USE
+from inventory_tracking.terror.zones import level_population
 
 
 if TYPE_CHECKING:
@@ -869,9 +873,12 @@ def agenda_target(
     assert player is not None
     area, now = player.area, run.clock()
     policy = self.agenda_policy(area) if self.agenda_policy is not None else FULL_CLEAR
-    if policy == ON_THE_WAY and (world.game_name, area) in self.wayless:
-        policy = COVER  # no way to the route's goal: the rooms are explored for it (`judge`)
+    if policy in (ON_THE_WAY, PLUS_WAY) and (world.game_name, area) in self.wayless:
+        # no way to the route's goal: the rooms are explored for it (`judge`)
+        policy = COVER if policy == ON_THE_WAY else PLUS
     everyone = policy == FULL_CLEAR
+    population = level_population(area, len(rooms) or None)
+    agenda.worked_as(area, policy, population)
     out = skip | set(self.passed)
 
     def here_on(x: float, y: float) -> bool:
@@ -909,6 +916,11 @@ def agenda_target(
         OMEN_NEAR,
         *self.agenda_chests(things, rooms),
         use_at=use_at,
+        # TZ+'s groups (agenda.py `groups_near`): this level's hostiles in the read, none left alone for now
+        crowd=tuple((m.unit_id, (m.x, m.y)) for m in foes if m.unit_id not in self.untouchable and here_on(m.x, m.y))
+        if policy in GROUPS_TAKEN
+        else (),
+        population=population,
     )
     target = agenda.in_level(view)
     said = (target.kind, target.unit, target.label) if target is not None else None

@@ -49,11 +49,13 @@ from inventory_tracking.macros.running.base import (
     RESEARCH_ENV,
     STEPS,
     TELEPORT,
+    TERRORIZE,
 )
 from inventory_tracking.macros.running.room import ROOM
 from inventory_tracking.macros.running.valuables import tome_charges
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import ready, step_toward
+from inventory_tracking.macros.terrorize import terrorize
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, cut
 from inventory_tracking.macros.visit import note_view
@@ -188,6 +190,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             run.kept_item = lambda item: amulet_keeper(item, memory.item_stats(item.unit_id))
             run.objects = memory.objects
             run.corpses = memory.corpses
+            run.unit_states = lambda monster: memory.states(monster.stats_at)  # a cast took (buffs.py `settle`)
             run.flights = memory.flights
             if self.healer is not None:
                 run.given = lambda kind, ledger=self.healer: ledger.given_at(Actor.MERC, kind)
@@ -367,6 +370,12 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             item_stats=self.item_stats,
             shown=self.stash_memory,
         )
+    elif routine == TERRORIZE:
+        # A Worldstone Shard used by request in town (macros/terrorize.py, its clicks behind `CLICKS`; the player,
+        # 2026-10-20: "terrorize with worldstone shards whole act")
+        player = run.world().player
+        key = action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
+        terrorize(run, key, terrorized=getattr(self.progress, 'wanted', None))
     elif routine == ROOM:
         self._room_errand(run, key_names)  # an activity by hand's trip for room (running/room.py)
     elif routine == BUFF:

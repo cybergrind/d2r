@@ -12,6 +12,8 @@ LOOP_PREFIX = 'loop '
 # The loop's kind chosen by request, `kind <stamp> <key>` (runner.py `choose_kind`); not 'loop kind ', which
 # `LOOP_PREFIX` would take
 KIND_PREFIX = 'kind '
+# A Worldstone Shard used by request (macros/terrorize.py; request.py `terrorize`, 2026-10-20): a routine of its own
+TERRORIZE_PREFIX, TERRORIZE = 'terrorize ', 'terrorize'
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # pick up what is worth it, else a seek step (pickup.py)
 # The HUD's word for the pickup level (macros/pickmode.py)
@@ -35,7 +37,7 @@ ATTACK = HUNT_ANY  # the attack mode toggle
 # (2026-10-19); a mode as ATTACK is, never queued
 BUFF = 'buff'
 # The order waiting requests run in: where the player wants to be, what to fight, the macro, the ground.
-PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
+PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP, TERRORIZE)
 # Seconds after its press a request is still worth starting (user, 2026-10-12: "teleporting after 2 seconds is way too
 # late"); 90 % of waiting teleport presses had their key within 0.48 s (2026-10-11). The fight-waiting pickup has none.
 EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}

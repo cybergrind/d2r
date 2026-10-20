@@ -342,6 +342,13 @@ class Buff:
     # Seconds a cast lasts for a buff that ends by itself (Consume: 300); drives `BuffFacts.lapsing`
     # (rca/2026-10-14/run-1214-findings.md §3.4)
     lasts: float | None = None
+    # A cast on a monster checked on it (the player, 2026-10-20 ~18:45: "ok, recast"): whether a monster's state
+    # words (game/layout.py STATE_RUN, raw: `Run.unit_states`) show this row's cast on it. A cast not shown
+    # `shows_within` s after its key is cast again, `recasts` times at most a monster (macros/buffs.py `Buffs.settle`).
+    # None: not checked.
+    shows: Callable[[bytes], bool] | None = None
+    shows_within: float = 0.0
+    recasts: int = 0
 
 
 @dataclass(frozen=True)

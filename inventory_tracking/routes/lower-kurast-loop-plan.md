@@ -1,5 +1,7 @@
 # The Lower Kurast loop: KP_6 runs games until toggled off (plan, 2026-10-15)
 
+The loop's live state (rounds, rulings, restarts, every kind): [the loop journal](../macros/loop-journal.md).
+
 **Goal** (the player, 2026-10-15): one key, KP_6, toggles a closed loop:
 create game → Pandemonium Fortress → prebuff → waypoint to Lower Kurast → each super chest: go, open, pick up →
 no chest left → Town Portal (`x`, the key detected, not assumed) → Kurast Docks → waypoint to Pandemonium Fortress →

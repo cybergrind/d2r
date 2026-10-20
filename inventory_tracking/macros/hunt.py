@@ -94,6 +94,7 @@ from inventory_tracking.macros.hunting.base import (
     strike_input,
     threat,
 )
+from inventory_tracking.macros.hunting.shrines import ShrineWatch
 from inventory_tracking.macros.hunting.throne import Waves
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import LEVEL_LEFT, NONE, SETTLE, Move as Advance, Pursuit, Told, settled
@@ -210,6 +211,7 @@ class Hunter:
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
         self.shack_tries: dict[int, int] = {}  # a shack's container (unit): the loop's tries to open it (`shack_goal`)
+        self.shrines = ShrineWatch()  # the Experience Shrines of this game (hunting/shrines.py, 2026-10-20)
         self.use_tries: dict[int, int] = {}  # a route's object (unit): the tries to use it (ROUTE_USE_TRIES)
         self.dead_ends: list[tuple[Point, float]] = []  # spots a move did not reach, and until when they are passed
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why

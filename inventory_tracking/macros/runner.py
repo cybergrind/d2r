@@ -29,6 +29,7 @@ from inventory_tracking.macros.charms import Parked
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.hunting.base import NO_WAY_TO
 from inventory_tracking.macros.journey import Journey
+from inventory_tracking.macros.kindpick import PICKER_TICK, KindPicker, entries
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.loop import ANDARIEL, Kind, Loop, loop_kinds
 from inventory_tracking.macros.pad import PadPlay
@@ -191,6 +192,13 @@ class MacroRunner:
         self.pickup_mode = MODES[0]
         self.loop_taps: list[float] = []
         self.loop_timer: threading.Timer | None = None
+        # The KP_6 kind picker (macros/kindpick.py; the player, 2026-10-20: "pop some kind of dialogue to chose the mode
+        # on 3 clicks"): open while not None, republished by its timer. The HUD layer's publisher and whether a canvas
+        # shows it are the service's (appraisal/service.py); without either three presses cycle the kind as before.
+        self.picker: KindPicker | None = None
+        self.picker_timer: threading.Timer | None = None
+        self.picker_publish: Callable[[list], None] | None = None
+        self.hud_up: Callable[[], bool] = lambda: False
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
         self.trace = trace or Trace()  # how long each press takes (latency.py)
         # the requests whose run has not begun (waiting.py)
@@ -454,6 +462,9 @@ class MacroRunner:
     def _judge_loop_taps(self) -> None:
         """The group of KP_6 presses is over (`_loop_tap`). Under the lock."""
         count, self.loop_taps = len(self.loop_taps), []
+        if self.picker is not None:
+            self._picker_taps(count)  # the picker takes the presses while it is open; the loop stays as it is
+            return
         if count == 1:
             self._toggle_loop()
         elif count == 2:
@@ -463,14 +474,82 @@ class MacroRunner:
             self._say(f'Pickup: {PICK_WORDS[self.pickup_mode]}')
         elif count == 3:
             # The run's kind (macros/loop.py KINDS; the player, 2026-10-18: "rebuild loop start to accept what type of
-            # run we're going to run"), for a start in the Fortress or the lobby
-            kinds = list(loop_kinds().values())  # the terror zone kinds once promoted (macros/tzloop.py ENABLED)
-            self.loop.kind = kinds[(kinds.index(self.loop.kind) + 1) % len(kinds)]
-            self.loop.chosen = True  # by hand: no place overrides it
-            self.loop.pending = None  # the press wins over a request
-            self._say_kind(self.loop.kind)
+            # run we're going to run"), for a start in the Fortress or the lobby: chosen in the picker (2026-10-20)
+            self._open_picker()
         else:
             self._say(f'KP_6 pressed {count} times together: nothing switched')
+
+    def _switch_kind(self, kind: Kind, how: str) -> None:
+        """The loop's kind chosen by the KP_6 presses, at once (the loop on or off). Under the lock."""
+        self.loop.kind = kind
+        self.loop.chosen = True  # by hand: no place overrides it
+        self.loop.pending = None  # the press wins over a request
+        LOG.info('Macro: loop kind: %s (%s)', kind.name, how)
+        self._say_kind(kind)
+
+    def _open_picker(self) -> None:
+        """Three KP_6 presses: the kind picker on the HUD (macros/kindpick.py). With no canvas to show it, the next kind
+        as the presses did before the picker. Under the lock."""
+        if self.picker_publish is None or not self.hud_up():
+            kinds = list(loop_kinds().values())  # the terror zone kinds once promoted (macros/tzloop.py ENABLED)
+            here = kinds.index(self.loop.kind) if self.loop.kind in kinds else -1
+            self._switch_kind(kinds[(here + 1) % len(kinds)], 'cycled: no HUD for the picker')
+            return
+        self.picker = KindPicker(entries(), self.loop.kind, time.monotonic(), pending=self.loop.pending)
+        LOG.info('Macro: loop kind picker open: %s highlighted', self.picker.highlighted.name)
+        self._picker_tick(self.picker)
+
+    def _picker_taps(self, count: int) -> None:
+        """A group of KP_6 presses while the picker is open: one moves the highlight, two choose the highlighted kind,
+        three close it. Under the lock."""
+        picker = self.picker
+        assert picker is not None
+        if count == 1:
+            LOG.info('Macro: loop kind picker: %s highlighted', picker.move(time.monotonic()).name)
+            self._show_picker(picker)
+        elif count == 2:
+            chosen = picker.highlighted
+            self._close_picker(f'{chosen.name} chosen')
+            if chosen.kind is not None:  # the coming entries are never highlighted (kindpick.py `_after`)
+                self._switch_kind(chosen.kind, 'picked')
+        elif count == 3:
+            self._close_picker('closed by the key, nothing changed')
+        else:
+            picker.touch(time.monotonic())
+            LOG.info('Macro: loop kind picker: KP_6 pressed %d times together, nothing changed', count)
+
+    def _picker_tick(self, picker: KindPicker) -> None:
+        """The open picker republished inside the HUD's lease, until no press for PICK_SECONDS closes it."""
+        with self.lock:
+            if self.picker is not picker or self.closed:
+                return
+            if picker.expired(time.monotonic()):
+                self._close_picker('no press, nothing changed')
+                return
+            self._show_picker(picker)
+            self.picker_timer = threading.Timer(PICKER_TICK, self._picker_tick, (picker,))
+            self.picker_timer.daemon = True
+            self.picker_timer.start()
+
+    def _show_picker(self, picker: KindPicker | None) -> None:
+        """Publish the picker's card (none: take it down); a failed write is the next tick's to retry."""
+        if self.picker_publish is None:
+            return
+        try:
+            self.picker_publish(picker.widgets(time.monotonic()) if picker is not None else [])
+        except OSError as error:
+            LOG.warning('Macro: loop kind picker not shown: %s', error)
+
+    def _close_picker(self, why: str) -> None:
+        """Under the lock."""
+        if self.picker is None:
+            return
+        self.picker = None
+        if self.picker_timer is not None:
+            self.picker_timer.cancel()
+            self.picker_timer = None
+        self._show_picker(None)
+        LOG.info('Macro: loop kind picker closed: %s', why)
 
     def choose_kind(self, requested_at: float, now: float, key: str) -> bool:
         """The `loop-kind` request (request.py; the player, 2026-10-19: "I want you to have the ability to dynamically
@@ -481,6 +560,7 @@ class MacroRunner:
                 LOG.warning('Macro: loop kind %r refused', key)
                 return False
             kind = kinds[key]
+            self._close_picker('a kind was requested')
             if not self.loop.on:
                 self.loop.kind, self.loop.pending, self.loop.chosen = kind, None, True
                 self._say_kind(kind)
@@ -576,6 +656,7 @@ class MacroRunner:
             self.attack_mode = self.buff_mode = False
             if self.loop_timer is not None:
                 self.loop_timer.cancel()
+            self._close_picker('the service closed')
             if self.mode_timer is not None:
                 self.mode_timer.cancel()
             self.loop.stop()

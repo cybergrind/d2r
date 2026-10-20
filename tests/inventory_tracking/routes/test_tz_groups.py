@@ -2,7 +2,13 @@
 
 from dataclasses import replace
 
-from inventory_tracking.routes.tz_groups import installed_active_zones, match_active_zone
+from inventory_tracking.routes.tz_groups import (
+    installed_active_zones,
+    installed_manual_zones,
+    manual_zone,
+    match_active_zone,
+    match_zones,
+)
 from inventory_tracking.routes.tz_routes import route_inventory
 
 
@@ -37,3 +43,60 @@ def test_route_inventory_covers_every_installed_level_and_reports_real_blockers(
     assert caps[73].status == 'unavailable'
     assert caps[73].reason == 'no route script'
     assert {area for area in expected if caps[area].status == 'unavailable'} == {73, 111, 112, 117}
+
+
+# A whole act terrorized by a Worldstone Shard (the player, 2026-10-20 ~19:00: "for TZ/TZ+ modes we want to know how to
+# handle whole terrorized act (when we terrorized it manually with stone)"; rca/2026-10-20/act-terrorize-findings.md §4)
+ACT4 = frozenset((104, 105, 106, 107, 108))
+CATACOMBS = frozenset((32, 33, 34, 35, 36, 37))
+
+
+def test_the_five_manual_zones_are_the_installed_acts_and_their_cores_have_herald_groups():
+    acts = installed_manual_zones()
+    assert [zone.name for zone in acts] == [f'Act{act}-Manual' for act in range(1, 6)]
+    assert [len(zone.areas) for zone in acts] == [37, 34, 27, 5, 22]
+    assert acts[3].areas == (104, 105, 106, 107, 108)
+    # The levels with no Herald group: terrorized, but the tracker cannot read them (terror/tracker.py `terrorized`)
+    assert [sorted(set(zone.areas) - zone.core) for zone in acts] == [[20], [45, 50, 73], [], [], [132]]
+    assert manual_zone(4) == acts[3]
+    assert manual_zone(6) is None
+
+
+def test_a_terrorized_act_alone_is_its_manual_zone():
+    (act,) = match_zones(ACT4)
+    assert act.name == 'Act4-Manual'
+    assert act.unreported == ()
+
+
+def test_a_terrorized_act_and_the_rotation_elsewhere_are_both_matched_the_act_first():
+    act, rotation = match_zones(ACT4 | CATACOMBS)
+    assert (act.name, rotation.name) == ('Act4-Manual', 'Act1-Catacombs')
+
+
+def test_the_rotation_inside_the_terrorized_act_is_the_act():
+    act1 = installed_manual_zones()[0]
+    (act,) = match_zones(act1.core)
+    assert act.name == 'Act1-Manual'
+    assert act.unreported == (20,)  # the Forgotten Tower: no Herald group, never read
+    assert act.core >= CATACOMBS
+
+
+def test_a_partly_read_act_is_not_an_act_and_its_wholly_read_groups_are_played_meanwhile():
+    # The act's groups come one by one when the client's list does not hold it (its plain monsters' votes): no act
+    # until every group is read, and no stop while it is read ("no terror zone is read" stopped the loop before)
+    (steppes,) = match_zones(frozenset((104, 105)))
+    assert steppes.name == 'Act4_OuterSteppes'  # the rotation alone, as today
+    read = match_zones(frozenset((104, 105, 106, 107)))
+    assert [zone.name for zone in read] == ['Act4_OuterSteppes', 'Act4-RiverOfFlame']
+    act1 = installed_manual_zones()[0]
+    read = match_zones(act1.core - {2, 8})  # Blood Moor and the Den of Evil not read yet
+    assert 'Act1-Manual' not in [zone.name for zone in read]
+    assert 'Act1-BloodMoor' not in [zone.name for zone in read]
+    assert {'Act1-Catacombs', 'Act1-Tower', 'Act1-Jail'} <= {zone.name for zone in read}
+
+
+def test_nothing_read_or_only_stray_levels_match_nothing():
+    assert match_zones(frozenset()) == ()
+    assert match_zones(frozenset((6, 11))) == ()  # part of one group's levels: no group read
+    # A stray level beside a group wholly read: the group, the stray left out
+    assert [zone.name for zone in match_zones(frozenset((3, 9, 13, 6)))] == ['Act1-ColdPlains']

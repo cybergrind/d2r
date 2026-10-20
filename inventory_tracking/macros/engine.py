@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.game.records import (
     Carried,
     Loot,
+    Monster,
     Pack,
     StashView,
     Stocked,
@@ -81,6 +82,10 @@ class Reads:
         read = self._run.ground
         return read() if read is not None else None
 
+    def unit_states(self, monster: Monster) -> bytes | None:
+        read = self._run.unit_states
+        return read(monster) if read is not None else None
+
 
 class Run:
     def __init__(
@@ -131,6 +136,9 @@ class Run:
         self.hover_note: Callable[[], str] | None = None  # the record it read last, whole (world.GameMemory.hover_note)
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
+        # A monster's state words raw (game/layout.py STATE_RUN; world.GameMemory.states), None unread: whether a
+        # cast on it shows (macros/buffs.py `Buffs.settle`; the player, 2026-10-20: "ok, recast")
+        self.unit_states: Callable[[Monster], bytes | None] | None = None
         # missiles in flight as (owner unit, class, x, y), priced by combat/threats (world.GameMemory.flights)
         self.flights: Callable[[frozenset[int]], tuple[tuple[int, int, float, float], ...]] | None = None
         # when the healer (`make osd`) last gave the mercenary a potion of a kind (automation/ledger.py `given_at`)

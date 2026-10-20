@@ -59,6 +59,13 @@ MOTION_SECONDS = (0.15, 0.5)  # a velocity is measured over the oldest sample th
 STILL_SPEED = 1.0  # units a second: slower is standing
 MOST_SPEED = 16.0  # units a second: the velocity is capped here (monstats Run of the fastest of the takes' monsters)
 LEAD_MOST = 6.0  # units: most a monster is taken to go along its velocity (one that turns drags no line far off)
+# The player, 2026-10-20 ~18:45, asked whether to mark pack leaders first and weight the leader in the aim: "ok,
+# recast. pack leader/herald first" (rca/2026-10-20/mark-recast-leaders-findings.md). True: where the best line is not
+# laid through a leader (a unique, champion or super unique: a Herald is a unique), the best line laid through one is
+# cast instead while it is worth LEADER_SHARE of the best (`LinePolicy.focus`). False: the best line, a leader's points
+# counting ELITE_WEIGHT.
+FOCUS_LEADERS = False
+LEADER_SHARE = 0.85
 
 
 # The bins' middles with their shares: what `hit_share` runs straight between.
@@ -159,12 +166,26 @@ class LinePolicy:
     # Frames from the decision to the blades' first frame: lines are laid and scored where the monsters'
     # routes have them as the blades fly. None: where they stand (the game's fight until it reads routes).
     lead: int | None = None
+    # A line laid through a leader (`Foe.elite`) worth this share of the best line is cast instead of it
+    # (FOCUS_LEADERS); 0: the best line
+    focus: float = 0.0
 
     def __call__(self, seen: Observation) -> Choice | None:
         if self.yields and seen.moving:
             return None
-        best = self.choose(seen)
+        best = self.focused(seen, self.choose(seen))
         return best if best is not None and best.worth >= MIN_SCORE else None
+
+    def focused(self, seen: Observation, best: Choice | None) -> Choice | None:
+        """`best`, or with `focus` the best line laid through a leader where `best` is laid through none and that
+        one is worth `focus` of it."""
+        if not self.focus or best is None or seen.foes[best.unit].elite:
+            return best
+        leaders = [unit for unit, foe in seen.foes.items() if foe.elite]
+        if not leaders:
+            return best
+        found = self.choose(seen, through=leaders)
+        return found if found is not None and found.worth >= self.focus * best.worth else best
 
     def choose(self, seen: Observation, through: Collection[int] | None = None) -> Choice | None:
         """The best line through the live hostiles; with `through`, of the lines laid through those."""
@@ -259,6 +280,12 @@ class EchoingStrike(LinePolicy):
         if LEAD_MOVING and self.lead is None:
             return replace(self, lead=LIVE_LEAD).choose(seen, through)
         return super().choose(seen, through)
+
+    def focused(self, seen: Observation, best: Choice | None) -> Choice | None:
+        """`LinePolicy.focused`, at LEADER_SHARE under FOCUS_LEADERS where no focus is set."""
+        if FOCUS_LEADERS and not self.focus:
+            return replace(self, focus=LEADER_SHARE).focused(seen, best)
+        return super().focused(seen, best)
 
     @classmethod
     def of(cls, policy: LinePolicy) -> EchoingStrike:

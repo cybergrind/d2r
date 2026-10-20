@@ -11,6 +11,7 @@ from inventory_tracking.game.decode import item_size
 from inventory_tracking.game.layout import BANK
 from inventory_tracking.game.records import Carried, Pack, StashView, Teleport, Thing
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.loot.facts import QUALITY_NAMES, Owner
 from inventory_tracking.macros.actuator import Hand
 from inventory_tracking.macros.cube import CUBE_CLASS, own_of
 from inventory_tracking.macros.town import Exit, Holdings, Needs, stash_stop as plan_stop
@@ -196,6 +197,59 @@ def test_a_remembered_page_the_player_changed_is_found_again_from_the_first():
 # The town visit (macros/visit.py `visit`; macros/town-plan.md step 3)
 
 LK_NEEDS = Needs()  # the Warlock's 2 x 4, LK's two key stacks
+# The appraisal the fakes give the loop's junk (loot/keep.py TOWN_DECIDES, on since the player's ~18:45 "switch on new
+# rules", 2026-10-20): the identify worker's verdict `vendor` and a KB band under KEEP_IST
+VENDOR_RESULT = {'triage': {'verdict': 'vendor', 'band': {'q1_ist': 0.05, 'median_ist': 0.1, 'sellers': 9}}}
+
+
+class OwnedAlike:
+    """The collection the fakes read (loot/value.py CollectionCopies): one owned copy rolled the same of every set or
+    unique item, so a junk one is a surplus copy; none of anything else. Never the host's collection."""
+
+    def copies(self, facts):
+        if facts.quality not in (5, 7):  # set, unique
+            return []
+        return [replace(facts, owner=Owner.PLAYER, unit_id=facts.unit_id + 1_000_000)]
+
+
+def vendor_read(item: Carried) -> dict:
+    """An identify read of a carried item as the worker keeps it (no affixes): its base, quality and name."""
+    base = metadata()['bases'][str(item.txt)]
+    return {'item': {'name': base['name'], 'base_name': base['name'], 'base_code': base['code'],
+                     'rarity': QUALITY_NAMES.get(item.quality, 'normal'), 'identified': True, 'ethereal': False,
+                     'sockets': 0},
+            'source': {'unit_id': item.unit_id}, 'decoded_stats': []}  # fmt: skip
+
+
+def appraised(play: Game, junked: set[int]):
+    """`Hands.appraise` of the fakes: the carried `junked` units noted `vendor` in the shadow's book (loot/shadow.py
+    BOOK, which loot/api.py `town_sold` reads), the others with no verdict (kept, S8)."""
+
+    def appraise(units):
+        from inventory_tracking.loot import shadow
+
+        pack = carried(play)
+        for item in (*pack.items, *pack.in_cube):
+            if item.unit_id in units and item.unit_id in junked:
+                shadow.BOOK.put(item.unit_id, shadow.Appraised(vendor_read(item), VENDOR_RESULT, 'vendor'))
+        return {}
+
+    return appraise
+
+
+@pytest.fixture(autouse=True)
+def unified_town_decision(monkeypatch):
+    """Each test's own appraisal book and owned copies for the town's one decision (TOWN_DECIDES)."""
+    from inventory_tracking.loot import shadow, value
+
+    monkeypatch.setattr(shadow, 'BOOK', shadow.Book())
+    monkeypatch.setattr(value, 'CollectionCopies', OwnedAlike)
+
+
+def old_chain(monkeypatch) -> None:
+    """The visit's old chain (junk.py `junk_of`, copies.py `sold`, the M2 copies) for a test of it: kept until that
+    code is deleted after the live check of TOWN_DECIDES (the player, 2026-10-20 ~18:45: "switch on new rules")."""
+    monkeypatch.setattr('inventory_tracking.loot.keep.TOWN_DECIDES', False)
 
 
 def no_park(monkeypatch) -> None:
@@ -275,7 +329,8 @@ class Town:
         def judge(items):
             return [i for i in items if i.unit_id in self.junked]
 
-        return Hands(lambda: 'i', self.identify, judge, lambda: run.stash_view() if run.stash_view else None)
+        return Hands(lambda: 'i', self.identify, judge, lambda: run.stash_view() if run.stash_view else None,
+                     appraise=appraised(self.play, self.junked))  # fmt: skip
 
     def visit(self, exit: Exit = Exit.WAYPOINT) -> Visited:
         self.run = self.play.run()
@@ -839,7 +894,20 @@ def test_the_2155_magic_javelin_appraised_vendor_is_sold_not_stashed(monkeypatch
     assert JAVELIN not in start.junk  # as the visit judged it then
     play, town = replay(monkeypatch, start.pack, start.own, start.junk, start.view)
     verdicts = dict.fromkeys((*start.junk, JAVELIN), 'vendor') | {CHECKED: 'check'}
-    hands = replace(town.hands(), judge=lambda items: junk_of(items, lambda units: {u: verdicts[u] for u in units}))
+    # The town's one decision (TOWN_DECIDES) gets the same verdicts from the worker's appraisal; the `check` one too
+    vendor = appraised(play, {*start.junk, JAVELIN})
+
+    def appraise(units):
+        vendor(units)
+        from inventory_tracking.loot import shadow
+
+        checked = next(i for i in (*carried(play).items, *carried(play).in_cube) if i.unit_id == CHECKED)
+        result = {'triage': {'verdict': 'check'}}
+        shadow.BOOK.put(CHECKED, shadow.Appraised(vendor_read(checked), result, 'check'))
+        return {}
+
+    judge = lambda items: junk_of(items, lambda units: {u: verdicts[u] for u in units})  # ruff: ignore[lambda-assignment]
+    hands = replace(town.hands(), judge=judge, appraise=appraise)
 
     with caplog.at_level('INFO'):
         done = visit(town.run, hands, start.needs, start.own, Exit.WAYPOINT)
@@ -1132,7 +1200,7 @@ def test_unread_stash_moves_junk_aside_for_a_cube_keeper_before_jamella(monkeypa
     play = fortress(pack, [OPEN_PAGE] * 6)
     town = Town(monkeypatch, play, frozenset(i.unit_id for i in junk))
     town.hands = lambda: Hands(lambda: 'i', town.identify, lambda items: [i for i in items if i.unit_id in town.junked],
-                               lambda: None)  # fmt: skip
+                               lambda: None, appraise=appraised(play, town.junked))  # fmt: skip
     town.run = play.run()
 
     done = visit(town.run, town.hands(), LK_NEEDS, own_of((THE_CUBE, *fixed)), Exit.LEAVE)
@@ -1266,6 +1334,7 @@ def test_the_loot_shadow_only_logs_beside_the_visit_and_never_changes_it(monkeyp
 def test_m2_sells_the_cheap_duplicate_keep_decides_gives_up_and_never_the_players(monkeypatch, caplog):
     # The player, 2026-10-20 ~15:05: "Sell cheap duplicates" (loot/design.md §7 M2, keep.DECIDES): what
     # loot/api.py `sold_copies` gives up is junk for Jamella; the player's by its stats still never is
+    old_chain(monkeypatch)  # M2 is the old chain's step (TOWN_DECIDES off)
     from inventory_tracking.loot import api as loot_api, keep
     from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
 

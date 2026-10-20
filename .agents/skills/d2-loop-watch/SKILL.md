@@ -39,7 +39,7 @@ proper interactions with drops (we cannot run without picking desired items just
   into a loop. The KP_6 loops ignore the terror-zone full-clear default (`hunt.Hunter.run_mode`, `posted.looped`).
 - A change is judged by the loop's own metric (`andy.py`, `speed.py`, the TZ tool); drops lost (MISSED) veto it.
 
-State between rounds and sessions: [the journal](../../../inventory_tracking/routes/lower-kurast-loop-journal.md)
+State between rounds and sessions: [the journal](../../../inventory_tracking/macros/loop-journal.md)
 (baseline, queue, rulings waiting, rounds). Design: `inventory_tracking/routes/lower-kurast-loop-plan.md`. The player's
 rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verbatim), and the journal. Studies:
 `rca/<date>/*-findings.md`.

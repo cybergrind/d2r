@@ -14,6 +14,7 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
 from inventory_tracking.levels.presets import display_name, numbered_name
+from inventory_tracking.macros import actloop
 from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import (
     EXCURSION,
@@ -32,6 +33,7 @@ from inventory_tracking.macros.agenda import (
     SWAP_HOME,
     SWAP_PARK,
     SWAP_PICK,
+    TERRORIZE,
     THROUGH_PORTAL,
     TOWN_ROUTINE,
     TOWNS,
@@ -67,6 +69,7 @@ from inventory_tracking.macros.loop import (
     TZ_OUT,
     TZ_PICKUP,
     TZ_PORTAL,
+    TZ_SHARD,
     TZ_WAYPOINT,
     Dead,
     LegHands,
@@ -84,7 +87,7 @@ from inventory_tracking.macros.visit import Remembered
 from inventory_tracking.macros.waypoint import travel
 from inventory_tracking.routes.model import FIGHT, Script
 from inventory_tracking.routes.progress import Progress
-from inventory_tracking.routes.tz_groups import installed_active_zones
+from inventory_tracking.routes.tz_groups import installed_active_zones, manual_zone
 from inventory_tracking.terror.bosses import KILLED_AT
 
 
@@ -113,6 +116,7 @@ LEGS = {
     PICKUP: TZ_PICKUP,
     NEXT_LEVEL: TZ_NEXT_LEVEL,
     WALK_OUT: TZ_OUT,
+    TERRORIZE: TZ_SHARD,
     LEAVE_GAME: LEAVE,
     # The Gheed's swap in Andariel's words (loop.py), for the watch tools (andy.py SWAP_LEGS)
     SWAP_AWAY: SWAP_OUT,
@@ -139,9 +143,13 @@ def leg_of(goal: Objective) -> str:
     return LEGS[goal.kind]
 
 
-def zone_of(tz: LegHands) -> Itinerary | None:
-    """The itinerary of the zone the tracker reads as terrorized now (tzroutine.py `itinerary`)."""
-    return itinerary(frozenset(area for area in zone_levels() if tz.terrorized(area)))
+def zone_of(tz: LegHands, acts: frozenset[int] = frozenset()) -> Itinerary | None:
+    """The itinerary of the zones the tracker reads as terrorized now (tzroutine.py `itinerary`), with each of `acts`
+    a shard terrorized in this game (agenda.py `Agenda.acts`): planned whether or not the client's list names it
+    (rca/2026-10-20/act-terrorize-findings.md §6 check 4 is open)."""
+    read = frozenset(area for area in zone_levels() if tz.terrorized(area))
+    known = frozenset(area for act in acts if (zone := manual_zone(act)) is not None for area in zone.core)
+    return itinerary(read | known)
 
 
 def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | None) -> Objective:
@@ -176,7 +184,9 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         top = loop.agenda.package()
         assert top is not None
         return top
-    plan = zone_of(tz)
+    if (shard := actloop.shard_goal(world, loop)) is not None:
+        return shard  # the act kind's Worldstone Shard first in a game (macros/actloop.py)
+    plan = zone_of(tz, agenda.acts)
     if plan is None and not player.in_town and (left := tz.sighted(None)) is not None:
         # The zone turned under the game with a valuable still on the ground: it is picked up first, then the game's
         # end. A Set Occult Codex by Andariel, room just made in the cube, stopped the loop at the 08:30 turn
@@ -443,6 +453,8 @@ def perform(
             # The Rogue Encampment's prebuff fails on its start NPCs (loop.py `next_game`): at the field's edge, as a
             # waypoint excursion's arrival (the coordinator, 2026-10-19)
             loop.prebuff_once(run, game)
+        elif goal.kind == TERRORIZE:
+            actloop.use_shard(loop, run, tz.terrorized)  # once a game: the outcome on the agenda, never again
         elif goal.kind == TOWN_ROUTINE:
             exit = Exit(goal.exit or 'waypoint')
             if exit == Exit.WAYPOINT and loop.done == game:

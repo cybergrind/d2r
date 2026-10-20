@@ -19,7 +19,7 @@ from inventory_tracking.builds.warlock.echoing_strike.damage import link_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat import stance
-from inventory_tracking.combat.policy import MIN_SCORE, Foe, Observation
+from inventory_tracking.combat.policy import MIN_SCORE, Choice, Foe, Observation
 from inventory_tracking.game.records import Monster
 from tests.inventory_tracking.scenarios.stance import harness
 
@@ -454,3 +454,48 @@ def test_with_lead_moving_a_line_is_worth_what_it_takes_off_every_monster_where_
     unled = attack.choose(Observation(HERE, {1: standing, 2: walking}), through={1})
     assert unled is not None
     assert unled.worth < through.worth
+
+
+# The leader focus (the player, 2026-10-20: "pack leader/herald first"): a line laid through a leader worth
+# `LinePolicy.focus` of the best line is cast instead of it.
+def pack_and_leader(beside: bool) -> Observation:
+    """Three minions on one bearing (one line takes all three) and a leader on another, alone or with one beside it."""
+    foes = {1: foe(8.0, 0.0), 2: foe(10.0, 0.0), 3: foe(12.0, 0.0), 9: foe(0.0, 10.0, elite=True)}
+    if beside:
+        foes[4] = foe(0.0, 12.0)
+    return Observation(HERE, foes)
+
+
+def aimed(attack: EchoingStrike, seen: Observation) -> Choice:
+    found = attack.aim(seen)
+    assert found is not None
+    return found
+
+
+def test_with_no_focus_the_best_line_goes_through_the_pack_not_its_leader():
+    assert aimed(ATTACK, pack_and_leader(beside=True)).unit in {1, 2, 3}
+
+
+def test_with_the_focus_a_line_through_the_leader_worth_its_share_of_the_best_is_cast_instead():
+    focused = replace(ATTACK, focus=0.85)
+    # The leader and one beside it: 2 x 2,800 x ELITE_WEIGHT + 2,800 against the pack's 3 x 2,800: more than 85%
+    seen = pack_and_leader(beside=True)
+    best = aimed(ATTACK, seen)
+    found = aimed(focused, seen)
+    assert found.unit == 9
+    assert found.worth >= 0.85 * best.worth
+    # The leader alone: 2 x 2,800 against 8,400, 67%: the pack's line stands
+    assert aimed(focused, pack_and_leader(beside=False)).unit in {1, 2, 3}
+    # A best line laid through a leader already is kept, and none is looked for with no leader
+    assert aimed(focused, Observation(HERE, {9: foe(10.0, 0.0, elite=True), 1: foe(0.0, 10.0)})).unit == 9
+    assert aimed(focused, Observation(HERE, {1: foe(10.0, 0.0)})).unit == 1
+
+
+def test_focus_leaders_puts_the_share_on_the_games_attack(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack
+
+    seen = pack_and_leader(beside=True)
+    monkeypatch.setattr(attack, 'FOCUS_LEADERS', False)
+    assert aimed(ATTACK, seen).unit in {1, 2, 3}
+    monkeypatch.setattr(attack, 'FOCUS_LEADERS', True)
+    assert aimed(ATTACK, seen).unit == 9

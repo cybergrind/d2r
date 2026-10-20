@@ -182,3 +182,15 @@ it, and a refused request waits for its Retry-After, or without one 600 s doubli
 row up to an hour, across restarts too. The API's terms ask for requests at least 60 s apart and the
 line "Data courtesy of diablo2.io" by the data: the card's last line. d2emu.com's own API needs a
 token granted on request, so it is not used.
+
+### KP_6 kind picker (the player, 2026-10-20 ~19:25)
+
+"we are adding a lot of modes, probably we need to pop some kind of dialogue to chose the mode on 3 clicks: shard act
+4 as an entry". Three KP_6 presses open a card in slot `picker` (centred, y 0.22 of the game window, at most half its
+width): the title, a row per loop kind in columns (the highlight's ▶, name, HUD word, metric, a tag `now` / `next game` /
+`coming`), the highlighted row on a faint bar, and the keys' hint with the seconds left. Widget kind `picker`
+(`widgets.PickerCard`), payload `payloads.picker_payload`; producer `picker`, published by the runner
+(macros/runner.py `_picker_tick`) every 0.5 s while open, inside the lease, and emptied on close. The state and rows are
+macros/kindpick.py; input is only the macro hotkey KP_6 (niri binding, `request.py`), never the game's keys or the pad.
+The runner opens it only when a canvas holds `canvas.lock` (`process.canvas_running`, a shared non-blocking flock probe;
+/proc/locks hides other pid namespaces' locks); otherwise three presses cycle the kind as before. Not seen in game yet.

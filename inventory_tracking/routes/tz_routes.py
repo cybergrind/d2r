@@ -273,7 +273,8 @@ def zone_route_plan(zone: ActiveZone, capabilities: dict[int, Capability] | None
                 len(remaining.intersection(trip.covers)),
                 -len(trip.blockers),
                 -len(trip.hops),
-                -zone.areas.index(trip.terminal),
+                # (a terminal off the zone, a tour's last level of an act's part planned alone, is last: no error)
+                -(zone.areas.index(trip.terminal) if trip.terminal in zone.areas else len(zone.areas)),
             ),
         )
         excursions.append(chosen)

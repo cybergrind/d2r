@@ -112,6 +112,7 @@ from inventory_tracking.builds.warlock.mark import (
     MARK_JUMP,
     MARK_POINTS,
     MARK_SECONDS,
+    MARK_STATE,
     sends,
 )
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_JUMP
@@ -131,6 +132,7 @@ from inventory_tracking.game.records import (
     VALUABLE,
     Drop,
     Loot,
+    Monster,
     Teleport,
     Thing,
     World,
@@ -473,6 +475,12 @@ class Arena(Game):
         # Death Mark (`mark`): (the marked unit, when the demons jump, when the mark ends), and every mark cast
         self.marked: tuple[int, float, float] | None = None
         self.mark_casts: list[tuple[float, int]] = []  # (clock, unit) of each mark that took
+        # The mark that takes nowhere (2026-10-20's takes: 26 of 397 keys on a live target, 6.5%): the share of keys
+        # that mark no one (`mark`, rolled by `mark_rolls`); 0: every key marks the hostile under the pointer. Every
+        # key with where it went, None nowhere (`mark_keys`).
+        self.mark_misses = 0.0
+        self.mark_rolls = random.Random(seed + 7)
+        self.mark_keys: list[tuple[float, int | None]] = []
         self.flights: list[Flight] = []
         self.refused: list[Point] = []  # where a hop, a warp or a walk was aimed and nobody can go
         self.warped_at: float | None = None  # the clock at the last Blade Warp key the game took
@@ -572,6 +580,7 @@ class Arena(Game):
         run = super().run(seed)
         run.say = self.say
         run.corpses = self.mobs.corpses
+        run.unit_states = self.unit_states  # whether a mark took (macros/buffs.py `Buffs.settle`)
         run.flights = self.mobs.flights
         run.ground = lambda: self.ground if len(self.ground) else None
         run.things = lambda: tuple(self.things)
@@ -833,9 +842,23 @@ class Arena(Game):
         under way at it) and hold it (`follow`) for MARK_SECONDS."""
         unit = self.monster_under_pointer()
         if unit is None or not any(sends(self.world, m) for m in self.world.monsters):
+            self.mark_keys.append((self.clock.now, None))
+            return
+        if self.mark_misses and self.mark_rolls.random() < self.mark_misses:
+            self.mark_keys.append((self.clock.now, None))
             return
         self.marked = (unit, begun + MARK_JUMP, begun + MARK_SECONDS)
         self.mark_casts.append((self.clock.now, unit))
+        self.mark_keys.append((self.clock.now, unit))
+
+    def unit_states(self, monster: Monster) -> bytes:
+        """A monster's state words as the game holds them (game/layout.py STATE_RUN): Death Mark's state (MARK_STATE)
+        on the marked one while its mark lasts, from the key (the takes: it shows 0.3-0.8 s after); nothing else."""
+        words = bytearray(32)
+        if self.marked is not None and self.marked[0] == monster.unit_id and self.clock.now < self.marked[2]:
+            word, bit = divmod(MARK_STATE, 32)
+            words[word * 4 : word * 4 + 4] = (1 << bit).to_bytes(4, 'little')
+        return bytes(words)
 
     def quick_cast(self, name: str) -> None:
         """A skill key pressed while the character is free: its cast takes the cast's time, with the skill

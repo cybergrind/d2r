@@ -61,7 +61,9 @@ def _strip(text: str) -> str:
 
 
 def layout(text: str, by_code: Mapping[str, int]) -> tuple[dict[str, list[int]], list[int]]:
-    """The Runes and Gems tabs' slot rects (x, y, width, height) by class, and the convert button's corner."""
+    """The Runes, Gems and Materials tabs' slot rects (x, y, width, height) by class, and the convert button's corner.
+    The Materials tab's (2026-10-20): the Worldstone Shards a terrorized act takes one of (macros/terrorize.py), the
+    statues, keys and essences."""
     tree = json.loads(_strip(text))
     slots: dict[str, list[int]] = {}
     convert: list[int] = []
@@ -71,7 +73,7 @@ def layout(text: str, by_code: Mapping[str, int]) -> tuple[dict[str, list[int]],
         here = f'{path}/{node.get("name", "")}'
         fields = node.get('fields', {})
         rect = fields.get('rect', {})
-        tabs = ('/advancedstash_runes/', '/advancedstash_gems/')
+        tabs = ('/advancedstash_runes/', '/advancedstash_gems/', '/advancedstash_materials/')
         if any(tab in here for tab in tabs) and node.get('type') == 'AdvancedStashSlotWidget':
             slots[str(by_code[fields['itemCode']])] = [rect['x'], rect['y'], rect['width'], rect['height']]
         if here.endswith('/advancedstash_horadriccube/convert'):
@@ -89,7 +91,8 @@ def main() -> None:
     slots, convert = layout(game.read(LAYOUT).decode('utf-8'), by_code)
     data = {
         'source': 'the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the '
-        f"next), {LAYOUT} (the Runes and Gems tabs' slots and the cube's convert button); read 2026-10-18",
+        f"next), {LAYOUT} (the Runes, Gems and Materials tabs' slots and the cube's convert button); read 2026-10-18, "
+        'the Materials tab 2026-10-20',
         'recipes': recipes(rows(game, 'cubemain'), by_code),
         'slots': slots,
         'convert': convert,

@@ -45,3 +45,36 @@ def test_the_keep_layers_item_types_are_the_pickups():
 def test_the_void_staff_mods_are_the_pickups():
     # The player, 2026-10-20 08:42: "+3os daggers with +3 apocalypse": today's pickup and the wants take the same three
     assert {f'107:{skill}' for skill in pickmode.VOID_STAFFMODS} == set(build_wants.VOID_STAFFMODS)
+
+
+def test_a_counted_condition_asks_that_many_stats_at_the_floor():
+    """Rare boots "two resistances >= 25" (loot/build_wants.py G21, 2026-10-20): the second best of the four; an
+    unread one says nothing; the said text names the count."""
+    from inventory_tracking.loot.facts import ItemFacts
+    from inventory_tracking.loot.wants import Need
+
+    def boots(rolls: dict[str, int] | None) -> ItemFacts:
+        return ItemFacts(unit_id=1, code='xhb', base_type='boot', size=(2, 2), quality=6, identified=True,
+                         ethereal=False, sockets=0, rolls=rolls)  # fmt: skip
+
+    two = Need(('39:0', '41:0', '43:0', '45:0'), min=25, count=2)
+    assert two.holds(boots({'39:0': 40, '43:0': 25})) is True
+    assert two.holds(boots({'39:0': 40, '43:0': 24})) is False
+    assert two.holds(boots({'39:0': 40})) is False  # the others read as 0
+    assert two.holds(boots(None)) is None
+    assert two.said() == '2 of 39:0|41:0|43:0|45:0>=25'
+    assert Need(('39:0', '41:0'), min=1, count=3).holds(boots({'39:0': 40, '41:0': 40})) is None  # asks more than keys
+
+
+def test_the_rare_boots_and_belts_rows_keep_only_the_really_good_ones_and_the_priced_belt_gate():
+    """G21 / G22 (the player, 2026-10-20 ~19:25: "we can keep really good ones"): the rows by id, each kept only by
+    its full combination (loot/keep.py drops the rest: JUNK_UNWANTED)."""
+    rows = {row.id: row for row in load() if row.klass in ('G21', 'G22')}
+    assert set(rows) == {
+        'boots-rare-identify', 'rare-boots-30frw-fhr-2res-extra', 'rare-boots-20frw-fhr-2res30-extra',
+        'rare-boots-20frw-fhr-3res', 'belt-rare-identify', 'rare-belt-24fhr-life-res-extra',
+        'rare-belt-24fhr-companion',
+    }  # fmt: skip
+    assert rows['boots-rare-identify'].then == rows['belt-rare-identify'].then == 'identify'
+    assert not any(row.always_keep or row.must_have for row in rows.values())  # no price: a want, never a must-have
+    assert {'boot', 'belt'} <= keep.JUNK_UNWANTED

@@ -364,7 +364,9 @@ def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_pa
     assert debug['presses'][0][1] == 'KP_3 attack mode'
     assert debug['life'][:2] == [0, 535]  # the scene's life at tick 0
     assert debug['tasks'][0][0] == 0
-    assert first['summary']['died']['at'] == pytest.approx(1.88, abs=0.05)
+    # 1.88 until 2026-10-20: the forced mark (no demon out) now waits for the hover record before its key and is cast
+    # again when it did not take (macros/buffs.py AIM_CHECK, `Buffs.settle`), so the blast that kills comes later
+    assert first['summary']['died']['at'] == pytest.approx(3.0, abs=0.05)
     assert off['summary']['died'] is None
     assert debug['tasks'][0][1]['attack'] is True
     assert debug['tasks'][0][1]['what'] == 'attack mode'

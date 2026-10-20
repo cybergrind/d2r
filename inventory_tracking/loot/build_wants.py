@@ -77,9 +77,10 @@ def sockets(*counts: int) -> dict:
     return {'key': 'sockets', 'in': list(counts)}
 
 
-def at_least(key: str | list[str], value: int, scale: int = 1) -> dict:
+def at_least(key: str | list[str], value: int, scale: int = 1, count: int = 1) -> dict:
+    """`count` of `key`'s stats at `value` or more (loot/wants.py Need: two resistances at 25 = the second best)."""
     found: dict[str, Any] = {'keys': key} if isinstance(key, list) else {'key': key}
-    return found | {'min': value} | ({'scale': scale} if scale != 1 else {})
+    return found | {'min': value} | ({'scale': scale} if scale != 1 else {}) | ({'count': count} if count != 1 else {})
 
 
 def spec(key: str, label: str, low: int, high: int, good: int | None = None, scale: int = 1) -> dict:
@@ -102,6 +103,12 @@ CIRCLET_EXTRAS = [
     at_least('194:0', 1),
     at_least('96:0', 30),
 ]
+
+# A really good rare boot's last stat beside FRW, FHR and the resistances (pricing.html:235 "Then two of": "two res
+# >= 25 for the 30-FRW pattern, life, FHR, dex"; the crafted-boots patterns, pricing.html:259: "20+ magic find, 9+
+# dexterity"; no life rolls on boots, see G21). Dex 9 is of Accuracy's top (magicsuffix.json:4537), MF 20 of
+# Fortune's (16-25, :5140)
+BOOT_EXTRAS = [at_least('2:0', 9), at_least('80:0', 20)]
 
 
 # The rows (loot/design.md §4.2). `bases`: names resolved to codes; `asks`: a wp-b bucket (item slug, bucket).
@@ -781,6 +788,112 @@ ROWS: list[dict[str, Any]] = [
         'third-parties/d2data/json/magicprefix.json:7621',
         'quote': '+2 Jav or +2 MA of Alacrity is a low CHECK',
     },
+    # G21 rare boots (the player, 2026-10-20 ~19:05: "is there are good rolls for belts/boots? right now we're not
+    # picking/identifying them, but maybe it is an oversight?", ~19:25: "we can keep really good ones"). Every rare boot
+    # is picked with the loop on and identified in the field (warlock.html:236 "ID every ... rare gloves / boots /
+    # belts"); kept only when really good: the guide's rare-boots must-affixes (pricing.html:235: "30 FRW with one
+    # resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30") plus 10 FHR and
+    # one more of its extras (pricing-primer.html:187 "the slot's must-affixes plus two matching extras ... boots FRW +
+    # res + FHR"; the build lists' best pair, wp-a-builds.json:4980 "30 FRW / 10 FHR / +40 Cold-Light-Fire Res / 25
+    # MF"). What a rare boot rolls (d2data, the expansion rows): FRW 10 / 20 / 30 (of Pacing / Haste / Speed,
+    # magicsuffix.json:7138, group 35), 10 FHR alone (of Balance :4693, armor but gloves), a resistance up to 40
+    # (Sapphire / Ruby / Amber / Emerald, magicprefix.json:6048), dex up to 9 (of Accuracy :4537), MF up to 25 (of
+    # Fortune :5140); no life suffix rolls on boots (the expansion's life rows are torso, belt, amulet, helm, circlet).
+    # No price in the repo ("only priced by build demand ... no thread priced one", pricing.html:235): kept as a want
+    # (never field-dropped, kept in town), not always kept. Everything else of a rare boot is junk (keep.py K8,
+    # JUNK_UNWANTED) unless the KB prices its read at 1 Ist or more (K5)
+    {
+        'id': 'boots-rare-identify',
+        'class': 'G21',
+        'who': 'trade',
+        'label': 'every rare boot: identified, then judged',
+        'types': ['boot'],
+        'qualities': ['rare'],
+        'then': 'identify',
+        'source': f'{WARLOCK}:236',
+        'quote': 'rare gloves / boots / belts',
+    },
+    {
+        'id': 'rare-boots-30frw-fhr-2res-extra',
+        'class': 'G21',
+        'who': 'trade',
+        'label': 'rare boots, really good: 30 FRW, 10 FHR, two resistances 25+ and dex 9+ or MF 20+',
+        'types': ['boot'],
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('96:0', 30), at_least('99:0', 10), at_least(RESISTS, 25, count=2)],
+        'any': BOOT_EXTRAS,
+        'source': f'{PRICING}:235; {PRIMER}:187; pricing/data/wp-a-builds.json:4980; '
+        'third-parties/d2data/json/magicsuffix.json:7138',
+        'quote': '30 FRW with one resistance',
+    },
+    {
+        'id': 'rare-boots-20frw-fhr-2res30-extra',
+        'class': 'G21',
+        'who': 'trade',
+        'label': 'rare boots, really good: 20 FRW, 10 FHR, two resistances 30+ and dex 9+ or MF 20+',
+        'types': ['boot'],
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('96:0', 20), at_least('99:0', 10), at_least(RESISTS, 30, count=2)],
+        'any': BOOT_EXTRAS,
+        'source': f'{PRICING}:235; {PRIMER}:187; third-parties/d2data/json/magicsuffix.json:4693',
+        'quote': 'alternatively 20 FRW with three resistances',
+    },
+    {
+        'id': 'rare-boots-20frw-fhr-3res',
+        'class': 'G21',
+        'who': 'trade',
+        'label': 'rare boots, really good: 20 FRW, 10 FHR and three resistances 20+',
+        'types': ['boot'],
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('96:0', 20), at_least('99:0', 10), at_least(RESISTS, 20, count=3)],
+        'source': f'{PRICING}:235; {PRIMER}:187; third-parties/d2data/json/magicprefix.json:6048',
+        'quote': 'alternatively 20 FRW with three resistances',
+    },
+    # G22 rare belts (the same words). Every rare belt is picked with the loop on and identified in the field
+    # (warlock.html:236); kept when really good: 24 FHR, 30+ life, a resistance 20+ and a second resistance 20+ or 15+
+    # strength (pricing-primer.html:187 "belts FHR + res + life"; pricing.html:236, "Then two of": "life · strength ·
+    # two or three resistances stacked on 24 FHR"); and kept by the guide's priced gate, which the repo's asks put over
+    # 1 Ist (pricing.html:236: "24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance ... 24 FHR with a
+    # companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)": asks, an offer; the G10
+    # precedent, rare-circlet-fcr-gate). What a rare belt rolls (d2data, the expansion rows): FHR 10 / 17 / 24 (of
+    # Balance / Equilibrium / Stability, magicsuffix.json:4693-4728), life up to 60 (of the Colosuss :5720), str up to
+    # 30 (of Atlus :6789), a resistance up to 30 (magicprefix.json:6011). Else junk (keep.py K8) unless 1 Ist by its
+    # read (K5)
+    {
+        'id': 'belt-rare-identify',
+        'class': 'G22',
+        'who': 'trade',
+        'label': 'every rare belt: identified, then judged',
+        'types': ['belt'],
+        'qualities': ['rare'],
+        'then': 'identify',
+        'source': f'{WARLOCK}:236',
+        'quote': 'rare gloves / boots / belts',
+    },
+    {
+        'id': 'rare-belt-24fhr-life-res-extra',
+        'class': 'G22',
+        'who': 'trade',
+        'label': 'rare belt, really good: 24 FHR, life 30+, a resistance 20+ and a second one 20+ or str 15+',
+        'types': ['belt'],
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('99:0', 24), at_least('7:0', 30, LIFE), at_least(RESISTS, 20)],
+        'any': [at_least(RESISTS, 20, count=2), at_least('0:0', 15)],
+        'source': f'{PRICING}:236; {PRIMER}:187; third-parties/d2data/json/magicsuffix.json:4728',
+        'quote': 'two or three resistances stacked on 24 FHR',
+    },
+    {
+        'id': 'rare-belt-24fhr-companion',
+        'class': 'G22',
+        'who': 'trade',
+        'label': "rare belt, the guide's priced gate: 24 FHR with str 15+, life 30+ or a resistance 20+",
+        'types': ['belt'],
+        'qualities': ['rare', 'crafted'],
+        'must': [at_least('99:0', 24)],
+        'any': [at_least('0:0', 15), at_least('7:0', 30, LIFE), at_least(RESISTS, 20)],
+        'source': f'{PRICING}:236',
+        'quote': '24 FHR with a companion: 71 priced sellers',
+    },
 ]
 
 
@@ -947,6 +1060,273 @@ OWN_BASES: list[dict[str, Any]] = [
     },
 ]
 ROWS += OWN_BASES
+
+
+# Every white base judged off the ground (the player, 2026-10-20 ~18:45: "implement [grimoire pickup rules], also find
+# out if we need to pickup other white/grey items. it looks like we don't need to pickup them to assess, so it worth to
+# assess every item => we need a proper list and rules to determine expensive items"). The study:
+# rca/2026-10-20/white-bases-findings.md (asks: wp-b 2026-09-18 and pricing/data/appraisal-market.jsonl 09-18..23, one
+# vote a seller; fills: pricing/raw/traderie/recent-20261009, completed trades 2026-03..10-09). A class item's asks run
+# ~5x its fills, so the rows below take a paid +3 staff mod the fills or several sellers price at 1 Ist or more, and
+# a base with no paid mod is left. `evidence` says the numbers where no wp-b bucket holds them (`asks` None).
+GRIMOIRE_PAID = ['107:376', '107:381', '107:382', '107:400']  # Summon Tainted, Consume, Bind Demon, Sigil: Death
+GRIMOIRE_COMMON = ['107:402', '107:401']  # Abyss, Apocalypse
+CLAW_PAID = ['107:271', '107:280', '107:273', '107:267', '107:278', '107:272', '107:276']
+PELT_PAID = ['107:245', '107:244', '107:249', '107:250', '107:248']  # Tornado, Volcano, Armageddon, Hurricane, Fury
+ELITE_CLAWS = ['Greater Talons', 'Runic Talons']
+NECRO_WANDS = ['Bone Wand', 'Grim Wand', 'Tomb Wand', 'Grave Wand', 'Lich Wand', 'Unearthed Wand']
+WAR_SCEPTERS = ['War Scepter', 'Divine Scepter', 'Caduceus']  # the fills' bases (War, Divine Scepter), 2x3
+WHITE_CLASS_ROWS: list[dict[str, Any]] = [
+    {
+        # The player's ask; PK-rotw-daggers-grimoires (c). Max 2 sockets on every book (armor.json gemsockets), so a
+        # 0os one takes Larzuk's 2: asks no lower (3 sellers 1.0 -> 57). +2 alone, 1os and the floor mods are left
+        'id': 'grimoire-white-plus3-paid',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White grimoire 2os/0os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death',
+        'types': ['grim'],
+        'qualities': WHITE,
+        'ground': [sockets(0, 2), at_least(GRIMOIRE_PAID, 3)],
+        'must': [sockets(0, 2), at_least(GRIMOIRE_PAID, 3)],
+        'matters': [spec(key, f'+3 staff mod {key}', 1, 3, good=3) for key in GRIMOIRE_PAID],
+        'asks': ('grimoire', '2os/noneth/normal/affixed'),
+        'evidence': 'asks 2026-09-18, priced sellers (addendum:108): +3 Summon Tainted 2 sellers 8.23 -> 118, Consume '
+        '2 1.0 -> 29, Bind Demon 4 5.88 -> 10.4, Sigil: Death 5 5.88 -> 9.32; no grimoire fills cached',
+        'source': f'{PINDLE}:294; {PRIMER}:446; pricing/data/addendum-2026-09-18-session.json:108',
+        'quote': 'white/superior 2os with +3 Summon Tainted, Consume',
+    },
+    {
+        'id': 'grimoire-white-2os-plus3-abyss-apocalypse',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White grimoire 2os +3 Abyss / Apocalypse',
+        'types': ['grim'],
+        'qualities': WHITE,
+        'ground': [sockets(2), at_least(GRIMOIRE_COMMON, 3)],
+        'must': [sockets(2), at_least(GRIMOIRE_COMMON, 3)],
+        'matters': [spec(key, f'+3 staff mod {key}', 1, 3, good=3) for key in GRIMOIRE_COMMON],
+        'asks': ('grimoire', '2os/noneth/superior/affixed'),
+        'evidence': 'asks 2026-09-18: 7 sellers 1.0 -> 4.05; PK-rotw-daggers-grimoires: common, n=30 / 24, med 5',
+        'source': f'{PRICING}:191',
+        'quote': 'Two-socket grimoires with +3 Abyss, Apocalypse',
+    },
+    {
+        'id': 'claw-elite-plus3-paid',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White Greater / Runic Talons 3os/0os +3 Phoenix Strike / Lightning Sentry / Mind Blast / Fade / '
+        'Venom / Wake of Inferno / Death Sentry',
+        'bases': ELITE_CLAWS,
+        'qualities': WHITE,
+        'ground': [sockets(0, 3), at_least(CLAW_PAID, 3)],
+        'must': [sockets(0, 3), at_least(CLAW_PAID, 3)],
+        'asks': ('greater-talons', '3os/noneth/normal/affixed'),
+        'evidence': 'fills 2026-10-03..09 (recent-20261009): +3 Phoenix Strike 12 trades 2.58 -> median 11.4; +3 '
+        'Lightning Sentry 4.05 / 4.05 / 22.8 / 332',
+        'source': f'{PRIMER}:366; {PRICING}:202; {WARLOCK}:267',
+        'quote': 'Greater Talons with +3 Phoenix Strike are CHECK candidates',
+    },
+    {
+        'id': 'wand-plus3-bone-spear-bone-spirit',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White wand 0/2os +3 Bone Spear and +3 Bone Spirit',
+        'bases': NECRO_WANDS,
+        'qualities': WHITE,
+        'ground': [sockets(0, 2), at_least('107:84', 3), at_least('107:93', 3)],
+        'must': [sockets(0, 2), at_least('107:84', 3), at_least('107:93', 3)],
+        'evidence': 'fills 2026-04-07..10-07 (recent-20261009/{lich,tomb,bone,grim}-wand.json): 16 trades 11.4 -> '
+        'median 22.8; +3 Bone Spear alone ~22 trades median ~1.4 (left)',
+        'source': f'{PRICING}:202; {PRICING}:191',
+        'quote': 'Necro head and wand: Poison Nova, Bone Spirit, Bone Spear',
+    },
+    {
+        'id': 'scepter-plus3-fist-of-the-heavens',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White War / Divine Scepter / Caduceus +3 Fist of the Heavens',
+        'bases': WAR_SCEPTERS,
+        'qualities': WHITE,
+        'ground': [at_least('107:121', 3)],
+        'must': [at_least('107:121', 3)],
+        'evidence': 'fills 2026-09-24..10-08 (recent-20261009/{war,divine}-scepter.json): 9 trades 1.0 -> median 9.32, '
+        '57.1 with +3 Conviction or Meditation',
+        'source': f'{PRICING}:202',
+        'quote': 'scepter: Fist of the Heavens, Blessed Hammer',
+    },
+    {
+        'id': 'scepter-plus3-hammer-concentration',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White War / Divine Scepter / Caduceus +3 Blessed Hammer with +2 Concentration',
+        'bases': WAR_SCEPTERS,
+        'qualities': WHITE,
+        'ground': [at_least('107:112', 3), at_least('107:113', 2)],
+        'must': [at_least('107:112', 3), at_least('107:113', 2)],
+        'evidence': 'fills 2026-10-08..09: 15.5 / 22.8 / 43.6 / 57.1; +3 Blessed Hammer alone median 2.58 (left)',
+        'source': f'{PRICING}:202',
+        'quote': 'scepter: Fist of the Heavens, Blessed Hammer',
+    },
+    {
+        'id': 'pelt-3os-plus3-paid',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White Druid pelt 3os +3 Tornado / Volcano / Armageddon / Hurricane / Fury',
+        'types': ['pelt'],
+        'qualities': WHITE,
+        'ground': [sockets(3), at_least(PELT_PAID, 3)],
+        'must': [sockets(3), at_least(PELT_PAID, 3)],
+        'evidence': 'asks 2026-09-20/21 (appraisal-market.jsonl, a vote a seller): +3 Tornado / Volcano / Armageddon '
+        '10 sellers 2.0 -> 97.1; +3 Hurricane / Fury 7 sellers 2.58 -> 171; no fills cached',
+        'source': f'{PRICING}:191; {PRIMER}:366',
+        'quote': '+3 Tornado, Volcano or Armageddon on a Druid pelt',
+    },
+    {
+        'id': 'barbarian-helm-3os-plus3-find-item',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White Barbarian helm 3os +3 Find Item',
+        'types': ['phlm'],
+        'qualities': WHITE,
+        'ground': [sockets(3), at_least('107:142', 3)],
+        'must': [sockets(3), at_least('107:142', 3)],
+        'evidence': 'asks 2026-09-19: 4 sellers 4.05 -> 31.5; no fills cached',
+        'source': f'{PRICING}:191',
+        'quote': '+3 Find Item on a Barbarian helm',
+    },
+    {
+        'id': 'sorceress-staff-4-5os-plus3-energy-shield',
+        'class': 'G20',
+        'who': 'trade',
+        'label': 'White staff 4/5os +3 Energy Shield (Memory / Call to Arms)',
+        'types': ['staf'],
+        'qualities': WHITE,
+        'ground': [sockets(4, 5), at_least('107:58', 3)],
+        'must': [sockets(4, 5), at_least('107:58', 3)],
+        'evidence': 'asks 2026-09-23: 4os 3 sellers 22.8; 5os 5 sellers 22.8 -> 34.3; no fills cached',
+        'source': f'{PRICING}:191',
+        'quote': 'Five-socket +3 Energy Shield staves',
+    },
+    # 0os +3 Hex: Purge beside the +3 Abyss row (Larzuk's 3 sockets): fills 2026-09-17..10-08, 8 trades 5.88 ->
+    # median 18.1, against ~2.6 for +3 Abyss alone
+    {
+        'id': 'void-dagger-0os-plus3-hex-purge',
+        'class': 'G8',
+        'who': 'trade',
+        'label': '0os elite-line dagger with +3 Hex: Purge (Larzuk)',
+        'bases': VOID_BASES,
+        'qualities': WHITE,
+        'ground': [sockets(0), at_least('107:389', 3)],
+        'must': [sockets(0), at_least('107:389', 3)],
+        'asks': ('legend-spike', '0os/noneth/normal/affixed'),
+        'source': f'{WARLOCK}:256; inventory_tracking/macros/pickmode.py:80',
+        'quote': 'Larzuk gives the 3 sockets, so plain whites sell too',
+    },
+    # Superior 15 ED market bases (Q7 as before: the exact sockets, asks >= 1 Ist; never plain ones)
+    {
+        'id': 'market-matriarchal-bow-superior-15ed-5os-plus3',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED +3 Bow skills Matriarchal Bow 5os (sell)',
+        'bases': ['Matriarchal Bow'],
+        'qualities': ['superior'],
+        'ground': [sockets(5), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'must': [sockets(5), at_least('17:0', 15), at_least(BOW_SKILLS, 3)],
+        'matters': [ED_WEAPON],
+        'asks': ('matriarchal-bow', '5os/noneth/superior/15ed/skill3'),
+        'source': 'pricing/data/wp-b-prices.json:18117',
+        'quote': '5os/noneth/superior/15ed/skill3',
+    },
+    {
+        'id': 'market-dusk-wire-superior-15ed-0os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Dusk Shroud / Wire Fleece 0os (sell)',
+        'bases': ['Dusk Shroud', 'Wire Fleece'],
+        'qualities': ['superior'],
+        'ground': [sockets(0), at_least('16:0', 15)],
+        'must': [sockets(0), at_least('16:0', 15)],
+        'matters': [ED_ARMOR],
+        'asks': ('wire-fleece', '0os/noneth/superior/15ed'),
+        'evidence': 'Dusk Shroud 0os superior 15 ED n=14 0.79 -> 2.0 (wp-b 2026-09-18)',
+        'source': f'{PINDLE}:286',
+        'quote': '0os Superior ≥15 ED Dusk/Wire',
+    },
+    {
+        'id': 'targe-superior-45-res',
+        'class': 'G7',
+        'who': 'trade',
+        'label': 'Superior Targe 45 all res',
+        'bases': ['Targe'],
+        'qualities': ['superior'],
+        'ground': [at_least(RESISTS, 45)],
+        'must': [at_least(RESISTS, 45)],
+        'matters': [spec('39:0', 'All Resistances', 30, 45, good=45)],
+        'asks': ('targe', '0os/noneth/superior/res45'),
+        'source': f'{PINDLE}:289',
+        'quote': 'Targe only Superior 45@',
+    },
+    {
+        'id': 'market-flail-superior-15ed-4os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Flail 4os (Heart of the Oak)',
+        'bases': ['Flail'],
+        'qualities': ['superior'],
+        'ground': [sockets(4), at_least('17:0', 15)],
+        'must': [sockets(4), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('flail', '4os/noneth/superior/15ed'),
+        'source': f'{PINDLE}:293',
+        'quote': 'Superior 15 ED with the exact count = sell',
+    },
+    {
+        'id': 'market-crystal-sword-superior-15ed-4-5os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Crystal Sword 4/5os (Spirit, Call to Arms)',
+        'bases': ['Crystal Sword'],
+        'qualities': ['superior'],
+        'ground': [sockets(4, 5), at_least('17:0', 15)],
+        'must': [sockets(4, 5), at_least('17:0', 15)],
+        'matters': [ED_WEAPON],
+        'asks': ('crystal-sword', '5os/noneth/superior/15ed'),
+        'evidence': '4os n=4 2.58 -> 4.45 (wp-b 2026-09-18)',
+        'source': f'{PINDLE}:293',
+        'quote': 'Superior 15 ED with the exact count = sell',
+    },
+    {
+        'id': 'market-mask-superior-15ed-0-3os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Mask 0/3os (Wisdom)',
+        'bases': ['Mask'],
+        'qualities': ['superior'],
+        'ground': [sockets(0, 3), at_least('16:0', 15)],
+        'must': [sockets(0, 3), at_least('16:0', 15)],
+        'matters': [ED_ARMOR],
+        'asks': ('mask', '3os/noneth/superior/15ed'),
+        'evidence': '0os n=7 2.0 -> 3.32 (wp-b 2026-09-18)',
+        'source': f'{PINDLE}:293',
+        'quote': 'Superior 15 ED with the exact count = sell',
+    },
+    {
+        'id': 'market-bone-shield-superior-15ed-0-2os',
+        'class': 'G16',
+        'who': 'trade',
+        'label': 'Superior 15 ED Bone Shield 0/2os (Rhyme; thin)',
+        'bases': ['Bone Shield'],
+        'qualities': ['superior'],
+        'ground': [sockets(0, 2), at_least('16:0', 15)],
+        'must': [sockets(0, 2), at_least('16:0', 15)],
+        'matters': [ED_ARMOR],
+        'asks': ('bone-shield', '0os/noneth/superior/15ed'),
+        'evidence': '2os n=3 1.43 -> 3.66 (wp-b 2026-09-18); 0os n=3, 2 priced: thin',
+        'source': f'{PINDLE}:293',
+        'quote': 'Superior 15 ED with the exact count = sell',
+    },
+]
+ROWS += WHITE_CLASS_ROWS
 
 
 @cache

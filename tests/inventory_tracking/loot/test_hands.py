@@ -190,3 +190,40 @@ def test_a_field_identify_the_runner_cancels_half_way_leaves_no_panel_open():
         looped(play.world.game_name).settle(hands, 'at once')
     assert play.world.open_panels == ()
     assert play.fallen == []
+
+
+def test_a_rare_belt_short_of_its_combination_is_dropped_at_the_feet_and_a_really_good_one_kept():
+    """G22 (the player, 2026-10-20 ~19:25, on rare boots and belts: "we can keep really good ones"): two rare Mithril
+    Coils identified with the Tome in the fake game; the 17 FHR one is put down (keep.py K8), the 24 FHR / 40 life /
+    two resistances one stays (loot/build_wants.py rare-belt-24fhr-life-res-extra)."""
+    from tests.inventory_tracking.loot.test_valuables import observation
+
+    coil = 462  # items metadata class of umc, 2x1 (sizes.json)
+    good, near = Carried(80, coil, 0, 0, (2, 1), 6, identified=False), Carried(81, coil, 0, 1, (2, 1), 6, False)
+    rolls = {80: {'99:0': 24, '7:0': 40 * 256, '39:0': 25, '41:0': 22}, 81: {'99:0': 17, '7:0': 45 * 256, '39:0': 30}}
+    play = Game(world(CATACOMBS_4, player=player(CATACOMBS_4, x=5029.0, y=2860.0)))
+    play.pack = Pack((TOME, WORN, good, near), identifies=10)
+    book, put_down = Book(), PutDown()
+
+    def appraise(units: list[int]) -> dict[int, str]:
+        for unit in units:
+            spec = {'base': 'Mithril Coil', 'code': 'umc', 'quality': 'rare', 'rolls': rolls[unit]}
+            book.put(unit, Appraised(observation(spec, unit), {'triage': {'verdict': 'check'}}, 'check'))
+        return dict.fromkeys(units, 'check')
+
+    hands = GameHands(play.run(), inventory_key=lambda: 'i', own=lambda p: own_of((TOME, WORN)), appraise=appraise,
+                      put_down=put_down, book=book, owned=NoCopies())  # fmt: skip
+    field = Field()
+    field.looping = lambda: True
+    for item in (good, near):
+        drop = Drop(item.unit_id, 1.0, 1.0, 'Rare Mithril Coil', VALUABLE, (2, 1), False, 'shown', coil, 6)
+        assert field.pick(drop, (play.world.game_name, 1))
+
+    done = field.settle(hands, 'Town Portal')
+
+    assert [item.unit_id for item in play.fallen] == [81]
+    assert done.dropped == 1
+    assert 81 in put_down.rejected
+    assert play.pack is not None
+    assert play.pack.identifies == 8
+    assert [item.unit_id for item in play.pack.items] == [TOME.unit_id, WORN.unit_id, 80]

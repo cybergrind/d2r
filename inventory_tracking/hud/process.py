@@ -27,6 +27,23 @@ def acquire_instance(scene_dir: Path):
     return handle
 
 
+def canvas_running(scene_dir: Path) -> bool:
+    """Whether a canvas owns the scene now (`acquire_instance`'s lock is held). The probe takes the lock shared for a
+    moment when it is free, which a canvas starting at that very moment would take for another canvas; it is asked
+    only on the KP_6 picker's opening (macros/kindpick.py), so that is left. /proc/locks hides the locks of other pid
+    namespaces (the agents' sandbox), so it is not asked."""
+    try:
+        with (scene_dir / 'canvas.lock').open('rb') as handle:
+            try:
+                fcntl.flock(handle, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return True
+            fcntl.flock(handle, fcntl.LOCK_UN)
+            return False
+    except OSError:
+        return False  # no lock file: no canvas ever ran here
+
+
 def guide_widgets(lines) -> list[Widget]:
     """The level guide's lines: styled rows in the 'guide' slot, the MapCard in the 'map' slot (top centre, user
     2026-10-04), its marked dots as ground marks (hud/ground.py)."""

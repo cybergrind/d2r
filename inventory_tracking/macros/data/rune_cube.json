@@ -1,5 +1,5 @@
 {
- "source": "the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the next), data/global/ui/layouts/bankexpansionlayouthd.json (the Runes and Gems tabs' slots and the cube's convert button); read 2026-10-18",
+ "source": "the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the next), data/global/ui/layouts/bankexpansionlayouthd.json (the Runes, Gems and Materials tabs' slots and the cube's convert button); read 2026-10-18, the Materials tab 2026-10-20",
  "recipes": {
   "625": {
    "into": 626,
@@ -448,6 +448,144 @@
   "616": [
    896,
    630,
+   98,
+   98
+  ],
+  "662": [
+   102,
+   232,
+   98,
+   196
+  ],
+  "663": [
+   206,
+   232,
+   98,
+   196
+  ],
+  "664": [
+   310,
+   232,
+   98,
+   196
+  ],
+  "679": [
+   546,
+   232,
+   98,
+   196
+  ],
+  "680": [
+   650,
+   232,
+   98,
+   196
+  ],
+  "681": [
+   754,
+   232,
+   98,
+   196
+  ],
+  "682": [
+   858,
+   232,
+   98,
+   196
+  ],
+  "683": [
+   962,
+   232,
+   98,
+   196
+  ],
+  "665": [
+   102,
+   460,
+   98,
+   98
+  ],
+  "666": [
+   206,
+   460,
+   98,
+   98
+  ],
+  "667": [
+   310,
+   460,
+   98,
+   98
+  ],
+  "674": [
+   546,
+   460,
+   98,
+   98
+  ],
+  "675": [
+   650,
+   460,
+   98,
+   98
+  ],
+  "676": [
+   754,
+   460,
+   98,
+   98
+  ],
+  "677": [
+   858,
+   460,
+   98,
+   98
+  ],
+  "678": [
+   962,
+   460,
+   98,
+   98
+  ],
+  "530": [
+   102,
+   596,
+   98,
+   98
+  ],
+  "531": [
+   206,
+   596,
+   98,
+   98
+  ],
+  "668": [
+   540,
+   596,
+   98,
+   98
+  ],
+  "669": [
+   646,
+   596,
+   98,
+   98
+  ],
+  "670": [
+   750,
+   596,
+   98,
+   98
+  ],
+  "671": [
+   854,
+   596,
+   98,
+   98
+  ],
+  "672": [
+   958,
+   596,
    98,
    98
   ],

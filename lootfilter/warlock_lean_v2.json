@@ -722,6 +722,93 @@
         "amc",
         "crs"
       ]
+    },
+    {
+      "name": "SHOW Staff Mod Wands Scepters",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality",
+        "normal"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "7bw",
+        "7gw",
+        "9bw",
+        "9gw",
+        "bwn",
+        "gwn",
+        "7ws",
+        "9ws",
+        "wsp"
+      ]
+    },
+    {
+      "name": "SHOW Staff Mod Staves Gray",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "6bs",
+        "6cs",
+        "6ws",
+        "8bs",
+        "8cs",
+        "8ws",
+        "bst",
+        "cst",
+        "wst"
+      ]
+    },
+    {
+      "name": "SHOW Pelts Barb Helms Gray",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "barbh",
+        "druid"
+      ]
+    },
+    {
+      "name": "SHOW Superior Mask Bone Shield",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "hiQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "bsh",
+        "msk"
+      ]
     }
   ]
 }

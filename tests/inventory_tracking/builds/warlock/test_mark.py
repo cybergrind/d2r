@@ -341,7 +341,7 @@ def test_an_unmeasured_bound_demon_strikes_at_the_measured_ones_rate_by_its_dama
 
 
 def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_send(monkeypatch):
-    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # on since 2026-10-20 ("pack leader/herald first")
     asked = spider_forest(HULK, PACK)
     assert target(asked) is HULK
     assert worth_a_mark(asked, HULK)  # -0.24 s by the price, marked: "on the leader"
@@ -367,7 +367,7 @@ def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_s
 
 
 def test_a_leader_comes_after_a_herald_and_an_immune_one_and_takes_the_mark_off_plain_monsters(monkeypatch):
-    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # on since 2026-10-20 ("pack leader/herald first")
     herald = replace(monster(8, 103, x=5020.0, flags=0x08), tier=3)
     assert target(spider_forest(HULK, herald)) is herald
     assert target(spider_forest(HULK, IMMUNE)) is IMMUNE
@@ -396,7 +396,7 @@ def test_mark_leaders_off_leaves_a_leader_to_the_price(monkeypatch):
 
 
 def test_a_leader_the_mark_passes_over_is_said_once_with_why(caplog, monkeypatch):
-    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # on since 2026-10-20 ("pack leader/herald first")
     # 15:01:12.9-13.8: the unique Fetish 397 (1156325300) in reach a second, killed by one cast: trash by the
     # strike's table (1.85 casts), so never marked, and nothing said
     import logging
@@ -443,3 +443,94 @@ def test_say_passed_off_names_bosses_only(monkeypatch):
 
     monkeypatch.setattr(mark, 'SAY_PASSED', False)
     assert not mark_passed(spider_forest(FETISH, PACK))
+
+
+# The player, 2026-10-20 ~18:45: "ok, recast. pack leader/herald first"
+# (rca/2026-10-20/mark-recast-leaders-findings.md).
+# A marked monster's state words as the recorder read them (take 20261020T101827Z-111, a txt 453 with stat 34 -33 and
+# stat 31 -540): state 212 is bit 20 of the seventh word.
+MARKED_WORDS = bytes.fromhex('0000000008000000000000000002000000000000000000200000100000000000')
+
+
+def test_the_mark_shows_by_state_212_in_the_monsters_state_words():
+    from inventory_tracking.builds.warlock.mark import MARK_STATE, mark_shows, state_on
+
+    assert MARK_STATE == 212
+    assert mark_shows(MARKED_WORDS)
+    assert not mark_shows(bytes(32))
+    unmarked = bytearray(MARKED_WORDS)
+    unmarked[26] &= ~0x10
+    assert not mark_shows(bytes(unmarked))
+    assert state_on(MARKED_WORDS, 212)
+    assert not state_on(MARKED_WORDS, 211)
+    assert not mark_shows(MARKED_WORDS[:24])  # short: not read as shown
+
+
+def test_the_death_mark_row_is_checked_and_cast_again_twice_at_most():
+    from inventory_tracking.builds.warlock.buffs import BUFFS
+    from inventory_tracking.builds.warlock.mark import MARK_RECASTS, MARK_SHOWS, mark_shows
+
+    row = next(row for row in BUFFS if row.skill == DEATH_MARK)
+    assert row.shows is mark_shows
+    assert row.shows_within == MARK_SHOWS == 0.8  # the latest of 283 marks that took showed 0.80 s after the key
+    assert row.recasts == MARK_RECASTS == 2
+
+
+def test_a_mark_that_did_not_take_on_a_leader_goes_on_it_again_through_the_executor(caplog):
+    import logging
+
+    from inventory_tracking.builds.warlock.buffs import BUFFS
+    from inventory_tracking.macros.buffs import Buffs
+    from inventory_tracking.macros.build import Build
+    from tests.inventory_tracking.macros.fakes import WINDOW, Game
+
+    row = next(row for row in BUFFS if row.skill == DEATH_MARK)
+    buffs = Buffs(Build(name='warlock', applies=lambda world: True, attack=None, movement=(), buffs=(row,)))
+    play = Game(spider_forest(HULK, PACK).world)
+    run = play.run()
+    shown: dict[int, bytes] = {}
+    run.unit_states = lambda m: shown.get(m.unit_id, bytes(32))
+
+    def ask(after: float):
+        play.clock.now += after
+        return buffs.due(run, row, replace(spider_forest(HULK, PACK), cast_at=buffs.cast_at))
+
+    keys = []
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for _ in range(4):
+            due = ask(1.0)
+            if due is None:
+                break
+            assert due.target is HULK
+            assert buffs.cast(run, due, lambda world, skills: {DEATH_MARK: 'd'}, WINDOW[2] / WINDOW[3]).cast
+            keys.append(play.clock.now)
+        assert len(keys) == 3  # the first and two again
+        lines = [r.getMessage() for r in caplog.records if 'did not take' in r.getMessage()]
+        assert [line.rsplit(': ', 1)[-1] for line in lines] == [
+            'cast again (try 2)', 'cast again (try 3)', 'not cast again on it while the last would last'
+        ]  # fmt: skip
+        assert lines[0].startswith('Macro: buff: Death Mark on the elite 127 (3898117827), 128/128 did not take')
+        # A mark that shows ends the watch: none again on it
+        buffs.missed.clear()
+        buffs.cast_at.clear()
+        due = ask(1.0)
+        assert due is not None
+        buffs.cast(run, due, lambda world, skills: {DEATH_MARK: 'd'}, WINDOW[2] / WINDOW[3])
+        shown[HULK.unit_id] = MARKED_WORDS
+        assert ask(0.5) is None
+        assert ask(1.0) is None
+        assert buffs.watching == {}
+
+
+def test_a_packs_leader_is_marked_before_its_minions_whatever_their_price_and_a_herald_and_immune_one_first():
+    assert mark.MARK_LEADERS  # on since 2026-10-20
+    priced = {PACK.unit_id: DrawPrice(PACK.unit_id, 300.0, 3.0, 0.0, 0.37, 1.9, pressed=True), HULK.unit_id: HULK_PRICE}
+    asked = spider_forest(HULK, PACK, draws=priced)
+    assert target(asked) is HULK
+    assert worth_a_mark(asked, HULK)
+    herald = replace(monster(8, 103, x=5020.0, flags=0x08), tier=3)
+    assert target(spider_forest(HULK, PACK, herald, draws=priced)) is herald
+    assert target(spider_forest(HULK, PACK, IMMUNE, draws=priced)) is IMMUNE
+    # Life low: the leader's mark is stopped only where the cast costs life while holding is over the budget
+    costly = {**priced, HULK.unit_id: DrawPrice(HULK.unit_id, -80.0, -0.8, 0.14, 0.37, 1.9, pressed=True)}
+    assert not worth_a_mark(spider_forest(HULK, PACK, draws=costly), HULK)

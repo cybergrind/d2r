@@ -16,3 +16,10 @@ def card_payload(lines) -> dict:
 
 def card_lines(payload) -> list[StyledLine]:
     return [StyledLine.from_payload(line) for line in payload.get('lines', [])]
+
+
+def picker_payload(title: str, rows: list[dict], hint: str) -> dict:
+    """The KP_6 kind picker (macros/kindpick.py): a title, one row a kind (name, word, metric; current, pending,
+    highlighted, enabled, note) and the keys' hint."""
+    keys = ('name', 'word', 'metric', 'current', 'pending', 'highlighted', 'enabled', 'note')
+    return {'title': title, 'rows': [{key: row.get(key) for key in keys} for row in rows], 'hint': hint}

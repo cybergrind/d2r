@@ -237,3 +237,47 @@ def test_dimmed_slots_are_drawn_faint_and_the_assessment_card_stays_as_it_is():
     assert corner_alpha(terror) > 200
     assert 0 < corner_alpha(terror, **dim) < 70
     assert corner_alpha(card, **dim) == corner_alpha(card)
+
+
+def picker_widget(rows):
+    from inventory_tracking.hud.payloads import picker_payload
+
+    return Widget('picker', 'picker', 'picker', picker_payload('Loop kind', rows, 'KP_6: next'))
+
+
+PICKER_ROWS = [
+    {'name': 'Lower Kurast', 'word': 'LK', 'metric': 'chests opened an hour', 'enabled': True},
+    {'name': 'Andariel', 'word': 'AND', 'metric': 'Andariel kills an hour', 'enabled': True, 'current': True},
+    {'name': 'TZ leveling', 'word': 'TZ+', 'metric': 'experience an hour', 'enabled': True, 'highlighted': True},
+    {'name': 'Shard: Act 4', 'word': 'ACT4', 'metric': 'elite and Herald kills an hour', 'note': 'coming'},
+]
+
+
+def test_the_picker_payload_keeps_every_row_field():
+    payload = picker_widget(PICKER_ROWS[:1]).payload
+
+    assert payload['title'] == 'Loop kind'
+    assert payload['hint'] == 'KP_6: next'
+    assert payload['rows'][0]['name'] == 'Lower Kurast'
+    assert payload['rows'][0]['current'] is None  # absent fields are there, empty
+    assert set(payload['rows'][0]) == {'name', 'word', 'metric', 'current', 'pending', 'highlighted', 'enabled', 'note'}
+
+
+@pytest.mark.parametrize('scale', [0.6, 1.0, 2.0])
+def test_the_picker_grows_with_its_rows_and_draws_its_highlight(scale):
+    two = measure(picker_widget(PICKER_ROWS[:2]), scale=scale)
+    four = measure(picker_widget(PICKER_ROWS), scale=scale)
+    assert four[1] > two[1]
+    assert four[0] >= two[0]
+
+    widget = picker_widget(PICKER_ROWS)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, four[0], four[1])
+    draw_scene(cairo.Context(surface), [(widget, (0, 0, *four))], scale=scale)
+    assert painted(surface)
+
+    plain = picker_widget([{**row, 'highlighted': False} for row in PICKER_ROWS])
+    other = cairo.ImageSurface(cairo.FORMAT_ARGB32, four[0], four[1])
+    draw_scene(cairo.Context(other), [(plain, (0, 0, *four))], scale=scale)
+    other.flush()
+    surface.flush()
+    assert bytes(surface.get_data()) != bytes(other.get_data())  # the highlight bar and its arrow

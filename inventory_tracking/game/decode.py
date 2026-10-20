@@ -712,7 +712,7 @@ def base_rolls(read, unit: dict) -> Rolls | None:
 def rolled(read, drop: Drop, unit: dict | None) -> Drop:
     """`drop` with its `Rolls` when it is a base the loop judges off the ground (pickmode.py `void_base`,
     `shield_base`, `ground_base`): a white, superior or magic dagger, shield or Paladin shield, or a white or superior
-    base of BASE_ROLLED_TYPES (M5: polearms, spears, body armor, Amazon bows, swords, axes); as it is otherwise."""
+    base of BASE_ROLLED_TYPES (every weapon and armor type since 2026-10-20 ~18:45); as it is otherwise."""
     base = item_base(drop.txt) if drop.txt else None
     if unit is None or drop.kind != VALUABLE or drop.quality not in ROLLED_QUALITIES or base is None:
         return drop

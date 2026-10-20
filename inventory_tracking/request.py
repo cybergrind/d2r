@@ -34,6 +34,7 @@ PREFIXES = {
     'pad': 'pad ',  # Loot to Cube: one tap of a virtual pad's button (input/gamepad.py), keypad 7
     'loop': 'loop ',  # the KP_6 loop on/off (macros/loop.py)
     'loop-kind': 'kind ',  # the loop's kind, `loop-kind andariel`: at once with the loop off, else from the next game
+    'terrorize': 'terrorize ',  # a Worldstone Shard used in town (macros/terrorize.py), the loop off
 }
 TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup', 'loop'))
 DEFAULT_SOCKET = os.path.join(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}'), 'd2r-appraisal.sock')

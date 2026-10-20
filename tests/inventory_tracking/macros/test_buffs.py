@@ -475,3 +475,247 @@ def test_the_facts_ask_the_life_only_when_a_row_does():
     assert facts.hurt is not None
     assert not facts.hurt()
     assert reads == [1]
+
+
+# A cast checked on its target (`Buff.shows`, `Buffs.settle`; the player, 2026-10-20: "ok, recast"). The fake state:
+# byte 0 of the words set.
+CHECKED = replace(BOLT_ROW, due=whenever, shows=lambda words: words[:1] == b'\x01', shows_within=0.8, recasts=2)
+MARKED, UNMARKED = b'\x01' + bytes(31), bytes(32)
+BESIDE = Monster(9, 19, 1, 5010.0, 5000.0, 0xFFFFFFFF, 0, life=100, max_life=128)
+
+
+def checked(*monsters: Monster, states=None):
+    """A game with `monsters`, the checked row's executor and a run whose state words read `states` by unit (default:
+    none shows the cast)."""
+    play = game(*monsters)
+    buffs, run = plan(CHECKED), play.run()
+    words = states if states is not None else {}
+    run.unit_states = lambda m: words.get(m.unit_id, UNMARKED)
+    return play, buffs, run, words
+
+
+def cast_on(play, buffs, run, target: Monster = NEAR):
+    due = due_now(buffs, run, CHECKED, buffs.facts(run, play.world, foes=[target]))
+    assert due.target == target
+    tried = buffs.cast(run, due, key_names, ASPECT)
+    assert tried.cast
+    return tried
+
+
+def ask(play, buffs, run, after: float, foes=(NEAR,)):
+    """The row asked `after` s on (the look's facts then): its Due or None."""
+    play.clock.now += after
+    return buffs.due(run, CHECKED, buffs.facts(run, play.world, foes=list(foes)))
+
+
+def said(caplog, words: str) -> list[str]:
+    return [r.getMessage() for r in caplog.records if words in r.getMessage()]
+
+
+def test_a_cast_that_shows_on_its_target_is_not_cast_again(caplog):
+    import logging
+
+    play, buffs, run, words = checked(NEAR)
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        tried = cast_on(play, buffs, run)
+        words[NEAR.unit_id] = MARKED
+        ask(play, buffs, run, 0.4)
+        assert buffs.watching == {}
+        ask(play, buffs, run, 1.0)
+    assert buffs.cast_at[BOLT, NEAR.unit_id] == tried.at  # its clock stands: the row's own rules decide
+    assert said(caplog, 'did not take') == []
+
+
+def test_a_cast_not_shown_within_its_window_is_cast_again_said_with_its_try(caplog):
+    import logging
+
+    play, buffs, run, _ = checked(NEAR)
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        cast_on(play, buffs, run)
+        ask(play, buffs, run, 0.5)  # not yet: a mark shows in 0.43 s at the median, 0.8 s at the latest
+        assert (BOLT, NEAR.unit_id) in buffs.cast_at
+        due = ask(play, buffs, run, 0.4)
+        assert due is not None
+        assert due.target == NEAR
+    assert (BOLT, NEAR.unit_id) not in buffs.cast_at
+    assert said(caplog, 'did not take') == [
+        'Macro: buff: Teleport on the elite 19 (7), 100/128 did not take (it shows on no monster near it): cast '
+        'again (try 2)'
+    ]
+
+
+def test_the_casts_again_are_bounded_then_said_once_and_the_clock_kept(caplog):
+    import logging
+
+    play, buffs, run, _ = checked(NEAR)
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for _ in range(3):
+            cast_on(play, buffs, run)
+            ask(play, buffs, run, 0.9)
+    lines = said(caplog, 'did not take')
+    assert [line.rsplit(' ', 1)[-1] for line in lines[:2]] == ['2)', '3)']
+    assert lines[2].endswith('did not take (it shows on no monster near it), 3 casts: not cast again on it while the '
+                             'last would last')  # fmt: skip
+    assert (BOLT, NEAR.unit_id) in buffs.cast_at
+
+
+def test_a_cast_again_that_shows_says_its_try_and_the_count_starts_anew(caplog):
+    import logging
+
+    play, buffs, run, words = checked(NEAR)
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        cast_on(play, buffs, run)
+        ask(play, buffs, run, 0.9)
+        cast_on(play, buffs, run)
+        words[NEAR.unit_id] = MARKED
+        ask(play, buffs, run, 0.5)
+    assert said(caplog, 'took at') == ['Macro: buff: Teleport on the elite 19 (7), 100/128 took at try 2']
+    assert buffs.missed == {}
+
+
+def test_where_a_cast_went_instead_is_said(caplog):
+    import logging
+
+    play, buffs, run, words = checked(NEAR, BESIDE)
+    words[BESIDE.unit_id] = MARKED
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        cast_on(play, buffs, run)
+        ask(play, buffs, run, 0.9, foes=(NEAR, BESIDE))
+    assert said(caplog, 'did not take') == [
+        'Macro: buff: Teleport on the elite 19 (7), 100/128 did not take (it shows on the monster 19 (9)): cast '
+        'again (try 2)'
+    ]
+
+
+def test_no_cast_again_on_a_monster_dead_or_gone_or_while_the_character_is_dead_or_with_the_words_unread(caplog):
+    import logging
+
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        play, buffs, run, _ = checked(NEAR)
+        tried = cast_on(play, buffs, run)
+        play.world = replace(play.world, monsters=())  # dead and gone
+        ask(play, buffs, run, 0.9, foes=())
+        assert buffs.watching == {}
+        assert buffs.cast_at[BOLT, NEAR.unit_id] == tried.at
+
+        play, buffs, run, _ = checked(NEAR)
+        tried = cast_on(play, buffs, run)
+        play.world = replace(play.world, monsters=(replace(NEAR, mode=12),))  # lying dead
+        ask(play, buffs, run, 0.9)
+        assert buffs.cast_at[BOLT, NEAR.unit_id] == tried.at
+
+        play, buffs, run, _ = checked(NEAR)
+        tried = cast_on(play, buffs, run)
+        play.world = replace(play.world, player=replace(me(play.world), mode=0))  # the character died
+        ask(play, buffs, run, 0.9)
+        assert buffs.watching == {}
+        assert buffs.cast_at[BOLT, NEAR.unit_id] == tried.at
+
+        play, buffs, run, _ = checked(NEAR)
+        run.unit_states = lambda m: None
+        tried = cast_on(play, buffs, run)
+        ask(play, buffs, run, 0.9)
+        assert buffs.watching == {}
+        assert buffs.cast_at[BOLT, NEAR.unit_id] == tried.at
+    assert said(caplog, 'did not take') == []
+
+
+def test_a_row_with_no_check_is_never_watched():
+    play = game(NEAR)
+    buffs, run = plan(BOLT_ROW), play.run()
+    run.unit_states = lambda m: UNMARKED
+    buffs.cast(run, due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR])), key_names, ASPECT)
+    assert buffs.watching == {}
+
+
+# The pointer on the target before the key (AIM_CHECK): the cast goes on the unit under the pointer.
+def hovering(run, *answers):
+    """The hover record naming `answers` in turn, the last one after; the reads counted in the list returned."""
+    reads: list[tuple[int, int] | None] = []
+
+    def read():
+        found = answers[min(len(reads), len(answers) - 1)]
+        reads.append(found)
+        return found
+
+    run.hovered = read
+    return reads
+
+
+def test_the_pointer_is_moved_up_the_body_while_the_hover_names_another_monster(caplog):
+    import logging
+
+    from inventory_tracking.macros.buffs import NUDGE_UP
+
+    play = game(NEAR, BESIDE)
+    buffs, run = plan(BOLT_ROW), play.run()
+    reads = hovering(run, (1, BESIDE.unit_id), (1, NEAR.unit_id))
+    due = due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR]))
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        aimed: list[tuple[float, float]] = []
+        aim = run.actuator.aim
+
+        def noted(x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0) -> None:
+            aimed.append((x, y))
+            aim(x, y, scatter=scatter, near=near)
+
+        run.actuator.aim = noted
+        assert buffs.cast(run, due, key_names, ASPECT).cast
+    assert len(reads) == 2
+    assert len(aimed) == 2
+    assert aimed[1][1] == pytest.approx(aimed[0][1] - NUDGE_UP)
+    assert play.pressed() == ['F6']
+    assert said(caplog, 'the pointer named') == [
+        'Macro: buff: Teleport on the elite 19 (7): the pointer named the monster 19 (9); moved 1 times, now on it'
+    ]
+
+
+def test_the_key_is_pressed_after_the_nudges_whatever_the_hover_names(caplog):
+    import logging
+
+    from inventory_tracking.macros.buffs import NUDGES
+
+    play = game(NEAR, BESIDE)
+    buffs, run = plan(BOLT_ROW), play.run()
+    reads = hovering(run, (1, BESIDE.unit_id))
+    due = due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR]))
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        assert buffs.cast(run, due, key_names, ASPECT).cast
+    assert len(reads) == NUDGES + 1
+    assert play.pressed() == ['F6']
+    assert said(caplog, 'pressed anyway') == [
+        f'Macro: buff: Teleport on the elite 19 (7): the pointer names the monster 19 (9) after {NUDGES} moves (the '
+        'cast goes on the unit under it): pressed anyway'
+    ]
+
+
+def test_the_pointer_is_left_where_the_hover_names_the_target_or_nothing(caplog):
+    import logging
+
+    for answer in ((1, NEAR.unit_id), None, (0, 0)):
+        play = game(NEAR, BESIDE)
+        buffs, run = plan(BOLT_ROW), play.run()
+        reads = hovering(run, answer)
+        due = due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR]))
+        with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+            assert buffs.cast(run, due, key_names, ASPECT).cast
+        assert len(reads) == 1
+    assert said(caplog, 'the pointer') == []
+
+
+def test_the_pointer_follows_a_target_that_moved_since_the_look_and_none_of_it_with_the_check_off(monkeypatch):
+    from inventory_tracking.macros import buffs as executor
+    from inventory_tracking.macros.routines import screen_fraction
+
+    for check in (True, False):
+        monkeypatch.setattr(executor, 'AIM_CHECK', check)
+        play = game(NEAR)
+        buffs, run = plan(BOLT_ROW), play.run()
+        due = due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR]))
+        went = replace(NEAR, y=NEAR.y + 3.0)
+        play.world = replace(play.world, monsters=(went,))
+        assert buffs.cast(run, due, key_names, ASPECT).cast
+        now = screen_fraction(me(play.world), went.x, went.y, ASPECT)
+        before = screen_fraction(me(play.world), NEAR.x, NEAR.y, ASPECT)
+        at = play.keys.fraction()
+        assert math.dist(at, now if check else before) < math.dist(at, before if check else now)

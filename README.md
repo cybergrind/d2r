@@ -22,6 +22,7 @@ for runtime flow, terminology, code ownership, extension points and tests.
 | Work | Entry point |
 | --- | --- |
 | Macros, combat, movement, builds | [Framework starting guide](inventory_tracking/macros/README.md) |
+| The KP_6 loop's live state: rounds, rulings, restarts | [Loop journal](inventory_tracking/macros/loop-journal.md) (the [d2-loop-watch skill](.agents/skills/d2-loop-watch/SKILL.md) keeps it) |
 | Macro implementation planning | [Stage summary](inventory_tracking/macros/framework-plan.digest.md), then the relevant [plan section](inventory_tracking/macros/framework-plan.md); [incident/decision history](inventory_tracking/macros/plan.md) |
 | Inventory reader and host tooling | [Inventory tracking](inventory_tracking/README.md) |
 | Overlay, potion automation, host startup | [OSD runbook](inventory_tracking/osd/README.md) |

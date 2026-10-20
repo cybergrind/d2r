@@ -3517,6 +3517,1135 @@
    "today_fails": {
     "decision": "today: copies.keep_copy keeps a copy with any stat better than the owned one (\"none of the 1 owned rolls as well on every stat\"); the keep rules decide a mixed copy by score (Q2)"
    }
+  },
+  {
+   "id": "grimoire_white_2os_plus3_summon_tainted",
+   "section": "6.9",
+   "item": {
+    "base": "Possessed Grimoire",
+    "code": "waa",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:376": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player, 2026-10-20 ~18:45 (\"implement [grimoire pickup rules]\"); guides/pindle-anya.html:294 (c); rca/2026-10-20/white-bases-findings.md §1: +3 Summon Tainted 2 sellers 8.23 -> 118 (asks 2026-09-18)",
+   "value": {
+    "worth": 8.23,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "grimoire_white_0os_plus3_sigil_death",
+   "section": "6.9",
+   "item": {
+    "base": "Blasphemous Grimoire",
+    "code": "waf",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:400": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "the player, 2026-10-20 ~18:45 (\"implement [grimoire pickup rules]\"); guides/pindle-anya.html:294 (c); rca/2026-10-20/white-bases-findings.md §1: 0os takes Larzuk's 2 (max 2); +3 Sigil: Death 5 sellers 5.88 -> 9.32",
+   "value": {
+    "worth": 5.88,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "grimoire_superior_2os_plus3_abyss",
+   "section": "6.9",
+   "item": {
+    "base": "Codex",
+    "code": "wa3",
+    "quality": "superior",
+    "sockets": 2,
+    "rolls": {
+     "107:402": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:191; wp-b grimoire 2os/noneth/superior/affixed 4.05 -> 9.32 n4 (asks 2026-09-18); rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "claw_greater_talons_3os_plus3_phoenix_strike",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:280": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/warlock.html:267; fills 2026-10-03..09 12 trades median 11.4; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 11.4,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "wand_lich_2os_plus3_bone_spear_bone_spirit",
+   "section": "6.9",
+   "item": {
+    "base": "Lich Wand",
+    "code": "7bw",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:84": 3,
+     "107:93": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:202; fills 2026-04..10 16 trades median 22.8; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 22.8,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "scepter_war_plus3_fist_of_the_heavens",
+   "section": "6.9",
+   "item": {
+    "base": "War Scepter",
+    "code": "wsp",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:121": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:202; fills 2026-09-24..10-08 9 trades median 9.32; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "scepter_divine_plus3_hammer_plus2_concentration",
+   "section": "6.9",
+   "item": {
+    "base": "Divine Scepter",
+    "code": "9ws",
+    "quality": "normal",
+    "sockets": 5,
+    "rolls": {
+     "107:112": 3,
+     "107:113": 2
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:202; fills 15.5 / 22.8 / 43.6 / 57.1; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 15.5,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "pelt_antlers_3os_plus3_tornado",
+   "section": "6.9",
+   "item": {
+    "base": "Antlers",
+    "code": "dr3",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:245": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:191; asks 2026-09-20/21 10 sellers 2.0 -> 97.1; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 2.0,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "barbarian_helm_3os_plus3_find_item",
+   "section": "6.9",
+   "item": {
+    "base": "Fanged Helm",
+    "code": "ba2",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:142": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:191; asks 2026-09-19 4 sellers 4.05 -> 31.5; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "battle_staff_4os_plus3_energy_shield",
+   "section": "6.9",
+   "item": {
+    "base": "Battle Staff",
+    "code": "bst",
+    "quality": "normal",
+    "sockets": 4,
+    "rolls": {
+     "107:58": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pricing.html:191; asks 2026-09-23 3 sellers 22.8; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 22.8,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "void_dagger_0os_plus3_hex_purge",
+   "section": "6.9",
+   "item": {
+    "base": "Legend Spike",
+    "code": "7bl",
+    "quality": "normal",
+    "sockets": 0,
+    "rolls": {
+     "107:389": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/warlock.html:256; fills 2026-09-17..10-08 8 trades 5.88 -> median 18.1; rca/2026-10-20/white-bases-findings.md §3",
+   "value": {
+    "worth": 5.88,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_matriarchal_bow_superior_15ed_5os_plus3",
+   "section": "6.9",
+   "item": {
+    "base": "Matriarchal Bow",
+    "code": "amb",
+    "quality": "superior",
+    "sockets": 5,
+    "rolls": {
+     "17:0": 15,
+     "188:0": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "wp-b matriarchal-bow 5os/noneth/superior/15ed/skill3 9.32 -> 11.42 n6; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_dusk_shroud_superior_15ed_0os",
+   "section": "6.9",
+   "item": {
+    "base": "Dusk Shroud",
+    "code": "uui",
+    "quality": "superior",
+    "sockets": 0,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:286 (Sell: 0os Superior 15 ED Dusk/Wire); wp-b dusk 0.79 -> 2.0 n14; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 2.0,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "targe_superior_45_res",
+   "section": "6.9",
+   "item": {
+    "base": "Targe",
+    "code": "pa1",
+    "quality": "superior",
+    "sockets": 0,
+    "rolls": {
+     "39:0": 45,
+     "41:0": 45,
+     "43:0": 45,
+     "45:0": 45
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:289 (Targe only Superior 45@); wp-b targe 4.05 -> 5.89 n4; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_flail_superior_15ed_4os",
+   "section": "6.9",
+   "item": {
+    "base": "Flail",
+    "code": "fla",
+    "quality": "superior",
+    "sockets": 4,
+    "rolls": {
+     "17:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:293; wp-b flail 4os/noneth/superior/15ed 4.05 n5; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_crystal_sword_superior_15ed_5os",
+   "section": "6.9",
+   "item": {
+    "base": "Crystal Sword",
+    "code": "crs",
+    "quality": "superior",
+    "sockets": 5,
+    "rolls": {
+     "17:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:293; wp-b crystal-sword 5os/noneth/superior/15ed 8.23 -> 15.5 n3; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 8.23,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_mask_superior_15ed_3os",
+   "section": "6.9",
+   "item": {
+    "base": "Mask",
+    "code": "msk",
+    "quality": "superior",
+    "sockets": 3,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:293; wp-b mask 3os/noneth/superior/15ed 0.79 -> 4.05 n7; rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 4.05,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "market_bone_shield_superior_15ed_0os",
+   "section": "6.9",
+   "item": {
+    "base": "Bone Shield",
+    "code": "bsh",
+    "quality": "superior",
+    "sockets": 0,
+    "rolls": {
+     "16:0": 15
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K5"
+   },
+   "source": "guides/pindle-anya.html:293; wp-b bone-shield 0os/noneth/superior/15ed 9.32 n3 (thin); rca/2026-10-20/white-bases-findings.md",
+   "value": {
+    "worth": 9.32,
+    "verdict": "sell"
+   },
+   "owned": []
+  },
+  {
+   "id": "grimoire_white_2os_plus2_summon_tainted_left",
+   "section": "6.9",
+   "item": {
+    "base": "Possessed Grimoire",
+    "code": "waa",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:376": 2
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~18:45 (\"implement [grimoire pickup rules]\"); guides/pindle-anya.html:294 (c); rca/2026-10-20/white-bases-findings.md §1: +3 only (3 listings carry a paid mod at +2 alone)",
+   "owned": []
+  },
+  {
+   "id": "grimoire_white_1os_plus3_consume_left",
+   "section": "6.9",
+   "item": {
+    "base": "Grimoire",
+    "code": "wa5",
+    "quality": "normal",
+    "sockets": 1,
+    "rolls": {
+     "107:381": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "the player, 2026-10-20 ~18:45 (\"implement [grimoire pickup rules]\"); guides/pindle-anya.html:294 (c); rca/2026-10-20/white-bases-findings.md §1: 1os 2 sellers median 1.63",
+   "owned": []
+  },
+  {
+   "id": "grimoire_white_2os_no_staff_mods_left",
+   "section": "6.9",
+   "item": {
+    "base": "Dark Tome",
+    "code": "wa7",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {}
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pricing.html:353 (no staff-mods and no paid affix combination: vendor)",
+   "owned": []
+  },
+  {
+   "id": "grimoire_white_2os_plus3_engorge_left",
+   "section": "6.9",
+   "item": {
+    "base": "Occult Codex",
+    "code": "wad",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:379": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:294 (+3 Enhanced Entropy, Engorge, Summon Defiler, Blood Boil = floor)",
+   "owned": []
+  },
+  {
+   "id": "wand_plus3_bone_spear_alone_left",
+   "section": "6.9",
+   "item": {
+    "base": "Lich Wand",
+    "code": "7bw",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:84": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "fills ~22 trades median ~1.4 (2026-04..10); rca/2026-10-20/white-bases-findings.md §3",
+   "owned": []
+  },
+  {
+   "id": "scepter_plus3_blessed_hammer_alone_left",
+   "section": "6.9",
+   "item": {
+    "base": "War Scepter",
+    "code": "wsp",
+    "quality": "normal",
+    "sockets": 5,
+    "rolls": {
+     "107:112": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "fills 4 trades median 2.58 under a 6-cell pick; rca/2026-10-20/white-bases-findings.md §3",
+   "owned": []
+  },
+  {
+   "id": "pelt_2os_plus3_tornado_left",
+   "section": "6.9",
+   "item": {
+    "base": "Antlers",
+    "code": "dr3",
+    "quality": "normal",
+    "sockets": 2,
+    "rolls": {
+     "107:245": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pricing.html:191 (three empty sockets); rca/2026-10-20/white-bases-findings.md §3",
+   "owned": []
+  },
+  {
+   "id": "greater_talons_3os_no_paid_mod_left",
+   "section": "6.9",
+   "item": {
+    "base": "Greater Talons",
+    "code": "9tw",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {}
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pindle-anya.html:310 (plain white claws: no market without staff-mods)",
+   "owned": []
+  },
+  {
+   "id": "battle_staff_3os_plus3_energy_shield_left",
+   "section": "6.9",
+   "item": {
+    "base": "Battle Staff",
+    "code": "bst",
+    "quality": "normal",
+    "sockets": 3,
+    "rolls": {
+     "107:58": 3
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/pricing.html:191 (5os CTA, 4os Memory)",
+   "owned": []
+  },
+  {
+   "id": "market_dusk_shroud_superior_10ed_0os_left",
+   "section": "6.9",
+   "item": {
+    "base": "Dusk Shroud",
+    "code": "uui",
+    "quality": "superior",
+    "sockets": 0,
+    "rolls": {
+     "16:0": 10
+    }
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "Q7: Superior under 15 ED is plain (guides/pindle-anya.html:283)",
+   "owned": []
+  },
+  {
+   "id": "boots_rare_30frw_fhr_three_res_mf_kept",
+   "section": "6.10",
+   "item": {
+    "base": "War Boots",
+    "code": "xhb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 30,
+     "99:0": 10,
+     "39:0": 40,
+     "41:0": 40,
+     "43:0": 40,
+     "80:0": 25
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "reason_has": [
+     "really good"
+    ],
+    "field": "keep",
+    "town": "keep"
+   },
+   "source": "pricing/data/wp-a-builds.json:4980 (\"Rare Boots (30 FRW / 10 FHR / +40 Cold-Light-Fire Res / 25 MF)\"); guides/pricing.html:235 (\"30 FRW with one resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30\"); guides/pricing-primer.html:187 (\"boots FRW + res + FHR\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; no price in the repo: kept as a want",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "boots_rare_30frw_fhr_two_res_dex_kept",
+   "section": "6.10",
+   "item": {
+    "base": "Scarabshell Boots",
+    "code": "uvb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 30,
+     "99:0": 10,
+     "39:0": 28,
+     "43:0": 26,
+     "2:0": 9
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:235 (\"30 FRW with one resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30\"); guides/pricing-primer.html:187 (\"boots FRW + res + FHR\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; dex 9 the top of of Accuracy (magicsuffix.json:4537), pricing.html:259 \"9+ dexterity\"",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "boots_rare_20frw_fhr_three_res_kept",
+   "section": "6.10",
+   "item": {
+    "base": "Mirrored Boots",
+    "code": "utb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 20,
+     "99:0": 10,
+     "39:0": 25,
+     "41:0": 22,
+     "45:0": 20
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "field": "keep",
+    "town": "keep"
+   },
+   "source": "guides/pricing.html:235 (\"30 FRW with one resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30\"); guides/pricing-primer.html:187 (\"boots FRW + res + FHR\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "boots_rare_without_fhr_near_miss_dropped",
+   "section": "6.10",
+   "item": {
+    "base": "War Boots",
+    "code": "xhb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 30,
+     "39:0": 40,
+     "43:0": 30,
+     "80:0": 25,
+     "2:0": 9
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop",
+    "town": "sell"
+   },
+   "source": "guides/pricing.html:235 (\"30 FRW with one resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30\"); guides/pricing-primer.html:187 (\"boots FRW + res + FHR\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; keep.py JUNK_UNWANTED: no row names it, no price by its rolls",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null,
+   "today_fails": {
+    "decision": "today: junk_of sells only a vendor verdict: an unpriced rare with a check verdict is kept"
+   }
+  },
+  {
+   "id": "boots_rare_fhr_one_res_near_miss_dropped",
+   "section": "6.10",
+   "item": {
+    "base": "Myrmidon Greaves",
+    "code": "uhb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 30,
+     "99:0": 10,
+     "39:0": 35,
+     "80:0": 25
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "guides/pricing.html:235 (\"30 FRW with one resistance >= 30 or two >= 25; alternatively 20 FRW with three resistances >= 20 or two >= 30\"); guides/pricing-primer.html:187 (\"boots FRW + res + FHR\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; one resistance: not \"two >= 25\"",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null,
+   "today_fails": {
+    "decision": "today: junk_of sells only a vendor verdict: an unpriced rare with a check verdict is kept"
+   }
+  },
+  {
+   "id": "boots_rare_october_6_war_boots_vendor_dropped",
+   "section": "6.10",
+   "item": {
+    "base": "War Boots",
+    "code": "xhb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 20,
+     "2:0": 5,
+     "16:0": 51,
+     "39:0": 9
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop",
+    "town": "sell"
+   },
+   "source": "guides/pricing.html:414 (\"Rare War Boots with 20% Faster Run/Walk, 5 Dexterity, 51% Enhanced Defense and only 8% or 9% Fire Resistance: VENDOR\")",
+   "value": {
+    "worth": null,
+    "verdict": "vendor"
+   },
+   "owned": null
+  },
+  {
+   "id": "boots_rare_priced_by_its_rolls_kept_by_k5",
+   "section": "6.10",
+   "item": {
+    "base": "Battle Boots",
+    "code": "xtb",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {
+     "96:0": 20,
+     "39:0": 30
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K5",
+    "field": "keep"
+   },
+   "source": "keep.py K5 before JUNK_UNWANTED: \"kept when the KB values it >= 1 Ist\" (the G19 rule); api.droppable spares 1 Ist or more",
+   "value": {
+    "worth": 1.3,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "boots_rare_unidentified_picked_to_identify",
+   "section": "6.10",
+   "item": {
+    "base": "Heavy Boots",
+    "code": "vbt",
+    "quality": "rare",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {},
+    "identified": false
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "identify",
+    "rule": "K2"
+   },
+   "source": "guides/warlock.html:236 (\"ID every ... rare gloves / boots / belts\"); loot/build_wants.py G21 boots-rare-identify",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null,
+   "today_fails": {
+    "ground": "today: pickmode.sure (loot/today.py) takes no rare boot; the KP_6 loop picked one by its size (G14) and now by G21"
+   }
+  },
+  {
+   "id": "boots_magic_left_on_the_ground",
+   "section": "6.10",
+   "item": {
+    "base": "Mesh Boots",
+    "code": "xmb",
+    "quality": "magic",
+    "size": [
+     2,
+     2
+    ],
+    "rolls": {},
+    "identified": false
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/warlock.html §6 Craft Bases rule (\"no magic boot or belt roll is worth identifying\"); no G21 row for magic boots; the filter hides magic Mesh Boots",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null
+  },
+  {
+   "id": "belt_rare_24fhr_life_two_res_kept",
+   "section": "6.10",
+   "item": {
+    "base": "Mithril Coil",
+    "code": "umc",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {
+     "99:0": 24,
+     "7:0": 10240,
+     "39:0": 25,
+     "41:0": 22
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "reason_has": [
+     "really good"
+    ],
+    "field": "keep",
+    "town": "keep"
+   },
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "belt_rare_24fhr_life_res_strength_kept",
+   "section": "6.10",
+   "item": {
+    "base": "Troll Belt",
+    "code": "utc",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {
+     "99:0": 24,
+     "7:0": 8960,
+     "45:0": 20,
+     "0:0": 18
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "field": "keep"
+   },
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "belt_rare_24fhr_one_companion_kept_by_the_priced_gate",
+   "section": "6.10",
+   "item": {
+    "base": "Heavy Belt",
+    "code": "tbl",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {
+     "99:0": 24,
+     "0:0": 16
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K10",
+    "reason_has": [
+     "priced gate"
+    ],
+    "field": "keep",
+    "town": "keep"
+   },
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; the G10 precedent: a gate the asks put over 1 Ist is a want",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null
+  },
+  {
+   "id": "belt_rare_17fhr_life_res_near_miss_dropped",
+   "section": "6.10",
+   "item": {
+    "base": "Colossus Girdle",
+    "code": "uhc",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {
+     "99:0": 17,
+     "7:0": 11520,
+     "39:0": 30,
+     "41:0": 30
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop",
+    "town": "sell"
+   },
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; 17 FHR: not 24 (of Equilibrium, magicsuffix.json:4693-4728)",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null,
+   "today_fails": {
+    "decision": "today: junk_of sells only a vendor verdict: an unpriced rare with a check verdict is kept"
+   }
+  },
+  {
+   "id": "belt_rare_24fhr_low_companions_dropped",
+   "section": "6.10",
+   "item": {
+    "base": "War Belt",
+    "code": "zhb",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {
+     "99:0": 24,
+     "7:0": 5120,
+     "39:0": 15,
+     "0:0": 10
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop"
+   },
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; life 20, res 15, str 10: under every companion floor",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": null,
+   "today_fails": {
+    "decision": "today: junk_of sells only a vendor verdict: an unpriced rare with a check verdict is kept"
+   }
+  },
+  {
+   "id": "belt_rare_unidentified_picked_to_identify",
+   "section": "6.10",
+   "item": {
+    "base": "Plated Belt",
+    "code": "hbl",
+    "quality": "rare",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {},
+    "identified": false
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "identify",
+    "decision": "identify",
+    "rule": "K2"
+   },
+   "source": "guides/warlock.html:236 (\"ID every ... rare gloves / boots / belts\"); loot/build_wants.py G22 belt-rare-identify",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null,
+   "today_fails": {
+    "ground": "today: pickmode.sure (loot/today.py) takes no rare belt; the KP_6 loop left them (2 cells, no class) until G22"
+   }
+  },
+  {
+   "id": "belt_magic_left_on_the_ground",
+   "section": "6.10",
+   "item": {
+    "base": "Mesh Belt",
+    "code": "zmb",
+    "quality": "magic",
+    "size": [
+     2,
+     1
+    ],
+    "rolls": {},
+    "identified": false
+   },
+   "expect": {
+    "ground": "leave"
+   },
+   "source": "guides/warlock.html §6 Craft Bases rule (\"no magic boot or belt roll is worth identifying\"); no G22 row for magic belts",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": null
   }
  ]
 }

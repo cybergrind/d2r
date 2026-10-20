@@ -62,7 +62,7 @@ class Goal:
     at it; `near` how near counts as reached (a fight: the build's strike distance); `spend` what the way may cost;
     `known` False: only where to look. `mark` the card mark it was made from; `route`, `stage` the stage it performs.
     `guarded`: a pickup never begun with a hostile within GUARD_NEAR. `clearing`: a level run's fight on its way or
-    of the rest of the level."""
+    of the rest of the level. `shrine`: an Experience Shrine's use."""
 
     label: str
     place: Point
@@ -76,6 +76,9 @@ class Goal:
     stage: Stage | None = None
     guarded: bool = False
     clearing: bool = False
+    # An Experience Shrine on the way (macros/hunting/shrines.py; the player, 2026-10-20: "take exp shrines along the
+    # way"): `unit` is the shrine's object, clicked by the shrine's own hands, not a mark's
+    shrine: bool = False
 
     def gap(self, here: Point) -> float:
         """Units from `here` to the goal's place."""

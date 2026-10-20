@@ -11,6 +11,8 @@ from inventory_tracking.macros.agenda import (
     NEXT_LEVEL,
     ON_THE_WAY,
     PICKUP,
+    PLUS,
+    PLUS_WAY,
     PORTAL_TO_TOWN,
     TOWN_ROUTINE,
     TRANSIT,
@@ -55,7 +57,10 @@ def test_the_catacombs_zone_is_one_excursion_from_catacombs_2_to_andariel():
     (trip,) = plan.excursions
     assert (trip.route, trip.waypoint, trip.areas) == ('Andariel', 35, (35, 36, 37))
     assert {area for area, _ in plan.skipped} == {32, 33, 34}
-    assert [policy_of(area, trip) for area in trip.areas] == [ON_THE_WAY] * 3  # on the way to her, and her level
+    # TZ leveling before TZ+: on the way to her, and her level
+    assert [policy_of(area, trip, plus=False) for area in trip.areas] == [ON_THE_WAY] * 3
+    # TZ+ (2026-10-20): each level explored and its groups taken, hers too, then Andariel
+    assert [policy_of(area, trip) for area in trip.areas] == [PLUS] * 3
     assert policy_of(35, trip, full_clear=True) == FULL_CLEAR  # Full clear TZ: the Herald hunt
 
 
@@ -75,9 +80,11 @@ def test_a_level_with_no_boss_ahead_is_covered_and_one_no_route_knows_too():
     tower = itinerary(frozenset((6, 11, 15, 20, 21, 22, 23, 24, 25)))
     assert tower is not None
     hole = next(trip for trip in tower.excursions if trip.route == 'Hole')
-    assert [policy_of(area, hole) for area in hole.areas] == [COVER] * 3
+    assert [policy_of(area, hole, plus=False) for area in hole.areas] == [COVER] * 3
+    assert [policy_of(area, hole) for area in hole.areas] == [PLUS] * 3  # TZ+: the rooms and the groups too
     unknown = Excursion('', 900, (900, 901), frozenset((900, 901)))
-    assert policy_of(901, unknown) == COVER
+    assert policy_of(901, unknown, plus=False) == COVER
+    assert policy_of(901, unknown) == PLUS
     assert policy_of(901, None) == TRANSIT  # no excursion under way: the way on only
 
 
@@ -130,7 +137,7 @@ def test_an_unknown_terror_zone_level_is_explored_for_its_elites_and_its_end_is_
     agenda = Agenda()
     agenda.begin('g')
     here, room = (5000.0, 5000.0), ((5300.0, 5300.0), 'an unexplored room')
-    policy = policy_of(900, unknown.excursions[0])
+    policy = policy_of(900, unknown.excursions[0], plus=False)
     champion = Leader(1, (5200.0, 5000.0), 'a champion')
     assert aimed(agenda, LevelView(900, here, (champion,), frontier=lambda: room, policy=policy)).unit == 1
     explore = agenda.in_level(LevelView(900, here, frontier=lambda: room, policy=policy))
@@ -210,7 +217,8 @@ def test_a_level_not_terrorized_is_transit_for_both_kinds_and_its_run_takes_only
     assert policy_of(83, trip) == TRANSIT
     assert policy_of(83, trip, full_clear=True) == TRANSIT  # Full clear TZ too
     assert policy_of(108, None) == TRANSIT  # off the itinerary (the Chaos Sanctuary from the River)
-    assert policy_of(100, trip) == ON_THE_WAY
+    assert policy_of(100, trip, plus=False) == ON_THE_WAY
+    assert policy_of(100, trip) == PLUS
     agenda = Agenda()
     agenda.begin('g')
     here = (5000.0, 5000.0)
@@ -254,8 +262,11 @@ def test_the_worldstone_keep_zone_goes_through_the_thrones_waves_and_portal_to_b
     trip = next(each for each in plan.excursions if each.route == 'Baal')
     assert (trip.waypoint, trip.areas) == (129, (129, 130, 131, 132))
     assert {131, 132} <= trip.zone
-    assert policy_of(131, trip) == ON_THE_WAY  # the leaders on the way, then the route's own goals
-    assert policy_of(132, trip) == ON_THE_WAY
+    assert policy_of(131, trip, plus=False) == ON_THE_WAY  # the leaders on the way, then the route's own goals
+    assert policy_of(132, trip, plus=False) == ON_THE_WAY
+    # TZ+: the Throne stands for the waves (no room explored first), its groups taken; the Chamber is explored
+    assert policy_of(131, trip) == PLUS_WAY
+    assert policy_of(132, trip) == PLUS
     assert look(131, plan, stage=FIGHT) == [(LEVEL, 131)]  # the waves: the level's run
     assert look(131, plan, stage=FIGHT, worked=((131, 1),)) == [(LEVEL, 131)]  # Lister not dead: the run again
     assert look(131, plan, stage=LOOT_STAGE, worked=((131, 1),)) == [(LOOT, 131)]  # after Lister, his loot
@@ -280,7 +291,8 @@ def test_the_tal_rashas_zone_is_the_canyon_then_its_seven_tombs_one_trip_touring
     assert (trip.waypoint, trip.areas, trip.hub, trip.tours) == (CANYON, (CANYON, *TOMBS), CANYON, TOMBS)
     assert trip.zone == frozenset((CANYON, *TOMBS))  # Duriel's Lair is no level of the trip
     assert plan.skipped == ((73, 'no catalogue excursion covers it'),)
-    assert [policy_of(area, trip) for area in trip.areas] == [COVER] * 8  # each cleared: leaders and rooms
+    assert [policy_of(area, trip, plus=False) for area in trip.areas] == [COVER] * 8  # each: leaders and rooms
+    assert [policy_of(area, trip) for area in trip.areas] == [PLUS] * 8  # TZ+: and the groups
     assert not trip.over(frozenset((72,)))  # the catalogue's last tomb done first ends nothing
     assert trip.over(frozenset(TOMBS))
 
@@ -329,3 +341,127 @@ def test_a_tour_whose_canyon_runs_are_spent_ends_never_a_stuck_tour():
     spent = 1 + RUNS_A_TOURED_LEVEL * len(TOMBS)
     assert look(CANYON, plan, stage=ENTER, worked=((CANYON, spent),)) == [(NEXT_LEVEL, CANYON)]
     assert look(CANYON, plan, stage=ENTER, worked=((CANYON, spent + 1),)) == []  # the game is left
+
+
+def test_tz_plus_explores_the_levels_on_the_way_to_a_boss_that_tz_leveling_left_at_the_way_on(monkeypatch):
+    # rca/2026-10-20/tz-level-leave-findings.md: under ON_THE_WAY the Outer Steppes were left at the way on with about
+    # half their rooms read (19 visits 16:48-18:55), so a Herald could never come there
+    from inventory_tracking.macros import tzroutine
+
+    steppes = itinerary(frozenset((104, 105)))
+    assert steppes is not None
+    (trip,) = steppes.excursions
+    assert trip.route == 'Izual'
+    assert [policy_of(area, trip, plus=False) for area in (104, 105)] == [ON_THE_WAY, ON_THE_WAY]
+    assert [policy_of(area, trip) for area in (104, 105)] == [PLUS, PLUS]
+    # The switch: TZ leveling as before
+    monkeypatch.setattr(tzroutine, 'TZ_PLUS', False)
+    assert [policy_of(area, trip) for area in (104, 105)] == [ON_THE_WAY, ON_THE_WAY]
+    assert policy_of(104, trip, full_clear=True) == FULL_CLEAR  # Full clear TZ is its own kind
+
+
+def test_tz_plus_a_big_level_keeps_its_ways_exploring_rule_and_takes_only_its_big_groups():
+    # The player, ~18:50: "we don't want to clear very large levels with 300 mobs or so"
+    from inventory_tracking.macros.agenda import BIG_LEVEL
+    from inventory_tracking.terror.zones import level_population
+
+    jungle = itinerary(frozenset((78, 86, 87, 88, 89, 90, 91)))
+    assert jungle is not None
+    dungeon = next(trip for trip in jungle.excursions if trip.route == 'Flayer Dungeon')
+    pit = next(trip for trip in jungle.excursions if trip.route == 'Swampy Pit')
+    assert (level_population(78) or 0) >= BIG_LEVEL  # Flayer Jungle, 475
+    assert policy_of(78, dungeon) == PLUS_WAY  # on the way to the Flayer Dungeon's boss: no room tour of the jungle
+    assert policy_of(78, pit) == PLUS  # no boss ahead: explored as before (COVER), its big groups
+    assert [policy_of(area, dungeon) for area in (88, 89, 91)] == [PLUS] * 3
+    assert (level_population(117) or 0) >= BIG_LEVEL  # Frozen Tundra, 374
+
+
+def test_the_tz_leveling_kinds_hud_word_is_tz_plus_while_tz_plus_is_on():
+    from inventory_tracking.macros import tzroutine
+    from inventory_tracking.macros.loop import TZ, TZ_CLEAR
+
+    assert TZ.word == ('TZ+' if tzroutine.TZ_PLUS else 'TZ')
+    assert TZ_CLEAR.word == 'TZC'
+
+
+# A whole act terrorized by a Worldstone Shard, with the rotation (the player, 2026-10-20 ~19:00: "for TZ/TZ+ modes we
+# want to know how to handle whole terrorized act (when we terrorized it manually with stone)"; ~18:50: "we want to
+# kill act boss first for possible statue drop")
+ACT4 = frozenset((104, 105, 106, 107, 108))
+
+
+def trips_of(plan: Itinerary | None) -> list[tuple[str, int, tuple[int, ...]]]:
+    assert plan is not None
+    return [(trip.route, trip.waypoint, trip.areas) for trip in plan.excursions]
+
+
+def test_a_terrorized_act_4_is_diablo_first_then_the_steppes_and_the_plains():
+    plan = itinerary(ACT4)
+    assert plan is not None
+    assert plan.zone == 'Act4-Manual'
+    assert plan.areas == ACT4
+    assert trips_of(plan) == [('Diablo', 106, (106, 107, 108)), ('Izual', 103, (103, 104, 105))]
+    assert plan.skipped == ()
+    assert look(FORTRESS, plan) == [(WAYPOINT, 106)]  # the boss's trip first
+    assert look(108, plan, stage=FIGHT) == [(LEVEL, 108)]
+    assert look(108, plan, stage=LEAVE, worked=((108, 1),)) == [(PORTAL_TO_TOWN, 108)]  # the next trip after Diablo
+    assert look(FORTRESS, plan, finished=frozenset((106, 107, 108))) == [(WALK_OUT, 104)]
+    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=frozenset((106, 107, 108))) == []  # the game ends
+    # Every level of the act is worked (TZ+), none crossed
+    diablo, izual = plan.excursions
+    assert [policy_of(area, diablo) for area in (106, 107, 108)] == [PLUS, PLUS, PLUS]
+    assert [policy_of(area, izual) for area in (104, 105)] == [PLUS, PLUS]
+
+
+def test_a_terrorized_act_and_the_rotation_in_another_act_are_one_itinerary_the_act_first():
+    plan = itinerary(ACT4 | CATACOMBS)
+    assert plan is not None
+    assert plan.zone == 'Act4-Manual + Act1-Catacombs'
+    assert plan.areas == ACT4 | CATACOMBS
+    assert trips_of(plan) == [
+        ('Diablo', 106, (106, 107, 108)),
+        ('Izual', 103, (103, 104, 105)),
+        ('Andariel', 35, (35, 36, 37)),
+    ]
+    assert {area for area, _ in plan.skipped} == {32, 33, 34}  # as the Catacombs zone alone
+    assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=frozenset((106, 107, 108))) == [
+        (PORTAL_TO_TOWN, 105)
+    ]
+    assert look(FORTRESS, plan, finished=frozenset((106, 107, 108, 105))) == [(WAYPOINT, 35)]
+
+
+def test_a_terrorized_act_1_holds_the_catacombs_rotation_and_andariel_comes_first():
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act1 = manual_zone(1)
+    assert act1 is not None
+    plan = itinerary(act1.core)
+    assert plan is not None
+    assert plan.zone == 'Act1-Manual'
+    first, rest = plan.excursions[0], plan.excursions[1]
+    assert (first.route, first.waypoint, first.areas) == ('Andariel', 35, (35, 36, 37))
+    # The levels before her waypoint are a trip of their own (the Outer Cloister's, through the Jail and the Cathedral)
+    assert (rest.route, rest.waypoint, rest.areas) == ('Andariel', 27, (27, 28, 29, 30, 31, 32, 33, 34))
+    covered = {area for trip in plan.excursions for area in trip.zone}
+    assert covered == set(act1.areas)  # every level of the act, the Forgotten Tower too
+    assert plan.skipped == ()
+
+
+def test_a_partly_read_act_plays_its_groups_read_and_never_stops_the_loop():
+    plan = itinerary(frozenset((104, 105, 106, 107)))
+    assert plan is not None
+    assert plan.zone == 'Act4_OuterSteppes + Act4-RiverOfFlame'
+    assert trips_of(plan) == [('Izual', 103, (103, 104, 105)), ('Diablo', 106, (106, 107))]
+    assert 108 not in plan.areas  # not read: crossed, never worked
+
+
+def test_manual_zones_off_is_the_one_rotating_zone_as_before(monkeypatch):
+    from inventory_tracking.macros import tzroutine
+
+    monkeypatch.setattr(tzroutine, 'MANUAL_ZONES', False)
+    tzroutine.itinerary.cache_clear()
+    try:
+        assert itinerary(ACT4) is None
+        assert trips_of(itinerary(frozenset((104, 105)))) == [('Izual', 103, (103, 104, 105))]
+    finally:
+        tzroutine.itinerary.cache_clear()

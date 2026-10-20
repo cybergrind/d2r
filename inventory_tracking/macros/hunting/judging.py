@@ -21,6 +21,7 @@ from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.build import NoWay, PricedStep
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, Goal
+from inventory_tracking.macros.hunting import shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     COMES_TO_ITS_MARK,
@@ -103,6 +104,7 @@ def judge(
     goal = self.goal(run, world, foes, pressed, posted)
     if posted is not None and posted.runs and not (pressed and posted.advance):
         goal = self.cleared(run, world, foes, ground, goal)  # the run's own look: what its mode adds
+        goal = shrines.side_goal(self, run, world, goal, posted)  # an Experience Shrine on the way (2026-10-20)
     if not pressed and not (posted is not None and posted.leashed):
         goal = self.nearby(goal, here)
     noted = heading(posted, goal) if posted is not None else None
@@ -122,6 +124,9 @@ def judge(
                 spots = firing_spots(ground, goal.place, STRIKE_REACH, here, world.doors, engage) or [goal.place]
                 rooms = level.rooms
                 place = next((s for s in spots if room_at(rooms, (s[0] / TILE_UNITS, s[1] / TILE_UNITS))), spots[0])
+        elif goal.shrine:
+            there = shrines.there(ground, world, here, goal)  # clicked on a clear line, never across a wall
+            beyond = max(goal.gap(here) - goal.near, 0.0)
         elif goal.do == USE and goal.mark is not None:
             thing = marked_thing(run, goal.mark)
             near = goal.gap(here) <= SPOT_NEAR or (
@@ -193,6 +198,14 @@ def judge(
     if isinstance(act, Advance) and act.reason:
         place = act.step.spot
     if (
+        isinstance(act, NoWay)
+        and goal is not None
+        and goal.shrine
+        and act.reason.startswith('no way toward')
+        and not act.reason.endswith(GROWING)
+    ):
+        shrines.no_way(self, goal, act.reason)  # a side goal: left, the level's own way is not explored for it
+    elif (
         isinstance(act, NoWay)
         and goal is not None
         and goal.clearing

@@ -50,8 +50,10 @@ __all__ = [
 BASES = True
 # The base classes of design.md §4.2 the ground read decides: G3 merc eth polearms, G4 merc / runeword armor, G5 white
 # Monarchs, G7 Paladin shields (the Exile base too), G8 Void daggers, G16 the market-only bases (Q7: Superior 15 ED with
-# the exact sockets), G17 the merc's Cure helm (the player's own-use bases, ~12:15)
-BASE_CLASSES = frozenset(('G3', 'G4', 'G5', 'G7', 'G8', 'G16', 'G17'))
+# the exact sockets), G17 the merc's Cure helm (the player's own-use bases, ~12:15), G20 white class items by their paid
+# +3 staff mods (grimoires, elite claws, wands, scepters, pelts, Barbarian helms, staves; the player, ~18:45: "it worth
+# to assess every item"; rca/2026-10-20/white-bases-findings.md)
+BASE_CLASSES = frozenset(('G3', 'G4', 'G5', 'G7', 'G8', 'G16', 'G17', 'G20'))
 # Rows no pickup takes all the same (`judge`'s default rows). Empty since 2026-10-20 ~12:50 (the player: "I want to
 # keep more monarch bases"): the Spirit base row (spirit-monarch-plain-4os) left Q8's "keep one" for a cap, its
 # `keep_up_to` (build_wants.py SPIRIT_MONARCH_CAP), counted by `owned` below

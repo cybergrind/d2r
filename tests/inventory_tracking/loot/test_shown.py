@@ -214,3 +214,27 @@ def test_the_repositorys_filter_keeps_the_players_chipped_and_flawed_gems():
     gems = set(shown_gems(FILTER).values())
     assert {'Chipped Amethyst', 'Flawed Ruby', 'Chipped Skull', 'Flawless Topaz', 'Perfect Skull'} <= gems
     assert len(gems) == 28
+
+
+def test_the_filter_shows_every_base_the_ground_read_may_pick():
+    # Only a labelled drop is read and clicked (game/memory.py: the look's drops are the filter's): a wants row of the
+    # ground judge's base classes whose base the filter hides would never pick (2026-10-20 ~18:45, the player's
+    # "it worth to assess every item"; the rows of rca/2026-10-20/white-bases-findings.md)
+    from inventory_tracking.loot.ground_judge import BASE_CLASSES
+    from inventory_tracking.loot.wants import wants
+
+    words = {'normal': 2, 'superior': 3}
+    rules, hidden = filter_rules(), []
+    for row in (row for row in wants() if row.klass in BASE_CLASSES):
+        facets = {need.keys[0]: need for need in row.ground if len(need.keys) == 1}
+        eth = ETHEREAL_FLAG if 'ethereal' in facets and facets['ethereal'].equals is True else 0
+        counts = facets['sockets'].among if 'sockets' in facets else (0, 1)
+        flags = {eth | (SOCKETED_FLAG if count else 0) | WHITE for count in counts or (0,)}
+        codes = row.codes or {base['code'] for base in BASES.values() if base['type'] in row.types}
+        most = {base['code']: base['max_sockets'] or 0 for base in BASES.values()}
+        for code in sorted(code for code in codes if min(counts or (0,)) <= most[code]):  # a base that can hold one
+            for quality in sorted(words[name] for name in row.qualities):
+                for flag in sorted(flags):
+                    if shown_label(rules, BY_CODE[code], quality, flag) is None:
+                        hidden.append((row.id, code, quality, flag))
+    assert hidden == []

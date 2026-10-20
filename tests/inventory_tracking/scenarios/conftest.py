@@ -16,6 +16,7 @@ SLOW = tuple(
         'arena/situations',
         'arena/evidence',
         'arena/test_replay.py',
+        'arena/test_mark_recast.py',
         'arena/test_incident_kp4.py',
         'arena/test_scenes_threat.py',
         'stance/test_moments.py',

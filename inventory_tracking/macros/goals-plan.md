@@ -156,6 +156,15 @@ uncovered area. Areas on an excursion's way that are not terrorized are transit:
 - **COVER** everywhere else: explore to coverage (the frontier until none), every leader found, nearest first, then
   the end goal or the way on. This is the default for a level no handler knows: with no route script, no end goal,
   the area is over once the level run finds nothing left, and the excursion ends there.
+- **TZ+** (the TZ leveling kind's behaviour since 2026-10-20, `tzroutine.TZ_PLUS`; the player: "it tries to kill
+  slightly more mobs on levels with not so many mobs to get herald spawn"): **PLUS** on every terrorized level under
+  `BIG_LEVEL` (300 hostiles, terror/zones.py `level_population`), the levels on the way to a boss too: COVER's rooms and
+  leaders, and each reasonable group in the read (`GROUP_MIN` 4 hostiles linked within `GROUP_LINK` 15 units, its
+  nearest within `GROUP_NEAR` 60; `Agenda.groups_near`). A big level keeps its trip's rule (PLUS_WAY on the way to a
+  boss, else PLUS) and takes only groups of `BIG_GROUP` 8 and its leaders ("fore levels with 300+ mobs - we just clear
+  big groups and elites/champions"); a level whose script stands (Durance 3, the Throne) is PLUS_WAY. Why and the
+  numbers: rca/2026-10-20/tz-level-leave-findings.md (ON_THE_WAY left the outdoor levels half unseen, below Tier 1's
+  52% completion).
 
 **What per-level knowledge exists today**: route scripts for every terror-zone level in the catalogue (route
 inventory: tz-leveling-route-inventory.md; three act 5 levels unavailable: their red portals are not read), level

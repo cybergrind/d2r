@@ -1,7 +1,13 @@
 """HUD process plumbing: slot config, guide widgets from display lines, one canvas per scene."""
 
 from inventory_tracking.config import HUD
-from inventory_tracking.hud.process import acquire_instance, card_widgets, guide_widgets, terror_widgets
+from inventory_tracking.hud.process import (
+    acquire_instance,
+    canvas_running,
+    card_widgets,
+    guide_widgets,
+    terror_widgets,
+)
 from inventory_tracking.levels.map_card import MapCard, MapPoi
 from inventory_tracking.presentation import StyledLine
 
@@ -246,3 +252,22 @@ def test_controller_slots_keep_the_guide_left_of_the_life_globe_and_the_mode_lin
     assert mode.upward
     assert mode.centered
     assert mode.y < 0.89
+
+
+def test_canvas_running_follows_the_canvas_lock_and_leaves_it_free(tmp_path):
+    # The KP_6 kind picker opens only with a canvas to show it (macros/kindpick.py, 2026-10-20)
+    assert not canvas_running(tmp_path / 'never')  # no lock file: no canvas ever ran
+    instance = acquire_instance(tmp_path)
+    assert instance is not None
+    with instance:
+        assert canvas_running(tmp_path)
+    assert not canvas_running(tmp_path)
+    again = acquire_instance(tmp_path)  # the probe left nothing held
+    assert again is not None
+    again.close()
+
+
+def test_the_picker_slot_is_centred_above_the_character():
+    slot = HUD.slots['picker']
+    assert slot.centered
+    assert 0.1 < slot.y < 0.4

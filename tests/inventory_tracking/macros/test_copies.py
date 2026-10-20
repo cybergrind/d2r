@@ -167,8 +167,11 @@ def test_outside_the_service_or_with_no_read_or_on_a_failure(tmp_path):
 
 
 def test_the_visit_stashes_a_first_copy_instead_of_selling_it(monkeypatch, caplog, tmp_path):
-    # 15:05:53 on 2026-10-18: the loop's Kelpie Snare (a unique Fuscina, unit 40) was junk and sold; none was owned
+    # 15:05:53 on 2026-10-18: the loop's Kelpie Snare (a unique Fuscina, unit 40) was junk and sold; none was owned.
+    # copies.py `sold` is the old chain's (TOWN_DECIDES off; the keep rules' K4 keeps a first copy: test_valuables.py)
     import inventory_tracking.macros.visitlog as visitlog
+
+    monkeypatch.setattr('inventory_tracking.loot.keep.TOWN_DECIDES', False)
     from inventory_tracking.macros.visit import visit
     from tests.inventory_tracking.macros.test_town import pack_1505, view_1505
     from tests.inventory_tracking.macros.test_visit import LK_NEEDS, Exit, Town, fortress

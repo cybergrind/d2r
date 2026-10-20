@@ -389,7 +389,9 @@ class AppraisalConfig(Config):
     # The pickup step takes every rune (user, 2026-10-10 night); the marks above stay at `rune_minimum`.
     pickup_rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r01'
     rune_poll_interval: Positive = 0.5
-    shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
+    # shrine types to point at (d2data shrines.json; 18 = Gem, 15 = Experience: the level run takes those on its way,
+    # macros/hunting/shrines.py, 2026-10-20)
+    shrine_marks: tuple[int, ...] = (18, 15)
     unique_marks: bool = True  # also point at unique drops whose base has an expensive unique (loot/uniques.py)
     # Ist: the good-roll ask (highest bucket median, loot/data/uniques.json) of the base's dearest unique.
     # 2.5 takes in Harlequin Crest and The Stone of Jordan (user, 2026-10-06).
@@ -582,6 +584,9 @@ class HudConfig(Config):
         'traderie': HudSlot(x=0.5, y=0.02, max_width=0.3, centered=True),
         # Macro attack mode (hud/process.py ModeBeacon), above the skill bar; never dimmed: read at a glance in a fight.
         'mode': HudSlot(x=0.5, y=0.8, max_width=0.2, centered=True),
+        # The KP_6 kind picker (macros/kindpick.py; the player, 2026-10-20: "pop some kind of dialogue to chose the
+        # mode on 3 clicks"): above the character, open only while chosen.
+        'picker': HudSlot(x=0.5, y=0.22, max_width=0.5, centered=True),
     }
     # Slot places in controller mode (hud/live.py InputModeByte; rca/2026-10-13/controller-mode.md §5): the bottom bar
     # tops at about 0.89 of the window height and the life globe begins at x 0.165. Unnamed slots keep their places.

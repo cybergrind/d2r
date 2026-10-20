@@ -179,12 +179,14 @@ def tome_pack(*items: Carried, charges: int = 20) -> Pack:
 def test_m4_ships_on_for_every_class_built():
     """G6 first (design.md §7 M4), then G9-G11: the player, 2026-10-20 ~11:05: "turn on G9-G11 too"; G14 and G15,
     the big items, ~12:00: "start all three"; G18 the big uniques and sets, ~13:28: "identify a big items in the
-    middle of the run"; G19 the magic gloves, ~13:30: "we want to identify magic gloves"."""
+    middle of the run"; G19 the magic gloves, ~13:30: "we want to identify magic gloves"; G21 / G22 the rare boots and
+    belts, ~19:25: "we can keep really good ones"."""
     assert FIELD_IDENTIFY
     assert api.FIELD_BIG
     assert api.FIELD_OVERSIZE
     assert api.FIELD_NAMED
-    assert frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19')) == CLASSES
+    assert frozenset(('G6', 'G9', 'G10', 'G11', 'G14', 'G15', 'G18', 'G19', 'G21', 'G22')) == CLASSES
+    assert set(api.ORDER) == CLASSES == api.IMPLEMENTED
     assert frozenset(('G9', 'G10', 'G11')) <= api.IMPLEMENTED
     assert api.IDENTIFY_RESERVE == 5
 
@@ -241,7 +243,7 @@ def test_a_big_shown_magic_or_rare_item_is_picked_for_the_field_check(looped, kl
 
 
 def test_the_size_classes_take_only_what_the_filter_shows_and_each_switch_turns_one_off(looped, monkeypatch):
-    assert looped.takes(big(70, HEAVY_BELT, RARE, (2, 1))) is None  # 2 cells: carried as before
+    assert looped.takes(big(70, HEAVY_BELT, MAGIC, (2, 1))) is None  # 2 cells, no class: carried as before
     assert looped.takes(big(71, ARCHON, MAGIC, (2, 3), source='material')) is None  # not the filter's gear
     assert looped.takes(big(72, ARCHON, MAGIC, (2, 3), prized=True)) is None  # the marks': a sure valuable
     assert Field().takes(big(73, ARCHON, MAGIC, (2, 3))) is None  # the loop off: KP_1 by hand as before
@@ -743,6 +745,86 @@ def test_a_magic_glove_the_filter_shows_is_picked_for_the_field_identify_as_g19(
     assert looped.takes(drop) == 'G19'
     assert looped.pick(drop, (GAME, 7))
     assert looped.takes(replace(drop, quality=RARE)) == 'G14'  # a rare glove: by its size, as before
+
+
+# -- G21 rare boots, G22 rare belts (the player, 2026-10-20 ~19:05: "is there are good rolls for belts/boots? right now
+# we're not picking/identifying them, but maybe it is an oversight?", ~19:25: "we can keep really good ones") ---------
+
+WAR_BOOTS, MITHRIL_COIL = 389, 462  # items metadata classes (xhb, umc)
+
+
+@pytest.mark.parametrize(('txt', 'klass'), [(WAR_BOOTS, 'G21'), (HEAVY_BELT, 'G22'), (MITHRIL_COIL, 'G22')])
+def test_a_rare_boot_or_belt_the_filter_shows_is_picked_for_the_field_identify(looped, txt, klass):
+    """A rare boot was G14 by its size before (judged by the KB alone), a rare belt (2 cells) was left; a magic one of
+    either is no class's (the filter's Craft Bases rule shows a few for the cube, warlock.html §6)."""
+    drop = drop_of(60, txt, RARE, size=item_size(txt), label='Rare')
+    assert item_size(txt) == ((2, 2) if klass == 'G21' else (2, 1))  # sizes.json: boots 2x2, belts 2x1
+    assert looped.takes(drop) == klass
+    assert looped.pick(drop, (GAME, 7))
+    assert looped.class_of(60, GAME) == klass
+    assert looped.takes(drop, frozenset(('G14',))) == ('G14' if klass == 'G21' else None)  # G21 off: by size again
+    magic = replace(drop, unit_id=61, quality=MAGIC)
+    assert looped.takes(magic) == ('G14' if klass == 'G21' else None)  # a magic boot: by its size, as before
+
+
+def boot_read(unit: int, rolls: Mapping[str, int], base: str = 'War Boots', code: str = 'xhb') -> Appraised:
+    from tests.inventory_tracking.loot.test_valuables import observation
+
+    spec = {'base': base, 'code': code, 'quality': 'rare', 'rolls': dict(rolls)}
+    return Appraised(observation(spec, unit), {'triage': {'verdict': 'check'}}, 'check')
+
+
+def test_a_really_good_rare_boot_is_kept_and_a_near_miss_dropped_at_the_feet(looped, lines):
+    """30 FRW, 10 FHR, 40/30 fire/cold and 25 MF (the build lists' pair, wp-a-builds.json:4980) is kept though the KB
+    has no price (`check`); the same boots without FHR are junk (keep.py K8) and put down where identified."""
+    good, near = Carried(90, WAR_BOOTS, 0, 0, (2, 2), RARE, False), Carried(91, WAR_BOOTS, 2, 0, (2, 2), RARE, False)
+    hands = Hands(tome_pack(good, near))
+    hands.reads[90] = boot_read(90, {'96:0': 30, '99:0': 10, '39:0': 40, '43:0': 30, '80:0': 25})
+    hands.reads[91] = boot_read(91, {'96:0': 30, '39:0': 40, '43:0': 30, '80:0': 25})
+    for unit in (90, 91):
+        assert looped.pick(drop_of(unit, WAR_BOOTS, RARE, size=(2, 2)), (GAME, 7))
+
+    done = looped.settle(hands, 'Town Portal')
+
+    assert sorted(hands.identified) == [90, 91]
+    assert hands.dropped == [91]
+    assert done.dropped == 1
+    assert any('War Boots (unit 91): drop K8 a rare boot no want row names' in line for line in lines), lines
+
+
+def boots_and_belt_cases() -> list:
+    from tests.inventory_tracking.loot.test_valuables import CASES
+
+    return [
+        pytest.param(case, id=case['id'])
+        for case in CASES
+        if case['section'] == '6.10' and case['item']['quality'] == 'rare' and 'field' in case['expect']
+    ]
+
+
+@pytest.mark.parametrize('case', boots_and_belt_cases())
+def test_each_rare_boot_and_belt_of_the_acceptance_table_is_kept_or_dropped_in_the_field_as_decided(looped, case):
+    from inventory_tracking.loot.facts import base_of_code
+    from tests.inventory_tracking.loot.test_valuables import observation
+
+    found = base_of_code(case['item']['code'])
+    assert found is not None
+    txt, size = found[0], item_size(found[0])
+    given = case['value']
+    triage: dict[str, Any] = {'verdict': given['verdict']}
+    if given['worth'] is not None:
+        triage |= {'decision_ist': given['worth'], 'roll_comparison': {'by': 'the fixture'}}
+    hands = Hands(tome_pack(Carried(200, txt, 0, 0, size, RARE, False)))
+    hands.reads[200] = Appraised(observation(case['item'], 200), {'triage': triage}, given['verdict'])
+    assert looped.pick(drop_of(200, txt, RARE, size=size), (GAME, 7))
+    assert looped.class_of(200, GAME) == ('G21' if size == (2, 2) else 'G22')
+
+    done = looped.settle(hands, 'Town Portal')
+
+    (judged,) = done.judged
+    assert judged.decision is not None, case['id']
+    assert judged.decision.rule == case['expect']['rule'], judged
+    assert hands.dropped == ([200] if case['expect']['field'] == 'drop' else []), (case['id'], case['source'])
 
 
 # -- room for the big items mid-run (FIELD_AT_ONCE) ------------------------------------------------------------------

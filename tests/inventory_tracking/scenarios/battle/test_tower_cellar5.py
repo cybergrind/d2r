@@ -79,6 +79,9 @@ AS_IT_WAS = {
     # and a drop was clicked from afar round a wall (2026-10-14: only on a clear line since, macros/travel.py
     # `walk_reaches`): the potion 8.6 away was 12.5 round a thin wall, and the click left the character where it stood
     'inventory_tracking.macros.travel.ROUND_CLICK': math.inf,
+    # and a leader's mark was the price's to refuse (2026-10-20: a leader in reach is marked whatever the price,
+    # builds/warlock/mark.py MARK_LEADERS; the elite 55 refused at 6.71 s is marked by today's rule)
+    'inventory_tracking.builds.warlock.mark.MARK_LEADERS': False,
 }
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 

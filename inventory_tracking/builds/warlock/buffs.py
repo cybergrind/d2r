@@ -10,11 +10,14 @@ import math
 
 from inventory_tracking.builds.warlock.defiler import defiler_missing, worth_a_defiler
 from inventory_tracking.builds.warlock.mark import (
+    MARK_RECASTS,
+    MARK_SHOWS,
     herald,
     mark_due,
     mark_passed,
     mark_refusal,
     mark_said,
+    mark_shows,
     mark_told,
     target,
     worth_a_mark,
@@ -188,6 +191,9 @@ BUFFS: tuple[Buff, ...] = (
         passed=mark_passed,
         said=mark_said,
         told=mark_told,
+        shows=mark_shows,  # a mark that did not take is cast again (the player, 2026-10-20: "ok, recast")
+        shows_within=MARK_SHOWS,
+        recasts=MARK_RECASTS,
     ),
     Buff(SIGIL_LETHARGY, 'fight', sigil_due, on='ground', target=prey, caster='sigil'),
     Buff(ENGORGE, 'fight', engorge_on_a_key, on='corpse', caster='engorge'),

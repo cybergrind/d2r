@@ -258,6 +258,9 @@ class Game:
         # an object a mark names: a click on its picture sends the character through (a portal) or opens it
         self.thing: Thing | None = None
         self.thing_above = 45.0  # classic pixels its picture is clicked above its ground
+        # The object is a shrine of this type (d2data shrines.json Code; 15 Experience): read by `run.objects` as
+        # GameMemory.objects reads it (the type byte and a shrine table pointer in its data), not by `run.things`
+        self.shrine_type: int | None = None
         # Seconds from a click on the stash or the waypoint to its panel: the walk's own click opened the waypoint's
         # 0.05-0.19 s after the character stopped (14:42:09 on 2026-10-18, rca/2026-10-18/arch-actions.md §2 A); the
         # panel comes through `arrivals`. 0: at once.
@@ -1094,8 +1097,10 @@ class Game:
         if self.hover_known:
             run.hovered = self.unit_under_pointer
         run.worn_skills = lambda: self.worn
-        run.things = lambda: () if self.thing is None else (self.thing,)
+        run.things = lambda: () if self.thing is None or self.shrine_type is not None else (self.thing,)
         run.containers = run.things
+        if self.shrine_type is not None:
+            run.objects = self.objects
         run.carried = lambda: (
             replace(self.pack, pointer=self.cursor.unit_id) if self.pack is not None and self.cursor else self.pack
         )
@@ -1110,6 +1115,24 @@ class Game:
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)
         return run
+
+    def objects(self) -> list[dict]:
+        """GameMemory.objects' rows of the shrine (`shrine_type`): its data's type byte at +0x08 and a table pointer at
+        +0x10 (native/layout.py OBJECT_SHRINE_TYPE, OBJECT_SHRINE_TABLE)."""
+        if self.thing is None or self.shrine_type is None:
+            return []
+        data = bytearray(0x40)
+        data[0x08] = self.shrine_type
+        data[0x10:0x18] = (0x7FF6_1234_5000).to_bytes(8, 'little')
+        thing = self.thing
+        row = {
+            'unit_id': thing.unit_id,
+            'txt_id': thing.txt_id,
+            'mode': thing.mode,
+            'x': int(thing.x),
+            'y': int(thing.y),
+        }
+        return [row | {'data': data.hex()}]
 
     def stash_view(self) -> StashView | None:
         """The stash as read (`stash_pages`, `page_items`, `stacks`); None with no pages given."""

@@ -330,8 +330,10 @@ def test_the_way_to_the_seal_is_the_recorded_one() -> None:
     first instant, which the recorded hunt, under way, did not make)."""
     assert rows(SEAL)['apart from the recorded place at 3 s'].median <= 6.0
     # 227 units in 24 s; the arena 217 at the median since the navigation classes (2026-10-15): the plays reach the
-    # second seal and kill the Vizier sooner, with less way between
-    assert rows(SEAL)['moved'].median == pytest.approx(rows(SEAL)['moved'].recorded, rel=0.1)
+    # second seal and kill the Vizier sooner, with less way between. 198 since the leaders' marks (2026-10-20,
+    # builds/warlock/mark.py MARK_LEADERS: the pack's elites are marked whatever the price, a cast in place each; the
+    # Vizier dies in 8 of 8 plays, 7 before, at 13.6 s at the median, 13.4 before): within 15%
+    assert rows(SEAL)['moved'].median == pytest.approx(rows(SEAL)['moved'].recorded, rel=0.15)
 
 
 # Unmarked 2026-10-13 (fix 2, as above): 17.4 s at the median (21.9 before), 16.8 recorded.

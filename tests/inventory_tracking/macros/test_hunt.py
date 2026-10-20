@@ -1468,10 +1468,14 @@ def test_death_mark_is_not_spent_on_a_monster_a_cast_or_two_kills():
     assert play.marks == []
 
 
-def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_and_need(caplog):
+def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_and_need(caplog, monkeypatch):
     """The game of 00:25 on 2026-10-14 (rca/2026-10-14/run-0025-findings.md §4): one mark all game, on Diablo; the
     seal bosses and elites were refused by the worth rule, silently, and the player could not tell it was used.
-    With no safety price fresh (the pursuit off here) the line gives the build's own price (mark.py `own_price`)."""
+    With no safety price fresh (the pursuit off here) the line gives the build's own price (mark.py `own_price`).
+    By the price's rule: since 2026-10-20 a leader is marked whatever the price (MARK_LEADERS, the next test)."""
+    from inventory_tracking.builds.warlock import mark
+
+    monkeypatch.setattr(mark, 'MARK_LEADERS', False)
     elite = foe(11, 5010.0, 5002.0, CHAMPION, txt_id=312)  # a Venom Lord champion in the Chaos Sanctuary
     play = game(foe(10, 5008.0, 5000.0), elite, demon(), area=108)
     play.toughness.update({10: 1000, 11: 1000})
@@ -1483,6 +1487,19 @@ def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_a
     assert 'no Death Mark on the elite 312 (11)' in refused[0]
     assert "by the build's rule (no safety price)" in refused[0]
     assert "against the cast's 0.37s" in refused[0]  # one volley of the strike (mark.py MARK_CAST_SECONDS)
+
+
+def test_the_same_elite_is_marked_once_whatever_the_price_by_the_leaders_rule(caplog):
+    # The player, 2026-10-20: "ok, recast. pack leader/herald first" (builds/warlock/mark.py MARK_LEADERS)
+    elite = foe(11, 5010.0, 5002.0, CHAMPION, txt_id=312)
+    play = game(foe(10, 5008.0, 5000.0), elite, demon(), area=108)
+    play.toughness.update({10: 1000, 11: 1000})
+    with caplog.at_level(logging.INFO):
+        attack_mode(play, hunter(play), until=10.0)
+    assert play.marks == [11]
+    cast = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark: Death Mark on')]
+    assert len(cast) == 1
+    assert 'the elite 312 (11)' in cast[0]
 
 
 def test_no_death_mark_with_no_demon_out_and_the_reason_is_said(caplog):

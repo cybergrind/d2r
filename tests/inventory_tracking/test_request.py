@@ -22,6 +22,7 @@ def test_prefixes_are_the_workers_own():
         'pad': service.PAD_PREFIX,
         'loop': service.LOOP_PREFIX,
         'loop-kind': service.KIND_PREFIX,
+        'terrorize': service.TERRORIZE_PREFIX,
     }
 
 
@@ -110,3 +111,17 @@ def test_the_kind_datagram_carries_the_kind_after_the_stamp(tmp_path):
         assert server.recv(64) == b'kind 12.5 lk'
         assert request.main(['loop-kind', 'andariel', '--socket', str(endpoint)]) == 0
         assert server.recv(64).split()[2] == b'andariel'
+
+
+def test_the_terrorize_request_reaches_the_runner_as_its_own_routine():
+    # A Worldstone Shard used in town by request (macros/terrorize.py; the player, 2026-10-20 ~18:50)
+    sent: list[tuple[object, ...]] = []
+
+    class Macro:
+        def request(self, *args, **kwargs):
+            sent.append(args)
+            return True
+
+    assert service.for_macro(b'terrorize 12.5')
+    assert service.dispatch(b'terrorize 12.5', 12.6, None, None, macro=Macro())
+    assert sent == [(12.5, 12.6, service.TERRORIZE)]

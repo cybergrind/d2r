@@ -494,7 +494,7 @@ tome charge: Cain). Read before identification (`items/identity.py:15-23`, `game
 ethereal and socketed flags, and from the full stat list sockets (194), staff mods (107), ED (16), least res — today
 **only for `knif`, `shie`, `ashd`** and qualities normal/superior/magic (`game/layout.py:105-108`). The ground read
 of sockets and staff mods is new since 2026-10-17 and **not yet confirmed in play** (journal
-`routes/lower-kurast-loop-journal.md:722-728, 768-774`) — research R2 below.
+`macros/loop-journal.md:722-728, 768-774`, at `routes/` then) — research R2 below.
 
 Research needed before the field-identify classes are sized (M0):
 
@@ -527,6 +527,8 @@ decided from ground facts; "ID" = needs the identified read.
 | G11 **rare rings & amulets** | `rin`, `amu` | rare/crafted (today: taken, judged in town) | ID | ring: **10 FCR + life leech + mana leech** (the player's "dual leech FCR ring"): always_keep; 10 FCR + res + life (Warlock ring, `warlock.html:164`); AR ≥ 100 + LL ≥ 5 (melee, Ohm–2 Jah); amulet: +2 class + 10 FCR (+2 Warlock / 10 FCR ≈ Ist); any FCR, life or +2 skills (the player's ruling of 2026-10-18, today `macros/keepers.py`) | PK-blue-jewelry-gloves `:299`; `pricing.html:228-259`; `warlock.html:163-164, 192-193` |
 | G12 expensive blues (others) | magic Archon/Dusk/Sacred Armor 4os (11.4→148), Jeweler's Archon of the Whale (merc, 57→343), magic Diadem/Tiara 2–3os, GC skillers, Shimmering SC of Vita | as the classes above / G1 | ID | the primer §3.3 patterns (`pricing-primer.html:476-488`, charms `:496-515`) | `wp-b-prices.json` `_blues` (:30082) |
 | G13 rare elite misc | rare gloves / boots / belts (filter's Rare ARMOR rule); rare elite armor/weapons | as the filter shows | ID | 2+ of ED/IAS/skills/FCR/res/life (boots FRW/res/FHR) | PK-rare-misc `:300` |
+| G21 **rare boots** (2026-10-20) | every `boot` (armor.json type boot, 15 bases, 2x2) | rare, the loop on | ID in the field | 30 FRW + 10 FHR + two res 25+ + dex 9+ or MF 20+; 20 FRW + 10 FHR + two res 30+ + dex 9+ or MF 20+; 20 FRW + 10 FHR + three res 20+ (wants, no price); else DROP (K8) unless 1 Ist by its read | `pricing.html:235`; primer `:187`; `wp-a-builds.json:4980`; `warlock.html:236` |
+| G22 **rare belts** (2026-10-20) | every `belt` (15 bases, 2x1) | rare, the loop on | ID in the field | 24 FHR + life 30+ + res 20+ + a second res 20+ or str 15+ (really good); 24 FHR + one of str 15+ / life 30+ / res 20+ (the guide's gate: asks q1 ~6, median ~11 Ist, 71 sellers, 2026-10-08); else DROP (K8) unless 1 Ist | `pricing.html:236`; primer `:187`; `warlock.html:236` |
 | — leave | white non-gray non-superior, low quality, bases no row names, 1os daggers, plain 5/6os eth polearms, non-eth polearms | never picked | — | — | PK-leave-white `:310`, PK-leave-blue-misc `:311` |
 
 "Bad bases we don't use" (the request): a base is picked only when a class above names it **and** its ground facts
@@ -1109,3 +1111,90 @@ Remains: the ~30-cycle shadow check, then `TOWN_DECIDES = True` (the coordinator
 retired functions and `loot/today.py`'s uses of them, and answer Q-M6-1..3 (the findings file). The facade wiring of
 the design's M6 row (`Loot`, `Item`, `TownRoutine` in `running/legs.py` and `running/room.py`, the HUD's `Item.why()`)
 is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
+
+### Every white base read on the ground, G20 staff-mod class items, grimoires (2026-10-20, the player ~18:45: "implement [grimoire pickup rules], also find out if we need to pickup other white/grey items. it looks like we don't need to pickup them to assess, so it worth to assess every item => we need a proper list and rules to determine expensive items (matron bow? offhands? shields?)")
+
+- **The read** (`game/layout.py BASE_ROLLED_TYPES`): every weapon and armor type of the items metadata but the
+  throwing potions (22 weapon, 12 armor types; `test_decode.py` holds it to the metadata). `base_rolls` was
+  type-agnostic already; the gate in `decode.rolled` was the only limit. [verified] on 24,852 white and superior units
+  of 2,488 collection captures: the staff mods (107) of every class type lie in the +0xE8 totals (grimoires 2,460,
+  staves 47, wands 37, pelts 24, scepters 8, orbs 6, Barbarian helms 5, claws 5), as do the skill tabs (188) of the
+  Amazon bows (459) and of 10 wands, and the Paladin shields' all-res (12). On the ground the same unit layout is
+  [inferred] for the new types (verified for daggers in R2). Magic and better are still not read (R1). Cost: only
+  labelled drops are read (the filter shows them), once a unit (`BASE_ROLLS_SEEN`): 6 memory reads the first look,
+  a dict hit after (13 µs vs 4 µs on the fake memory; `test_decode.py` counts no read after the first).
+- **The list** (`rca/2026-10-20/white-bases-findings.md`, repo evidence only): asks wp-b 2026-09-18 and
+  appraisal-market.jsonl 09-18..23, fills from `pricing/raw/traderie/recent-20261009` (class items: asks ~5x fills).
+- **G20** (new class, §4.2): white or superior class items by a paid +3 staff mod, judged off the ground
+  (`ground_judge.BASE_CLASSES`), picked through `pickmode.ground_base` (M5), no must-have, no game kept for one:
+  | row | condition | evidence |
+  |---|---|---|
+  | `grimoire-white-plus3-paid` | any of the 15 grimoires, 2 or 0 sockets (max 2), +3 Summon Tainted 376 / Consume 381 / Bind Demon 382 / Sigil: Death 400 | asks 2026-09-18 per mod 8.23 -> 118, 1.0 -> 29, 5.88 -> 10.4, 5.88 -> 9.32 (2-5 sellers); PK-rotw (c) |
+  | `grimoire-white-2os-plus3-abyss-apocalypse` | 2os, +3 Abyss 402 / Apocalypse 401 | wp-b 2os superior affixed 4.05 -> 9.32 n4; pricing.html:191 |
+  | `claw-elite-plus3-paid` | Greater / Runic Talons 3 or 0os, +3 Phoenix Strike / LS / Mind Blast / Fade / Venom / WoI / Death Sentry | fills 12 trades median 11.4 |
+  | `wand-plus3-bone-spear-bone-spirit` | six Necro wands 0/2os, +3 Bone Spear and +3 Bone Spirit | fills 16 trades median 22.8 |
+  | `scepter-plus3-fist-of-the-heavens`, `scepter-plus3-hammer-concentration` | War / Divine Scepter / Caduceus, +3 FoH; +3 Blessed Hammer with +2 Concentration | fills 9 trades median 9.32; 15.5-57.1 |
+  | `pelt-3os-plus3-paid` | Druid pelt 3os, +3 Tornado / Volcano / Armageddon / Hurricane / Fury | asks 10 sellers 2.0 -> 97 |
+  | `barbarian-helm-3os-plus3-find-item` | Barbarian helm 3os, +3 Find Item | asks 4 sellers 4.05 -> 31.5 |
+  | `sorceress-staff-4-5os-plus3-energy-shield` | staff 4/5os, +3 Energy Shield | asks 22.8 -> 34.3 |
+- Also added: G8 `void-dagger-0os-plus3-hex-purge` (fills 8 trades median 18.1); G16 Superior 15 ED Matriarchal Bow
+  5os +3, Dusk / Wire 0os, Flail 4os, Crystal Sword 4/5os, Mask 0/3os, Bone Shield 0/2os (Q7 as before); G7
+  Superior Targe 45 res.
+- Left (no evidence or floor): grimoires with +2 alone, 1os, no mods or the floor mods; plain +3 Amazon bows (Q7),
+  other Amazon bows / spears / javelins, orbs, Necro heads, non-elite claws, single-mod wands and scepters, normal-tier
+  Paladin shields, white circlets, plain runeword bases. The findings' "flagged" table (Sacred Armor non-eth Superior,
+  Giant Thresher non-eth 5os Superior, Phase Blade 0os Superior 15 ED, ...) waits for the player.
+- Room: grimoires, pelts, helms, Mask 4 cells; wands 2, claws 3; scepters, Dusk / Wire, Flail, Crystal Sword, Bone
+  Shield 6; staves 8 (over `pickup_shown_cells`: taken only by the ground verdict, `pickmode._taken`).
+- **The filter** (`lootfilter/warlock_lean_v2.json`, 23 rules): SHOW Staff Mod Wands Scepters (white and Superior),
+  SHOW Staff Mod Staves Gray, SHOW Pelts Barb Helms Gray, SHOW Superior Mask Bone Shield. `test_shown.py` checks the
+  filter shows every base a ground row may pick. The look reads the repo file: the game must have the same profile
+  re-imported, or the pickup aims at items the game does not label.
+- Tests: `test_decode.py` (types, class item staff mods, cache cost), `test_shown.py` (filter coverage),
+  `fixtures/valuables.json` §6.9 (18 picks, 10 leaves), `test_pickmode.py` (G20 in both levels, a staff over the cap).
+
+### G21 rare boots, G22 rare belts (2026-10-20, the player ~19:05: "is there are good rolls for belts/boots? right now we're not picking/identifying them, but maybe it is an oversight?", ~19:25: "we can keep really good ones")
+
+- Before: a rare boot (2x2) was G14 by its size, picked when room allowed and judged by the KB alone (no market rows:
+  `check`, kept as unknown, K9); a rare belt (2x1) was left by the GOOD level (the shadow: "new leave (no class takes
+  it)", 19:02:43 a rare Light Belt). Seen today (2026-10-20, 326 games): 17 rare boots, 9 rare belts (distinct drops).
+- Now: `loot.api.CLASSES` / `IMPLEMENTED` gain **G21** (every rare boot, itemtype `boot`) and **G22** (every rare belt,
+  `belt`); `ORDER` puts them after G19. Picked with the KP_6 loop on in both levels (`Field.takes` through the
+  `boots-rare-identify` / `belt-rare-identify` rows, `pickmode._field_pick`), identified with the Tome, kept only when
+  a row holds, else put down at the feet (`Field.settle`, `PutDown.reject`). The filter shows them already (`SHOW Rare
+  ARMOR`: categories boots and belts, every tier): no filter change. Magic boots and belts are no class's (the filter
+  shows only the six caster-craft bases, `SHOW Craft Bases ARMOR`; a shown magic craft boot is still G14 by its size).
+- What rolls (d2data, the expansion rows): boots FRW 10 / 20 / 30 (`magicsuffix.json:7138`), 10 FHR alone (of
+  Balance `:4693`), a resistance up to 40 (`magicprefix.json:6048`), dex up to 9 on a rare (of Accuracy `:4537`), MF up
+  to 25 (of Fortune `:5140`), no life; belts FHR 10 / 17 / 24 (of Stability `:4728`), life up to 60 (`:5720`), str up to
+  30, a resistance up to 30.
+- Rows (`loot/build_wants.py` G21, G22; `wants.json`; wants, not always kept, no must-have: a want spares it in the
+  field, `droppable`, and in town, `town_kept`):
+
+  | row | condition | evidence |
+  |---|---|---|
+  | `rare-boots-30frw-fhr-2res-extra` | 30 FRW, 10 FHR, two res 25+, and dex 9+ or MF 20+ | the guide's must-affixes plus two extras (`pricing.html:235`, primer `:187` "boots FRW + res + FHR"); the build lists' pair `wp-a-builds.json:4980` (30 FRW / 10 FHR / 40 res x3 / 25 MF); no price ("only priced by build demand") |
+  | `rare-boots-20frw-fhr-2res30-extra` | 20 FRW, 10 FHR, two res 30+, and dex 9+ or MF 20+ | `pricing.html:235` "alternatively 20 FRW ... two >= 30" |
+  | `rare-boots-20frw-fhr-3res` | 20 FRW, 10 FHR, three res 20+ | `pricing.html:235` "20 FRW with three resistances >= 20" |
+  | `rare-belt-24fhr-life-res-extra` | 24 FHR, life 30+, res 20+, and a second res 20+ or str 15+ | primer `:187` "belts FHR + res + life"; `pricing.html:236` "Then two of" |
+  | `rare-belt-24fhr-companion` | 24 FHR with str 15+, life 30+ or res 20+ | `pricing.html:236`: 71 priced sellers, q1 ~6, median ~11 Ist (asks, 2026-10-08); the G10 precedent (`rare-circlet-fcr-gate`): a gate the asks put over 1 Ist is kept |
+
+- Junk: `keep.JUNK_UNWANTED` gains `boot` and `belt`: a rare boot or belt no row names is K8 (`a rare boot no want row
+  names (...)`), dropped in the field, sold in town (K8 by kind), unless the KB prices its read at 1 Ist or more (K5;
+  `droppable` spares 1 Ist+ too). Crafted boots and belts (Caster Boots / Belt, `warlock.html` §3) are cube-made, never
+  a ground drop: no field case (the rows name the crafted quality for the loop's own, as G10's do).
+- `loot/wants.py` `Need.count`: a condition met by that many of its stats (two resistances at 25: the second best of
+  the four); `build_wants.at_least(..., count=)`.
+- Room: boots 2x2 (4 cells, a big field item: `FIELD_AT_ONCE`, one at a time, identified at the level run's first
+  quiet look, the squeeze into the free block); belts 2x1 (2 cells, carried to the level's end, the Town Portal or the
+  room site). A scroll each (~0.08 a game at today's rate) and a pickup press; the kept ones are rare.
+- Log lines (no new kind; the watch tools' `FIELD_DROP` reads the drops as before): `Macro: loot: field: rare War Boots
+  (unit N): drop K8 a rare boot no want row names (no price, unknown, verdict check)`, `... keep K10 unknown (no
+  price), no comparable owned copy; wanted: rare boots, really good: ...`, `Macro: inventory: <class> (<unit>) at (x,
+  y) dropped in the field: K8 ...`; the shadow `pick G21 identify` / `pick G22 identify`. The circlet / helm K8 reason
+  now names its kind (`a rare circlet no want row names`, `a rare helm ...`).
+- Tests: `fixtures/valuables.json` §6.10 (16 cases: 3 boots and 3 belts kept, 4 near misses and the guide's
+  October 6 War Boots dropped, one kept by K5, an unidentified boot and belt picked to identify, a magic boot and belt
+  left), `test_api.py` (`takes` says G21 / G22, the routine keeps the really good boots and drops a near miss, each
+  §6.10 case through the routine), `test_hands.py` (two rare Mithril Coils in the fake game: one dropped, one kept),
+  `test_pickmode.py` (both levels; the filter shows every rare boot and belt), `test_wants.py` (`count`, the rows).
