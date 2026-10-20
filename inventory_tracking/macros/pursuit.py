@@ -24,6 +24,8 @@ from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
 
 # How a level run with no route stage left ends (runner.py `_run_over`: on a level done, its way on is dropped)
 NOTHING_LEFT = 'nothing is left to go to on this level'
+# How a level run whose level was left ends (runner.py `_run_over`: no run of the level counted for the agenda)
+LEVEL_LEFT = 'the level was left'
 
 
 # Seconds a press stands for "go on": the longest gap between presses of a player who keeps going (kp4-findings.md
@@ -331,7 +333,7 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     pressed = pursuit is not None and pursuit.fresh(facts.now)
     if pursuit is not None and pursuit.leashed:
         if pursuit.area is not None and facts.area is not None and facts.area != pursuit.area:
-            return Ended('the level was left')
+            return Ended(LEVEL_LEFT)
         if not (pressed and pursuit.advance):
             if pursuit.paused:
                 return Hold(goal) if facts.in_reach and facts.attacking else NoWay(PAUSED)

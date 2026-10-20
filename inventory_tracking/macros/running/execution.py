@@ -19,13 +19,14 @@ from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.loot import keep as loot_keep
 from inventory_tracking.loot.api import FIELD, at_once, settle
 from inventory_tracking.loot.hands import GameHands
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cta import cast_in_hand
-from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, close, drop_for, stash
+from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, close, drop_for, stash, tidy
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import spot_of
 from inventory_tracking.macros.hunt import Bearings, threat
@@ -259,6 +260,9 @@ def play_by(self: MacroRunner, run: Run, actuator: Actuator, routine: str) -> No
 def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_names) -> None:
     """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
     self.choosing(run)
+    world = run.world()
+    if world.open_panels:
+        tidy(run, world)  # the loop's own panels a cancelled routine left open (cube.py `left_open`): closed first
     if self.hunter is not None:
         self.hunter.bearings = Bearings(self.progress, self.target, self.marks, self.supers)
     if routine == TELEPORT and self.jumps:
@@ -324,7 +328,9 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             if key is not None and self.loop.own is not None:
                 try:
                     settle(run, 'room')  # the field identify's failures first: their room may be enough (drop_for)
-                    gone = drop_for(run, key, self.loop.own, SURE_BLOCK)
+                    # M6 (loot/keep.py TOWN_DECIDES): with the one decision on, the field settle alone makes the room;
+                    # no unidentified candidate is put down for it (cube.py `drop_for`)
+                    gone = None if loot_keep.TOWN_DECIDES else drop_for(run, key, self.loop.own, SURE_BLOCK)
                 except Abort as stop:
                     if cut(run, stop):
                         raise

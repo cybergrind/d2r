@@ -116,8 +116,10 @@ MAGIC_ROLLED_TYPES = frozenset(('knif', 'shie', 'ashd'))
 # Spear), body armor (`tors`: Archon Plate, Dusk Shroud, Wire Fleece, Sacred Armor, Mage Plate), Amazon bows (`abow`:
 # Grand Matron Bow, Matriarchal Bow), swords and axes (`swor`, `axe`: Phase Blade, Colossus Blade, Berserker Axe), helms
 # (`helm`: the merc's Cure base, Corona, Spired Helm, Bone Visage, Demonhead; the player, ~12:15).
+# The Warlock's books (`grim`, all 15: Old Book wa1 to Blasphemous Grimoire waf; Warlock staff mods, up to 3
+# sockets; the player, 2026-10-20 ~17:30: "add grimoires to the ground read"): read only, no wants row picks them yet.
 # Types from third-parties/d2data/json/itemtypes.json and items/data/item_metadata.json, checked 2026-10-20
-BASE_ROLLED_TYPES = frozenset(('pole', 'spea', 'aspe', 'tors', 'abow', 'swor', 'axe', 'helm'))
+BASE_ROLLED_TYPES = frozenset(('pole', 'spea', 'aspe', 'tors', 'abow', 'swor', 'axe', 'helm', 'grim'))
 ROLLED_TYPES = MAGIC_ROLLED_TYPES | BASE_ROLLED_TYPES
 
 

@@ -1551,6 +1551,22 @@ def test_a_tz_level_done_whose_run_finds_nothing_left_drops_its_way_on(monkeypat
     assert runner.loop.agenda.wayless == {131}
 
 
+def test_a_tz_run_that_left_its_level_for_a_town_ends_the_mode_and_counts_no_run(monkeypatch):
+    # 17:14:53 on 2026-10-20: the Outer Steppes run back in the Fortress (hunt.py `left_for_town`): the attack mode its
+    # leg turned on ends at once, so the next leg (the town exit again) follows; the level is not counted as run
+    from inventory_tracking.macros.loop import TZ
+    from inventory_tracking.macros.pursuit import LEVEL_LEFT
+
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
+    monkeypatch.setattr(runner, 'hunter', SimpleNamespace(ended_area=104, mode=None))
+    runner.loop.kind, runner.loop.on = TZ, True
+    runner.loop.agenda.begin('g')
+    runner.attack_mode = True
+    runner._run_over(LEVEL_LEFT)
+    assert not runner.attack_mode
+    assert dict(runner.loop.agenda.worked) == {}
+
+
 def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     # 13:18 on 2026-10-18: a restart forgot a Flawless Topaz 94 units off, and the game was left with it on the ground
     import json

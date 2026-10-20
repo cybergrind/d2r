@@ -50,8 +50,9 @@ HIT_BY_DISTANCE = ((6.0, 0.743), (10.0, 0.747), (14.0, 0.606), (18.0, 0.493), (R
 # has it as the blades fly (`Motion`, `sees`; `LinePolicy.lead` LIVE_LEAD frames), every monster on a line, not the
 # aimed one only. Measured on the 14,248 casts of 2026-10-20 and replayed in the simulator
 # (rca/2026-10-20/leader-not-marked-findings.md, "Moving monsters"): a monster moving across the line is missed more
-# (64% hit still, 58% walking, 54% running), but the velocity's lead lost hits in the replay of the recorded paths,
-# so it is off. False: the lines through where the monsters stand, as before.
+# (64% hit still, 58% walking, 54% running), but the velocity's lead lost hits on the recorded paths (every group)
+# and 4% of the contacts and kills a cast in the simulator's 30 takes, so it is off; the monsters' own routes (path
+# records, not read on the live look) did better (§5.4). False: the lines through where the monsters stand.
 LEAD_MOVING = False
 LIVE_LEAD = 5  # frames from a look's decision to the blades' first frame (median of 14,248 casts; quartiles 4, 12)
 MOTION_SECONDS = (0.15, 0.5)  # a velocity is measured over the oldest sample this old at least, this old at most

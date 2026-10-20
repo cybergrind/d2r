@@ -145,8 +145,14 @@ def _observed_specs(facts: ItemFacts) -> tuple[RollSpec, ...]:
         stats = [row['memory_stat']] if row.get('memory_stat') else row.get('memory_stats') or []
         raw, value = (stats[0].get('raw') if stats else None), row.get('value')
         scale = raw // value if isinstance(raw, int) and isinstance(value, int) and value and raw % value == 0 else 1
-        if '+' in key or ':' not in key:
-            continue  # a combined or unkeyed stat: not compared by key
+        if '+' in key and len({stat.get('raw') for stat in stats}) == 1 and 'id' in stats[0] and 'layer' in stats[0]:
+            # A combined stat whose parts carry one value is compared by its first part: a weapon's enhanced damage
+            # (item_damage_percent 17:0+18:0, the min and max ED of one roll). The player, 2026-10-20 ~17:30 (Q-M6-3,
+            # "as recommended"): mixed copies by score once the ED is compared (Demon Limb, 17:09:07, was judged
+            # without it). Armor's ED is the single stat 16:0, compared already
+            key = f'{stats[0]["id"]}:{stats[0]["layer"]}'
+        elif '+' in key or ':' not in key:
+            continue  # a combined stat of different values (min and max damage), or unkeyed: not compared by key
         specs.append(RollSpec(key, row.get('name') or key, int(bounds['min']), int(bounds['max']), roll['better'],
                               source='the read (appraisal-definitions roll range)', scale=max(scale, 1)))  # fmt: skip
     return tuple(specs)

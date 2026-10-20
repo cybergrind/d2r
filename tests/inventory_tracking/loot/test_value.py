@@ -88,3 +88,54 @@ def test_the_owned_bases_count_reads_the_collection_by_base_ethereal_and_sockets
     assert value.owned_bases(plain, tmp_path / 'missing.sqlite') == 2  # counted a minute ago: reused
     monkeypatch.setattr(value, '_COUNTS', {})
     assert value.owned_bases(plain, tmp_path / 'missing.sqlite') is None  # no collection: the cap does not hold
+
+
+def demon_limb(ed: int, fire: int, leech: int, unit: int, owner: Owner = Owner.LOOP):
+    """A read shaped as the identify watcher's: a weapon's ED is one row of two memory stats (17 and 18)."""
+    from inventory_tracking.loot.facts import from_observation
+
+    def ranged(name, stat, low, high, raw):
+        return {'status': 'decoded', 'name': name, 'value': raw, 'memory_stat': {'id': stat, 'layer': 0, 'raw': raw},
+                'roll_range': {'min': low, 'max': high, 'better': 'higher'}}  # fmt: skip
+
+    rows = [
+        ranged('fireresist', 39, 15, 20, fire),
+        ranged('lifedrainmindam', 60, 7, 13, leech),
+        {'status': 'decoded', 'name': 'item_damage_percent', 'value': ed,
+         'memory_stats': [{'id': 17, 'layer': 0, 'raw': ed}, {'id': 18, 'layer': 0, 'raw': ed}],
+         'roll_range': {'min': 180, 'max': 230, 'better': 'higher'}},
+    ]  # fmt: skip
+    observation = {
+        'item': {'name': 'Demon Limb', 'base_name': 'Tyrant Club', 'base_code': '7sp', 'rarity': 'unique',
+                 'identified': True, 'ethereal': False, 'sockets': 0},
+        'source': {'unit_id': unit},
+        'decoded_stats': rows,
+    }  # fmt: skip
+    return from_observation(observation, owner=owner, unit_id=unit, size=(1, 3))
+
+
+def test_a_weapons_enhanced_damage_is_compared_and_a_mixed_copy_decided_by_score():
+    # Q-M6-3 (the player, 2026-10-20 ~17:30, "as recommended"): Demon Limb at 17:09:07 (unit 467414000) against the
+    # owned copy: fire res 18 vs 16 and ED 206 vs 200 better, life steal 8 vs 12 worse; scores 1.287 vs 1.433
+    new, owned = demon_limb(206, 18, 8, 1), demon_limb(200, 16, 12, 2, Owner.PLAYER)
+    matters = value.matters_for(new, ())
+    assert {spec.key for spec in matters} == {'39:0', '60:0', '17:0'}
+    assert round(value.score(new, matters), 3) == 1.287
+    assert round(value.score(owned, matters), 3) == 1.433
+    compared = better_than(new, [owned], matters)
+    assert not compared.better
+    assert compared.relations == ('mixed-not-better',)
+    assert 'item_damage_percent 206 vs 200' in compared.said()
+    better = demon_limb(228, 18, 12, 3)  # ED and fire res better, life steal equal: better
+    assert better_than(better, [owned], value.matters_for(better, ())).better
+
+
+def test_a_combined_stat_of_different_values_is_still_not_compared():
+    from inventory_tracking.loot.facts import from_observation
+
+    row = {'status': 'decoded', 'name': 'damage', 'value': 10,
+           'memory_stats': [{'id': 21, 'layer': 0, 'raw': 10}, {'id': 22, 'layer': 0, 'raw': 20}],
+           'roll_range': {'min': 5, 'max': 30, 'better': 'higher'}}  # fmt: skip
+    observation = {'item': {'name': 'x', 'base_code': '7sp', 'rarity': 'unique', 'identified': True},
+                   'source': {'unit_id': 1}, 'decoded_stats': [row]}  # fmt: skip
+    assert value.matters_for(from_observation(observation, owner=Owner.LOOP), ()) == ()

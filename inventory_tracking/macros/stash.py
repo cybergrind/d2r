@@ -40,6 +40,7 @@ from inventory_tracking.macros.cube import (
     REFERENCE_HEIGHT,
     _until,  # the one wait for the carried items (act.py `until`), as charms.py and visit.py import it from here
     cell_point,
+    closed,
     loot,
     unpack,
 )
@@ -384,6 +385,7 @@ def open_stash(run: Run) -> tuple[int, int, int, int]:
 def close_stash(run: Run) -> None:
     """Escape out of the stash's panels, if open."""
     if {'stash', 'inventory', 'cube'} & set(run.world().open_panels):
+        closed('stash', 'inventory', 'cube')  # none of them the loop's left open (cube.py `left_open`)
         run.actuator.tap('Escape')
         run.seen(lambda w: not {'stash', 'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
         run.actuator.rebase()

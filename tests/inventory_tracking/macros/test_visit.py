@@ -1261,3 +1261,83 @@ def test_the_loot_shadow_only_logs_beside_the_visit_and_never_changes_it(monkeyp
     else:
         assert 'Macro: loot: shadow: town: 3 items' in caplog.text
         assert 'old sell' in caplog.text
+
+
+def test_m2_sells_the_cheap_duplicate_keep_decides_gives_up_and_never_the_players(monkeypatch, caplog):
+    # The player, 2026-10-20 ~15:05: "Sell cheap duplicates" (loot/design.md §7 M2, keep.DECIDES): what
+    # loot/api.py `sold_copies` gives up is junk for Jamella; the player's by its stats still never is
+    from inventory_tracking.loot import api as loot_api, keep
+    from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
+
+    ring = replace(thing(60, 'Ring', 4, 2), quality=4)
+    rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
+    pack, own = grid(BLOCK_BUT_ONE, [ring, *rings])
+    play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({60}))
+    town.run = play.run()
+    town.run.players_item = lambda item: item.unit_id == 62
+    monkeypatch.setattr(keep, 'DECIDES', True)
+    monkeypatch.setattr(
+        loot_api, 'sold_copies',
+        lambda carried, junk, spared, *_: {61: ('unique Ring', 'K6 a surplus copy'), 62: ('unique Ring', 'K6')},
+    )  # fmt: skip
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert sorted(town.sold) == [60, 61]
+    assert 'Macro: town visit: unique Ring (unit 61) sold by the keep rules (M2): K6 a surplus copy' in caplog.text
+    monkeypatch.setattr(keep, 'DECIDES', False)
+    play2 = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town2 = Town(monkeypatch, play2, frozenset({60}))
+    town2.run = play2.run()
+    visit(town2.run, town2.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+    assert sorted(town2.sold) == [60]
+
+
+def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monkeypatch, caplog):
+    # The player, 2026-10-20 16:55: "go ahead with the merge agent" (loot/keep.py TOWN_DECIDES): the visit's junk is
+    # loot/api.py `town_sold` after the worker's appraisal; junk.py `junk_of` (`Hands.judge`) is not asked, the player's
+    # by its stats still never sold; a failure of the rules sells nothing
+    from inventory_tracking.loot import api as loot_api, keep
+    from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
+
+    ring = replace(thing(60, 'Ring', 4, 2), quality=4)
+    rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
+    pack, own = grid(BLOCK_BUT_ONE, [ring, *rings])
+    monkeypatch.setattr(keep, 'TOWN_DECIDES', True)
+    asked: list[list[int]] = []
+
+    def judged(play_hands: Hands) -> Hands:
+        def judge(items):
+            raise AssertionError('junk_of asked with TOWN_DECIDES on')
+
+        return replace(play_hands, judge=judge, appraise=lambda units: asked.append(sorted(units)) or {})
+
+    monkeypatch.setattr(
+        loot_api, 'town_sold',
+        lambda carried, spared, *_: {61: ('magic Ring', 'K8 worthless'), 62: ('magic Ring', 'K8 worthless')},
+    )  # fmt: skip
+    play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({60}))
+    town.run = play.run()
+    town.run.players_item = lambda item: item.unit_id == 62
+    with caplog.at_level('INFO'):
+        visit(town.run, judged(town.hands()), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert sorted(town.sold) == [61]
+    assert len(asked) == 1
+    assert {60, 61, 62} <= set(asked[0])  # the loop's identified items, appraised once
+    assert 'Macro: town visit: magic Ring (unit 61) sold by the keep rules: K8 worthless' in caplog.text
+
+    def broken(*_args):
+        raise OSError('the collection is locked')
+
+    monkeypatch.setattr(loot_api, 'town_sold', broken)
+    play2 = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town2 = Town(monkeypatch, play2, frozenset({60}))
+    town2.run = play2.run()
+    with caplog.at_level('INFO'):
+        visit(town2.run, judged(town2.hands()), LK_NEEDS, own, Exit.WAYPOINT)
+    assert town2.sold == []
+    assert 'the keep rules failed (OSError: the collection is locked): nothing sold' in caplog.text

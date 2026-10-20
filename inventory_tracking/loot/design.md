@@ -1031,3 +1031,81 @@ Three switches, each on, each alone:
   Tal 9, ...), each now off the free block at the next quiet look; identify candidates left for room: the 10 big ones
   above, the rare Kriss, and 5 "no room for its 2x2" in the first 3 games after 14:55. Live since 14:55: 5 identifies at
   once, 5 dropped.
+
+### M2, town side: sell cheap duplicates (2026-10-20, the player ~15:05, answering: "Sell cheap duplicates"; shipped off)
+
+- `loot.keep.DECIDES = False` until the coordinator's review. On: at the visit, after today's junk, `loot/api.py
+  sold_copies` adds the loop's identified set/unique copies `keep.decide` gives up that `droppable` lets go (no rune,
+  gem, potion, charm, jewel or tool; a surplus copy only: under 1 Ist by its rolls, a comparable owned copy, not better,
+  no want row), owned copies from `loot/value.py CollectionCopies` (not the worker's `owned_verdict`, which never ran:
+  appraisal/service.py builds IdentifyWorker without `owned=`); the player's by its stats spared after as every junk.
+  Log: `Macro: town visit: <item> (unit N) sold by the keep rules (M2): K6 a surplus copy, not better, cheap: ...`.
+- The shadow (12 visits with shadow lines, 09:33-15:20): one sale, The Reaper's Toll (Thresher) at 14:41:42, "K6 cheap
+  (0.653 Ist), not better than the 1 owned: lifedrainmindam 15 vs 15 / old keep slow"; the magic Small Charm "K7 used in
+  multiples" (13:30:27) is guarded (charms are never sold).
+- Tests: `test_api.py` (the six K-cases, the guards), `test_visit.py` (the hook, the player's spared, the switch off).
+
+### M6, one town decision (2026-10-20, the player 16:55: "can you check if we're using the shared code across different activities to control pickups and what to keep?", then "go ahead with the merge agent"; shipped off)
+
+Done (log only while the switch is off; the loop's sales are unchanged):
+
+- **The switch**: `loot.keep.TOWN_DECIDES = False`. On, the visit's junk is `loot/api.py town_sold` (`town_verdicts`
+  over the loop's identified carried items, inventory and cube) plus the full stacks' materials. These are the field's
+  rules (`keep.decide_all`, the owned copies from `CollectionCopies`) under the town's guards (`town_kept`):
+  - the loop's items only (K0; the player's by its stats and the amulet keeper still spared after, `engine.protected`);
+  - never runes, gems, potions, the Sunder, organs, the loop's tools, quest items (Worldstone Shards, statues, Uber keys,
+    essences: itemtype `ques`), Wirt's Leg, set/unique charms (`TOWN_NEVER_SOLD`, `keep.NEVER_SOLD_CODES`);
+  - a set/unique only as a surplus copy (`surplus_copy`, the field's G18 rule at any size: under 1 Ist, a comparable
+    owned or this visit's kept copy, not better; no price only with a KB band under 1 Ist and equal or worse);
+  - no want row, under `DUPLICATE_IST`, and appraised `vendor`. A `slow` copy given up by K6 counts too
+    (`K6_SELLS_OVER`, the 15:05 ruling). So does keep.py K8 by kind with a price (rare circlets/helms ~12:50, magic
+    gloves ~13:30). `self` is never sold but as vendor. No price is kept (S8). Anything else appraised other than
+    vendor is kept and the shadow names it.
+  - The visit asks the worker's appraisal for every identified loop item of a sellable kind first (`Hands.appraise` =
+    `IdentifyWorker.appraise`, `town_asks`); a failure of the rules sells nothing.
+  - Log: `Macro: town visit: <item> (unit N) sold by the keep rules: <rule> <reason>`.
+- **Retired when it is on** (kept in place for the shadow and `loot/today.py`; each marked "delete after the 30-cycle
+  check"): `junk.junk_of` (`Hands.judge` not called), `copies.sold` / `keep_copy`, the M2 `_decided` call, and
+  `cube.drop_for` / `droppable` under `loop.drop_room` (running/execution.py: the field settle alone makes the room).
+  `keepers.amulet_keeper` is no longer the visit's rule: the wants row `rare-amulet-fcr-life-skills` now also counts
+  +2 to a skill tree (stat 188, as `amulet_keeper` does; build_wants.py, wants.json rebuilt). It stays behind
+  `engine.protected` (`run.kept_item`) as the player's "protected amulets still spared".
+- **The shadow** (switch off): one line per item the merged decision sells or keeps unlike the visit, and a summary per
+  visit, beside the existing lines:
+  `Macro: loot: shadow: town merge: <item>: would sell: <rule> <reason> / old keep (differ)`,
+  `Macro: loot: shadow: town merge: <item>: would keep: <why> / old sell (differ)`,
+  `Macro: loot: shadow: town merge: N items, would sell S, D differ (sells A the old keeps, keeps B the old sells)`.
+- **Keep rule fixes**:
+  - K7: a charm or jewel with no price (tier unknown) is kept (S8). The 13:30:27 Small Charm (`check`, no band) was
+    dropped because a missing price read as 0 Ist.
+  - K1 keeps Wirt's Leg.
+  - A set/unique copy better than every owned one is kept before K8 (the 2026-10-18 best-copy ruling; it was dropped
+    as worthless).
+- **Ground judge** (`ground_judge.judge`, still the shadow's and the field classes'; not the live pickup decider, M5's
+  `CLASSES` switch is later): it now picks the materials by code (`MATERIAL_GROUPS`: Worldstone Shards xa1-xa5,
+  statues, Uber keys, essences, Wirt's Leg, `material`). It leaves a second Wirt's Leg while one is had (`had`,
+  `CARRY_ONE`; `memory.had_already` already keeps it out of the look). As a last resort it picks whatever the loot
+  marks point at (`Drop.prized`), such as a unique whose quality is not read yet (Waterwalk, 14:35:22). That catch-all
+  is not in `base_verdict`, so M5's live base pickup is unchanged. Its shadow now agrees with `pickmode.sure` on every
+  leave of today's logs; the remaining differences are the field classes' picks (`pick G9/G10/G11/G19 identify / old
+  leave`), which `Field.takes` makes live in the KP_6 loop.
+- **Replay**: `rca/2026-10-20/town_merge_replay.py`, findings `rca/2026-10-20/town-merge-findings.md`. Over 34 visits
+  (295 items): 106 sold by today's chain, 108 by the merged decision, 6 differ. Three are the slow cheap copies M2
+  sells (Atma's Wail, Goblin Toe, The Reaper's Toll). One is the mixed Demon Limb (Q-M6-3). Two are reads the replay
+  lacks. (Before pass 2, which follows.)
+- Tests: `tests/inventory_tracking/loot/test_api_town.py` (the guards, verdicts, copies, the amulet row, the book, the
+  shadow lines), `test_ground_judge.py`, `fixtures/valuables.json` §6.8 (8 new cases, a `town` aspect on 18 cases),
+  `test_valuables.py` (the town aspect), `test_visit.py` (the switch on: no `junk_of`, the appraisal asked, the
+  player's spared, a failure sells nothing).
+
+- Pass 2 (~17:40; the player ~17:30 answered Q-M6-1..4 "as recommended"): the copy comparison compares a weapon's
+  ED (`value._observed_specs`: a combined stat of one value, `item_damage_percent` 17:0+18:0, by its first part;
+  armor's 16:0 was compared already). Demon Limb stays mixed, not better (1.287 vs 1.433): sold by score (Q2). The
+  Reaper's Toll of 14:41 becomes a better copy (ED 234 vs 214): kept. This also reaches the live M2 sale
+  (`sold_copies`) and the field's G18 check at the next restart: both compare ED from then on. Replay: 36 visits,
+  5 differ (Atma's Wail, Goblin Toe, Demon Limb; two reads the replay lacks).
+
+Remains: the ~30-cycle shadow check, then `TOWN_DECIDES = True` (the coordinator's restart). After that, delete the
+retired functions and `loot/today.py`'s uses of them, and answer Q-M6-1..3 (the findings file). The facade wiring of
+the design's M6 row (`Loot`, `Item`, `TownRoutine` in `running/legs.py` and `running/room.py`, the HUD's `Item.why()`)
+is not done. Neither is the M5 switch of the live pickup to `ground_judge`.

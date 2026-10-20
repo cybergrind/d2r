@@ -16,7 +16,7 @@ from inventory_tracking.game.layout import IDENTIFY_TOME
 from inventory_tracking.game.records import Carried, Pack
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, PANEL_SECONDS, cell_point, loot, open_inventory
+from inventory_tracking.macros.cube import INVENTORY, cell_point, close, loot, open_inventory
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import WHITE, sellable
 
@@ -87,10 +87,9 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
                 break
             done.append(item)
     finally:
-        if 'inventory' in run.world().open_panels:
-            run.actuator.tap('Escape')
-            run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
-            run.actuator.rebase()
+        # Through a cancel too (cube.py `close`): a fight back cancelled the field identify at 15:21:38 on 2026-10-20
+        # and the inventory stayed open while the character was hit
+        close(run, ('inventory', 'cube'))
     LOG.info('Macro: identify: %d of %d items identified', len(done), len(items))
     return done
 
@@ -111,6 +110,8 @@ def junk(pack: Pack, own: frozenset[Cell], verdicts: Mapping[int, str], said: Ca
     return found
 
 
+# Retired when TOWN_DECIDES is on (loot/keep.py, M6, 2026-10-20); delete after the 30-cycle check. Until then the
+# visit's old chain and the shadow (loot/today.py) use it
 def junk_of(items: Sequence[Carried], appraise: Callable[[list[int]], Mapping[int, str]]) -> list[Carried]:
     """The junk among the loop's `items`: identified, `sellable`, of JUNK_QUALITIES, appraised `vendor` now
     (`appraise`: verdicts by unit id). No verdict: kept."""

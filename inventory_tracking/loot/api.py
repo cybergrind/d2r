@@ -121,7 +121,10 @@ from inventory_tracking.loot.keep import (
     CHARMS,
     GEMS,
     JEWELS,
+    JUNK_MAGIC,
+    JUNK_UNWANTED,
     LOOP_GEAR,
+    NEVER_SOLD_CODES,
     ORGANS,
     POTIONS,
     RUNES,
@@ -131,7 +134,7 @@ from inventory_tracking.loot.keep import (
     decide_all,
 )
 from inventory_tracking.loot.shadow import Appraised
-from inventory_tracking.loot.storage import RESOURCES, SURE_BLOCK, is_potion
+from inventory_tracking.loot.storage import RESOURCES, SURE_BLOCK, is_potion, roomed
 from inventory_tracking.loot.value import DUPLICATE_IST, Value, appraise_result, better_than, comparable
 
 
@@ -153,13 +156,20 @@ __all__ = [
     'FieldHands',
     'Judged',
     'Settled',
+    'TownVerdict',
     'at_once',
     'droppable',
     'leaves_room',
     'oversize',
     'reserve_short',
     'settle',
+    'sold_copies',
     'stash_bound',
+    'surplus_copy',
+    'town_asks',
+    'town_kept',
+    'town_sold',
+    'town_verdicts',
 ]
 
 # M4 on (the player, 2026-10-20: "also start M4 field identify"). False: nothing is picked for the field identify and
@@ -253,6 +263,12 @@ def surplus(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | 
         return 'a set or unique item'
     if facts.size[0] * facts.size[1] < BIG_CELLS or facts.base_type in NAMED_SMALL:
         return 'a small set or unique item'
+    return surplus_copy(facts, value, owned)
+
+
+def surplus_copy(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | None) -> str | None:
+    """`surplus` whatever the item's size (the field's G18 check and the town's, M6): why the set or unique item
+    `facts` is kept as a copy, None when it is a surplus copy. Pure."""
     if value is None:
         return 'a set or unique item with no appraisal'
     if value.wants:
@@ -275,6 +291,192 @@ def surplus(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | 
         if not any(relation in ('equal', 'worse') for relation in compared.relations):
             return 'no price by its rolls and not equal to or worse than an owned copy'
     return None
+
+
+def sold_copies(
+    carried: Sequence[Carried],
+    junk: frozenset[int],
+    spared: frozenset[int],
+    book: Any = None,
+    copies: Any = None,
+) -> dict[int, tuple[str, str]]:
+    """M2 (keep.DECIDES; the player, 2026-10-20 ~15:05: "Sell cheap duplicates"): the loop's identified set and unique
+    items in `carried` (inventory and cube) that `keep.decide` gives up and the field's guard lets go (`droppable`: no
+    rune, gem, potion, charm, jewel or tool, a surplus copy only, no want row, under DUPLICATE_IST by its own rolls, a
+    comparable owned copy and not better than every one: never the best copy), unit -> (title, the rule and why).
+    `junk` (sold by today's rules) and `spared` (the player's by its stats) are left out; `book` the identify worker's
+    reads (loot/shadow.py BOOK), `copies` the owned copies (loot/value.py CollectionCopies: the collection, not the
+    worker's `owned_verdict`, which never ran in the loop). No read or no copies told: kept (S8)."""
+    from inventory_tracking.loot.shadow import BOOK
+    from inventory_tracking.loot.value import CollectionCopies
+
+    book = BOOK if book is None else book
+    copies = CollectionCopies() if copies is None else copies
+    found: dict[int, tuple[str, str]] = {}
+    for item in carried:
+        if item.unit_id in junk or item.unit_id in spared or not item.identified or item.quality not in (SET, UNIQUE):
+            continue
+        entry = book.get(item.unit_id)
+        if entry is None:
+            continue
+        facts = from_carried(item, owner=Owner.LOOP, observation=entry.observation)
+        value = appraise_result(facts, entry.result, entry.verdict)
+        [(_, _, decision)] = decide_all([(facts, value)], copies.copies)
+        if not decision.gives_up or droppable(facts, value, copies.copies(facts)) is not None:
+            continue
+        found[item.unit_id] = (facts.title(), f'{decision.rule} a surplus copy, not better, cheap: {decision.reason}')
+    return found
+
+
+# M6, the town's one decision (loot/keep.py TOWN_DECIDES; the player, 2026-10-20 16:55, "go ahead with the merge
+# agent"). The kinds never sold whatever a decision says (S2, the player's "never sell" list): runes, gems, potions,
+# the Crafted Sunder Charm, the Uber organs, the loop's tools and the quest items (Worldstone Shards, statues, Uber
+# keys, essences: itemtype `ques`), Wirt's Leg (keep.py NEVER_SOLD_CODES); set and unique charms (Gheed's, Torch, Anni)
+TOWN_NEVER_SOLD = RUNES | GEMS | POTIONS | SUNDER | ORGANS | LOOP_GEAR
+VENDOR = 'vendor'  # identify/service.py `verdict_for`: no reason to keep it
+# The rules a give-up in town may come from when the appraisal does not say `vendor`, each a dated ruling of the
+# player's: K6 a cheap copy not better than an owned one (08:42: "a cheap item ... kept only if it beats what we already
+# have"; 15:05: "Sell cheap duplicates"); K8 by kind (keep.py JUNK_UNWANTED ~12:50, rare helms only "really good";
+# JUNK_MAGIC ~13:30, magic gloves only the IAS + skills rows). Anything else appraised other than vendor is kept, and
+# the shadow names it (a question for the player, not decided here)
+TOWN_RULED = frozenset(('K6',))
+# The verdicts a K6 give-up sells over besides `vendor`: `slow` alone, the M2 case the player ruled on at 15:05 ("Sell
+# cheap duplicates": The Reaper's Toll, slow, 0.653 Ist, 1 owned). Not `self` (own use: Trang-Oul's Claws, 0.2 Ist, 2
+# owned, 17:05:27, was kept), `sell`, `check` or `keep` until the player rules (the coordinator, 2026-10-20 ~17:05)
+K6_SELLS_OVER = frozenset(('slow',))
+OWN_USE = 'self'  # the appraisal's own-use verdict: never sold in town but as `vendor`
+
+
+@dataclass(frozen=True)
+class TownVerdict:
+    """The town's decision on one of the carried items: sold or kept, and why (the decision, or the guard that keeps
+    it)."""
+
+    facts: ItemFacts
+    value: Value | None
+    decision: Decision | None
+    sold: bool
+    why: str
+
+    def said(self) -> str:
+        rule = f'{self.decision.rule} ' if self.decision is not None and self.sold else ''
+        return f'{"sell" if self.sold else "keep"}: {rule}{self.why}'
+
+
+def _junk_by_kind(facts: ItemFacts) -> bool:
+    """keep.py K8's kinds kept only by a want row, priced or not: a rare circlet or helm, magic gloves."""
+    return (facts.quality == RARE and facts.base_type in JUNK_UNWANTED) or (
+        facts.quality == MAGIC and facts.base_type in JUNK_MAGIC
+    )
+
+
+def town_kept(
+    facts: ItemFacts, value: Value | None, decision: Decision | None, owned: Sequence[ItemFacts] | None
+) -> str | None:
+    """Why the town visit keeps the carried item `facts`, None when it sells it (M6): only a give-up of
+    `keep.decide`, the loop's, identified, of no never-sold kind (TOWN_NEVER_SOLD, Wirt's Leg, set/unique charms); a set
+    or unique item only as a surplus copy (`surplus_copy` with `owned`, the owned copies and the ones kept this visit:
+    never the first or the best copy); no want row, under DUPLICATE_IST; and appraised `vendor`, or given up by a
+    TOWN_RULED rule over a K6_SELLS_OVER verdict, or by keep.py K8's kinds with a price (S8: no price is kept); never
+    one appraised `self` but as `vendor`. Pure."""
+    if decision is None or value is None:
+        return 'no appraisal (S8)'
+    if not decision.gives_up:
+        return f'{decision.rule} {decision.reason}'
+    if facts.owner != Owner.LOOP:
+        return f"not the loop's (owner {facts.owner.value})"
+    if not facts.identified:
+        return 'not identified'
+    kind = facts.base_type
+    if kind in TOWN_NEVER_SOLD or facts.code in NEVER_SOLD_CODES or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
+        return "never sold (runes, gems, potions, set/unique charms, shards, Wirt's Leg, tools)"
+    if facts.quality in (SET, UNIQUE) and (why := surplus_copy(facts, value, owned)) is not None:
+        return why
+    if value.wants:
+        return f'wanted: {value.wants[0].label}'
+    if value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
+        return f'expensive ({value.worth_ist:.3g} Ist)'
+    if value.verdict == VENDOR:
+        return None
+    verdict = value.verdict or 'without a verdict'
+    if value.verdict == OWN_USE:
+        return f'appraised {verdict} (own use), not vendor'
+    by_kind = _junk_by_kind(facts) and decision.rule == 'K8'
+    if value.worth_ist is None and not by_kind and facts.quality not in (SET, UNIQUE):
+        return f'no price, appraised {verdict} (S8)'
+    if decision.rule in TOWN_RULED and value.verdict in K6_SELLS_OVER:
+        return None
+    if not by_kind:
+        return f'appraised {verdict}, not vendor: {decision.rule} alone sells no such item'
+    return None
+
+
+def town_verdicts(
+    items: Sequence[tuple[ItemFacts, Value | None]],
+    copies: Callable[[ItemFacts], Sequence[ItemFacts] | None],
+) -> list[TownVerdict]:
+    """The town's decisions on the carried `items` (M6), in their order: `keep.decide_all` (the field's rules, the best
+    rolled first so the first of two copies kept counts as owned for the second), then `town_kept`. An item with no
+    value (no appraisal) is kept (S8). `copies` (the owned copies, loot/value.py CollectionCopies) is asked only for the
+    items a rule or the copy guard needs."""
+    priced = [(facts, value) for facts, value in items if value is not None]
+    decided = {facts.unit_id: decision for facts, _, decision in decide_all(priced, copies)}
+    kept = [facts for facts, _ in priced if decided[facts.unit_id].action == Action.KEEP]
+    found = []
+    for facts, value in items:
+        decision = decided.get(facts.unit_id) if value is not None else None
+        owned = None
+        if decision is not None and decision.gives_up and facts.quality in (SET, UNIQUE):
+            owned = copies(facts)
+            if owned is not None:
+                owned = [*owned, *(copy for copy in kept if copy.unit_id != facts.unit_id and comparable(facts, copy))]
+        why = town_kept(facts, value, decision, owned)
+        sold = why is None
+        found.append(TownVerdict(facts, value, decision, sold, decision.reason if sold and decision else why or ''))
+    return found
+
+
+def town_asks(item: Carried) -> bool:
+    """Whether the town's decision needs the carried `item`'s appraisal (M6): identified, of no never-sold kind."""
+    if not item.identified:
+        return False
+    from inventory_tracking.items.metadata import item_base
+
+    base = item_base(item.txt)
+    if base is None:
+        return True
+    kind = base.get('type')
+    return not (kind in TOWN_NEVER_SOLD or base.get('code') in NEVER_SOLD_CODES)
+
+
+def town_sold(
+    carried: Sequence[Carried],
+    spared: frozenset[int],
+    book: Any = None,
+    copies: Any = None,
+) -> dict[int, tuple[str, str]]:
+    """M6 (keep.TOWN_DECIDES): the carried items (inventory and cube) the town visit sells, unit -> (title, the rule
+    and why): `town_verdicts` on the loop's identified items with the identify worker's reads (`book`, loot/shadow.py
+    BOOK) and the owned copies (`copies`, loot/value.py CollectionCopies). `spared` (the player's by its stats) are the
+    player's (K0). No read: kept (S8)."""
+    from inventory_tracking.loot.shadow import BOOK
+    from inventory_tracking.loot.value import CollectionCopies
+
+    book = BOOK if book is None else book
+    copies = CollectionCopies() if copies is None else copies
+    items: list[tuple[ItemFacts, Value | None]] = []
+    for item in carried:
+        if not item.identified:
+            continue
+        entry = book.get(item.unit_id)
+        owner = Owner.PLAYER if item.unit_id in spared else Owner.LOOP
+        facts = from_carried(item, owner=owner, observation=entry.observation if entry is not None else None)
+        items.append((facts, appraise_result(facts, entry.result, entry.verdict) if entry is not None else None))
+    return {
+        verdict.facts.unit_id: (verdict.facts.title(), verdict.said().removeprefix('sell: '))
+        for verdict in town_verdicts(items, copies.copies)
+        if verdict.sold
+    }
 
 
 def big_named(txt: int | None, quality: int, size: tuple[int, int]) -> bool:
@@ -1018,7 +1220,9 @@ def stash_bound(txt: int | None) -> bool:
 
 def cube_fits(pack: Pack, items: Sequence[Carried]) -> list[Carried]:
     """Those of `items` the cube's free cells take, each in the first free block, the larger first (as cube.py `plan`);
-    [] with no cube read. Pure."""
+    [] with no cube carried. Pure. An empty cube has no grid in memory: read as empty (storage.py `roomed`; 16:52 on
+    2026-10-20, after each town visit: "no room in the cube" with the cube empty)."""
+    pack = roomed(pack)
     if pack.cube is None:
         return []
     cube = Grid(pack.cube)
@@ -1040,7 +1244,9 @@ def _base_name(txt: int) -> str:
 
 def room_moves(pack: Pack, movable: Sequence[Carried], size: tuple[int, int]) -> list[Carried]:
     """`movable` (the loop's inventory items), smallest first, as many as the cube's free cells take until a block
-    of `size` is free in the inventory; [] when that never comes (or no cube is read). Pure."""
+    of `size` is free in the inventory; [] when that never comes (or no cube is carried). Pure. An empty cube's
+    unread grid is empty (storage.py `roomed`)."""
+    pack = roomed(pack)
     if pack.cube is None:
         return []
     cube = Grid(pack.cube)

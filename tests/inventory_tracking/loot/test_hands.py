@@ -166,3 +166,27 @@ def test_a_kept_item_taken_out_of_the_cube_goes_back_into_it():
     assert play.pack is not None
     assert [item.unit_id for item in play.pack.in_cube] == [UNIT]
     assert play.world.open_panels == ()
+
+
+def test_a_field_identify_the_runner_cancels_half_way_leaves_no_panel_open():
+    """15:21:38 on 2026-10-20 (game 6 of 20261020T115501Z-4b07df55): a fight back cancelled the field identify at once
+    after the inventory opened; the panels stayed open, read as the player's hand, the character hit for 60 s."""
+    import pytest
+
+    from inventory_tracking.macros.actuator import Cancelled
+
+    play, hands, _, _ = setup(Pack((TOME, WORN, JUNK), identifies=10))
+    run = hands.run
+    run.actuator.cancelled = run.cancelled  # the runner's one cancel, as execution.py binds it
+    tapped = run.actuator.tap
+
+    def tap(*names: str) -> None:
+        tapped(*names)
+        if names == ('Button3',):
+            run.cancelled.set()  # the tome armed: the fight back's cancel
+
+    run.actuator.tap = tap  # type: ignore[method-assign]
+    with pytest.raises(Cancelled):
+        looped(play.world.game_name).settle(hands, 'at once')
+    assert play.world.open_panels == ()
+    assert play.fallen == []

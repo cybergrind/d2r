@@ -164,6 +164,12 @@ ROOM_UNITS = 40.0  # a known hostile this much further than the nearest unexplor
 VANISH_UNITS = 25.0  # a remembered monster not among the live ones this near the character is not gone to again
 SLICE = 0.01  # seconds between looks at the left mouse button while the mode waits or fights
 HURT_SECONDS = 2.0  # after a loss of life the KP_6 loop's run may stand and strike (pursuit.py `arbitrate`)
+# The field routine's quiet look (hunt.py `field_quiet`, loot/api.py `at_once`), stricter than the routine's own SIGHT:
+# at 15:21:38 on 2026-10-20 it opened the inventory 1 s after a waypoint's arrival with hostiles near, a fight back
+# cancelled it half way and the panels stayed open while the character was hit (game 6 of 20261020T115501Z-4b07df55)
+AT_ONCE_CLEAR = 2 * SIGHT  # world units: no hostile read this near (60: twice the fight's sight)
+AT_ONCE_SETTLE = 3.0  # seconds after a level's arrival (a waypoint, a portal, stairs): the first look's never
+AT_ONCE_HURT = 3.0  # seconds after the character's life went down
 OWN_TELEPORT_SECONDS = 5.0  # between reads of whether Teleport is the character's own (`Hunter.own_teleport`)
 RUSH_UNMOVED = 1.5  # seconds with no move after which the loop's run fights what is in reach (blocking it)
 TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons

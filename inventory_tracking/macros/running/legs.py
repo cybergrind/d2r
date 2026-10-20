@@ -301,7 +301,7 @@ def _shared_town_visit(
     if own is None:
         raise Abort("the player's items are not told apart yet")
     hands = Hands(inventory_key, identify_loot, lambda items: junk_of(items, self.appraise),
-                  lambda: run.reads.stash_view(), transmute_gems)  # fmt: skip
+                  lambda: run.reads.stash_view(), transmute_gems, appraise=self.appraise)  # fmt: skip
     needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
     done = visit(run, hands, needs, own, exit, full=frozenset(self.loop.full),
                  waited=self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip

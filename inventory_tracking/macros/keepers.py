@@ -21,6 +21,9 @@ LIFE_SHIFT = 8  # maxhp is kept in 256ths of a point
 SKILLS = 2  # "+2 skills"
 
 
+# The town's keep rules hold it as the wants row rare-amulet-fcr-life-skills (loot/build_wants.py G11) when TOWN_DECIDES
+# is on (loot/keep.py, M6, 2026-10-20); it stays the guard behind engine.py `protected` (run.kept_item: "protected
+# amulets still spared", the player's 16:55 plan) and loot/today.py's. Delete after the 30-cycle check
 def amulet_keeper(item: Carried, stats: Mapping[int, int]) -> str | None:
     """Why a rare or crafted amulet is kept, or None. Unread stats keep it: a sale cannot be undone."""
     base = item_base(item.txt)

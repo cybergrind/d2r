@@ -84,8 +84,9 @@ BOUND_DEMON = 361  # the bound demon data/damage.json measures (a Pit Lord, 72 p
 # and one is to be sent (not every one within MARK_BESIDE + HELD of it already), after an unmarked Herald and a monster
 # immune to the magic; the safety's price stops it only where the cast costs life while holding is over the life
 # budget, as for an immune one. A mark lasting on plain monsters only moves to such a leader (MARK_AGAIN after).
-# False: the safety's price decides for a leader too (the rule of 2026-10-14).
-MARK_LEADERS = True
+# False: the safety's price decides for a leader too (the rule of 2026-10-14). Off until the golden replays that pin
+# the price's refusals on leaders (scenarios/golden, battle/test_tower_cellar5.py) are agreed and recorded again.
+MARK_LEADERS = False
 # A leader or boss in reach the mark passes over is named once, with why (`mark_passed`): the silent "never marked" of
 # elite 397 at 15:01:12 (trash by the strike's table, no line said). False: bosses struck down to trash only.
 SAY_PASSED = True
@@ -316,6 +317,7 @@ def target(facts: BuffFacts) -> Monster | None:
         leads_held = any(m.leader or is_boss(m) for m in held)
         if not held or (not leads_held and facts.since(DEATH_MARK) >= MARK_AGAIN):
             free = [m for m in first if m not in held]
+            free = [m for m in free if not held_by_demons(facts, m)] or free  # one the demons strike already last
             if free:
                 return leader_first(facts, free)
     if facts.draws is None:

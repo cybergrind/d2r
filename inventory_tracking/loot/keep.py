@@ -3,15 +3,15 @@
 `decide(facts, value, owned)` applies the rules in order; the first that applies decides:
 
 - K0 not the loop's (the player's, a print match, unknown): NEVER_TOUCH (S1)
-- K1 a never-sell class: runes, gems, potions, set/unique and sunder charms KEEP; the loop's tomes, keys and cube
-  NEVER_TOUCH (S2)
+- K1 a never-sell class: runes, gems, potions, set/unique and sunder charms, Wirt's Leg KEEP; the loop's tomes, keys,
+  cube and the quest items (Worldstone Shards, statues, Uber keys, essences: itemtype `ques`) NEVER_TOUCH (S2)
 - K2 unidentified magic or better: IDENTIFY, never dropped unidentified (S8)
 - K3 an always-keep want (the BiS rows of loot/data/wants.json): KEEP, duplicates included; after K5, a want with
   `keep_up_to` (the Spirit base Monarch, 2026-10-20 ~12:50): KEEP while fewer comparable copies are owned, then by
   the rules below (K6: only a better copy)
 - K4 a unique or set with no comparable owned copy, or owned copies that cannot be told: KEEP (S3, S8)
-- K7 a charm or jewel (used in multiples, appraisal/owned.py MULTIPLE_COPY_BASES): KEEP when worth KEEP_IST or a want
-  names it, else DROP; never compared as copies
+- K7 a charm or jewel (used in multiples, appraisal/owned.py MULTIPLE_COPY_BASES): KEEP when worth KEEP_IST, a want
+  names it or it has no price (S8), else DROP; never compared as copies
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
 - K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
   (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; and magic
@@ -21,8 +21,9 @@
 - K10 else KEEP: a cheap first copy, or a want
 
 K7 runs before K5 and K8 before K6 (the design's table lists them the other way): a charm is never judged as a
-duplicate, and a worthless item is not "cheap", so a better worthless copy is still dropped. DROP is the decision;
-whether a carried DROP is sold at Jamella or put down is the town routine's (Q4).
+duplicate, and a worthless item is not "cheap", so a better worthless copy is still dropped; but not a set or unique
+copy better than every owned one (K6 first for them, 2026-10-20 ~17:10: the 2026-10-18 best-copy ruling). DROP is
+the decision; whether a carried DROP is sold at Jamella or put down is the town routine's (Q4).
 """
 
 from collections.abc import Callable, Sequence
@@ -36,16 +37,19 @@ from inventory_tracking.loot.value import DUPLICATE_IST, KEEP_IST, Comparison, V
 __all__ = [
     'CHARMS',
     'DECIDED_WITHOUT_COPIES',
+    'DECIDES',
     'GEMS',
     'JEWELS',
     'JUNK_MAGIC',
     'JUNK_UNWANTED',
     'LOOP_GEAR',
+    'NEVER_SOLD_CODES',
     'POTIONS',
     'RULES',
     'RUNES',
     'SHADOW',
     'SUNDER',
+    'TOWN_DECIDES',
     'Action',
     'Decision',
     'KeepRules',
@@ -56,6 +60,19 @@ __all__ = [
 # Shadow mode, M1 (the player, 2026-10-20 ~09:33: "start M0+M1"): every town visit and ground look logs the new
 # decision beside the old one; nothing the loop does changes. False: no shadow lines
 SHADOW = True
+# M2, the town side (loot/design.md §7; the player, 2026-10-20 ~15:05, answering: "Sell cheap duplicates"): a set or
+# unique copy `decide` gives up (K6: under 1 Ist, not better than an owned copy, no want row) is sold at the visit
+# instead of stashed (loot/api.py `sold_copies`, macros/visit.py). False: the visit sells what today's rules sell.
+# On 2026-10-20 ~16:35 after the review: today's replay would have sold only The Reaper's Toll (0.653 Ist, 1 owned)
+DECIDES = True
+# M6, one town decision (loot/design.md §7, §9 "M6"; the player, 2026-10-20 16:55: "can you check if we're using the
+# shared code across different activities to control pickups and what to keep?", then "go ahead with the merge
+# agent"): the town visit's junk is what `decide` gives up for every loop item, the same rules the field uses, under
+# the town's guards (loot/api.py `town_verdicts`: the player's items, runes, gems, potions, set/unique charms, shards,
+# keys, tomes and the cube never; the best copy kept; unknown kept; nothing appraised other than vendor sold but by a
+# dated rule). False: today's chain (junk.py `junk_of`, copies.py `sold`, the M2 copies) decides and the shadow logs
+# the unified decision beside it (`Macro: loot: shadow: town merge: ...`). Logging only for ~30 cycles before it is on
+TOWN_DECIDES = False
 
 # Item types (itemtypes codes of items/metadata.py; the tests check them against macros/pickmode.py and the data)
 RUNES = frozenset(('rune',))
@@ -66,6 +83,10 @@ JEWELS = frozenset(('jewl', 'cjwl'))
 POTIONS = frozenset(('hpot', 'mpot', 'rpot', 'spot', 'apot', 'wpot', 'tpot', 'elix'))
 ORGANS = frozenset(('body',))  # the Uber keys' organs
 LOOP_GEAR = frozenset(('book', 'key', 'ques', 'scro'))  # Tomes, keys, scrolls, the Horadric Cube: the loop's tools
+# Kept whatever a price says, by items.txt code (third-parties/d2data/json/weapons.json:20402 `leg`, itemtype club):
+# Wirt's Leg, the way to the cow level, carried one at a time (loot/materials.py CARRY_ONE). The Worldstone Shards
+# (misc.json:12513 `xa1` ... `xa5`), statues, Uber keys and essences are itemtype `ques`: LOOP_GEAR above
+NEVER_SOLD_CODES = frozenset(('leg',))
 MULTIPLES = CHARMS | JEWELS
 # The rare item types kept only by a want row (the player, 2026-10-20 ~12:50: "rare helms (tiara, corona, etc) that are
 # really good - fcr + 2skills level + other valuable stats"; the rows: loot/build_wants.py G10): circlets, and plain
@@ -130,6 +151,8 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
         return Decision(Action.NEVER_TOUCH, 'K1', "the loop's own tool")
     if kind in RUNES | GEMS | POTIONS | ORGANS | SUNDER or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
         return Decision(Action.KEEP, 'K1', 'never sold (runes, gems, potions, set/unique charms)')
+    if facts.code in NEVER_SOLD_CODES:
+        return Decision(Action.KEEP, 'K1', "never sold (Wirt's Leg)")
     if not facts.identified and facts.quality >= MAGIC:
         return Decision(Action.IDENTIFY, 'K2', 'unidentified: never given up unread')
     keepers = [want for want in value.wants if want.always_keep]
@@ -144,12 +167,24 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     if kind in MULTIPLES:
         if value.wants or (value.tier != 'worthless' and (value.worth_ist or 0) >= rules.keep_ist):
             return Decision(Action.KEEP, 'K7', f'used in multiples, {_price(value)}{wanted}')
+        if value.tier == 'unknown':
+            # S8, "unknown is kept: no price -> keep, never sell or drop": no price read as 0 Ist dropped a magic Small
+            # Charm with a `check` verdict and no band (13:30:27 on 2026-10-20, the shadow's town line)
+            return Decision(Action.KEEP, 'K7', f'used in multiples, unknown: no price, kept (S8; {value.said()})')
         return Decision(Action.DROP, 'K7', f'used in multiples, worthless ({value.said()})')
     if value.worth_ist is not None and value.worth_ist >= rules.duplicate_ist:
         return Decision(Action.KEEP, 'K5', f'expensive: {_price(value)} by its rolls')
     capped = next((want for want in value.wants if want.keep_up_to is not None), None)
     if capped is not None and capped.keep_up_to is not None and same is not None and len(same) < capped.keep_up_to:
         return Decision(Action.KEEP, 'K3', f'{len(same)} owned, kept up to {capped.keep_up_to}: {capped.label}')
+    if named and same and value.tier == 'worthless':
+        # The best copy first ("loop should keep the best copy first", the player, 2026-10-18; N2): a set or unique
+        # copy better than every owned one is kept even when worthless; the worse owned one is the mules skill's.
+        # Demon Limb, 17:09:07 on 2026-10-20: ED 206 vs 200, fire res 18 vs 16, vendor 0.379 Ist, was K8 before
+        compared = better_than(facts, same, value.matters)
+        if compared.better:
+            told = f'{len(same)} owned: {compared.said()}'
+            return Decision(Action.KEEP, 'K6', f'the best copy ({value.said()}), better than the {told}', compared)
     if value.tier == 'worthless' and not value.wants:
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
     if facts.quality == RARE and kind in JUNK_UNWANTED and not value.wants:

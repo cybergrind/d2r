@@ -145,7 +145,8 @@
     "ground": "pick",
     "then": "identify",
     "decision": "drop",
-    "rule": "K8"
+    "rule": "K8",
+    "town": "sell"
    },
    "source": "guides/pindle-anya.html:296 (no Jeweler's -> vendor); of the Fox magicsuffix.json",
    "value": {
@@ -1084,7 +1085,8 @@
      "50",
      "53",
      "56"
-    ]
+    ],
+    "town": "sell"
    },
    "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
    "value": {
@@ -1182,7 +1184,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K6"
+    "rule": "K6",
+    "town": "keep"
    },
    "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
    "value": {
@@ -1228,7 +1231,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K4"
+    "rule": "K4",
+    "town": "keep"
    },
    "source": "design.md §3.4; collection.sqlite owned 53 and 56 % ED; band asks q1 0.647 median 1.0, 3 sellers, 2026-10-04",
    "value": {
@@ -1263,7 +1267,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K4"
+    "rule": "K4",
+    "town": "keep"
    },
    "source": "S8: unknown is kept",
    "value": {
@@ -1298,7 +1303,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K5"
+    "rule": "K5",
+    "town": "keep"
    },
    "source": "design.md §3.3 (Arachnid 2.29); N1",
    "value": {
@@ -1457,7 +1463,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K7"
+    "rule": "K7",
+    "town": "keep"
    },
    "source": "appraisal/owned.py MULTIPLE_COPY_BASES",
    "value": {
@@ -1486,7 +1493,8 @@
    },
    "expect": {
     "decision": "keep",
-    "rule": "K9"
+    "rule": "K9",
+    "town": "keep"
    },
    "source": "Q13",
    "value": {
@@ -1508,7 +1516,8 @@
    },
    "expect": {
     "decision": "drop",
-    "rule": "K8"
+    "rule": "K8",
+    "town": "sell"
    },
    "source": "design.md §6.2",
    "value": {
@@ -1613,7 +1622,8 @@
     "ground": "pick",
     "decision": "keep",
     "rule": "K1",
-    "field": "keep"
+    "field": "keep",
+    "town": "keep"
    },
    "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
    "value": {
@@ -3185,6 +3195,327 @@
    "owned": null,
    "today_fails": {
     "ground": "today: pickmode.sure (loot/today.py) takes no magic glove; the KP_6 loop's field identify (loot/api.py Field.pick, G19, or G14 by size before it) picks them"
+   }
+  },
+  {
+   "id": "small_charm_no_price_check_kept",
+   "section": "6.8",
+   "item": {
+    "base": "Small Charm",
+    "code": "cm1",
+    "quality": "magic",
+    "rolls": {
+     "19:0": 12
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K7",
+    "town": "keep"
+   },
+   "source": "S8 \"unknown is kept: no price -> keep\"; shadow 13:30:27 on 2026-10-20 \"magic Small Charm: new drop K7 used in multiples, worthless (no price, unknown, verdict check) / old keep check\"; third-parties/d2data/json/misc.json:1162 (cm1)",
+   "value": {
+    "worth": null,
+    "verdict": "check"
+   },
+   "owned": []
+  },
+  {
+   "id": "wirts_leg_picked_and_never_sold",
+   "section": "6.8",
+   "item": {
+    "base": "Wirt's Leg",
+    "code": "leg",
+    "quality": "normal",
+    "size": [
+     1,
+     3
+    ],
+    "marked": true
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K1",
+    "town": "keep"
+   },
+   "source": "probe.log 13:32:58 on 2026-10-20 \"normal Wirt's Leg: new leave (no class takes it) / old pick (differ)\"; config.py material_marks 'leg'; loot/materials.py CARRY_ONE; third-parties/d2data/json/weapons.json:20402 (leg, club)",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
+   "id": "deep_worldstone_shard_picked_never_sold",
+   "section": "6.8",
+   "item": {
+    "base": "Deep Worldstone Shard",
+    "code": "xa4",
+    "quality": "normal",
+    "marked": true
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "never-touch",
+    "rule": "K1",
+    "town": "keep"
+   },
+   "source": "shadow 2026-10-20 (7 lines) \"normal Deep Worldstone Shard: new leave (no class takes it) / old pick (differ)\"; config.py material_marks 'shards'; third-parties/d2data/json/misc.json:12762 (xa4, ques)",
+   "value": {
+    "worth": 0.3,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "demon_limb_better_vendor_copy_kept",
+   "section": "6.8",
+   "item": {
+    "base": "Tyrant Club",
+    "code": "7sp",
+    "quality": "unique",
+    "name": "Demon Limb",
+    "size": [
+     1,
+     3
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      230
+     ],
+     "39:0": [
+      15,
+      20
+     ]
+    },
+    "rolls": {
+     "17:0": 206,
+     "39:0": 18
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K6",
+    "field": "keep",
+    "town": "keep"
+   },
+   "source": "a strictly better copy (ED and fire res), as the 17:09:07 line told it: \"copies: keep Demon Limb (Tyrant Club): none of the 1 owned rolls as well on every stat: +206% Enhanced Damage vs 200, FR +18% vs 16\" / shadow \"new drop K8 worthless (0.379 Ist, worthless, verdict vendor)\"; the player 2026-10-18: \"loop should keep the best copy first\"; third-parties/d2data/json/uniqueitems.json:10637 (dmg% 180-230, res-fire 15-20), weapons.json:5825 (7sp); the real 17:09 copy also rolled life steal 8 vs 12: demon_limb_mixed_copy_by_score_sold_in_town",
+   "value": {
+    "worth": 0.379,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 200,
+      "39:0": 16
+     }
+    }
+   ]
+  },
+  {
+   "id": "demon_limb_worse_vendor_copy_sold_in_town",
+   "section": "6.8",
+   "item": {
+    "base": "Tyrant Club",
+    "code": "7sp",
+    "quality": "unique",
+    "name": "Demon Limb",
+    "size": [
+     1,
+     3
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      230
+     ],
+     "39:0": [
+      15,
+      20
+     ]
+    },
+    "rolls": {
+     "17:0": 190,
+     "39:0": 15
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "keep",
+    "town": "sell"
+   },
+   "source": "the copy rule of 2026-10-18 (macros/copies.py: an owned copy rolls at least as well -> sold); third-parties/d2data/json/uniqueitems.json:10637; field: a 1x3 is no G18 item (loot/api.py BIG_CELLS)",
+   "value": {
+    "worth": 0.379,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 200,
+      "39:0": 16
+     }
+    }
+   ]
+  },
+  {
+   "id": "reapers_toll_slow_cheap_copy_sold_in_town",
+   "section": "6.8",
+   "item": {
+    "base": "Thresher",
+    "code": "7s8",
+    "quality": "unique",
+    "name": "The Reaper's Toll",
+    "size": [
+     2,
+     4
+    ],
+    "ranges": {
+     "60:0": [
+      11,
+      15
+     ]
+    },
+    "rolls": {
+     "60:0": 15
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K6",
+    "field": "drop",
+    "town": "sell"
+   },
+   "source": "shadow 14:41:42 on 2026-10-20 \"The Reaper's Toll (Thresher): new drop K6 cheap (0.653 Ist), not better than the 1 owned: lifedrainmindam 15 vs 15 / old keep slow\"; the player ~15:05 \"Sell cheap duplicates\" (M2); third-parties/d2data/json/uniqueitems.json:11656 (lifesteal 11-15), weapons.json:5496 (7s8, 2x4)",
+   "value": {
+    "worth": 0.653,
+    "verdict": "slow"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "60:0": 15
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: copies.keep_copy judges only `vendor` items; the M2 sale of a slow surplus copy (loot/api.py sold_copies, keep.DECIDES) is outside loot/today.py"
+   }
+  },
+  {
+   "id": "own_use_cheap_set_copy_kept_in_town",
+   "section": "6.8",
+   "item": {
+    "base": "Heavy Bracers",
+    "code": "xmg",
+    "quality": "set",
+    "name": "Trang-Oul's Claws",
+    "size": [
+     2,
+     2
+    ]
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K6",
+    "town": "keep"
+   },
+   "source": "17:05:27 on 2026-10-20 \"Trang-Oul's Claws (Heavy Bracers): new drop K6 cheap (0.2 Ist), not better than the 2 owned: no roll to compare / old keep self\" (stashed); the coordinator ~17:05: an item appraised `self` is not sold by K6 alone; third-parties/d2data/json/setitems.json:3929, armor.json:16226 (xmg, 2x2)",
+   "value": {
+    "worth": 0.3,
+    "verdict": "self"
+   },
+   "owned": [
+    {},
+    {}
+   ],
+   "today_fails": {
+    "decision": "today: the `self` verdict keeps it (junk.junk_of sells only `vendor`); keep.decide gives it up (K6) and only the town's guard (loot/api.py town_kept) keeps it"
+   }
+  },
+  {
+   "id": "rare_amulet_plus2_tree_skills_kept",
+   "section": "6.8",
+   "item": {
+    "base": "Amulet",
+    "code": "amu",
+    "quality": "rare",
+    "rolls": {
+     "188:57": 2
+    }
+   },
+   "expect": {
+    "decision": "keep",
+    "rule": "K3",
+    "town": "keep"
+   },
+   "source": "inventory_tracking/macros/keepers.py amulet_keeper (+2 skills counts stat 188, a tree); the player 2026-10-18 \"Rare amulets with +FCR, +2 skills, +life are good\"; third-parties/d2data/json/misc.json:76 (amu)",
+   "value": {
+    "worth": 0.1,
+    "verdict": "vendor"
+   },
+   "owned": []
+  },
+  {
+   "id": "demon_limb_mixed_copy_by_score_sold_in_town",
+   "section": "6.8",
+   "item": {
+    "base": "Tyrant Club",
+    "code": "7sp",
+    "quality": "unique",
+    "name": "Demon Limb",
+    "size": [
+     1,
+     3
+    ],
+    "ranges": {
+     "17:0": [
+      180,
+      230
+     ],
+     "39:0": [
+      15,
+      20
+     ],
+     "60:0": [
+      7,
+      13
+     ]
+    },
+    "rolls": {
+     "17:0": 206,
+     "39:0": 18,
+     "60:0": 8
+    }
+   },
+   "expect": {
+    "decision": "drop",
+    "rule": "K8",
+    "field": "keep",
+    "town": "sell"
+   },
+   "source": "17:09:07 on 2026-10-20, unit 467414000 (20261020T134725Z-faaa6310/identified): ED 206 vs 200, fire res 18 vs 16 better, life steal 8 vs 12 worse; scores 1.287 vs 1.433 (Q2 by score); the player ~17:30 Q-M6-3 \"as recommended\": mixed copies by score once the ED is compared; third-parties/d2data/json/uniqueitems.json:10637 (dmg% 180-230, lifesteal 7-13, res-fire 15-20); field: a 1x3 is no G18 item",
+   "value": {
+    "worth": 0.379,
+    "verdict": "vendor"
+   },
+   "owned": [
+    {
+     "rolls": {
+      "17:0": 200,
+      "39:0": 16,
+      "60:0": 12
+     }
+    }
+   ],
+   "today_fails": {
+    "decision": "today: copies.keep_copy keeps a copy with any stat better than the owned one (\"none of the 1 owned rolls as well on every stat\"); the keep rules decide a mixed copy by score (Q2)"
    }
   }
  ]

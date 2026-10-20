@@ -2598,22 +2598,105 @@ def test_the_runners_cancel_racing_the_strike_check_is_a_cancel_not_a_false_stop
 @pytest.mark.parametrize('near', [False, True])
 def test_a_level_runs_quiet_look_asks_the_field_routine_for_a_big_item_and_a_near_hostile_does_not(near):
     """loot/api.py FIELD_AT_ONCE (the player, 2026-10-20 ~14:28: "we must redesign our routins to actually have space
-    for mid-run identifying big items"): between a level run's moves, with no hostile within QUIET_UNITS, the runner's
-    `field_now` is asked (it identifies a big item at once); never while one is near (the fight first)."""
+    for mid-run identifying big items"): between a level run's moves the runner's `field_now` is asked only by
+    `field_quiet`: AT_ONCE_SETTLE after the level's first look, no hostile within AT_ONCE_CLEAR (15:21:38: asked 1 s
+    after a waypoint's arrival, hostiles near)."""
+    from inventory_tracking.macros.hunting.base import AT_ONCE_CLEAR
     from inventory_tracking.macros.pursuit import FULL, Pursuit
 
     monsters = (foe(70, 5000.0 + QUIET_UNITS / 2, 5000.0),) if near else ()
     play = game(*monsters)
     hunt = hunter(play)
+    hunt.field_area = 101  # in the level a while (its first look and AT_ONCE_SETTLE: the next test)
     hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=101))
-    calls: list[int] = []  # the hostiles within QUIET_UNITS at each ask
+    calls: list[tuple[float, int]] = []  # (the clock, the hostiles within AT_ONCE_CLEAR) at each ask
 
     def field_now(run) -> bool:
         here = me(run.world())
-        calls.append(sum(math.dist((m.x, m.y), (here.x, here.y)) <= QUIET_UNITS for m in hostiles(run.world())))
+        near_now = sum(math.dist((m.x, m.y), (here.x, here.y)) <= AT_ONCE_CLEAR for m in hostiles(run.world()))
+        calls.append((run.clock(), near_now))
         return False  # nothing decided: the look goes on
 
     hunt.field_now = field_now
     attack_mode(play, hunt, until=1.0)
-    assert calls  # asked (with a hostile near: once it is dead)
-    assert not any(calls)  # never with a hostile near
+    assert calls or near  # asked in the quiet (with a hostile near: at most once it is dead)
+    assert all(count == 0 for _, count in calls)  # never with a hostile within AT_ONCE_CLEAR
+
+
+def test_the_field_quiet_rule_waits_for_the_arrival_the_hurt_and_a_hostile_within_its_reach():
+    from inventory_tracking.macros.hunting.base import AT_ONCE_CLEAR, AT_ONCE_HURT, AT_ONCE_SETTLE
+
+    play = game()
+    hunt = hunter(play)
+    run = play.run()
+    assert not hunt.field_quiet(run, play.world)  # the level's first look
+    play.clock.sleep(AT_ONCE_SETTLE - 0.5)
+    assert not hunt.field_quiet(run, play.world)  # within AT_ONCE_SETTLE of the arrival
+    play.clock.sleep(1.0)
+    assert hunt.field_quiet(run, play.world)
+    hunt.hurt_at = run.clock()
+    assert not hunt.field_quiet(run, play.world)  # just hit
+    play.clock.sleep(AT_ONCE_HURT + 0.1)
+    assert hunt.field_quiet(run, play.world)
+    far = replace(play.world, monsters=(foe(71, 5000.0 + AT_ONCE_CLEAR - 5.0, 5000.0),))
+    assert not hunt.field_quiet(run, far)  # beyond the fight's SIGHT, within AT_ONCE_CLEAR
+    moved = replace(play.world, player=replace(me(play.world), area=102))
+    assert not hunt.field_quiet(run, moved)  # another level: its first look again
+
+
+def test_the_loops_own_panels_left_open_are_closed_and_the_run_fights_on_but_the_players_pause_it(monkeypatch, caplog):
+    """15:21:39 on 2026-10-20: "Level run paused: the player's hand (inventory, cube open)" for panels a cancelled
+    field identify left open; the character stood, hit, 60 s. Those the loop opened are closed (cube.py `tidy`); one
+    the player opened still pauses the run."""
+    from inventory_tracking.macros import cube as cube_module
+    from inventory_tracking.macros.pursuit import FULL, Pursuit
+
+    monkeypatch.setattr(cube_module, 'OPENED', {})
+    play = game()
+    play.world = replace(play.world, open_panels=('inventory', 'cube'))
+    cube_module.opened('inventory')
+    cube_module.opened('cube')
+    hunt = hunter(play)
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=101))
+    with caplog.at_level(logging.INFO):
+        attack_mode(play, hunt, until=0.5)
+    assert play.world.open_panels == ()
+    assert 'Macro: loop: panels the loop opened were left open (inventory, cube): closed' in caplog.text
+    assert 'the level run is paused' not in caplog.text
+    caplog.clear()
+
+    theirs = game()
+    theirs.world = replace(theirs.world, open_panels=('inventory',))
+    held = hunter(theirs)
+    held.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=101))
+    with caplog.at_level(logging.INFO):
+        attack_mode(theirs, held, until=0.5)
+    assert theirs.world.open_panels == ('inventory',)  # the player's: not touched
+    assert 'the level run is paused: inventory open' in caplog.text
+    assert 'panels the loop opened' not in caplog.text
+
+
+# --- a level run whose character is back in a town ---
+
+
+@pytest.mark.parametrize('asked_on', [101, None])
+def test_a_level_run_back_in_a_town_ends_at_once_not_after_the_still_watchdog(caplog, asked_on):
+    # 17:14:53 on 2026-10-20 (rca/2026-10-20/fortress-gate-passage-findings.md): the Outer Steppes run's passage walk
+    # went back into the Pandemonium Fortress; attack mode said "waiting (the character is on the move)" and stood 46 s
+    # until the loop's still watchdog left the game. A run asked in a town (KP_1 there, no level named) waits as before.
+    from inventory_tracking.macros.pursuit import FULL, LEVEL_LEFT, Pursuit
+
+    play = game(area=109)  # Harrogath
+    hunt = hunter(play)
+    ended: list[str] = []
+    hunt.run_over = ended.append
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=asked_on, rush=True, looped=True))
+    with caplog.at_level('INFO'):
+        attack_mode(play, hunt, until=2.0)
+    if asked_on is None:
+        assert ended == []
+        assert hunt.leashed
+        return
+    assert ended == [LEVEL_LEFT]
+    assert not hunt.leashed
+    assert "run: in Harrogath, off the run's level Durance of Hate Level 2: the level run ends at once" in caplog.text

@@ -520,6 +520,46 @@ def _into_cube(run: Run, inventory_key: str, items: Sequence[Carried], later: Se
     return put
 
 
+def _decided(carried: Sequence[Carried], junk: frozenset[int]) -> frozenset[int]:
+    """M2 (loot/keep.py DECIDES; the player, 2026-10-20 ~15:05: "Sell cheap duplicates"): the loop's set and unique
+    copies the keep rules give up (loot/api.py `sold_copies`: cheap, not better than an owned copy, no want row), each
+    said; the player's by its stats are spared after as every junk (`protected`). Never into the visit."""
+    from inventory_tracking.loot import api as loot_api, keep
+
+    if not keep.DECIDES:
+        return frozenset()
+    try:
+        found = loot_api.sold_copies(carried, junk, frozenset())
+    except Exception as error:  # the collection or the reads failing keeps today's rules
+        LOG.info('Macro: town visit: the keep rules not asked (%s: %s): today\'s sales only', type(error).__name__,
+                 error)  # fmt: skip
+        return frozenset()
+    for unit, (title, why) in found.items():
+        LOG.info('Macro: town visit: %s (unit %d) sold by the keep rules (M2): %s', title, unit, why)
+    return frozenset(found)
+
+
+def _town_decided(hands: Hands, carried: Sequence[Carried]) -> frozenset[int]:
+    """M6 (loot/keep.py TOWN_DECIDES; the player, 2026-10-20 16:55: "go ahead with the merge agent"): the loop's items
+    the keep rules give up under the town's guards (loot/api.py `town_sold`), each said, after the identify worker
+    appraised them (`Hands.appraise`). Replaces junk.py `junk_of`, copies.py `sold` and the M2 copies; the player's by
+    its stats (and the amulet keeper, engine.py `protected`) are spared after as every junk. On a failure nothing is
+    sold (S8). Never into the visit."""
+    from inventory_tracking.loot import api as loot_api
+
+    try:
+        units = [i.unit_id for i in carried if loot_api.town_asks(i)]
+        if units and hands.appraise is not None:
+            hands.appraise(units)
+        found = loot_api.town_sold(carried, frozenset())
+    except Exception as error:  # the reads, the KB or the collection failing: nothing sold
+        LOG.info('Macro: town visit: the keep rules failed (%s: %s): nothing sold', type(error).__name__, error)
+        return frozenset()
+    for unit, (title, why) in found.items():
+        LOG.info('Macro: town visit: %s (unit %d) sold by the keep rules: %s', title, unit, why)
+    return frozenset(found)
+
+
 def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
     """The stop's rune transmutes (`StashStop.runes`, town.py RUNES_AIM), the stash open: Ctrl + Shift + right click
     moves 3 runes into the cube, Ctrl + Shift + left click 1 gem when the recipe takes one (the player, 2026-10-18),
@@ -686,13 +726,15 @@ def _scan(run: Run, missed: Sequence[Carried], inventory_key: str | None, own: f
 class Hands:
     """The runner's closures a visit takes: the inventory key; Cain's identify (appraisals waited for); the junk among
     identified items (junk.py `junk_of`); the stash as read (None unread); the full gem stacks' transmutes (cube.py
-    `transmute`): perfect gems made and units left on the ground."""
+    `transmute`): perfect gems made and units left on the ground; the identify worker's appraisal of carried items
+    now (`IdentifyWorker.appraise`: their reads and KB results for the keep rules, loot/keep.py TOWN_DECIDES)."""
 
     inventory_key: Callable[[], str | None]
     identify: Callable[[Sequence[Carried]], object]
     judge: Callable[[list[Carried]], list[Carried]]
     view: Callable[[], StashView | None]
     transmute: Callable[[frozenset[int]], tuple[int, int]] | None = None
+    appraise: Callable[[list[int]], object] | None = None
 
 
 @dataclass(frozen=True)
@@ -960,11 +1002,18 @@ def visit(
     view = hands.view()
     stacks = _full_of(view) if view is not None else frozenset(full)
     carried = [*loot(pack, own), *pack.in_cube]
-    # The best copy of a set or unique item is kept (the player, 2026-10-18; copies.py)
-    from inventory_tracking.macros.copies import sold
+    stacked = frozenset(i.unit_id for i in surplus(carried, stacks))  # the full stacks' materials
+    from inventory_tracking.loot import keep as loot_keep
 
-    judged = sold(hands.judge([i for i in carried if i.identified]), visitlog.session_directory())
-    junk = frozenset(i.unit_id for i in (*judged, *surplus(carried, stacks)))
+    if loot_keep.TOWN_DECIDES:  # M6: one decision, the field's keep rules, for every loop item
+        junk = _town_decided(hands, carried) | stacked
+    else:
+        # The best copy of a set or unique item is kept (the player, 2026-10-18; copies.py)
+        from inventory_tracking.macros.copies import sold
+
+        judged = sold(hands.judge([i for i in carried if i.identified]), visitlog.session_directory())
+        junk = frozenset(i.unit_id for i in judged) | stacked
+        junk |= _decided(carried, junk)  # M2: a cheap duplicate set or unique copy too (loot/keep.py DECIDES)
     # The player's items and stat keepers are never junk (engine.py `protected`)
     spared = [(i, why) for i in carried if i.unit_id in junk and (why := protected(run, i))]
     if spared:
@@ -973,7 +1022,7 @@ def visit(
     try:  # the loot design's shadow (loot/design.md §7 M1): the new decisions logged beside these; log only
         from inventory_tracking.loot.shadow import town as shadow
 
-        shadow(carried, junk, frozenset(i.unit_id for i, _why in spared))
+        shadow(carried, junk, frozenset(i.unit_id for i, _why in spared), stacked)
     except Exception as error:  # never into the visit
         LOG.debug('Macro: loot: shadow: town not logged: %s', error)
     LOG.info('Macro: town visit (%s): %d of the loop\'s items, %d identified at Cain, %d junk; full stacks %d',

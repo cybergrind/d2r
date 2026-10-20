@@ -340,7 +340,8 @@ def test_an_unmeasured_bound_demon_strikes_at_the_measured_ones_rate_by_its_dama
     assert round(mark.gain(seen, 1, [744, 189]), 2) == 0.14
 
 
-def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_send():
+def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_send(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
     asked = spider_forest(HULK, PACK)
     assert target(asked) is HULK
     assert worth_a_mark(asked, HULK)  # -0.24 s by the price, marked: "on the leader"
@@ -365,7 +366,8 @@ def test_a_unique_leader_in_reach_is_marked_whatever_the_price_with_a_demon_to_s
     assert target(replace(by_it, foes=(HULK, far), reachable=(HULK, far))) is far
 
 
-def test_a_leader_comes_after_a_herald_and_an_immune_one_and_takes_the_mark_off_plain_monsters():
+def test_a_leader_comes_after_a_herald_and_an_immune_one_and_takes_the_mark_off_plain_monsters(monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
     herald = replace(monster(8, 103, x=5020.0, flags=0x08), tier=3)
     assert target(spider_forest(HULK, herald)) is herald
     assert target(spider_forest(HULK, IMMUNE)) is IMMUNE
@@ -393,7 +395,8 @@ def test_mark_leaders_off_leaves_a_leader_to_the_price(monkeypatch):
     assert (mark_refusal(asked, HULK) or '').endswith('-0.23s')
 
 
-def test_a_leader_the_mark_passes_over_is_said_once_with_why(caplog):
+def test_a_leader_the_mark_passes_over_is_said_once_with_why(caplog, monkeypatch):
+    monkeypatch.setattr(mark, 'MARK_LEADERS', True)  # the rule asked for, off in production until agreed
     # 15:01:12.9-13.8: the unique Fetish 397 (1156325300) in reach a second, killed by one cast: trash by the
     # strike's table (1.85 casts), so never marked, and nothing said
     import logging

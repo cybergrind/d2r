@@ -37,17 +37,22 @@ from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
 from inventory_tracking.game.records import Drop, Loot, Monster, World
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Target, unpack_cells
+from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build, Intent
+from inventory_tracking.macros.cube import tidy
 from inventory_tracking.macros.drinking import Drinker
 from inventory_tracking.macros.drop_ledger import DropLedger
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PLACE_NEAR, WAIT, Goal, boss_ahead
 from inventory_tracking.macros.hunting import choice, judging, moves, sweep
 from inventory_tracking.macros.hunting.base import (
+    AT_ONCE_CLEAR,
+    AT_ONCE_HURT,
+    AT_ONCE_SETTLE,
     BOSS_AHEAD,
     DECIDE_SECONDS,
     FIGHT_SECONDS,
@@ -91,7 +96,7 @@ from inventory_tracking.macros.hunting.base import (
 )
 from inventory_tracking.macros.hunting.throne import Waves
 from inventory_tracking.macros.pickup import Refused
-from inventory_tracking.macros.pursuit import NONE, SETTLE, Move as Advance, Pursuit, Told, settled
+from inventory_tracking.macros.pursuit import LEVEL_LEFT, NONE, SETTLE, Move as Advance, Pursuit, Told, settled
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import ACTING, DEAD, Dead, take_battle_weapons
 from inventory_tracking.macros.runmode import Mode, Taps, tapped
@@ -104,7 +109,7 @@ from inventory_tracking.macros.teleport import HOVER_SECONDS, MOVED, Way, hop_to
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import LOOPED, Point, Step, Tally, Travel, label, life, step_line
 from inventory_tracking.models import PotionType
-from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.native.layout import TILE_UNITS, TOWN_IDS
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
 
@@ -287,6 +292,8 @@ class Hunter:
         # a level run's moves; whether it decided any (the player, 2026-10-20 ~14:28: "we must redesign our routins to
         # actually have space for mid-run identifying big items")
         self.field_now: Callable[[Run], bool] = lambda run: False
+        self.field_area: int | None = None  # the level `field_quiet` last looked in, and the clock it was entered at
+        self.field_entered = -math.inf
 
     def use(self, build: Build) -> None:
         """The build played from now on (runner.py `choosing`). Another build restarts what is kept per build
@@ -365,6 +372,23 @@ class Hunter:
         if player is None:
             return False
         return all(math.dist((player.x, player.y), (m.x, m.y)) > QUIET_UNITS for m in foes)
+
+    def field_quiet(self, run: Run, world: World) -> bool:
+        """Whether the field routine may open the inventory now (loot/api.py `at_once`): not the first look of a level
+        nor within AT_ONCE_SETTLE of the level's arrival (a waypoint, a portal, stairs), not within AT_ONCE_HURT of the
+        character's life going down, and no hostile within AT_ONCE_CLEAR (every hostile read, the untouchable too).
+        At 15:21:38 on 2026-10-20 it opened the inventory 1 s after a waypoint's arrival, hostiles near, and a fight
+        back cancelled it half way (game 6 of 20261020T115501Z-4b07df55)."""
+        player = world.player
+        now = run.clock()
+        if player is None or player.in_town:
+            return False
+        if player.area != self.field_area:
+            self.field_area, self.field_entered = player.area, now  # the level's first look
+            return False
+        if now - self.field_entered < AT_ONCE_SETTLE or now - self.hurt_at < AT_ONCE_HURT:
+            return False
+        return all(math.dist((m.x, m.y), (player.x, player.y)) > AT_ONCE_CLEAR for m in hostiles(world))
 
     def foes(self, world: World, now: float) -> list[Monster]:
         """The hostiles the hunt goes for: `hostiles` without the ones left alone as untouchable."""
@@ -496,6 +520,23 @@ class Hunter:
                 # Not for the runner's own ends (run None), made under its lock
                 self.run_over(reason)
 
+    def left_for_town(self, run: Run, world: World) -> bool:
+        """A level run of a field level whose character stands in a town ends at once (pursuit.py LEVEL_LEFT); whether
+        it did. A run asked in a town (KP_1 there) waits as before. At 17:14:53 on 2026-10-20 the Outer Steppes run's
+        passage walk went back into the Pandemonium Fortress; attack mode waited there ("the character is on the move")
+        until the loop's 45 s still watchdog left the game (rca/2026-10-20/fortress-gate-passage-findings.md)."""
+        player, posted = world.player, self.pursuit
+        if player is None or not player.in_town or posted is None or not posted.leashed:
+            return False
+        if posted.area is None or posted.area in TOWN_IDS:
+            return False
+        LOG.info(
+            "Macro: run: in %s, off the run's level %s: the level run ends at once",
+            display_name(player.area), display_name(posted.area),
+        )  # fmt: skip
+        self.end_run(run, LEVEL_LEFT, posted)
+        return True
+
     def pause_run(self, run: Run, why: str) -> None:
         """The player's hand has the level run: paused, said once; it resumes once the hand rests (`hand`)."""
         posted = self.pursuit
@@ -559,6 +600,8 @@ class Hunter:
             if not world.in_game:
                 # The lobby or the menu: the mode ends, so the macro request there starts the macro at once.
                 raise Abort('attack mode off: the game was left')
+            if world.open_panels and tidy(run, world):
+                continue  # the loop's own panels a cancelled routine left open: closed, not the player's hand
             player = world.player
             self.stands = None if player is None else (player.x, player.y)
             # Only once the character is seen: the runner names the build by that look (`use`).
@@ -575,6 +618,8 @@ class Hunter:
                 self.serve_move(run, world)  # the player's move first: no strike while it is pending
                 self.nap(run, FRAME)
                 continue
+            if self.left_for_town(run, world):
+                continue  # the run is over: the loop's next leg (the town exit again) or the player's mode as before
             why = None if player is None else self.moving(run, world)
             if player is None or world.open_panels or player.in_town or why:
                 if why and run.clock() - waited_at >= WAIT_LOG_SECONDS:
@@ -598,7 +643,7 @@ class Hunter:
                 # A level run keeps the sweep's look for a better place in its fights (combat/stance.py `camp`).
                 self.sweep.start(run.clock())
             between = self.running and not self.advancing(run.clock())
-            if between and self.quiet(world, foes) and self.field_now(run):
+            if between and self.field_quiet(run, world) and self.field_now(run):
                 continue  # a big item identified at once: dropped at the feet or into the cube (loot/api.py)
             if between and self.upkeep(run, world, foes, key_names, renewing=not self.quiet(world, foes)):
                 # Between the run's moves: in the quiet the whole upkeep (run-1932-findings.md issue 3), else only a

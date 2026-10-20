@@ -45,14 +45,15 @@ def test_the_identify_workers_appraisals_are_noted_and_a_bad_row_is_ignored():
 def test_the_goblin_toe_the_visit_kept_is_a_drop_beside_it():
     shadow, said, toe = shadow_with_toe()
 
-    lines = shadow.town([toe], junk=frozenset(), copies=Copies(53, 56))
+    found = shadow.town([toe], junk=frozenset(), copies=Copies(53, 56))
+    lines = [line for line in found if 'town merge:' not in line]  # M6's lines: tests/.../loot/test_town_decides.py
 
     assert lines[0].startswith('Macro: loot: shadow: Goblin Toe (Light Plated Boots): new drop K6 cheap (0.647 Ist)')
     assert '50 vs 53, 56' in lines[0]
     assert lines[0].endswith('/ old keep slow (differ)')
     assert lines[-1] == ('Macro: loot: shadow: town: 1 items, 1 differ (new gives up 1 the old keeps, new keeps 0 '
                          'the old sells)')  # fmt: skip
-    assert said == lines
+    assert said == found
 
 
 def test_an_item_is_said_once_per_decision_and_the_summary_each_visit():
@@ -61,7 +62,7 @@ def test_an_item_is_said_once_per_decision_and_the_summary_each_visit():
     shadow.town([toe], junk=frozenset(), copies=Copies(53, 56))
     again = shadow.town([toe], junk=frozenset(), copies=Copies(53, 56))
 
-    assert len(again) == 1  # the summary only
+    assert len([line for line in again if 'town merge:' not in line]) == 1  # the summary only
     assert 'new keep K6' in said[0]
     assert '(differ)' not in said[0]
 

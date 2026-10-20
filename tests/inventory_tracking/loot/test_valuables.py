@@ -16,7 +16,7 @@ import pytest
 from inventory_tracking.game.kept import PutDown
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.loot import today, value as loot_value
-from inventory_tracking.loot.api import droppable
+from inventory_tracking.loot.api import droppable, town_verdicts
 from inventory_tracking.loot.facts import (
     MAGIC,
     ItemFacts,
@@ -76,7 +76,9 @@ def ground_facts(case: dict[str, Any]) -> ItemFacts:
     count read (R1); white bases with their rolls, enhanced defense included (R2: the ground read takes the ED from
     the +0xD0 chain since 2026-10-20; only knif/shie/ashd are read until M5 widens the types); no rolls when the case
     says unread."""
-    found = replace(facts_of(case['item']), where=Where.GROUND, owner=Owner.UNKNOWN)
+    found = replace(
+        facts_of(case['item']), where=Where.GROUND, owner=Owner.UNKNOWN, marked=case['item'].get('marked', False)
+    )
     if 'ground_rolls' in case:
         return replace(found, rolls=None, sockets=None, ethereal=None, known=None)
     if found.quality >= MAGIC:
@@ -168,6 +170,17 @@ def test_the_field_check_puts_down_only_a_surplus_big_set_or_unique_item(case):
     refused = droppable(facts, value, owned) if decision.action == Action.DROP else 'kept by the decision'
     outcome = 'drop' if refused is None else 'keep'
     assert outcome == case['expect']['field'], f'{case["id"]}: {decision.said()}; {refused} ({case["source"]})'
+
+
+@pytest.mark.parametrize('case', params('town', 'new'))
+def test_the_town_decision_sells_only_what_the_keep_rules_and_the_guards_give_up(case):
+    """M6 (loot/keep.py TOWN_DECIDES; the player, 2026-10-20 16:55: "go ahead with the merge agent"): the town's one
+    decision (loot/api.py `town_verdicts`) on the item with its owned copies."""
+    facts = facts_of(case['item'])
+    owned = owned_of(case)
+    [verdict] = town_verdicts([(facts, value_of(case, facts))], lambda _facts: owned)
+    outcome = 'sell' if verdict.sold else 'keep'
+    assert outcome == case['expect']['town'], f'{case["id"]}: {verdict.said()} ({case["source"]})'
 
 
 def test_every_fixture_names_its_base_by_the_game_datas_code_and_says_its_source():

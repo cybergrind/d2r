@@ -9,11 +9,12 @@ unit is 1/2160 of the window height), checked against a screenshot within 2 pixe
 """
 
 import contextlib
+import time
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import replace
 
 from inventory_tracking.common import LOG
-from inventory_tracking.game.records import Carried, Pack
+from inventory_tracking.game.records import Carried, Pack, World
 from inventory_tracking.items.metadata import item_base
 
 # The pure planning lives in loot/storage.py (loot/design.md §7 M3, 2026-10-20), re-exported here for every importer
@@ -35,7 +36,7 @@ from inventory_tracking.loot.storage import (
     rune_recipe,
 )
 from inventory_tracking.macros.act import until
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
 from inventory_tracking.macros.routines import DEAD
@@ -126,6 +127,8 @@ def cells(item: Carried) -> int:
     return item.size[0] * item.size[1]
 
 
+# Retired when TOWN_DECIDES is on (loot/keep.py, M6, 2026-10-20); delete after the 30-cycle check (the field
+# settle makes the room; running/execution.py no longer calls `drop_for`)
 def droppable(pack: Pack, own: frozenset[tuple[int, int, int]], size: tuple[int, int]) -> Carried | None:
     """The smallest of the loop's unidentified identify candidates (pickmode.py `candidate`) whose cells free a block
     of `size`; None where none does, or the block is free already."""
@@ -205,17 +208,79 @@ def cell_point(
 def close(run: Run, panels: tuple[str, ...]) -> None:
     """Close `panels` the run opened, through a cancel too (actuator.py `closing`): Escape only with one open (with
     nothing open it opens the game's menu instead), never with the character dead (the player: "if we died - we MUST
-    not take ANY other actions")."""
-    world = run.world()
+    not take ANY other actions"). The look before it is made through the cancel as well (`seen_through`): at 15:21:38
+    on 2026-10-20 a fight back cancelled the field identify and this look raised the cancel, no Escape was sent, and
+    the inventory and cube stayed open while the character was hit."""
+    world = seen_through(run)
+    if world is None:
+        LOG.info('Macro: cube: the game could not be read: %s not closed', ', '.join(panels))
+        return
     if not set(panels) & set(world.open_panels):
+        closed(*panels)
         return
     if world.player is not None and world.player.mode in DEAD:
         return
     with run.actuator.closing():
         run.actuator.tap('Escape')
+    closed(*world.open_panels)  # Escape closes every panel
     with contextlib.suppress(Abort):  # a cancelled run's wait: the Escape is sent
         run.seen(lambda w: not set(panels) & set(w.open_panels), PANEL_SECONDS)
     run.actuator.rebase()
+
+
+def seen_through(run: Run) -> World | None:
+    """The game as read now, through the run's cancel (a close in a cancelled run's `finally`); None unreadable."""
+    try:
+        return run.world()
+    except Cancelled:
+        try:
+            return run.read()
+        except OSError, ValueError:
+            return None
+    except Abort:
+        return None
+
+
+# The panels the loop's own routines opened and have not closed (panel -> the clock it was opened at): at 15:21:38 on
+# 2026-10-20 (game 6 of 20261020T115501Z-4b07df55) the inventory and cube a cancelled field identify left open read as
+# the player's hand ("Level run paused: the player's hand (inventory, cube open)") and the character stood 60 s, hit.
+# Older than LEFT_OPEN_SECONDS they are the player's, as any panel the loop did not open
+OPENED: dict[str, float] = {}
+LEFT_OPEN_SECONDS = 30.0
+
+
+def opened(panel: str) -> None:
+    """The loop's own routine opens `panel` (`open_inventory`, the cube's openings)."""
+    OPENED[panel] = time.monotonic()
+
+
+def closed(*panels: str) -> None:
+    for panel in panels:
+        OPENED.pop(panel, None)
+
+
+def left_open(open_panels: Sequence[str], now: float | None = None) -> tuple[str, ...]:
+    """The open panels when every one is the loop's own left open (`OPENED`, within LEFT_OPEN_SECONDS), else (): one
+    the player opened keeps them all the player's hand. No panel open: the memory is cleared."""
+    now = time.monotonic() if now is None else now
+    for panel, at in list(OPENED.items()):
+        if now - at > LEFT_OPEN_SECONDS:
+            OPENED.pop(panel, None)
+    if not open_panels:
+        OPENED.clear()
+        return ()
+    return tuple(open_panels) if all(panel in OPENED for panel in open_panels) else ()
+
+
+def tidy(run: Run, world: World) -> tuple[str, ...]:
+    """Close the panels the loop's routines left open (`left_open`), saying so, so a level run or a fight back goes on
+    (the player's own panels still pause it: actuator.py `Hand`, hunt.py `hand`); which were closed."""
+    left = left_open(world.open_panels)
+    if not left:
+        return ()
+    LOG.info('Macro: loop: panels the loop opened were left open (%s): closed', ', '.join(left))
+    close(run, left)
+    return left
 
 
 def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) -> int:
@@ -254,6 +319,7 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
         open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
+        opened('cube')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
             raise Abort('the cube did not open')
         run.actuator.rebase()
@@ -289,6 +355,7 @@ def stash_only(
 def open_inventory(run: Run, inventory_key: str) -> None:
     """Open the inventory; its key is tapped only when closed (a tap on an open one closes it)."""
     if 'inventory' not in run.world().open_panels:
+        opened('inventory')
         run.actuator.tap(inventory_key)
         if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
             raise Abort('the inventory did not open')
@@ -309,6 +376,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
         open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
+        opened('cube')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
             raise Abort('the cube did not open')
         run.actuator.rebase()
@@ -355,6 +423,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
         open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
+        opened('cube')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
             raise Abort('the cube did not open')
         run.actuator.rebase()

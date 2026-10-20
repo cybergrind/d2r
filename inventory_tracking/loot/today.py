@@ -16,7 +16,7 @@ from collections.abc import Sequence
 from inventory_tracking.game.layout import MAGIC_ROLLED_TYPES, ROLLED_QUALITIES, ROLLED_TYPES, WHITE_QUALITIES
 from inventory_tracking.game.records import NAMED, VALUABLE, Carried, Drop, Rolls, prized
 from inventory_tracking.loot.facts import MAGIC, SET, UNIQUE, ItemFacts, Owner
-from inventory_tracking.loot.ground_judge import GroundVerdict, Then
+from inventory_tracking.loot.ground_judge import GroundVerdict, Then, material
 from inventory_tracking.loot.keep import GEMS, RUNES, Action, Decision
 from inventory_tracking.loot.value import Value
 from inventory_tracking.macros.copies import Appraisal, keep_copy
@@ -69,7 +69,7 @@ def drop(facts: ItemFacts) -> Drop:
     source = (
         NAMED if facts.quality in (SET, UNIQUE)
         else 'rune' if kind in RUNES
-        else 'material' if kind in GEMS
+        else 'material' if kind in GEMS or material(facts.code) is not None  # the look's material marks
         else 'shown'
     )  # fmt: skip
     rolls = None

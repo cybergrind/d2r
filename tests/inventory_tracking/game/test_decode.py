@@ -145,6 +145,20 @@ def test_a_bows_skill_tab_automod_is_read_from_its_totals():
     assert rolls(found) == ' 4os +3 Bow and Crossbow Skills 12% ED'
 
 
+POSSESSED_GRIMOIRE = 517  # waa (items/data/item_metadata.json, itemtypes `grim`)
+
+
+def test_a_white_grimoires_sockets_are_read_off_the_ground():
+    # The player, 2026-10-20 ~17:30: "add grimoires to the ground read" (a socketed Possessed Grimoire was shown, its
+    # socket count unread); a magic one still holds nothing to judge (R1)
+    item = Item([(0, 194, 2)])
+    item.chain()
+    book = Drop(UNIT, 0.0, 0.0, 'Possessed Grimoire', VALUABLE, (2, 2), source='shown', txt=POSSESSED_GRIMOIRE,
+                quality=2)  # fmt: skip
+    assert rolled(item.memory.read, book, item.unit()).rolls == Rolls(2)
+    assert rolled(item.memory.read, replace(book, quality=4), item.unit()).rolls is None
+
+
 def test_a_magic_body_armor_is_not_read_its_ground_holds_nothing_to_judge():
     # R1: an unidentified magic item holds no socket count and no affix; the old types are still read for magic
     item = Item([(0, 194, 0)])

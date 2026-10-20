@@ -660,7 +660,9 @@ ROWS: list[dict[str, Any]] = [
         'any': [
             at_least('105:0', 1),
             at_least('7:0', 1, LIFE),
-            at_least(['127:0', '83:0', '83:1', '83:2', '83:3', '83:4', '83:5', '83:6', '83:7'], 2),
+            # +2 all, class or tree skills: macros/keepers.py `amulet_keeper` counts the skill tree's 188 too (M6,
+            # 2026-10-20: this row keeps what it keeps once the town decides by the keep rules)
+            at_least(['127:0', *CLASS_SKILLS, *SKILL_TREES], 2),
         ],
         'always_keep': True,
         'source': 'inventory_tracking/macros/keepers.py:3',

@@ -50,6 +50,8 @@ class Appraisal:
     observation: Observation | None = None
 
 
+# Retired when TOWN_DECIDES is on (loot/keep.py, M6, 2026-10-20); delete after the 30-cycle check (loot/api.py
+# `town_verdicts` keeps the first and the best copy). Until then the visit's old chain and loot/today.py use it
 def keep_copy(item: Carried, appraisal: Appraisal, owned: Sequence[Observation] | None) -> str | None:
     """Why the set or unique `vendor` item is kept; None when an owned copy (`owned`; None: cannot be told) rolls at
     least as well, or for any other item or verdict (the verdict decides)."""
@@ -134,6 +136,8 @@ def title(item: Carried, observation: Observation | None) -> str:
     return f'{read["name"]} ({read["base_name"]})' if read.get('base_name') else read['name']
 
 
+# Retired when TOWN_DECIDES is on (loot/keep.py, M6, 2026-10-20); delete after the 30-cycle check. Until then the
+# visit's old chain uses it
 def sold(
     junk: Sequence[Carried],
     directory: Path | None,

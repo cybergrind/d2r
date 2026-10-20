@@ -88,10 +88,71 @@ INWARD_LIMIT = 200.0  # tiles: no room is that long
 EDGE_SNAP = 24.0  # tiles (three rooms): how far along the level's edge a border mark goes to its open tile
 
 
+# Axis directions in tiles: east, south, west, north
+SIDES = ((1, 0), (0, 1), (-1, 0), (0, -1))
+
+
+def covered(rooms: tuple[Room, ...]) -> frozenset[tuple[int, int]]:
+    """The tiles the level's rooms cover."""
+    return frozenset(
+        (x, y)
+        for room in rooms
+        for x in range(room.x, room.x + room.width)
+        for y in range(room.y, room.y + room.height)
+    )
+
+
+def open_on(tiles: frozenset[tuple[int, int]], room: Room, side: tuple[int, int]) -> bool:
+    """Whether most of the tiles just past `room`'s `side` lie in none of the level's rooms (`tiles`)."""
+    dx, dy = side
+    if dx:
+        x = room.x + room.width if dx > 0 else room.x - 1
+        beyond = [(x, room.y + i) for i in range(room.height)]
+    else:
+        y = room.y + room.height if dy > 0 else room.y - 1
+        beyond = [(room.x + i, y) for i in range(room.width)]
+    return 2 * sum(cell not in tiles for cell in beyond) > len(beyond)
+
+
+def box_gap(one: Room, other: Room) -> float:
+    """Tiles between two rooms' boxes (0 when they touch or overlap)."""
+    dx = max(other.x - (one.x + one.width), one.x - (other.x + other.width), 0)
+    dy = max(other.y - (one.y + one.height), one.y - (other.y + other.height), 0)
+    return math.hypot(dx, dy)
+
+
+def foreign(rooms: tuple[Room, ...], to: int) -> list[Room]:
+    """The rooms touching another level and not `to`: the edge of that level (a town's gate), not `to`'s."""
+    return [room for room in rooms if room.leads_to and to not in room.leads_to]
+
+
+@lru_cache(maxsize=16)
+def facing(rooms: tuple[Room, ...], to: int) -> tuple[int, int] | None:
+    """The side the level's rooms touching `to` are open on (no room of the level past them) the most, less the times
+    the rooms near them touching other levels are open on it; None: no side wins alone (a tie, as the Cathedral's
+    chunked preset into the Inner Cloister, take 20261017T210206Z-33, open east and west once each), or none is open.
+    Outer Steppes into the Plains of Despair, 17:14:53 on 2026-10-20 (take 20261020T141450Z-104): the Plains south of
+    three rooms beside the Fortress gate; the rooms' middles lay 27.9 west and 27.3 south of each other, the west won
+    by 0.6 tiles, and the run walked back into the town (rca/2026-10-20/fortress-gate-passage-findings.md)."""
+    edge = [room for room in rooms if to in room.leads_to]
+    if not edge:
+        return None
+    tiles = covered(rooms)
+    near = [room for room in foreign(rooms, to) if min(box_gap(room, each) for each in edge) <= EDGE_SNAP]
+    score = {
+        side: sum(open_on(tiles, room, side) for room in edge) - sum(open_on(tiles, room, side) for room in near)
+        for side in SIDES
+    }
+    best = max(score.values())
+    winners = [side for side, points in score.items() if points == best]
+    return winners[0] if best > 0 and len(winners) == 1 else None
+
+
 def outward(rooms: tuple[Room, ...], to: int, mark: tuple[float, float] | None = None) -> tuple[int, int] | None:
-    """The axis direction from the middle of the level's rooms to the middle of those touching `to`, or to `mark`
-    while no room is known to touch it (a handler's mark: Upper Kurast's Kurast Causeway, 2026-10-20 01:36:23, was
-    taken for a door and 'going through takes a press' looped until the game was left); None with neither."""
+    """The side the level's rooms touching `to` are open on (`facing`); with no such side, the axis direction
+    from the middle of the level's rooms to the middle of those touching `to`, or to `mark` while no room is known to
+    touch it (a handler's mark: Upper Kurast's Kurast Causeway, 2026-10-20 01:36:23, was taken for a door and 'going
+    through takes a press' looped until the game was left); None with neither."""
 
     def middle(found: list[Room] | tuple[Room, ...]) -> tuple[float, float]:
         return (
@@ -110,6 +171,9 @@ def outward(rooms: tuple[Room, ...], to: int, mark: tuple[float, float] | None =
     dx, dy = ex - lx, ey - ly
     if not edge and dx == dy == 0:
         return None  # a mark at the middle has no side
+    side = facing(rooms, to)
+    if side is not None:
+        return side
     if abs(dx) >= abs(dy):
         return (1 if dx > 0 else -1, 0)
     return (0, 1 if dy > 0 else -1)
@@ -132,11 +196,17 @@ def footed(ground: Ground, tile: tuple[int, int]) -> bool:
 
 @lru_cache(maxsize=16)
 def open_edge(
-    rooms: tuple[Room, ...], grids: tuple[Walkable, ...], mark: tuple[float, float], way: tuple[int, int]
+    rooms: tuple[Room, ...],
+    grids: tuple[Walkable, ...],
+    mark: tuple[float, float],
+    way: tuple[int, int],
+    to: int | None = None,
 ) -> tuple[float, float] | None:
     """The centre of the tile nearest `mark` within EDGE_SNAP that lies on the rooms' edge facing `way` (the tile
-    beyond it in no room) and has footing by `grids`; None: none read there."""
+    beyond it in no room) and has footing by `grids`, never in a room touching another level and not `to` (the
+    Fortress gate's room, 17:14:53 on 2026-10-20: `facing`); None: none read there."""
     ground = Ground(grids)
+    barred = covered(tuple(foreign(rooms, to))) if to is not None else frozenset()
 
     def gap(room: Room) -> float:
         nearest = (min(max(mark[0], room.x), room.x + room.width), min(max(mark[1], room.y), room.y + room.height))
@@ -153,6 +223,7 @@ def open_edge(
         (math.dist(mark, (x + 0.5, y + 0.5)), (x, y))
         for x, y in tiles
         if (x + way[0], y + way[1]) not in tiles
+        and (x, y) not in barred
         and math.dist(mark, (x + 0.5, y + 0.5)) <= EDGE_SNAP
         and footed(ground, (x, y))
     ]
@@ -191,7 +262,7 @@ def through(
         # A border mark sits at a touching room's centre, which may be cliff: straight out from it no hop lands
         # (Lost City to Valley of Snakes, 2026-10-20 01:01-01:17, five games: the mark in room 379 'Desert Cliff Left
         # Ends', the canyon 21 tiles west; rca/2026-10-20/valley-of-snakes-findings.md)
-        mark = open_edge(rooms, tuple(grids), mark, way) or mark
+        mark = open_edge(rooms, tuple(grids), mark, way, to) or mark
     x, y, walked = *mark, 0.0
     while in_rooms(rooms, (x, y)) and walked < INWARD_LIMIT:
         x, y, walked = x + way[0] * INWARD_STEP, y + way[1] * INWARD_STEP, walked + INWARD_STEP

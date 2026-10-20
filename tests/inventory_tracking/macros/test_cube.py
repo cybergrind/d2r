@@ -499,3 +499,55 @@ def test_a_dead_character_gets_no_escape():
     play.world = replace(play.world, player=replace(play.world.player, mode=17))
     close(play.run(), ('inventory',))
     assert play.pressed() == []
+
+
+def runner_cancelled(play: Game):
+    """A run whose cancel is the runner's, shared by the run and its actuator as execution.py binds them; the first
+    click of the routine sets it (a fight back's cancel, 15:21:38 on 2026-10-20)."""
+    run = play.run()
+    run.actuator.cancelled = run.cancelled
+    clicked = run.actuator.click
+
+    def cancelled(*names: str) -> None:
+        run.cancelled.set()
+        clicked(*names)
+
+    run.actuator.click = cancelled  # type: ignore[method-assign]
+    return run
+
+
+def test_a_run_the_runner_cancels_inside_the_cube_still_closes_its_panels():
+    # 15:21:38 on 2026-10-20 (game 6 of 20261020T115501Z-4b07df55): the field identify's routine cancelled by a fight
+    # back; `close` looked at the game through `run.world`, which raised the cancel, and no Escape was sent
+    from inventory_tracking.macros.actuator import Cancelled
+
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM, RUNE), EMPTY_CUBE))
+    run = runner_cancelled(play)
+    with pytest.raises(Cancelled):
+        stash(run, 'i', OWN)
+    assert play.world.open_panels == ()
+
+
+def test_the_loops_own_panels_left_open_are_closed_and_said_and_the_players_are_not(caplog, monkeypatch):
+    from dataclasses import replace
+
+    from inventory_tracking.macros import cube as cube_module
+    from inventory_tracking.macros.cube import left_open, tidy
+
+    monkeypatch.setattr(cube_module, 'OPENED', {})
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY), EMPTY_CUBE))
+    play.world = replace(play.world, open_panels=('inventory', 'cube'))
+    run = play.run()
+    assert tidy(run, play.world) == ()  # the player's: untouched (their hand pauses the run)
+    assert play.world.open_panels == ('inventory', 'cube')
+
+    cube_module.opened('inventory')
+    assert left_open(('inventory', 'cube')) == ()  # the cube is the player's: all stay the player's hand
+    cube_module.opened('cube')
+    with caplog.at_level('INFO'):
+        assert tidy(run, play.world) == ('inventory', 'cube')
+    assert play.world.open_panels == ()
+    assert 'Macro: loop: panels the loop opened were left open (inventory, cube): closed' in caplog.text
+    assert cube_module.OPENED == {}
+    cube_module.opened('inventory')
+    assert left_open(('inventory',), now=1e12) == ()  # older than LEFT_OPEN_SECONDS: the player's

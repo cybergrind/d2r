@@ -9,6 +9,12 @@ junk) calls `town`, and the ground look (macros/pickmode.py `kept`) calls `groun
     Macro: loot: shadow: town: 9 items, 1 differ (new gives up 1 the old keeps, new keeps 0 the old sells)
     Macro: loot: shadow: ground: magic Monarch: new pick G6 identify / old leave (differ)
 
+While the town's one decision is off (loot/keep.py TOWN_DECIDES, M6), the town hook also logs what it would sell,
+one line per item where it differs from the visit's sale, and a summary per visit:
+
+    Macro: loot: shadow: town merge: magic Sash: would sell: K8 worthless (...), no want / old keep (differ)
+    Macro: loot: shadow: town merge: 9 items, would sell 2, 1 differ (sells 1 the old keeps, keeps 0 the old sells)
+
 The values come from the identify worker's KB results, noted here as the worker makes them (`note`, called by
 identify/service.py; the same process). Owned copies are read from the collection (value.py `CollectionCopies`,
 read-only). Nothing here changes what the loop picks, sells, drops or stashes, and nothing raises into the visit or
@@ -104,16 +110,54 @@ class Shadow:
         junk: frozenset[int],
         spared: frozenset[int] = frozenset(),
         copies: OwnedCopies | None = None,
+        stacked: frozenset[int] = frozenset(),
     ) -> list[str]:
         """The new decisions on the loop's carried items (`carried`: inventory and cube) beside the visit's
-        (`junk`: the unit ids it sells; `spared`: the player's by its stats). Returns the lines logged."""
+        (`junk`: the unit ids it sells; `spared`: the player's by its stats; `stacked`: the full stacks' materials,
+        sold by both). Returns the lines logged."""
         if not keep.SHADOW:
             return []
+        copies = copies or CollectionCopies()
         try:
-            return self._town(carried, junk, spared, copies or CollectionCopies())
+            lines = self._town(carried, junk, spared, copies)
         except Exception as error:  # never into the visit
             self._failed('town', error)
             return []
+        if keep.TOWN_DECIDES:
+            return lines  # the visit's sale is the merged decision itself
+        try:
+            return [*lines, *self._merge(carried, junk, spared, copies, stacked)]
+        except Exception as error:  # never into the visit
+            self._failed('town merge', error)
+            return lines
+
+    def _merge(self, carried: Sequence[Carried], junk: frozenset[int], spared: frozenset[int], copies: OwnedCopies,
+               stacked: frozenset[int]) -> list[str]:  # fmt: skip
+        """M6's town decision (loot/api.py `town_verdicts`) beside the visit's sale: a line per item that differs."""
+        from inventory_tracking.loot.api import town_verdicts  # the api imports this module
+
+        items = []
+        for item in carried:
+            entry = self.book.get(item.unit_id)
+            owner = Owner.PLAYER if item.unit_id in spared else Owner.LOOP
+            facts = from_carried(item, owner=owner, observation=entry.observation if entry is not None else None)
+            items.append((facts, appraise_result(facts, entry.result, entry.verdict) if entry is not None else None))
+        lines, selling, sells, keeps = [], 0, 0, 0
+        for verdict in town_verdicts(items, copies.copies):
+            unit = verdict.facts.unit_id
+            sold, old = verdict.sold or unit in stacked - spared, unit in junk
+            selling += sold
+            if sold == old:
+                continue
+            sells, keeps = sells + sold, keeps + (not sold)
+            line = (f'{PREFIX} town merge: {verdict.facts.title()}: would {verdict.said()} / old '
+                    f'{"sell" if old else "keep"} (differ)')  # fmt: skip
+            lines.append(line)
+            self.log('%s', line)
+        summary = (f'{PREFIX} town merge: {len(items)} items, would sell {selling}, {sells + keeps} differ (sells '
+                   f'{sells} the old keeps, keeps {keeps} the old sells)')  # fmt: skip
+        self.log('%s', summary)
+        return [*lines, summary]
 
     def _town(self, carried: Sequence[Carried], junk: frozenset[int], spared: frozenset[int],
               copies: OwnedCopies) -> list[str]:  # fmt: skip
@@ -186,9 +230,14 @@ class Shadow:
 SHADOW = Shadow()
 
 
-def town(carried: Sequence[Carried], junk: frozenset[int], spared: frozenset[int] = frozenset()) -> list[str]:
+def town(
+    carried: Sequence[Carried],
+    junk: frozenset[int],
+    spared: frozenset[int] = frozenset(),
+    stacked: frozenset[int] = frozenset(),
+) -> list[str]:
     """The town visit's hook (macros/visit.py `visit`): `Shadow.town` on the service's shadow."""
-    return SHADOW.town(carried, junk, spared)
+    return SHADOW.town(carried, junk, spared, stacked=stacked)
 
 
 def ground(loot: Loot, taken: Callable[[Drop], bool]) -> list[str]:

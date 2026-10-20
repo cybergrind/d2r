@@ -11,6 +11,7 @@ from inventory_tracking.levels.exits import (
     TOWN_WAYS_OUT,
     border_exits,
     guide_level,
+    open_edge,
     passage_of,
     poi_area,
     through,
@@ -266,3 +267,42 @@ def test_the_open_edge_is_an_outer_tile_with_footing_within_edge_snap_of_the_mar
     bridge = (Room(856, 1548, 1120, 8, 8), Room(856, 1556, 1120, 8, 8), Room(856, 1564, 1120, 8, 8))
     floors = tuple(Walkable(room.x, room.y, 8, 8, floor) for room in bridge)
     assert through(bridge, (1560.0, 1119.5), 108, floors) == (1560.0, 1120.0 - PASSAGE_PAST)
+
+
+# Outer Steppes into the Plains of Despair, 17:14:53 on 2026-10-20 (take 20261020T141450Z-104;
+# rca/2026-10-20/fortress-gate-passage-findings.md): the Plains touch the three rooms south of the Fortress gate, the
+# westmost of them the gate's too. The rooms' middles lay 27.9 west and 27.3 south of each other: the axis rule said
+# west, the open edge snapped to the gate's tile, and the far place (5153.8, 5087.5) was in the town.
+PLAINS_OF_DESPAIR, OUTER_STEPPES, FORTRESS_EDGE = 105, 104, 1032
+
+
+def fortress_gate() -> tuple[tuple[Room, ...], tuple[Walkable, ...]]:
+    data = json.loads((FIXTURES / 'outer_steppes_fortress_gate.json').read_text())
+    return tuple(Room.from_row(row) for row in data['rooms']), tuple(Walkable(*grid) for grid in data['ground'])
+
+
+def test_a_border_beside_the_town_gate_is_crossed_on_its_own_side_never_into_the_town():
+    rooms, grids = fortress_gate()
+    poi = next(poi for poi in border_exits(snapshot_of(OUTER_STEPPES, *rooms)) if poi.area == PLAINS_OF_DESPAIR)
+    mark = (poi.room.x + poi.room.width / 2, poi.room.y + poi.room.height / 2)
+    far = passage_of(OUTER_STEPPES, rooms, poi, mark, grids)
+    assert far is not None
+    assert far[0] >= FORTRESS_EDGE  # not west of the level's edge with the Fortress
+    assert far[1] == 1032.0 + PASSAGE_PAST  # south, past the rooms touching the Plains (as the games at 14:07, 14:08)
+    edge = [room for room in rooms if PLAINS_OF_DESPAIR in room.leads_to]
+    assert any(room.x <= far[0] < room.x + room.width for room in edge)
+    # The gate's tile, the one open edge tile west, is in a room touching the town only: never snapped to for the Plains
+    assert open_edge(rooms, grids, mark, (-1, 0)) == (1032.5, 1017.5)
+    assert open_edge(rooms, grids, mark, (-1, 0), PLAINS_OF_DESPAIR) is None
+
+
+def test_a_tie_of_open_sides_keeps_the_axis_rule():
+    """The Cathedral's one preset in chunks (take 20261017T210206Z-33): its row touching the Inner Cloister is open east
+    and west once each, the strip south of it a chunk of its own; the axis rule's south stays."""
+    block = (3996, 966, 28, 34)
+    rooms = tuple(
+        Room(257, x, y, 4 if x == 4020 else 8, 2 if y == 998 else 8, 0, block, (32,) if y == 990 else ())
+        for y in (966, 974, 982, 990, 998)
+        for x in (3996, 4004, 4012, 4020)
+    )
+    assert through(rooms, (4008.0, 994.0), 32) == (4008.0, 1000.0 + PASSAGE_PAST)

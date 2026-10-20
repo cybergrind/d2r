@@ -1234,3 +1234,70 @@ def test_parking_is_off_with_its_switch_or_the_loop(looped, monkeypatch):
     monkeypatch.setattr(api, 'FIELD_AT_ONCE', False)
     assert not looped.park(ruby, (GAME, 7))
     assert not looped.park(drop_of(201, RING, MAGIC, size=(1, 1)), (GAME, 7))
+
+
+# M2, the town side of the keep rules (keep.DECIDES; the player, 2026-10-20 ~15:05, answering: "Sell cheap
+# duplicates"): a set or unique copy under 1 Ist, not better than an owned one, is sold at the visit, not stashed (the
+# Reaper's Toll of 14:41:42: shadow "new drop K6 cheap (0.653 Ist), not better than the 1 owned / old keep slow").
+
+
+class Owned:
+    def __init__(self, found: list[ItemFacts] | None) -> None:
+        self.found = found
+
+    def copies(self, facts: ItemFacts) -> list[ItemFacts] | None:
+        return self.found
+
+
+def town_book(*entries: tuple[int, Appraised]):
+    from inventory_tracking.loot.shadow import Book
+
+    book = Book()
+    for unit, entry in entries:
+        book.put(unit, entry)
+    return book
+
+
+@pytest.mark.parametrize(
+    ('why', 'damage', 'worth', 'verdict', 'owned', 'sold'),
+    [
+        ('a surplus copy, not better, cheap: sold', 190, 0.653, 'slow', (205,), True),
+        ('equal and cheap: sold', 205, 0.653, 'vendor', (205,), True),
+        ('the first copy: kept', 190, 0.653, 'slow', (), False),
+        ('better than every owned copy: kept', 219, 0.8, 'slow', (200,), False),
+        ('1 Ist or more by its rolls: kept', 190, 1.4, 'sell', (205,), False),
+        ('no price by its rolls: kept (Q13)', 190, None, 'vendor', (205,), False),
+    ],
+)
+def test_m2_sells_a_cheap_duplicate_set_or_unique_copy_that_is_not_better(why, damage, worth, verdict, owned, sold):
+    club_ = club(30, identified=True)
+    book = town_book((30, stump_read(30, damage, worth, verdict)))
+    found = api.sold_copies([club_], frozenset(), frozenset(), book, Owned(stumps(*owned)))
+    assert (30 in found) == sold, why
+    if sold:
+        assert 'a surplus copy, not better, cheap' in found[30][1], found
+
+
+def test_m2_never_sells_the_players_a_charm_an_unidentified_or_unread_copy_or_what_today_sells_already():
+    owned = Owned(stumps(205))
+    cheap = stump_read(30, 190, 0.653)
+    charm = Carried(31, GRAND_CHARM, 4, 0, (1, 3), UNIQUE, True)
+    book = town_book((30, cheap), (31, cheap), (32, cheap), (33, cheap))
+    carried = [club(30, identified=True), charm, club(32), club(33, x=4, identified=True)]
+    assert api.sold_copies(carried, frozenset(), frozenset((30,)), book, owned) == {
+        33: api.sold_copies([carried[3]], frozenset(), frozenset(), book, owned)[33]
+    }  # 30 the player's by its stats, 31 a unique charm, 32 unidentified: only 33
+    assert api.sold_copies(carried[3:], frozenset((33,)), frozenset(), book, owned) == {}  # sold by today's rules
+    assert api.sold_copies(carried[3:], frozenset(), frozenset(), town_book(), owned) == {}  # no read: kept (S8)
+    assert api.sold_copies(carried[3:], frozenset(), frozenset(), book, Owned(None)) == {}  # copies unknown: kept
+
+
+def test_an_empty_cube_with_no_grid_in_memory_takes_the_stash_bound_items():
+    """16:52 on 2026-10-20: after each town visit emptied the cube, "no room in the cube": an empty cube has no grid
+    in memory (Pack.cube None), read as empty when the cube is carried (storage.py `roomed`)."""
+    from inventory_tracking.loot.storage import CUBE_CLASS
+
+    cube = Carried(2, CUBE_CLASS, 7, 2, (2, 2))
+    rune = Carried(5, 640, 0, 0, (1, 1))
+    assert api.cube_fits(Pack((cube, rune)), [rune]) == [rune]
+    assert api.cube_fits(Pack((rune,)), [rune]) == []  # no cube carried: nothing goes

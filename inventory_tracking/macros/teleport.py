@@ -1042,11 +1042,19 @@ def ready(run: Run) -> tuple[Player, tuple[int, int, int, int]]:
     return world.player, rect
 
 
+def _tidied(run: Run, world: World) -> bool:
+    from inventory_tracking.macros.cube import tidy  # cube.py imports the step's helpers
+
+    return bool(tidy(run, world))
+
+
 def ready_world(run: Run) -> tuple[World, tuple[int, int, int, int]]:
     """`ready` with the world it read (one read: its doors, its monsters), the player in it."""
     world = run.world()
     if world.player is None:
         raise Abort('not in a game')
+    if world.open_panels and _tidied(run, world):
+        world = run.world()  # the loop's own panels left open by a cancelled routine: closed (cube.py `tidy`)
     if world.open_panels:
         raise Abort(f'{world.open_panels[0]} is open')
     rect = run.actuator.keys.focused_window_rect()

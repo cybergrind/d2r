@@ -3,27 +3,44 @@
 `judge(facts)` answers a `GroundVerdict`: picked or left, a must-have (the loop does not leave the game with it) or
 not, and `then`: KEEP (its ground facts decide) or IDENTIFY (its value needs the identified read). The classes:
 
-- G1 sure valuables: runes, gems, charms, jewels (today's GOOD pickup)
+- G1 sure valuables: runes, gems, charms, jewels, and the materials the loot marks name (loot/materials.py: Worldstone
+  Shards, statues, Uber keys, essences, Wirt's Leg; one Wirt's Leg carried at a time, CARRY_ONE) (today's GOOD pickup)
 - G2 uniques and sets: always, identified then judged (K3-K6)
 - G3-G13 the wants rows with ground conditions or an identify class (loot/data/wants.json): merc eth polearms and
   armor, white Monarchs, magic Monarchs, Paladin shields, Void daggers, Warlock class items, circlets, jewelry, blues
 
-A wanted base whose rolls were not read is left ("unread bases filled the stash", 2026-10-17). Low quality is
-always left. M1: only the shadow log reads it (loot/shadow.py). M5 (`BASES`, `base_verdict`): the live pickup
-(macros/pickmode.py `ground_base`) takes the white and superior bases of BASE_CLASSES this judge picks, and no other.
+Whatever else the loot marks point at (`Drop.prized`: a unique whose label the look read before its quality, as
+pickmode.py `sure` takes it) is picked last, a must-have (2026-10-20: the shadow's only leaves `sure` picked were
+the shards, Wirt's Leg and an unread unique Sharkskin Boots, Waterwalk). A wanted base whose rolls were not read is
+left ("unread bases filled the stash", 2026-10-17). Low quality is always left. M1: only the shadow log reads it
+(loot/shadow.py). M5 (`BASES`, `base_verdict`): the live pickup (macros/pickmode.py `ground_base`) takes the white and
+superior bases of BASE_CLASSES this judge picks, and no other (the marks' catch-all is not in `base_verdict`).
 """
 
+import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from inventory_tracking.loot.facts import LOW, NORMAL, SET, SUPERIOR, UNIQUE, ItemFacts
+from inventory_tracking.loot.facts import LOW, NORMAL, QUALITY_NAMES, SET, SUPERIOR, UNIQUE, ItemFacts
 from inventory_tracking.loot.keep import CHARMS, GEMS, JEWELS, RUNES, SUNDER
+from inventory_tracking.loot.materials import CARRY_ONE, GROUPS
 from inventory_tracking.loot.value import Value
 from inventory_tracking.loot.wants import Want, wants
 
 
-__all__ = ['BASES', 'BASE_CLASSES', 'LEFT_ROWS', 'GroundVerdict', 'OwnedCount', 'Then', 'base_verdict', 'judge']
+__all__ = [
+    'BASES',
+    'BASE_CLASSES',
+    'LEFT_ROWS',
+    'MATERIAL_GROUPS',
+    'GroundVerdict',
+    'OwnedCount',
+    'Then',
+    'base_verdict',
+    'judge',
+    'material',
+]
 
 # M5 on (loot/design.md §7; the player, 2026-10-20 ~11:55: "bases or blue/rare items might take much place (like
 # spears, matron bow) -- we want to check them and drop in the middle of the run", ~12:00 "start all three"; earlier
@@ -43,6 +60,16 @@ LEFT_ROWS: frozenset[str] = frozenset()
 # count); None: not counted, and the cap does not hold (S8)
 OwnedCount = Callable[[ItemFacts], int | None]
 WHITE_QUALITIES = frozenset((NORMAL, SUPERIOR))
+# The material groups of loot/materials.py picked by their items.txt codes (config.py `material_marks`; gems and charms
+# are G1 by their types): Worldstone Shards xa1-xa5 (third-parties/d2data/json/misc.json:12513), statues ua1-ua5, Uber
+# keys pk1-pk3, essences, Wirt's Leg (weapons.json:20402 `leg`, carried one at a time: CARRY_ONE)
+MATERIAL_GROUPS = ('shards', 'statues', 'keys', 'essences', 'leg')
+CARRIED_ONE = frozenset(CARRY_ONE)
+
+
+def material(code: str) -> str | None:
+    """The material group of an items.txt code (loot/materials.py GROUPS), None for any other item."""
+    return next((group for group in MATERIAL_GROUPS if re.fullmatch(GROUPS[group], code)), None)
 
 
 class Then(StrEnum):
@@ -89,9 +116,11 @@ def judge(
     value: Value | None = None,
     rows: Sequence[Want] | None = None,
     owned: OwnedCount | None = None,
+    had: frozenset[int] = frozenset(),
 ) -> GroundVerdict:
     """The ground verdict on `facts` (the module text); `value` (an appraisal before the pickup) is unused in M1;
-    `owned` counts the owned copies for a row with `keep_up_to` (None: no count, the cap does not hold)."""
+    `owned` counts the owned copies for a row with `keep_up_to` (None: no count, the cap does not hold); `had` the
+    carry-one classes held already (game/memory.py `had_already`, which also keeps such a drop out of the look)."""
     del value
     if facts.quality == LOW:
         return _left('low quality')
@@ -101,6 +130,10 @@ def judge(
     if kind in CHARMS | JEWELS:
         named = facts.quality in (SET, UNIQUE)
         return GroundVerdict(True, facts.marked or named, _then(facts), 'G1', 'a charm or jewel')
+    if (group := material(facts.code)) is not None:
+        if group in CARRIED_ONE and facts.txt in had:
+            return _left('one is had already: the game takes no second')
+        return GroundVerdict(True, facts.marked, Then.KEEP, 'G1', f'a material ({group})')
     if facts.quality in (SET, UNIQUE):
         return GroundVerdict(True, True, _then(facts), 'G2', 'a unique or set item')
     unread, picked, full = False, [], None
@@ -114,6 +147,10 @@ def judge(
             full = f'{count} owned, {row.keep_up_to} kept at most: {row.label}'
         elif took:
             picked.append(row)
+    if not picked and rows is None and facts.marked and not unread and full is None:
+        # what the loot marks point at (the look's `prized`): a unique by its label, its quality not read yet
+        klass = 'G2' if facts.quality not in QUALITY_NAMES else 'G1'
+        return GroundVerdict(True, True, _then(facts), klass, 'the loot marks point at it')
     if not picked:
         return _left('its rolls are not read' if unread else full or 'no class takes it')
     best = max(picked, key=lambda row: (row.always_keep, row.must_have, bool(row.ground)))
