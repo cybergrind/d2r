@@ -7,21 +7,46 @@ from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import GameMemory
-from inventory_tracking.game.records import Pack
+from inventory_tracking.game.records import Loot, Pack
 from inventory_tracking.macros.actuator import Abort, Cause, Hand
 from inventory_tracking.macros.agenda import SWAP_GOALS
+from inventory_tracking.macros.bossledger import Boss, game_key, said, stop_line
 from inventory_tracking.macros.charms import gheeds
 from inventory_tracking.macros.hunting.base import SIGHT, hostiles
 from inventory_tracking.macros.loop import CHOOSE, PICK
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.routines import Dead
+from inventory_tracking.macros.safety import return_refused
 from inventory_tracking.macros.stops import Beset, Remedy, Stopped, decide, first, low_life
-from inventory_tracking.macros.tzloop import gheeds_swap as tz_gheeds_swap, trip as tz_trip
+from inventory_tracking.macros.tzloop import (
+    bosses_alive as tz_bosses_alive,
+    danger_trip as tz_danger_trip,
+    gheeds_swap as tz_gheeds_swap,
+    trip as tz_trip,
+)
 from inventory_tracking.native.memory import one_unit_table
 
 
 if TYPE_CHECKING:
     from inventory_tracking.macros.runner import MacroRunner
+
+
+# The coordinator's rulings of 2026-10-22, the player's words: "we need to kill all bosses, no exceptions to that";
+# recoveries: "yes, should try"; "we must not die". True: a recovery that would leave a zone game (stops.py RECOVER:
+# the still watchdog, the repeat guard, a Town Portal or click that failed; LEAVE for a 'beset' stop) asks the game's
+# boss ledger first (tzloop.py `bosses_alive`: macros/bossledger.py, its scope's bosses alive):
+# - none alive: as before;
+# - life low or unread (beset): survival first, the game left at once as before, the bosses named in the line;
+# - beset otherwise (the fight back lost, or no attacker read): clear of it by the danger package (tzloop.py
+#   `danger_trip`: Town Portal cast with no fight posted, the town visit, back through the portal), BOSS_KEEPS times
+#   for a boss (`BossLedger.tried`, kept in the tracker's file-backed book), then the loop stops where it is;
+# - any other: the game kept and the leg made again BOSS_KEEPS times for a boss, then the loop stops where it is,
+#   naming the bosses (never left quietly); the game's time cap (loop.py `overdue`) stops at once (a kept leg would be
+#   over the cap again at the next look).
+# rca/2026-10-22/boss-audit-findings.md §4 cause 7: every recovery left the game, 177 games with a boss alive. False:
+# as before
+BOSS_RECOVERY = True
+BOSS_KEEPS = 2
 
 
 def classify(why: object) -> Cause:
@@ -59,6 +84,8 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
         self._show([f'Loop: {why}: fighting back'])
         return
     if early is Remedy.LEAVE:
+        if cause == 'beset' and _boss_recovery(self, why, danger=True, low=beset is None or beset.low):
+            return
         if beset is not None:
             LOG.info('Macro: loop: beset with %s', 'life low' if beset.low else 'the fight back lost' if beset.again
                      else 'no attacker read and nothing on the ground')  # fmt: skip
@@ -82,6 +109,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
     if self._gheeds_swap(why, why.drop.label if isinstance(why, Refused) and loop.on else left, game):
         return
     may_trip = loop.may_trip(game) and loop.carrying
+    terrorized = bool(loop.kind.agenda and loop.agenda.acts)  # a shard's act in this game (actloop.py `use_shard`)
     remedy = decide(
         Stopped(
             cause, loop.on, left, game,
@@ -90,6 +118,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
             dropped=loop.dropped == game,
             trips=loop.kind.trips and may_trip,
             packaged=loop.kind.packaged and may_trip and self.area_seen is not None,
+            terrorized=terrorized,
         )
     )  # fmt: skip
     if remedy is Remedy.FETCH:
@@ -109,14 +138,85 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
     elif remedy is Remedy.DROP:
         loop.drop_room, loop.dropped = True, game
         LOG.info('Macro: loop: %s; %s lies on the ground: an item to identify is dropped for it', why, left)
+    elif remedy is Remedy.KEEP:
+        # The watch reads it (d2-loop-watch logwords.py EVENT, NOW)
+        LOG.info('Macro: loop: %s: the game is kept (%s): the leg is made again', why,
+                 f'act {", ".join(map(str, sorted(loop.agenda.acts)))} terrorized by a shard' if terrorized
+                 else 'nothing valuable lies on the ground')  # fmt: skip
+        self._show([f'Loop: {why}: game kept'])
     elif remedy is Remedy.HOLD:
         self._stop_loop(f'{why}; {left} lies on the ground: the loop stops here')
     elif remedy is Remedy.RECOVER:
+        if _boss_recovery(self, why, danger=False):
+            return
         if loop.recover(why, time.monotonic()):
             LOG.info('Macro: loop: %s: the game is left and the loop goes on', why)
             self._show([f'Loop: {why}: leaving the game'])
         else:
             self._stop_loop(why)
+
+
+def _boss_recovery(self: MacroRunner, why: object, *, danger: bool, low: bool = False) -> bool:
+    """BOSS_RECOVERY: whether the recovery for `why` is answered for the bosses alive (said, kept, packaged or the loop
+    stopped); False to leave the game as before (none alive, the switch off, the loop off, no agenda kind; or `low`:
+    the character's life first, the bosses named)."""
+    loop = self.loop
+    if not BOSS_RECOVERY or not loop.on or not loop.kind.agenda:
+        return False
+    game = loop.seen[0] if loop.seen is not None else None
+    if game is None or loop.agenda.bosses.game != game_key(loop.game_id or game):
+        return False  # out of a game, or the agenda not begun for this one: its plan is another game's
+    alive = tz_bosses_alive(loop.agenda)
+    if not alive:
+        return False
+    if danger and low:
+        # The watch tools read it (d2-loop-watch logwords.py EVENT, NOW)
+        LOG.info("Macro: loop: %s: the game is left for the character's life with %s alive", why, said(alive))
+        return False
+    now = time.monotonic()
+    if game is not None and loop.seen is not None and now - loop.seen[1] > loop.allowed_seconds(game):
+        self._stop_loop(stop_line(alive, f'{why}: the game is over its time'))
+        return True
+    fresh: list[Boss] = [boss for boss in alive if boss.tries < BOSS_KEEPS]
+    if not fresh:
+        self._stop_loop(stop_line(alive, f'{why}: tried {BOSS_KEEPS} times for them, the game is not left'))
+        return True
+    loop.agenda.bosses.tried(fresh)
+    tries = max(boss.tries for boss in fresh) + 1
+    if danger:
+        area = self.area_seen
+        if area is None:
+            self._stop_loop(stop_line(alive, f'{why}: no level read to come back to, the game is not left'))
+            return True
+        tz_danger_trip(loop, game, area)
+        # The watch tools read it (d2-loop-watch logwords.py EVENT, NOW)
+        LOG.info('Macro: loop: %s: clear of it by the Town Portal, the town visit, back for %s (try %d of %d): this '
+                 'game is kept', why, said(alive), tries, BOSS_KEEPS)  # fmt: skip
+        self._show([f'Loop: {why}: to town and back for the bosses'])
+        return True
+    # The watch tools read it (d2-loop-watch logwords.py EVENT, NOW)
+    LOG.info('Macro: loop: %s: this game is kept for %s (try %d of %d): the leg is made again', why, said(alive),
+             tries, BOSS_KEEPS)  # fmt: skip
+    self._show([f'Loop: {why}: game kept for the bosses'])
+    return True
+
+
+def back_for_bosses(self: MacroRunner, loot: Loot | None) -> str | None:
+    """At a beset recovery's portal return, after the town visit (macros/tzloop.py `perform`, `Loop.danger_return`):
+    None to go back through the portal for the bosses alive (macros/safety.py RETURN_GATE `return_refused`: life and
+    potions restocked, no veto at the last danger pricing), else the stop line naming them, for the loop to stop in
+    town. None with no boss alive, the loop off, BOSS_RECOVERY off or no hunt. `loot`: the life and belt read now."""
+    loop = self.loop
+    if not BOSS_RECOVERY or not loop.on or not loop.kind.agenda or self.hunter is None:
+        return None
+    alive = tz_bosses_alive(loop.agenda)
+    if not alive:
+        return None
+    refused = return_refused(loot, self.hunter.safety.decision)
+    if refused is None:
+        LOG.info('Macro: loop: back through the portal for %s: the safety allows it', said(alive))
+        return None
+    return stop_line(alive, f'not back through the portal: {refused}')
 
 
 def _field_trip(self: MacroRunner, label: str) -> bool:

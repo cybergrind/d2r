@@ -1,40 +1,32 @@
-"""Conservative skill-combination review, 2026-09-27; see SKILL_REVIEW.md.
+"""The paid skills a class item's staffmod counts with, 2026-10-22; see SKILL_REVIEW.md.
 
-Groups identify actual uses, not every skill receiving hard points in a build.
-Companions improve a qualifying item but never trigger an alert by themselves.
+The triage's list (pricing/triage/import_class_rules.py PAID_SKILLS: the best skill on the +5 listings of two or more
+priced sellers, 2026-10-08 cache), the claws' Death Sentry, Wake of Fire and Phoenix Strike (the player, 2026-10-20)
+and the Warlock's (pricing.html §7, inventory_tracking/loot/build_wants.py WARLOCK_PAID). A skill nobody pays for
+(Raise Skeleton, Fissure, Raven, Find Item, Mirrored Blades, Flame Wave, Ring of Fire) never alerts; another paid
+skill of its tree on the item is named as a companion.
 """
 
-# (primary targets, useful companions). Names resolve through the existing native
-# skill catalog, which verifies class and tree; unrelated prefixes never count.
-GROUPS = (
-    (('Fire Ball', 'Meteor', 'Hydra'), ('Fire Mastery',)),
-    (('Enchant',), ('Fire Mastery',)),
-    (('Lightning', 'Chain Lightning', 'Nova'), ('Lightning Mastery',)),
-    (('Blizzard', 'Frozen Orb'), ('Cold Mastery',)),
-    (('Energy Shield',), ()),
-    (('Poison Nova',), ('Corpse Explosion', 'Lower Resist')),
-    (('Bone Spear', 'Bone Spirit'), ('Corpse Explosion',)),
-    (('Raise Skeleton',), ('Skeleton Mastery', 'Raise Skeletal Mage', 'Revive')),
-    (('Blessed Hammer',), ('Concentration',)),
-    (('Fist of the Heavens',), ('Holy Bolt', 'Conviction')),
-    (('Battle Orders', 'War Cry', 'Find Item'), ('Shout', 'Battle Command')),
-    (('Fissure', 'Volcano', 'Armageddon'), ()),
-    (('Tornado', 'Hurricane'), ('Oak Sage',)),
-    (('Raven', 'Summon Grizzly'), ('Summon Dire Wolf', 'Summon Spirit Wolf', 'Heart of Wolverine')),
-    (('Lightning Sentry',), ('Death Sentry', 'Weapon Block', 'Fade', 'Burst of Speed')),
-    (('Wake of Fire', 'Fire Blast'), ('Weapon Block', 'Fade', 'Death Sentry')),
-    (('Fade', 'Venom'), ()),
-    (
-        ('Hex: Purge', 'Eldritch Blast', 'Echoing Strike', 'Mirrored Blades'),
-        ('Levitation Mastery', 'Consume', 'Bind Demon', 'Demonic Mastery', 'Hex: Bane'),
+PAID = {
+    'Barbarian': ('Battle Orders', 'Battle Command', 'War Cry', 'Grim Ward', 'Increased Speed'),
+    'Druid': (
+        'Tornado', 'Armageddon', 'Hurricane', 'Volcano', 'Summon Grizzly', 'Fury', 'Shock Wave', 'Fire Claws',
     ),
-    (('Abyss', 'Miasma Chain'), ('Bind Demon', 'Consume', 'Enhanced Entropy')),
-    (('Apocalypse', 'Flame Wave', 'Ring of Fire'), ('Enhanced Entropy', 'Sigil: Death')),
-)
-PRIMARY_SKILLS = frozenset(name for primary, _ in GROUPS for name in primary)
+    'Necromancer': ('Poison Nova', 'Bone Spirit', 'Bone Spear'),
+    'Sorceress': (
+        'Chain Lightning', 'Lightning', 'Nova', 'Lightning Mastery', 'Thunder Storm', 'Energy Shield', 'Enchant',
+        'Fire Ball', 'Hydra', 'Meteor', 'Fire Wall', 'Fire Mastery', 'Blizzard', 'Frozen Orb', 'Cold Mastery',
+    ),
+    'Paladin': ('Fist of the Heavens', 'Blessed Hammer'),
+    'Assassin': ('Lightning Sentry', 'Death Sentry', 'Wake of Fire', 'Phoenix Strike', 'Venom', 'Fade'),
+    'Warlock': (
+        'Abyss', 'Hex: Purge', 'Echoing Strike', 'Eldritch Blast', 'Apocalypse', 'Summon Tainted', 'Summon Defiler',
+        'Consume', 'Bind Demon', 'Sigil: Death', 'Miasma Chain', 'Blood Boil', 'Blade Warp',
+    ),
+}  # fmt: skip
+PRIMARY_SKILLS = frozenset(name for names in PAID.values() for name in names)
 
 
 def companions(name):
-    return frozenset(
-        other for primary, extra in GROUPS if name in primary for other in (*primary, *extra) if other != name
-    )
+    """The other paid skills of `name`'s class."""
+    return frozenset(other for names in PAID.values() if name in names for other in names if other != name)

@@ -45,8 +45,10 @@ def test_a_herald_in_reach_is_marked_first_whatever_the_price_and_again_once_its
 
 
 def test_the_sigil_goes_under_a_herald_in_reach_and_again_as_it_moves():
-    minion = monster(2, 6.0, flags=MINION, tier=5)
-    boss = monster(3, 12.0, flags=UNIQUE, tier=5)
+    # A tier 3 Herald: a tier 4-5 pack's sigil goes by the pack's cover since 2026-10-21 (combat/pack.py SIGIL_COVER,
+    # test_pack_sigil.py)
+    minion = monster(2, 6.0, flags=MINION, tier=3)
+    boss = monster(3, 12.0, flags=UNIQUE, tier=3)
     found = facts([minion, boss])  # the strike aimed through the minion
     assert prey(found) == boss
     assert sigil_due(found)

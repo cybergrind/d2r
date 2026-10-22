@@ -4,7 +4,8 @@
 
 - K0 not the loop's (the player's, a print match, unknown): NEVER_TOUCH (S1)
 - K1 a never-sell class: runes, gems, potions, set/unique and sunder charms, Wirt's Leg KEEP; the loop's tomes, keys,
-  cube and the quest items (Worldstone Shards, statues, Uber keys, essences: itemtype `ques`) NEVER_TOUCH (S2)
+  cube and the quest items (Worldstone Shards, statues, Uber keys, essences: itemtype `ques`) NEVER_TOUCH (S2); but
+  with GHEEDS_BY_ROLL the loop's identified Gheed's Fortune of a low roll (`gheeds_low`): DROP
 - K2 unidentified magic or better: IDENTIFY, never dropped unidentified (S8)
 - K3 an always-keep want (the BiS rows of loot/data/wants.json): KEEP, duplicates included; after K5, a want with
   `keep_up_to` (the Spirit base Monarch, 2026-10-20 ~12:50): KEEP while fewer comparable copies are owned, then by
@@ -18,8 +19,11 @@
 - K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
   (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; rare boots
   and belts the same (~19:25: "we can keep really good ones"); and magic gloves no want row names (JUNK_MAGIC, ~13:30:
-  the IAS + skills gloves are the rows)
-- K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2)
+  the IAS + skills gloves are the rows); with the keep bar on (loot/wants.py KEEP_BAR) the junk kinds widen
+  (`junk_unwanted`, `junk_magic`): rare rings, amulets, gloves, body armor, shields, class items and every weapon,
+  magic circlets and class items, so K9 no longer keeps such an unknown
+- K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2); with
+  BEST_COPY_USABLE_ONLY a better copy is DROP too when `unusable_best` says no build names it (cheap, vendor or slow)
 - K9 no price, no want: KEEP the first, logged `unknown` for the update-kb skill (Q13)
 - K10 else KEEP: a cheap first copy, or a want
 
@@ -33,11 +37,13 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
+from inventory_tracking.loot import wants as want_rows
 from inventory_tracking.loot.facts import MAGIC, RARE, SET, UNIQUE, ItemFacts, Owner
 from inventory_tracking.loot.value import DUPLICATE_IST, KEEP_IST, Comparison, Value, better_than, comparable, score
 
 
 __all__ = [
+    'BEST_COPY_USABLE_ONLY',
     'CHARMS',
     'DECIDED_WITHOUT_COPIES',
     'DECIDES',
@@ -45,6 +51,7 @@ __all__ = [
     'FIRST_COPY_SETS',
     'FIRST_COPY_USABLE_ONLY',
     'GEMS',
+    'GHEEDS_BY_ROLL',
     'JEWELS',
     'JUNK_MAGIC',
     'JUNK_UNWANTED',
@@ -61,6 +68,10 @@ __all__ = [
     'KeepRules',
     'decide',
     'decide_all',
+    'gheeds_low',
+    'junk_magic',
+    'junk_unwanted',
+    'unusable_best',
     'unusable_first',
 ]
 
@@ -94,6 +105,30 @@ FIRST_COPY_USABLE_ONLY = True
 FIRST_COPY_SETS = True
 # The verdicts a first copy is given up over: `self`, `sell`, `check` and `keep` stay kept until the player rules
 FIRST_COPY_SELLS_OVER = frozenset(('vendor', 'slow'))
+# The best copy only for a usable or dear one (the player, 2026-10-21 ~08:55, answering "What should count as usable?":
+# "Top picks + usable best"; rca/2026-10-21/weak-keepers-findings.md B5): a set or unique copy better than every owned
+# one is kept (K6) only when a want row names it (the usable rows: a build's top picks, loot/build_wants.py
+# USABLE_SLOT_DEPTH), an always-keep row names it (K3) or it is worth DUPLICATE_IST by its own rolls (K5). One no build
+# names, priced under DUPLICATE_IST and appraised FIRST_COPY_SELLS_OVER, is given up even as the better roll
+# (`unusable_best`: the 107% Patriarch of 04:35:32, 0.48 Ist vendor, kept over the owned 105%). No price, or `self`,
+# `sell`, `check`, `keep`: kept as before. False: the better copy kept whatever (K6, the 2026-10-18 best-copy ruling)
+BEST_COPY_USABLE_ONLY = True
+# Gheed's Fortune by its roll (the player, 2026-10-21 ~09:00: "I have dropped low roll gheed's charms, it looks like we
+# don't need that many of them. low rolls doesn't sell"; keep only "MF38, or MF35 + very good gold roll"; ~09:05: "also
+# - do not sell our current gheed charm"). The loop's identified Gheed's Fortune (uniqueitems: mag% 20-40, gold%
+# 80-160, cheap 10-15) is kept (K1) with GHEEDS_MF magic find, or GHEEDS_MF_WITH_GOLD and very good gold find
+# (GHEEDS_GOLD, 140 of 80-160); else given up (K1 DROP: sold in town, never put down in the field: loot/api.py
+# NEVER_DROPPED). Unidentified or its rolls unread: kept, Cain's (K1). The character's own (carried at its cell, the
+# swap's parked or chosen one, the personal stash) is the player's: never touched (K0; the town visit leaves the
+# player's cells out). Annihilus, Torch, Sunders and the other set/unique charms stay never sold. False: every
+# Gheed's Fortune kept (K1)
+GHEEDS_BY_ROLL = True
+GHEEDS_NAME = "Gheed's Fortune"
+GHEEDS_ROW = 359  # uniqueitems row (items metadata identities `unique`, macros/charms.py GHEEDS_FORTUNE)
+GHEEDS_MF = 38
+GHEEDS_MF_WITH_GOLD = 35
+GHEEDS_GOLD = 140  # "very good gold": the top quarter of 80-160
+MAGIC_FIND, GOLD_FIND = 80, 79  # itemstatcost item_magicbonus, item_goldbonus (third-parties/d2data/json)
 
 # Item types (itemtypes codes of items/metadata.py; the tests check them against macros/pickmode.py and the data)
 RUNES = frozenset(('rune',))
@@ -116,12 +151,40 @@ MULTIPLES = CHARMS | JEWELS
 # 1 Ist or more). Rare boots and belts too (the player, 2026-10-20 ~19:25, on rare boots and belts: "we can keep really
 # good ones"; the rows: loot/build_wants.py G21, G22)
 JUNK_UNWANTED = frozenset(('circ', 'helm', 'boot', 'belt'))
-JUNK_NAMES = {'circ': 'circlet', 'helm': 'helm', 'boot': 'boot', 'belt': 'belt'}  # for the log
+JUNK_NAMES = {'circ': 'circlet', 'helm': 'helm', 'boot': 'boot', 'belt': 'belt', 'ring': 'ring', 'amul': 'amulet',
+              'glov': 'glove', 'tors': 'body armor', 'shie': 'shield', 'phlm': 'Barbarian helm', 'pelt': 'pelt',
+              'head': 'Necromancer head', 'ashd': 'Paladin shield', 'grim': 'grimoire', 'knif': 'dagger',
+              'orb': 'orb'}  # for the log; other kinds by their code  # fmt: skip
 # The magic item types kept only by a want row or a price of DUPLICATE_IST by their own rolls (K5): gloves (the player,
 # 2026-10-20 ~13:30: "identify magic gloves that can roll something like 40ias + annother valuable roll, like skills";
 # guides/pricing.html:203: "+3 skills without IAS, or IAS alone = vendor; +2 Passive and Magic or +2 Bow of Alacrity =
 # vendor"; the rows: loot/build_wants.py G19). Anything else of them is junk, dropped in the field
 JUNK_MAGIC = frozenset(('glov',))
+# The keep bar's junk kinds (loot/wants.py KEEP_BAR; rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55:
+# "we need not just 1 row, but probably 3 stats with good rolls to keep"; ~09:20: "rare body armor, non-class shields,
+# non-class weapons with no price and no row: junk unless >= 1 Ist"). Kept only by a bar row (loot/build_wants.py
+# BAR_ROWS) or a price of DUPLICATE_IST by its own rolls (K5): rare rings, amulets and gloves, rare body armor and
+# shields, the rare class items (Barbarian helms, pelts, Necromancer heads, Paladin shields, grimoires) and every rare
+# weapon (the weapons category of the item metadata: the class weapons among them), magic circlets (the magic +2
+# Warlock / 20 FCR one is not kept, ~09:20) and magic class items. Rare boots, belts, circlets and helms: junk already
+CLASS_ARMOR = frozenset(('phlm', 'pelt', 'head', 'ashd', 'grim'))
+WEAPONS = frozenset((
+    'abow', 'ajav', 'aspe', 'axe', 'bow', 'club', 'h2h', 'h2h2', 'hamm', 'jave', 'knif', 'mace', 'orb', 'pole', 'scep',
+    'spea', 'staf', 'swor', 'taxe', 'tkni', 'wand', 'xbow',
+))  # fmt: skip
+CLASS_WEAPONS = frozenset(('abow', 'ajav', 'aspe', 'h2h', 'h2h2', 'knif', 'orb', 'scep', 'wand'))
+JUNK_UNWANTED_BAR = frozenset(('ring', 'amul', 'glov', 'tors', 'shie')) | CLASS_ARMOR | WEAPONS
+JUNK_MAGIC_BAR = frozenset(('circ',)) | CLASS_ARMOR | CLASS_WEAPONS
+
+
+def junk_unwanted() -> frozenset[str]:
+    """The rare item types kept only by a want row or a price of DUPLICATE_IST (K8), under the switch as it is."""
+    return JUNK_UNWANTED | JUNK_UNWANTED_BAR if want_rows.KEEP_BAR else JUNK_UNWANTED
+
+
+def junk_magic() -> frozenset[str]:
+    """The magic item types kept only by a want row or a price of DUPLICATE_IST (K8), under the switch as it is."""
+    return JUNK_MAGIC | JUNK_MAGIC_BAR if want_rows.KEEP_BAR else JUNK_MAGIC
 
 
 class Action(StrEnum):
@@ -165,20 +228,48 @@ def _price(value: Value) -> str:
     return f'{value.worth_ist:.3g} Ist' if value.worth_ist is not None else 'no price'
 
 
+def _unusable(facts: ItemFacts, value: Value, rules: KeepRules, *, sets: bool) -> bool:
+    """Whether the loop's identified set (with `sets`) or unique item `facts` is one no build names: of no charm or
+    jewel kind, no want row names it (the usable rows included), priced under DUPLICATE_IST by its own rolls and
+    appraised FIRST_COPY_SELLS_OVER. Pure."""
+    if facts.owner != Owner.LOOP or not facts.identified:
+        return False
+    if facts.quality != UNIQUE and not (facts.quality == SET and sets):
+        return False
+    if facts.base_type in MULTIPLES or value.wants or value.verdict not in FIRST_COPY_SELLS_OVER:
+        return False
+    return value.worth_ist is not None and value.worth_ist < rules.duplicate_ist
+
+
 def unusable_first(facts: ItemFacts, value: Value, rules: KeepRules = RULES) -> str | None:
     """Why the loop's set or unique item `facts`, with no comparable owned copy, is given up (FIRST_COPY_USABLE_ONLY),
-    None when it is kept: a unique (or a set item, FIRST_COPY_SETS) of no charm or jewel kind, no want row names it
-    (the usable rows included), priced under DUPLICATE_IST by its own rolls and appraised FIRST_COPY_SELLS_OVER.
-    Pure."""
-    if not FIRST_COPY_USABLE_ONLY or facts.owner != Owner.LOOP or not facts.identified:
-        return None
-    if facts.quality != UNIQUE and not (facts.quality == SET and FIRST_COPY_SETS):
-        return None
-    if facts.base_type in MULTIPLES or value.wants or value.verdict not in FIRST_COPY_SELLS_OVER:
-        return None
-    if value.worth_ist is None or value.worth_ist >= rules.duplicate_ist:
+    None when it is kept: a unique (or a set item, FIRST_COPY_SETS) no build names (`_unusable`). Pure."""
+    if not FIRST_COPY_USABLE_ONLY or not _unusable(facts, value, rules, sets=FIRST_COPY_SETS):
         return None
     return f'the first copy, no build names it ({_price(value)}, {value.verdict})'
+
+
+def unusable_best(facts: ItemFacts, value: Value, rules: KeepRules = RULES) -> str | None:
+    """Why the loop's set or unique copy `facts`, better than every owned copy, is given up all the same
+    (BEST_COPY_USABLE_ONLY), None when the best copy is kept: no build names it (`_unusable`). Pure."""
+    if not BEST_COPY_USABLE_ONLY or not _unusable(facts, value, rules, sets=True):
+        return None
+    return f'the best copy, but no build names it ({_price(value)}, {value.verdict})'
+
+
+def gheeds_low(facts: ItemFacts) -> str | None:
+    """Why the loop's identified Gheed's Fortune `facts` is given up (GHEEDS_BY_ROLL), None when it is kept or is no
+    Gheed's Fortune: its magic find under GHEEDS_MF, and under GHEEDS_MF_WITH_GOLD or its gold find under GHEEDS_GOLD.
+    Unread rolls: None (S8). Pure."""
+    if not GHEEDS_BY_ROLL or facts.owner != Owner.LOOP or not facts.identified or facts.quality != UNIQUE:
+        return None
+    if facts.name != GHEEDS_NAME and not (facts.code == 'cm3' and facts.row == GHEEDS_ROW):
+        return None
+    mf, gold = facts.stat(MAGIC_FIND), facts.stat(GOLD_FIND)
+    if mf is None or gold is None or mf >= GHEEDS_MF or (mf >= GHEEDS_MF_WITH_GOLD and gold >= GHEEDS_GOLD):
+        return None
+    kept = f'{GHEEDS_MF}+, or {GHEEDS_MF_WITH_GOLD}+ with {GHEEDS_GOLD}+ gold'
+    return f"a low Gheed's Fortune: magic find {mf}%, gold find {gold}% (kept: {kept})"
 
 
 def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, rules: KeepRules = RULES) -> Decision:
@@ -188,6 +279,8 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     kind = facts.base_type
     if kind in LOOP_GEAR:
         return Decision(Action.NEVER_TOUCH, 'K1', "the loop's own tool")
+    if (low := gheeds_low(facts)) is not None:
+        return Decision(Action.DROP, 'K1', low)
     if kind in RUNES | GEMS | POTIONS | ORGANS | SUNDER or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
         return Decision(Action.KEEP, 'K1', 'never sold (runes, gems, potions, set/unique charms)')
     if facts.code in NEVER_SOLD_CODES:
@@ -225,17 +318,22 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
         compared = better_than(facts, same, value.matters)
         if compared.better:
             told = f'{len(same)} owned: {compared.said()}'
+            if (given_up := unusable_best(facts, value, rules)) is not None:
+                return Decision(Action.DROP, 'K6', f'{given_up}, better than the {told}', compared)
             return Decision(Action.KEEP, 'K6', f'the best copy ({value.said()}), better than the {told}', compared)
     if value.tier == 'worthless' and not value.wants:
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
-    if facts.quality == RARE and kind in JUNK_UNWANTED and not value.wants:
-        return Decision(Action.DROP, 'K8', f'a rare {JUNK_NAMES[kind]} no want row names ({value.said()})')
-    if facts.quality == MAGIC and kind in JUNK_MAGIC and not value.wants:
-        return Decision(Action.DROP, 'K8', f'magic gloves no want row names ({value.said()})')
+    if facts.quality == RARE and kind in junk_unwanted() and not value.wants:
+        return Decision(Action.DROP, 'K8', f'a rare {JUNK_NAMES.get(kind, kind)} no want row names ({value.said()})')
+    if facts.quality == MAGIC and kind in junk_magic() and not value.wants:
+        named = 'gloves' if kind == 'glov' else JUNK_NAMES.get(kind, kind)
+        return Decision(Action.DROP, 'K8', f'magic {named} no want row names ({value.said()})')
     if same:
         compared = better_than(facts, same, value.matters)
         told = f'{len(same)} owned: {compared.said()}'
         if compared.better:
+            if (given_up := unusable_best(facts, value, rules)) is not None:
+                return Decision(Action.DROP, 'K6', f'{given_up}, better than the {told}', compared)
             return Decision(Action.KEEP, 'K6', f'cheap ({_price(value)}), better than the {told}', compared)
         return Decision(Action.DROP, 'K6', f'cheap ({_price(value)}), not better than the {told}', compared)
     if value.tier == 'unknown' and not value.wants:

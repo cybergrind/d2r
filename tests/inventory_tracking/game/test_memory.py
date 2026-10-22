@@ -431,7 +431,7 @@ def test_the_carried_items_and_the_stash_are_read_with_one_walk_of_each_table(ga
     # before 2026-10-19: the player table twice, for the character and for its grids
     assert (game.memory.walks(ITEM_UNIT), game.memory.walks(0)) == (1, 1)
     game.memory.reads.clear()
-    assert memory.stash_view() is None  # no stash page in this game: no view
+    assert memory.read_stash() is None  # no stash page in this game: no view
     assert (game.memory.walks(ITEM_UNIT), game.memory.walks(0)) == (1, 1)
 
 

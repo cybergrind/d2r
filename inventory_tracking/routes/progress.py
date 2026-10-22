@@ -45,7 +45,9 @@ def done(area: int, stage: Stage, facts: Facts) -> bool | None:
     if stage.tours:
         return set(stage.tours) <= facts.entered
     if stage.to:
-        return stage.to in facts.entered
+        # A portal whose mark the level lacks (`Progress.absent`: the Orifice of a tomb not the true one, 2026-10-21)
+        # leads nowhere from it: done, the way back next
+        return stage.to in facts.entered or (stage.kind == USE and (area, stage.mark) in facts.finished)
     if stage.kind == USE:
         return (area, stage.mark) in facts.finished
     if stage.kind == FIGHT:

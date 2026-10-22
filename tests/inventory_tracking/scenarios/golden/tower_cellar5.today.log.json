@@ -164,39 +164,43 @@
   "Macro: Attack mode on"
  ],
  [
+  6.44,
+  "Macro: strike: the leader 1816397095 held until it dies, 18.7 away"
+ ],
+ [
   6.52,
-  "Macro: Echoing Strike (right click) at the monster 55 (3272671561), 128/128"
+  "Macro: Echoing Strike (right click) at the elite 55 (1816397095), 128/128"
  ],
  [
   6.66,
-  "Macro: line through the monster 55 (3272671561), 128/128, 10.7 away, focal (12579.7, 11106.0), worth 18870, pointer (3413, 526)"
+  "Macro: line through the elite 55 (1816397095), 128/128, 18.7 away, focal (12576.5, 11095.5), worth 13940, pointer (3690, 267)"
  ],
  [
   6.71,
   "Macro: first cast 1.19s after the step"
  ],
  [
-  6.87,
+  6.92,
   "Macro: Death Mark"
  ],
  [
-  6.87,
+  6.92,
   "Macro: Death Mark on d, player mode 10"
  ],
  [
-  7.79,
+  7.98,
   "Macro: Death Mark on the elite 55 (1816397095), 128/128"
  ],
  [
-  7.79,
+  7.98,
   "Macro: mark: Death Mark on the elite 55 (1816397095), 128/128: by the build's rule (no safety price): the demons sent and the mark's points save 0.02s of the fight, against the cast's 0.37s: -0.35s"
  ],
  [
-  8.1,
+  8.15,
   "Macro: Sigil: Lethargy"
  ],
  [
-  8.1,
+  8.15,
   "Macro: Sigil: Lethargy on Button9, player mode 10"
  ],
  [
@@ -212,32 +216,28 @@
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  10.51,
+  10.56,
   "Macro: Engorge"
  ],
  [
-  10.51,
+  10.56,
   "Macro: Engorge on a, player mode 10"
  ],
  [
-  10.72,
+  10.75,
   "Macro: the game did not keep the Engorge key pressed during the cast before: pressed again"
  ],
  [
-  10.72,
+  10.76,
   "Macro: Engorge"
  ],
  [
-  10.72,
+  10.76,
   "Macro: Engorge on a, player mode 1"
  ],
  [
-  10.79,
+  10.82,
   "Macro: Engorge on the corpse 3272671561 at (12580.5, 11111.5), 2.2 away; under the pointer None"
- ],
- [
-  10.99,
-  "Macro: line through the elite 55 (1816397095), 128/128, 13.4 away, focal (12578.5, 11100.4), worth 25007, pointer (3577, 393)"
  ],
  [
   11.04,
@@ -252,15 +252,15 @@
   "Macro: Last minute: 589 points/s, 18.8 kills/min over 3.2s of combat"
  ],
  [
-  11.06,
+  11.05,
   "Macro: Attack mode paused"
  ],
  [
-  11.08,
+  11.07,
   "Macro: pickup: a super healing potion at (12584, 11111) left for later: 1 hostiles near it or the character"
  ],
  [
-  11.08,
+  11.07,
   "Macro: a super healing potion left for later: 1 monsters near"
  ],
  [
@@ -272,15 +272,15 @@
   "Macro: Attack mode on"
  ],
  [
-  11.1,
+  11.09,
   "Macro: the sweep leaves a super healing potion for later: 1 hostiles within 12 of it or the character"
  ],
  [
-  11.1,
+  11.09,
   "Macro: sweeping with 9 hostiles near and none in reach, from (12581.5, 11113.5): a place at (12593.5, 11098.5), a walk of 21 (1.4s), worth 10718 against 0 here, more than the horizon's casts"
  ],
  [
-  11.11,
+  11.1,
   "Macro: Walking 19 toward a better place"
  ],
  [
@@ -288,28 +288,32 @@
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  11.35,
+  11.34,
   "Macro: leg time: walk of 19, 0.239s to the character seen going (settle 0.008)"
  ],
  [
-  11.38,
+  11.37,
   "Macro: step asked in the fight with 7 of 15 hostiles in reach, from (12588.5, 11103.5): no better place; pickup after: False"
  ],
  [
-  11.38,
+  11.37,
   "Macro: Standing well: no better place within 24"
  ],
  [
-  11.5,
+  11.37,
+  "Macro: strike: the leader 1816397095 held is gone: let go"
+ ],
+ [
+  11.49,
   "Macro: Echoing Strike (right click) at the monster 21 (808000897), 14/128"
  ],
  [
   11.41,
-  "Macro: line through the monster 21 (808000897), 14/128, 6.2 away, focal (12591.3, 11106.3), worth 10899, pointer (3202, 810)"
+  "Macro: line through the monster 21 (808000897), 14/128, 6.8 away, focal (12591.3, 11106.3), worth 9252, pointer (3202, 810)"
  ],
  [
   11.46,
-  "Macro: first cast 0.11s after the step"
+  "Macro: first cast 0.12s after the step"
  ],
  [
   11.75,
@@ -345,7 +349,7 @@
  ],
  [
   12.77,
-  "Macro: Last minute: 2040 points/s, 85.4 kills/min over 4.9s of combat"
+  "Macro: Last minute: 2038 points/s, 85.3 kills/min over 4.9s of combat"
  ],
  [
   12.79,
@@ -400,23 +404,27 @@
   "Macro: Standing well: no better place within 24"
  ],
  [
-  13.58,
-  "Macro: Echoing Strike (right click) at the monster 55 (46244625), 128/128"
+  13.48,
+  "Macro: strike: the leader 2960229440 held until it dies, 17.1 away"
+ ],
+ [
+  13.57,
+  "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 128/128"
  ],
  [
   13.68,
-  "Macro: line through the monster 55 (46244625), 128/128, 18.9 away, focal (12577.9, 11103.2), worth 32256, pointer (2621, 287)"
+  "Macro: line through the elite 55 (2960229440), 128/128, 17.1 away, focal (12579.5, 11104.5), worth 27104, pointer (2633, 342)"
  ],
  [
   13.73,
   "Macro: first cast 0.28s after the step"
  ],
  [
-  13.91,
+  13.99,
   "Macro: Death Mark"
  ],
  [
-  13.91,
+  13.99,
   "Macro: Death Mark on d, player mode 10"
  ],
  [
@@ -428,175 +436,167 @@
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  14.84,
+  15.04,
   "Macro: Death Mark on the elite 55 (2960229440), 128/128"
  ],
  [
-  14.84,
+  15.04,
   "Macro: mark: Death Mark on the elite 55 (2960229440), 128/128: by the build's rule (no safety price): the demons sent and the mark's points save 0.02s of the fight, against the cast's 0.37s: -0.35s"
  ],
  [
-  15.21,
+  15.2,
   "Macro: Healing potion on 3: life 1298/1783, 6% lost in the last seconds (2% a second, 6% within one)"
  ],
  [
-  15.21,
+  15.2,
   "Macro: Healing potion"
  ],
  [
-  15.23,
-  "Macro: step asked in the fight with 8 of 17 hostiles in reach, from (12596.5, 11106.5): no better place; pickup after: False"
+  15.16,
+  "Macro: step asked in the fight with 6 of 17 hostiles in reach, from (12596.5, 11106.5): no better place; pickup after: False"
  ],
  [
-  15.23,
+  15.16,
   "Macro: Standing well: no better place within 24"
  ],
  [
-  15.23,
+  15.16,
   "Macro: the sweep leaves a super healing potion for later: 8 hostiles within 12 of it or the character"
- ],
- [
-  15.31,
-  "Macro: line through the monster 55 (740045072), 55/128, 6.1 away, focal (12590.5, 11105.5), worth 34976, pointer (3010, 565)"
  ],
  [
   15.47,
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  15.51,
+  15.53,
   "Macro: step asked in the fight with 6 of 17 hostiles in reach, from (12596.5, 11106.5): no better place; pickup after: False"
  ],
  [
-  15.51,
+  15.53,
   "Macro: Standing well: no better place within 24"
  ],
  [
-  16.41,
-  "Macro: line through the monster 55 (2439033224), 127/128, 8.0 away, focal (12584.9, 11103.5), worth 27546, pointer (2870, 422)"
- ],
- [
-  16.65,
-  "Macro: line through the monster 55 (370022536), 85/128, 6.4 away, focal (12590.1, 11105.9), worth 29185, pointer (2978, 568)"
- ],
- [
-  17.1,
-  "Macro: line through the monster 55 (2439033224), 125/128, 8.2 away, focal (12588.6, 11104.3), worth 27978, pointer (2985, 513)"
- ],
- [
-  18.25,
-  "Macro: Healing potion on 3: life 1156/1783, 14% lost in the last seconds (4% a second, 8% within one)"
- ],
- [
-  18.25,
-  "Macro: Healing potion"
- ],
- [
-  18.26,
-  "Macro: the sweep leaves a super healing potion for later: 4 hostiles within 12 of it or the character"
- ],
- [
-  18.33,
-  "Macro: line through the monster 55 (46244625), 85/128, 9.3 away, focal (12587.7, 11103.5), worth 14321, pointer (2984, 478)"
- ],
- [
-  19.04,
-  "Macro: sweeping in the fight with 2 of 11 hostiles in reach, from (12596.5, 11106.5): a place at (12596.5, 11109.5), a walk of 3 (0.5s), worth 14415 against 4244 here, 2 casts"
- ],
- [
-  19.04,
-  "Macro: fight (right click): 4 casts seen in 5.6s, 7 down; Stepping to a better place"
- ],
- [
-  19.04,
-  "Macro: Stepping to a better place: 7 down in 4 casts"
- ],
- [
-  19.04,
-  "Macro: Last minute: 4479 points/s, 86 kills/min over 9.1s of combat"
- ],
- [
-  19.05,
-  "Macro: Walking 3 toward a better place"
- ],
- [
-  19.88,
-  "Macro: leg time: walk of 3, 0.823s to the character seen going (settle 0.008)"
- ],
- [
-  19.88,
-  "Macro: waiting (the character is on the move), at (12593.5, 11107.3), mode 3"
- ],
- [
-  20.21,
-  "Macro: Echoing Strike (right click) at the monster 55 (46244625), 11/128"
- ],
- [
-  20.21,
-  "Macro: line through the monster 55 (46244625), 11/128, 3.9 away, focal (12590.9, 11105.8), worth 9029, pointer (3280, 603)"
- ],
- [
-  20.35,
-  "Macro: line through the elite 55 (2960229440), 92/128, 8.9 away, focal (12588.5, 11101.5), worth 9029, pointer (3353, 477)"
- ],
- [
-  20.73,
+  18.01,
   "Macro: Sigil: Lethargy"
  ],
  [
-  20.73,
-  "Macro: Sigil: Lethargy on Button9, player mode 1"
+  18.01,
+  "Macro: Sigil: Lethargy on Button9, player mode 10"
  ],
  [
-  20.79,
-  "Macro: sigil under the elite 55 (2960229440) at (12588.5, 11101.5): it stands 10.4 from the sigil at (12578.5, 11104.5), radius 6"
+  18.23,
+  "Macro: Healing potion on 3: life 1156/1783, 14% lost in the last seconds (4% a second, 8% within one)"
  ],
  [
-  21.01,
-  "Macro: Healing potion on 3: life 1029/1783, 21% lost in the last seconds (5% a second, 12% within one)"
- ],
- [
-  21.01,
+  18.23,
   "Macro: Healing potion"
  ],
  [
-  21.32,
-  "Macro: line through the monster 55 (92505634), 49/128, 4.5 away, focal (12590.6, 11105.4), worth 8918, pointer (3278, 584)"
+  18.61,
+  "Macro: the game did not keep the Sigil: Lethargy key pressed during the cast before: pressed again"
  ],
  [
-  21.57,
+  18.62,
+  "Macro: Sigil: Lethargy"
+ ],
+ [
+  18.62,
+  "Macro: Sigil: Lethargy on Button9, player mode 1"
+ ],
+ [
+  18.69,
+  "Macro: sigil under the elite 55 (2960229440) at (12583.4, 11101.8): it stands 5.6 from the sigil at (12578.5, 11104.5), radius 6"
+ ],
+ [
+  19.2,
   "Macro: the sweep leaves a super healing potion for later: 3 hostiles within 12 of it or the character"
  ],
  [
-  21.61,
+  19.2,
+  "Macro: sweeping in the fight with 2 of 11 hostiles in reach, from (12596.5, 11106.5): a place at (12587.5, 11112.5), a walk of 14 (1.1s), worth 12779 against 4244 here, 2 casts"
+ ],
+ [
+  19.2,
+  "Macro: fight (right click): 4 casts seen in 5.7s, 7 down; Stepping to a better place"
+ ],
+ [
+  19.2,
+  "Macro: Stepping to a better place: 7 down in 4 casts"
+ ],
+ [
+  19.2,
+  "Macro: Last minute: 4202 points/s, 83.1 kills/min over 7.9s of combat"
+ ],
+ [
+  19.21,
+  "Macro: Walking 11 toward a better place"
+ ],
+ [
+  19.85,
+  "Macro: leg time: walk of 11, 0.642s to the character seen going (settle 0.008)"
+ ],
+ [
+  19.86,
+  "Macro: waiting (the character is on the move), at (12593.8, 11106.5), mode 3"
+ ],
+ [
+  20.28,
+  "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 92/128"
+ ],
+ [
+  20.28,
+  "Macro: line through the elite 55 (2960229440), 92/128, 8.9 away, focal (12588.5, 11101.5), worth 9029, pointer (3348, 477)"
+ ],
+ [
+  21.0,
+  "Macro: Healing potion on 3: life 1029/1783, 21% lost in the last seconds (5% a second, 12% within one)"
+ ],
+ [
+  21.0,
+  "Macro: Healing potion"
+ ],
+ [
+  21.14,
   "Macro: the fight stopped (no cast seen after the right click (Echoing Strike not on right click?)), 1 in a row"
+ ],
+ [
+  21.36,
+  "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 91/128"
+ ],
+ [
+  21.36,
+  "Macro: line through the elite 55 (2960229440), 91/128, 8.9 away, focal (12588.5, 11101.5), worth 8918, pointer (3349, 477)"
  ],
  [
   21.75,
   "Macro: request pickup, 0 ms old, while hunt any"
  ],
  [
-  21.83,
-  "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 91/128"
- ],
- [
-  21.83,
-  "Macro: line through the elite 55 (2960229440), 91/128, 8.9 away, focal (12588.5, 11101.5), worth 8918, pointer (3349, 476)"
- ],
- [
-  21.88,
+  21.78,
   "Macro: step asked in the fight with 3 of 11 hostiles in reach, from (12592.5, 11109.5): no better place; pickup after: False"
  ],
  [
-  21.88,
+  21.78,
   "Macro: Standing well: no better place within 24"
  ],
  [
-  22.66,
+  22.23,
   "Macro: the fight stopped (no cast seen after the right click (Echoing Strike not on right click?)), 2 in a row"
  ],
  [
-  22.76,
+  22.35,
+  "Macro: the sweep leaves a super healing potion for later: 3 hostiles within 12 of it or the character"
+ ],
+ [
+  22.45,
+  "Macro: Echoing Strike (right click) at the elite 55 (2960229440), 87/128"
+ ],
+ [
+  22.45,
+  "Macro: line through the elite 55 (2960229440), 87/128, 8.9 away, focal (12588.5, 11101.5), worth 8622, pointer (3353, 474)"
+ ],
+ [
+  22.73,
   "Macro: Attack mode off"
  ]
 ]

@@ -5,9 +5,11 @@ One decision for the simulator (sim/engine.py) and for the game (combat/plan.md 
 `LinePolicy`, the line sweep (a combat/policy.py `Policy`): through each live hostile within REACH a virtual cast
 is laid with the focal point on, short of and past it (OFFSETS), scored by the emulated blades' points capped by
 each monster's life (duplicate rule, Health Link share); the best line worth MIN_SCORE is cast, nothing while the
-player moves (`yields`). `EchoingStrike` adds the rest of the contract: `aim` (and `through` units), `sees` (Health
-Link), `dealt` (the line model a place is priced by: BLADES_A_CAST blades on each monster near the line, up to a
-wall). Two classes, as harnesses score sweeps of their own; `EchoingStrike.of` makes the attack of one.
+player moves (`yields`). With `hold` (HOLD_LEADER) a leader in reach comes first, a Herald before any: the line
+through it with the focal point on it, kept on the same one until it dies (`kept`). `EchoingStrike` adds the rest
+of the contract: `aim` (and `through` units), `sees` (Health Link), `dealt` (the line model a place is priced by:
+BLADES_A_CAST blades on each monster near the line, up to a wall). Two classes, as harnesses score sweeps of their
+own; `EchoingStrike.of` makes the attack of one.
 """
 
 import math
@@ -30,6 +32,7 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.combat.policy import ELITE_WEIGHT, MIN_FOCAL, MIN_SCORE, Choice, Foe, Observation, Point
+from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Monster
 from inventory_tracking.takes.timeline import GAME_RATE
 
@@ -66,6 +69,40 @@ LEAD_MOST = 6.0  # units: most a monster is taken to go along its velocity (one 
 # counting ELITE_WEIGHT.
 FOCUS_LEADERS = False
 LEADER_SHARE = 0.85
+# The player, 2026-10-21 ~18:58, of a tier 5 Herald pack of Vile Witches: "current T5 fight is bad aiming - we're not
+# focusing and delivering good damage. we were able to kill herald several times, but was targeted at wrong location
+# => spread projectiles => low dps => lost a lot of time and health". Of the 79 casts with the Herald in reach, 34 went
+# on lines the sweep laid through its pack, 8 of them with the focal point 4 units off the character (the "short"
+# offset and MIN_FOCAL: the blades cross there and fan out over the pack), and the line went to the Herald 17 times
+# and off it 17 times (rca/2026-10-21/herald-aiming-findings.md). True: a leader in reach is struck until it dies,
+# a Herald first (`Foe.herald`), then a unique, champion or super unique: the line through it with the focal point on
+# it, where the five blades meet (LEADER_OFFSETS), whatever its pack's lines are worth; the one struck is kept while
+# it is seen (`Held`: a nearer leader takes it over only when it is gone, a Herald when it is not one), and a look
+# that cannot lay a line to it strikes the best line without letting it go (`LinePolicy.hold`). The rules before the
+# sweep stay first (a boss, a bound summoner, what bars the goal, the dolls: the `through` units of `aim`). False: the
+# best line (with FOCUS_LEADERS' share rule when that is on).
+HOLD_LEADER = True
+# A leader whose resistance to the blades' damage is IMMUNE (physical: Echoing Strike is weapon damage, skills.txt 388;
+# the 18:35 Gloam Herald of the same day, stat 36 at 110 with Stone Skin, rca/2026-10-21/herald-gloam-findings.md) is
+# not held: the blades take nothing off it, its mark and the demons are its answer (mark.py MARK_IMMUNE). This fight's
+# Vile Witch Herald stood at 75 (its minions 25): hurt, a quarter of a blade's points a contact.
+# Empty since 2026-10-21 ~20:15, the player: "we still need to focus physical immune mobs, and magical immune"; "we
+# need to do the best aiming when we're trying to focus mob": every leader is held, immune or not (was
+# (PHYSICAL_RESIST,))
+HELD_IMMUNE: tuple[int, ...] = ()
+# The focal point along the line from the leader: on it and one unit past (AIM_BEYOND); the blades meet within 0.2
+# units of it at either (LATERAL's 1.9 units, times 1 over the 13 units to the focal, at the engage ring). The
+# sweep's short offset (-3) is not used for a leader: on a leader within 7 units MIN_FOCAL holds it at 4 and the blades
+# are 1.8 units apart either side of it, in contact only with its edge.
+LEADER_OFFSETS = (0.0, 1.0)
+
+
+@dataclass
+class Held:
+    """The leader the strike is kept on until it dies (HOLD_LEADER); None: none. Shared by the copies `replace`
+    makes of a sweep, so the game's one attack keeps it from look to look."""
+
+    unit: int | None = None
 
 
 # The bins' middles with their shares: what `hit_share` runs straight between.
@@ -169,12 +206,86 @@ class LinePolicy:
     # A line laid through a leader (`Foe.elite`) worth this share of the best line is cast instead of it
     # (FOCUS_LEADERS); 0: the best line
     focus: float = 0.0
+    # A leader in reach is struck until it dies, the line through it with the focal point on it (HOLD_LEADER)
+    hold: bool = False
+    held: Held = field(default_factory=Held)  # the leader struck last (`hold`)
 
     def __call__(self, seen: Observation) -> Choice | None:
         if self.yields and seen.moving:
             return None
-        best = self.focused(seen, self.choose(seen))
+        best = self.kept(seen)
+        if best is None:
+            best = self.focused(seen, self.choose(seen))
         return best if best is not None and best.worth >= MIN_SCORE else None
+
+    def kept(self, seen: Observation) -> Choice | None:
+        """With `hold`, the line through a leader in reach (`leader_line`), none immune to the blades (HELD_IMMUNE):
+        the one held while it is seen, a Herald before any other; else the nearest. The one found is held from here
+        when none is (or a Herald is found and the held one is not); a held one gone from the foes is let go. None:
+        no leader has a line to it now, or no `hold`."""
+        if not self.hold:
+            return None
+        held = self.held
+        if held.unit is not None and held.unit not in seen.foes:
+            LOG.info('Macro: strike: the leader %d held is gone: let go', held.unit)
+            held.unit = None
+        leaders = sorted(
+            (unit for unit, foe in seen.foes.items() if foe.elite and not foe.immune_to & set(HELD_IMMUNE)),
+            key=lambda unit: (
+                not seen.foes[unit].herald,
+                unit != held.unit,
+                math.dist(seen.origin, seen.foes[unit].at),
+            ),
+        )
+        for unit in leaders:
+            found = self.leader_line(seen, unit)
+            if found is None:
+                continue
+            taken = held.unit is None or (seen.foes[unit].herald and not seen.foes[held.unit].herald)
+            if taken and unit != held.unit:
+                held.unit = unit
+                LOG.info(
+                    'Macro: strike: %s %d held until it dies, %.1f away',
+                    'the Herald' if seen.foes[unit].herald else 'the leader', unit,
+                    math.dist(seen.origin, seen.foes[unit].at),
+                )  # fmt: skip
+            return found
+        return None
+
+    def leader_line(self, seen: Observation, unit: int) -> Choice | None:
+        """The line through `unit` with the focal point on it (LEADER_OFFSETS), where the five blades meet: the one
+        that takes the most off it, then the most worth over all; None out of reach, off the screen, or with no blade
+        reaching it (a wall)."""
+        foe = seen.foes[unit]
+        at = foe.at
+        if self.lead is not None:  # through where it is when a blade gets as far as it stands now (`choose`)
+            at = foe.ahead(self.lead + min(round(math.dist(at, seen.origin) / SPEED), OUT_FRAMES))
+        away = math.dist(at, seen.origin)
+        if away > self.reach or away == 0:
+            return None
+        ux, uy = (at[0] - seen.origin[0]) / away, (at[1] - seen.origin[1]) / away
+        best: tuple[tuple[float, float], Choice] | None = None
+        for offset in LEADER_OFFSETS:
+            distance = max(MIN_FOCAL, min(away + offset, self.reach - 1))
+            focal = (seen.origin[0] + ux * distance, seen.origin[1] + uy * distance)
+            if seen.aimable is not None:
+                reached = seen.aimable(focal)
+                if reached is None:
+                    continue
+                focal = reached
+            on = virtual_cast(
+                seen.origin, focal, {unit: foe}, frozenset(), 0.0, self.damage_of, blocked=seen.blocked,
+                lead=self.lead,
+            )  # fmt: skip
+            if on <= 0:
+                continue
+            worth = virtual_cast(
+                seen.origin, focal, seen.foes, seen.linked, seen.share, self.damage_of, blocked=seen.blocked,
+                elite_weight=self.elite_weight, lead=self.lead,
+            )  # fmt: skip
+            if best is None or (on, worth) > best[0]:
+                best = ((on, worth), Choice(focal, unit, worth))
+        return best[1] if best is not None else None
 
     def focused(self, seen: Observation, best: Choice | None) -> Choice | None:
         """`best`, or with `focus` the best line laid through a leader where `best` is laid through none and that
@@ -286,6 +397,23 @@ class EchoingStrike(LinePolicy):
         if FOCUS_LEADERS and not self.focus:
             return replace(self, focus=LEADER_SHARE).focused(seen, best)
         return super().focused(seen, best)
+
+    def holding(self) -> int | None:
+        """The leader the strike is held on (HOLD_LEADER), None with none: what the run's side goals wait for
+        (macros/hunting/choice.py HELD_STAYS)."""
+        return self.held.unit
+
+    def forget(self) -> None:
+        """Drop what the earlier looks left: the leader held, the monsters' places (a new hunt, macros/hunt.py
+        `Hunter`: the game's one attack serves every hunt made, and a replay played twice plays the same)."""
+        self.held.unit = None
+        self.motion.seen.clear()
+
+    def kept(self, seen: Observation) -> Choice | None:
+        """`LinePolicy.kept`, held under HOLD_LEADER where no hold is set (the copy shares `held`)."""
+        if HOLD_LEADER and not self.hold:
+            return replace(self, hold=True).kept(seen)
+        return super().kept(seen)
 
     @classmethod
     def of(cls, policy: LinePolicy) -> EchoingStrike:

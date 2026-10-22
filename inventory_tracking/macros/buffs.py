@@ -24,9 +24,11 @@ from inventory_tracking.macros.routines import (
     ACTING,
     DEAD,
     LOAD_LIMIT,
+    THROUGH_POLL,
     LoadTrace,
     cast as cast_free,
     on_screen,
+    press_skill,
     press_through,
     screen_fraction,
     take_battle_weapons,
@@ -64,6 +66,31 @@ NUDGE_UP = 0.025
 NUDGE_AWAY = 0.015
 NUDGES = 2
 SHOWN_ON_MOST = 8  # hostiles nearest a cast's target whose state words are read for where it went instead
+# A cast with `Buff.shows` on a unit whose state shows already at the key (the last cast's lasting still) is judged by
+# the state once `shows_within` has passed, not by the old one's at once (the player, 2026-10-21 ~17:41: "note: we
+# haven't used death mark on baal, that is incorrect"; the take 20261021T143818Z-132: a Death Mark key at 17:38:34.16,
+# 0.65 s before the last ran out, brought no cast; the old state read as the new one's and Baal fought unmarked his
+# last 10 s). False: a state shown at any look after the key counts.
+SHOWN_BEFORE_WAITS = True
+# A Quick Cast key pressed at once after the held strike's release, the character free or its cast ending, often brings
+# no cast: the right button shows the skill one frame and the character stands (the takes of 2026-10-21: 58 of 184
+# such Death Mark keys pressed within 10 ms of the release; 6 of 47 at 10-50 ms; 0 of 8 later; under a cast the game
+# keeps the key either way, 1,800 of 1,814; Baal's second mark at 17:38:34.16 came 3 ms after it). The player,
+# 2026-10-21 ~17:41: "note: we haven't used death mark on baal, that is incorrect". True: the key waits
+# QUICK_SETTLE_SECONDS after a release. False: pressed at once.
+QUICK_SETTLE = True
+QUICK_SETTLE_SECONDS = 0.05
+# The player, 2026-10-21 ~20:15: "we need to do the best aiming when we're trying to focus mob". A cast on a monster
+# (Death Mark) or at its feet moved the pointer onto it while the strike was still held, the hover check waiting
+# under it, and let the strike go only at the key: a strike begun meanwhile flew at the buff's target (6 of the 79
+# casts with the T5 Herald in reach, 18:54-18:56, 0.04-0.12 s after the key; rca/2026-10-21/herald-aiming-findings.md
+# §1.1). True: the held strike is let go before the pointer moves (`let_go_first`); QUICK_SETTLE still waits at the
+# key. False: let go at the key.
+LET_GO_FIRST = True
+# True: a cast on a monster with `Buff.shows` (Death Mark) whose key brought no cast (the character not acting within
+# QUICK_CONFIRM_SECONDS after it) is pressed once more at once, not after `shows_within` by `settle` (the same ruling).
+QUICK_CONFIRM = True
+QUICK_CONFIRM_SECONDS = 0.2
 
 
 @dataclass(frozen=True)
@@ -76,10 +103,15 @@ class Due:
 
 
 def lapsing(row: Buff, facts: BuffFacts) -> bool:
-    """Whether `row`'s self-ending buff would end inside the fight ahead; False with no fight or no known cast."""
-    if row.lasts is None or facts.ahead <= 0:
+    """Whether `row`'s self-ending buff would end inside the fight ahead; False with no fight or no known cast. A row
+    with its own rule (`Buff.renew`: Battle Orders) goes by that rule alone."""
+    if row.lasts is None:
         return False
     left = facts.left(row.skill, row.lasts)
+    if row.renew is not None:
+        return row.renew(facts, left) is not None
+    if facts.ahead <= 0:
+        return False
     return left is not None and left < facts.ahead
 
 
@@ -125,7 +157,11 @@ class Buffs:
         # skill -> (unit, clock of the key, its label) of the last cast of a row with `Buff.shows`, until it shows
         # on the unit or `shows_within` passes (`settle`)
         self.watching: dict[int, tuple[int, float, str]] = {}
+        self.shown_before: set[int] = set()  # skills of `watching` whose state showed on the unit at the key
         self.missed: dict[tuple[int, int], int] = {}  # (skill, unit) -> casts in a row that did not show on it
+        # skill -> (clock of the key, whether it showed on some monster) of the last settled cast with `Buff.shows`
+        # (`lands`, macros/safety.py DRAW_CASTABLE)
+        self.landed: dict[int, tuple[float, bool]] = {}
 
     def took_of(self, run: Run) -> dict[int, float]:
         """The casts that took, merged into the runner's cross-run record (`Run.lasting`) once a run brings it."""
@@ -189,6 +225,8 @@ class Buffs:
             ahead=ahead,
             took=self.took_of(run),
             hurt=lambda: self.hurt(run),
+            missed=self.missed,
+            states=lambda m: run.reads.unit_states(m),
         )
 
     def missing(self, row: Buff, facts: BuffFacts) -> bool:
@@ -198,6 +236,9 @@ class Buffs:
         if shown is not False:
             if shown:
                 self.unseen[row.skill] = 0
+                if row.renew is not None and facts.lapsing:
+                    # Shown, but cast again before it ends (`Buff.renew`): the tries STATE_RETRY apart
+                    return facts.since(row.skill) > STATE_RETRY
             return False
         wait = STATE_RETRY if self.unseen.get(row.skill, 0) < STATE_TRIES else STATE_DISTRUST
         return facts.since(row.skill) > wait
@@ -242,8 +283,11 @@ class Buffs:
             return
         states = run.reads.unit_states(monster)
         key = (row.skill, unit)
-        if states is not None and row.shows(states):
+        early = row.skill in self.shown_before and facts.now - at < row.shows_within
+        if states is not None and row.shows(states) and not early:
             del self.watching[row.skill]
+            self.shown_before.discard(row.skill)
+            self.landed[row.skill] = (at, True)
             tries = self.missed.pop(key, 0)
             if tries:
                 LOG.info('Macro: buff: %s on %s took at try %d', skill_name(row.skill), name, tries + 1)
@@ -259,6 +303,7 @@ class Buffs:
         self.missed[key] = tries
         where = self.shown_on(run, row, facts.world, monster)
         instead = f' (it shows on {label(where)})' if where is not None else ' (it shows on no monster near it)'
+        self.landed[row.skill] = (at, where is not None)  # on a neighbour the cast still went somewhere
         if tries <= row.recasts:
             self.cast_at.pop(key, None)
             LOG.info(
@@ -270,6 +315,13 @@ class Buffs:
                 'Macro: buff: %s on %s did not take%s, %d casts: not cast again on it while the last would last',
                 skill_name(row.skill), name, instead, tries,
             )  # fmt: skip
+
+    def lands(self, skill: int, now: float, within: float) -> bool:
+        """Whether casts of `skill` land (macros/safety.py DRAW_CASTABLE): its last settled cast within `within` s
+        showed on some monster, on the one aimed at or a neighbour; True with none settled in that time (nothing says
+        no)."""
+        found = self.landed.get(skill)
+        return found is None or now - found[0] > within or found[1]
 
     def shown_on(self, run: Run, row: Buff, world: World, target: Monster) -> Monster | None:
         """The hostile nearest `target` (of the SHOWN_ON_MOST nearest) whose state words show `row`'s cast: where a
@@ -337,12 +389,20 @@ class Buffs:
     ) -> Tried:
         """Cast a due row by its caster or the shared one; the answer (`Tried`) is remembered."""
         row, target = due.row, due.target
-        if due.facts.lapsing:
+        renewed = None
+        if due.facts.lapsing and row.renew is not None:
+            renewed = row.renew(due.facts, due.facts.left(row.skill, row.lasts) if row.lasts is not None else None)
+        if renewed is not None:
+            LOG.info('Macro: buff: %s: %s: cast again now', skill_name(row.skill), renewed)
+        elif due.facts.lapsing:
             left = due.facts.left(row.skill, row.lasts) if row.lasts is not None else None
             LOG.info(
                 'Macro: buff: %s has %.0f s left of %.0f, under the %.0f s fight ahead: cast again now',
                 skill_name(row.skill), left if left is not None else 0.0, row.lasts or 0.0, due.facts.ahead,
             )  # fmt: skip
+        before = None
+        if SHOWN_BEFORE_WAITS and row.shows is not None and target is not None:
+            before = run.reads.unit_states(target)  # the last cast's state lasting still: no proof of this one
         asked = Casting(run, row, self, due.facts.world, target, aspect, key_names)
         tried = self.casters[row.caster](asked) if row.caster is not None else self.shared(asked)
         if tried.at is not None:
@@ -351,6 +411,10 @@ class Buffs:
             self.took[row.skill] = tried.at
         if tried.cast and target is not None and row.shows is not None and tried.at is not None:
             self.watching[row.skill] = (target.unit_id, tried.at, f'{label(target)}, {life(target)}')
+            if before is not None and row.shows(before):
+                self.shown_before.add(row.skill)
+            else:
+                self.shown_before.discard(row.skill)
         if tried.cast and target is not None and row.said is not None:
             said = row.said(due.facts, target)
             if said is not None:
@@ -425,6 +489,7 @@ class Buffs:
                     f'screen at ({point[0]:.2f}, {point[1]:.2f})',
                 )  # fmt: skip
                 return Tried()
+            self.let_go_first(run)
             run.actuator.aim(*point, scatter=(3, 3))
         fresh = run.world()
         now = next((m for m in fresh.monsters if m.unit_id == target.unit_id), None)
@@ -433,6 +498,8 @@ class Buffs:
         if run.pad is None and AIM_CHECK and fresh.player is not None:
             self.onto(run, cast, now, fresh)
         self.key(run, skill)
+        if QUICK_CONFIRM and run.pad is None and cast.row.shows is not None:
+            self.confirm(run, skill, target)
         at = run.clock()
         run.say(f'{skill_name(skill)} on {label(target)}, {life(target)}')
         return Tried(at, cast=True)
@@ -498,15 +565,36 @@ class Buffs:
         where = ground_fraction(world.player, target.x, target.y, cast.aspect)
         if not on_screen(where):
             return Tried()
+        self.let_go_first(run)
         run.actuator.aim(*where, scatter=(4, 3))
         self.key(run, skill)
         return Tried(run.clock(), cast=True)
 
+    def let_go_first(self, run: Run) -> None:
+        """Let the held strike go before the pointer leaves its line for a cast's target (LET_GO_FIRST): no strike
+        flies at the target while the pointer is on it. `key` presses after it as before."""
+        if LET_GO_FIRST and self.let_go is not None and (run.actuator.holding or run.actuator.holding_buttons):
+            self.let_go()
+
     def key(self, run: Run, skill: int) -> None:
-        """Press `skill` through a held strike: let it go, press the key (routines.press_through)."""
+        """Press `skill` through a held strike: let it go, press the key (routines.press_through), QUICK_SETTLE_SECONDS
+        after a release (QUICK_SETTLE)."""
+        released = self.let_go is not None and bool(run.actuator.holding or run.actuator.holding_buttons)
         if self.let_go is not None:
             self.let_go()
+        if QUICK_SETTLE and released:
+            run.pace.sleep(QUICK_SETTLE_SECONDS)
         press_through(run, skill)
+
+    def confirm(self, run: Run, skill: int, target: Monster) -> None:
+        """Press `skill` once more when its key brought no cast: the character not acting within QUICK_CONFIRM_SECONDS
+        (QUICK_CONFIRM)."""
+        if run.seen(lambda w: w.player is None or w.player.mode in ACTING, QUICK_CONFIRM_SECONDS, THROUGH_POLL):
+            return
+        LOG.info(
+            'Macro: buff: the game cast nothing after the %s key on %s: pressed again', skill_name(skill), label(target)
+        )
+        press_skill(run, skill, THROUGH_POLL)
 
     def resume(self, run: Run, again: Callable[[], None] | None) -> None:
         """Press the held strike again during the macro's own cast, so it is waiting when the cast ends (else a

@@ -17,6 +17,7 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import (
 )
 from inventory_tracking.builds.warlock.echoing_strike.damage import link_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES, cast
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import MIN_SCORE, Choice, Foe, Observation
@@ -457,7 +458,15 @@ def test_with_lead_moving_a_line_is_worth_what_it_takes_off_every_monster_where_
 
 
 # The leader focus (the player, 2026-10-20: "pack leader/herald first"): a line laid through a leader worth
-# `LinePolicy.focus` of the best line is cast instead of it.
+# `LinePolicy.focus` of the best line is cast instead of it. These play HOLD_LEADER off (the share rule they pin;
+# the hold's own tests follow them).
+@pytest.fixture
+def no_hold(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack
+
+    monkeypatch.setattr(attack, 'HOLD_LEADER', False)
+
+
 def pack_and_leader(beside: bool) -> Observation:
     """Three minions on one bearing (one line takes all three) and a leader on another, alone or with one beside it."""
     foes = {1: foe(8.0, 0.0), 2: foe(10.0, 0.0), 3: foe(12.0, 0.0), 9: foe(0.0, 10.0, elite=True)}
@@ -472,11 +481,11 @@ def aimed(attack: EchoingStrike, seen: Observation) -> Choice:
     return found
 
 
-def test_with_no_focus_the_best_line_goes_through_the_pack_not_its_leader():
+def test_with_no_focus_the_best_line_goes_through_the_pack_not_its_leader(no_hold):
     assert aimed(ATTACK, pack_and_leader(beside=True)).unit in {1, 2, 3}
 
 
-def test_with_the_focus_a_line_through_the_leader_worth_its_share_of_the_best_is_cast_instead():
+def test_with_the_focus_a_line_through_the_leader_worth_its_share_of_the_best_is_cast_instead(no_hold):
     focused = replace(ATTACK, focus=0.85)
     # The leader and one beside it: 2 x 2,800 x ELITE_WEIGHT + 2,800 against the pack's 3 x 2,800: more than 85%
     seen = pack_and_leader(beside=True)
@@ -491,7 +500,7 @@ def test_with_the_focus_a_line_through_the_leader_worth_its_share_of_the_best_is
     assert aimed(focused, Observation(HERE, {1: foe(10.0, 0.0)})).unit == 1
 
 
-def test_focus_leaders_puts_the_share_on_the_games_attack(monkeypatch):
+def test_focus_leaders_puts_the_share_on_the_games_attack(monkeypatch, no_hold):
     from inventory_tracking.builds.warlock.echoing_strike import attack
 
     seen = pack_and_leader(beside=True)
@@ -499,3 +508,167 @@ def test_focus_leaders_puts_the_share_on_the_games_attack(monkeypatch):
     assert aimed(ATTACK, seen).unit in {1, 2, 3}
     monkeypatch.setattr(attack, 'FOCUS_LEADERS', True)
     assert aimed(ATTACK, seen).unit == 9
+
+
+# The leader held (HOLD_LEADER; the player, 2026-10-21 ~18:58: "we're not focusing and delivering good damage ...
+# targeted at wrong location => spread projectiles => low dps"; rca/2026-10-21/herald-aiming-findings.md): a leader
+# in reach is struck until it dies, the focal point on it, a Herald first, the same one kept while it is seen.
+def holding() -> EchoingStrike:
+    """A sweep of its own with the hold on: its `held` is not the game's attack's."""
+    return EchoingStrike(damage_of=flat, hold=True)
+
+
+def blades_on(origin, focal, at) -> int:
+    """How many of the five blades of a cast at `focal` come within the contact radius of `at` on the way out."""
+    return sum(
+        any(math.dist(point, at) <= CONTACT_RADIUS for point in path[: OUT_FRAMES + 1])
+        for path in cast(origin, focal, lambda frame: origin)
+    )
+
+
+def test_the_hold_strikes_a_leader_in_reach_through_its_body_whatever_its_pack_is_worth():
+    seen = pack_and_leader(beside=False)  # the pack's line takes 3 x 2,800, the leader's 2 x 2,800: 67%
+    attack = holding()
+    found = aimed(attack, seen)
+    leader = seen.foes[9].at
+    assert found.unit == 9
+    assert attack.held.unit == 9
+    assert 0.0 <= math.dist(HERE, found.focal) - math.dist(HERE, leader) <= 1.0  # on it or one unit past
+    assert blades_on(HERE, found.focal, leader) == 5  # the five meet on it
+
+
+def test_a_held_leader_is_kept_until_it_is_gone_and_a_herald_takes_over_from_any_other():
+    attack = holding()
+    far = foe(0.0, 14.0, elite=True)
+    assert aimed(attack, Observation(HERE, {1: foe(8.0, 0.0), 7: far})).unit == 7
+    # A leader nearer than the held one: the held one still
+    assert aimed(attack, Observation(HERE, {1: foe(8.0, 0.0), 7: far, 8: foe(-6.0, 0.0, elite=True)})).unit == 7
+    # The held one gone: the nearest leader, held from here
+    assert aimed(attack, Observation(HERE, {1: foe(8.0, 0.0), 8: foe(-6.0, 0.0, elite=True)})).unit == 8
+    assert attack.held.unit == 8
+    # A Herald in reach takes it over from a leader that is none, and keeps it against a nearer leader
+    herald = replace(foe(0.0, -16.0, elite=True), tier=5)
+    minion = replace(foe(0.0, -12.0), tier=5)  # a Herald's minion carries the tier, not the rank
+    assert not minion.herald
+    seen = Observation(HERE, {8: foe(-6.0, 0.0, elite=True), 5: herald, 6: minion})
+    assert aimed(attack, seen).unit == 5
+    assert aimed(attack, Observation(HERE, {8: foe(-6.0, 0.0, elite=True), 5: herald, 9: foe(4.0, 0.0, elite=True)}))
+    assert attack.held.unit == 5
+
+
+def test_a_held_leader_with_no_line_to_it_now_is_struck_round_and_kept():
+    attack = holding()
+    leader, pack = foe(12.0, 0.0, elite=True), {1: foe(0.0, 8.0), 2: foe(0.0, 10.0)}
+    assert aimed(attack, Observation(HERE, {9: leader, **pack})).unit == 9
+    # A wall between: no blade reaches it, the pack's line is cast and the leader stays held
+    walled = Observation(HERE, {9: leader, **pack}, blocked=wall_at(6.0))
+    assert aimed(attack, walled).unit in {1, 2}
+    assert attack.held.unit == 9
+    assert aimed(attack, Observation(HERE, {9: leader, **pack})).unit == 9
+
+
+def test_a_leader_out_of_the_blades_reach_is_no_hold():
+    attack = holding()
+    seen = Observation(HERE, {1: foe(8.0, 0.0), 9: foe(0.0, REACH + 2.0, elite=True)})
+    assert aimed(attack, seen).unit == 1
+    assert attack.held.unit is None
+
+
+def test_the_units_named_first_go_before_the_held_leader():
+    # A boss, a bound summoner, what bars the goal, the dolls (macros/hunt.py `choose`, `aim_choice`'s `first`)
+    attack = holding()
+    seen = pack_and_leader(beside=False)
+    assert aimed(attack, seen).unit == 9
+    named = attack.aim(seen, through=[1])
+    assert named is not None
+    assert named.unit == 1
+
+
+# The take of 2026-10-21 18:54:42.84 (inventory_tracking/runs/combat/20261021T155355Z-128, Worldstone Keep 1): the
+# tier 5 Herald (a Vile Witch, 4013196991) 13.5 units off, its pack about the character: (unit, txt, place, life of
+# 128, type flags, Herald tier)
+MOMENT_HERE = (12618.5, 10520.52)
+MOMENT = (
+    (3120801425, 638, (12628.5, 10505.5), 105, 16, 5),
+    (3762071834, 638, (12626.5, 10506.5), 64, 16, 5),
+    (1409781027, 638, (12620.15, 10501.15), 128, 16, 5),
+    (1719712164, 638, (12612.5, 10516.5), 103, 16, 5),
+    (3766063669, 638, (12617.5, 10514.5), 102, 16, 5),
+    (4013196991, 638, (12628.5, 10511.5), 89, 8, 5),
+    (2819562054, 638, (12627.5, 10504.5), 17, 16, 5),
+    (3439440712, 638, (12628.5, 10513.5), 12, 16, 5),
+    (859847890, 638, (12617.53, 10505.21), 119, 16, 5),
+    (3789981911, 638, (12624.5, 10492.5), 111, 16, 5),
+    (3885638495, 638, (12614.91, 10515.18), 100, 16, 5),
+    (429923945, 638, (12625.14, 10511.62), 108, 16, 5),
+)
+MOMENT_HERALD = 4013196991
+
+
+def moment() -> Observation:
+    from inventory_tracking.combat.mechanics.life import foe_points, leader
+
+    foes = {
+        unit: Foe(txt, at, foe_points(txt, 128, flags, tier) * life / 128, leader(flags), tier=tier)
+        for unit, txt, at, life, flags, tier in MOMENT
+    }
+    return Observation(MOMENT_HERE, foes)
+
+
+def test_in_the_takes_herald_fight_the_line_goes_through_the_herald_with_the_blades_meeting_on_it(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack
+
+    herald = next(at for unit, _, at, *_ in MOMENT if unit == MOMENT_HERALD)
+    monkeypatch.setattr(attack, 'HOLD_LEADER', False)
+    best = aimed(EchoingStrike(), moment())
+    # The sweep's line then (Health Link left out): through a minion, the focal point 3 units short of it, the blades
+    # crossing there and fanning out over the pack, two of the five on the Herald's edge
+    assert best.unit != MOMENT_HERALD
+    assert blades_on(MOMENT_HERE, best.focal, herald) == 2
+    found = aimed(EchoingStrike(hold=True), moment())
+    assert found.unit == MOMENT_HERALD
+    assert blades_on(MOMENT_HERE, found.focal, herald) == 5
+
+
+def test_hold_leader_puts_the_hold_on_the_games_attack(monkeypatch):
+    from inventory_tracking.builds.warlock.echoing_strike import attack
+
+    monkeypatch.setattr(attack, 'HOLD_LEADER', False)
+    assert aimed(EchoingStrike(damage_of=flat), pack_and_leader(beside=False)).unit in {1, 2, 3}
+    monkeypatch.setattr(attack, 'HOLD_LEADER', True)
+    game = EchoingStrike(damage_of=flat)
+    assert aimed(game, pack_and_leader(beside=False)).unit == 9
+    assert game.held.unit == 9  # the copy the switch makes holds it in the attack's own `held`
+
+
+def test_a_leader_immune_to_the_blades_is_held_too():
+    # The player, 2026-10-21 ~20:15: "we still need to focus physical immune mobs, and magical immune"; "we need to do
+    # the best aiming when we're trying to focus mob" (the 18:35 Gloam Herald stood at physical 110)
+    from inventory_tracking.game.layout import COLD_RESIST, MAGIC_RESIST, PHYSICAL_RESIST
+
+    pack = {1: foe(8.0, 0.0), 2: foe(10.0, 0.0), 3: foe(12.0, 0.0)}
+    for immune in (PHYSICAL_RESIST, MAGIC_RESIST, COLD_RESIST):
+        attack = holding()
+        stone = replace(foe(0.0, 10.0, elite=True), tier=5, immune_to=frozenset({immune}))
+        assert aimed(attack, Observation(HERE, {9: stone, **pack})).unit == 9
+        assert attack.held.unit == 9
+
+
+@pytest.mark.parametrize('away', [10.0, 14.0, 18.0, 21.5])
+def test_the_held_line_meets_on_an_immune_leader_at_every_bearing_through_the_screen(away):
+    # The 18:35 Gloam Herald (physical 110) kept at 18 by manaburn.CASTER_RANGE: the line from there still meets on
+    # it. The window shows less than the blades fly (game/view.py `reachable_focal`): toward the screen's bottom the
+    # focal point is drawn in (14.8 for a leader 21.5 off), and the five blades still pass within the contact radius
+    from inventory_tracking.game.layout import PHYSICAL_RESIST
+    from inventory_tracking.game.view import Viewport
+
+    view = Viewport(2560 / 1418)
+    for degrees in range(0, 360, 30):
+        angle = math.radians(degrees)
+        at = (HERE[0] + away * math.cos(angle), HERE[1] + away * math.sin(angle))
+        gloam = Foe(310, at, 1e6, True, tier=5, immune_to=frozenset({PHYSICAL_RESIST}))
+        minion = Foe(310, (at[0] + 3.0, at[1] + 2.0), 5000.0, tier=5)
+        seen = Observation(HERE, {9: gloam, 1: minion}, aimable=lambda focal: view.reachable_focal(HERE, focal))
+        found = aimed(holding(), seen)
+        assert found.unit == 9, degrees
+        assert blades_on(HERE, found.focal, at) == 5, degrees

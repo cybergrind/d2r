@@ -3,7 +3,8 @@
     "third-parties/repos.json: d2data fc469993502d skills.json and skilldesc.json",
     "pricing/data/wp-a-blues.json",
     "pricing/data/wp-c-anya.json",
-    "guides/warlock.html"
+    "guides/warlock.html",
+    "pricing/triage/import_class_rules.py PAID_SKILLS (2026-10-22: Grim Ward, Increased Speed, Shock Wave; pages from d2data skilldesc.json)"
   ],
   "skills": [
     {
@@ -469,8 +470,20 @@
       "tab_layer": 32
     },
     {
+      "id": 148,
+      "name": "Increased Speed",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
       "id": 149,
       "name": "Battle Orders",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 150,
+      "name": "Grim Ward",
       "class_id": 4,
       "tab_layer": 34
     },
@@ -573,6 +586,12 @@
     {
       "id": 239,
       "name": "Fire Claws",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 243,
+      "name": "Shock Wave",
       "class_id": 5,
       "tab_layer": 41
     },

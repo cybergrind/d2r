@@ -1,5 +1,7 @@
 """The super chests a level run opens (macros/superchests.py; rca/2026-10-20/superchest-findings.md)."""
 
+import pytest
+
 from inventory_tracking.game.records import Thing
 from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Room
 from inventory_tracking.macros import superchests
@@ -93,3 +95,26 @@ def replace_mode(thing, mode):
     from dataclasses import replace
 
     return replace(thing, mode=mode)
+
+
+@pytest.mark.parametrize('clicked_is_done', [True, False])
+def test_a_chest_clicked_then_out_of_the_read_is_done_as_opened_not_out_of_time(monkeypatch, caplog, clicked_is_done):
+    # 09:05:41 and 09:07:12 on 2026-10-21: two Upper Kurast chests opened, then logged "not done in 45 s: left"
+    import logging
+
+    from inventory_tracking.macros.superchests import SPOT_SECONDS
+
+    monkeypatch.setattr(superchests, 'CLICKED_IS_DONE', clicked_is_done)
+    near, far = sorted(SPOTS, key=lambda spot: spot[1])
+    here = (5000.0, 4900.0)
+    chest = Thing(7, 88, 0, *near)
+    goal, book = level_goal_at(here, (chest,), tries={7: 1})  # read and clicked once
+    assert goal is not None
+    assert goal.place == near
+    with caplog.at_level(logging.INFO):
+        goal, _ = level_goal_at(here, tries={7: 1}, now=SPOT_SECONDS + 1.0, book=book)  # out of the read
+    assert goal is not None
+    assert goal.place == far
+    said = ' '.join(record.getMessage() for record in caplog.records)
+    assert ('opened' in said) == clicked_is_done
+    assert ('not done in' in said) != clicked_is_done

@@ -73,31 +73,38 @@ layers 1–4 are pure (no input, no memory reads, no clock); only layer 5 touche
 ```python
 # loot/facts.py
 class Where(StrEnum):
-    GROUND = 'ground'; INVENTORY = 'inventory'; CUBE = 'cube'; STASH = 'stash'; EQUIPPED = 'equipped'
+    GROUND = 'ground'
+    INVENTORY = 'inventory'
+    CUBE = 'cube'
+    STASH = 'stash'
+    EQUIPPED = 'equipped'
+
 
 class Owner(StrEnum):
-    LOOP = 'loop'        # a volatile cell or the cube (macros/volatile.py); the only items any action may touch
-    PLAYER = 'player'    # a protected cell, a print match, equipment, the stash
+    LOOP = 'loop'  # a volatile cell or the cube (macros/volatile.py); the only items any action may touch
+    PLAYER = 'player'  # a protected cell, a print match, equipment, the stash
     UNKNOWN = 'unknown'  # not told yet: treated as PLAYER (S1)
+
 
 @dataclass(frozen=True)
 class ItemFacts:
     """What an item is, as read. Unread fields are None, never a guess."""
+
     unit_id: int
-    code: str                      # items.txt code ('uit'), from items/metadata.py, never written from memory
-    base_type: str                 # itemtypes code ('shie', 'knif', 'pole'…)
+    code: str  # items.txt code ('uit'), from items/metadata.py, never written from memory
+    base_type: str  # itemtypes code ('shie', 'knif', 'pole'…)
     size: tuple[int, int]
-    quality: int                   # ItemData quality: 1 low … 8 crafted
+    quality: int  # ItemData quality: 1 low … 8 crafted
     identified: bool
     ethereal: bool | None
-    sockets: int | None            # stat 194; None unread
-    rolls: Mapping[str, int]       # 'id:layer' → raw value (the identify read's keys, appraisal/owned.py stat_key)
-    name: str | None = None        # unique/set/rare name once identified
-    row: int | None = None         # uniqueitems/setitems row (ItemData +0x34) once identified
+    sockets: int | None  # stat 194; None unread
+    rolls: Mapping[str, int]  # 'id:layer' → raw value (the identify read's keys, appraisal/owned.py stat_key)
+    name: str | None = None  # unique/set/rare name once identified
+    row: int | None = None  # uniqueitems/setitems row (ItemData +0x34) once identified
     where: Where = Where.GROUND
     owner: Owner = Owner.UNKNOWN
     cell: tuple[int, int] | None = None
-    page: int | None = None        # stash page (0 personal, 1..5 shared)
+    page: int | None = None  # stash page (0 personal, 1..5 shared)
     observation: Mapping | None = None  # the identify watcher's full read, when there is one
 ```
 
@@ -107,29 +114,34 @@ class ItemFacts:
 class RollSpec:
     """One roll that decides the price or the use: its stat key, the direction that is better, the range it rolls in
     and the value from which it is 'good' (paid). `facet` rolls (ethereal, sockets) are matched, not ranked."""
-    key: str                  # 'id:layer', or a facet: 'ethereal', 'sockets'
-    label: str                # 'Enhanced Defense', '+3 Apocalypse'
-    low: int; high: int
+
+    key: str  # 'id:layer', or a facet: 'ethereal', 'sockets'
+    label: str  # 'Enhanced Defense', '+3 Apocalypse'
+    low: int
+    high: int
     better: Literal['higher', 'lower', 'match'] = 'higher'
-    good: int | None = None   # the paid floor (Shaftstop 218 ED; Sacred Targe 45 all-res)
-    source: str = ''          # file#anchor or file:line
+    good: int | None = None  # the paid floor (Shaftstop 218 ED; Sacred Targe 45 all-res)
+    source: str = ''  # file#anchor or file:line
+
 
 @dataclass(frozen=True)
 class Want:
     """A demand row: who uses it (build slot, merc slot, runeword base, trade) and what it must have."""
+
     who: Literal['warlock', 'merc', 'runeword-base', 'trade']
-    label: str                # 'Echoing Strike ring', 'Insight base (merc)', 'Monarch of Deflecting'
+    label: str  # 'Echoing Strike ring', 'Insight base (merc)', 'Monarch of Deflecting'
     must: tuple[RollSpec, ...]
-    always_keep: bool = False # BiS rows (Monarch of Deflecting 4os…): kept whatever the copies
+    always_keep: bool = False  # BiS rows (Monarch of Deflecting 4os…): kept whatever the copies
     source: str = ''
+
 
 @dataclass(frozen=True)
 class Value:
-    worth_ist: float | None          # the price by its own rolls (identify/service.py value_ist), None unknown
-    band: Band | None                # q1/median asks, sellers, observed date
-    verdict: str | None              # the triage verdict (sell/slow/check/self/vendor), for the log only
-    wants: tuple[Want, ...]          # matched demand rows
-    matters: tuple[RollSpec, ...]    # the rolls that decide it (§3.1); () = none known
+    worth_ist: float | None  # the price by its own rolls (identify/service.py value_ist), None unknown
+    band: Band | None  # q1/median asks, sellers, observed date
+    verdict: str | None  # the triage verdict (sell/slow/check/self/vendor), for the log only
+    wants: tuple[Want, ...]  # matched demand rows
+    matters: tuple[RollSpec, ...]  # the rolls that decide it (§3.1); () = none known
     tier: Literal['expensive', 'cheap', 'worthless', 'unknown']
     reason: str
 ```
@@ -137,17 +149,18 @@ class Value:
 ```python
 # loot/keep.py
 class Action(StrEnum):
-    KEEP = 'keep'               # stash it
-    IDENTIFY = 'identify'       # its value needs the identified read: a scroll in the field, Cain in town
-    DROP = 'drop'               # loop's item that fails: on the ground, remembered for the game (N6)
-    SELL = 'sell'               # only an item already in town whose drop would be the same; see §8 Q4
-    NEVER_TOUCH = 'never-touch' # the player's (S1), or a never-sell class carried by the loop: kept as is
+    KEEP = 'keep'  # stash it
+    IDENTIFY = 'identify'  # its value needs the identified read: a scroll in the field, Cain in town
+    DROP = 'drop'  # loop's item that fails: on the ground, remembered for the game (N6)
+    SELL = 'sell'  # only an item already in town whose drop would be the same; see §8 Q4
+    NEVER_TOUCH = 'never-touch'  # the player's (S1), or a never-sell class carried by the loop: kept as is
+
 
 @dataclass(frozen=True)
 class Decision:
     action: Action
-    rule: str                   # 'K5 expensive duplicate', 'K6 not better than 2 owned (ED 50 vs 53, 56)'
-    reason: str                 # for the log and the HUD
+    rule: str  # 'K5 expensive duplicate', 'K6 not better than 2 owned (ED 50 vs 53, 56)'
+    reason: str  # for the log and the HUD
     compared: tuple[Comparison, ...] = ()  # the owned copies it was compared with, roll by roll
 ```
 
@@ -155,8 +168,11 @@ class Decision:
 # loot/storage.py
 @dataclass(frozen=True)
 class Storage:
-    inventory: Grid; volatile: frozenset[tuple[int, int]]   # the loop's cells of the inventory
-    cube: Grid | None; pages: tuple[Page, ...]; stacks: Mapping[int, int]
+    inventory: Grid
+    volatile: frozenset[tuple[int, int]]  # the loop's cells of the inventory
+    cube: Grid | None
+    pages: tuple[Page, ...]
+    stacks: Mapping[int, int]
 ```
 
 ### 1.2 Who decides what today, and where it goes
@@ -203,11 +219,13 @@ class Loot:
     """The loop's loot: the items it carries, the drops near it, the room it has. Reads through `world`, decides
     through the pure layers, acts through `hands`. One instance per run (`Run`), cheap to make."""
 
-    def __init__(self, world: LootWorld, hands: LootHands, appraiser: Appraiser, owned: OwnedCopies,
-                 rules: KeepRules = RULES) -> None: ...
+    def __init__(
+        self, world: LootWorld, hands: LootHands, appraiser: Appraiser, owned: OwnedCopies, rules: KeepRules = RULES
+    ) -> None: ...
 
-    def items(self, *, where: Iterable[Where] = (Where.INVENTORY, Where.CUBE),
-              identified: bool | None = None) -> list[Item]:
+    def items(
+        self, *, where: Iterable[Where] = (Where.INVENTORY, Where.CUBE), identified: bool | None = None
+    ) -> list[Item]:
         """The loop's own items (Owner.LOOP) in `where`, each with its value and decision; never the player's.
         `identified`: only identified (True) or unidentified (False) ones. Ordered: the best rolled first, so that two
         copies carried in one visit are judged in that order and the first counts as owned for the second."""
@@ -241,6 +259,7 @@ class Loot:
 ```python
 class Item:
     """One of the loop's carried items: what it is, what it is worth, what to do with it."""
+
     facts: ItemFacts
     value: Value
     decision: Decision
@@ -266,7 +285,7 @@ class Item:
 ```python
 class GroundItem:
     facts: ItemFacts
-    verdict: GroundVerdict      # pick, must_have, then (KEEP | IDENTIFY | JUDGE_IN_TOWN), class name, reason
+    verdict: GroundVerdict  # pick, must_have, then (KEEP | IDENTIFY | JUDGE_IN_TOWN), class name, reason
 
     def is_pick(self) -> bool: ...
     def pick_up(self) -> Item | None:
@@ -297,25 +316,31 @@ class TownRoutine:
 ```python
 class LootWorld(Protocol):
     """Reads. The live one wraps GameMemory/Run.reads; tests give plain data."""
-    def carried(self) -> Sequence[ItemFacts]: ...     # the loop's and the player's, with Owner set
+
+    def carried(self) -> Sequence[ItemFacts]: ...  # the loop's and the player's, with Owner set
     def ground(self) -> Sequence[ItemFacts]: ...
     def storage(self) -> Storage: ...
-    def tome(self) -> int | None: ...                  # Identify charges (Pack.identifies); None: no tome / unread
+    def tome(self) -> int | None: ...  # Identify charges (Pack.identifies); None: no tome / unread
+
 
 class Appraiser(Protocol):
     def appraise(self, facts: ItemFacts) -> Value: ...  # live: KnowledgeAppraiser; ground: WantsAppraiser; tests: table
 
+
 class OwnedCopies(Protocol):
     def copies(self, facts: ItemFacts) -> Sequence[ItemFacts] | None: ...  # None: cannot be told (S8)
+
 
 class LootHands(Protocol):
     """Every game action the loot layer takes. Each verifies its effect in memory and returns whether it took;
     each refuses the player's items itself (S1) — a second guard below the decision."""
+
     def pick_up(self, item: ItemFacts) -> bool: ...
     def drop(self, item: ItemFacts, why: str) -> bool: ...
     def identify(self, item: ItemFacts) -> ItemFacts | None: ...
     def to_cube(self, moves: Sequence[Move]) -> int: ...
     def arrange_keys(self) -> bool: ...
+
 
 class TownHands(LootHands, Protocol):
     def cain(self, items: Sequence[ItemFacts]) -> int: ...
@@ -352,14 +377,14 @@ the waypoint or the portal); and before a no-room trip (`running/room.py`), so a
 
 ```python
 def settle(self) -> Settled:
-    for item in self.identify_pending():          # scroll identify, verified, appraised (§5)
+    for item in self.identify_pending():  # scroll identify, verified, appraised (§5)
         pass
     for item in self.items(identified=True):
         if not item.is_keep():
-            item.drop()                           # on the ground; PutDown.reject: not picked again this game
+            item.drop()  # on the ground; PutDown.reject: not picked again this game
     if self.room_low():
-        return Settled(town=True)                 # the loop's visit_due → TownRoutine.run() at the next town leg
-    self.optimize_space()                         # cube, keys out of the 2x4 block
+        return Settled(town=True)  # the loop's visit_due → TownRoutine.run() at the next town leg
+    self.optimize_space()  # cube, keys out of the 2x4 block
     return Settled(town=False)
 ```
 
@@ -521,7 +546,7 @@ decided from ground facts; "ID" = needs the identified read.
 | G5 white Monarch `uit` (armor:10235) | | superior ED ≥ 15 with 4 or 0 sockets; plain 4os only while no Spirit base is owned (self-use floor) | KEEP | sup 15 ED 4os 9.3→17.1, 0os 2.6→11.4; plain 4os 0.42→0.79 (q1 0.674/15, 2026-10-04) → cheap: K6 | PK-monarch `:288`; `wp-b-prices.json:3399`; `warlock.html:156` (Spirit 4os Monarch off-hand) |
 | G6 **magic Monarch** | `uit`, magic | **every** magic Monarch (2x3) — today only 4os ones | **ID in the field** | 4os (Jeweler's, any affix: 9.3→71.5 n50) KEEP; **of Deflecting** (block 20 + faster block 30, `magicsuffix.json:2990`) at 4os: always_keep (74.6→114 n17); 3os of Deflecting: KEEP (q1 6, 20 sellers, 2026-10-08); anything else DROP in the field | PK-blue-jeweler `:296`; `guides/pricing-primer.html:479`; `pricing.html:199, 331` |
 | G7 Paladin shields | Sacred Targe / Rondache (classes 498, 499, `pickmode.py:69`) | today's `shield_base` (all-res 45; 40–44 with 3+os) | KEEP | as today | PK-pala-shields `:289`; history/pickmode.md |
-| G8 **Void daggers (staff mods)** | Kriss `kri` (weapons:19962), Blade `bld` (:16353), Cinquedeas `9kr` (:11504), Stilleto `9bl` (:9532), Fanged Knife `7kr` (:4257), Legend Spike `7bl` (:2270) — the only daggers with 3 sockets | white/superior with **3 sockets and a +3 staff mod** of a paid skill — Abyss 402, Hex: Purge 389, **Apocalypse 401** (new: the player's "+3 apocalypse", `shop/skills.json:929`) — or 0 sockets with +3 Abyss (Larzuk); not a 3os dagger without one (the player, 2026-10-17 17:45: "we're storing every 3os dagger, while in reality we need something that is really good for void", history/pickmode.md), although the guide prices plain 3os elite daggers at mid (`pricing.html:352`): Q9 | KEEP | 3os elite: Legend Spike 4.05→17.3 (n37), Fanged Knife 0.67→22.8 (n42); +3 Abyss / Hex: Purge fills 8.2 / 17.5; +3 Apocalypse ~5 (n24, `pricing.html:346-348`); K5/K6 | PK-rotw-daggers-grimoires `:294`; `warlock.html:155, 220, 263-264`; `pricing.html:352-353`; daggers 1os elsewhere (Dirk, Poignard, Rondel, Bone Knife, Mithral Point): never |
+| G8 **Void daggers (staff mods)** | Kriss `kri` (weapons:19962), Blade `bld` (:16353), Cinquedeas `9kr` (:11504), Stilleto `9bl` (:9532), Fanged Knife `7kr` (:4257), Legend Spike `7bl` (:2270) — the only daggers with 3 sockets | white/superior with **3 sockets and a +3 staff mod** of a paid skill — Abyss 402, Hex: Purge 389, **Apocalypse 401** (new: the player's "+3 apocalypse", `shop/skills.json:929`) — or 0 sockets with +3 Abyss, Hex: Purge or Apocalypse (Larzuk; Apocalypse added 2026-10-22, the player: "add 0os +3 apocalypse too"); not a 3os dagger without one (the player, 2026-10-17 17:45: "we're storing every 3os dagger, while in reality we need something that is really good for void", history/pickmode.md), although the guide prices plain 3os elite daggers at mid (`pricing.html:352`): Q9 | KEEP | 3os elite: Legend Spike 4.05→17.3 (n37), Fanged Knife 0.67→22.8 (n42); +3 Abyss / Hex: Purge fills 8.2 / 17.5; +3 Apocalypse ~5 (n24, `pricing.html:346-348`); K5/K6 | PK-rotw-daggers-grimoires `:294`; `warlock.html:155, 220, 263-264`; `pricing.html:352-353`; daggers 1os elsewhere (Dirk, Poignard, Rondel, Bone Knife, Mithral Point): never |
 | G9 magic/rare Warlock class items | daggers (`knif`), grimoires (`grim`, wa1–waf, armor:13437–14585) | magic or rare | ID | +2 Warlock (Arch-Devil's, `magicprefix.json:13176`), +3 tree (Torrid 23 / Forbidden 22 / Malevolent 21, `:12997, :13068, :13137`) with a companion; rare +2 Warlock (q1 4, median 15); magic grimoire +3 tree + all-res (~51); "+3 staff mod without a class or tree prefix stays vendor" → DROP | PK-blue-class-items `:298`; `pricing.html:202, 238, 346-349` |
 | G10 **circlets** | Circlet `ci0`, Coronet `ci1`, Tiara `ci2`, Diadem `ci3` (armor:1897–2143) | magic or rare | ID | **rare 20 FCR + +2 Warlock (or +3 Eldritch)**: always_keep (Warlock helm, `warlock.html:158`); magic "of the Magus" + class prefix; Artisan's Tiara of Speed; rares with 2 of skills/FCR/FRW/res/sockets | PK-blue-circlet `:297`; `pricing.html:200, 233`; primer `:481-485` (rare +2/20 FCR/2os Tiara 34→143) |
 | G11 **rare rings & amulets** | `rin`, `amu` | rare/crafted (today: taken, judged in town) | ID | ring: **10 FCR + life leech + mana leech** (the player's "dual leech FCR ring"): always_keep; 10 FCR + res + life (Warlock ring, `warlock.html:164`); AR ≥ 100 + LL ≥ 5 (melee, Ohm–2 Jah); amulet: +2 class + 10 FCR (+2 Warlock / 10 FCR ≈ Ist); any FCR, life or +2 skills (the player's ruling of 2026-10-18, today `macros/keepers.py`) | PK-blue-jewelry-gloves `:299`; `pricing.html:228-259`; `warlock.html:163-164, 192-193` |
@@ -615,6 +640,7 @@ source line. A case fails with the item's `why()`.
 | `dagger_3os_without_paid_staffmod_left` | white `7bl` 3os, 107:401 = 1 | LEAVE (the 2026-10-17 ruling) | G8 |
 | `warlock_dagger_3os_plus3_apocalypse` | white `9kr` 3os, 107:401 = 3 | PICK → KEEP | K5 (G8) |
 | `warlock_dagger_0os_elite_plus3_abyss` | white `7bl` 0os, 107:402 = 3 | PICK → KEEP | G8 |
+| `warlock_dagger_0os_elite_plus3_apocalypse` | white `7kr` 0os eth, 107:401 = 3 | PICK → KEEP | G8 (2026-10-22) |
 | `warlock_spirit_monarch_superior_15ed_4os` | superior `uit` 4os ED 15 | KEEP | K5 |
 | `warlock_enigma_mage_plate_superior_15ed_3os` / `warlock_coh_archon_superior_15ed_4os` | superior `xtp` 3os ED 15 / `utp` 4os ED 15 | KEEP | K5 |
 | `rare_ring_dual_leech_fcr` | rare `rin`, 105=10, 60=5, 62=5 | ID → KEEP (dup kept) | K3 |
@@ -922,9 +948,10 @@ Three switches, each on, each alone:
 - The drop rule (`api.surplus`, the only way `droppable` lets a set/unique down): the decision is DROP **and** it is
   appraised, no want row names it, its worth by its own rolls is under `DUPLICATE_IST` (1 Ist), a comparable owned
   copy exists, and it is not better than every owned copy on the rolls that matter (`value.better_than`, mixed by
-  score). With no price by its rolls (Q13): only the same item with equal or worse rolls than an owned copy and a KB
-  band (q1 and median) under 1 Ist; no band → kept. So: the first copy kept (K4), a better copy kept even when the
-  appraisal says vendor (K8 decided, the guard refuses), a 1 Ist+ copy kept (K5), unique charms never (K1 and
+  score). With no price by its rolls (Q13): only the same item with equal or worse rolls than an owned copy; since
+  2026-10-21 whatever its KB band (`WORSE_COPY_GOES`, the player: "Worse copy goes", on a 4th Bloodthief kept by a
+  2 Ist ask median); off: and a KB band (q1 and median) under 1 Ist, no band → kept. So: the first copy kept (K4), a better copy kept even when the
+  appraisal says vendor (K8 decided, the guard refuses) but since 2026-10-21 only a usable one (`BEST_COPY_USABLE_ONLY`), a 1 Ist+ copy kept (K5), unique charms never (K1 and
   NEVER_DROPPED). Drop reason in the log: `in the field: <rule> a surplus copy, not better, cheap: <reason>`.
 - **The cube**: `Field.settle` also reads the loop's items in the cube (`FieldHands.cubed`: `pack.in_cube`, not
   KEPT, not `protected` by the player's prints, only once the loop told the player's cells). An item picked for a
@@ -1142,6 +1169,23 @@ is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
   Each item keeps its first source: the file and JSON pointer, checked to name it, with the build and variant.
   Today's first copies the rule now sells: The Patriarch (0.4, vendor), Steel Pillar (0.904, slow), Demonhorn's Edge
   (0.925, slow), Corpsemourn (0.562, slow), Messerschmidt's Reaver (0.196, vendor). Waterwalk stays (usable).
+- **Top picks + usable best** (the player, 2026-10-21 ~08:55, answering "What should count as usable?";
+  rca/2026-10-21/weak-keepers-findings.md B4, B5).
+  - B4 (`build_wants.USABLE_SLOT_DEPTH`, 5): a slot list of `wp-a-builds.json` (main, and the merc's by stage) names
+    an item as usable only among its first 5 options; variants and guide lines whatever their place. 171 usable rows
+    (19 gone, among them M'avina's True Sight, Credendum, Eaglehorn, Trang-Oul's Guise, Wraith Flight; Bartuc's
+    stays: wake-of-fire Weapon, the 5th). None: every entry.
+  - B5 (`keep.BEST_COPY_USABLE_ONLY`, `keep.unusable_best`): K6 keeps a copy better than every owned one only when
+    a want row names it (K5 and K3 keep the dear and always-kept ones before). One no build names, under 1 Ist,
+    appraised `vendor` or `slow`, is K6 DROP even as the better roll (the 107% Patriarch over the owned 105%, 0.48
+    vendor); `surplus_copy` lets it go the same way. No price, `self` / `sell` / `check` / `keep`: kept. False: the
+    better copy kept whatever.
+- **Gheed's Fortune by its roll** (`keep.GHEEDS_BY_ROLL`, `keep.gheeds_low`; the player, 2026-10-21 ~09:00: "low
+  rolls doesn't sell", keep only "MF38, or MF35 + very good gold roll"; ~09:05: "do not sell our current gheed
+  charm"). The loop's identified Gheed's is K1 KEEP with magic find 38+, or 35+ with gold find 140+; else K1 DROP,
+  sold in town (`town_kept` lets it go whatever its appraisal; Jamella takes it, visit.py `never_down`), never put down
+  in the field (NEVER_DROPPED). Unidentified or unread rolls: kept. The character's own (its cell, the swap's) is the
+  player's (K0; the visit leaves the player's cells out). Other set/unique charms stay never sold.
 - Tests: `test_api_town.py` (Skullder's Ire, Corpsemourn, the switches, the kept log), `test_api.py` (the field
   drops a big first copy no build names), `fixtures/valuables.json` (Bloodtree Stump: dropped; Demon Limb, now
   usable, by K6), `test_visit.py` (the kept line).

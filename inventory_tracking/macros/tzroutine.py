@@ -48,7 +48,7 @@ from inventory_tracking.macros.agenda import (
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, LOOT as LOOT_STAGE, STAND, USE, Script
 from inventory_tracking.routes.tz_groups import ActiveZone, act_of_manual, match_active_zone, match_zones
-from inventory_tracking.routes.tz_routes import RouteExcursion, nearest_excursion, zone_route_plan
+from inventory_tracking.routes.tz_routes import RouteExcursion, nearest_excursion, route_excursion, zone_route_plan
 from inventory_tracking.terror.zones import level_population
 
 
@@ -76,6 +76,16 @@ WORKED_BY_RUNS = frozenset((FIGHT, USE, STAND))
 # Cloister (08:22-08:25 on 2026-10-20). The player, 2026-10-20 ~08:24: "there are 2 options: inner cloister ->
 # cathedral -> catacombs level -> kill andy / or cat2 -> cat 3 -> cat 4 -> andy"
 START_AT = {'Andariel': 35}
+# A zone's levels its trips leave out (START_AT's cut, a waypoint or town connector with no catalogue stage, no trip of
+# the zone's plan) get a trip of a catalogue route with a script on them, from that route's nearest waypoint, after the
+# zone's own trips (`skipped_trips`; the longest such trip where one covers another's levels). The player, 2026-10-22:
+# "we need to kill all bosses, no exceptions to that": Bone Ash (the Cathedral, cut by START_AT: 26 games), Shenk and
+# Dac Farren (Bloody Foothills), Pindleskin (Nihlathak's Temple) were never in a rotating zone's itinerary
+# (rca/2026-10-22/boss-audit-findings.md §4 cause 3). The Andariel trip stays from waypoint 35 first (her kill, the
+# player's 10-20 ruling), the Inner Cloister, the Cathedral and Catacombs 1 a trip from waypoint 32 after it. A level no
+# route reaches unblocked stays skipped, said (Moo Moo Farm: the Cow King, the red portal Wirt's Leg opens; the red
+# portals not in the map files). False: skipped, as before
+SKIPPED_TRIPS = True
 # A whole act terrorized (a Worldstone Shard's, routes/tz_groups.py `match_zones`) is planned with the rotation in one
 # itinerary, the act first. The player, 2026-10-20 ~19:00: "for TZ/TZ+ modes we want to know how to handle whole
 # terrorized act (when we terrorized it manually with stone)": before, the act matched no single zone and the loop
@@ -170,6 +180,17 @@ class Itinerary:
         done = set(finished)
         return next((trip for trip in self.excursions if area in trip.areas and not trip.over(done)), None)
 
+    def trip_of(self, area: int, finished: Iterable[int]) -> Excursion | None:
+        """The excursion `area` is worked by under zone navigation (macros/zonenav.py): the one under way
+        (`excursion_of`), else the first naming it not only crossing it, over or not. A level's trip is over for the
+        itinerary once its terminal is done, but the graph judges each level by itself: Duriel's Lair, entered from
+        the last tomb toured, was TRANSIT (the tour over) and explored on arrival, unfought (the act harness,
+        2026-10-21)."""
+        found = self.excursion_of(area, finished)
+        if found is not None:
+            return found
+        return next((trip for trip in self.excursions if area in trip.areas and area not in trip.passes), None)
+
     def next_excursion(self, finished: Iterable[int]) -> Excursion | None:
         """The first excursion not over."""
         done = set(finished)
@@ -193,11 +214,13 @@ class Itinerary:
 
 
 @functools.cache
-def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
+def itinerary(terrorized: frozenset[int], order: tuple[int, ...] = ()) -> Itinerary | None:
     """The itinerary of the zones whose levels are `terrorized` (`MANUAL_ZONES`: routes/tz_groups.py `match_zones`, a
-    terrorized act first, its boss's trip first; else the one rotating zone); None when no installed zone matches."""
+    terrorized act first, its boss's trip first; else the one rotating zone); None when no installed zone matches.
+    `order`: the acts a shard terrorized in the order they are played (agenda.py `Agenda.acts`: the kind's act, then
+    the acts of shards over the limit, actloop.py OVERFLOW); the other acts read after them, then the rotation."""
     if MANUAL_ZONES:
-        zones = match_zones(terrorized)
+        zones = played_first(match_zones(terrorized), order)
     else:
         zone = match_active_zone(terrorized)
         zones = (zone,) if zone is not None else ()
@@ -219,6 +242,9 @@ def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
                 continue  # another zone's trips cover its levels already (the union's, never one zone's own)
             trips.append(trip)
     covered = set().union(*(trip.zone for trip in trips)) if trips else set()
+    if SKIPPED_TRIPS:
+        trips += skipped_trips(zones, group, [area for area, _ in dict(skipped).items() if area not in covered])
+        covered = set().union(*(trip.zone for trip in trips)) if trips else set()
     skipped = [(area, why) for area, why in dict(skipped).items() if area not in covered]
     name = ' + '.join(zone.name for zone in zones)
     found = Itinerary(name, group, tuple(trips), tuple(sorted(skipped)))
@@ -231,6 +257,44 @@ def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
         f'; read terrorized in no zone: {stray}' if stray else '',
     )
     return found
+
+
+def skipped_trips(zones: Iterable[ActiveZone], group: frozenset[int], left: Iterable[int]) -> list[Excursion]:
+    """SKIPPED_TRIPS: the trips over the levels `left` of `zones` that no trip covers: for each, the first catalogue
+    route with a script on it whose trip to it from its nearest waypoint (routes/tz_routes.py `route_excursion`) is
+    unblocked; a trip whose terrorized levels another's hold is dropped (the trip to Catacombs 1 holds the
+    Cathedral's)."""
+    found: list[Excursion] = []
+    for zone in zones:
+        for area in left:
+            if area not in zone.areas:
+                continue
+            for route in ROUTES:
+                if not any(script.area == area for script in route.scripts):
+                    continue
+                trip = route_excursion(zone, route.name, area)
+                if trip is None or trip.blockers:
+                    continue
+                excursion = _excursion(trip, group, [])
+                if area in excursion.zone:
+                    found.append(excursion)
+                    break
+    kept: list[Excursion] = []
+    for trip in sorted(found, key=lambda each: -len(each.zone)):
+        if not any(trip.zone <= other.zone for other in kept):
+            kept.append(trip)
+    return [trip for trip in found if trip in kept]
+
+
+def played_first(zones: tuple[ActiveZone, ...], order: tuple[int, ...]) -> tuple[ActiveZone, ...]:
+    """`zones` (`match_zones`: the acts in act order, then the rotation) with the acts of `order` first, in its order;
+    the rest as they were."""
+
+    def rank(pair: tuple[int, ActiveZone]) -> tuple[int, int]:
+        act = act_of_manual(pair[1])
+        return (order.index(act), 0) if act in order else (len(order), pair[0])
+
+    return tuple(zone for _, zone in sorted(enumerate(zones), key=rank))
 
 
 def trips_said(trips: Iterable[Excursion]) -> str:
@@ -381,6 +445,10 @@ def policy_of(area: int, trip: Excursion | None, full_clear: bool = False, plus:
         return POLICY[area]
     bosses = boss_areas(trip.route)
     ahead = trip.areas[trip.areas.index(area) :]
+    if trip.touring(area):
+        # A tour's side level (Duriel's Lair, levels/handlers/tal_rasha.py DURIEL, 2026-10-21) is no boss ahead of the
+        # toured levels: entered mid-tour from whichever holds its way, the tour's rest after it
+        ahead = tuple(level for level in ahead if trip.touring(level))
     on_the_way = any(level in bosses for level in ahead)
     if not (TZ_PLUS if plus is None else plus):
         return ON_THE_WAY if on_the_way else COVER
@@ -437,6 +505,8 @@ def produce(view: GameView) -> list[Objective]:
                 return [Objective(WAYPOINT, 'to the Fortress for the visit', ERRAND, to=PANDEMONIUM_FORTRESS)]
             return [Objective(TOWN_ROUTINE, 'the town visit', ERRAND, exit='waypoint')]
         trip = plan.next_excursion(view.finished)
+        if trip is not None and side_done(trip, view):
+            trip = plan.next_excursion(view.finished | trip.ends)  # its tour all run, its side level left: over
         if trip is None:
             return []
         onward = trip.after(area) if trip.waypoint == area else None
@@ -481,9 +551,32 @@ def produce(view: GameView) -> list[Objective]:
         goals.append(Objective(NEXT_LEVEL, label, ONWARD, area))
     elif onward is not None and (view.stage != ENTER or view.stage_to in (0, onward)):
         goals.append(Objective(NEXT_LEVEL, f'on into {display_name(onward)}', ONWARD, area, to=onward))
-    elif plan.next_excursion(view.finished | trip.ends) is not None:
+    elif plan.next_excursion(view.finished | trip.ends) is not None or (
+        # A tour's side level (Duriel's Lair off the true tomb, routes/tz_routes.py `_sides`) with a toured level not
+        # run yet: home by the Town Portal, then its hub's waypoint for the tombs left (2026-10-21)
+        trip.tours and area != trip.hub and area not in trip.tours and not toured_out(trip, view)
+    ):
         goals.append(Objective(PORTAL_TO_TOWN, 'Town Portal for the next excursion', EXCURSION, area))
     return goals
+
+
+def toured_out(trip: Excursion, view: GameView) -> bool:
+    """Whether every level of `trip`'s tour is done or has had its run (a toured level is done only in the hub again,
+    macros/tzloop.py `tour_back`)."""
+    runs = dict(view.worked)
+    return all(level in view.finished or runs.get(level) for level in trip.tours)
+
+
+def side_done(trip: Excursion, view: GameView) -> bool:
+    """Whether `trip`'s tour went on into a side level after its toured levels (Duriel's Lair off the true tomb,
+    routes/tz_routes.py `_sides`, 2026-10-21), that level is done and the tour is all run: the trip is over, its hub not
+    gone to again for nothing (the levels after it in the itinerary next)."""
+    return (
+        bool(trip.tours)
+        and trip.terminal not in trip.tours
+        and trip.terminal in view.finished
+        and toured_out(trip, view)
+    )
 
 
 def toured(trip: Excursion, area: int, finished: frozenset[int]) -> str:

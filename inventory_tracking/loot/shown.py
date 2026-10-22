@@ -15,12 +15,21 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from inventory_tracking.common import LOG
 from inventory_tracking.config import SHOW_ITEMS
 from inventory_tracking.items.identity import ETHEREAL_FLAG, IDENTIFIED_FLAG, SOCKETED_FLAG
 from inventory_tracking.items.metadata import metadata
 
 
 FILTER = Path(__file__).resolve().parents[2] / 'lootfilter' / 'warlock_lean_v2.json'
+# The player, 2026-10-22 ~08:31: "why we're trying to pickup gothic staff that are hidden by our loot filter?" The game
+# shows what its own copy of the profile says (`game_filter`, rewritten at each import), and that copy had 19 rules, the
+# repo file 23: the four Show rules of 2026-10-20 ~18:45 (SHOW Staff Mod Staves Gray among them) were never imported.
+# The pickup read the repo file, took a Superior Gothic Staff for shown, and its clicks found no label to take
+# (rca/2026-10-22/hidden-staff-findings.md). True: the gear rules come from the game's copy too, as the gems' do
+# (`profile`); the repo file when there is none or it cannot be read. False: the repo file, as before
+GAME_COPY = True
+UNREADABLE: set[Path] = set()  # the profiles whose game copy was said unreadable, once each
 SIZES = Path(__file__).parent / 'data' / 'sizes.json'
 # The filter's rarity names -> ItemData quality, and the word a row label starts with.
 RARITIES = {'lowQuality': 1, 'normal': 2, 'hiQuality': 3, 'magic': 4, 'set': 5, 'rare': 6, 'unique': 7}
@@ -59,8 +68,9 @@ class ShownRule:
 
 
 @cache
-def filter_rules(path: Path = FILTER) -> tuple[ShownRule, ...]:
-    """The filter's enabled Show rules for equipment, without the accessories."""
+def filter_rules(path: Path = FILTER, stamp: int = 0) -> tuple[ShownRule, ...]:
+    """The filter's enabled Show rules for equipment, without the accessories. `stamp`: only a cache key (`profile`'s
+    file time), so a profile the game rewrote is read again."""
     bases = metadata()['bases']
     by_code = {base['code']: int(class_id) for class_id, base in bases.items()}
     rules = []
@@ -82,6 +92,23 @@ def game_filter(path: Path = FILTER, saved_games: Path = SHOW_ITEMS.saved_games)
     return copy if copy.exists() else path
 
 
+def profile(path: Path = FILTER, saved_games: Path | None = None) -> tuple[Path, int]:
+    """(the profile the gear rules are read from, its file time as a cache key): the game's copy (GAME_COPY) when
+    `filter_rules` reads it, else `path`."""
+    if GAME_COPY:
+        try:
+            copy = game_filter(path) if saved_games is None else game_filter(path, saved_games)
+            if copy != path:
+                stamp = copy.stat().st_mtime_ns
+                filter_rules(copy, stamp)
+                return copy, stamp
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            if path not in UNREADABLE:
+                UNREADABLE.add(path)
+                LOG.info("Macro: the game's copy of the loot filter could not be read (%r): the repo file is read", exc)
+    return path, 0
+
+
 def shown_gems(path: Path) -> dict[int, str]:
     """Item class ID -> name of the gems and skulls an enabled Show rule lists (by code, or all by category)."""
     codes, every = set(), False
@@ -97,11 +124,11 @@ def shown_gems(path: Path) -> dict[int, str]:
 
 
 @cache
-def pickup_rules(max_cells: int, path: Path = FILTER) -> tuple[ShownRule, ...]:
+def pickup_rules(max_cells: int, path: Path = FILTER, stamp: int = 0) -> tuple[ShownRule, ...]:
     """The filter's rules for the pickup step: below set quality only bases of at most `max_cells` cells."""
     sizes = {int(class_id): size[0] * size[1] for class_id, size in json.loads(SIZES.read_text())['sizes'].items()}
     rules = []
-    for rule in filter_rules(path):
+    for rule in filter_rules(path, stamp):
         if rule.qualities <= NAMED_QUALITIES:
             rules.append(rule)
             continue
@@ -112,14 +139,16 @@ def pickup_rules(max_cells: int, path: Path = FILTER) -> tuple[ShownRule, ...]:
 
 
 @cache
-def oversize_rules(max_cells: int, qualities: frozenset[int], path: Path = FILTER) -> tuple[ShownRule, ...]:
+def oversize_rules(
+    max_cells: int, qualities: frozenset[int], path: Path = FILTER, stamp: int = 0
+) -> tuple[ShownRule, ...]:
     """The filter's rules for the bases over `max_cells` cells that `pickup_rules` leaves out, for `qualities` alone
     (a gray item counts when `qualities` holds a white quality): the cap lifted only for what the loop judges before
     it carries it (2026-10-20, macros/pickup.py `wanted`: the field identify's magic and rare items, the ground read's
     white bases). Every such drop is still judged by macros/pickmode.py `kept`, in every pickup level."""
     sizes = {int(class_id): size[0] * size[1] for class_id, size in json.loads(SIZES.read_text())['sizes'].items()}
     rules = []
-    for rule in filter_rules(path):
+    for rule in filter_rules(path, stamp):
         if rule.qualities <= NAMED_QUALITIES:
             continue
         big = frozenset(class_id for class_id in rule.classes if sizes.get(class_id, 1) > max_cells)

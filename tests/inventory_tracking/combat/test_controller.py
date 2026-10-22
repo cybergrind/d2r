@@ -7,6 +7,8 @@ import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, EchoingStrike, LinePolicy
 from inventory_tracking.combat.controller import (
+    CHAIN_GAP,
+    CHAIN_SECONDS,
     CLICK,
     DONE,
     GAVE_UP,
@@ -46,6 +48,38 @@ def test_a_cast_seen_right_after_the_press_counts_once_however_long_it_lasts():
     assert watch.step(0.16, False) is None
     assert watch.step(0.2, True) is None
     assert watch.casts == 2
+
+
+def test_a_held_strike_whose_casts_chain_counts_every_cast_it_made():
+    # W1 of rca/2026-10-21/no-hits-findings.md, Flayer Jungle 16:54:56-16:55:20: the strike held at a submerged Slime
+    # Prince, the mode in the cast 23.7 s without a break, 63 casts by the blades; the casts seen to begin: 1
+    watch = CastWatch(began=0.0)
+    for k in range(96):  # a look every 0.25 s
+        watch.step(0.25 * k, True)
+    assert watch.casts == 1
+    assert 60 <= watch.chained <= 70  # 23.75 s / CHAIN_SECONDS
+    watch.step(24.0, False)
+    assert watch.chained == 1 + int(23.75 / CHAIN_SECONDS)  # the run's count stays once it ends
+    for now in (24.2, 24.45, 24.7):  # a new run of three looks: 0.5 s held, a cast and one more chained
+        watch.step(now, True)
+    assert watch.casts == 2
+    assert watch.chained == 2 + int(23.75 / CHAIN_SECONDS) + 1
+
+
+def test_a_long_gap_between_two_looks_at_the_cast_counts_one_chain_step_at_most():
+    # A buff cast made under the strike between two looks (the look loop is away) is no run of strikes
+    watch = CastWatch(began=0.0)
+    watch.step(0.0, True)
+    watch.step(5.0, True)
+    assert watch.chained == 1 + int(CHAIN_GAP / CHAIN_SECONDS)
+
+
+def test_casts_with_a_neutral_frame_between_count_once_each_either_way():
+    watch = CastWatch(began=0.0)
+    for k in range(20):  # 0.3 s casts, one look in the cast and one between
+        watch.step(0.4 * k, True)
+        watch.step(0.4 * k + 0.3, False)
+    assert watch.casts == watch.chained == 20
 
 
 def test_no_cast_at_all_is_reported_once_the_cast_time_has_passed():
@@ -352,3 +386,22 @@ def test_live_aim_is_given_its_reach():
     near = Observation(origin=ORIGIN, foes={1: Foe(310, (5010.0, 5000.0), 100.0)})
     assert LiveAim(policy=lambda seen: None, reach=5.0)(near) is None
     assert LiveAim(policy=lambda seen: None, reach=10.0)(near) is not None
+
+
+def test_a_held_leader_gives_way_to_the_units_to_kill_first_and_is_struck_again_after():
+    # The Warlock's hold (attack.py HOLD_LEADER, rca/2026-10-21/herald-aiming-findings.md) comes after `first` (a
+    # boss, a bound summoner, what bars the goal, the dolls: macros/hunt.py `choose`), and keeps its leader through it
+    attack = EchoingStrike(damage_of=lambda txt: 1000.0, hold=True)
+    herald = Foe(638, (5000.0, 5012.0), 100_000.0, True, tier=5)
+    boss = Foe(156, (5014.0, 5000.0), 100_000.0)
+    seen = Observation(origin=ORIGIN, foes={5: herald, 1: boss, 2: Foe(310, (5000.0, 5008.0), 5000.0)})
+    found = aim_choice(attack, seen, [5, 1, 2])
+    assert found is not None
+    assert found.unit == 5
+    first = aim_choice(attack, seen, [5, 1, 2], first=[1])
+    assert first is not None
+    assert first.unit == 1
+    assert attack.held.unit == 5
+    again = aim_choice(attack, seen, [5, 1, 2])
+    assert again is not None
+    assert again.unit == 5

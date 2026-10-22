@@ -1,5 +1,5 @@
 {
- "source": "the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the next), data/global/ui/layouts/bankexpansionlayouthd.json (the Runes, Gems and Materials tabs' slots and the cube's convert button); read 2026-10-18, the Materials tab 2026-10-20",
+ "source": "the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the next; three flawless gems into the perfect one), data/global/ui/layouts/bankexpansionlayouthd.json (the Runes, Gems and Materials tabs' slots and the cube's convert button); read 2026-10-18, the Materials tab 2026-10-20, the gem recipes 2026-10-21",
  "recipes": {
   "625": {
    "into": 626,
@@ -238,6 +238,43 @@
     590
    ],
    "description": "2 Cham Runes + 1 Flawless Emerald -> Zod Rune"
+  }
+ },
+ "gems": {
+  "575": {
+   "into": 576,
+   "gems": 3,
+   "description": "3 Flawless Amethysts -> Perfect Amethyst"
+  },
+  "595": {
+   "into": 596,
+   "gems": 3,
+   "description": "3 Flawless Rubies -> Perfect Ruby"
+  },
+  "585": {
+   "into": 586,
+   "gems": 3,
+   "description": "3 Flawless Sapphires -> Perfect Sapphire"
+  },
+  "580": {
+   "into": 581,
+   "gems": 3,
+   "description": "3 Flawless Topazes -> Perfect Topaz"
+  },
+  "590": {
+   "into": 591,
+   "gems": 3,
+   "description": "3 Flawless Emeralds -> Perfect Emerald"
+  },
+  "600": {
+   "into": 601,
+   "gems": 3,
+   "description": "3 Flawless Diamonds -> Perfect Diamond"
+  },
+  "615": {
+   "into": 616,
+   "gems": 3,
+   "description": "3 Flawless Skulls -> Perfect Skull"
   }
  },
  "slots": {

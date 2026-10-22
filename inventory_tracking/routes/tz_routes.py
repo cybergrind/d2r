@@ -176,11 +176,26 @@ def _whole_tour(edges: dict[int, tuple[RouteHop, ...]], path: tuple[RouteHop, ..
     game takes them in is the tour's own: the nearest entrance not yet entered first). The player, 2026-10-20 ~14:03:
     "we need to utilize smaller tombs too - it gives a great ext/hour rate"; 00:45 on 2026-10-18: "Canyon first, then
     tombs"."""
+    if len(path) > 1 and path[-2].kind == 'tour' and path[-1].source == path[-2].destination:
+        path = path[:-1]  # to a toured level's side level (Duriel's Lair): the whole tour, its side levels after
     if not path or path[-1].kind != 'tour':
         return path
     last = path[-1]
     tour = tuple(hop for hop in edges.get(last.source, ()) if hop.kind == 'tour' and hop.stage == last.stage)
-    return (*path[:-1], *tour)
+    return (*path[:-1], *tour, *_sides(edges, tour))
+
+
+def _sides(edges: dict[int, tuple[RouteHop, ...]], tour: tuple[RouteHop, ...]) -> tuple[RouteHop, ...]:
+    """The levels a tour's levels lead into besides the tour (Duriel's Lair by the true tomb's Orifice: whichever tomb
+    holds it, read on arrival; levels/handlers/tal_rasha.py DURIEL, 2026-10-21), each once, by the last toured level's
+    stage: after the tour on the trip, its run is the toured level's that has the mark."""
+    toured = [hop.destination for hop in tour]
+    found: dict[int, RouteHop] = {}
+    for level in toured:
+        for hop in edges.get(level, ()):
+            if hop.kind == 'stage' and hop.destination not in toured and hop.destination != tour[0].source:
+                found[hop.destination] = hop
+    return tuple(found.values())
 
 
 def _trip_blockers(path: tuple[RouteHop, ...]) -> tuple[str, ...]:

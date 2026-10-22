@@ -7,9 +7,14 @@ Prints (one stdout line = one event, for a Monitor):
   tracebacks, the moment they are logged;
 - `MISSED: ...` when a game ends with an item the sure mode takes never picked up (games.py `Seen.missed`): the loss
   the player's hard rule is about, to trace at once;
+- `PET LOST: ...` the moment the bound demon dies (logwords.py PET_LOST; the player, 2026-10-21 ~15:45: "we have lost
+  our daemon"), and the game's line notes it;
 - `PLAYER: loop off` / `PLAYER: loop on` when the player toggles it with KP_6;
 - `STALL: ...` when the loop is on, no leg has started for --stall seconds (wall clock) and no teleport, kill or pickup
   was logged in them, or one leg runs past LONG_LEG seconds; again every --again;
+- `ANOMALY: ...` when a combat take closes (TAKE_CLOSED): anomalies.py's cases in it (IDLE, LONG_FIGHT, JUMP_CLUSTER),
+  found on a worker thread so the watch never waits for it (the player, 2026-10-21 ~21:08: "this should become a part
+  of monitoring loop");
 - `== following <session>` when a new service starts (a restart);
 - `RATE: ...` every RATE_EVERY cycles: chests an hour over the last 20 and 60 cycles (a cycle from one Lower Kurast
   arrival to the next, everything between counted; the chests from the takes, `combat.legs`), against the baseline:
@@ -24,19 +29,23 @@ loop is on. `--from-start` prints the whole current log's games instead.
 """
 
 import argparse
+import queue
 import sys
+import threading
 import time
 from collections import deque
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import anomalies
 import games
 import logwords
 from logwords import (
     AIMED,
+    BOUND_WORD,
     EXPERIENCE_GAME,
     FIELD_DROP,
-    FULL,
+    FULL_DOWN,
     GROUND,
     LEG,
     LOOP_OFF,
@@ -45,11 +54,14 @@ from logwords import (
     LOOP_STOPPED,
     NOTE,
     NOW,
+    OPENED,
+    PET_LOST,
     PICKED,
     PROGRESS,
     REQUEST_LOOP,
     RESUMED_OFF,
     SAID,
+    TAKE_CLOSED,
     TOWN_DROP,
     WAITING,
     stamp,
@@ -111,16 +123,25 @@ class Watch:
         self.clicks: list[tuple[tuple[int, int], int]] = []  # games.py `clicked`: the press's clicks, by line number
         self.number = 0
         self.field_drop: int | None = None  # the last field drop's line (games.py `field_dropped`)
-        # The full stacks: the file as it is at each game's end (a stash visit or an agent may change it while the watch
-        # runs: 02:10 on 2026-10-19) and those the log said full since
+        # The keys of the items the loop put down in the game under way, kept across a restart of the service (games.py
+        # `inherited`) and cleared when another game begins; `carried_for` is that game's number
+        self.carried: set[tuple] = set()
+        self.carried_for: int | None = None
+        # The full stacks: the service's stash snapshot as it is at each game's end (runs/alt-d/stash.json,
+        # game/stash.py; never a list of the watch's own: 2026-10-22)
         self.full = games.full_stacks()
-        self.said_full: set[str] = set()
         # The cycles (RATE): the one under way (its game and start), whether a pause or a restart cut it, the last 60
         self.cycle: tuple[int, datetime] | None = None
         self.cut = False
         self.cycles: deque[tuple[float, int]] = deque(maxlen=60)
         self.counted = 0
         self.next_health = 0.0
+        # The anomalies of each closed take (anomalies.py): the loop's state at each take's open, the takes waiting for
+        # the worker, its lines waiting to be said by the main loop (one printer: no torn lines)
+        self.opened: dict[str, bool] = {}
+        self.closed: queue.Queue[str] = queue.Queue()
+        self.found: queue.Queue[str] = queue.Queue()
+        self.worker: threading.Thread | None = None
 
     def health(self, source: Path | None) -> None:
         """Minute check independent of log traffic; old logs cannot prove an active loop."""
@@ -150,7 +171,7 @@ class Watch:
     def ground(self, whole: bool) -> None:
         """Say the game's items the sure mode takes and no pickup took (`whole`: the game ended by the next one; a
         pause or a stop leaves them to the player, said as such)."""
-        self.full = games.full_stacks() | self.said_full
+        self.full = games.full_stacks()
         seen = list(self.items.values())
         games.clicked(seen, self.clicks)
         games.reconcile(seen, self.picks, self.aims)
@@ -168,13 +189,11 @@ class Watch:
 
     def track(self, line: str) -> None:
         self.number += 1
-        if (m := FULL.search(line)) is not None:
-            self.full.add(m.group(1))
-            self.said_full.add(m.group(1))
-        elif TOWN_DROP.search(line) or FIELD_DROP.search(line):
-            games.put_down(self.items.values(), self.number)
-            if FIELD_DROP.search(line):
-                self.field_drop = self.number
+        if TOWN_DROP.search(line) or FIELD_DROP.search(line) or FULL_DOWN.search(line):
+            games.put_down(self.items.values(), self.number, not FIELD_DROP.search(line))
+            if FIELD_DROP.search(line) or FULL_DOWN.search(line):
+                self.field_drop = self.number  # its sighting comes after the line (games.py `field_dropped`)
+            self.carried |= games.carried_keys(self.items.values())
         elif (m := PICKED.search(line)) is not None:
             self.picks.append(m.group(1))
         elif (m := AIMED.search(line)) is not None:
@@ -193,6 +212,9 @@ class Watch:
             )
             if fresh:
                 games.field_dropped(item, self.field_drop)
+                if not item.put_down:
+                    games.carry_over(item, self.carried)
+                self.carried |= games.carried_keys(self.items.values())
             item.last = self.number
             if m.group(8):
                 item.verdicts.add(m.group(8))
@@ -240,6 +262,10 @@ class Watch:
         if (m := LEG.search(line)) and at is not None:
             number, leg = int(m.group(1)), m.group(2).strip()
             self.on, self.last_leg_wall, self.last_leg = True, at.timestamp(), f'game {number}, {leg} at {line[11:19]}'
+            if self.carried_for != number:
+                if self.carried_for is not None:
+                    self.carried.clear()
+                self.carried_for = number
             if self.game is None or self.game[0] != number:
                 self.finish(at)
                 self.game, self.legs, self.notes, self.exp = (number, at), [], [], ''
@@ -257,6 +283,40 @@ class Watch:
             self.notes.append(line[line.index(SAID) + len(SAID) :].strip()[:80])
         if NOW.search(line):
             self.say(line[11:300].rstrip())
+        if (m := OPENED.search(line)) is not None:
+            self.opened[m.group(1)] = self.on
+        if (m := TAKE_CLOSED.search(line)) is not None and self.loud:
+            self.take_closed(m.group(1))
+        if (m := PET_LOST.search(line)) and m.group(1).startswith(BOUND_WORD):
+            self.say(f'PET LOST: {m.group(1)} ({m.group(2)}) at {line[11:19]}, {m.group(3)}/128')
+            if self.game is not None:
+                self.notes.append(f'{m.group(1)} lost')
+
+    def take_closed(self, take: str) -> None:
+        """Queue the take for anomalies.py on the worker thread (started at the first close)."""
+        self.closed.put(take)
+        if self.worker is None:
+            self.worker = threading.Thread(target=self.find_anomalies, name='anomalies', daemon=True)
+            self.worker.start()
+
+    def find_anomalies(self) -> None:
+        while True:
+            take = self.closed.get()
+            try:
+                cases = anomalies.detect(COMBAT / take, on=self.opened.pop(take, None))
+            except Exception as error:  # a take that does not read must not end the watch
+                self.found.put(f'{anomalies.PREFIX} {take} not read: {type(error).__name__}: {error}'[:300])
+                continue
+            for case in cases:
+                self.found.put(case.line())
+
+    def drain(self) -> None:
+        """Say the anomalies found since the last call."""
+        while True:
+            try:
+                self.say(self.found.get_nowait())
+            except queue.Empty:
+                return
 
     def close_cycle(self, number: int, at: datetime) -> None:
         """The cycle that ends at this Lower Kurast arrival counted (unless cut), the next begun; RATE said."""
@@ -308,6 +368,7 @@ def main() -> None:
             current, handle = latest, open(latest, errors='replace')  # ruff: ignore[open-file-with-context-handler] - followed for the run's life
             print(f'== following {current.parent.name}', flush=True)
             watch.cut = True  # a restart: the cycle under way is not counted
+            watch.carried |= games.inherited(current.parent)  # a game taken up after a restart: what was put down
             if first and not args.from_start:
                 watch.loud = False
                 for old in handle:
@@ -318,6 +379,7 @@ def main() -> None:
             first = False
         text = handle.readline() if handle else ''
         watch.health(current)
+        watch.drain()
         if not text:
             watch.idle()
             time.sleep(0.5)

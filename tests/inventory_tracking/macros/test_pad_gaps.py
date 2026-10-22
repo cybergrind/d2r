@@ -9,7 +9,7 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.builds.warlock.buffs import BUFFS, consume_due, purge_shown
+from inventory_tracking.builds.warlock.buffs import BUFFS, consume_due, engorge_on_a_key, purge_shown
 from inventory_tracking.builds.warlock.casters import consume as consume_defiler, engorge, renew_consume
 from inventory_tracking.builds.warlock.skills import (
     BIND_DEMON,
@@ -263,7 +263,7 @@ def test_engorge_by_its_key_on_the_corpse_the_clients_target_names_logs_the_targ
     pad_of(run).route.ok = True
     run.corpses = lambda: ((900, 5005.0, 5000.0),)
     play.target = (MONSTER_UNIT, 900)
-    row = next(row for row in BUFFS if row.skill == ENGORGE)
+    row = next(row for row in BUFFS if row.skill == ENGORGE and row.due is engorge_on_a_key)
     buffs = Buffs(run.build)
     cast = Casting(run, row, buffs, run.world(), None, ASPECT, lambda w, skills: pad_of(run).keys(skills, key_file))
     with caplog.at_level(logging.INFO, 'inventory_tracking'):

@@ -55,7 +55,8 @@ def test_every_installed_group_has_complete_leg_audit_without_claiming_all_are_p
     plans = [zone_route_plan(zone) for zone in installed_active_zones()]
     assert len(plans) == 34
     assert all(set(plan.legs) | {area for area, _ in plan.missing} == set(plan.zone.areas) for plan in plans)
-    assert [(area, reason) for plan in plans for area, reason in plan.missing] == [(73, 'no route script')]
+    # Duriel's Lair has its script since 2026-10-21 (levels/handlers/tal_rasha.py DURIEL): no level is missing one
+    assert [(area, reason) for plan in plans for area, reason in plan.missing] == []
     assert all(plan.blockers for plan in plans)  # every route still needs at least one played check or handler
 
 
@@ -152,10 +153,13 @@ def test_the_tal_rashas_zone_is_one_trip_touring_the_canyon_and_its_seven_tombs(
     plan = zone_route_plan(zone)
 
     (trip,) = plan.excursions
-    assert (trip.route, trip.waypoint, trip.terminal, trip.blockers) == ("Tal Rasha's Tombs", 46, 72, ())
-    assert trip.covers == (46, 66, 67, 68, 69, 70, 71, 72)
-    assert [(hop.source, hop.kind) for hop in trip.hops] == [(46, 'tour')] * 7
-    assert plan.uncovered == (73,)  # Duriel's Lair: no route script (the Orifice is left out)
+    assert (trip.route, trip.waypoint, trip.terminal, trip.blockers) == ("Tal Rasha's Tombs", 46, 73, ())
+    # Duriel's Lair last (levels/handlers/tal_rasha.py DURIEL, on since 2026-10-21): the audit's hop names the last
+    # tomb's Orifice `use`; played, the lair is the tour's side level, entered from whichever tomb holds the Orifice
+    # (routes/zone_graph.py `Node.side`, tests/inventory_tracking/macros/acts/test_act2_duriel.py)
+    assert trip.covers == (46, 66, 67, 68, 69, 70, 71, 72, 73)
+    assert [(hop.source, hop.kind) for hop in trip.hops] == [(46, 'tour')] * 7 + [(72, 'stage')]
+    assert plan.uncovered == ()
     # One tomb alone is still no leg: which entrance leads into it is not in the room data
     tomb = route_leg(69)
     assert tomb is not None

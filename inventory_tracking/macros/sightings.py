@@ -20,7 +20,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
 
 
-__all__ = ['ARRIVAL_SECONDS', 'FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']
+__all__ = ['ARRIVAL_SECONDS', 'FAR_UNITS', 'FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings', 'far']
 
 GONE_UNITS = 20.0  # world units: a valuable not read this near is off the ground (the pickup's PICK_UNITS)
 FETCH_TRIES = 2  # trips back to one valuable before the loop stops for the player
@@ -31,6 +31,11 @@ FETCH_TRIES = 2  # trips back to one valuable before the loop stops for the play
 # the game / that is VERY BAD"). 0: judged at the first read, as before
 ARRIVAL_SECONDS = 3.0
 FETCH_SECONDS = 40.0  # a game's trips back, all of them
+# World units: no two places of one level are this far apart (the largest outdoor levels are ~250 tiles across, 5
+# units a tile). A drop read farther from the character is not on its level: the client still held the level just left
+# (16:28:26 on 2026-10-21: a Large Charm on Travincal's ground at (5153, 1496) read 13 ms into Durance of Hate 1, the
+# character at (17634, 5216); every pickup leg then planned it across Durance's rooms, 13023 away, and stopped the loop)
+FAR_UNITS = 3000.0
 
 
 @dataclass
@@ -56,6 +61,7 @@ class Sightings:
         self.fetching: float | None = None  # the clock of the game's first trip back
         self.area: int | None = None  # the level of the last read, and the clock the character entered it
         self.entered: float | None = None
+        self.before: int | None = None  # the level the character was in before `area`
 
     def update(self, loot: Loot, here: tuple[float, float] | None, area: int | None, now: float) -> None:
         """A read of the ground (`loot`: the drops the loop's pickup takes) with the character at `here` in `area`."""
@@ -63,16 +69,26 @@ class Sightings:
             return
         if loot.game != self.game:
             self.game, self.items, self.fetching = loot.game, {}, None
+        if area != self.area:
+            self.before, self.area, self.entered = self.area, area, now
+        for unit in loot.carried & self.items.keys():
+            # Picked up, by the loop or by the player's hand (16:28:48 on 2026-10-21): carried now, never fetched
+            found = self.items.pop(unit)
+            LOG.info('Macro: remembered %s at (%.0f, %.0f): carried now', found.label, found.x, found.y)
         read = {drop.unit_id: drop for drop in loot.drops if self.held(drop, loot)}
         for drop in read.values():
             found = self.items.get(drop.unit_id)
             if found is None:
-                self.items[drop.unit_id] = Sighting(drop.unit_id, drop.label, drop.x, drop.y, area, now)
+                level = area
+                if here is not None and self.before is not None and far(here, drop):
+                    # Not on this level: the level just left, read before the client let it go
+                    level = self.before
+                    LOG.info('Macro: %s at (%.0f, %.0f), %.0f away: not on this level, remembered on level %d',
+                             drop.label, drop.x, drop.y, math.dist(here, (drop.x, drop.y)), level)  # fmt: skip
+                self.items[drop.unit_id] = Sighting(drop.unit_id, drop.label, drop.x, drop.y, level, now)
             else:
                 # Kept at its first place: a read mid-pickup gives inventory-cell coordinates (2026-10-17 19:02:23)
                 found.read = True
-        if area != self.area:
-            self.area, self.entered = area, now
         if here is None:
             return
         settling = self.entered is not None and now - self.entered < ARRIVAL_SECONDS
@@ -80,6 +96,12 @@ class Sightings:
             if found.unit_id in read or found.area != area:
                 continue
             away = math.dist(here, (found.x, found.y))
+            if away > FAR_UNITS:
+                # Noted on this level by a read that still held the level left (before FAR_UNITS): not here
+                found.area = self.before if self.before != area else None
+                LOG.info('Macro: remembered %s at (%.0f, %.0f), %.0f away: not on this level, now on level %s',
+                         found.label, found.x, found.y, away, found.area)  # fmt: skip
+                continue
             if away <= GONE_UNITS and settling and self.entered is not None and found.seen < self.entered:
                 continue  # seen before this arrival, the level's units maybe not read yet: judged once it settles
             if away <= GONE_UNITS:
@@ -143,7 +165,12 @@ class Sightings:
         """One trip back to the nearest valuable in `area` (`go` brings it within a click); with none there, to one on
         a level `across` says is reached from here (an open passage; `go` crosses first, 2026-10-20); whether one was
         made. `Abort` past FETCH_TRIES or FETCH_SECONDS."""
-        wanted = [found for found in self.items.values() if found.area == area]
+        # Never one planned across this level's rooms that is not on it (FAR_UNITS)
+        wanted = [
+            found
+            for found in self.items.values()
+            if found.area == area and math.dist(here, (found.x, found.y)) <= FAR_UNITS
+        ]
         if not wanted and across is not None:
             wanted = [
                 found
@@ -164,3 +191,8 @@ class Sightings:
                  found.tries)  # fmt: skip
         go(found)
         return True
+
+
+def far(here: tuple[float, float], drop: Drop) -> bool:
+    """Whether `drop` lies farther from `here` than any two places of one level are apart (FAR_UNITS)."""
+    return math.dist(here, (drop.x, drop.y)) > FAR_UNITS

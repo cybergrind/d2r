@@ -34,7 +34,9 @@ from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game
 ROW = next(row for row in BUFFS if row.skill == SIGIL_LETHARGY)
 UNIQUE, CHAMPION, MINION = 0x08, 0x0C, 0x10
 DIABLO = Monster(50, 243, 1, 5008.0, 5000.0, 0xFFFFFFFF, UNIQUE, life=30000, max_life=30000)  # flags 8 in the take
-HERALD = Monster(60, 41, 1, 5008.0, 5000.0, 0xFFFFFFFF, UNIQUE, life=128, max_life=128, tier=5)
+# A tier 3 Herald: a tier 4-5 pack's sigil goes by the pack's cover since 2026-10-21 (combat/pack.py SIGIL_COVER,
+# test_pack_sigil.py); the Herald-centred rules below stay for the tiers under 4
+HERALD = Monster(60, 41, 1, 5008.0, 5000.0, 0xFFFFFFFF, UNIQUE, life=128, max_life=128, tier=3)
 CHAMP = Monster(70, 19, 1, 5008.0, 5000.0, 0xFFFFFFFF, CHAMPION, life=128, max_life=128)
 PLAIN = Monster(80, 19, 1, 5008.0, 5000.0, 0xFFFFFFFF, life=128, max_life=128)
 

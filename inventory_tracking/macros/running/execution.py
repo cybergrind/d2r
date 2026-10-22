@@ -130,6 +130,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
                 show_items = show_items_key(self.saved_games, world.player.name)
                 if show_items:
                     actuator.allow(show_items)
+                run.show_items_key = show_items
                 wanted = prebuff_keys(run.build) if skills is None else skills
                 name = world.player.name
                 try:
@@ -159,6 +160,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             if os.environ.get(RESEARCH_ENV):
                 run.research = memory.hover_candidates  # a scan of the whole data section per Consume
             run.hovered = memory.hovered
+            run.hover_nothing = memory.nothing_hovered
             run.own_teleport = memory.own_teleport
             run.worn_skills = memory.worn_skills
             if self.hunter is not None:
@@ -184,7 +186,8 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             run.containers = memory.containers
             run.carried = memory.carried
             run.stock = memory.stock
-            run.stash_view = memory.stash_view
+            self.loop.stash.attach(memory.read_stash)  # the stash's one record reads through this run's memory
+            run.stash = self.loop.stash
             self.item_stats = memory.item_stats
             run.players_item = lambda item: self.loop.players_item(item, memory.item_stats(item.unit_id))
             run.kept_item = lambda item: amulet_keeper(item, memory.item_stats(item.unit_id))

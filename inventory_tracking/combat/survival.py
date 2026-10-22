@@ -75,6 +75,23 @@ def _starts(readings: Sequence[Reading]) -> list[float]:
     return [reading.at for reading in readings]
 
 
+# The death at 23:35:33.97 on 2026-10-21 (Disused Fane, take 20261021T203514Z-95, rca/2026-10-21/death-findings.md):
+# no rejuvenation was drunk, 8 on the belt. One blow took 2014 -> 1578 of 2943 (22% within a second, Amplify Damage on
+# the character), but the window's mean rate (9% a second) played `horizon` ahead kept the life over `danger`, and so
+# did every look after; the last two frames took 1128. The player, 2026-10-21: "we must have top priority to no die
+# ourselves and prevent loosing experience"; "a rejuvenation only in very scary moments" (of the mana: a life falling
+# this fast is one). True: under EMERGENCY_BELOW, the window's worst second (`Pressure.burst`) played BURST_AHEAD
+# seconds ahead under `danger` is a severe moment too. False: the mean rate alone, as before.
+EMERGENCY_REJUVENATION = True
+EMERGENCY_BELOW = 60.0  # percent of the most life
+BURST_AHEAD = 1.5  # seconds of the worst second's loss
+# 2026-10-22: the client's life read refreshes every 0.4 s (70% of 35,798 changes over the takes of 2026-10-20..22 came
+# 0.36-0.46 s apart; rca/2026-10-21/fane-death-sim-findings.md §7), so the drinker sees the life up to that late. True:
+# the emergency rule plays the worst second LIFE_READ_LAG s further ahead. False: BURST_AHEAD alone.
+READ_LAG = True
+LIFE_READ_LAG = 0.4
+
+
 class DrinkSettings(Config):
     """The drinking marks. Shares are percents of the most life; a build changes them by `with_overrides`."""
 
@@ -107,6 +124,11 @@ def drink(
     ago = {kind: since.get(kind, float('inf')) for kind in PotionType}
     ahead = (felt.share - felt.rate * settings.horizon) * 100
     severe = felt.sustained and share < settings.rejuvenation_below and ahead < settings.danger
+    # The worst second again, BURST_AHEAD over (EMERGENCY_REJUVENATION)
+    burst_ahead = (felt.share - felt.burst * (BURST_AHEAD + (LIFE_READ_LAG if READ_LAG else 0.0))) * 100
+    severe = severe or (
+        EMERGENCY_REJUVENATION and felt.sustained and share < EMERGENCY_BELOW and burst_ahead < settings.danger
+    )
     if severe and supply.rejuvenation and ago[PotionType.REJUVENATION] >= settings.rejuvenation_gap:
         return PotionType.REJUVENATION
     if not supply.healing or share >= settings.healing_below:

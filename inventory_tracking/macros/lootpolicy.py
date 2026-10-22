@@ -82,6 +82,13 @@ def kept_by(drop: Drop, mode: str) -> bool:
     return sure(drop) if mode == SURE else True
 
 
+def _shard_taken(drop: Drop) -> bool:
+    """A Worldstone Shard is taken whatever its stack (macros/actloop.py SHARD_ALWAYS_PICKED, 2026-10-22)."""
+    from inventory_tracking.macros import actloop  # actloop's imports reach the pickup, which imports this
+
+    return actloop.SHARD_ALWAYS_PICKED and drop.txt in actloop.SHARDS
+
+
 def verdict(
     drop: Drop,
     site: str,
@@ -108,7 +115,7 @@ def verdict(
         return Verdict(False, False, 'a supply: the belt and gold rules')
     if not kept_by(drop, mode):
         return Verdict(False, False, f'not of the {mode} pickup')
-    if sold_full:
+    if sold_full and not _shard_taken(drop):
         return Verdict(False, False, 'its stash stack is full')
     pending = disputed(drop, room=room, shown=shown)
     take = room and not shunned and (site == PRESS or not given_up)  # the press keeps no give-ups

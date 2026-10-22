@@ -13,20 +13,23 @@ from inventory_tracking.combat.policy import STRIKE_REACH, observe
 from inventory_tracking.combat.stance import no_footing
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
 from inventory_tracking.game.records import Monster, World
-from inventory_tracking.levels.model import Ground
+from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground
 from inventory_tracking.levels.route import room_at
+from inventory_tracking.macros import pursuit as pursuit_rules, route, zonenav
 from inventory_tracking.macros.actuator import Abort, Cancelled
+from inventory_tracking.macros.bossledger import Boss, said as bosses_said
 from inventory_tracking.macros.build import NoWay, PricedStep
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.goals import PICK_UP, Goal
-from inventory_tracking.macros.hunting import shrines
+from inventory_tracking.macros.goals import PICK_UP, WAIT, Goal, rest_of_level
+from inventory_tracking.macros.hunting import choice, shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     COMES_TO_ITS_MARK,
     DECIDE_SECONDS,
     EMPTY_MARK_GOES_ON,
+    FIRING_STAND,
     HURT_SECONDS,
     MARK_WAIT,
     NO_WAY_ENDS,
@@ -36,6 +39,8 @@ from inventory_tracking.macros.hunting.base import (
     SAID_AGAIN,
     SEEK_WAIT,
     SWAP_RETRY_SECONDS,
+    UNSHOT_SECONDS,
+    UNTOUCHABLE_SECONDS,
     YIELD_FRESH,
     YIELD_MOVED,
     YIELD_TAKES,
@@ -53,10 +58,11 @@ from inventory_tracking.macros.pursuit import (
     Pursuit,
     carried,
     decide,
+    ends_run,
     heading,
 )
 from inventory_tracking.macros.safety import AWAY, STEPPING
-from inventory_tracking.macros.sight import firing_spots, in_reach as in_reach_of
+from inventory_tracking.macros.sight import RING_STEP, firing_spots, in_reach as in_reach_of
 from inventory_tracking.macros.teleport import SPOT_NEAR, marked_thing
 from inventory_tracking.macros.travel import (
     AROUND_LEAST,
@@ -65,15 +71,60 @@ from inventory_tracking.macros.travel import (
     STANDING,
     Point,
     Step,
+    label,
     open_reaches,
     walk_reaches,
 )
+from inventory_tracking.macros.tzroutine import Itinerary
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import FIGHT, LEAVE, LOOT, USE
 
 
 if TYPE_CHECKING:
     from inventory_tracking.macros.hunt import Hunter
+
+
+# A chest is opened from where the character stands only where the walk to it is not round a wall (travel.py
+# `open_reaches`) on every level run, not on the LK chests kind's (`Pursuit.rush`) alone. 02:32-02:40 on 2026-10-21
+# (the act loop, an agenda kind, rush off; Kurast Bazaar, Upper and Lower Kurast): the super chests in the camp huts
+# were clicked from 8.5-10 units outside their walls, where the walk round is 47-108 units or none; the game moved
+# nobody, 15 clicks and 6 give-ups in 9 minutes (~40 s), 2 of the 14 chests left closed. Of the 15 places the take's
+# grids hold, `open_reaches` refuses the 9 that failed and passes the 6 that opened
+# (rca/2026-10-21/super-chest-misses-findings.md). Off: the rush runs alone, as before.
+CHESTS_NOT_ACROSS_WALLS = True
+CHESTS = frozenset((SUPER_CHEST, UNIQUE_CHEST))
+# A leader the strike holds (echoing_strike/attack.py HOLD_LEADER) in reach with a clear shot is struck from where the
+# character stands: the pursuit's own move toward a fight goal (the full clear's next monster or group, the leader's
+# place) does not make the fight let go. Its safety moves still do (a dodge, a walk round, keep-range, a retreat: any
+# other reason), and so does a firing spot: the closing in on a low-danger pack (test_ancients: 15 kills in 20 s
+# instead of 18+ with firing spots held too, 2026-10-21 ~21:15). The
+# coordinator, 2026-10-21 ~21:05, of the Herald fights' chip seconds: "With a held leader in reach, the fight must not
+# yield to a move toward it or toward the full clear: strike from where we are"; 15 of the 85 jump-seconds of the
+# day's Herald fights were "Teleport toward full clear" with the Herald in reach
+# (rca/2026-10-21/arachnid-herald-1-findings.md). False: the fight lets go for any move the press asks.
+HELD_STRIKES_ON = True
+# DANCE_BUDGET (2026-10-22, the player on game cyberg64, 18:09:26-18:10:35, Lower Kurast: "we jumped around
+# non-damaging, non-scary mobs for several minutes", "even if it was dangerous, what is estimated exp/hour if we're
+# jumping around without kills?"; rca/2026-10-22/lk-dance-findings.md): 73 s of retreats, keeping-range hops and safe
+# approaches with no kill, no chest and no pickup. True: once the run's acts have been only such moves (DANCING) for
+# DANCE_SECONDS since its last progress (a kill seen, or the goal changed: a chest opened, a drop taken, a target
+# gone), the goal is given up: the loop's chest (a rushed run's route `use` mark) is done with (route.py
+# `note_empty`) and the run goes on to the next; a clearing goal (a full clear's, a TZ agenda's) is passed for
+# PASS_SECONDS (choice.py `pass_by`), so the level's other packs come first and it is come back to. Never a boss
+# stage's fight (the ledger's rule), a pickup, a wait or the boss's loot. False: no bound, as before.
+DANCE_BUDGET = True
+DANCE_SECONDS = 5.0
+DANCING = ('retreating', 'pack: keeping range', 'safe approach')  # pursuit.py, combat/pack.py BACK_SAID, jump.py
+HELD_ON_SAID: set[int] = set()  # the held leaders the stay was said for
+
+
+def wall_checked(posted: Pursuit | None, goal: Goal) -> bool:
+    """Whether `goal`'s object is opened only off a walk round a wall (`open_reaches`): on the KP_6 loop's rush run
+    any object, on another level run a chest (CHESTS_NOT_ACROSS_WALLS)."""
+    if posted is None or not posted.runs:
+        return False
+    chest = goal.mark is not None and goal.mark.use in CHESTS
+    return posted.rush or (CHESTS_NOT_ACROSS_WALLS and chest)
 
 
 def judge(
@@ -91,6 +142,9 @@ def judge(
         in_reach = False
     if in_reach and self.nearing_only(world, foes, ground, here, now):
         in_reach = False  # the strikes did nothing from here (`untouched`)
+    if self.recover_asked is not None:
+        recover(self, now, foes)  # the loop's still watchdog: a new target before the game is left
+        foes = [m for m in foes if m.unit_id not in self.untouchable]
     if posted is not None and posted.leashed and posted.area is None:
         named = replace(posted, area=player.area)  # the level run is of the level it was asked on
         self.swap(posted, named)
@@ -105,6 +159,11 @@ def judge(
     if posted is not None and posted.runs and not (pressed and posted.advance):
         goal = self.cleared(run, world, foes, ground, goal)  # the run's own look: what its mode adds
         goal = shrines.side_goal(self, run, world, goal, posted)  # an Experience Shrine on the way (2026-10-20)
+        if choice.NEARER_CLEARING:
+            goal = choice.from_nearer(self.missed, goal, now)  # the mode's own goal whose act missed: from nearer
+    bosses = unfound_bosses(self, player.area) if posted is not None and posted.runs else []
+    if bosses and ends_run(goal, pressed):
+        goal = boss_explore(self, run, world, player, goal, bosses, now)  # pursuit.py BOSS_EXPLORE
     if not pressed and not (posted is not None and posted.leashed):
         goal = self.nearby(goal, here)
     noted = heading(posted, goal) if posted is not None else None
@@ -114,6 +173,7 @@ def judge(
     level = self.known_level(player)
     rect = run.actuator.keys.focused_window_rect()
     place, there, beyond = None, False, math.inf
+    spend = goal.spend if goal is not None else STANDING  # the way's intent (`way`)
     if goal is not None:
         place = goal.place
         if goal.do == FIGHT:
@@ -122,8 +182,16 @@ def judge(
                 # As `firing_target`, quietly, on the attack's engage ring (run-1932-findings.md §4.2)
                 engage = self.attack.engage
                 spots = firing_spots(ground, goal.place, STRIKE_REACH, here, world.doors, engage) or [goal.place]
+                if FIRING_STAND and goal.spend.short > 0:
+                    # A stand-off (the dolls'): the spots at least that far from the monster first
+                    off = min(goal.spend.short, STRIKE_REACH - RING_STEP) - 0.5
+                    spots = [s for s in spots if math.dist(s, goal.place) >= off] + [
+                        s for s in spots if math.dist(s, goal.place) < off
+                    ]
                 rooms = level.rooms
                 place = next((s for s in spots if room_at(rooms, (s[0] / TILE_UNITS, s[1] / TILE_UNITS))), spots[0])
+                if FIRING_STAND and place != goal.place:
+                    spend = replace(goal.spend, short=0.0)  # onto the spot: it is the stand
         elif goal.shrine:
             there = shrines.there(ground, world, here, goal)  # clicked on a clear line, never across a wall
             beyond = max(goal.gap(here) - goal.near, 0.0)
@@ -133,14 +201,17 @@ def judge(
                 thing is not None and math.dist(here, (thing.x, thing.y)) <= goal.near
             )
             there = thing is not None and near
-            if thing is not None and posted is not None and posted.rush and posted.runs:
-                # The loop opens from beside the object (`OPEN_NEAR`), never across a wall (`open_reaches`). The
-                # way goes to the object's own place, which stays put; a place beside it moved with every move
-                # (2026-10-16 22:50: the goal's cell changed in 112 of 213 looks)
+            if thing is not None and posted is not None and wall_checked(posted, goal):
+                # Never across a wall (`open_reaches`); the loop opens from beside the object (`OPEN_NEAR`), another
+                # run's chest from its goal's reach. The way goes to the object's own place, which stays put; a place
+                # beside it moved with every move (2026-10-16 22:50: the goal's cell changed in 112 of 213 looks)
                 at = (thing.x, thing.y)
-                things = run.things() if run.things is not None else ()
-                near = PAIR_NEAR if paired(things, thing, here) else OPEN_NEAR
-                there = there and open_reaches(ground, world.doors, here, at, near)
+                if posted.rush:
+                    things = run.things() if run.things is not None else ()
+                    reach = PAIR_NEAR if paired(things, thing, here) else OPEN_NEAR
+                else:
+                    reach = goal.near
+                there = there and open_reaches(ground, world.doors, here, at, reach)
                 if not there:
                     place = at
         elif goal.do == PICK_UP:
@@ -165,11 +236,11 @@ def judge(
         if goal is None or place is None or rect is None:
             return NoWay('no game window')
         rooms = level.rooms if level is not None else ()
-        return self.travel.toward(run, world, ground, rect[2] / rect[3], place, goal.spend, rooms)
+        return self.travel.toward(run, world, ground, rect[2] / rect[3], place, spend, rooms)
 
     facts = Facts(
         now, goal, there, in_reach, attacking, way, player.area, now < self.settled_at,
-        beyond=beyond, least_move=AROUND_LEAST,
+        beyond=beyond, least_move=AROUND_LEAST, mapped=level is not None and bool(level.rooms), bosses_left=len(bosses),
     )  # fmt: skip
     # The strike gap counts while a hostile is within reach, clear line or not (I2)
     near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
@@ -181,6 +252,7 @@ def judge(
         # A spot a move just failed to reach is not priced again for a while (`barred`)
         facts = replace(facts, candidates=tuple(c for c in facts.candidates if not self.barred(c.act, now)))
     act = decide(facts, posted, self.pursuing)
+    unshot(self, goal, act, foes, now)
     if (
         isinstance(act, Hold)
         and posted is not None
@@ -195,6 +267,7 @@ def judge(
     if isinstance(act, Advance) and self.barred(act, now):
         act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
     self.empty_mark(world, goal, act, now)
+    no_progress(self, run, world, goal, act, now, posted)
     if isinstance(act, Advance) and act.reason:
         place = act.step.spot
     if (
@@ -243,6 +316,56 @@ def judge(
     else:
         self.no_way_since = None
     return Judged(act, goal, place, posted, pressed)
+
+
+def dancing(act: object) -> bool:
+    """Whether an act is a move that makes no progress by itself (DANCING): a retreat, a keeping-range hop, a safe
+    approach."""
+    return isinstance(act, Advance) and act.reason.startswith(DANCING)
+
+
+def no_progress(
+    self: Hunter, run: Run, world: World, goal: Goal | None, act: object, now: float, posted: Pursuit | None
+) -> bool:
+    """DANCE_BUDGET: the goal given up after DANCE_SECONDS of DANCING acts since the last progress (a hostile seen
+    dead that was not, one's life down: damage dealt, the goal changed). True when given up now."""
+    if not DANCE_BUDGET or goal is None:
+        self.dance = None
+        return False
+    key = (goal.label, goal.do, goal.unit, round(goal.place[0]), round(goal.place[1]))
+    dead = frozenset(m.unit_id for m in world.monsters if m.mode in (0, LYING_DEAD) and not m.ally)
+    lives = {
+        m.unit_id: m.life
+        for m in world.monsters
+        if not m.ally and m.mode not in (0, LYING_DEAD) and getattr(m, 'life', 0) > 0
+    }
+    begun = self.dance
+    if (
+        begun is None
+        or begun[0] != key
+        or not dead <= begun[2]
+        or any(life < begun[3].get(unit, -1) for unit, life in lives.items())
+    ):
+        self.dance = (key, now, dead, lives) if dancing(act) else None  # progress: the clock starts at the next dance
+        return False
+    if not isinstance(act, Advance) or not dancing(act) or now - begun[1] < DANCE_SECONDS:
+        return False
+    if goal.do in (PICK_UP, WAIT, LOOT, LEAVE) or (goal.stage is not None and goal.stage.kind == FIGHT):
+        return False  # a drop, a wait, a boss stage: never given up so
+    why = f'{now - begun[1]:.0f} s of {act.reason.split(":")[0]} with no kill and no progress (DANCE_BUDGET)'
+    player = world.player
+    level = self.known_level(player) if player is not None else None
+    rooms = level.rooms if level is not None else ()
+    if posted is not None and posted.rush and goal.do == USE and goal.mark is not None:
+        given = route.note_empty(run, goal.mark, self.bearings.progress, self.bearings.marks, f'skipped: {why}')
+    elif goal.clearing:
+        self.pass_by(goal, why, now, rooms)
+        given = True
+    else:
+        return False
+    if given:
+        self.dance = None
+    return given
 
 
 def empty_mark(self: Hunter, world: World, goal: Goal | None, act, now: float) -> None:
@@ -312,6 +435,9 @@ def safety_priced(
         hands = 'travel' if staff is not None and staff.in_hand else 'battle'
         companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
         seen = self.attack.sees(observe(player, foes, companions, ground, world.doors), companions)
+        draw = self.build.draw
+        # Holding is priced with the draw only while its casts land (macros/safety.py DRAW_CASTABLE)
+        self.safety.draw_lands = draw is None or self.buffs.lands(draw.skill, now, draw.lasts)
         look = self.safety.look(
             world, loot, hands, seen.blocked, self.build.shield, self.build.settings.safety,
             now=now, flights=getattr(run, 'flights', None), draw=self.build.draw,
@@ -452,6 +578,8 @@ def key_asks(
             or (isinstance(act, NoWay) and act.reason.startswith('safety:'))
             or (isinstance(act, Ended) and found.posted is not None and found.posted.looped)  # the loop's run over
         )
+        if asks and isinstance(act, Advance) and held_strikes_on(self, world, foes, ground, act):
+            asks = False
         if isinstance(act, Hold) and found.pressed:
             # A fresh press answered by the strike says so (I6)
             label = found.goal.label if found.goal is not None else 'the goal'
@@ -465,6 +593,34 @@ def key_asks(
             else None
         )
     return asks
+
+
+def held_strikes_on(self: Hunter, world: World, foes: list[Monster], ground: Ground, act: Advance) -> bool:
+    """Whether the fight stays for the leader its strike holds (HELD_STRIKES_ON): `act` is the pursuit's own move
+    toward a fight goal (no reason: not the safety's, not a firing spot; no dodge or walk round) and the held leader
+    is a foe in the strike's reach with a clear shot, not left alone as untouchable or neared. Said once a leader."""
+    player = world.player
+    holding = getattr(self.attack, 'holding', None)
+    if not HELD_STRIKES_ON or player is None or not callable(holding) or act.dodge or act.onward:
+        return False
+    if act.reason or act.goal.do != FIGHT:  # a reason: the safety's, or a firing spot (FIRING) that stays
+        return False
+    unit = holding()
+    leader = next((m for m in foes if m.unit_id == unit), None)
+    if leader is None or unit in self.untouchable or unit in self.nearing:
+        return False
+    here = (player.x, player.y)
+    if not in_reach_of(ground, here, (leader.x, leader.y), self.attack.reach, world.doors):
+        return False
+    if unit not in HELD_ON_SAID:
+        if len(HELD_ON_SAID) > 200:
+            HELD_ON_SAID.clear()
+        HELD_ON_SAID.add(unit)
+        LOG.info(
+            'Macro: pursuit: %s: no move, the leader %d held is in reach %.1f away: struck from here',
+            act.goal.label, unit, math.dist(here, (leader.x, leader.y)),
+        )  # fmt: skip
+    return True
 
 
 def yielded_act(self: Hunter, run: Run, world: World) -> tuple[Judged, float] | None:
@@ -503,6 +659,48 @@ def tell(self: Hunter, run: Run, reason: str | None, *, aloud: bool = True, agai
             run.say(f'{reason[:1].upper()}{reason[1:]}')  # type: ignore[index]
 
 
+# (game, level) the run's exploring for its bosses was said on (`boss_explore`)
+BOSS_EXPLORE_TOLD: set[tuple[str, int]] = set()
+
+
+def unfound_bosses(self: Hunter, area: int) -> list[Boss]:
+    """The bosses of the game's ledger alive on `area` with no place known and no unit taken (pursuit.py BOSS_EXPLORE):
+    none with the switch or the ledger's hold off (zonenav.py BOSSES_HOLD), with no zone agenda, or once the level's
+    runs are past its allowance and BOSS_RUNS (zonenav.py `fully_explored`'s bound)."""
+    agenda = self.agenda
+    if not pursuit_rules.BOSS_EXPLORE or not zonenav.BOSSES_HOLD or agenda is None or agenda.plan is None:
+        return []
+    plan = agenda.plan
+    if isinstance(plan, Itinerary) and zonenav.on(plan):
+        node = zonenav.graph_of(plan).nodes.get(area)
+        if node is not None and agenda.worked[area] >= zonenav.runs_allowed(node) + zonenav.BOSS_RUNS:
+            return []
+    return [boss for boss in agenda.bosses.alive_in(area) if boss.place is None and boss.unit is None]
+
+
+def boss_explore(
+    self: Hunter, run: Run, world: World, player, goal: Goal | None, bosses: Sequence[Boss], now: float
+) -> Goal | None:
+    """The next unexplored room as the run's goal while `bosses` are alive on the level, their place not known
+    (pursuit.py BOSS_EXPLORE); `goal` as it was with no room left (the run ends, the bosses named)."""
+    room = self.next_room(run, player, player.area, now)
+    if room is None:
+        return goal
+    spend = goal.spend if goal is not None else STANDING
+    found = rest_of_level(room, goal, self.reach, spend)
+    named = bosses_said(bosses)
+    key = (world.game_name, player.area)
+    if key not in BOSS_EXPLORE_TOLD:
+        if len(BOSS_EXPLORE_TOLD) > 200:
+            BOSS_EXPLORE_TOLD.clear()
+        BOSS_EXPLORE_TOLD.add(key)
+        # The watch tools may read it (d2-loop-watch logwords.py)
+        LOG.info('Macro: run: %s %s: the run explores for %s before it ends (%s)', named,
+                 pursuit_rules.BOSS_EXPLORE_SAID, 'it' if len(bosses) == 1 else 'them',
+                 goal.label if goal is not None else 'no route stage')  # fmt: skip
+    return replace(found, label=f'{named} {pursuit_rules.BOSS_EXPLORE_SAID}: {room[1]}')
+
+
 def defer(self: Hunter, run: Run, goal: Goal | None, why: str, seen: Pursuit | bool | None = True) -> None:
     """Hands the press to the route's own step (a door, the loot, the leaving, a panel, the town) or the key's
     routine: raises Cancelled and takes the press out of the mailbox (a level run's leash stays). `seen`: the
@@ -533,3 +731,68 @@ def blocked(self: Hunter, run: Run, units: frozenset[int]) -> None:
         units = units | held[1]
     self.blocking = (base.label, units, run.clock() + BLOCK_SECONDS)
     LOG.info('Macro: pursuit: %s: %d in the way of its act, the fight first', base.label, len(units))
+
+
+def unshot(self: Hunter, goal: Goal | None, act: object, foes: Sequence[Monster], now: float) -> None:
+    """A fight goal the moves are as near as they end to with nothing in reach (pursuit.py `moved`: a wall between, a
+    stand-off kept): after UNSHOT_SECONDS its monster is left alone for UNTOUCHABLE_SECONDS (a boss never), so the next
+    look's goal goes on: the pickup it barred, the next hostile, the route's stage."""
+    stalled = (
+        UNSHOT_SECONDS is not None
+        and goal is not None
+        and goal.do == FIGHT
+        and goal.unit is not None
+        and isinstance(act, NoWay)
+        and act.arrived
+        and 'nothing in reach' in act.reason
+    )
+    if not stalled or goal is None or goal.unit is None or UNSHOT_SECONDS is None:
+        self.unshot_since = {}
+        return
+    since = self.unshot_since.get(goal.unit, now)
+    self.unshot_since = {goal.unit: since}
+    if now - since < UNSHOT_SECONDS:
+        return
+    prey = next((m for m in foes if m.unit_id == goal.unit), None)
+    if prey is None or kept(self, goal, prey):
+        return
+    self.unshot_since = {}
+    self.untouchable[prey.unit_id] = now + UNTOUCHABLE_SECONDS
+    LOG.info(
+        'Macro: pursuit: %s: no shot at %s from where the moves end for %.1f s: left alone for %.0fs',
+        goal.label, label(prey), now - since, UNTOUCHABLE_SECONDS,
+    )  # fmt: skip
+
+
+def recover(self: Hunter, now: float, foes: Sequence[Monster]) -> None:
+    """The loop's still watchdog asked for a recovery (`Hunter.recover_asked`; running/watch.py `still_recovery`): the
+    last look's fight goal and what barred its act are left alone for UNTOUCHABLE_SECONDS (a boss never), a clearing
+    goal with no monster is passed (`pass_by`), and the next look chooses again. The watchdog's leave stays the last
+    resort."""
+    self.recover_asked = None
+    goal = self.pursued
+    by_unit = {m.unit_id: m for m in foes}
+    blockers = self.blocking[1] if self.blocking is not None else ()
+    left = [unit for unit in blockers if unit in by_unit and not self.boss(by_unit[unit], pursued=False)]
+    if goal is not None and goal.unit in by_unit and goal.do == FIGHT and not kept(self, goal, by_unit[goal.unit]):
+        left.append(goal.unit)
+    left = sorted(set(left))
+    for unit in left:
+        self.untouchable[unit] = now + UNTOUCHABLE_SECONDS
+    self.blocking = None
+    self.unshot_since = {}
+    if goal is not None and goal.clearing and goal.unit is None:
+        self.pass_by(goal, 'the loop stood still: recovering', now)
+    LOG.info(
+        'Macro: run: recovery from a stand: %s; %d left alone for %.0fs',
+        goal.label if goal is not None else 'no goal', len(left), UNTOUCHABLE_SECONDS,
+    )  # fmt: skip
+
+
+def kept(self: Hunter, goal: Goal, monster: Monster) -> bool:
+    """Whether `monster`, the goal's, is never left alone by `unshot` or `recover`: a boss (`Hunter.boss`: an act
+    boss, a Herald, a dear class) or the monster of the route's own fight stage. A pickup's "fight first" monster is
+    neither (the Kurast Sewers stall, 2026-10-21 17:51: "the elite 215 ... shot blocked" for 45 s)."""
+    if self.boss(monster, pursued=False):
+        return True
+    return goal.unit == monster.unit_id and goal.stage is not None and goal.stage.kind == FIGHT and not goal.clearing

@@ -8,7 +8,7 @@ from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.macros.actuator import Cause
 
 
-__all__ = ['ROOM_CAUSES', 'Beset', 'Remedy', 'Stopped', 'decide', 'first', 'low_life']
+__all__ = ['KEEP_GAME', 'ROOM_CAUSES', 'Beset', 'Remedy', 'Stopped', 'decide', 'first', 'low_life']
 
 # The causes the room rules answer. 'stall' counts as room until ruled otherwise
 # (rca/2026-10-18/arch-loop-orchestration.md §5): a stand by a valuable must still reach the cube (2026-10-17 04:32:26).
@@ -31,6 +31,9 @@ class Remedy(StrEnum):
     DROP = 'drop'  # one of the loop's items to identify dropped for it, once a game
     HOLD = 'hold'  # a valuable on the ground and nothing left to try: the loop stops here, never leaves it
     RECOVER = 'recover'  # the game is left and the loop goes on (macros/loop.py `recover`)
+    # The game kept: the leg made again; a goal that stops again is dropped by the agenda after its TRIES (agenda.py
+    # `failed`), REPEATS bounds the leg (macros/loop.py)
+    KEEP = 'keep'
     NOTHING = 'nothing'  # the loop is off
 
 
@@ -47,6 +50,7 @@ class Stopped:
     dropped: bool = False  # an item was dropped for room in this game already (`Loop.dropped`)
     trips: bool = False  # the kind trips to town for room and may now (Andariel: `Loop.may_trip`, carrying)
     packaged: bool = False  # a kind tripping by the room package (loop.py `Kind.packaged`) may now, its level known
+    terrorized: bool = False  # a Worldstone Shard terrorized an act of this game (agenda.py `Agenda.acts`)
 
 
 @dataclass(frozen=True)
@@ -61,6 +65,15 @@ class Beset:
 
 # Game creations failed in a row (`first`, cause 'lobby') that stop the loop
 LOBBY_STOPS = 2
+# The player, 2026-10-21 ~13:40: "we have left terrorized act without finishing it => wasted shard" (a super healing
+# potion no click took, Travincal 13:37:24; rca/2026-10-21/potion-click-findings.md). True: a pickup stop (pickup.py
+# `Missed`) with nothing valuable left never leaves a game: KEEP. False: left as 'other' was
+PICKUP_KEEPS = True
+# True: in a game whose act a shard terrorized, a stop of a KEEP_GAME cause with nothing valuable left keeps the game
+# (the goal given up, the act goes on); the watchdogs, the bounds, the safety and the unknown ('other': exceptions, the
+# lost pointer) still leave. False: as before
+TERRORIZED_KEEPS = True
+KEEP_GAME: frozenset[Cause] = frozenset({'door', 'pickup'})
 
 
 def low_life(life: tuple[int, int] | None) -> bool:
@@ -126,4 +139,8 @@ def decide(stop: Stopped) -> Remedy:
         # The player, 2026-10-17: "you we're killed the game while having valuable pickup on the ground!!! that is
         # the exact thing we want ot avoid"
         return Remedy.HOLD
+    if stop.on and PICKUP_KEEPS and stop.cause == 'pickup':
+        return Remedy.KEEP  # a potion, gold or a cheap item is worth no game
+    if stop.on and TERRORIZED_KEEPS and stop.terrorized and stop.cause in KEEP_GAME:
+        return Remedy.KEEP  # the shard's act goes on without the goal
     return Remedy.RECOVER if stop.on else Remedy.NOTHING

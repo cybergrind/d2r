@@ -17,12 +17,14 @@ from typing import NamedTuple
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, World
+from inventory_tracking.game.stash import Stash
 from inventory_tracking.items.grid import Grid
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.loot.api import settle as settle_field
 from inventory_tracking.loot.storage import Storage, cells_low, room
+from inventory_tracking.macros import midgame
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
-from inventory_tracking.macros.agenda import Agenda
+from inventory_tracking.macros.agenda import RESUME, SWAP_GOALS, Agenda
 from inventory_tracking.macros.charms import (
     GHEEDS_FORTUNE,
     Parked,
@@ -76,9 +78,11 @@ __all__ = [
     'KINDS',
     'LK',
     'LOWER_KURAST',
+    'MERC_TRIPS',
     'TOWN',
     'TRADE_ROOM',
     'TRIPS_A_GAME',
+    'TRIPS_A_ZONE_GAME',
     'Coming',
     'Dead',
     'GameId',
@@ -148,8 +152,10 @@ FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM
 TZ_GAME_SECONDS = 1200.0
 # The HUD's word is TZ+ while TZ+ is TZ leveling's behaviour (macros/tzroutine.py TZ_PLUS; the player, 2026-10-20
 # ~18:50: "TZ+ is default TZ mode from now")
+# The metric (the player, 2026-10-21 ~21:18: "the main metric xp/hour! elites/hour!"): games.py and elites.py say both
 TZ = Kind(
-    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='experience an hour', game_seconds=TZ_GAME_SECONDS,
+    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='experience and elite kills an hour',
+    game_seconds=TZ_GAME_SECONDS,
     agenda=True, packaged=True, swaps_gheeds=True, word='TZ+' if TZ_PLUS else 'TZ',
 )  # fmt: skip
 # `swaps_gheeds` (2026-10-19): a Herald's Gheed's in Spider Forest fell to the room rules, then stopped the loop
@@ -253,6 +259,14 @@ OUT, PICK, CHOOSE, RETURN = 'out', 'pick', 'choose', 'return'
 # Trips for room a game (`Loop.may_trip`; the player, 2026-10-18: "one game can do several trips to the town"), each
 # after one that made room. Three: two were needed once in 173 cycles (2026-10-18); a trip is ~37 s
 TRIPS_A_GAME = 3
+# The terror zone kinds' (`Kind.packaged`): their games run 40+ min over several acts, and three trips ran out at
+# 19:02:56 on 2026-10-21 (a Large Charm on the ground, the loop stopped; the player: "it is just a time to visit the
+# town, but it seems that this part of the logic is broken"). Each still only after one that made room
+TRIPS_A_ZONE_GAME = 8
+# The merc's and the empty belt's trips (macros/merc.py TRIPS_A_GAME, pinned equal by test_loop.py), on top of the
+# room's: the zone legs' bounds count them too (2026-10-21, the player: "we have lost merc -> probably better retreat
+# to the town and refill hp potions in the belt")
+MERC_TRIPS = 4
 # How often one leg may be made in one game before the loop gives up on it (default REPEAT).
 REPEATS = {PICK_UP: 20, CHESTS: 3, DOWN: 12, FIGHT_ANDARIEL: 3}  # DOWN: the pickups at the stairs too
 # Each trip and the swap (twice) go to the Fortress and back; once more at an Andariel game's start
@@ -267,7 +281,7 @@ REPEATS |= {
 # town"): at most this many a game, each after something new was picked up (`route_full`)
 ROUTE_VISITS = 3
 # A game's visits: the start's, each trip's, one cut by the player's hand, the routes' own
-REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS}
+REPEATS |= {TOWN: 1 + TRIPS_A_ZONE_GAME + 1 + ROUTE_VISITS}
 # The terror zone kinds' legs (tzloop.py): each bound a game's worth (~8 excursions of up to 7 levels)
 TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot', 'TZ pickup'
 TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
@@ -275,17 +289,34 @@ TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back 
 # TZ_LEVEL 60: a shard's whole act and the rotation in one game (the player, 2026-10-20 ~21:30: "make sure, that we're
 # farming until it's done"; was 40)
 # TZ_WAYPOINT 20 + ...: act 3's 16 waypoint trips and the visits after them (the act 3 agent, 2026-10-20; was 12 + ...)
-REPEATS |= {TZ_WAYPOINT: 20 + 2 * TRIPS_A_GAME + 4, TZ_LEVEL: 60, TZ_LOOT: 20, TZ_PICKUP: 20}
+REPEATS |= {TZ_WAYPOINT: 20 + 2 * (TRIPS_A_ZONE_GAME + MERC_TRIPS) + 4, TZ_LEVEL: 60, TZ_LOOT: 20, TZ_PICKUP: 20}
 # The Canyon's tour of its seven tombs adds up to three ways on a tomb: the Canyon's run to its entrance, the press
 # through, the way back (2026-10-20, tzroutine.py `Excursion.onward`)
 TOUR_WAYS = 3 * len(TOMBS)
 REPEATS |= {TZ_NEXT_LEVEL: 30 + TOUR_WAYS}
 # TZ_PORTAL 20 + ...: a shard's whole act, act 3's 15 trips each ending in a Town Portal (2026-10-20; was 10 + ...)
-REPEATS |= {TZ_PORTAL: 20 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME + 2}
+REPEATS |= {TZ_PORTAL: 20 + TRIPS_A_ZONE_GAME + MERC_TRIPS, TZ_BACK: 1 + TRIPS_A_ZONE_GAME + MERC_TRIPS + 2}
+# The merc's and the belt's trip leg (macros/merc.py MERC_TRIP): each of MERC_TRIPS
+MERC_TRIP = 'merc trip'
+REPEATS |= {MERC_TRIP: MERC_TRIPS}
+# Zone navigation (macros/zonenav.py): every level of an act entered from its parent and climbed out of, each way in
+# made up to three times (the run to the door, the press, a run stopped at another door on the way) and each climb
+# twice. Act 1 has 37 levels
+ZONE_LEVELS = 40
+TZ_UP = 'TZ up'  # the climb to the parent level by the way back (zonenav.py UP_LEVEL)
+REPEATS |= {TZ_NEXT_LEVEL: max(REPEATS[TZ_NEXT_LEVEL], 3 * ZONE_LEVELS), TZ_UP: 2 * ZONE_LEVELS}
+# The town visit at a level's boundary (zonenav.py VISIT): Town Portal and back through it, up to TRIPS_A_GAME more
+REPEATS |= {TZ_BACK: REPEATS[TZ_BACK] + TRIPS_A_GAME}
 TZ_OUT = 'TZ out of town'  # the walk out of a town into a trip's first level (macros/townexit.py)
 REPEATS |= {TZ_OUT: 3}
 TZ_SHARD = 'Worldstone Shard'  # the act kind's shard in the Fortress (macros/actloop.py): once a game, a hand again
 REPEATS |= {TZ_SHARD: 2}
+# The legs bound by one act's worth a game: each act of a shard over the limit played in the game after the kind's
+# own adds its bound again (actloop.py OVERFLOW, 2026-10-21: act 5 after act 3 stopped the act harness's walk at
+# "TZ Town Portal again and again")
+ACT_LEGS = frozenset(
+    (TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP, TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK, TZ_UP, TZ_OUT, TOWN)
+)
 # Beset (`beset`): the level run fights the attacker, then the ground's valuables one a leg (runner.py `_fetch`)
 FIGHT_BACK = 'fight back'
 PICK_BACK = 'what the fight back left'
@@ -300,7 +331,6 @@ KILL_FRESH = 120.0  # seconds: a kill older than this is another game's
 LAST_PICKS = 8
 UNREAD = 'unread'  # the guard's word for a ground it could not read (running/valuables.py `_valuable_left`)
 REPEAT = 2
-FULL_FILE = 'full-stacks.json'
 GAME_SECONDS = 240.0  # a game longer than this is left (games take 40-75 s, 2026-10-17)
 # Added to GAME_SECONDS per trip for room (`overdue`): the trips' p90 (rca/2026-10-18/trips-and-towns-findings.md §2.4)
 TRIP_SECONDS = 80.0
@@ -308,6 +338,11 @@ LOADING_SECONDS = 10.0  # for a game's character to be read after it shows as in
 # A stand this long within STILL_UNITS is the loop stuck (the player, 2026-10-17: "we stuck, but didn't detect it in
 # time"); the longest good stand is a shop visit, under 15 s
 STILL_SECONDS = 45.0
+# Under the stall's leave, a recovery first (running/watch.py, hunting/judging.py `recover`): a stand this long asks
+# the hunt for a new target (the fight goal and what barred it left alone, a clearing goal passed), once a stand; the
+# leave at STILL_SECONDS stays the last resort. Kurast Sewers 1, 17:51:43-17:52:29 on 2026-10-21: 45 s by an elite
+# behind a wall, the game left with act 3 and act 5 to go (rca/2026-10-21/no-hits-findings.md §7). None: no recovery.
+STILL_RECOVER: float | None = 20.0
 STILL_UNITS = 2.0
 RECOVERIES = 3
 RECOVERY_SECONDS = 600.0
@@ -355,6 +390,12 @@ class LegHands:
     # The character's inventory key (the shard's right click, macros/actloop.py `use_shard`; 21:42:42 on 2026-10-20:
     # "no inventory key read" left two games at once)
     inventory_key: Callable[[], str | None] = lambda: None
+    # A beset recovery's portal return (tzloop.py `perform`, `Loop.danger_return`): None to go back, else the line the
+    # loop stops in town with (running/recovery.py `back_for_bosses`, macros/safety.py RETURN_GATE)
+    back_for_bosses: Callable[[], str | None] = lambda: None
+    # Battle Orders on that return's arrival when due or its age not known (running/legs.py `orders_on_arrival`); what
+    # was done, said
+    orders_on_arrival: Callable[[], str] = lambda: 'no Call to Arms hands'
 
 
 @dataclass
@@ -368,6 +409,9 @@ class Loop:
     pending: Kind | None = None  # chosen while on (runner.py `choose_kind`): the kind from the next game
     games: int = 0
     prebuffed: str | None = None
+    # The game whose pushed room package is a beset recovery's (tzloop.py `danger_trip`): its portal return is asked
+    # of the safety's gate first (RETURN_GATE), then Battle Orders on the arrival
+    danger_return: str | None = None
     done: str | None = None
     made: Counter[tuple[str, str]] = field(default_factory=Counter)
     # The player's inventory items by (class, x, y), read at the first leg in a game; the rest is the loop's (cube.py)
@@ -405,9 +449,10 @@ class Loop:
     seen: tuple[str | None, float] | None = None
     # The level card's marks by label, in tiles (levels/guide.py `marks`): a waypoint out of sight
     marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
-    # Resource classes whose stash stack is at 99, kept in FULL_FILE (the player, 2026-10-17: "we better just sell
-    # them"): not picked up, sold at Jamella (shop.py `restock`)
-    full: set[int] = field(default_factory=set)
+    # The stash's one record (game/stash.py; the player, 2026-10-22: "one object that is used everywhere ... no
+    # copies, no stale records"): its full stacks are not picked up (`sold_full`). Its runs/alt-d/full-stacks.json copy,
+    # read at a start and written only after a visit, left a 97-stack's Eastern Worldstone Shard at 08:59:26
+    stash: Stash = field(default_factory=Stash)
     # The staff's Teleport in the loop's moves while the gold pays for it (`teleports`); None: undecided
     teleports: bool | None = None
     wear: str = '?'  # the most worn item's durability at the last look, for the log
@@ -416,8 +461,9 @@ class Loop:
 
     @property
     def sold_full(self) -> frozenset[int]:
-        """The full stacks' classes not picked up (town.py `sold_full`): runes and materials, never gems or potions."""
-        return sold_full(self.full)
+        """The full stacks' classes not picked up (town.py `sold_full`): runes and materials, never gems or potions;
+        none while the stash is unknown (unknown means take)."""
+        return sold_full(self.stash.full())
 
     # A repair due (repair.py `wants`), and the game count of a visit that raised nothing (RETRY_GAMES)
     repair: bool = False
@@ -445,6 +491,7 @@ class Loop:
     moved: tuple[tuple[float, float], float] | None = None  # where the character last moved to, and when (`still`)
     moved_in: str | None = None  # the game `moved` was read in (`still`: a new game counts afresh)
     moved_kills: int = 0  # the kills counted when `moved` was set (`still`: a stand that kills is no stall)
+    still_recovered: float | None = None  # the stand (`moved`'s clock) a recovery was asked in (`recovery_due`)
     counted_in: str | None = None  # where `made` counts (`count`)
     # A trip to town for room (runner.py `_loop_stopped`); `forgiven`: (game, trip number) whose sightings were forgiven
     trip_due: bool = False
@@ -472,9 +519,16 @@ class Loop:
     # The terror zone kinds' experience since the loop turned on (macros/experience.py; the player, 2026-10-19: "we
     # should log experience in tz leveling")
     experience: Ledger = field(default_factory=Ledger)
+    # A service restart in the middle of a game (macros/midgame.py; the player, 2026-10-21 ~14:50: "pick new code in
+    # the middle of the act run, without save/exit, just continue"): the game the service before kept (`snapshot`),
+    # taken up at the first leg in that same game; the restart waiting for a safe point (midgame.TOWN, SAFE), the
+    # place the loop stands at for it (the service restarts then: runner.py `restart_due`), the refusal last said
+    carried: dict | None = None
+    restart_when: str | None = None
+    safe_point: str | None = None
+    unsafe_said: str | None = None
 
     def start(self) -> None:
-        self.full |= self._full_stored()
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
         self.counted_in, self.placed, self.portal, self.printed = None, False, None, None
         self.beset_due, self.fetch_back, self.fought_back = None, None, None
@@ -501,8 +555,32 @@ class Loop:
         if self.seen is None or self.seen[0] != game or now < self.cooling:
             self.seen = (game, now)
             return False
-        allowed = (self.kind.game_seconds or GAME_SECONDS) + TRIP_SECONDS * self.trips_in(game)
-        return now - self.seen[1] > allowed and not self.abandon
+        return now - self.seen[1] > self.allowed_seconds(game) and not self.abandon
+
+    def allowed_seconds(self, game: str | None) -> float:
+        """The cap of `game` (`overdue`): the kind's game_seconds (GAME_SECONDS), each act of a shard over the limit
+        played in it after the kind's own its ACT_SECONDS (actloop.py OVERFLOW, 2026-10-21: two acts in one game
+        are not cut at the first's cap), TRIP_SECONDS a trip for room."""
+        extra = sum(ACT_SECONDS.get(act, ACT_GAME_SECONDS) for act in self.overflow_acts(game))
+        return (self.kind.game_seconds or GAME_SECONDS) + extra + TRIP_SECONDS * self.trips_in(game)
+
+    def overflow_acts(self, game: str | None) -> tuple[int, ...]:
+        """The acts of shards over the limit played in `game` after the kind's own (actloop.py OVERFLOW: in
+        `Agenda.acts` with an overflow outcome); () for another game than the agenda's."""
+        agenda = self.agenda
+        if game is None or getattr(agenda.game, 'name', agenda.game) != game:
+            return ()
+        return tuple(act for act in agenda.acts if act in agenda.overflow)
+
+    def recovery_due(self, now: float, game: str | None) -> bool:
+        """Whether the stand `still` counts has lasted STILL_RECOVER in `game` with no recovery asked in it yet; the
+        recovery is noted as asked. Read after `still` has noted the look (it keeps the stand)."""
+        if STILL_RECOVER is None or self.moved is None or game is None or game != self.moved_in:
+            return False
+        if now - self.moved[1] < STILL_RECOVER or self.still_recovered == self.moved[1]:
+            return False
+        self.still_recovered = self.moved[1]
+        return True
 
     def still(
         self,
@@ -721,12 +799,13 @@ class Loop:
         return self.trips if game is not None and self.trip == game else 0
 
     def may_trip(self, game: str | None) -> bool:
-        """Whether another trip may be made in `game`: none under way, under TRIPS_A_GAME, and the last made room (or
-        it is unread)."""
+        """Whether another trip may be made in `game`: none under way, under TRIPS_A_GAME (a zone kind's
+        TRIPS_A_ZONE_GAME), and the last made room (or it is unread)."""
         made = self.trips_in(game)
         if made == 0:
             return True
-        if made >= TRIPS_A_GAME or game is None or self.tripping(game):
+        most = TRIPS_A_ZONE_GAME if self.kind.packaged else TRIPS_A_GAME
+        if made >= most or game is None or self.tripping(game):
             return False
         return self.trip_gained is None or self.trip_gained > 0
 
@@ -741,23 +820,6 @@ class Loop:
         if self.tripping(game):
             return Exit.PORTAL
         return Exit.WAYPOINT
-
-    def _full_stored(self) -> set[int]:
-        if self.store is None:
-            return set()
-        try:
-            return {int(txt) for txt in json.loads((self.store.parent / FULL_FILE).read_text())}
-        except OSError, ValueError, TypeError:
-            return set()
-
-    def keep_full(self) -> None:
-        """`full` into FULL_FILE."""
-        if self.store is None:
-            return
-        try:
-            (self.store.parent / FULL_FILE).write_text(json.dumps(sorted(self.full)))
-        except OSError as error:
-            LOG.info('Macro: the full stacks are not kept: %s', error)
 
     def _stored(self, name: str | None) -> frozenset[tuple[int, int, int]]:
         if self.store is None or name is None:
@@ -838,7 +900,8 @@ class Loop:
             self.made.clear()
             self.counted_in = where
         self.made[where, leg] += 1
-        if self.made[where, leg] > REPEATS.get(leg, REPEAT):
+        bound = REPEATS.get(leg, REPEAT) * (1 + len(self.overflow_acts(where)) if leg in ACT_LEGS else 1)
+        if self.made[where, leg] > bound:
             # Afresh after the Abort: the recovery makes the leg again (a count left over stopped each try, 2026-10-18)
             del self.made[where, leg]
             raise Abort(f'{leg} again and again in {where}: nothing came of it')
@@ -1045,6 +1108,67 @@ class Loop:
             self.own = (self.own - {parked.cell}) | {(kept.txt, kept.x, kept.y)}
         self.parked = None
 
+    def moment(self, world: World, hands: LegHands) -> midgame.Moment:
+        """What a safe point for a restart is judged by now (macros/midgame.py `refusal`); the ground is read only in
+        a field level, for SAFE."""
+        from inventory_tracking.macros.hunting.base import hostiles  # late: the hunt's modules import this one
+
+        player = world.player
+        if not world.in_game or player is None:
+            return midgame.Moment(in_game=world.in_game)
+        game, in_town = world.game_name, player.in_town
+        here = (player.x, player.y)
+        field = not in_town and self.restart_when == midgame.SAFE
+        due = (
+            ('room in the cube', self.make_room),
+            ('an item dropped for room', self.drop_room),
+            ('a fight back', self.beset_due == game or self.fetch_back == game),
+            ('the game given up', self.abandon),
+            ('a visit cut short', self.visiting == game and self.visited != game),
+            ('a trip for room', self.trip_due),
+        )
+        return midgame.Moment(
+            in_game=True,
+            in_town=in_town,
+            dead=player.mode in DEAD,
+            panels=tuple(world.open_panels),
+            hostile=midgame.nearest(here, ((m.x, m.y) for m in hostiles(world))) if field else None,
+            valuable=(hands.left() if hands.left is not None else None) if field else None,
+            remembered=hands.sighted(player.area) if field else None,
+            stack=tuple(goal.label for goal in reversed(self.agenda.stack) if goal.kind != RESUME),
+            swap=self.swap_due or self.gheed is not None or self.agenda.holds(SWAP_GOALS),
+            pending=tuple(name for name, now in due if now),
+        )
+
+    def hold_at_safe_point(self, run: Run, world: World, hands: LegHands) -> None:
+        """A restart waits for a safe point (`restart_when`, macros/midgame.py): at one, between two legs, the loop
+        stands until the service's restart cancels the run (`Cancelled`), PARK_SECONDS at most (then the hold is
+        dropped and the leg made); elsewhere the refusal is said when it changes and the leg is made."""
+        when = self.restart_when
+        assert when is not None
+        why = midgame.refusal(when, self.moment(world, hands), midgame.sight())
+        if why is not None:
+            if why != self.unsafe_said:
+                self.unsafe_said = why
+                LOG.info('Macro: loop: no safe point for the restart yet: %s', why)
+            return
+        player = world.player
+        where = display_name(player.area) if world.in_game and player is not None else 'the lobby'
+        # The watch tools read it (d2-loop-watch logwords.py SAFE_POINT; restart.py --when)
+        LOG.info('Macro: loop: safe point: %s, %s: the loop stands for the restart', where,
+                 self.game_id if world.in_game else 'between games')  # fmt: skip
+        self.safe_point = where
+        try:
+            deadline = time.monotonic() + midgame.PARK_SECONDS
+            while time.monotonic() < deadline:
+                if run.cancelled.wait(midgame.PARK_SLICE):
+                    raise Cancelled
+        finally:
+            self.safe_point = None
+        self.restart_when = self.unsafe_said = None
+        LOG.info('Macro: loop: no restart came at the safe point within %.0f s: the hold is dropped, the loop goes on',
+                 midgame.PARK_SECONDS)  # fmt: skip
+
     def leg(
         self,
         run: Run,
@@ -1081,6 +1205,13 @@ class Loop:
             # A game still loading: waited for, not a leg's stop
             world = run.seen(lambda w: w.player is not None or not w.in_game, LOADING_SECONDS) or run.world()
         self.observe(world)
+        if self.carried is not None:
+            # The game kept over a service restart (macros/midgame.py): taken up once, in that game only; before the
+            # agenda's `begin`, which would start the game afresh (a second shard for an act terrorized)
+            carried, self.carried = self.carried, None
+            midgame.restore(self, world, progress, carried)
+        if self.restart_when is not None:
+            self.hold_at_safe_point(run, world, hands)
         if not world.in_game:
             self.abandon = False  # left
         elif progress is not None and progress.dead is not None:
@@ -1127,9 +1258,10 @@ class Loop:
                          'and %d in the cube; cube rows %s)', self.free, in_inventory, in_cube, len(items),
                          len(pack.in_cube), '/'.join(cube))  # fmt: skip
             # A visit cannot take away a full gem stack's gems (kept, neither stashed nor sold)
-            stuck = self.full - self.sold_full
+            full = self.stash.full()
+            stuck = full - sold_full(full)
             # ...but three of a kind are a transmute (cube.py `transmute`): a session's work
-            cubable = Counter(i.txt for i in carried if i.txt in stuck and perfect_of(i.txt) not in (None, *self.full))
+            cubable = Counter(i.txt for i in carried if i.txt in stuck and perfect_of(i.txt) not in (None, *full))
             self.carrying = (
                 any(i.txt not in stuck for i in carried)
                 or bool(surplus(carried, stuck))

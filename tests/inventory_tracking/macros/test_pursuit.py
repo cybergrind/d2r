@@ -763,3 +763,35 @@ def test_a_passage_no_hop_gets_nearer_is_walked_from_a_walks_reach():
     far = through(looked(THROUGH_WALK + 10.0), goal)
     assert isinstance(far, NoWay)
     assert not far.arrived
+
+
+def test_the_retreat_says_whether_the_progress_acts_were_over_the_budget_or_vetoed(monkeypatch) -> None:
+    # 21:07:23 on 2026-10-21 at 2723 of 2943 life and a full belt: the one progress move barred by a keep range, every
+    # act priced 0, said "no progress act fits the life budget" (pursuit.py RETREAT_SAYS_WHY;
+    # rca/2026-10-21/herald-left-findings.md C2)
+    from inventory_tracking.combat.harm import Harm
+    from inventory_tracking.macros import pursuit
+    from inventory_tracking.macros.pursuit import Candidate
+
+    goal = Goal('the monster 492', (40.0, 0.0), FIGHT, REACH_UNITS, PRESSED, unit=7)
+    away = Step((-15.0, 0.0), TELEPORT)
+    back = Candidate(Move(away, goal), 0.93, Harm(), retreat=True)
+
+    def said(progress: Harm) -> str:
+        on = Candidate(Move(Step((15.0, 0.0), TELEPORT), goal), 1.51, progress)
+        look = Facts(
+            100.0, goal, False, False, True, lambda: Step((15.0, 0.0), TELEPORT), area=110, candidates=(on, back),
+            priced=True, budget=810, life=2723,
+        )  # fmt: skip
+        act = decide(look, None)
+        assert isinstance(act, Move)
+        assert act.step == away
+        return act.reason
+
+    kept = "kept at range: a move into the pack's reach"
+    assert said(Harm(barred=kept)) == f'retreating: every progress act is vetoed ({kept})'
+    over = said(Harm(600.0, 1200.0))
+    assert over.startswith('retreating: no progress act fits the life budget (')
+    assert 'worst 1200, mean 600, budget 810 of 2723 life' in over
+    monkeypatch.setattr(pursuit, 'RETREAT_SAYS_WHY', False)  # the switch off: the one line, as before
+    assert said(Harm(barred=kept)) == 'retreating: no progress act fits the life budget'

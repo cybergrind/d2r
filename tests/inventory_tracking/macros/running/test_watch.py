@@ -87,7 +87,7 @@ def test_a_stand_after_the_games_cube_waits_while_a_hostile_is_near_and_says_so_
     runner, stops = stood(left='Grand Charm', foe=True)
     with caplog.at_level(logging.INFO):
         runner.poll(100.0 + MAKE_ROOM_AFTER + 1)
-        runner.poll(100.0 + MAKE_ROOM_AFTER + 3)
+        runner.poll(100.0 + MAKE_ROOM_AFTER + 2)  # within HOLD_MOST
     assert stops == []
     assert runner.attack_mode  # the fight goes on: no Town Portal in it
     assert runner.standing
@@ -161,3 +161,26 @@ def test_a_stop_answers_the_stand():
     runner._loop_stopped(Abort('Grand Charm is 40 away', cause='room'))
     assert runner.stand_answered > before
     runner.close()
+
+
+def test_a_stand_by_hostiles_that_never_come_takes_the_room_rules_after_hold_most(caplog):
+    # 20:57:32-20:58:18 on 2026-10-21: a Grand Charm's stand waited 46 s, 40 hostiles 25-27 away, none in reach
+    from inventory_tracking.macros.running.watch import HOLD_MOST
+
+    runner, stops = stood(left='Grand Charm', foe=True)
+    runner.life_seen = (2907, 2907)
+    runner.poll(100.0 + MAKE_ROOM_AFTER + 1)
+    assert stops == []
+    with caplog.at_level(logging.INFO):
+        runner.poll(100.0 + MAKE_ROOM_AFTER + HOLD_MOST + 1)
+    assert len(stops) == 1
+    assert 'the room rules go on' in caplog.text
+
+
+def test_a_stand_by_hostiles_with_life_low_still_waits():
+    from inventory_tracking.macros.running.watch import HOLD_MOST
+
+    runner, stops = stood(left='Grand Charm', foe=True)
+    runner.life_seen = (1000, 2907)
+    runner.poll(100.0 + MAKE_ROOM_AFTER + HOLD_MOST + 1)
+    assert stops == []

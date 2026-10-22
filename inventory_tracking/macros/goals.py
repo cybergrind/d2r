@@ -16,6 +16,7 @@ import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 
+from inventory_tracking.combat.threats import dolls
 from inventory_tracking.game.records import HEALING, REJUVENATION, Drop, Monster
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Target
@@ -47,6 +48,8 @@ PICK_REACH = 20.0
 # Units: a potion with a hostile this near it or the character is not stopped for (hunt.py GATHER_CLEAR); on a level
 # run those hostiles are fought first (`in_the_way`)
 GUARD_NEAR = 12.0
+# Units under the strike's reach a pickup's doll fight stands off at, so the stand still has its shot (`first_fight`)
+DOLL_SHOT = 2.0
 # Units from a fight's mark within which a boss is the mark's (hunt.py BOSS_MARK_UNITS; the Countess stood 2-29 units
 # off over 56 visits)
 BOSS_MARK_UNITS = 60.0
@@ -55,8 +58,9 @@ SAME_PLACE = 1.0  # units: two of the tracker's last-seen places this near are o
 # him (`fight_goal` `appears`). 00:45:49-00:45:59 on 2026-10-21: after De Seis seal the seek went to a remembered
 # hostile 150 units off, De Seis came by the seal behind the Teleports (seen 0.12 s), nothing else was known and the
 # level run ended "no route stage, no boss known": De Seis, his pack, the Infector seals and Diablo were left.
-# Off: the run ends with nothing known, as before.
-SEAL_BOSS_BY_SEAL = False  # off for the 2026-10-21 ~01:00 restart: no regression tests or wide suite yet
+# Off: the run ends with nothing known, as before. On since the 01:10 restart of 2026-10-21; re-checked 13:40 the same
+# day: 10 Sanctuary games since, every one a Diablo kill (tests/inventory_tracking/macros/test_seal_route.py).
+SEAL_BOSS_BY_SEAL = True
 # Units: on a level run hostiles this near, in line of sight, are fought before going on ("go to the level's goal
 # clearing everything along the way", the player, 2026-10-14)
 CLEAR_WAY = 30.0
@@ -175,14 +179,22 @@ def summoner(stages: Sequence[Stage], stage: Stage) -> Stage | None:
 
 def first_fight(goal: Goal, here: Point, blockers: Sequence[Monster], reach: float) -> Goal:
     """The goal while hostiles bar `goal` (a monster on a seal, ground covered: teleport.py `Covered`): the fight
-    with the nearest, never a silent wait (architecture §2.6). The stage and mark stay the goal's."""
-    nearest = min(blockers, key=lambda m: math.dist(here, (m.x, m.y)))
+    with the nearest, never a silent wait (architecture §2.6). The stage and mark stay the goal's.
+
+    A pickup's live dolls among them (combat/threats/dolls.py DOLL_GUARD, F1 of rca/2026-10-21/dolls-tz-findings.md):
+    the nearest doll is fought, from where the character stands or a stand-off of `dolls.land_units` (under the
+    strike's reach), never a hop into them; the drop is taken once they are dead."""
+    runners = dolls.live_runners(blockers) if dolls.DOLL_GUARD and goal.do == PICK_UP else []
+    nearest = min(runners or blockers, key=lambda m: math.dist(here, (m.x, m.y)))
+    spend = goal.spend
+    if runners:
+        spend = replace(spend, short=max(spend.short, min(dolls.land_units(nearest), reach - DOLL_SHOT)))
     return Goal(
         f'{goal.label}: the fight first ({len(blockers)} in the way)',
         (nearest.x, nearest.y),
         FIGHT,
         reach,
-        goal.spend,
+        spend,
         unit=nearest.unit_id,
         mark=goal.mark,
         route=goal.route,
@@ -227,10 +239,13 @@ def nearer(goal: Goal) -> Goal:
 
 def in_the_way(goal: Goal, foes: Sequence[Monster], here: Point | None = None) -> list[Monster]:
     """The hostiles a level run fights before `goal`'s act: within `goal.near` of an object to use (no object
-    opened under threat), or for a guarded pickup within GUARD_NEAR of the drop or `here`. Empty for other kinds."""
+    opened under threat), or for a guarded pickup within GUARD_NEAR of the drop or `here`, and the live dolls within
+    dolls.GUARD_NEAR of either (DOLL_GUARD, F1). Empty for other kinds."""
     if goal.do == PICK_UP and goal.guarded:
         spots = (goal.place,) if here is None else (goal.place, here)
-        return [m for m in foes if min(math.dist((m.x, m.y), spot) for spot in spots) <= GUARD_NEAR]
+        found = [m for m in foes if min(math.dist((m.x, m.y), spot) for spot in spots) <= GUARD_NEAR]
+        known = {id(m) for m in found}
+        return found + [m for m in dolls.guards(goal.place, spots[-1], foes) if id(m) not in known]
     if goal.do != USE:
         return []
     return [m for m in foes if math.dist((m.x, m.y), goal.place) <= goal.near]
@@ -266,8 +281,10 @@ def goal_of(
         return Goal(f'{drop.label}, before leaving', (drop.x, drop.y), PICK_UP, PICK_NEAR, spend, unit=drop.unit_id)
     if side is not None:
         potion = side.kind in (HEALING, REJUVENATION)
+        # A drop with live dolls near it or the character waits for them (DOLL_GUARD, F1): its guards are fought first
+        held = potion or bool(dolls.guards((side.x, side.y), here, foes))
         return Goal(
-            f'{side.label}, on the way', (side.x, side.y), PICK_UP, PICK_REACH, spend, unit=side.unit_id, guarded=potion
+            f'{side.label}, on the way', (side.x, side.y), PICK_UP, PICK_REACH, spend, unit=side.unit_id, guarded=held
         )
     if stay is not None:
         return Goal(stay.label, (stay.x, stay.y), WAIT, STAND_NEAR, spend, unit=stay.unit_id)

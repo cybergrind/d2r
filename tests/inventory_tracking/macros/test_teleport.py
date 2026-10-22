@@ -5,8 +5,10 @@ In view (teleport.VIEW, the classic projection) a hop straight east reaches abou
 (dx + dy) * 8 / 600 must stay under 0.84 - 0.494 of the window height, the skill bar being the limit.
 """
 
+import json
 import math
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -288,8 +290,10 @@ def test_the_way_back_is_not_walked_into():
 def test_a_door_no_click_takes_is_reported():
     play = game()
     play.door, play.door_above = (1001.5, 1000.5), 400
-    with pytest.raises(Abort, match='no click took'):
+    with pytest.raises(Abort, match='no click took') as stopped:
         step_toward(play.run(), target(play.door, warp=True), keys)
+    # Its own cause: the terror zone kinds skip the trip instead of leaving the game (tzloop.py SKIP_DOOR)
+    assert stopped.value.cause == 'door'
 
 
 def test_the_last_hop_before_a_door_lands_beside_it_on_the_characters_side():
@@ -808,6 +812,65 @@ def test_a_press_the_game_drops_is_pressed_again_and_the_lost_key_is_not_named_a
         step_toward(play.run(), target((1040.0, 1000.0)), keys)
 
 
+@pytest.mark.parametrize('on', [True, False])
+def test_an_own_teleport_the_game_drops_is_pressed_again(monkeypatch, on):
+    # 2026-10-20/21: 55 of 151 own hops (no staff) that ran out their act had cast and moved nothing, 16 had cast
+    # nothing; with no staff the key was never pressed again (rca/2026-10-21/priced-act-expired-findings.md)
+    monkeypatch.setattr(teleport, 'OWN_REPRESS', on)
+    play = game(None)
+    react, dropped = play.keys.on_event, [1]
+    play.keys.on_event = lambda event: dropped.pop() if event == ('key', 't') and dropped else react(event)
+    if not on:
+        with pytest.raises(Abort, match='did not move'):
+            step_toward(play.run(), target((1040.0, 1000.0)), keys)
+        assert play.pressed() == ['t']
+        return
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert play.pressed() == ['t', 't']
+    assert play.character.x > 5000.0
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_the_key_waits_out_a_block_that_would_drop_it(monkeypatch, on):
+    # 05:01:05.325 on 2026-10-21: "Teleport on t, player mode 9": the frames show the block to 0.16 s after the key,
+    # the right button back on the strike, no cast; the act ran out 1.4 s later. 25 of 25 keys in mode 9 the same.
+    monkeypatch.setattr(teleport, 'KEY_DROP_WAIT', on)
+    monkeypatch.setattr(teleport, 'OWN_REPRESS', False)
+    play = game(None)
+    play.world = replace(play.world, player=replace(play.character, mode=9))
+    play.later(0.2, lambda: setattr(play, 'world', replace(play.world, player=replace(play.character, mode=5))))
+    react = play.keys.on_event
+    play.keys.on_event = lambda event: None if event == ('key', 't') and play.character.mode == 9 else react(event)
+    if not on:
+        with pytest.raises(Abort, match='did not move'):
+            step_toward(play.run(), target((1040.0, 1000.0)), keys)
+        return
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+    assert play.character.x > 5000.0
+
+
+def test_a_landing_off_its_aim_is_remembered_and_one_on_it_forgets_it():
+    play = game(None)
+    hit = play.keys.on_event
+
+    def short(event):
+        hit(event)
+        if event == ('key', 't'):
+            play.world = replace(play.world, player=replace(play.character, x=play.character.x - 7.0))
+
+    play.keys.on_event = short
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    ((aim, landed, area),) = teleport.MISSED
+    assert math.dist(aim, landed) == pytest.approx(7.0, abs=0.5)
+    assert landed == (play.character.x, play.character.y)
+    assert area == play.character.area
+    assert teleport.missed_from(area, landed, aim) == pytest.approx(math.dist(aim, landed))
+    play.keys.on_event = hit
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert teleport.MISSED == []
+
+
 def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_is_judged_like_any_other(corners):
     # The corners are confirmed in the game: a failed hop there is a lost key or the like, not a reason
     # to stop aiming there.
@@ -1253,3 +1316,110 @@ def test_the_thrones_portal_from_afar_walks_to_its_foot_and_the_next_click_from_
     assert math.dist((play.character.x, play.character.y), (5012.0, 5007.5)) < 0.1
     assert play.character.area == 110
     assert play.said == ['Through the portal to Worldstone Chamber, 13 away', 'Worldstone Chamber: there']
+
+
+# The Burial Grounds' two doors, Crypt and Mausoleum, in the rooms of one preset (108, "Act 1 - Graveyard"): take
+# 20261021T050115Z-17 (08:01 on 2026-10-21, rca/2026-10-21/crypt-door-findings.md), trimmed to the preset's rooms and
+# the ground round them (fixtures/burial-grounds-doors.json)
+BURIAL = Path(__file__).parent / 'fixtures' / 'burial-grounds-doors.json'
+CRYPT_MARK, MAUSOLEUM_MARK = (5782.5, 5017.5), (5777.5, 4912.5)
+
+
+def burial_door(label: str) -> Target:
+    fixture = json.loads(BURIAL.read_text())
+    rooms = tuple(Room.from_row(row) for row in fixture['rooms'])
+    ground = tuple(Walkable(**grid) for grid in fixture['ground'])
+    mark = CRYPT_MARK if label == 'Crypt' else MAUSOLEUM_MARK
+    return Target(fixture['area'], rooms, (mark[0] / 5, mark[1] / 5), label, 'stairs', True, ground)
+
+
+def test_the_crypt_door_is_clicked_from_its_open_east_side(monkeypatch):
+    # 08:01-08:07 on 2026-10-21, four games: with no entry remembered the run ended on the walled south face of the
+    # Crypt's block, 5.7 units from its warp unit, and twelve clicks moved nobody ("no click took Crypt"). The seeded
+    # spot is on the open east side, as the player's own entries of 2026-10-17 (mark + (6, -2))
+    crypt = burial_door('Crypt')
+    stand = teleport.entry_stand(crypt)
+    assert stand is not None
+    assert teleport.scaled(stand) == (CRYPT_MARK[0] + 6.0, CRYPT_MARK[1] - 1.5)
+    assert footing(Ground(crypt.ground), stand) is True
+    from inventory_tracking.macros.hunting.base import door_entry
+
+    assert door_entry(crypt) == (CRYPT_MARK[0] + 6.0, CRYPT_MARK[1] - 1.5)  # the level run's last hop lands there
+    monkeypatch.setattr(teleport, 'DOOR_SEEDS', False)
+    assert teleport.entry_stand(crypt) is None  # the switch off: no spot, the mark within PLACE_NEAR as before
+
+
+def test_two_doors_of_one_preset_keep_their_own_entries():
+    # Both doors are 'preset 108:stairs' (and 'area 17:stairs'): what one learnt was the other's too
+    crypt, mausoleum = burial_door('Crypt'), burial_door('Mausoleum')
+    assert teleport.Entries.key(crypt) == teleport.Entries.key(mausoleum) == 'preset 108:stairs'
+    assert teleport.Entries.door_key(crypt) == 'preset 108:stairs:Crypt'
+    assert teleport.entry_offset(mausoleum) == (6.0, 0.0)  # its seed
+    teleport.ENTRIES.learn(crypt, (4.0, -6.0))  # the north side, walled at the Mausoleum
+    assert teleport.entry_offset(crypt) == (4.0, -6.0)  # what the door learnt goes before its seed
+    assert teleport.entry_offset(mausoleum) == (6.0, 0.0)  # still its own seed, not the Crypt's spot
+    teleport.ENTRIES.learn(mausoleum, (5.0, 1.0))
+    assert (teleport.entry_offset(crypt), teleport.entry_offset(mausoleum)) == ((4.0, -6.0), (5.0, 1.0))
+
+
+def test_a_door_with_a_learnt_entry_is_unchanged_by_the_seeds(tmp_path):
+    # The file's rows keep their meaning: a preset's and a level's spot answer a door that has no row of its own
+    path = tmp_path / 'door-entries.json'
+    path.write_text(json.dumps({'preset 291:stairs': [-2.5, 1.9], 'area 36:stairs': [0.0, 3.0]}))
+    entries = teleport.Entries(path)
+    stairs = Target(35, (Room(291, 996, 996, 8, 8),), (1001.5, 1000.5), 'Catacombs Level 3', 'stairs', True)
+    assert entries.offset(stairs, teleport.KNOWN_ENTRIES) == (-2.5, 1.9)
+    assert entries.offset(replace(stairs, area=36, rooms=(Room(999, 996, 996, 8, 8),)), teleport.KNOWN_ENTRIES) == (
+        0.0,
+        3.0,
+    )
+    entries.learn(stairs, (-3.0, 0.0))  # a door learns its own row, and the preset's and the level's as before
+    again = json.loads(path.read_text())
+    assert again['preset 291:stairs:Catacombs Level 3'] == again['preset 291:stairs'] == [-3.0, 0.0]
+    assert again['area 35:stairs'] == [-3.0, 0.0]
+    assert again['area 36:stairs'] == [0.0, 3.0]
+
+
+def test_the_thrones_portal_is_not_clicked_while_baal_sits_and_takes_after_he_is_gone():
+    # 17:24:25.9-17:24:38.6 on 2026-10-21 (rca/2026-10-21/worldstone-chamber-findings.md): 16 clicks on the portal
+    # with Baal (543) on his throne, none took (the game opens the Chamber only as he walks into it), the game left.
+    # Now no click while he is read; PORTAL_OPENS after he is gone, then the aims
+    from inventory_tracking.game.records import Monster
+    from inventory_tracking.levels.model import THRONE_PORTAL
+    from inventory_tracking.macros.hunting import throne
+
+    assert teleport.THRONE_WAITS
+    play = game()
+    play.thing = Thing(5634, THRONE_PORTAL, 2, 5012.0, 5004.0)
+    baal = Monster(9, throne.THRONE_BAAL, 1, 5012.5, 5010.5)
+    play.world = replace(play.world, monsters=(baal,))
+    gone_at = []
+
+    def leaves() -> None:
+        gone_at.append(play.clock.now)
+        play.world = replace(play.world, monsters=())
+
+    play.later(8.0, leaves)
+    mark = placed(THRONE_PORTAL, 'Worldstone Chamber', (5012.0 / 5, 5004.0 / 5))
+    step_toward(play.run(), mark, keys)
+    clicks = [event for event in play.keys.events if event[0] == 'click']
+    assert clicks  # made, and only after he was gone
+    assert play.character.area == 110
+    assert gone_at
+    assert 'Worldstone Chamber: waiting for Baal to leave his throne' in play.said
+
+
+def test_the_thrones_portal_with_the_hall_not_clear_is_left_to_the_fight_untook():
+    from inventory_tracking.game.records import Monster
+    from inventory_tracking.levels.model import THRONE_PORTAL
+    from inventory_tracking.macros.hunting import throne
+
+    play = game()
+    play.thing = Thing(5634, THRONE_PORTAL, 2, 5012.0, 5004.0)
+    baal = Monster(9, throne.THRONE_BAAL, 1, 5012.5, 5010.5)
+    minion = Monster(10, 571, 1, 5014.0, 5020.0)  # Lister's last minion lived to 17:24:26.9
+    play.world = replace(play.world, monsters=(baal, minion))
+    mark = placed(THRONE_PORTAL, 'Worldstone Chamber', (5012.0 / 5, 5004.0 / 5))
+    with pytest.raises(teleport.Untook, match='the throne hall is not clear'):
+        step_toward(play.run(), mark, keys)
+    assert [event for event in play.keys.events if event[0] == 'click'] == []

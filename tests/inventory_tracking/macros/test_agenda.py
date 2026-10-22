@@ -219,6 +219,47 @@ def test_a_herald_first_then_its_omen_then_the_nearest_leader():
     assert aimed(agenda, view(leaders=(near,))).unit == 1
 
 
+# A Herald out of the read stays the first goal (agenda.py HERALD_KEPT; the player, 2026-10-21 ~21:10: "we have left
+# T5 herald without fighting it at all"): at 21:05:53 the pack's hops had taken the character 44+ units from the tier 5
+# Herald 628599710, out of the client's read; the tracker remembered it as a plain monster, after the rooms (tier 8),
+# and the run went 200 units west (rca/2026-10-21/herald-left-findings.md)
+def test_a_herald_out_of_sight_stays_the_first_goal_until_it_is_neither_seen_nor_remembered(monkeypatch):
+    agenda = Agenda()
+    agenda.begin('g')
+    room = ((4990.0, 5000.0), 'an unexplored room')
+    herald = Leader(2, (5060.0, 5000.0), 'the elite 492 (2)', herald=True)
+    assert aimed(agenda, view(leaders=(herald,), frontier=lambda: room)).unit == 2
+    remembered = Leader(2, (5060.0, 5000.0), 'the remembered monster', live=False)  # 60 off: over REMEMBERED_NEAR
+    kept = aimed(agenda, view(leaders=(remembered,), frontier=lambda: room))
+    assert (kept.kind, kept.unit, kept.tier, kept.label) == (KILL, 2, agenda_module.HERALD, 'the elite 492 (2)')
+    gone = aimed(agenda, view(frontier=lambda: room))  # seen dead or not where it was: the tracker forgets it
+    assert gone.kind == EXPLORE
+    assert aimed(agenda, view(leaders=(remembered,), frontier=lambda: room)).kind == EXPLORE  # a plain one now
+
+    monkeypatch.setattr(agenda_module, 'HERALD_KEPT', False)  # the switch off: out of the read, after the rooms
+    agenda.begin('g2')
+    agenda.in_level(view(leaders=(herald,), frontier=lambda: room))
+    assert aimed(agenda, view(leaders=(remembered,), frontier=lambda: room)).kind == EXPLORE
+
+
+# A Herald's stand with no footing in view is waited for where the character stands (agenda.py OMEN_HOLD; 21:07:39 on
+# 2026-10-21: "no footing in view brings the character nearer by hops", the stand passed, the run explored west and the
+# Herald came 13 s later behind it with a pack of 14)
+def test_a_herald_coming_whose_stand_is_passed_is_waited_for_in_place_not_left_for_the_rooms(monkeypatch):
+    agenda = Agenda()
+    agenda.begin('g')
+    room = ((4700.0, 5000.0), 'an unexplored room')
+    omen = ((5016.0, 5000.0), (5016.0, 5024.0))
+
+    def unreachable(place, unit):
+        return place == omen[1]
+
+    wait = aimed(agenda, view(omens=(omen,), frontier=lambda: room, passed=unreachable))
+    assert (wait.kind, wait.place, wait.tier) == (NAVIGATE, HERE, agenda_module.OMEN)
+    monkeypatch.setattr(agenda_module, 'OMEN_HOLD', False)  # the switch off: the rooms, as before
+    assert aimed(agenda, view(omens=(omen,), frontier=lambda: room, passed=unreachable)).kind == EXPLORE
+
+
 def test_a_cover_area_tours_its_rooms_after_the_leaders_and_on_the_way_does_not():
     agenda = Agenda()
     agenda.begin('g')
@@ -472,3 +513,76 @@ def test_groups_link_hostiles_by_chains_within_the_link_and_drop_the_small_ones(
     found = groups((*chain, *apart), 4)
     assert [sorted(unit for unit, _ in group) for group in found] == [[1, 2, 3, 4]]
     assert groups((*chain, *apart), 5) == []
+
+
+# --- the game's bosses (agenda.py BOSS_GOALS, macros/bossledger.py; 2026-10-22) ---
+
+
+def council_agenda():
+    """A zone game's agenda in Durance of Hate Level 3 with the Council read from its rooms (preset 796: Bremm at
+    (120, 70), Maffer at (103, 123), Wyand at (103, 18) of its piece), the ledger on a terror tracker's book."""
+    from inventory_tracking.levels.model import Room
+    from inventory_tracking.terror.tracker import ZoneTracker
+
+    agenda = Agenda()
+    agenda.begin('cyberr13')
+    agenda.plan = object()  # a zone kind's (tzloop.py sets its itinerary)
+    tracker = ZoneTracker()
+    agenda.bosses.attach(tracker.killed)
+    agenda.bosses.plan((102,))
+    agenda.bosses.rooms(102, [Room(796, 100, 100, 24, 24, variant=0, block=(100, 100, 24, 24))])
+    return agenda, tracker
+
+
+ORIGIN = 100 * 5  # the piece's origin in world units (native/layout.py TILE_UNITS 5)
+
+
+def test_a_council_member_out_of_the_read_is_gone_for_at_any_distance_on_tz_plus_on_the_way():
+    # Maffer Dragonhand (10-21 19:53, cyberr13): "target the elite 347", then out of the table 84 units away, and the
+    # agenda on to Wyand, Mephisto and the Red portal: left alive in 11 games (rca/2026-10-22/boss-audit-findings.md
+    # §4 cause 4: REMEMBERED_NEAR 45 on "tz+ on the way")
+    from inventory_tracking.game.layout import SUPER_FLAG
+    from inventory_tracking.game.records import Monster
+    from inventory_tracking.macros.agenda import PLUS_WAY
+
+    agenda, tracker = council_agenda()
+    maffer_spot = (ORIGIN + 103.0, ORIGIN + 123.0)
+    maffer = Monster(3110582129, 347, 1, maffer_spot[0] + 5, maffer_spot[1], flags=SUPER_FLAG)
+    agenda.bosses.sight(102, [maffer])  # taken for him at his spot
+    tracker.slain = frozenset({'Mephisto', 'Wyand Voidbringer', 'Bremm Sparkfist'})
+    here = (maffer_spot[0] + 84.0, maffer_spot[1])
+    found = agenda.in_level(LevelView(102, here, policy=PLUS_WAY))
+    assert found is not None
+    assert (found.kind, found.unit, found.label) == (KILL, 3110582129, 'Maffer Dragonhand')
+    assert found.place == maffer_spot  # 5 off his spot: the book moves a place past BOOK_MOVE only
+    tracker.slain = tracker.slain | {'Maffer Dragonhand'}
+    assert agenda.in_level(LevelView(102, here, policy=PLUS_WAY)) is None  # dead: the route's own goal
+
+
+def test_a_boss_never_seen_is_gone_for_at_its_spot_and_a_spot_reached_with_no_one_there_is_no_goal(monkeypatch):
+    from inventory_tracking.macros.agenda import BOSS_ARRIVED, PLUS_WAY, TRANSIT
+
+    agenda, tracker = council_agenda()
+    tracker.slain = frozenset({'Mephisto', 'Maffer Dragonhand', 'Bremm Sparkfist'})
+    wyand = (ORIGIN + 103.0, ORIGIN + 18.0)
+    found = agenda.in_level(LevelView(102, (wyand[0] + 200.0, wyand[1]), policy=PLUS_WAY))
+    assert found is not None
+    assert (found.kind, found.label, found.place) == (NAVIGATE, 'Wyand Voidbringer', wyand)
+    assert agenda.in_level(LevelView(102, (wyand[0] + BOSS_ARRIVED - 1, wyand[1]), policy=PLUS_WAY)) is None
+    assert agenda.in_level(LevelView(102, (wyand[0] + 200.0, wyand[1]), policy=TRANSIT)) is None  # only crossed
+    passed = LevelView(102, (wyand[0] + 200.0, wyand[1]), policy=PLUS_WAY, passed=lambda place, unit: True)
+    assert agenda.in_level(passed) is None  # passed: the run's own rule
+    monkeypatch.setattr(agenda_module, 'BOSS_GOALS', False)
+    assert agenda.in_level(LevelView(102, (wyand[0] + 200.0, wyand[1]), policy=PLUS_WAY)) is None
+
+
+def test_the_ledger_is_begun_with_the_game_and_its_records_are_the_books():
+    agenda, _ = council_agenda()
+    assert {boss.name for boss in agenda.bosses.alive_in(102)} == {
+        'Mephisto', 'Bremm Sparkfist', 'Maffer Dragonhand', 'Wyand Voidbringer'
+    }  # fmt: skip
+    assert set(vars(agenda.bosses)) == {'book', 'game'}  # no records of its own
+    agenda.begin('cyberr14')  # a new game: the book's records are another game's
+    assert agenda.bosses.alive() == []
+    agenda.begin('cyberr13')
+    assert len(agenda.bosses.alive_in(102)) == 4  # the book kept them (`tracker.boss_book`)

@@ -21,7 +21,7 @@ PLAN = (
     'boss, worked after it; Nihlathak from 123: [123, 124]; Halls of Anguish from 123: [123, 122, 121]; Worldstone '
     'Keep 1 from 129: [129, 128]; Baal from 129: [129, 130]; Bloody Foothills from 111: [111, 110]; Frozen River '
     'from 113: [113, 114]; Drifter Cavern from 115: [115, 116]; Icy Cellar from 118: [118, 119]; Pit of Acheron from '
-    '112: [112]; Infernal Pit from 117: [117]; Andariel from 35: [35, 36, 37]; skipped '
+    '112: [112]; Infernal Pit from 117: [117]; Andariel from 35: [35, 36, 37]; Andariel from 32: [32, 33, 34]; skipped '
 )
 UNREAD = 'the red portal is not in the map files: its object is not read yet'
 
@@ -43,6 +43,7 @@ def test_the_act_5_plan_is_baal_first_then_the_halls_then_the_rest(monkeypatch, 
         ('Pit of Acheron', 112, (112,)),
         ('Infernal Pit', 117, (117,)),
         ('Andariel', 35, (35, 36, 37)),  # the rotation
+        ('Andariel', 32, (32, 33, 34)),  # its levels before her (tzroutine.py SKIPPED_TRIPS, 2026-10-22)
     ]
     assert plan.excursions[0].passes == frozenset((129, 130))
     assert line_of(plan) in PLAN
@@ -81,9 +82,9 @@ def test_an_act_5_game_is_the_shard_baal_nihlathak_the_halls_then_the_act_then_t
         ('waypoint', 111),
         ('door', 110),  # the Highlands, back to the Foothills
     ]
-    assert walk.waypoints[-6:] == [113, 115, 118, 112, 117, 35]
+    assert walk.waypoints[-6:] == [115, 118, 112, 117, 35, 32]  # 32: tzroutine.py SKIPPED_TRIPS
     act = [129, 130, 131, 132, 123, 124, 122, 121, 128, 111, 110, *range(113, 117), 118, 119, 112, 117]
-    assert walk.levels == [*act, 35, 36, 37]
+    assert walk.levels == [*act, 35, 36, 37, 32, 33, 34]
     assert walk.runs.index(129, 1) > walk.runs.index(132)  # the Keeps' own runs after Baal's
     assert walk.runs.index(130, 2) > walk.runs.index(128)
     assert walk.kills == [

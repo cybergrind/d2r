@@ -10,6 +10,7 @@ from typing import Any
 from inventory_tracking.builds.characters import LAYERS
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.skills import (
+    BIND_DEMON,
     BLADE_WARP,
     CONSUME,
     DEATH_MARK,
@@ -35,6 +36,7 @@ from inventory_tracking.game.records import (
     Thing,
     World,
 )
+from inventory_tracking.game.stash import STACK_MOST, Stash
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
 from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, STASH_SIZE, Grid
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
@@ -57,6 +59,7 @@ from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, STASH_PAGE, tab_point
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waypoint import panel_point
+from inventory_tracking.tracking.belt import potion_kind
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -65,6 +68,7 @@ KEYS[ECHOING_STRIKE] = '7'  # bound by the user on 2026-10-09 so Quick Cast aims
 KEYS[DEATH_MARK] = 'd'
 KEYS[ENGORGE] = 'e'
 KEYS[BLADE_WARP] = 'w'
+KEYS[BIND_DEMON] = 'b'  # the fakes' own key (2026-10-21): the pack's Bind Demon (builds/warlock/bind.py)
 KEYS[BATTLE_ORDERS] = 'F8'  # a Call to Arms' skill (macros/cta.py); its state reads None in the fakes: never cast
 [BUILD] = LAYERS  # the build of the fakes' character: the Echoing Strike Warlock as CybergrindAA plays it
 
@@ -208,6 +212,14 @@ class Clock:
         self.now += seconds
 
 
+def stash_with(full: Iterable[int] = ()) -> Stash:
+    """A stash record read once: the classes of `full` at the cap (game/stash.py), no pages."""
+    view = StashView((), tuple(sorted(dict.fromkeys(full, STACK_MOST).items())))
+    stash = Stash()
+    stash.read(lambda: view)
+    return stash
+
+
 def player(area: int = 109, **changes: Any) -> Player:
     return replace(Player(1, 'CybergrindAA', 5, area, 5000.0, 5000.0, False), **changes)
 
@@ -220,6 +232,9 @@ def character_of(world: World) -> Player:
     """The character of a world in a game: what a test reads of it there has to show."""
     assert world.player is not None
     return world.player
+
+
+SHOW_ITEMS_KEY = 'v'  # the character's Show Items key in the fakes
 
 
 class Game:
@@ -317,7 +332,7 @@ class Game:
         self.stash_refuses: set[int] = set()  # the resource classes whose stash stack is full (99)
         # The stash as memory holds it (game/records.py `StashView`, macros/town-plan.md step 2): each page's rows ('.'
         # free; 0 the personal page, 1..5 the shared ones) and the units on it, and the resource stacks' counts; None:
-        # the stash is not read (`run.stash_view` gives None) and the pages take items by `stash_room`
+        # the stash is not read (`run.reads.stash_view()` gives None) and the pages take items by `stash_room`
         self.stash_pages: list[tuple[str, ...]] | None = None
         self.page_items: dict[int, list[int]] = {}
         self.page_cells: dict[int, list[Carried]] = {}  # the items put onto each page, at their cells there
@@ -327,6 +342,12 @@ class Game:
         self.stash_refused: list[int] = []  # the units a Ctrl + click did not send
         self.transmutes: list[tuple[int, ...]] = []  # what the cube held at each Transmute click
         self.buys_take: list[bool] = []  # whether each Shift + right click at a vendor buys (empty: each does)
+        self.potion_price = 450  # gold a potion bought costs (`buy_potion`)
+        self.potions_bought = 0
+        self.potion_unit = 9000  # the unit id of the last potion bought into the inventory
+        # Where a bought or Shift + clicked potion lands (belt, class) -> cell or None; None: `belt_cell`'s rule
+        self.potion_lands: Callable[[tuple[int | None, ...], int], int | None] | None = None
+        self.belt_takes = True  # a Shift + left click on an inventory potion puts it into the belt
         self.pointer: int | None = None  # the unit id of the item a plain click took up (`Pack.pointer`)
         self.menu_shut = 0  # her menus a click off its Trade line closed
         self.stock_delay = 0.0  # seconds her stock takes to be read after her trade window shows
@@ -353,6 +374,9 @@ class Game:
         self.marks: list[int | None] = []  # unit ids Death Mark was cast on (the monster nearest the pointer), or None
         self.walks: list[tuple[float, float]] = []  # ground points clicked in a game: the character walks there at once
         self.repeats = True  # a held skill input casts again and again (the game); False: once per press
+        # A held strike's casts chain as the game's do: the next begins as one ends, the mode never leaving the cast
+        # (rca/2026-10-21/no-hits-findings.md §4); False: one neutral frame between casts
+        self.chains = False
         self.struck_hold: int | None = None  # the press the last cast came from (hold_serial)
         self.reading = False
         self.loot = Loot()  # the drops, the belt and the life (the pickup step); a click on a drop's ground picks it up
@@ -362,6 +386,9 @@ class Game:
         self.picked: list[str] = []  # labels of the drops picked up
         self.hover_known = True  # the game's record of the unit under the pointer can be read
         self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
+        # World units: a click on a drop from further than this takes nothing and walks nobody, the drop under the
+        # pointer all the same (the game began no walk: Travincal, 13:37:16 on 2026-10-21, 18.6 away); None: none
+        self.far_refused: float | None = None
         # None: Teleport is cast the moment its key comes, as most tests want it. True/False: a key during
         # a cast is kept and cast when that cast is over (with the pointer where it is then), or dropped.
         self.keeps_keys: bool | None = None
@@ -372,6 +399,9 @@ class Game:
         )
         self.hops_cast_at: list[float] = []  # clock times the game cast a kept Teleport key
         self.slipped_picks = 0  # clicks on a drop's label that walk the character to the ground behind it
+        # An item's label drawn over the object's picture while Show Items is on (its unit id); `SHOW_ITEMS_KEY` toggles
+        # the game's Show Items (stash.py LABELS_OFF_AT_THE_STASH, 2026-10-21 04:10:36)
+        self.labels_over_thing: int | None = None
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
         self.label_above: dict[
             int, float
@@ -441,6 +471,8 @@ class Game:
                         self.loaded_at = self.clock.now + self.loading_seconds
                     elif len(key) == 1:
                         self.world = replace(w, game_name=name + key)
+            elif key == SHOW_ITEMS_KEY:
+                self.world = replace(w, show_items=w.show_items is False)
             elif key == 'c':
                 self.sets.reverse()
                 if self.staff is not None:
@@ -516,6 +548,10 @@ class Game:
                         self.pack = replace(self.pack, identifies=full)
                     else:
                         self.pack = replace(self.pack, portals=full)
+            elif self.pack is not None:  # a plain right click buys one (shop.py `_potions`): a potion into the belt
+                bought = next((s for s in self.stock if self.stock_cell(*event[2]) == (s.x, s.y)), None)
+                if bought is not None and potion_kind(bought.txt) is not None:
+                    self.buy_potion(bought.txt)
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:
             item = self.pack_item_at(*event[2])
             if item is not None and item.txt == CUBE_CLASS:
@@ -531,7 +567,9 @@ class Game:
                 self.world = replace(w, player=replace(character_of(w), mode=7))
                 self.acting_until = self.clock.now + ACTING_SECONDS
         elif event[0] == 'click' and w.in_game and self.keys.shift and 'stash' not in w.open_panels:
-            pass
+            item = self.pack_item_at(*event[1]) if 'inventory' in w.open_panels and self.pack is not None else None
+            if item is not None and potion_kind(item.txt) is not None and self.belt_takes:
+                self.potion_to_belt(item)  # Shift + left click on an inventory potion (visit.py POTIONS_TO_BELT)
         elif event[0] == 'click':
             x, y = event[1]
             if w.quit_menu and abs(x - 0.5) < 0.08 and abs(y - 0.438) < 0.02:
@@ -579,12 +617,20 @@ class Game:
                         # 3.5 south of its ground point, and no level change until a click from there
                         me = replace(character_of(w), x=self.thing.x, y=self.thing.y + 3.5)
                         self.world = replace(w, player=me)
+                    elif self.thing.txt_id == THRONE_PORTAL and any(m.txt_id in (543, 559) for m in w.monsters):
+                        pass  # the Chamber opens only as Baal walks into it (A5Q6.cpp): a click before warps nobody
                     elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL, THRONE_PORTAL):
                         self.arrive(self.next_area)
                     else:
                         self.thing = replace(self.thing, mode=2)
                 elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
                     self.deaf_picks -= 1
+                elif (
+                    drop is not None
+                    and self.far_refused is not None
+                    and math.dist((drop.x, drop.y), (character_of(w).x, character_of(w).y)) > self.far_refused
+                ):
+                    pass  # the game began no walk to it
                 elif drop is not None and self.slipped_picks:
                     self.slipped_picks -= 1  # the click landed under the label: a walk to that ground
                     self.walks.append((gx, gy))
@@ -600,6 +646,51 @@ class Game:
                 ):  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(character_of(w), x=gx, y=gy))
+
+    def belt_cell(self, txt: int) -> int | None:
+        """Where the game puts a potion of class `txt` into the belt (`potion_lands` when set): the first column whose
+        lowest potion is of its class with a slot free, else the first empty column; None: no room."""
+        if self.potion_lands is not None:
+            return self.potion_lands(self.loot.belt, txt)
+        belt = self.loot.belt
+        for column in range(4):
+            slots = [column + 4 * row for row in range(4)]
+            if belt[column] == txt and any(belt[c] is None for c in slots):
+                return next(c for c in slots if belt[c] is None)
+        return next((c for c in range(4) if all(belt[c + 4 * row] is None for row in range(4))), None)
+
+    def buy_potion(self, txt: int) -> None:
+        """One potion bought for `potion_price` of the carried gold: into the belt (`belt_cell`), else the inventory's
+        first free cell (`potion_unit` its unit id); nothing without the gold."""
+        assert self.pack is not None
+        stats = dict(self.loot.stats)
+        if stats.get(14, 0) < self.potion_price:
+            return
+        stats[14] -= self.potion_price
+        self.loot = replace(self.loot, stats=tuple(stats.items()))
+        self.potions_bought += 1
+        cell = self.belt_cell(txt)
+        if cell is not None:
+            belt = list(self.loot.belt)
+            belt[cell] = txt
+            self.loot = replace(self.loot, belt=tuple(belt))
+            return
+        spot = Grid.from_items(self.pack.items, INVENTORY_SIZE).first_spot((1, 1))
+        if spot is None:
+            return
+        self.potion_unit += 1
+        self.pack = replace(self.pack, items=(*self.pack.items, Carried(self.potion_unit, txt, *spot, (1, 1))))
+
+    def potion_to_belt(self, item: Carried) -> None:
+        """An inventory potion Shift + left clicked: into the belt where `belt_cell` has room, else it stays."""
+        assert self.pack is not None
+        cell = self.belt_cell(item.txt)
+        if cell is None:
+            return
+        belt = list(self.loot.belt)
+        belt[cell] = item.txt
+        self.loot = replace(self.loot, belt=tuple(belt))
+        self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i.unit_id != item.unit_id))
 
     def later(self, seconds: float, what: Callable[[], object]) -> None:
         """`what` happens in the game on its own `seconds` from now (`arrivals`, kept in time order)."""
@@ -691,6 +782,8 @@ class Game:
         if self.door_under_pointer():
             return (5, 1)
         if self.thing is not None and self.thing_under_pointer():
+            if self.labels_over_thing is not None and self.world.show_items is not False:
+                return (4, self.labels_over_thing)
             return (2, self.thing.unit_id)
         if self.vendor is not None and self.vendor_named and self.vendor_under(*self.keys.fraction()):
             return (1, self.vendor.unit_id)
@@ -1112,7 +1205,7 @@ class Game:
             and (self.shop_opened is None or self.clock.now >= self.shop_opened + self.stock_delay)
             else ()
         )  # fmt: skip
-        run.stash_view = self.stash_view
+        run.stash.attach(self.stash_view)  # the stash's one record reads the fake (game/stash.py)
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)
@@ -1186,6 +1279,22 @@ class Game:
             if self.home_skill is None:
                 self.home_skill = (self.character.right_skill,)
             self.world = replace(self.world, player=replace(self.character, mode=7, right_skill=cast))
+        elif (
+            self.acting_until is not None
+            and self.clock.now >= self.acting_until
+            and self.chains
+            and self.home_skill is None
+            and self.world.in_game
+            and not self.deaf
+            and not self.reading
+            and self.held_input() in (KEYS.get(self.strike_skill), 'Button3')
+            and self.repeats
+        ):
+            self.reading = True  # the held strike chains: the next cast begins with no neutral frame shown
+            try:
+                self.keys.on_event(('held', self.held_input()))
+            finally:
+                self.reading = False
         elif self.acting_until is not None and self.clock.now >= self.acting_until:
             self.acting_until = None  # one neutral frame between casts
             if self.home_skill is not None:

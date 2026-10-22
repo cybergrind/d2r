@@ -342,9 +342,10 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
 
-    def stash_view(self) -> StashView | None:
+    def read_stash(self) -> StashView | None:
         """The stash's pages and resource stacks (`stash_view_of`), read whatever panel is open; None when the read is
-        not whole or the pages cannot be told (macros/town-plan.md step 0)."""
+        not whole or the pages cannot be told (macros/town-plan.md step 0). Raw: called only by game/stash.py
+        `Stash.read` (the stash's one record, tests/inventory_tracking/test_stash_architecture.py)."""
         read = self.read
         try:
             player, player_walk = self._players()
@@ -747,9 +748,16 @@ class GameMemory:
         try:
             flag, unit_type, unit_id, tail = struct.unpack('<IIII', self.read(self.base + HOVER_RVA - 4, 16))
         except OSError, ValueError, struct.error:
+            self.hover_raw = None  # unread: `nothing_hovered` says nothing of it
             return None
         self.hover_raw = (flag, unit_type, unit_id, tail)
         return (unit_type, unit_id) if flag else None
+
+    def nothing_hovered(self) -> bool:
+        """Whether the record `hovered` read last names nothing under the pointer (its flag 0), as against an unread
+        one: both are None from `hovered` (macros/targeting.py HOVER_NOTHING; 35 of 106 door clicks that did not take on
+        2026-10-19/21 were made with nothing under the pointer, rca/2026-10-21/targeting-findings.md §1.1)."""
+        return self.hover_raw is not None and not self.hover_raw[0]
 
     def hover_note(self) -> str:
         """The record `hovered` read last, whole, for a log line."""

@@ -584,6 +584,32 @@
    "owned": []
   },
   {
+   "id": "warlock_dagger_0os_elite_plus3_apocalypse",
+   "section": "6.1",
+   "item": {
+    "base": "Fanged Knife",
+    "code": "7kr",
+    "quality": "normal",
+    "ethereal": true,
+    "sockets": 0,
+    "rolls": {
+     "107:401": 3
+    }
+   },
+   "expect": {
+    "ground": "pick",
+    "then": "keep",
+    "decision": "keep",
+    "rule": "K10"
+   },
+   "source": "the player 2026-10-22 (\"add 0os +3 apocalypse too\"); no price cached: kept by its want row",
+   "value": {
+    "worth": null,
+    "verdict": null
+   },
+   "owned": []
+  },
+  {
    "id": "warlock_spirit_monarch_superior_15ed_4os",
    "section": "6.1",
    "item": {
@@ -712,18 +738,15 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/warlock.html:164 (Rare Ring 10 FCR + res + life)",
+   "source": "guides/warlock.html:164 (Rare Ring 10 FCR + res + life); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"; FR 15 and life 30 are under the ring floors (a res 25+, life 30+ with 10 FCR: two of three)): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
-   "owned": [],
-   "today_fails": {
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
-   }
+   "owned": []
   },
   {
    "id": "rare_tiara_fcr_plus2_warlock",
@@ -777,18 +800,17 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/warlock.html:158; magicprefix.json:13068 (Forbidden = +3 Eldritch)",
+   "source": "guides/warlock.html:158; magicprefix.json:13068 (Forbidden = +3 Eldritch); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
    "owned": [],
    "today_fails": {
-    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
    }
   },
   {
@@ -806,18 +828,17 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/pricing.html:200; magicprefix.json:13176 (Arch-Devil's +2 Warlock); of the Magus = 20 FCR",
+   "source": "guides/pricing.html:200; magicprefix.json:13176 (Arch-Devil's +2 Warlock); of the Magus = 20 FCR; the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"; ~09:20: the magic +2 Warlock / 20 FCR circlet NOT kept): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
    "owned": [],
    "today_fails": {
-    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
    }
   },
   {
@@ -863,10 +884,10 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
@@ -887,10 +908,10 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
@@ -911,10 +932,10 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3)",
+   "source": "the player 2026-10-18 (inventory_tracking/macros/keepers.py:3); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
@@ -1605,7 +1626,8 @@
     "quality": "unique",
     "name": "Gheed's Fortune",
     "rolls": {
-     "80:0": 20
+     "80:0": 20,
+     "79:0": 100
     },
     "ranges": {
      "80:0": [
@@ -1620,12 +1642,15 @@
    },
    "expect": {
     "ground": "pick",
-    "decision": "keep",
+    "decision": "drop",
     "rule": "K1",
     "field": "keep",
-    "town": "keep"
+    "town": "sell"
    },
-   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json",
+   "today_fails": {
+    "decision": "today: junk.junk_of never sells a unique charm (keep.py GHEEDS_BY_ROLL is the new rule's)"
+   },
+   "source": "S2 (d2-loop-watch SKILL.md hard rules); uniqueitems.json; the ruling changes it (the player, 2026-10-21 ~09:00: \"low rolls doesn't sell\", keep only \"MF38, or MF35 + very good gold roll\"; keep.py GHEEDS_BY_ROLL): MF 20, gold 100 is sold in town, never put down in the field (loot/api.py NEVER_DROPPED)",
    "value": {
     "worth": 0.1,
     "verdict": "vendor"
@@ -2452,7 +2477,7 @@
     "decision": "keep",
     "rule": "K3",
     "reason_has": [
-     "really good"
+     "beats Shako"
     ]
    },
    "source": "the player, 2026-10-20 ~12:50 \"rare helms ... fcr + 2skills level + other valuable stats\"; guides/pricing.html:233; magicprefix.json:13176 Arch-Devil's, magicsuffix.json:3029 of the Magus; asks +2 Warlock/20 FCR/third stat 11.4 -> 57.1 (5 priced sellers, 2026-09-18, appraisal-market.jsonl)",
@@ -2489,18 +2514,17 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K3"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/warlock.html:158; guides/pricing-primer.html:482 (rare +2 & 20 FCR 0os Tiara 0.8 -> 11.4, 8 sellers); +2 Warlock/20 FCR alone 17.1 -> 22.8 (2 priced sellers, 2026-09-18, appraisal-market.jsonl)",
+   "source": "guides/warlock.html:158; guides/pricing-primer.html:482 (rare +2 & 20 FCR 0os Tiara 0.8 -> 11.4, 8 sellers); +2 Warlock/20 FCR alone 17.1 -> 22.8 (2 priced sellers, 2026-09-18, appraisal-market.jsonl); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
    "owned": [],
    "today_fails": {
-    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
    }
   },
   {
@@ -2518,21 +2542,17 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K10",
-    "reason_has": [
-     "rare circlet +2 class skills"
-    ]
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/pricing.html:233 (+2 class without FCR: 33 priced sellers, lower quartile 8 Ist, 2026-10-08); guides/pricing-primer.html:482 (rare +2 without FCR 1 -> 34, n=39); +2 Warlock no FCR 25.7 -> 34.3 (6 priced sellers, 2026-09-18)",
+   "source": "guides/pricing.html:233 (+2 class without FCR: 33 priced sellers, lower quartile 8 Ist, 2026-10-08); guides/pricing-primer.html:482 (rare +2 without FCR 1 -> 34, n=39); +2 Warlock no FCR 25.7 -> 34.3 (6 priced sellers, 2026-09-18); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
    "owned": [],
    "today_fails": {
-    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
    }
   },
   {
@@ -2550,18 +2570,17 @@
    "expect": {
     "ground": "pick",
     "then": "identify",
-    "decision": "keep",
-    "rule": "K10"
+    "decision": "drop",
+    "rule": "K8"
    },
-   "source": "guides/pricing.html:233 (20 FCR with +2 to a skill tree); magicprefix.json:13114 Dreadful (+2 Demon, rare)",
+   "source": "guides/pricing.html:233 (20 FCR with +2 to a skill tree); magicprefix.json:13114 Dreadful (+2 Demon, rare); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "vendor"
    },
    "owned": [],
    "today_fails": {
-    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them",
-    "decision": "today: the triage verdict alone decides (junk.junk_of); no BiS row spares it, so a vendor verdict sells it"
+    "ground": "today: the GOOD pickup (pickmode.sure) leaves magic/rare identify candidates; only the MOST level takes them"
    }
   },
   {
@@ -2745,7 +2764,7 @@
    }
   },
   {
-   "id": "bloodtree_stump_better_copy_kept_in_field",
+   "id": "bloodtree_stump_better_copy_no_build_names_dropped_in_field",
    "section": "6.6",
    "item": {
     "base": "War Club",
@@ -2767,11 +2786,14 @@
     }
    },
    "expect": {
-    "decision": "keep",
+    "decision": "drop",
     "rule": "K6",
-    "field": "keep"
+    "field": "drop"
    },
-   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); the player: \"we can keep cheaper items (like 0.6 ist) only in case new items better than what we already have\"",
+   "today_fails": {
+    "decision": "today: junk.junk_of sells only a vendor verdict, and this one is slow (keep.py BEST_COPY_USABLE_ONLY is the new rule's)"
+   },
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); the player: \"we can keep cheaper items (like 0.6 ist) only in case new items better than what we already have\"; the ruling changes it (the player, 2026-10-21 ~08:55, answering \"What should count as usable?\": \"Top picks + usable best\"; keep.py BEST_COPY_USABLE_ONLY, rca/2026-10-21/weak-keepers-findings.md B5): no build names Bloodtree Stump, so the better copy goes too",
    "value": {
     "worth": 0.85,
     "verdict": "slow",
@@ -2796,7 +2818,7 @@
    ]
   },
   {
-   "id": "bloodtree_stump_better_but_vendor_kept_in_field",
+   "id": "bloodtree_stump_better_but_vendor_no_build_names_dropped_in_field",
    "section": "6.6",
    "item": {
     "base": "War Club",
@@ -2818,9 +2840,9 @@
     }
    },
    "expect": {
-    "field": "keep"
+    "field": "drop"
    },
-   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); keep.decide says K8 (worthless), the field guard keeps a copy better than every owned one (loot/api.py surplus)",
+   "source": "probe.log of session 20261020T102438Z, 13:25:06: Bloodtree Stump (War Club) vendor, asks q1 0.198 median 1.0, 15 sellers, 2026-10-04; \"copies: sell Bloodtree Stump (War Club): an owned copy rolls at least as well\"; shadow \"new drop K8 worthless (0.719 Ist ...)\"; third-parties/d2data/json/uniqueitems.json:5377 (dmg% 180-220), weapons.json:11828 (War Club 9m9, 2x4); keep.decide says K8 (worthless), the field guard keeps a copy better than every owned one (loot/api.py surplus); the ruling changes it (the player, 2026-10-21 ~08:55, answering \"What should count as usable?\": \"Top picks + usable best\"; keep.py BEST_COPY_USABLE_ONLY, rca/2026-10-21/weak-keepers-findings.md B5): no build names Bloodtree Stump, so the better copy goes too",
    "value": {
     "worth": 0.9,
     "verdict": "vendor",
@@ -2886,7 +2908,7 @@
    ]
   },
   {
-   "id": "sigons_shelter_owned_unknown_worth_kept_in_field",
+   "id": "sigons_shelter_owned_unknown_worth_equal_copy_dropped_in_field",
    "section": "6.6",
    "item": {
     "base": "Gothic Plate",
@@ -2899,9 +2921,9 @@
     ]
    },
    "expect": {
-    "field": "keep"
+    "field": "drop"
    },
-   "source": "setitems.json:3449 (fixed stats); armor.json:3890 (Gothic Plate gth, 2x3); KB lookup 2026-10-20: price_status unresolved; Q13 never given up on no evidence",
+   "source": "setitems.json:3449 (fixed stats); armor.json:3890 (Gothic Plate gth, 2x3); KB lookup 2026-10-20: price_status unresolved; an equal copy of an owned one goes whatever its price (loot/api.py WORSE_COPY_GOES, the player 2026-10-21 08:27: \"Worse copy goes\")",
    "value": {
     "worth": null,
     "verdict": null
@@ -3455,11 +3477,11 @@
     }
    },
    "expect": {
-    "decision": "keep",
-    "rule": "K3",
-    "town": "keep"
+    "decision": "drop",
+    "rule": "K8",
+    "town": "sell"
    },
-   "source": "inventory_tracking/macros/keepers.py amulet_keeper (+2 skills counts stat 188, a tree); the player 2026-10-18 \"Rare amulets with +FCR, +2 skills, +life are good\"; third-parties/d2data/json/misc.json:76 (amu)",
+   "source": "inventory_tracking/macros/keepers.py amulet_keeper (+2 skills counts stat 188, a tree); the player 2026-10-18 \"Rare amulets with +FCR, +2 skills, +life are good\"; third-parties/d2data/json/misc.json:76 (amu); the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"): given up since 2026-10-21",
    "value": {
     "worth": 0.1,
     "verdict": "vendor"
@@ -4632,7 +4654,7 @@
     "decision": "keep",
     "rule": "K10",
     "reason_has": [
-     "really good"
+     "three good stats"
     ],
     "field": "keep",
     "town": "keep"
@@ -4691,20 +4713,20 @@
     }
    },
    "expect": {
-    "decision": "keep",
-    "rule": "K10",
-    "reason_has": [
-     "priced gate"
-    ],
-    "field": "keep",
-    "town": "keep"
+    "decision": "drop",
+    "rule": "K8",
+    "field": "drop",
+    "town": "sell"
    },
-   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; the G10 precedent: a gate the asks put over 1 Ist is a want",
+   "source": "guides/pricing.html:236 (\"24 FHR with one of 15+ strength, 30+ life or a 20%+ resistance\"; \"24 FHR with a companion: 71 priced sellers, lower quartile ~ 6, median ~ 11 Ist (2026-10-08)\", asks); guides/pricing-primer.html:187 (\"belts FHR + res + life\"); the player 2026-10-20 ~19:25: \"we can keep really good ones\"; the G10 precedent: a gate the asks put over 1 Ist is a want; the keep bar (loot/wants.py KEEP_BAR, rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: \"circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some item at least beats shako\"; \"we need not just 1 row, but probably 3 stats with good rolls to keep\"; ~08:45 on Imp Chain: \"sash with fhr and seems nothing else\"): given up since 2026-10-21",
    "value": {
     "worth": null,
     "verdict": "check"
    },
-   "owned": null
+   "owned": null,
+   "today_fails": {
+    "decision": "today: a check verdict is kept (junk.junk_of sells only a vendor one)"
+   }
   },
   {
    "id": "belt_rare_17fhr_life_res_near_miss_dropped",

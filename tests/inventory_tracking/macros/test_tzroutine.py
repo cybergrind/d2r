@@ -49,14 +49,17 @@ CATACOMBS = frozenset((32, 33, 34, 35, 36, 37))
 ROGUE_ENCAMPMENT, FORTRESS = 1, 103
 
 
-def test_the_catacombs_zone_is_one_excursion_from_catacombs_2_to_andariel():
-    # The player, 2026-10-20 ~08:24: "cat2 -> cat 3 -> cat 4 -> andy" (Inner Cloister and the Cathedral have no handler)
+def test_the_catacombs_zone_is_catacombs_2_to_andariel_then_the_cathedral_from_the_inner_cloister():
+    # The player, 2026-10-20 ~08:24: "cat2 -> cat 3 -> cat 4 -> andy"; 2026-10-22: "we need to kill all bosses, no
+    # exceptions to that": the levels START_AT cuts are a trip of their own after hers (SKIPPED_TRIPS: Bone Ash in the
+    # Cathedral, left in 26 games, rca/2026-10-22/boss-audit-findings.md §4 cause 3)
     plan = itinerary(CATACOMBS)
     assert plan is not None
     assert plan.zone == 'Act1-Catacombs'
-    (trip,) = plan.excursions
+    trip, cut = plan.excursions
     assert (trip.route, trip.waypoint, trip.areas) == ('Andariel', 35, (35, 36, 37))
-    assert {area for area, _ in plan.skipped} == {32, 33, 34}
+    assert (cut.route, cut.waypoint, cut.areas, cut.zone) == ('Andariel', 32, (32, 33, 34), frozenset((32, 33, 34)))
+    assert plan.skipped == ()
     # TZ leveling before TZ+: on the way to her, and her level
     assert [policy_of(area, trip, plus=False) for area in trip.areas] == [ON_THE_WAY] * 3
     # TZ+ (2026-10-20): each level explored and its groups taken, hers too, then Andariel
@@ -104,15 +107,21 @@ def test_a_catacombs_game_from_town_through_each_level_to_andariel_and_her_loot_
     assert look(36, plan, stage=ENTER, stage_to=37, worked=((36, 1),)) == [(NEXT_LEVEL, 37)]
     assert look(37, plan, stage=FIGHT) == [(LEVEL, 37)]
     assert look(37, plan, stage=FIGHT, worked=((37, 1),)) == [(LEVEL, 37)]  # her fight not done: run again
-    assert look(37, plan, stage=FIGHT, worked=((37, RUNS_AN_AREA),)) == []  # not for ever
+    # Not for ever: on to the levels before her (SKIPPED_TRIPS), by the Town Portal and waypoint 32
+    assert look(37, plan, stage=FIGHT, worked=((37, RUNS_AN_AREA),)) == [(PORTAL_TO_TOWN, 37)]
     assert look(37, plan, stage=LOOT_STAGE, worked=((37, 1),)) == [(LOOT, 37)]
-    assert look(37, plan, stage=LEAVE, worked=((37, 1),)) == []  # no goals: the agenda's next is LEAVE_GAME
+    assert look(37, plan, stage=LEAVE, worked=((37, 1),)) == [(PORTAL_TO_TOWN, 37)]
+    done = frozenset((35, 36, 37))
+    assert look(ROGUE_ENCAMPMENT, plan, finished=done) == [(WAYPOINT, 32)]
+    every = done | {32, 33, 34}
+    assert look(34, plan, stage=LEAVE, worked=((34, 1),), finished=every) == []  # the agenda's next is LEAVE_GAME
 
 
 def test_a_valuable_on_the_ground_comes_first_and_the_visit_only_when_due():
     plan = itinerary(CATACOMBS)
     assert plan is not None
-    assert look(37, plan, stage=LEAVE, worked=((37, 1),), sighted='Ist Rune at (1, 2)') == [(PICKUP, 37)]
+    found = look(37, plan, stage=LEAVE, worked=((37, 1),), sighted='Ist Rune at (1, 2)')
+    assert found[0] == (PICKUP, 37)
     assert look(ROGUE_ENCAMPMENT, plan, visit_due=True) == [(WAYPOINT, FORTRESS)]
     due = produce(GameView(FORTRESS, True, plan, visit_due=True))
     assert [(goal.kind, goal.exit, goal.tier) for goal in due] == [(TOWN_ROUTINE, 'waypoint', ERRAND)]
@@ -274,7 +283,9 @@ def test_the_worldstone_keep_zone_goes_through_the_thrones_waves_and_portal_to_b
     assert look(131, plan, stage=USE, stage_to=132, worked=((131, 1),)) == [(LEVEL, 131)]
     assert look(132, plan, stage=FIGHT) == [(LEVEL, 132)]  # Baal: the Chamber's run
     assert look(132, plan, stage=LOOT_STAGE, worked=((132, 1),)) == [(LOOT, 132)]
-    assert look(132, plan, stage=LEAVE, worked=((132, 1),)) == []  # no goals: the game is left
+    # Then the Worldstone Keep Level 1 the zone's trips left out (tzroutine.py SKIPPED_TRIPS, 2026-10-22)
+    assert trips_of(plan)[-1] == ('Worldstone Keep 1', 129, (129, 128))
+    assert look(132, plan, stage=LEAVE, worked=((132, 1),)) == [(PORTAL_TO_TOWN, 132)]
 
 
 CANYON, LUT_GHOLEIN = 46, 40
@@ -288,11 +299,14 @@ def test_the_tal_rashas_zone_is_the_canyon_then_its_seven_tombs_one_trip_touring
     plan = itinerary(TAL_RASHAS)
     assert plan is not None
     (trip,) = plan.excursions
-    assert (trip.waypoint, trip.areas, trip.hub, trip.tours) == (CANYON, (CANYON, *TOMBS), CANYON, TOMBS)
-    assert trip.zone == frozenset((CANYON, *TOMBS))  # Duriel's Lair is no level of the trip
-    assert plan.skipped == ((73, 'no catalogue excursion covers it'),)
-    assert [policy_of(area, trip, plus=False) for area in trip.areas] == [COVER] * 8  # each: leaders and rooms
-    assert [policy_of(area, trip) for area in trip.areas] == [PLUS] * 8  # TZ+: and the groups
+    # and Duriel's Lair after them, by the true tomb's Orifice (levels/handlers/tal_rasha.py DURIEL, on 2026-10-21)
+    assert (trip.waypoint, trip.areas, trip.hub, trip.tours) == (CANYON, (CANYON, *TOMBS, 73), CANYON, TOMBS)
+    assert trip.zone == frozenset((CANYON, *TOMBS, 73))  # Duriel's Lair a level of the trip (before: skipped)
+    assert plan.skipped == ()
+    # each: leaders and rooms; Duriel's Lair, the boss's level, its leaders on the way to him (no boss ahead of the
+    # tour's levels: tzroutine.py `policy_of`)
+    assert [policy_of(area, trip, plus=False) for area in trip.areas] == [COVER] * 8 + [ON_THE_WAY]
+    assert [policy_of(area, trip) for area in trip.areas] == [PLUS] * 9  # TZ+: and the groups
     assert not trip.over(frozenset((72,)))  # the catalogue's last tomb done first ends nothing
     assert trip.over(frozenset(TOMBS))
 
@@ -468,9 +482,10 @@ def test_a_terrorized_act_and_the_rotation_in_another_act_are_one_itinerary_the_
         ('Diablo', 106, (106,)),
         ('Izual', 103, (103, 104, 105)),
         ('Andariel', 35, (35, 36, 37)),
+        ('Andariel', 32, (32, 33, 34)),  # the levels before her (SKIPPED_TRIPS, 2026-10-22), as the zone alone
     ]
     assert not plan.excursions[-1].passes  # the rotation's Catacombs: worked on the way, as alone
-    assert {area for area, _ in plan.skipped} == {32, 33, 34}  # as the Catacombs zone alone
+    assert plan.skipped == ()
     assert look(105, plan, stage=LEAVE, worked=((105, 1),), finished=ACT4 - {104, 105}) == [(PORTAL_TO_TOWN, 105)]
     assert look(FORTRESS, plan, finished=ACT4 - {104}) == [(WAYPOINT, 35)]
 
@@ -541,5 +556,41 @@ def test_manual_zones_off_is_the_one_rotating_zone_as_before(monkeypatch):
     try:
         assert itinerary(ACT4) is None
         assert trips_of(itinerary(frozenset((104, 105)))) == [('Izual', 103, (103, 104, 105))]
+    finally:
+        tzroutine.itinerary.cache_clear()
+
+
+def test_a_rotating_zones_levels_its_trips_leave_out_get_a_route_of_their_own():
+    # tzroutine.py SKIPPED_TRIPS (2026-10-22): Shenk the Overseer and Dac Farren (the Bloody Foothills) and Pindleskin
+    # (Nihlathak's Temple) were never in their rotating zones' itineraries (rca/2026-10-22/boss-audit-findings.md §4
+    # cause 3); the act scripts' alternate routes take them
+    from inventory_tracking.routes.tz_groups import installed_active_zones
+
+    def zone(name: str) -> Itinerary:
+        found = itinerary(next(each.core for each in installed_active_zones() if each.name == name))
+        assert found is not None
+        return found
+
+    foothills = zone('Act5-BloodyFoothils')
+    assert ('Bloody Foothills', 111, (111, 110)) in trips_of(foothills)
+    assert {area for area, _ in foothills.skipped} == {125}  # Abaddon: its red portal is not in the map files
+    halls = zone('Act5-Halls')
+    assert trips_of(halls) == [('Nihlathak', 123, (123, 124)), ('Halls of Anguish', 123, (123, 122, 121))]
+    assert halls.skipped == ()
+    cows = zone('Act1-MooMooFarm')
+    assert cows.excursions == ()  # only the red portal Wirt's Leg opens leads in: still skipped, said
+    assert {area for area, _ in cows.skipped} == {39}
+
+
+def test_without_skipped_trips_the_levels_are_skipped_as_before(monkeypatch):
+    from inventory_tracking.macros import tzroutine
+
+    monkeypatch.setattr(tzroutine, 'SKIPPED_TRIPS', False)
+    tzroutine.itinerary.cache_clear()
+    try:
+        plan = itinerary(CATACOMBS)
+        assert plan is not None
+        assert {area for area, _ in plan.skipped} == {32, 33, 34}
+        assert len(plan.excursions) == 1
     finally:
         tzroutine.itinerary.cache_clear()

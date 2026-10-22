@@ -6,7 +6,8 @@ its row unread until identified, so one left on the ground while the player's is
 `_loop_stopped`). The legs are the loop's (loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE; on the terror zone
 kinds the agenda's package, agenda.py `gheeds_package`, 2026-10-19); here the stash's
 part: `park` puts the player's charm on a shared page (never the personal one, which blocks the pickup too); `choose`
-keeps the better Magic Find roll at the player's cell, the other on a shared page (a tie keeps the player's).
+keeps the better Magic Find roll at the player's cell, the other on a shared page (a tie keeps the player's), or
+put down in town when it is the new one and its rolls are low (GHEEDS_LOW_DOWN).
 """
 
 from collections.abc import Callable, Mapping, Sequence
@@ -16,15 +17,18 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.loot.keep import GHEEDS_GOLD, GHEEDS_MF, GHEEDS_MF_WITH_GOLD
+from inventory_tracking.macros import visit
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, cell_point
-from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.cube import INVENTORY, PARK_POINT, cell_point
+from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.stash import SHARED_PRIORITY, STASH_PAGE, _sent, _until, close_stash, open_stash
 from inventory_tracking.macros.visit import Remembered, Tally, _show
 
 
 __all__ = [
     'GHEEDS_FORTUNE',
+    'GHEEDS_LOW_DOWN',
     'MAGIC_FIND',
     'UNIQUE',
     'Parked',
@@ -32,6 +36,7 @@ __all__ = [
     'choose',
     'gheeds',
     'is_unique_grand_charm',
+    'low_rolls',
     'magic_find',
     'newcomers',
     'park',
@@ -41,7 +46,17 @@ GHEEDS_FORTUNE = 359  # uniqueitems.txt row (d2data dump, 2026-10-18): `cm3`, ca
 UNIQUE = 7  # ItemData quality
 # itemstatcost.txt `item_magicbonus` (game-excel, d2data, 2026-10-18): Gheed's "mag%"
 MAGIC_FIND = 80
+GOLD_FIND = 79  # `item_goldbonus`: Gheed's "gold%" (loot/keep.py GOLD_FIND)
 GRAND_CHARM_SIZE = (1, 3)
+# A low new Gheed's Fortune is put down in town, not stashed (the player, 2026-10-21 ~09:00: "I have dropped low roll
+# gheed's charms, it looks like we don't need that many of them. low rolls doesn't sell"; keep only "MF38, or MF35 +
+# very good gold roll"; "also - do not sell our current gheed charm"). When the swap's new one loses (or ties) and its
+# rolls are low by loot/keep.py's thresholds (`low_rolls`: magic find under GHEEDS_MF, and under GHEEDS_MF_WITH_GOLD
+# or gold find under GHEEDS_GOLD) it falls between the panels by the stash (visit.py `_drops`' point) instead of piling
+# up on a shared page; rolls unread, a good loser, or one that does not fall: onto a shared page as before. A winner is
+# carried as before, the player's old one left on the shared page; the player's is never put down. False: every loser
+# onto a shared page, as before
+GHEEDS_LOW_DOWN = True
 
 Stats = Callable[[int], Mapping[int, int] | None]  # None: unread
 Cell = tuple[int, int, int]
@@ -101,16 +116,30 @@ class Parked:
             return None
 
 
-def magic_find(stats: Stats | None, unit_id: int) -> int | None:
-    """The item's Magic Find roll (%); None unread or absent."""
+def _stat(stats: Stats | None, unit_id: int, stat: int) -> int | None:
+    """The item's `stat` value; None unread or absent."""
     if stats is None:
         return None
     try:
         found = stats(unit_id)
-        return found.get(MAGIC_FIND) if found is not None else None
+        return found.get(stat) if found is not None else None
     except Exception as error:  # a read of memory: never the swap's stop
         LOG.info('Macro: charms: the stats of unit %d are not read: %s', unit_id, error)
         return None
+
+
+def magic_find(stats: Stats | None, unit_id: int) -> int | None:
+    """The item's Magic Find roll (%); None unread or absent."""
+    return _stat(stats, unit_id, MAGIC_FIND)
+
+
+def low_rolls(stats: Stats | None, unit_id: int) -> tuple[int, int] | None:
+    """The Gheed's Fortune's (magic find, gold find) when they are low by loot/keep.py's thresholds (`gheeds_low`);
+    None when kept by them or either is unread."""
+    mf, gold = magic_find(stats, unit_id), _stat(stats, unit_id, GOLD_FIND)
+    if mf is None or gold is None or mf >= GHEEDS_MF or (mf >= GHEEDS_MF_WITH_GOLD and gold >= GHEEDS_GOLD):
+        return None
+    return mf, gold
 
 
 def candidates(pack: Pack, parked: Parked, before: frozenset[int]) -> list[Carried]:
@@ -238,6 +267,42 @@ def settle(run: Run, rect, item: Carried, cell: Cell) -> Carried:
     return now
 
 
+def _put_down(run: Run, rect, item: Carried, parked: Parked) -> bool:
+    """GHEEDS_LOW_DOWN: the new Gheed's Fortune `item` let fall between the panels with the stash open (visit.py
+    `_drops`); whether it fell. Never the player's (`parked`) nor a protected item; put back when it does not fall,
+    `Abort` when it stays on the pointer."""
+    if item.unit_id == parked.unit_id or (why := protected(run, item)):
+        LOG.info("Macro: charms: the Gheed's Fortune (unit %d) is %s: never put down", item.unit_id,
+                 why if item.unit_id != parked.unit_id else "the player's")  # fmt: skip
+        return False
+    held = next((i for i in _pack(run).items if i.unit_id == item.unit_id), None)
+    if held is None:
+        return False
+    run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(4, 4))
+    run.actuator.click()
+    if not _until(run, lambda p: p.pointer == held.unit_id):
+        pack = run.reads.carried()
+        if pack is not None and pack.pointer is not None:
+            run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
+            _until(run, lambda p: p.pointer is None)
+        LOG.info("Macro: charms: the new Gheed's Fortune (unit %d) was not taken up to put down", held.unit_id)
+        return False
+    run.actuator.move(*PARK_POINT, scatter=(4, 4))
+    run.actuator.click()
+    if not _until(run, lambda p: p.pointer is None and all(i.unit_id != held.unit_id for i in p.items)):
+        run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(4, 4))
+        run.actuator.click()
+        if not _until(run, lambda p: p.pointer is None):
+            raise Abort("the new Gheed's Fortune is still on the pointer")
+        LOG.info("Macro: charms: the new Gheed's Fortune (unit %d) did not fall: put back", held.unit_id)
+        return False
+    game, down = run.world().game_name or '', visit._down  # the items lying by the stash (visit.py DOWN_A_GAME)
+    if down['game'] != game:
+        down['game'], down['items'] = game, 0
+    down['items'] += 1
+    return True
+
+
 def _make_way(run: Run, rect, tally: Tally, others: Sequence[Carried]) -> None:
     """Stash `others` until a Grand Charm block is free for the player's to come back to ("refused grand charm -
     should cause a trip", the player, 2026-10-18)."""
@@ -284,8 +349,8 @@ def choose(
     others: Sequence[Carried] = (),
 ) -> Carried:
     """Carry the better Magic Find roll of `parked` and `new` (a tie keeps the player's) at the player's cell, the
-    other on a shared page; the carried one. `others` are stashed when the player's has no block to come back to.
-    `Abort` when a move fails."""
+    other on a shared page (a losing new one of low rolls put down in town: GHEEDS_LOW_DOWN); the carried one.
+    `others` are stashed when the player's has no block to come back to. `Abort` when a move fails."""
     mine = magic_find(stats, parked.unit_id)
     mine = mine if mine is not None else parked.magic_find
     theirs = magic_find(stats, new.unit_id) if new is not None else None
@@ -302,13 +367,19 @@ def choose(
             if theirs is None or mine is None:
                 LOG.info("Macro: charms: a magic find roll is unread (the player's %s, the new one's %s): the "
                          "player's is kept", mine, theirs)  # fmt: skip
-            pages = shared_pages(_view(run), new.size)
-            page = _onto_shared(run, rect, new, tally, pages) if pages else None
-            if page is None:
-                raise Abort("no shared page took the new Gheed's Fortune: the player's stays in the stash")
-            LOG.info("Macro: charms: the player's Gheed's Fortune is kept: magic find %s%% against the new one's %s%%; "
-                     'the new one (unit %d) onto shared page %d', mine if mine is not None else '?',
-                     theirs if theirs is not None else '?', new.unit_id, page)  # fmt: skip
+            low = low_rolls(stats, new.unit_id) if GHEEDS_LOW_DOWN else None
+            if low is not None and _put_down(run, rect, new, parked):
+                LOG.info("Macro: charms: the new Gheed's Fortune is low (magic find %d%%, gold find %d%%): put down in "
+                         "town, not stashed; the player's is kept (magic find %s%%)", *low,
+                         mine if mine is not None else '?')  # fmt: skip
+            else:
+                pages = shared_pages(_view(run), new.size)
+                page = _onto_shared(run, rect, new, tally, pages) if pages else None
+                if page is None:
+                    raise Abort("no shared page took the new Gheed's Fortune: the player's stays in the stash")
+                LOG.info("Macro: charms: the player's Gheed's Fortune is kept: magic find %s%% against the new one's "
+                         "%s%%; the new one (unit %d) onto shared page %d", mine if mine is not None else '?',
+                         theirs if theirs is not None else '?', new.unit_id, page)  # fmt: skip
         else:
             LOG.info("Macro: charms: no new Gheed's Fortune to compare: the player's back")
         _make_way(run, rect, tally, others)

@@ -719,3 +719,23 @@ def test_the_pointer_follows_a_target_that_moved_since_the_look_and_none_of_it_w
         before = screen_fraction(me(play.world), NEAR.x, NEAR.y, ASPECT)
         at = play.keys.fraction()
         assert math.dist(at, now if check else before) < math.dist(at, before if check else now)
+
+
+@pytest.mark.parametrize('first', [True, False])
+def test_a_cast_on_a_monster_lets_the_held_strike_go_before_the_pointer_leaves_its_line(monkeypatch, first):
+    # LET_GO_FIRST (the player, 2026-10-21 ~20:15: "we need to do the best aiming when we're trying to focus mob";
+    # rca/2026-10-21/herald-aiming-findings.md §1.1): a strike begun while the pointer was on the mark's target flew
+    # there. The fake game says where the pointer stood as the strike's button went up.
+    from inventory_tracking.macros import buffs as module
+
+    monkeypatch.setattr(module, 'LET_GO_FIRST', first)
+    play = game(NEAR)
+    buffs, run = plan(BOLT_ROW), play.run()
+    run.keys.update(key_names(play.world))
+    on_line = play.keys.fraction()
+    with run.actuator.hold('Button3') as again:
+        buffs.let_go = getattr(again, 'release', None)  # actuator.hold's, read as hunt.py reads it
+        buffs.cast(run, due_now(buffs, run, BOLT_ROW, buffs.facts(run, play.world, foes=[NEAR])), key_names, ASPECT)
+    (released,) = [event for event in play.keys.events if event[0] == 'button' and event[1] == 3][:1]
+    assert (released[2] == on_line) is first  # off: the strike was let go with the pointer on the target
+    assert play.pressed()[-1] == 'F6'  # the key is pressed either way

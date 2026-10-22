@@ -53,16 +53,20 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
   strike, twice), as a key kept during a cast; nothing happens between two looks at the game but the
   ticks (a cast, and a walk asked for during a cast, begin at
   the look after the cast's end, as `Game`'s casts do);
-- the strike deals the same with either weapon set (damage.json knows no set), Sigil: Lethargy,
-  Engorge, Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost their cast
-  time), and the companions deal no damage; Death Mark (`Arena.mark`, rca/2026-10-14/death-mark.md) on the
-  live hostile under the pointer at its key sends the character's demons onto it MARK_JUMP after its key
-  (the takes: 0.28 s) and holds them MARK_BESIDE from it while it lives and the mark lasts (whom a
-  monster goes for is then the nearest body, as always here), and each blade on it takes the mark's flat
-  points: the demons' own damage on it (the build's `gain`) is not played, so the arena sees the mark's
-  cost and its draw-off and not what the demons add; Psychic Ward is a guard (combat/sim/guard.py,
-  builds/warlock/ward.py: a pool of physical points taken before the resistances, a stun on a melee
-  striker) set at the tick after its key, and only the types the client's rules play meet it;
+- the strike deals the same with either weapon set (damage.json knows no set), Sigil: Lethargy, Engorge,
+  Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost their cast time), and
+  the companions deal no damage; the sigil shows as the game shows it (`Arena.lay_sigil`): its missile,
+  the character's, lies on the ground under the pointer at its key from SIGIL_MISSILE_SHOWS after it, and
+  its state (builds/warlock/buffs.py SIGIL_STATE) is on every monster within its radius from
+  SIGIL_STATE_SHOWS after it, until SIGIL_LASTS; each new sigil ends the last (it slows nobody); Death
+  Mark (`Arena.mark`, rca/2026-10-14/death-mark.md) on the live hostile under the pointer at its key sends
+  the character's demons onto it MARK_JUMP after its key (the takes: 0.28 s) and holds them MARK_BESIDE
+  from it while it lives and the mark lasts (whom a monster goes for is then the nearest body, as always
+  here), and each blade on it takes the mark's flat points: the demons' own damage on it (the build's
+  `gain`) is not played, so the arena sees the mark's cost and its draw-off and not what the demons add;
+  Psychic Ward is a guard (combat/sim/guard.py, builds/warlock/ward.py: a pool of physical points taken
+  before the resistances, a stun on a melee striker) set at the tick after its key, and only the types the
+  client's rules play meet it;
 - the blades return to where the character stood at the cast (as both harnesses), and a blade's
   focal point is the ground under the pointer at the cast's start;
 - mana is not counted (combat/data/damage.json: the recorded mana never limited casting);
@@ -88,12 +92,33 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
   is down and up within the tick, so the macro never sees it held;
 - RIGHT_SKILL, the potion a picked-up one lands on (`stow`), the staff's full charges and the sizes
   of drops are assumptions, said where they are set.
+
+Three rules a play may turn on (`rules`, 2026-10-21: what a tier 4-5 Herald pack fight needs, rca/2026-10-21/
+herald-fight-findings.md §3.4 "what the arena lacks"). Each is off unless asked, so every scene fitted and pinned
+before plays as it did:
+
+- SIGIL_SLOWS: a hostile standing in the character's sigil (`sigil_lying` from SIGIL_STATE_SHOWS, within
+  SIGIL_RADIUS) walks and swings at mobs.py SIGIL_SLOW (skills.txt 393: half);
+- PETS_FIGHT: the character's demons (Death Mark's `sends`: the Defilers, the bound demon; not the mercenary)
+  take the blows the monsters land on them (mobs.py `mate_blows`, raw points: a pet's resistances and Health Link are
+  not played) and die at 0 (out of the world, `pet_deaths`); a scene's companion has its own life and most life, a
+  Defiler the macro summons PET_POINTS. Each strikes the nearest live hostile within its reach at its points a frame
+  (the build's damage.json `companions`, an unmeasured demon by builds/warlock/mark.py `demon_rate`), the kill counted
+  as the character's; one not held by a mark goes for the nearest hostile within PET_ENGAGE of it and stands
+  PET_STOP from it, else keeps up as `follow` has it (which runs in every scene with this rule). Their life shows in
+  128ths of the most, as the client's monster life does;
+- BODIES_BLOCK: a monster's stride does not end in another body (mobs.py `Horde.bodies`), and the character's walk
+  does not go through a live hostile: blocked, it stands (the 09:30:52 "the character did not move").
+
+Bind Demon's key (whatever the rules) on a live hostile under the pointer that builds/warlock/bind.py `bindable`
+calls a demon, with no bound demon out, makes it the character's BIND_TAKES after the key (`binds`): the capture's
+chance and the cast's sequence are not played.
 """
 
 import json
 import math
 import random
-from collections.abc import Callable, Generator, Mapping
+from collections.abc import Callable, Generator, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -101,8 +126,10 @@ from pathlib import Path
 from inventory_tracking.automation.heal import HealController
 from inventory_tracking.automation.ledger import LedgerData
 from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.builds.warlock.bind import bindable, bound
+from inventory_tracking.builds.warlock.buffs import SIGIL_LASTS, SIGIL_MISSILES, SIGIL_RADIUS, SIGIL_STATE
 from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE
-from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table, damage_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
@@ -113,10 +140,11 @@ from inventory_tracking.builds.warlock.mark import (
     MARK_POINTS,
     MARK_SECONDS,
     MARK_STATE,
+    demon_rate,
     sends,
 )
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_JUMP
-from inventory_tracking.builds.warlock.skills import BLADE_WARP, DEATH_MARK, ECHOING_STRIKE
+from inventory_tracking.builds.warlock.skills import BIND_DEMON, BLADE_WARP, DEATH_MARK, ECHOING_STRIKE, SIGIL_LETHARGY
 from inventory_tracking.builds.warlock.ward import PSYCHIC_WARD_GUARD
 from inventory_tracking.combat.policy import RUN_MODES, Foe, walls
 from inventory_tracking.combat.sim import casters
@@ -124,7 +152,14 @@ from inventory_tracking.combat.sim.casters import mind_of
 from inventory_tracking.combat.sim.guard import Guard
 from inventory_tracking.combat.stance import no_footing, way
 from inventory_tracking.config import INPUT, HealingConfig
-from inventory_tracking.game.layout import FULL_REJUVENATION, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT, SUPER_HEALING
+from inventory_tracking.game.layout import (
+    DEFILER_CLASS,
+    FULL_REJUVENATION,
+    MONSTER_UNIT,
+    NO_OWNER,
+    OBJECT_UNIT,
+    SUPER_HEALING,
+)
 from inventory_tracking.game.records import (
     GOLD,
     HEALING,
@@ -163,7 +198,7 @@ from inventory_tracking.native.layout import BELT_COLUMNS, BELT_SIZE, CORPSE_MOD
 from inventory_tracking.takes.timeline import GAME_RATE
 from inventory_tracking.tracking.belt import potion_kind
 from tests.inventory_tracking.macros.fakes import KEYS, Clock, Game, player
-from tests.inventory_tracking.scenarios.arena.mobs import Mobs, raw_resists
+from tests.inventory_tracking.scenarios.arena.mobs import HERO_BODY, SIGIL_SLOW, Mobs, body_of, raw_resists
 from tests.inventory_tracking.scenarios.arena.result import Result
 from tests.inventory_tracking.scenarios.arena.scene import Scene
 from tests.inventory_tracking.scenarios.threat.harness import RUN
@@ -222,6 +257,10 @@ OPEN_REACH = 3.0  # units: an object clicked is operated from this near
 # 12:33 on 2026-10-13: 0.20 s, then 0.80 s long, 64 warps of 64); a warp key before that is refused: it moves
 # nobody and is counted (`Arena.refused_warps`, its seconds after the key before).
 WARP_DELAY_SHOWN, WARP_DELAY_OVER = 0.20, 1.00
+# Sigil: Lethargy as the takes of 2026-10-20 show it (builds/warlock/buffs.py, the medians): its missile 0.37 s after
+# the key, its state on a monster 0.48 s after; the missile class of the radius the character's level gives
+SIGIL_MISSILE_SHOWS, SIGIL_STATE_SHOWS = 0.37, 0.48
+SIGIL_MISSILE = next(kind for kind, radius in SIGIL_MISSILES.items() if radius == SIGIL_RADIUS)
 BODY_LIFT = 3.0  # units down the screen from the pointer's ground that a monster's picture still covers
 BODY_HALF = 1.5  # units: how far from that line a monster's feet may be
 # How the companions keep up with the character (`Arena.follow`), from the Chaos Sanctuary takes since 2026-10-12
@@ -234,6 +273,17 @@ FOLLOW: dict[int, tuple[float, float]] = {744: (4.4, 0.41), 338: (5.1, 0.32), 36
 FOLLOW_DEFAULT = (5.0, 0.4)
 JUMP = 18.0
 BESIDE = 0.6
+# The rules a play may turn on (the module text).
+SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK = 'sigil slows', 'pets fight', 'bodies block'
+RULES = frozenset((SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK))
+# A Defiler the macro summons, in points: monstats warputriddefiler (744) MinHP(H) 300% of monlvl HP(H) 4205 at level
+# 80 (pricing/raw/game-excel, 2026-10-21); the summon's own life bonus (skills.txt 377 calc1: 35% a level) is not
+# counted. An assumption of this file.
+PET_POINTS = 12_600.0
+PET_ENGAGE = 10.0  # units from a pet within which it goes for a hostile (an assumption: the takes do not say)
+PET_STOP = 2.5  # units from the hostile it goes for that it stands at (sim/monsters.py REACH x STOP is 2.7)
+PET_REACH = 3.2  # units: a pet's reach where damage.json measures none (sim/monsters.py REACH)
+BIND_TAKES = 0.6  # seconds from Bind Demon's key until the demon is the character's (an assumption)
 
 
 class Ticks(Clock):
@@ -389,7 +439,10 @@ class Arena(Game):
         auras: Mapping[int, float] | None = None,  # unit -> the factor its aura or curse puts on the others' blows
         attack: Attack | None = None,
         instant_moves: bool = False,
+        rules: Iterable[str] = (),
     ) -> None:
+        self.rules = frozenset(rules)
+        assert self.rules <= RULES, self.rules - RULES
         self.scene = scene.copy()
         hero = self.scene.hero
         self.mobs = Mobs(self.scene, random.Random(seed), auras)
@@ -481,6 +534,15 @@ class Arena(Game):
         self.mark_misses = 0.0
         self.mark_rolls = random.Random(seed + 7)
         self.mark_keys: list[tuple[float, int | None]] = []
+        self.sigil: tuple[Point, float] | None = None  # the character's last sigil: (where, the clock its cast began)
+        # PETS_FIGHT: each pet's (life, most life) in points; the deaths (clock, unit, type); the points they dealt.
+        self.pets: dict[int, tuple[float, float]] = {}
+        self.pet_deaths: list[tuple[float, int, int]] = []
+        self.pet_dealt = 0.0
+        # Bind Demon: the unit under the pointer at the key and the clock it is the character's at; the binds made
+        self.binding: tuple[int, float] | None = None
+        self.binds: list[tuple[float, int]] = []
+        self.summons: list[tuple[float, Point, Point]] = []  # each Defiler summoned: (clock, where, the character)
         self.flights: list[Flight] = []
         self.refused: list[Point] = []  # where a hop, a warp or a walk was aimed and nobody can go
         self.warped_at: float | None = None  # the clock at the last Blade Warp key the game took
@@ -581,7 +643,7 @@ class Arena(Game):
         run.say = self.say
         run.corpses = self.mobs.corpses
         run.unit_states = self.unit_states  # whether a mark took (macros/buffs.py `Buffs.settle`)
-        run.flights = self.mobs.flights
+        run.flights = self.missiles  # the monsters' and the character's sigil (`missiles`)
         run.ground = lambda: self.ground if len(self.ground) else None
         run.things = lambda: tuple(self.things)
         run.containers = run.things
@@ -654,13 +716,21 @@ class Arena(Game):
         now = self.clock.now
         if not self.instant_moves:
             self.move()
-        if self.follows:
+        if self.follows or PETS_FIGHT in self.rules:
             self.follow()
-        companions = [(m.x, m.y) for m in self.world.monsters if m.ally or m.owner != NO_OWNER]
+        self.bound_now(now)
+        mates = [m for m in self.world.monsters if m.ally or m.owner != NO_OWNER]
+        companions = [(m.x, m.y) for m in mates]
         if len(self.wards) > self.guard.sets:
             self.guard.set()  # a cast of Psychic Ward since the last tick (`Game` counts it at its key)
         self.mobs.raw = self.raws[self.hand]  # what a curse moves (mobs.py RAW_RESISTS)
+        self.mobs.pack.slowed = self.slow_at if SIGIL_SLOWS in self.rules else None
+        if BODIES_BLOCK in self.rules:
+            self.mobs.pack.bodies = [(self.here, HERO_BODY), *(((m.x, m.y), body_of(m.txt_id)) for m in mates)]
         blows = min(self.mobs.tick(self.here, companions, self.resists[self.hand]), self.life)
+        if PETS_FIGHT in self.rules:
+            self.pets_hurt(now, mates)
+            self.pets_strike()
         self.taken += blows
         self.life -= blows
         stand = self.world.player
@@ -706,6 +776,13 @@ class Arena(Game):
                 continue
             gap = math.dist(here, (monster.x, monster.y))
             heel, pace = FOLLOW.get(monster.txt_id, FOLLOW_DEFAULT)
+            foe = self.engaged(monster) if PETS_FIGHT in self.rules and sends(self.world, monster) else None
+            if foe is not None and gap <= JUMP:
+                away = math.dist(foe, (monster.x, monster.y))
+                share = min(pace, away - PET_STOP) / away if away > PET_STOP else 0.0
+                moved.append(replace(monster, x=monster.x + (foe[0] - monster.x) * share,
+                                     y=monster.y + (foe[1] - monster.y) * share))  # fmt: skip
+                continue
             if gap > JUMP:
                 spot = (here[0] + BESIDE, here[1])
             elif gap > heel:
@@ -716,6 +793,88 @@ class Arena(Game):
                 continue
             moved.append(replace(monster, x=spot[0], y=spot[1]))
         self.world = replace(self.world, monsters=tuple(moved))
+
+    def engaged(self, pet: Monster) -> Point | None:
+        """Where the hostile a pet goes for stands (PETS_FIGHT): the nearest live one within PET_ENGAGE of it."""
+        at = (pet.x, pet.y)
+        near = [self.mobs.mobs[unit].at for unit in self.mobs.live()]
+        near = [spot for spot in near if math.dist(spot, at) <= PET_ENGAGE]
+        return min(near, key=lambda spot: math.dist(spot, at)) if near else None
+
+    def pet_life(self, pet: Monster) -> tuple[float, float]:
+        """A pet's (life, most life) in points: kept since its first tick; a scene's companion its own, one the macro
+        summoned PET_POINTS."""
+        found = self.pets.get(pet.unit_id)
+        if found is None:
+            mob = self.mobs.mobs.get(pet.unit_id)
+            found = (mob.life, mob.full) if mob is not None and mob.full > 0 else (PET_POINTS, PET_POINTS)
+            self.pets[pet.unit_id] = found
+        return found
+
+    def pets_hurt(self, now: float, mates: list[Monster]) -> None:
+        """The blows of this tick on the pets (PETS_FIGHT): off their life, shown in 128ths; one at 0 is gone."""
+        hurt: dict[int, float] = {}
+        for index, points in self.mobs.mate_blows:
+            if 0 <= index < len(mates) and sends(self.world, mates[index]):
+                hurt[mates[index].unit_id] = hurt.get(mates[index].unit_id, 0.0) + points
+        kept = []
+        for monster in self.world.monsters:
+            if not sends(self.world, monster):
+                kept.append(monster)
+                continue
+            life, full = self.pet_life(monster)
+            life -= hurt.get(monster.unit_id, 0.0)
+            self.pets[monster.unit_id] = (life, full)
+            if life <= 0.0:
+                self.pet_deaths.append((now, monster.unit_id, monster.txt_id))
+                continue
+            kept.append(replace(monster, life=max(1, round(128 * life / full)), max_life=round(full)))
+        self.world = replace(self.world, monsters=tuple(kept))
+
+    def pets_strike(self) -> None:
+        """Each pet strikes the nearest live hostile within its reach at its points a frame (PETS_FIGHT)."""
+        rates = companion_table()
+        for pet in self.world.monsters:
+            if not sends(self.world, pet):
+                continue
+            reach = rates.get(pet.txt_id, (PET_REACH, 0.0))[0]
+            rate = demon_rate(pet.txt_id)
+            live = [unit for unit in self.mobs.live() if math.dist(self.mobs.mobs[unit].at, (pet.x, pet.y)) <= reach]
+            if not live or rate <= 0:
+                continue
+            unit = min(live, key=lambda found: math.dist(self.mobs.mobs[found].at, (pet.x, pet.y)))
+            self.pet_dealt += rate
+            if self.mobs.hit(unit, rate):
+                self.kills.append(unit)
+
+    def bind(self, begun: float) -> None:
+        """Bind Demon's key (the module text): the live demon under the pointer is the character's BIND_TAKES on."""
+        unit = self.monster_under_pointer()
+        if unit is None or bound(self.world):
+            return
+        found = next((m for m in self.world.monsters if m.unit_id == unit), None)
+        if found is not None and bindable(found):
+            self.binding = (unit, begun + BIND_TAKES)
+
+    def bound_now(self, now: float) -> None:
+        """A bind whose time has come: the monster out of the hostiles, an ally where it stands (`Mobs.turn`)."""
+        if self.binding is None or now < self.binding[1]:
+            return
+        unit, _ = self.binding
+        self.binding = None
+        if unit not in self.mobs.live() or bound(self.world):
+            return
+        self.mobs.turn(unit)
+        self.world = replace(
+            self.world, monsters=tuple(replace(m, ally=True) if m.unit_id == unit else m for m in self.world.monsters)
+        )
+        self.binds.append((now, unit))
+
+    def slow_at(self, at: Point) -> float:
+        """The factor the character's sigil puts on a walker at `at` (SIGIL_SLOWS): SIGIL_SLOW within its radius
+        while its state shows, 1 else."""
+        sigil = self.sigil_lying(SIGIL_STATE_SHOWS)
+        return SIGIL_SLOW if sigil is not None and math.dist(sigil, at) <= SIGIL_RADIUS else 1.0
 
     def held(self) -> Point | None:
         """Where the monster the demons hold stands: the marked one, alive, its mark on and the jump made."""
@@ -826,11 +985,21 @@ class Arena(Game):
             busy_until = self.acting_until  # a key during a cast is cast once it is over
             if name in CAST_KEYS:
                 self.halt()
+            pets = {m.unit_id for m in self.world.monsters if m.txt_id == DEFILER_CLASS}
             super().act(event)  # Teleport's key comes back as `hop`, a held strike as `strike`
+            self.summons += [
+                (self.clock.now, (m.x, m.y), self.here)
+                for m in self.world.monsters
+                if m.txt_id == DEFILER_CLASS and m.unit_id not in pets
+            ]
             if name in CAST_KEYS and free and self.acting_until is None:
                 self.quick_cast(name)
             if key == KEYS[DEATH_MARK] and DEATH_MARK in self.world.slots:
                 self.mark(self.clock.now if busy_until is None else busy_until)
+            if name == KEYS[SIGIL_LETHARGY]:  # a mouse button (Button9) as the key file has it
+                self.lay_sigil(self.clock.now if busy_until is None else busy_until)
+            if key == KEYS[BIND_DEMON] and BIND_DEMON in self.world.slots:
+                self.bind(self.clock.now if busy_until is None else busy_until)
             if key == KEYS[SWAP_WEAPONS]:
                 self.swaps += 1
                 self.hand = 1 - self.hand
@@ -851,14 +1020,43 @@ class Arena(Game):
         self.mark_casts.append((self.clock.now, unit))
         self.mark_keys.append((self.clock.now, unit))
 
+    def lay_sigil(self, begun: float) -> None:
+        """Sigil: Lethargy's key: its missile lies on the ground under the pointer, cast from `begun` (the key, or the
+        end of the cast under way at it); it ends the last."""
+        self.sigil = (self.ground_under_pointer(), begun)
+
+    def sigil_lying(self, shows: float) -> Point | None:
+        """Where the character's sigil lies, read `shows` or more after its cast began and before SIGIL_LASTS."""
+        if self.sigil is None:
+            return None
+        at, begun = self.sigil
+        return at if shows <= self.clock.now - begun <= SIGIL_LASTS else None
+
     def unit_states(self, monster: Monster) -> bytes:
         """A monster's state words as the game holds them (game/layout.py STATE_RUN): Death Mark's state (MARK_STATE)
-        on the marked one while its mark lasts, from the key (the takes: it shows 0.3-0.8 s after); nothing else."""
-        words = bytearray(32)
+        on the marked one while its mark lasts, from the key (the takes: it shows 0.3-0.8 s after); the sigil's
+        (SIGIL_STATE) on one within its radius (`sigil_lying`); nothing else."""
+        states = set()
         if self.marked is not None and self.marked[0] == monster.unit_id and self.clock.now < self.marked[2]:
-            word, bit = divmod(MARK_STATE, 32)
-            words[word * 4 : word * 4 + 4] = (1 << bit).to_bytes(4, 'little')
+            states.add(MARK_STATE)
+        sigil = self.sigil_lying(SIGIL_STATE_SHOWS)
+        if sigil is not None and math.dist(sigil, (monster.x, monster.y)) <= SIGIL_RADIUS:
+            states.add(SIGIL_STATE)
+        words = bytearray(32)
+        for state in states:
+            word, bit = divmod(state, 32)
+            value = int.from_bytes(words[word * 4 : word * 4 + 4], 'little') | 1 << bit
+            words[word * 4 : word * 4 + 4] = value.to_bytes(4, 'little')
         return bytes(words)
+
+    def missiles(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
+        """The missiles in flight of the classes `kinds` as game/decode.py `flights` reads them: the monsters'
+        (`Mobs.flights`) and the character's sigil while it lies (`sigil_lying`)."""
+        found = self.mobs.flights(kinds)
+        sigil = self.sigil_lying(SIGIL_MISSILE_SHOWS)
+        if sigil is None or SIGIL_MISSILE not in kinds or self.world.player is None:
+            return found
+        return (*found, (self.world.player.unit_id, SIGIL_MISSILE, sigil[0], sigil[1]))
 
     def quick_cast(self, name: str) -> None:
         """A skill key pressed while the character is free: its cast takes the cast's time, with the skill
@@ -1040,6 +1238,9 @@ class Arena(Game):
                     here[1] + (self.route[0][1] - here[1]) * left / gap,
                 )
                 left = 0.0
+        if BODIES_BLOCK in self.rules and self.barred_by_bodies(here):
+            self.halt()  # surrounded: the walk stands at the bodies (the module text)
+            return
         self.put(here)
         if self.opening is not None:
             thing = next(thing for thing in self.things if thing.unit_id == self.opening)
@@ -1052,6 +1253,16 @@ class Arena(Game):
             self.halt()
             if drop is not None:
                 self.take(drop)
+
+    def barred_by_bodies(self, spot: Point) -> bool:
+        """Whether a step to `spot` goes into a live hostile's body (BODIES_BLOCK): within the two radii and nearer."""
+        here = self.here
+        for unit in self.mobs.live():
+            mob = self.mobs.mobs[unit]
+            gap = math.dist(spot, mob.at)
+            if gap < HERO_BODY + body_of(mob.txt) and gap < math.dist(here, mob.at) - 1e-9:
+                return True
+        return False
 
     def take(self, drop: Drop) -> None:
         """The drop the character walked to leaves the ground, as `Game.act` takes one at its click; a
@@ -1072,7 +1283,15 @@ class Arena(Game):
         another build's `attack` its cast lands at once: what `dealt` takes off the hostiles alive."""
         self.halt()  # a cast: the walk ends where the character is
         origin, focal = self.here, self.ground_under_pointer()
+        hostile = set(self.mobs.hostile)
+        mates = [m for m in self.world.monsters if m.unit_id not in hostile]
         super().strike()
+        if PETS_FIGHT in self.rules:
+            # `Game.strike` takes its kill off the nearest body on the line, a companion of a type it does not know
+            # (the bound demon, the mercenary) as readily as a hostile: with the pets real, they are kept (before
+            # 2026-10-21 the scenes' companions were someone to go for only, and the plays are pinned so)
+            kept = tuple(m for m in self.world.monsters if m.unit_id in hostile)
+            self.world = replace(self.world, monsters=(*kept, *mates))
         self.show()
         if self.attack is not None:
             self.land(origin, focal, self.attack)

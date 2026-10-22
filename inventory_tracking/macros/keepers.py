@@ -12,6 +12,7 @@ from collections.abc import Mapping
 
 from inventory_tracking.game.records import Carried
 from inventory_tracking.items.metadata import item_base
+from inventory_tracking.loot import wants
 
 
 RARE, CRAFTED = 6, 8  # ItemData quality (macros/junk.py)
@@ -23,7 +24,10 @@ SKILLS = 2  # "+2 skills"
 
 # The town's keep rules hold it as the wants row rare-amulet-fcr-life-skills (loot/build_wants.py G11) when TOWN_DECIDES
 # is on (loot/keep.py, M6, 2026-10-20); it stays the guard behind engine.py `protected` (run.kept_item: "protected
-# amulets still spared", the player's 16:55 plan) and loot/today.py's. Delete after the 30-cycle check
+# amulets still spared", the player's 16:55 plan) and loot/today.py's. Delete after the 30-cycle check. With the keep
+# bar on (loot/wants.py KEEP_BAR; the player, 2026-10-21 ~08:55: "we need not just 1 row, but probably 3 stats with good
+# rolls to keep") a read amulet is the keep rules' (the bar's amulet rows: +2 skills and three good stats), and this
+# guard spares only one whose stats were not read: any FCR, life or +2 alone no longer spares it from a sale
 def amulet_keeper(item: Carried, stats: Mapping[int, int]) -> str | None:
     """Why a rare or crafted amulet is kept, or None. Unread stats keep it: a sale cannot be undone."""
     base = item_base(item.txt)
@@ -31,6 +35,8 @@ def amulet_keeper(item: Carried, stats: Mapping[int, int]) -> str | None:
         return None
     if not stats:
         return 'its stats unread'
+    if wants.KEEP_BAR:
+        return None
     if stats.get(FCR, 0) > 0:
         return f'{stats[FCR]}% faster cast rate'
     if stats.get(LIFE, 0) > 0:

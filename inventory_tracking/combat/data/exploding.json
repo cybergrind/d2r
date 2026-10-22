@@ -1,0 +1,103 @@
+{
+ "monsters": {
+  "212": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish1",
+   "run": 6,
+   "velocity": 6
+  },
+  "213": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish2",
+   "run": 7,
+   "velocity": 7
+  },
+  "214": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish3",
+   "run": 8,
+   "velocity": 8
+  },
+  "215": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish4",
+   "run": 9,
+   "velocity": 9
+  },
+  "216": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish5",
+   "run": 10,
+   "velocity": 10
+  },
+  "392": {
+   "ai": "Idle",
+   "death_damage": 1,
+   "id": "window1",
+   "run": 0,
+   "velocity": 0
+  },
+  "393": {
+   "ai": "Idle",
+   "death_damage": 1,
+   "id": "window2",
+   "run": 0,
+   "velocity": 0
+  },
+  "441": {
+   "ai": "SiegeBeast",
+   "death_damage": 1,
+   "id": "siegebeast1",
+   "run": 7,
+   "velocity": 3
+  },
+  "442": {
+   "ai": "SiegeBeast",
+   "death_damage": 1,
+   "id": "siegebeast2",
+   "run": 8,
+   "velocity": 3
+  },
+  "443": {
+   "ai": "SiegeBeast",
+   "death_damage": 1,
+   "id": "siegebeast3",
+   "run": 9,
+   "velocity": 4
+  },
+  "444": {
+   "ai": "SiegeBeast",
+   "death_damage": 1,
+   "id": "siegebeast4",
+   "run": 10,
+   "velocity": 5
+  },
+  "570": {
+   "ai": "BaalCrabClone",
+   "death_damage": 1,
+   "id": "baalclone",
+   "run": 6,
+   "velocity": 6
+  },
+  "690": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish6",
+   "run": 10,
+   "velocity": 10
+  },
+  "691": {
+   "ai": "Fetish",
+   "death_damage": 1,
+   "id": "bonefetish7",
+   "run": 10,
+   "velocity": 10
+  }
+ },
+ "source": "monstats.txt deathDmg (installed game, pricing/raw/game-excel)"
+}

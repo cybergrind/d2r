@@ -7,10 +7,13 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from inventory_tracking.automation.priority import reserve
+from inventory_tracking.combat.pack import PACK_SEEN
+from inventory_tracking.combat.threats import manaburn
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.game.layout import STRIKING_MODES
 from inventory_tracking.game.records import (
+    GOLD,
     HEALING,
     REJUVENATION,
     VALUABLE,
@@ -24,7 +27,7 @@ from inventory_tracking.game.records import (
 from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
-from inventory_tracking.macros import lootpolicy, route, supply
+from inventory_tracking.macros import agenda as goal_agenda, lootpolicy, route, supply, zonenav
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import (
     COVER,
@@ -42,6 +45,7 @@ from inventory_tracking.macros.agenda import (
     LevelView,
     Objective,
 )
+from inventory_tracking.macros.bossledger import Boss
 from inventory_tracking.macros.build import Intent
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.drop_ledger import GATHER_TRIES
@@ -124,6 +128,7 @@ from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.superchests import level_goal, mark_use, super_chests
 from inventory_tracking.macros.supply import detour, low, worth
 from inventory_tracking.macros.travel import PRESSED, STANDING, Point, clear_line, label, open_reaches, walked_length
+from inventory_tracking.macros.tzroutine import Itinerary
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import FIGHT, USE, Stage
@@ -132,6 +137,78 @@ from inventory_tracking.terror.zones import level_population
 
 if TYPE_CHECKING:
     from inventory_tracking.macros.hunt import Hunter
+
+
+# An act at an object that did not take is remembered under its own goal's key and that goal is made again from nearer
+# (`from_nearer`), the run's own look's goal (`cleared`: the agenda's and the level's super chests) too.
+# 02:37:00-02:37:08 and 02:39:31-02:39:40 on 2026-10-21 (act loop, Upper and Lower Kurast): the agenda's chest clicked
+# three times from 9-10 units outside its hut's wall, each try from the same spot, because the miss went down under the
+# route's goal (`Hunter.base`); that goal, made nearer, teleported onto the chest and opened it in 0.28 s
+# (rca/2026-10-21/super-chest-misses-findings.md §3.4). A clearing goal's key holds its unit: every agenda chest is
+# "agenda: Super chest". Off: the miss under the route's goal alone, as before.
+NEARER_CLEARING = True
+
+
+def missed_key(goal: Goal) -> str:
+    """The key `Hunter.missed` remembers `goal`'s act by: its label, with NEARER_CLEARING a clearing goal's unit too."""
+    if NEARER_CLEARING and goal.clearing and goal.unit is not None:
+        return f'{goal.label} ({goal.unit})'
+    return goal.label
+
+
+def from_nearer(missed: tuple[str, float] | None, goal: Goal | None, now: float) -> Goal | None:
+    """`goal` made again from nearer (goals.py `nearer`) while its act's miss (`Hunter.missed`) holds."""
+    if goal is not None and missed is not None and missed[0] == missed_key(goal) and now <= missed[1]:
+        return nearer(goal)  # its act missed from there: from nearer now
+    return goal
+
+
+# The player, 2026-10-21 ~20:15: "we need to do the best aiming when we're trying to focus mob". In the T5 Herald
+# fight of 18:54-18:56 the run left the fight for side goals "on the way" 32 times (24 Teleports toward a super
+# healing potion, 8 toward gold), each ending the strike on the held Herald (rca/2026-10-21/herald-aiming-findings.md
+# §2.5). True: while the leader the attack holds (builds/warlock/echoing_strike/attack.py HOLD_LEADER, `holding`)
+# lives within the strike's reach, gold is no side goal, nor a healing potion while the belt holds more
+# rejuvenations than manaburn.KEPT_REJUVENATIONS (the life for the fight, as manaburn.STAY_IN_HERALD_FIGHT rules for
+# far ones); valuables and rejuvenations stay. False: as before.
+HELD_STAYS = True
+# A level the terror zone left under the run (ZONE_LEFT) with a boss of the game's ledger alive on it or on a level
+# under it in the zone's graph (macros/bossledger.py) is worked on the way (ON_THE_WAY: the leaders near, the boss
+# goals, the route's fight) instead of the run ending at once. The player, 2026-10-22: "we need to kill all bosses,
+# no exceptions to that"; Andariel seen 64 units off when Catacombs Level 4 was no longer terrorized (10-21 06:00:00,
+# rca/2026-10-22/boss-audit-findings.md §4 cause 6). False: the run ends at once, as before
+BOSS_ROTATION = True
+HELD_SAID: set[tuple[int, int]] = set()  # (drop, leader) the wait was said for
+
+
+def held_in_reach(self: Hunter, here: Point, foes: Sequence[Monster]) -> int | None:
+    """The leader the build's attack holds (its `holding`), while it lives within the strike's reach; None else."""
+    holding = getattr(self.build.attack, 'holding', None)
+    unit = holding() if holding is not None else None
+    if unit is None:
+        return None
+    found = next((m for m in foes if m.unit_id == unit), None)
+    return unit if found is not None and math.dist(here, (found.x, found.y)) <= self.reach else None
+
+
+def wait_for_held(self: Hunter, loot: Loot, here: Point, foes: Sequence[Monster]) -> Loot:
+    """`loot` without the side goals that wait while a held leader lives in reach (HELD_STAYS), each said once."""
+    leader = held_in_reach(self, here, foes) if HELD_STAYS else None
+    if leader is None:
+        return loot
+    kinds = {GOLD}
+    if loot.belt_read and on_belt(loot)[PotionType.REJUVENATION] > manaburn.KEPT_REJUVENATIONS:
+        kinds.add(HEALING)
+    waiting = [found for found in loot.drops if found.kind in kinds]
+    for found in waiting:
+        if (found.unit_id, leader) not in HELD_SAID:
+            if len(HELD_SAID) > 200:
+                HELD_SAID.clear()
+            HELD_SAID.add((found.unit_id, leader))
+            LOG.info(
+                'Macro: pursuit: %s at (%.0f, %.0f), %.0f away, waits: the leader %d held is in reach',
+                found.label, found.x, found.y, math.dist(here, (found.x, found.y)), leader,
+            )  # fmt: skip
+    return replace(loot, drops=tuple(found for found in loot.drops if found.kind not in kinds)) if waiting else loot
 
 
 def side_drop(
@@ -172,6 +249,7 @@ def side_drop(
         # Only potions while the run's boss is in reach: her death first (QUIET_BY_THE_BOSS,
         # rca/2026-10-18/andariel-cadence-findings.md §5 F3).
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.kind in (HEALING, REJUVENATION)))
+    loot = wait_for_held(self, loot, here, foes)
     plan = choose(loot, here)
     drop = plan.drop if plan is not None else None
     looped = self.pursuit is not None and self.pursuit.looped
@@ -317,6 +395,15 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
     if not loot.belt_read:
         return None  # unknown, not low: the next look reads it again
     now = run.clock()
+    rejuvenations = on_belt(loot)[PotionType.REJUVENATION]
+    fighting = manaburn.herald_fight(here, world.monsters, rejuvenations) if world is not None else 0
+    if fighting:  # STAY_IN_HERALD_FIGHT: the belt's rejuvenations are the life for it
+        self.fetching = (now, None)
+        why = f'the Herald fight first: {fighting} of its pack within {PACK_SEEN:.0f}, {rejuvenations} rejuvenations'
+        for potion in self.potions.lying(HEALING, here)[:2]:
+            if math.dist(here, (potion.x, potion.y)) > POTION_UNITS:
+                self.refused_potion(Drop(potion.unit, potion.x, potion.y, potion.label, potion.kind), here, why)
+        return None
     judged, found = self.fetching
     if now - judged < 4 * DECIDE_SECONDS:
         return found if found is not None and found.unit_id in self.potions.seen else None
@@ -659,9 +746,7 @@ def goal(
         found = None  # its boss was not by its place (judging.py `empty_mark`): the level is explored or the run ends
     if opens is not None and not self.at_hand(found, player, world):
         found = opens
-    missed = self.missed
-    if found is not None and missed is not None and missed[0] == found.label and run.clock() <= missed[1]:
-        found = nearer(found)  # its act missed from there: from nearer now
+    found = from_nearer(self.missed, found, run.clock())
     if found is not None and found.do == FIGHT and found.unit in self.nearing:
         # strikes did nothing from there: fight from within the engage ring
         found = replace(found, near=min(found.near, self.attack.engage))
@@ -819,7 +904,7 @@ def agenda_cleared(
         # `clearing`: on a level with no route a plain fight goal ended the run (Great Marsh, 2026-10-19 09:01:51)
         return replace(first_fight(found, here, [guard], self.reach), clearing=True)
     spend = found.spend if found is not None else PRESSED
-    policy = self.agenda_policy(area) if self.agenda_policy is not None else None
+    policy = level_policy(self, world, area) if self.agenda_policy is not None else None
     if policy == ZONE_LEFT:
         if self.zone_left != (world.game_name, area):
             self.zone_left = (world.game_name, area)
@@ -841,6 +926,11 @@ def agenda_cleared(
         and not (found.mark is not None and found.mark.warp)
         else None
     )
+    if use_at is None and found is not None and self.agenda is not None:
+        # Zone navigation: a child's way in beside the run goes before a farther room ("Enter when passing", the
+        # player, 2026-10-21 ~09:35; macros/zonenav.py `enter_at`, ENTER_PASSING): in, cleared, climbed out of, then
+        # the parent's rooms
+        use_at = zonenav.enter_at(self.agenda.plan, found.stage, found.place)
 
     def candidate(skip: frozenset[object]) -> Goal | None:
         target = self.agenda_target(run, world, foes, here, skip, rooms, None, things, use_at)
@@ -855,18 +945,63 @@ def agenda_cleared(
             base = rest_of_level((target.place, target.label, unit), found, self.reach, spend)
         if base is None or (base is found and found is not None and found.do == FIGHT):
             return base
-        # A level only crossed (TRANSIT) fights nothing on its way but what strikes at the party
-        near = (
-            []
-            if crossed
-            else self._on_the_way(world, ground, foes, here, skip, lambda m: bool(everyone or m.leader or m.tier))
-        )
+
+        # A level only crossed (TRANSIT) fights nothing on its way but what strikes at the party; on TZ+ a remnant
+        # is no fight on the way, whatever it does (agenda.py REMNANTS_LEFT): struck in reach, never gone to
+        def leading(m: Monster) -> bool:
+            return bool(everyone or m.leader or m.tier) and m.unit_id not in left
+
+        near = [] if crossed else self._on_the_way(world, ground, foes, here, skip, leading)
         if not near and (ENGAGE_STRIKERS or crossed):
             # What strikes at the party is met, not waited for (ENGAGE_STRIKERS)
-            near = self._on_the_way(world, ground, foes, here, skip, lambda m: m.mode in STRIKING_MODES)
+            near = self._on_the_way(
+                world, ground, foes, here, skip, lambda m: m.mode in STRIKING_MODES and m.unit_id not in left
+            )
         return clear_way(base, here, near, self.reach) if near else base
 
+    left = remnants_of(foes, policy or '', lambda m: m.unit_id not in self.untouchable and on_rooms(rooms, m))
     return self._clear_through(candidate, run, world, ground, rooms, found, now)
+
+
+def level_policy(self: Hunter, world: World, area: int) -> str:
+    """How the level run works `area` (running/legs.py `_agenda_policy`), a level the zone left with a boss of the
+    ledger alive on it or under it worked on the way (BOSS_ROTATION), said once a level a game."""
+    assert self.agenda_policy is not None
+    policy = self.agenda_policy(area)
+    if policy != ZONE_LEFT or not BOSS_ROTATION or self.agenda is None:
+        return policy
+    alive = boss_held(self.agenda, area)
+    if not alive:
+        return policy
+    if self.zone_left != (world.game_name, -area):
+        self.zone_left = (world.game_name, -area)
+        # The watch tools may read it (d2-loop-watch logwords.py)
+        LOG.info('Macro: run: %s is no longer terrorized, %s alive: the level run goes on for them', display_name(area),
+                 ', '.join(boss.name for boss in alive))  # fmt: skip
+    return ON_THE_WAY
+
+
+def boss_held(agenda: goal_agenda.Agenda, area: int) -> list[Boss]:
+    """The ledger's bosses alive on `area` or on a level it holds in the zone's graph (zonenav.py `boss_reach`: under
+    it, the tour side level it leads into)."""
+    plan = agenda.plan
+    if not isinstance(plan, Itinerary) or not zonenav.on(plan):
+        return agenda.bosses.alive_in(area)
+    return agenda.bosses.alive(zonenav.boss_reach(zonenav.graph_of(plan), area))
+
+
+def on_rooms(rooms: Sequence[Room], monster: Monster) -> bool:
+    """Whether `monster` stands in one of `rooms` (this level's read; none read: no)."""
+    return room_at(rooms, (monster.x / TILE_UNITS, monster.y / TILE_UNITS)) is not None
+
+
+def remnants_of(foes: Sequence[Monster], policy: str, mine: Callable[[Monster], bool]) -> frozenset[int]:
+    """The remnants among `foes` of this level (`mine`) on TZ+ (agenda.py `remnants`, REMNANTS_LEFT): in a group of
+    fewer than GROUP_MIN with no leader in it. None on another policy, or with the switch off."""
+    if not (goal_agenda.REMNANTS_LEFT and policy in GROUPS_TAKEN):
+        return frozenset()
+    level = [m for m in foes if mine(m)]
+    return goal_agenda.remnants([(m.unit_id, (m.x, m.y)) for m in level], {m.unit_id for m in level if m.leader})
 
 
 def agenda_target(
@@ -888,7 +1023,7 @@ def agenda_target(
     assert agenda is not None
     assert player is not None
     area, now = player.area, run.clock()
-    policy = self.agenda_policy(area) if self.agenda_policy is not None else FULL_CLEAR
+    policy = level_policy(self, world, area) if self.agenda_policy is not None else FULL_CLEAR
     if policy in (ON_THE_WAY, PLUS_WAY) and (world.game_name, area) in self.wayless:
         # no way to the route's goal: the rooms are explored for it (`judge`)
         policy = COVER if policy == ON_THE_WAY else PLUS
@@ -903,7 +1038,16 @@ def agenda_target(
         # (08:43:48 on 2026-10-20, rca/2026-10-20/crossing-teleport-back-findings.md F1). No rooms read: none
         return room_at(rooms, (x / TILE_UNITS, y / TILE_UNITS)) is not None
 
-    live = [m for m in foes if (everyone or m.leader or m.tier) and here_on(m.x, m.y)]
+    # A Herald's minion is a leader to go for unless it is a remnant (agenda.py REMNANTS_LEFT): its Herald dead, a
+    # pair left (2026-10-21 21:37:51, Frigid Highlands: 11 Teleports in 12 s between two Demon Rascals for 1 kill)
+    left = remnants_of(foes, policy, lambda m: m.unit_id not in self.untouchable and here_on(m.x, m.y))
+    live = [m for m in foes if (everyone or m.leader or (m.tier and m.unit_id not in left)) and here_on(m.x, m.y)]
+    if agenda.plan is not None and policy != TRANSIT:
+        # The game's boss ledger (macros/bossledger.py): the super uniques this level's rooms place, and the one in
+        # the read taken for each. A level only crossed is no boss's (the player, 2026-10-22: "no need to kill hepasto
+        # if it is just travel through")
+        agenda.bosses.rooms(area, rooms)
+        agenda.bosses.sight(area, [m for m in foes if here_on(m.x, m.y)])
     leaders = [Leader(m.unit_id, (m.x, m.y), label(m), bool(m.tier and m.leader)) for m in live]
     seen = {m.unit_id for m in foes}
     gone = seen | self.vanished | set(self.untouchable)
@@ -913,7 +1057,7 @@ def agenda_target(
         for unit, x, y, leader in known
         if unit not in gone and (everyone or leader) and here_on(x, y)
     ]
-    omens = tuple((spot, omen_stand(spot, here)) for spot in self.omens_now(run, area, now))
+    omens = tuple((spot, omen_stand(spot, here, rooms)) for spot in self.omens_now(run, area, now))
 
     def frontier() -> tuple[Point, str] | None:
         room = self.next_room(run, player, area, now)
@@ -1174,7 +1318,7 @@ def rest_of(
         if near:
             nearest = min(near, key=lambda m: math.dist(here, (m.x, m.y)))
             return (nearest.x, nearest.y), label(nearest), nearest.unit_id
-        stand = omen_stand(spot, here)
+        stand = omen_stand(spot, here, rooms)
         if passing_key(stand, None, rooms) not in out:
             return stand, 'the stand for the Herald coming', None
     if live:

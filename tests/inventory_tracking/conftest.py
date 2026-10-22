@@ -1,3 +1,4 @@
+import math
 from dataclasses import replace
 
 import pytest
@@ -149,3 +150,47 @@ def fresh_read_caches():
 
     decode.GOLD_SEEN.clear()
     decode.BASE_ROLLS_SEEN.clear()
+
+
+@pytest.fixture(autouse=True)
+def no_pending_omens():
+    """The Herald omens hunt.py last read (combat/pack.py `OMENS`, read by the safety and the sigil) start empty in
+    every test: a fake run's spots and clock would carry into the next test's."""
+    from inventory_tracking.combat import pack
+
+    pack.OMENS.clear()
+    pack.HOP.at, pack.HOP.units = -math.inf, 0.0
+    from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
+
+    ECHOING_STRIKE_ATTACK.held.unit = None  # the leader the build's one attack holds (builds/warlock/mark.py reads it)
+
+
+@pytest.fixture
+def herald2_on(monkeypatch):
+    """The Arachnid Herald 2 switches on, as their own tests prove them (rca/2026-10-21/arachnid-herald-2-findings.md;
+    off in the tree until the wide suite and the arena pass with them)."""
+    from inventory_tracking.builds.warlock import buffs, mark
+    from inventory_tracking.combat import pack
+    from inventory_tracking.combat.threats import manaburn
+
+    for module, name in (
+        (mark, 'REMARK_AFTER_HOP'), (mark, 'MARK_HELD_LEADER'), (pack, 'REAGGRO_BY_MARK'),
+        (manaburn, 'PACK_LANDING'), (buffs, 'OMEN_SIGIL'),
+    ):  # fmt: skip
+        monkeypatch.setattr(module, name, True)
+
+
+@pytest.fixture(autouse=True)
+def repo_loot_filter(monkeypatch):
+    """The pickup reads the game's copy of the loot filter (loot/shown.py GAME_COPY), which lives on the host's game
+    install: off under test, so the repo file is read as before; the copy's own tests turn it on with their file. The
+    drops waived for a game (macros/pickup.py `waive`) start empty in every test."""
+    import sys
+
+    from inventory_tracking.loot import shown
+
+    monkeypatch.setattr(shown, 'GAME_COPY', False)
+    pickup = sys.modules.get('inventory_tracking.macros.pickup')  # not imported: nothing waived yet
+    if pickup is not None:
+        monkeypatch.setattr(pickup, 'UNLABELLED', {})
+        monkeypatch.setattr(pickup, 'WAIVED', {})

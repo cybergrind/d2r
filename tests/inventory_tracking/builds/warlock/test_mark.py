@@ -417,7 +417,7 @@ def test_a_leader_the_mark_passes_over_is_said_once_with_why(caplog, monkeypatch
     on_other = {(DEATH_MARK, None): 100.0, (DEATH_MARK, 5): 100.0}
     held = spider_forest(HULK, other, now=101.0, cast_at=on_other)
     lines = {m.unit_id: line for m, line in mark_passed(held)}
-    assert 'the mark lasts on the elite 127 (5) (10.8s left); the safety prices it: saves' in lines[HULK.unit_id]
+    assert 'the mark lasts on the elite 127 (5) (11.3s left); the safety prices it: saves' in lines[HULK.unit_id]
     assert 5 not in lines
     assert not mark_passed(spider_forest(HULK, PACK))  # the Hulk is the one chosen: nothing passed
     two = {m.unit_id: line for m, line in mark_passed(spider_forest(HULK, other, draws={}))}

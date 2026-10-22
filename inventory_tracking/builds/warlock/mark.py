@@ -21,20 +21,22 @@ from collections.abc import Sequence
 from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAST, ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table, damage_data
 from inventory_tracking.builds.warlock.skills import DEATH_MARK
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.combat.harm import SafetySettings
+from inventory_tracking.combat.mechanics.life import rank_share
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import Observation, observe
 from inventory_tracking.combat.sim import casters as rules
 from inventory_tracking.combat.sim.casters import hit_chance
 from inventory_tracking.combat.stance import CAST_SECONDS
+from inventory_tracking.combat.threats import dolls
 from inventory_tracking.game.layout import DEFILER_CLASS, MAGIC_RESIST, MONSTER_RESISTS
 from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.build import BuffFacts, Draw, DrawPrice
 from inventory_tracking.macros.goals import is_boss
-from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.travel import label, life
-from inventory_tracking.native.layout import HIRELING_CLASS_ID
+from inventory_tracking.native.layout import BATTLE_ORDERS_SKILL, HIRELING_CLASS_ID
 from inventory_tracking.takes.timeline import GAME_RATE
 
 
@@ -42,9 +44,9 @@ _MARK = damage_data()['death_mark']
 # The mark at the character's level (data/damage.json `death_mark`, read off marked monsters' stats in the takes).
 MARK_POINTS = float(_MARK['points'])  # points more an element of a hit takes
 MARK_ELEMENTS = 1  # elements of a blade's hit: the weapon's physical damage (Echoing Strike has no EType)
-MARK_SECONDS = int(_MARK['frames']) / GAME_RATE  # 125 + 13 x (level - 1) frames: 11.76 s at 14
+MARK_SECONDS = int(_MARK['frames']) / GAME_RATE  # 125 + 13 x (level - 1) frames: 12.28 s at 15 (11.76 s at 14)
 MARK_DELAY = 20 / GAME_RATE  # skills.txt localdelay: the skill cannot be cast again sooner
-MARK_DEFENCE = float(_MARK['defence'])  # the marked monster's defence falls by this (stat 31, -505 at level 14)
+MARK_DEFENCE = float(_MARK['defence'])  # the marked monster's defence falls by this (stat 31, -540 at level 15)
 # What a cast costs the strike: one volley of its blades (rca/2026-10-14/death-mark-engage.md §3).
 MARK_CAST_SECONDS = 0.37
 MARK_JUMP = 0.28  # seconds from the key until the demons land (the median of 409 jumps; quartiles 0.24, 0.29)
@@ -102,6 +104,45 @@ MARK_RECASTS = 2
 # A leader or boss in reach the mark passes over is named once, with why (`mark_passed`): the silent "never marked" of
 # elite 397 at 15:01:12 (trash by the strike's table, no line said). False: bosses struck down to trash only.
 SAY_PASSED = True
+# The mark laid again at once after a hop in a fight (the player, 2026-10-21 ~21:05: "when we're teleporting - our
+# minions are teleporting with us and stop attacking. so, if we want to re-aggro - use death mark and do not teleport,
+# or, if you reposition - re-aggro again"): a Teleport or Blade Warp of REMARK_HOP units or more that landed under
+# REMARK_WITHIN s ago, with no Death Mark keyed since, has the mark go on the held one (the last marked in reach, a
+# Herald first) whatever its time left, else on the pack's best member (`pack_target`'s order), else on a leader in
+# reach (`leader_first`); the demons are taken off it by the jump, so no "stand by it already" (`why_not`). The take of
+# the Arachnid Lair (20261021T172936Z-84): a Teleport takes the allies within 10 along (95-100% of 312 hops in the
+# Gloam take), and the demons struck again a median REMARK... s after one (rca/2026-10-21/arachnid-herald-2-findings.md
+# "re-aggro after a move"). False: a lasting mark is kept through a hop, as before (combat/pack.py `hopped`).
+REMARK_AFTER_HOP = False
+REMARK_WITHIN = 2.0  # seconds after the landing
+REMARK_HOP = 4.0  # units: a shorter jump takes no demon off its monster
+# The mark on the leader the strike holds (echoing_strike/attack.py HOLD_LEADER, `EchoingStrike.holding`) first,
+# while it is in reach and MARK_RECASTS keys have not failed on it: the coordinator's relay of the aiming agent's
+# finding, 2026-10-21 ~21:10 (rca/2026-10-21/arachnid-herald-1-findings.md "melt vs chip"): in the Arachnid Lair's
+# first fight the mark went on minions 5 of 6 times while the strike held the Herald, the demons and the blades apart.
+# While its mark lasts no other member is marked (but after a hop, REMARK_AFTER_HOP). The click is macros/buffs.py
+# `on_monster`'s, on the body, then up it and away from the neighbour (AIM_CHECK, NUDGES). False: as before.
+MARK_HELD_LEADER = False
+# While the held leader's mark lasts, no other member is marked (True), or the pack's own rule goes on (`pack_target`:
+# a member again only while the pack presses the character, MARK_AGAIN after the last key). The arena's seed 3 of the
+# T5 hulks: with True the pack spread off the demons, 6 marks a play against 20, the sigil under half of it for 6.9 s
+# (rca/2026-10-21/arachnid-herald-2-findings.md §13).
+HELD_KEEPS_MARK = False
+# The mark again after a Battle Orders rebuff retreat (the coordinator, 2026-10-22, from the player's rulings
+# "Teleporting drops minion aggro: re-aggro with Death Mark" and "retreat and rebuff", then re-aggro with Death Mark):
+# narrower than REMARK_AFTER_HOP (off), only the hop the safety chose to rebuff clear of the hostiles
+# (macros/safety.py REBUFF_RETREAT; its landing `BuffFacts.rebuff_landed`, `Safety.landed`), under
+# REBUFF_REMARK_WITHIN s ago, with no Death Mark keyed since; the next fight's first mark, whatever hops came between.
+# It waits for the Battle Orders cast at the landing (keyed since it), or REBUFF_CAST_WAIT s with none (macros/cta.py
+# REBUFF_GRACE). The mark goes on the leader the
+# strike holds (echoing_strike/attack.py `EchoingStrike.holding`) while in reach, else the nearest leader or boss in
+# reach; none while the mark still shows on that one (MARK_STATE in its state words, `BuffFacts.states`).
+# rca/2026-10-21/death-findings.md "Round 3". False: the rebuff hop leaves the demons without aggro, as before.
+REMARK_AFTER_REBUFF = True
+REBUFF_REMARK_WITHIN = 6.0  # seconds after the landing
+REBUFF_CAST_WAIT = 2.0  # seconds after the landing with no Battle Orders keyed: marked without it
+# (rebuff landing clock, unit) the last `rebuff_target` chose: its cast's line says so (`mark_said`, after the key)
+REBUFF_CHOSEN: list[tuple[float, int]] = [(-math.inf, -1)]
 
 
 def state_on(words: bytes, state: int) -> bool:
@@ -139,9 +180,10 @@ def strike_rate(txt: int) -> float:
 
 
 def life_to_come(seen: Observation, unit: int) -> float:
-    """Its life left in points, an elite's in its type's points times ELITE_LIFE (the tables hold the plain one)."""
+    """Its life left in points: the observation's (with combat/mechanics/life.py TIER_LIFE its rank and Herald tier are
+    in them), else an elite's in its type's points times ELITE_LIFE (`rank_share`)."""
     foe = seen.foes[unit]
-    return foe.left * (ELITE_LIFE if foe.elite else 1.0)
+    return foe.left * rank_share(foe.elite)
 
 
 def casts_to_kill(seen: Observation, unit: int) -> float:
@@ -322,13 +364,158 @@ def ranked(facts: BuffFacts) -> list[Monster]:
     return found
 
 
+def pack_lasts(facts: BuffFacts, monster: Monster) -> bool:
+    """Whether a mark of the character's may still be on `monster`: cast on it within MARK_SECONDS, and not settled as
+    one that did not take (`BuffFacts.missed`) unless a later cast is still being looked for (MARK_SHOWS)."""
+    since = facts.since(DEATH_MARK, monster.unit_id)
+    if since >= MARK_SECONDS:
+        return False
+    return facts.missed.get((DEATH_MARK, monster.unit_id), 0) == 0 or since < MARK_SHOWS
+
+
+def pack_marked(facts: BuffFacts) -> bool:
+    """Whether the mark is the tier 4-5 Herald pack's to choose (combat/pack.py MARK_ANY_MEMBER): one of the pack is in
+    reach with a clear shot."""
+    return herald_pack.MARK_ANY_MEMBER and any(herald_pack.in_pack(m.tier) for m in facts.reachable)
+
+
+def pack_target(facts: BuffFacts) -> Monster | None:
+    """A tier 4-5 Herald pack's mark (the player, 2026-10-21 ~10:00, Q1: "the nearest pack member that can be clicked,
+    the Herald when it can be, no lock-out"). While a mark may last on a member (`pack_lasts`) none, unless the pack
+    still comes at the character (combat/pack.py `pressing`) MARK_AGAIN after the last key. Else, of the members in
+    reach whose mark does not last: those with the fewest keys that did not take on them (a key that took nowhere
+    goes next on another member, never locked out), then one no body in front covers (`covered`), the Herald before
+    the rest, the nearest."""
+    player = facts.world.player
+    if player is None:
+        return None
+    here = (player.x, player.y)
+    near = [m for m in facts.reachable if herald_pack.in_pack(m.tier)]
+    if not near:
+        return None
+    pack = [m for m in facts.foes if herald_pack.in_pack(m.tier)] or near
+    if any(pack_lasts(facts, m) for m in pack):
+        if facts.since(DEATH_MARK) < MARK_AGAIN:
+            return None
+        sent = [(d.x, d.y) for d in demons(facts.world)]
+        if not herald_pack.pressing(here, herald_pack.members(pack), sent):
+            return None
+    free = [m for m in near if not pack_lasts(facts, m)]
+    if not free:
+        return None
+    bodies = [(m.x, m.y) for m in facts.foes]
+
+    def rank(m: Monster) -> tuple[int, bool, bool, float]:
+        tries = facts.missed.get((DEATH_MARK, m.unit_id), 0)
+        return (tries, herald_pack.covered((m.x, m.y), bodies), not herald(m), math.dist(here, (m.x, m.y)))
+
+    return min(free, key=rank)
+
+
+def hopped_unmarked(facts: BuffFacts) -> float | None:
+    """Seconds since a hop of REMARK_HOP units or more that landed under REMARK_WITHIN s ago with no Death Mark keyed
+    since (combat/pack.py `since_hop`); None else, or with REMARK_AFTER_HOP off."""
+    if not REMARK_AFTER_HOP or herald_pack.HOP.units < REMARK_HOP:
+        return None
+    hop = herald_pack.since_hop(facts.now)
+    return hop if hop <= REMARK_WITHIN and facts.since(DEATH_MARK) > hop else None
+
+
+def remark_target(facts: BuffFacts) -> Monster | None:
+    """The mark again after a hop in a fight (REMARK_AFTER_HOP, `hopped_unmarked`): the last marked in reach whose
+    mark may last (a Herald first) whatever its time left; else the tier 4-5 pack's member in reach `pack_target`
+    ranks first (fewest keys that did not take, uncovered, the Herald, the nearest); else a leader or boss in reach
+    (`ranked`, `leader_first`). None with no hop to answer, no demon out, or nobody of those in reach."""
+    player = facts.world.player
+    sent = demons(facts.world)
+    if player is None or hopped_unmarked(facts) is None or not sent:
+        return None
+    here = (player.x, player.y)
+    if not any(math.dist(here, (d.x, d.y)) <= herald_pack.TAKEN_ALONG for d in sent):
+        return None  # no demon came along: the hop took none off its monster
+    held = [m for m in facts.reachable if pack_lasts(facts, m)]
+    if held:
+        again = min(held, key=lambda m: (not herald(m), facts.since(DEATH_MARK, m.unit_id), m.unit_id))
+        # Cost-aware (the arena triage, 2026-10-21 ~21:15): the demons still on the marked one strike it: no cast
+        return None if held_by_demons(facts, again) else again
+    near = [m for m in facts.reachable if herald_pack.in_pack(m.tier) and not held_by_demons(facts, m)]
+    if near:
+        bodies = [(m.x, m.y) for m in facts.foes]
+
+        def rank(m: Monster) -> tuple[int, bool, bool, float]:
+            tries = facts.missed.get((DEATH_MARK, m.unit_id), 0)
+            return (tries, herald_pack.covered((m.x, m.y), bodies), not herald(m), math.dist(here, (m.x, m.y)))
+
+        return min(near, key=rank)
+    first = [m for m in ranked(facts) if not held_by_demons(facts, m)]
+    return leader_first(facts, first) if first else None
+
+
+def rebuff_hopped(facts: BuffFacts) -> float | None:
+    """Seconds since the Battle Orders rebuff retreat landed (REMARK_AFTER_REBUFF, `BuffFacts.rebuff_landed`): under
+    REBUFF_REMARK_WITHIN s ago, no Death Mark keyed since, and the Battle Orders keyed since or REBUFF_CAST_WAIT s
+    gone. None else."""
+    hop = facts.now - facts.rebuff_landed
+    if not REMARK_AFTER_REBUFF or not 0.0 <= hop <= REBUFF_REMARK_WITHIN or facts.since(DEATH_MARK) <= hop:
+        return None
+    return hop if facts.since(BATTLE_ORDERS_SKILL) <= hop or hop >= REBUFF_CAST_WAIT else None
+
+
+def rebuff_target(facts: BuffFacts) -> Monster | None:
+    """The mark after a Battle Orders rebuff retreat (REMARK_AFTER_REBUFF, `rebuff_hopped`): on the leader the strike
+    holds while in reach, else the nearest leader or boss in reach; None with no rebuff hop to answer, no demon out,
+    nobody of those in reach, or the mark still shown on the one chosen (`mark_shows`)."""
+    player = facts.world.player
+    if player is None or rebuff_hopped(facts) is None or not demons(facts.world):
+        return None
+    unit = ECHOING_STRIKE_ATTACK.holding()
+    chosen = next((m for m in facts.reachable if m.unit_id == unit), None) if unit is not None else None
+    if chosen is None:
+        here = (player.x, player.y)
+        leaders = [m for m in facts.reachable if m.leader or is_boss(m)]
+        chosen = min(leaders, key=lambda m: (math.dist(here, (m.x, m.y)), m.unit_id)) if leaders else None
+    if chosen is None:
+        return None
+    words = facts.states(chosen) if facts.states is not None else None
+    if words is not None and mark_shows(words):
+        return None
+    REBUFF_CHOSEN[0] = (facts.rebuff_landed, chosen.unit_id)
+    return chosen
+
+
+def held_leader(facts: BuffFacts) -> Monster | None:
+    """The leader the strike holds (MARK_HELD_LEADER, `EchoingStrike.holding`) when it is in reach and fewer than
+    MARK_RECASTS keys failed on it; None else."""
+    if not MARK_HELD_LEADER:
+        return None
+    unit = ECHOING_STRIKE_ATTACK.holding()
+    found = next((m for m in facts.reachable if m.unit_id == unit), None) if unit is not None else None
+    if found is None or facts.missed.get((DEATH_MARK, found.unit_id), 0) >= MARK_RECASTS:
+        return None
+    return found
+
+
 def target(facts: BuffFacts) -> Monster | None:
-    """Whom Death Mark is for now: an unmarked Herald, then an unmarked monster immune to the magic
+    """Whom Death Mark is for now: a tier 4-5 Herald pack's member while one is in reach (`pack_target`), else an
+    unmarked Herald, then an unmarked monster immune to the magic
     (`unmarked_immune`) while no immune one's mark lasts, then the leaders and bosses in reach (`ranked`): with
     MARK_LEADERS one of those (`leader_first`) while no mark lasts or one lasts on plain monsters only (MARK_AGAIN
     after). With the safety's prices fresh, the best priced (while a mark lasts, only another priced above nothing,
     MARK_AGAIN after; while an immune one's lasts, only one under pressure); else `strongest`, and none while a mark
     lasts on a live one."""
+    again = remark_target(facts) or rebuff_target(facts)
+    if again is not None:
+        return again
+    lead = held_leader(facts)
+    if lead is not None and not pack_lasts(facts, lead):
+        return lead
+    if lead is not None and HELD_KEEPS_MARK:
+        return None
+    if pack_marked(facts):
+        return pack_target(facts)
+    bait = doll_bait(facts)  # the dolls drawn onto the demons (combat/threats/dolls.py DOLL_BAIT, off)
+    if bait is not None:
+        return bait
     first_of_all = unmarked_herald(facts)
     if first_of_all is not None:
         return first_of_all
@@ -358,6 +545,18 @@ def target(facts: BuffFacts) -> Monster | None:
     if not priced:
         return None
     return max(priced, key=lambda m: (worth_of(facts, m.unit_id), -m.unit_id))
+
+
+def doll_bait(facts: BuffFacts) -> Monster | None:
+    """The doll a mark draws the dolls with (combat/threats/dolls.py `bait_target`, DOLL_BAIT); None: off, no demon
+    out, or no such doll."""
+    player = facts.world.player
+    if not dolls.DOLL_BAIT or player is None or not demons(facts.world):
+        return None
+    return dolls.bait_target(
+        (player.x, player.y), facts.foes, MARK_PACK, lambda m: pack_lasts(facts, m),
+        lambda m: facts.missed.get((DEATH_MARK, m.unit_id), 0),
+    )  # fmt: skip
 
 
 def leader_first(facts: BuffFacts, leaders: Sequence[Monster]) -> Monster:
@@ -412,8 +611,18 @@ def why_not(facts: BuffFacts, monster: Monster) -> str | None:
     packs that did not press cost time and kept no life (death-mark-engage.md §5, death-mark.md §2)."""
     if not demons(facts.world):
         return "no demon of the character's is out (the skill needs one)"
+    again = remark_target(facts)
+    if again is not None and again.unit_id == monster.unit_id:
+        return None  # the mark again after a hop (REMARK_AFTER_HOP): the jump took the demons off it
+    again = rebuff_target(facts)
+    if again is not None and again.unit_id == monster.unit_id:
+        return None  # the re-aggro after a Battle Orders rebuff retreat (REMARK_AFTER_REBUFF)
     if herald(monster):
         return None  # a Herald is marked whatever the price (`unmarked_herald`)
+    if dolls.DOLL_BAIT and dolls.runner(monster.txt_id):
+        return None  # a doll the demons draw the dolls with: trash, but its blast goes off on them (`doll_bait`)
+    if herald_pack.MARK_ANY_MEMBER and herald_pack.in_pack(monster.tier):
+        return None  # a tier 4-5 Herald pack's member too: the demons hold the pack (combat/pack.py, Q1)
     if immune_to(monster):
         # No gain is priced for it (the strike's table knows no resistance): only the life the cast costs can stop it,
         # and only while that pressure lasts
@@ -539,6 +748,8 @@ def mark_said(facts: BuffFacts, monster: Monster) -> str | None:
     else:
         price = facts.draws.get(monster.unit_id)
         worth = f'the safety prices it: {price.line()}' if price is not None else 'the safety prices it'
+    if REBUFF_CHOSEN[0] == (facts.rebuff_landed, monster.unit_id):
+        worth = f're-aggro after the Battle Orders rebuff retreat; {worth}'
     return f'Macro: mark: {skill_name(DEATH_MARK)} on {label(monster)}, {life(monster)}: {worth}'
 
 

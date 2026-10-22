@@ -136,3 +136,20 @@ def test_the_hunts_rule_is_given_its_damage_table():
     choice = NearestPolicy(damage_of=flat)(seen((1, (5006.0, 5000.0), False)))
     assert choice is not None
     assert choice.worth == 1000.0
+
+
+def test_an_observation_carries_the_herald_tier_and_names_the_herald_by_it():
+    # stat 367 is on the Herald and on its minions (game/records.py `Monster.tier`); the Herald is the leader of them
+    # (the Warlock's hold strikes it first: attack.py HOLD_LEADER)
+    player = Player(1, 'CybergrindAA', 1, 128, 5000.0, 5000.0, None)
+    herald = Monster(10, 638, 1, 5010.0, 5000.0, 0xFFFFFFFF, 0x08, life=128, max_life=128, tier=5)
+    minion = Monster(11, 638, 1, 5000.0, 5010.0, 0xFFFFFFFF, 0x10, life=128, max_life=128, tier=5)
+    unique = Monster(
+        12, 638, 1, 5000.0, 4990.0, 0xFFFFFFFF, 0x08, life=128, max_life=128, resists=((36, 110), (43, 75))
+    )
+    found = observe(player, [herald, minion, unique]).foes
+    assert found[12].immune_to == {36}  # physical 110: immune; cold 75: not
+    assert found[10].immune_to == frozenset()  # none read
+    assert (found[10].tier, found[10].herald) == (5, True)
+    assert (found[11].tier, found[11].herald) == (5, False)
+    assert (found[12].tier, found[12].herald, found[12].elite) == (0, False, True)

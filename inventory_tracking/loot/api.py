@@ -53,7 +53,8 @@ town, for sake of efficiency"):
   takes by its own rules is remembered for the routine (`Field.note`, pickmode.py `_kept`); what is picked does not
   change. Identified and decided as the others; put down only as a surplus copy (`surplus`): an owned copy, not better
   than every owned copy by its rolls, under DUPLICATE_IST by its own rolls, no want row; with no price by its rolls
-  only the same item with equal or worse rolls whose KB band is under DUPLICATE_IST. Else kept, to town as before.
+  only the same item with equal or worse rolls than an owned copy (WORSE_COPY_GOES; off: and a KB band under
+  DUPLICATE_IST). Else kept, to town as before.
 - The cube: the loop's items of a field class in the cube (`FieldHands.cubed`; unidentified big ones by their kind
   too, `carried_class`, since an item carried into a new game has a new unit) are taken out into the inventory first
   where it has room for them and a SURE_BLOCK after (macros/cube.py `unpack`), identified there with the Tome (it
@@ -131,8 +132,6 @@ from inventory_tracking.loot.keep import (
     CHARMS,
     GEMS,
     JEWELS,
-    JUNK_MAGIC,
-    JUNK_UNWANTED,
     LOOP_GEAR,
     NEVER_SOLD_CODES,
     ORGANS,
@@ -142,6 +141,10 @@ from inventory_tracking.loot.keep import (
     Action,
     Decision,
     decide_all,
+    gheeds_low,
+    junk_magic,
+    junk_unwanted,
+    unusable_best,
     unusable_first,
 )
 from inventory_tracking.loot.shadow import Appraised
@@ -219,6 +222,10 @@ BIG_CELLS = 4  # Q6 "every item >= 4 cells": a 2x2 helm, glove, boot, circlet an
 # DUPLICATE_IST, no want; never a charm, ring, amulet or jewel). False: every set and unique item goes to town as before
 FIELD_NAMED = True
 NAMED_SMALL = frozenset(('ring', 'amul'))  # itemtypes codes: a unique or set ring or amulet is never a G18 item
+# A copy with no price by its rolls, equal to or worse than an owned copy, goes whatever its KB ask band (the player,
+# 2026-10-21 08:27, on a 4th Bloodthief kept by its 2 Ist ask median and the stash full: "why we have keeping non
+# perfect bloodthief despite we have better one?", ruled "Worse copy goes"). False: kept unless the band is under 1 Ist
+WORSE_COPY_GOES = True
 # Room for the big items mid-run (module text; the player, 2026-10-20 ~14:28: "we must redesign our routins to actually
 # have space for mid-run identifying big items"; ~13:28 "identify a big items in the middle of the run ... and probably
 # drop them without bringing to the town"). A big field item is taken into the free block though no SURE_BLOCK is left
@@ -287,8 +294,8 @@ def surplus(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFacts] | 
     when it may be put down: FIELD_NAMED on, BIG_CELLS cells or more and no ring or amulet, appraised, no want row
     names it, under DUPLICATE_IST by its own rolls, a comparable owned copy (`owned`, the collection's), and not better
     than every owned copy on the rolls that matter (loot/value.py `better_than`). With no price by its rolls (Q13:
-    never given up on no evidence) only the same item with equal or worse rolls than an owned copy whose KB band is
-    under DUPLICATE_IST. Pure."""
+    never given up on no evidence) only the same item with equal or worse rolls than an owned copy (WORSE_COPY_GOES;
+    off: and whose KB band is under DUPLICATE_IST). Pure."""
     if not FIELD_NAMED:
         return 'a set or unique item'
     if facts.size[0] * facts.size[1] < BIG_CELLS or facts.base_type in NAMED_SMALL:
@@ -302,7 +309,8 @@ def surplus_copy(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFact
     later copy is kept by a want only as keep.py keeps it (K3: always kept, or under its cap): the 19:57:52 Skullder's
     Ire on 2026-10-20 (0.842 Ist, `slow`, ED 193 vs the owned 193) was kept unsaid by its own-use row though K6 gave it
     up ("we keep dublicates only for expensive items", the player, 2026-10-20). The first copy goes only as
-    keep.py `unusable_first` gives it up (FIRST_COPY_USABLE_ONLY). Pure."""
+    keep.py `unusable_first` gives it up (FIRST_COPY_USABLE_ONLY); a copy better than every owned one is kept but as
+    keep.py `unusable_best` gives it up (BEST_COPY_USABLE_ONLY: no build names it, cheap, vendor or slow). Pure."""
     if value is None:
         return 'a set or unique item with no appraisal'
     if keepers := [want for want in value.wants if want.always_keep]:
@@ -317,12 +325,12 @@ def surplus_copy(facts: ItemFacts, value: Value | None, owned: Sequence[ItemFact
             return f'the first copy, wanted: {value.wants[0].label}'
         return None if unusable_first(facts, value) is not None else 'the first copy'
     compared = better_than(facts, same, value.matters)
-    if compared.better:
+    if compared.better and unusable_best(facts, value) is None:
         return f'better than the {len(same)} owned ({compared.said()})'
     if value.worth_ist is None:
         band = value.band
         top = max((v for v in (band.q1, band.median) if v is not None), default=None) if band is not None else None
-        if top is None or top >= DUPLICATE_IST:
+        if not WORSE_COPY_GOES and (top is None or top >= DUPLICATE_IST):
             return 'no price by its rolls and no KB band under 1 Ist'
         if not any(relation in ('equal', 'worse') for relation in compared.relations):
             return 'no price by its rolls and not equal to or worse than an owned copy'
@@ -403,9 +411,10 @@ class TownVerdict:
 
 
 def _junk_by_kind(facts: ItemFacts) -> bool:
-    """keep.py K8's kinds kept only by a want row, priced or not: a rare circlet, helm, boot or belt, magic gloves."""
-    return (facts.quality == RARE and facts.base_type in JUNK_UNWANTED) or (
-        facts.quality == MAGIC and facts.base_type in JUNK_MAGIC
+    """keep.py K8's kinds kept only by a want row, priced or not: a rare circlet, helm, boot or belt, magic gloves, and
+    with the keep bar on (loot/wants.py KEEP_BAR) its wider kinds (keep.py `junk_unwanted`, `junk_magic`)."""
+    return (facts.quality == RARE and facts.base_type in junk_unwanted()) or (
+        facts.quality == MAGIC and facts.base_type in junk_magic()
     )
 
 
@@ -413,9 +422,10 @@ def town_kept(
     facts: ItemFacts, value: Value | None, decision: Decision | None, owned: Sequence[ItemFacts] | None
 ) -> str | None:
     """Why the town visit keeps the carried item `facts`, None when it sells it (M6): only a give-up of
-    `keep.decide`, the loop's, identified, of no never-sold kind (TOWN_NEVER_SOLD, Wirt's Leg, set/unique charms); a set
-    or unique item only as a surplus copy (`surplus_copy` with `owned`, the owned copies and the ones kept this visit:
-    never the first or the best copy); no want row, under DUPLICATE_IST; and appraised `vendor`, or given up by a
+    `keep.decide`, the loop's, identified, of no never-sold kind (TOWN_NEVER_SOLD, Wirt's Leg, set/unique charms but a
+    low Gheed's Fortune, keep.py GHEEDS_BY_ROLL: sold whatever its appraisal); a set or unique item only as a surplus
+    copy (`surplus_copy` with `owned`, the owned copies and the ones kept this visit: never the first or the best
+    copy); no want row, under DUPLICATE_IST; and appraised `vendor`, or given up by a
     TOWN_RULED rule over a K6_SELLS_OVER verdict, or by keep.py K8's kinds with a price (S8: no price is kept); never
     one appraised `self` but as `vendor`. Pure."""
     if decision is None or value is None:
@@ -427,6 +437,8 @@ def town_kept(
     if not facts.identified:
         return 'not identified'
     kind = facts.base_type
+    if decision.rule == 'K1' and gheeds_low(facts) is not None:
+        return None  # keep.py GHEEDS_BY_ROLL: "low rolls doesn't sell" (the player, 2026-10-21 ~09:00): to the vendor
     if kind in TOWN_NEVER_SOLD or facts.code in NEVER_SOLD_CODES or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
         return "never sold (runes, gems, potions, set/unique charms, shards, Wirt's Leg, tools)"
     named = facts.quality in (SET, UNIQUE)

@@ -25,9 +25,9 @@ from inventory_tracking.levels.model import Ground, Level, Target
 from inventory_tracking.loot import api as field_api, ground_judge
 from inventory_tracking.loot.api import FIELD
 from inventory_tracking.loot.materials import material_classes
-from inventory_tracking.loot.shown import RARITIES, game_filter, oversize_rules, pickup_rules, shown_gems
-from inventory_tracking.macros import lootpolicy
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.loot.shown import RARITIES, game_filter, oversize_rules, pickup_rules, profile, shown_gems
+from inventory_tracking.macros import lootpolicy, pile
+from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
@@ -94,6 +94,44 @@ STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
 STOOD_SECONDS = 0.4  # the character standing this long after a click with the item still there: a miss
 POLL = 0.05
+# Never a click with an item under the pointer that serves the press nothing (the player, 2026-10-21 ~00:55: "not
+# always clicking correct object (we often can pickup hp/rejuv potion) that we wanted"): the game takes the item under
+# the pointer. A blind aim (`_take`'s last stage) skips one that is no drop of the press's lists, not only one of
+# `others`; the walk up to a far drop (`walk_up`) with another drop within LABEL_NEAR clicks its ground only with no
+# other item's label there, else WALK_UP_AIMS classic pixels below it (labels stand above their items), else it is not
+# walked up to. A lone drop's walk up is clicked at once, as before (the hover wait is 0.06 s). False: clicked as before
+LABEL_GUARD = True
+WALK_UP_AIMS = ((0, 10), (0, 20))
+LABEL_NEAR = 4.0  # world units: another drop this near may have its label over the drop's ground
+# The player, 2026-10-21 ~13:40: "we weren't able to pickup hp potions on the groud, it looks like we still have the
+# issue with clicks". Travincal, 13:37:16-24: a super healing potion 18.6 away under the pointer at every aim, 11 clicks
+# in 8 s, and the character never moved; an Amulet 19.0 away alike at 02:06:18 on 2026-10-20: the game took the clicks
+# and began no walk to the item (rca/2026-10-21/potion-click-findings.md). True: an aim's CLICKS with the drop under the
+# pointer that left the character standing further than NEAR_UNITS end the aims (`Unmoved`), and `pick_up` goes nearer
+# first (`nearer`: a hop beside it, else the build's own move) and takes it from there. False: the other aims clicked
+# from afar, as before
+NEARER_AFTER_STILL = True
+NEARER_HOPS = 2  # hops toward the drop at most for it
+UNMOVED: dict[int, float] = {}  # unit id -> the clock until which a try goes nearer before its first click
+UNMOVED_SECONDS = 30.0
+# The player, 2026-10-21 ~13:40 (that potion: the loop left the game for it, a Worldstone Shard's act with it). True: a
+# drop no click took that the loop keeps no game for (a potion, gold, an item lootpolicy's GUARD does not hold: what
+# runner.py `valuable_left` names) is given up for the game (`give_up`) and the press goes on; a valuable stops the
+# press as before (`Missed`). False: as before
+GIVE_UP_CHEAP = True
+GIVEN_UP: dict[int, object] = {}  # unit id -> the game it was given up in (`Loot.game`): out of every look in it
+# The player, 2026-10-22 ~08:31: "why we're trying to pickup gothic staff that are hidden by our loot filter?" A label
+# the game does not draw cannot be clicked: 4 presses of every aim read nothing under the pointer (the hover record's
+# flag 0) and the loop stopped for the staff twice (rca/2026-10-22/hidden-staff-findings.md). True: a drop whose
+# label was under the pointer at none of UNLABELLED_AIMS or more aims, every one read as nothing (no other unit, no
+# unread record) with Show Items on, is `Unlabelled`; at its UNLABELLED_TRIES-th such press in a game it is waived
+# (`waive`): given up for the game and out of what the loop guards (runner.py `valuable_left`, the sightings), however
+# valuable, and the press goes on. False: a `Missed` as before
+WAIVE_UNLABELLED = True
+UNLABELLED_AIMS = 6
+UNLABELLED_TRIES = 2
+UNLABELLED: dict[int, tuple[object, int]] = {}  # unit id -> (the game, its unlabelled presses in it)
+WAIVED: dict[int, object] = {}  # unit id -> the game it was waived in (`waive`)
 KINDS = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 
 
@@ -111,6 +149,28 @@ class Refused(Abort):
     def __init__(self, drop: Drop, why: str) -> None:
         super().__init__(why)
         self.drop = drop
+
+
+class Missed(Abort):
+    """No click took `drop` (`_take`): the cause 'pickup' to the loop's stop rules (stops.py `decide`)."""
+
+    def __init__(self, drop: Drop, why: str) -> None:
+        super().__init__(why, cause='pickup')
+        self.drop = drop
+
+
+class Unlabelled(Missed):
+    """No click took `drop` and its label was never under the pointer (WAIVE_UNLABELLED): the game draws none for it,
+    the loot filter hides it."""
+
+
+class Unmoved(Missed):
+    """CLICKS with `drop` under the pointer left the character standing `away` units off (NEARER_AFTER_STILL): the
+    game began no walk to it. `pick_up` goes nearer (`nearer`)."""
+
+    def __init__(self, drop: Drop, away: float) -> None:
+        super().__init__(drop, f'{drop.label}: the clicks with it under the pointer moved nobody from {away:.0f} away')
+        self.away = away
 
 
 def gheeds_carried(run: Run) -> bool:
@@ -175,7 +235,8 @@ def shown_rules() -> tuple:
     qualities = (OVERSIZE_FIELD if field_api.FIELD_IDENTIFY and field_api.FIELD_OVERSIZE else frozenset()) | (
         OVERSIZE_BASES if ground_judge.BASES else frozenset()
     )
-    return pickup_rules(cap) + (oversize_rules(cap, qualities) if qualities else ())
+    path, stamp = profile()  # the game's own copy of the profile (loot/shown.py GAME_COPY): what it labels
+    return pickup_rules(cap, path, stamp) + (oversize_rules(cap, qualities, path, stamp) if qualities else ())
 
 
 def shortages(loot: Loot) -> tuple[int, int]:
@@ -299,11 +360,14 @@ def pile_aims(crowd: int) -> tuple[tuple[int, int], ...]:
     return tuple(aim for aim in (*column, *sides) if aim not in known)[:PILE_MORE]
 
 
-def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop] = ()) -> Drop:
+def take(
+    run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop] = (), *, nearer: bool = False
+) -> Drop:
     """Click `drop` or one of `alike` (same kind) until one leaves the ground; the one that did. With the hover
     record (`run.hovered`) aims are looked at first and only one with a wanted item under it is clicked, CLICKS
     times (a click as a cast ends is swallowed); one of `others` under it is never clicked. Without the record,
-    or with no aim showing it, the nearer aims are clicked blind. Controller mode: `pad_take`."""
+    or with no aim showing it, the nearer aims are clicked blind. Controller mode: `pad_take`. `nearer`: the caller
+    goes nearer when the clicks from afar move nobody (`Unmoved`, NEARER_AFTER_STILL). No click took it: `Missed`."""
     if run.pad is not None:
         return pad_take(run, drop, alike, others)
     serves = {found.unit_id: found for found in (drop, *alike)}
@@ -311,7 +375,7 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
     # Every aim logged whatever the end (user, 2026-10-11: "log all failed attempts").
     looked: list[str] = []
     try:
-        return _take(run, drop, serves, unwanted, looked, alike, others)
+        return _take(run, drop, serves, unwanted, looked, alike, others, nearer)
     finally:
         LOG.info(
             'Macro: aims for %s (unit %d) at (%.1f, %.1f), %d wanted and %d other drops: %s',
@@ -327,15 +391,21 @@ def _take(
     looked: list[str],
     alike: Sequence[Drop],
     others: Sequence[Drop],
+    nearer: bool = False,
 ) -> Drop:
     missed = 0
+    nothing = other = 0  # aims whose hover record read nothing under the pointer; aims with another unit or unread
     first: tuple[tuple[int, int], ...] = LOOK_AIMS
     here = run.world().player
     far = here is not None and math.dist((here.x, here.y), (drop.x, drop.y)) > NEAR_UNITS
     # From afar: look at the first aims, then walk up and look at every aim, and only then click blind.
     every: tuple[tuple[int, int], ...] = (*first, *(aim for aim in (*ITEM_AIMS, *PILE_AIMS) if aim not in first))
-    looks = [(first, False), (every, True)] if far else [(every, False)]
     crowd = sum(math.dist((drop.x, drop.y), (other.x, other.y)) <= PILE_UNITS for other in (*alike, *others))
+    crowded = any(math.dist((drop.x, drop.y), (other.x, other.y)) <= LABEL_NEAR for other in others)
+    # In a pile the labels' own aims go first, then the drop with its label hidden or the labels swept (macros/pile.py)
+    piled = crowd >= PILE_DROPS and (pile.PILE_LABELS_OFF or pile.PILE_SWEEP) and run.hovered is not None
+    rest = tuple(aim for aim in every if aim not in first)
+    looks = [(first, False), (every, True)] if far else [(first, False), (rest, False)] if piled else [(every, False)]
     if crowd >= PILE_DROPS:
         looks.append((pile_aims(crowd), False))
     stages = [*((aims, walk, False) for aims, walk in looks), (ITEM_AIMS, False, True)]
@@ -343,8 +413,13 @@ def _take(
         LOOKED.clear()
     before = frozenset(LOOKED.get(drop.unit_id, ()))  # by the tries before: this one's own stages keep their order
     looking = LOOKED.setdefault(drop.unit_id, set())
-    for aims, walk, blind in stages if run.hovered is not None else [(ITEM_AIMS, False, True)]:
-        if walk and walk_up(run, drop):
+    for n, (aims, walk, blind) in enumerate(stages if run.hovered is not None else [(ITEM_AIMS, False, True)]):
+        if n == 1 and piled:
+            found = pile.pile_take(run, drop, serves, crowd, looked, click)
+            if found is not None:
+                LOOKED.pop(drop.unit_id, None)
+                return found
+        if walk and walk_up(run, drop, serves, crowded):
             return drop
         order = aims if blind else (*(a for a in aims if a not in before), *(a for a in aims if a in before))
         for aim in order:
@@ -363,14 +438,21 @@ def _take(
                 run.pace.sleep(HOVER_SECONDS)
                 over = run.hovered()
             under = serves.get(over[1]) if over is not None and over[0] == ITEM_UNIT else None
+            if run.hovered is not None and under is None:
+                if over is None and run.hover_nothing is not None and run.hover_nothing():
+                    nothing += 1
+                else:
+                    other += 1
             what = 'wanted' if under is not None else 'unread or nothing' if over is None else f'{over}'
             note = '' if run.hover_note is None else f' [{run.hover_note()}]'
             looked.append(f'{aim} {"blind " if blind else ""}{what}{note}')
-            if under is None and (not blind or (over is not None and over[0] == ITEM_UNIT and over[1] in unwanted)):
+            foreign = over is not None and over[0] == ITEM_UNIT and (over[1] in unwanted or LABEL_GUARD)
+            if under is None and (not blind or foreign):
                 looking.add(aim)
                 continue  # nothing wanted seen, or an unwanted item under the pointer
             if under is None and over is not None and over[0] == MONSTER_UNIT:
                 continue  # the click would hit the monster or its corpse
+            walked = False
             for _ in range(CLICKS if under is not None else 1):
                 looked[-1] += ' clicked'
                 if click(run, under or drop, aim, over):
@@ -387,17 +469,26 @@ def _take(
                     raise refused
                 if now is None or math.dist((player.x, player.y), (now.x, now.y)) > MOVED_UNITS:
                     # The click walked the character: a second click there walks further off.
+                    walked = True
                     break
+            away = math.dist((player.x, player.y), (drop.x, drop.y))
+            if under is not None and not walked and nearer and NEARER_AFTER_STILL and away > NEAR_UNITS:
+                # The game began no walk to it: the same clicks from here take nothing (NEARER_AFTER_STILL)
+                looked[-1] += ' moved nobody'
+                UNMOVED[drop.unit_id] = run.clock() + UNMOVED_SECONDS
+                raise Unmoved(drop, away)
             missed += under is not None
             if missed >= MISSED_AIMS:
                 SHUNNED[drop.unit_id] = run.clock() + SHUN_SECONDS
-                raise Abort(f'{drop.label} was under the pointer at {missed} aims and no click picked it up')
+                raise Missed(drop, f'{drop.label} was under the pointer at {missed} aims and no click picked it up')
         if not blind and (aims, walk, blind) == stages[-2]:
             LOG.info(
                 'Macro: no aim had %s under the pointer, or its clicks took nothing; clicking every aim', drop.label
             )
     SHUNNED[drop.unit_id] = run.clock() + SHUN_MISS
-    raise Abort(f'no click picked up {drop.label}')
+    if WAIVE_UNLABELLED and not missed and not other and nothing >= UNLABELLED_AIMS and run.world().show_items is True:
+        raise Unlabelled(drop, f'no click picked up {drop.label}: its label under the pointer at none of {nothing}')
+    raise Missed(drop, f'no click picked up {drop.label}')
 
 
 def late(loot: Loot, now: float) -> None:
@@ -457,7 +548,7 @@ def pad_take(run: Run, drop: Drop, alike: Sequence[Drop], others: Sequence[Drop]
             run.say(f'{found.label}: picked up')
             return found
     SHUNNED[drop.unit_id] = run.clock() + SHUN_MISS
-    raise Abort(f'the pad picked up no {drop.label}')
+    raise Missed(drop, f'the pad picked up no {drop.label}')
 
 
 def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> bool:
@@ -511,17 +602,54 @@ def standing(run: Run):
         run.pace.sleep(0.02)
 
 
-def walk_up(run: Run, drop: Drop) -> bool:
-    """Click the drop's ground to stand beside it; whether that picked it up too."""
+def walk_up(run: Run, drop: Drop, serves: dict[int, Drop] | None = None, crowded: bool = False) -> bool:
+    """Click the drop's ground to stand beside it; whether that picked it up too. LABEL_GUARD with another drop near
+    (`crowded`): never on the label of an item not in `serves` (`clear_ground`)."""
     player = standing(run)
     rect = run.actuator.keys.focused_window_rect()
     if player is None or rect is None:
         raise Abort('not in a game')
-    where = ground_fraction(player, drop.x, drop.y, rect[2] / rect[3])
+    aspect = rect[2] / rect[3]
+    where = ground_fraction(player, drop.x, drop.y, aspect)
     if not in_view(where):
         return False
     run.actuator.aim(*where, scatter=(2, 2))
-    return click(run, drop, (0, 0), run.reads.hovered())
+    aim = (0, 0)
+    if LABEL_GUARD and crowded and run.hovered is not None:
+        found = clear_ground(run, drop, where, aspect, serves or {drop.unit_id: drop})
+        if found is None:
+            return False
+        aim, where = found
+    return click(run, drop, aim, run.reads.hovered())
+
+
+def clear_ground(
+    run: Run, drop: Drop, where: tuple[float, float], aspect: float, serves: dict[int, Drop]
+) -> tuple[tuple[int, int], tuple[float, float]] | None:
+    """The aim and the place the walk up to `drop` clicks, the pointer at `where` (its ground): there with no item
+    under it but one in `serves`, else the first of WALK_UP_AIMS so; the pointer left on it. None: every one has
+    another item's label under it (the walk not made: the aims go on from here)."""
+    assert run.hovered is not None
+    tried = []
+    for aim in ((0, 0), *WALK_UP_AIMS):
+        if aim != (0, 0):
+            point = (where[0] + aim[0] * UNIT_PIXELS[0] / 16 / aspect, where[1] + aim[1] * UNIT_PIXELS[1] / 8)
+            if not in_view(point):
+                continue
+            run.actuator.aim(*point, scatter=(1, 1))
+        else:
+            point = where
+        run.pace.sleep(HOVER_SECONDS)
+        over = run.hovered()
+        if over is None or over[0] != ITEM_UNIT or over[1] in serves:
+            if tried:
+                LOG.info('Macro: pickup: the walk up to %s: a label %s under its ground; clicked %s pixels below',
+                         drop.label, tried[0], aim)  # fmt: skip
+            return aim, point
+        tried.append(f'{over}')
+    LOG.info('Macro: pickup: the walk up to %s: labels under its ground and below it (%s): not walked up to',
+             drop.label, ', '.join(tried))  # fmt: skip
+    return None
 
 
 def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | None) -> bool:
@@ -586,11 +714,127 @@ def worth_a_stop(run: Run) -> Drop | None:
 
 
 def unshunned(loot: Loot, now: float) -> Loot:
-    """`loot` without the shunned drops; logs late pickups first (`late`)."""
+    """`loot` without the shunned drops and those given up for its game (`give_up`); logs late pickups first
+    (`late`)."""
     late(loot, now)
     for unit in [unit for unit, until in SHUNNED.items() if until <= now]:
         del SHUNNED[unit]
-    return replace(loot, drops=tuple(drop for drop in loot.drops if drop.unit_id not in SHUNNED))
+    if loot.game is not None:
+        for unit in [unit for unit, game in GIVEN_UP.items() if game != loot.game]:
+            del GIVEN_UP[unit]  # another game's
+    return replace(
+        loot, drops=tuple(drop for drop in loot.drops if drop.unit_id not in SHUNNED and drop.unit_id not in GIVEN_UP)
+    )
+
+
+def give_up(run: Run, drop: Drop, loot: Loot, missed: Missed) -> bool:
+    """GIVE_UP_CHEAP: `drop`, which no click took (`missed`), given up for the game when the loop keeps no game for it
+    (lootpolicy.py GUARD, as runner.py `valuable_left`: a potion, gold, an identify candidate, what the pickup level
+    does not keep); whether it was. A valuable is not: its stop is the loop's rules' (stops.py `decide`)."""
+    if isinstance(missed, Unlabelled) and waive(run, drop, loot, missed):
+        return True
+    if not GIVE_UP_CHEAP:
+        return False
+    room = has_room(loot.room, drop.size)
+    if lootpolicy.verdict(drop, lootpolicy.GUARD, room=room, shown=drop.unit_id in loot.shown, looped=True).hold:
+        return False
+    GIVEN_UP[drop.unit_id] = loot.game
+    # The watch reads it (d2-loop-watch logwords.py GIVEN_UP)
+    LOG.info(
+        'Macro: pickup: %s at (%.0f, %.0f) given up for this game (%s); the game is kept and the press goes on',
+        drop.label, drop.x, drop.y, missed,
+    )  # fmt: skip
+    run.say(f'{drop.label}: given up')
+    return True
+
+
+def waive(run: Run, drop: Drop, loot: Loot, missed: Unlabelled) -> bool:
+    """WAIVE_UNLABELLED: `drop`, whose label was never under the pointer (`missed`), waived at its UNLABELLED_TRIES-th
+    such press in the game: given up for it (GIVEN_UP) and out of what the loop guards (WAIVED, runner.py `_picked`);
+    whether it was. Before that the stop is the loop's rules', which go back for it once (stops.py FETCH)."""
+    if not WAIVE_UNLABELLED or loot.game is None:
+        return False
+    game, tries = UNLABELLED.get(drop.unit_id, (loot.game, 0))
+    tries = tries + 1 if game == loot.game else 1
+    if len(UNLABELLED) > LOOKED_MOST:
+        UNLABELLED.clear()
+    UNLABELLED[drop.unit_id] = (loot.game, tries)
+    if tries < UNLABELLED_TRIES:
+        LOG.info('Macro: pickup: %s at (%.0f, %.0f) showed no label (%s): unlabelled press %d of %d',
+                 drop.label, drop.x, drop.y, missed, tries, UNLABELLED_TRIES)  # fmt: skip
+        return False
+    for memory in (GIVEN_UP, WAIVED):
+        for unit in [unit for unit, seen in memory.items() if seen != loot.game]:
+            del memory[unit]  # another game's
+    GIVEN_UP[drop.unit_id] = WAIVED[drop.unit_id] = loot.game
+    # The watch reads it (d2-loop-watch logwords.py GIVEN_UP)
+    LOG.info(
+        'Macro: pickup: %s at (%.0f, %.0f) given up for this game (%s; unlabelled press %d: the loot filter hides it);'
+        ' the game is kept and the press goes on',
+        drop.label, drop.x, drop.y, missed, tries,
+    )  # fmt: skip
+    run.say(f'{drop.label}: no label, given up')
+    return True
+
+
+def waived(loot: Loot) -> Loot:
+    """`loot` without the drops waived in its game (`waive`)."""
+    if not WAIVED or loot.game is None:
+        return loot
+    drops = tuple(drop for drop in loot.drops if WAIVED.get(drop.unit_id, ()) != loot.game)
+    return loot if len(drops) == len(loot.drops) else replace(loot, drops=drops)
+
+
+def nearer(run: Run, drop: Drop, level: Level, key_names) -> bool:
+    """`Unmoved`'s remedy (NEARER_AFTER_STILL): up to NEARER_HOPS hops toward `drop` (`hop_toward`), the build's own
+    move when no hop can be made (`moved_in_hand`); whether the character stands within NEAR_UNITS of it now."""
+    for _ in range(NEARER_HOPS):
+        world, rect = ready_world(run)
+        player = world.player
+        assert player is not None
+        if math.dist((player.x, player.y), (drop.x, drop.y)) <= NEAR_UNITS:
+            break
+        target = Target(
+            level.area, level.rooms, (drop.x / TILE_UNITS, drop.y / TILE_UNITS), drop.label, 'loot', False, level.ground
+        )
+        try:
+            hop_toward(run, target, player, rect, key_names)
+        except Abort as stop:
+            if run.stops(stop) or isinstance(stop, Expired | Hand | Cancelled | Dead):
+                raise
+            if not moved_in_hand(run, drop, level, rect[2] / rect[3], key_names, stop):
+                break
+        now = run.world().player
+        if now is None or math.dist((player.x, player.y), (now.x, now.y)) < MOVED_UNITS:
+            break  # no hop was made (beside it, the landing where it stands): no second one either
+    now = run.world().player
+    return now is not None and math.dist((now.x, now.y), (drop.x, drop.y)) <= NEAR_UNITS
+
+
+def _taken(run: Run, drop: Drop, alike: Sequence[Drop], others: Sequence[Drop], level: Level | None, key_names) -> Drop:
+    """`take` for `pick_up`, with NEARER_AFTER_STILL's remedy: a drop whose clicks from afar moved nobody (`Unmoved`,
+    now or on a try within UNMOVED_SECONDS) is gone nearer to (`nearer`) and taken from there."""
+    remedy = NEARER_AFTER_STILL and level is not None and run.pad is None
+    player = run.world().player
+    far = player is not None and math.dist((player.x, player.y), (drop.x, drop.y)) > NEAR_UNITS
+    if remedy and far and UNMOVED.get(drop.unit_id, -math.inf) > run.clock():
+        assert level is not None
+        # A try before found the clicks from afar moved nobody (a priced act cut it off): nearer first
+        LOG.info('Macro: pickup: %s: the clicks from afar moved nobody before: going nearer first', drop.label)
+        nearer(run, drop, level, key_names)
+        return take(run, drop, alike, others)
+    try:
+        return take(run, drop, alike, others, nearer=remedy)
+    except Unmoved as still:
+        assert level is not None
+        moved = nearer(run, drop, level, key_names)
+        now = run.world().player
+        LOG.info(
+            'Macro: pickup: %s; %s: clicked from %s', still,
+            'gone nearer' if moved else 'no move brought the character within reach',
+            'nowhere' if now is None else f'{math.dist((now.x, now.y), (drop.x, drop.y)):.1f} away',
+        )  # fmt: skip
+        return take(run, drop, alike, others)
 
 
 def drink(run: Run, key: str, loot: Loot) -> None:
@@ -712,6 +956,10 @@ def pick_up(
             if collect(run, plan.drop, key_names, [found for found in loot.drops if found is not plan.drop]):
                 return True
             why = 'not taken by standing on it'
+        except Missed as missed:
+            if not give_up(run, plan.drop, loot, missed):
+                raise
+            return False
         except Abort as stop:
             if 'not in view' not in str(stop):
                 raise
@@ -722,7 +970,7 @@ def pick_up(
         run.say(f'{plan.drop.label}: {why}, left')
         return False
     level = level if level is not None and level.area == player.area else None
-    for _ in range(PICKS):
+    for picked in range(PICKS):
         drop = plan.drop
         if plan.drink is not None:
             run.say(f'Drinking ({plan.drink}) to make room for {drop.label}')
@@ -736,7 +984,14 @@ def pick_up(
             if found.kind == drop.kind and found is not drop and has_room(loot.room, found.size)
         ]
         serving = {found.unit_id for found in (drop, *alike)}
-        took = take(run, drop, alike, [found for found in loot.drops if found.unit_id not in serving])
+        try:
+            took = _taken(run, drop, alike, [found for found in loot.drops if found.unit_id not in serving], level,
+                          key_names)  # fmt: skip
+        except Missed as missed:
+            # A potion, gold or a cheap item never ends the press (nor the loop's game): given up for the game
+            if not give_up(run, drop, loot, missed):
+                raise
+            return picked > 0
         if plan.drink is not None or run.loot is None:
             break  # one drink a press
         # More potions the belt wants, or the rest of a pile of valuables, in the same press.

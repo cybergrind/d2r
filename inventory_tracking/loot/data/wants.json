@@ -1388,6 +1388,58 @@
       "asks": null
     },
     {
+      "id": "void-dagger-0os-plus3-apocalypse",
+      "class": "G8",
+      "who": "warlock",
+      "label": "0os elite-line dagger with +3 Apocalypse (Larzuk)",
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "ground": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "107:401",
+          "min": 3
+        }
+      ],
+      "must": [
+        {
+          "key": "sockets",
+          "in": [
+            0
+          ]
+        },
+        {
+          "key": "107:401",
+          "min": 3
+        }
+      ],
+      "source": "inventory_tracking/macros/pickmode.py:87",
+      "codes": [
+        "7bl",
+        "7kr",
+        "9bl",
+        "9kr",
+        "bld",
+        "kri"
+      ],
+      "bases": [
+        "Kriss",
+        "Blade",
+        "Cinquedeas",
+        "Stilleto",
+        "Fanged Knife",
+        "Legend Spike"
+      ],
+      "asks": null
+    },
+    {
       "id": "warlock-class-item-identify",
       "class": "G9",
       "who": "warlock",
@@ -1406,6 +1458,7 @@
     },
     {
       "id": "warlock-plus2-dagger-grimoire",
+      "bar": "off",
       "class": "G9",
       "who": "warlock",
       "label": "+2 Warlock dagger / grimoire",
@@ -1428,6 +1481,7 @@
     },
     {
       "id": "warlock-grimoire-plus3-tree",
+      "bar": "off",
       "class": "G9",
       "who": "warlock",
       "label": "magic grimoire +3 to a Warlock tree",
@@ -1477,6 +1531,7 @@
     },
     {
       "id": "warlock-circlet-fcr-plus2-warlock-extra",
+      "bar": "off",
       "class": "G10",
       "who": "warlock",
       "label": "Warlock helm, really good: rare circlet 20 FCR, +2 Warlock and a third stat",
@@ -1571,6 +1626,7 @@
     },
     {
       "id": "warlock-circlet-fcr-plus2-eldritch-extra",
+      "bar": "off",
       "class": "G10",
       "who": "warlock",
       "label": "Warlock helm, really good: rare circlet 20 FCR, +2 Eldritch (Echoing Strike) and a third stat",
@@ -1658,6 +1714,7 @@
     },
     {
       "id": "warlock-circlet-fcr-plus2",
+      "bar": "off",
       "class": "G10",
       "who": "warlock",
       "label": "Warlock helm: circlet 20 FCR with +2 Warlock or +3 Eldritch",
@@ -1709,6 +1766,7 @@
     },
     {
       "id": "rare-circlet-plus2-class",
+      "bar": "off",
       "class": "G10",
       "who": "trade",
       "label": "rare circlet +2 class skills (any class, FCR or not)",
@@ -1755,6 +1813,7 @@
     },
     {
       "id": "rare-circlet-fcr-gate",
+      "bar": "off",
       "class": "G10",
       "who": "trade",
       "label": "rare circlet 20 FCR with +1 class skills, +2 to a skill tree or 30 FRW",
@@ -1833,6 +1892,7 @@
     },
     {
       "id": "ring-dual-leech-fcr",
+      "bar": "off",
       "class": "G11",
       "who": "trade",
       "label": "ring: 10 FCR, life leech and mana leech",
@@ -1880,6 +1940,7 @@
     },
     {
       "id": "warlock-ring-fcr-res-life",
+      "bar": "off",
       "class": "G11",
       "who": "warlock",
       "label": "Warlock ring: 10 FCR, res and life",
@@ -1919,6 +1980,7 @@
     },
     {
       "id": "warlock-amulet-plus2-fcr",
+      "bar": "off",
       "class": "G11",
       "who": "warlock",
       "label": "Warlock amulet: +2 Warlock and 10 FCR",
@@ -1949,6 +2011,7 @@
     },
     {
       "id": "rare-amulet-fcr-life-skills",
+      "bar": "off",
       "class": "G11",
       "who": "trade",
       "label": "rare / crafted amulet with any FCR, any life or +2 skills",
@@ -2409,6 +2472,7 @@
     },
     {
       "id": "rare-belt-24fhr-life-res-extra",
+      "bar": "off",
       "class": "G22",
       "who": "trade",
       "label": "rare belt, really good: 24 FHR, life 30+, a resistance 20+ and a second one 20+ or str 15+",
@@ -2460,6 +2524,7 @@
     },
     {
       "id": "rare-belt-24fhr-companion",
+      "bar": "off",
       "class": "G22",
       "who": "trade",
       "label": "rare belt, the guide's priced gate: 24 FHR with str 15+, life 30+ or a resistance 20+",
@@ -4342,6 +4407,5190 @@
       }
     },
     {
+      "id": "own-mang-songs-lesson",
+      "class": "own",
+      "who": "warlock",
+      "label": "Mang Song's Lesson: every copy kept",
+      "names": [
+        "Mang Song's Lesson"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": [],
+      "always_keep": true,
+      "source": "guides/warlock.html:155; third-parties/d2data/json/uniqueitems.json",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-warlock-circlet-three-good",
+      "class": "bar",
+      "always_keep": true,
+      "label": "Warlock helm that beats Shako: rare circlet +2 Warlock or Warlock tree, 20 FCR / 30 FRW / 2os, three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:7",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "any": [
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 15,
+          "count": 4
+        },
+        {
+          "keys": [
+            "0:0",
+            "2:0"
+          ],
+          "min": 20
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "80:0",
+          "min": 20
+        }
+      ],
+      "good_count": 3,
+      "matters": [
+        {
+          "key": "7:0",
+          "label": "Life",
+          "low": 1,
+          "high": 60,
+          "scale": 256
+        },
+        {
+          "key": "39:0",
+          "label": "Fire Resist",
+          "low": 1,
+          "high": 40
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:172; guides/warlock.html:158",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-circlet-three-good",
+      "class": "bar",
+      "label": "rare circlet that beats Shako: +2 class or tree, 20 FCR / 30 FRW / 2os, three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "any": [
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 20
+        },
+        {
+          "key": "96:0",
+          "min": 30
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 15,
+          "count": 4
+        },
+        {
+          "keys": [
+            "0:0",
+            "2:0"
+          ],
+          "min": 20
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "80:0",
+          "min": 20
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:172",
+      "codes": [
+        "ci0",
+        "ci1",
+        "ci2",
+        "ci3"
+      ],
+      "bases": [
+        "Circlet",
+        "Coronet",
+        "Tiara",
+        "Diadem"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-warlock-amulet-three-good",
+      "class": "bar",
+      "always_keep": true,
+      "label": "Warlock amulet that beats Mara's: +2 Warlock or Warlock tree and three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:7",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "127:0",
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "keys": [
+            "0:0",
+            "2:0"
+          ],
+          "min": 15
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:174",
+      "codes": [
+        "amu"
+      ],
+      "bases": [
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-amulet-three-good",
+      "class": "bar",
+      "label": "rare amulet that beats Mara's: +2 skills and three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "127:0",
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "127:0",
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "keys": [
+            "0:0",
+            "2:0"
+          ],
+          "min": 15
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:174",
+      "codes": [
+        "amu"
+      ],
+      "bases": [
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-warlock-magic-amulet-plus2-fcr",
+      "class": "bar",
+      "always_keep": true,
+      "label": "Warlock amulet: magic +2 Warlock and 10 FCR (two of two)",
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "key": "83:7",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:175; guides/warlock.html:163",
+      "codes": [
+        "amu"
+      ],
+      "bases": [
+        "Amulet"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-warlock-ring-three-good",
+      "class": "bar",
+      "always_keep": true,
+      "label": "Warlock ring: 10 FCR and three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "105:0",
+          "min": 10
+        }
+      ],
+      "good": [
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 30,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 10,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 25
+            }
+          ]
+        },
+        {
+          "either": [
+            {
+              "key": "0:0",
+              "min": 15
+            },
+            {
+              "key": "2:0",
+              "min": 12
+            }
+          ]
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "62:0",
+          "min": 4
+        },
+        {
+          "key": "19:0",
+          "min": 100
+        },
+        {
+          "key": "80:0",
+          "min": 15
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:176; guides/warlock.html:164",
+      "codes": [
+        "rin"
+      ],
+      "bases": [
+        "Ring"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-ring-three-good",
+      "class": "bar",
+      "label": "rare ring: 10 FCR or 100+ AR and three good stats",
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [],
+      "any": [
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "19:0",
+          "min": 100
+        }
+      ],
+      "good": [
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 30,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 10,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 25
+            }
+          ]
+        },
+        {
+          "either": [
+            {
+              "key": "0:0",
+              "min": 15
+            },
+            {
+              "key": "2:0",
+              "min": 12
+            }
+          ]
+        },
+        {
+          "key": "9:0",
+          "min": 60,
+          "scale": 256
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "62:0",
+          "min": 4
+        },
+        {
+          "key": "19:0",
+          "min": 100
+        },
+        {
+          "key": "80:0",
+          "min": 15
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:176",
+      "codes": [
+        "rin"
+      ],
+      "bases": [
+        "Ring"
+      ],
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-belt-three-good",
+      "class": "bar",
+      "label": "rare belt: 24 FHR (or a crafted 10 FCR) and three good stats",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [],
+      "any": [
+        {
+          "key": "99:0",
+          "min": 24
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        }
+      ],
+      "good": [
+        {
+          "key": "99:0",
+          "min": 24
+        },
+        {
+          "key": "7:0",
+          "min": 30,
+          "scale": 256
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 20
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 20,
+          "count": 2
+        },
+        {
+          "key": "0:0",
+          "min": 15
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:177; guides/pricing.html:236",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-gloves-three-good",
+      "class": "bar",
+      "label": "rare gloves: 20 IAS and three good stats",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "93:0",
+          "min": 20
+        }
+      ],
+      "good": [
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "0:0",
+          "min": 15
+        },
+        {
+          "key": "2:0",
+          "min": 15
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 20
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 20,
+          "count": 2
+        },
+        {
+          "keys": [
+            "60:0",
+            "62:0"
+          ],
+          "min": 3
+        },
+        {
+          "key": "80:0",
+          "min": 15
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:179; guides/pricing.html:234",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-rare-grimoire-plus2-warlock-and-one",
+      "class": "bar",
+      "label": "rare grimoire +2 Warlock and one good stat (the player: kept)",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "83:7",
+          "min": 2
+        }
+      ],
+      "any": [
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "either": [
+            {
+              "key": "20:0",
+              "min": 20
+            },
+            {
+              "key": "102:0",
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:181; guides/pricing.html:346",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-barbarian-helm-plus2-and-3-bo",
+      "class": "bar",
+      "label": "Barbarian helm +2 Barbarian or Warcries with +3 Battle Orders (the player: kept)",
+      "types": [
+        "phlm"
+      ],
+      "qualities": [
+        "magic",
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "key": "83:4",
+              "min": 2
+            },
+            {
+              "key": "188:34",
+              "min": 2
+            }
+          ]
+        },
+        {
+          "key": "107:149",
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:182",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-phlm-three-good",
+      "class": "bar",
+      "label": "rare class item (phlm): +2 class or tree and three good stats",
+      "types": [
+        "phlm"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:149",
+            "107:155",
+            "107:154",
+            "107:150",
+            "107:148"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:149",
+            "107:155",
+            "107:154",
+            "107:150",
+            "107:148"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "99:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-phlm-two-of-two",
+      "class": "bar",
+      "label": "magic class item (phlm): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "phlm"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:149",
+            "107:155",
+            "107:154",
+            "107:150",
+            "107:148"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-pelt-three-good",
+      "class": "bar",
+      "label": "rare class item (pelt): +2 class or tree and three good stats",
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:245",
+            "107:249",
+            "107:250",
+            "107:244",
+            "107:247",
+            "107:248",
+            "107:243",
+            "107:239"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:245",
+            "107:249",
+            "107:250",
+            "107:244",
+            "107:247",
+            "107:248",
+            "107:243",
+            "107:239"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "99:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-pelt-two-of-two",
+      "class": "bar",
+      "label": "magic class item (pelt): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:245",
+            "107:249",
+            "107:250",
+            "107:244",
+            "107:247",
+            "107:248",
+            "107:243",
+            "107:239"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-head-three-good",
+      "class": "bar",
+      "label": "rare class item (head): +2 class or tree and three good stats",
+      "types": [
+        "head"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "99:0",
+          "min": 10
+        },
+        {
+          "either": [
+            {
+              "key": "20:0",
+              "min": 20
+            },
+            {
+              "key": "102:0",
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-head-two-of-two",
+      "class": "bar",
+      "label": "magic class item (head): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "head"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-wand-three-good",
+      "class": "bar",
+      "label": "rare class item (wand): +2 class or tree and three good stats",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-wand-two-of-two",
+      "class": "bar",
+      "label": "magic class item (wand): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:92",
+            "107:93",
+            "107:84"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-orb-three-good",
+      "class": "bar",
+      "label": "rare class item (orb): +2 class or tree and three good stats",
+      "types": [
+        "orb"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:53",
+            "107:49",
+            "107:48",
+            "107:63",
+            "107:57",
+            "107:58",
+            "107:52",
+            "107:47",
+            "107:62",
+            "107:56",
+            "107:51",
+            "107:61",
+            "107:59",
+            "107:64",
+            "107:65"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:53",
+            "107:49",
+            "107:48",
+            "107:63",
+            "107:57",
+            "107:58",
+            "107:52",
+            "107:47",
+            "107:62",
+            "107:56",
+            "107:51",
+            "107:61",
+            "107:59",
+            "107:64",
+            "107:65"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-orb-two-of-two",
+      "class": "bar",
+      "label": "magic class item (orb): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "orb"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:53",
+            "107:49",
+            "107:48",
+            "107:63",
+            "107:57",
+            "107:58",
+            "107:52",
+            "107:47",
+            "107:62",
+            "107:56",
+            "107:51",
+            "107:61",
+            "107:59",
+            "107:64",
+            "107:65"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-scep-three-good",
+      "class": "bar",
+      "label": "rare class item (scep): +2 class or tree and three good stats",
+      "types": [
+        "scep"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:121",
+            "107:112"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:121",
+            "107:112"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-scep-two-of-two",
+      "class": "bar",
+      "label": "magic class item (scep): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "scep"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:121",
+            "107:112"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-h2h-three-good",
+      "class": "bar",
+      "label": "rare class item (h2h): +2 class or tree and three good stats",
+      "types": [
+        "h2h"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-h2h-eth-melee",
+      "class": "bar",
+      "label": "rare class weapon (h2h): ethereal 200%+ ED and two more good stats",
+      "types": [
+        "h2h"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 200
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 2,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-h2h-two-of-two",
+      "class": "bar",
+      "label": "magic class item (h2h): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "h2h"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-h2h2-three-good",
+      "class": "bar",
+      "label": "rare class item (h2h2): +2 class or tree and three good stats",
+      "types": [
+        "h2h2"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-h2h2-eth-melee",
+      "class": "bar",
+      "label": "rare class weapon (h2h2): ethereal 200%+ ED and two more good stats",
+      "types": [
+        "h2h2"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 200
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 2,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-h2h2-two-of-two",
+      "class": "bar",
+      "label": "magic class item (h2h2): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "h2h2"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:271",
+            "107:278",
+            "107:267",
+            "107:276",
+            "107:262",
+            "107:280"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-rare-knif-three-good",
+      "class": "bar",
+      "label": "rare class item (knif): +2 class or tree and three good stats",
+      "types": [
+        "knif"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-rare-knif-eth-melee",
+      "class": "bar",
+      "label": "rare class weapon (knif): ethereal 200%+ ED and two more good stats",
+      "types": [
+        "knif"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 200
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 2,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-magic-knif-two-of-two",
+      "class": "bar",
+      "label": "magic class item (knif): +2 class or +3 tree and a paid +3 skill",
+      "types": [
+        "knif"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-rare-grim-three-good",
+      "class": "bar",
+      "label": "rare class item (grim): +2 class or tree and three good stats",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3,
+          "count": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "105:0",
+          "min": 10
+        },
+        {
+          "either": [
+            {
+              "key": "20:0",
+              "min": 20
+            },
+            {
+              "key": "102:0",
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "warlock",
+      "id": "bar-magic-grim-two-of-two",
+      "class": "bar",
+      "label": "magic class item (grim): +2 class or +3 tree and a paid +3 skill or all res 15+",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "keys": [
+            "107:402",
+            "107:389",
+            "107:388",
+            "107:384",
+            "107:401",
+            "107:376",
+            "107:377",
+            "107:381",
+            "107:382",
+            "107:400",
+            "107:399",
+            "107:380",
+            "107:390"
+          ],
+          "min": 3
+        },
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 15,
+          "count": 4
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-ashd-three-good",
+      "class": "bar",
+      "label": "rare class item (ashd): +2 class or tree and three good stats",
+      "types": [
+        "ashd"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "99:0",
+          "min": 10
+        },
+        {
+          "either": [
+            {
+              "key": "20:0",
+              "min": 20
+            },
+            {
+              "key": "102:0",
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-ashd-two-of-two",
+      "class": "bar",
+      "label": "magic class item (ashd): +2 class or +3 tree and a top suffix",
+      "types": [
+        "ashd"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "99:0",
+          "min": 10
+        },
+        {
+          "either": [
+            {
+              "key": "20:0",
+              "min": 20
+            },
+            {
+              "key": "102:0",
+              "min": 30
+            }
+          ]
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-ajav-three-good",
+      "class": "bar",
+      "label": "rare class item (ajav): +2 class or tree and three good stats",
+      "types": [
+        "ajav"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 30
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-ajav-eth-melee",
+      "class": "bar",
+      "label": "rare class weapon (ajav): ethereal 200%+ ED and two more good stats",
+      "types": [
+        "ajav"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 200
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 30
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 2,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-ajav-two-of-two",
+      "class": "bar",
+      "label": "magic class item (ajav): +2 class or +3 tree and a top suffix",
+      "types": [
+        "ajav"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "key": "93:0",
+          "min": 30
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-aspe-three-good",
+      "class": "bar",
+      "label": "rare class item (aspe): +2 class or tree and three good stats",
+      "types": [
+        "aspe"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 30
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-aspe-eth-melee",
+      "class": "bar",
+      "label": "rare class weapon (aspe): ethereal 200%+ ED and two more good stats",
+      "types": [
+        "aspe"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 200
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 30
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 2,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-aspe-two-of-two",
+      "class": "bar",
+      "label": "magic class item (aspe): +2 class or +3 tree and a top suffix",
+      "types": [
+        "aspe"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "key": "93:0",
+          "min": 30
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-rare-abow-three-good",
+      "class": "bar",
+      "label": "rare class item (abow): +2 class or tree and three good stats",
+      "types": [
+        "abow"
+      ],
+      "qualities": [
+        "rare",
+        "crafted"
+      ],
+      "must": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        }
+      ],
+      "good": [
+        {
+          "keys": [
+            "83:0",
+            "83:1",
+            "83:2",
+            "83:3",
+            "83:4",
+            "83:5",
+            "83:6",
+            "83:7",
+            "188:0",
+            "188:1",
+            "188:2",
+            "188:8",
+            "188:9",
+            "188:10",
+            "188:16",
+            "188:17",
+            "188:18",
+            "188:24",
+            "188:25",
+            "188:26",
+            "188:32",
+            "188:33",
+            "188:34",
+            "188:40",
+            "188:41",
+            "188:42",
+            "188:48",
+            "188:49",
+            "188:50",
+            "188:56",
+            "188:57",
+            "188:58"
+          ],
+          "min": 2
+        },
+        {
+          "key": "sockets",
+          "min": 2
+        },
+        {
+          "key": "93:0",
+          "min": 20
+        },
+        {
+          "key": "17:0",
+          "min": 150
+        },
+        {
+          "key": "218:0",
+          "min": 1
+        },
+        {
+          "key": "7:0",
+          "min": 40,
+          "scale": 256
+        },
+        {
+          "either": [
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 15,
+              "count": 4
+            },
+            {
+              "keys": [
+                "39:0",
+                "41:0",
+                "43:0",
+                "45:0"
+              ],
+              "min": 30
+            }
+          ]
+        },
+        {
+          "key": "60:0",
+          "min": 5
+        },
+        {
+          "key": "80:0",
+          "min": 25
+        }
+      ],
+      "good_count": 3,
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
+      "bar": "on",
+      "who": "trade",
+      "id": "bar-magic-abow-two-of-two",
+      "class": "bar",
+      "label": "magic class item (abow): +2 class or +3 tree and a top suffix",
+      "types": [
+        "abow"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "either": [
+            {
+              "keys": [
+                "83:0",
+                "83:1",
+                "83:2",
+                "83:3",
+                "83:4",
+                "83:5",
+                "83:6",
+                "83:7"
+              ],
+              "min": 2
+            },
+            {
+              "keys": [
+                "188:0",
+                "188:1",
+                "188:2",
+                "188:8",
+                "188:9",
+                "188:10",
+                "188:16",
+                "188:17",
+                "188:18",
+                "188:24",
+                "188:25",
+                "188:26",
+                "188:32",
+                "188:33",
+                "188:34",
+                "188:40",
+                "188:41",
+                "188:42",
+                "188:48",
+                "188:49",
+                "188:50",
+                "188:56",
+                "188:57",
+                "188:58"
+              ],
+              "min": 3
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "key": "93:0",
+          "min": 20
+        }
+      ],
+      "source": "rca/2026-10-21/keep-bar-design.md:180",
+      "asks": null
+    },
+    {
       "id": "own-0-harlequin-crest",
       "class": "own",
       "who": "warlock",
@@ -5142,7 +10391,7 @@
       "id": "usable-angelic-halo",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Angelic Halo",
+      "label": "usable (berserk-barbarian Starter player): Angelic Halo",
       "names": [
         "Angelic Halo"
       ],
@@ -5151,14 +10400,15 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/0/player/Rings/0",
+      "build": "berserk-barbarian",
+      "variant": "Starter"
     },
     {
       "id": "usable-angelic-wings",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Angelic Wings",
+      "label": "usable (berserk-barbarian Starter player): Angelic Wings",
       "names": [
         "Angelic Wings"
       ],
@@ -5167,8 +10417,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/7",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/0/player/Amulet/0",
+      "build": "berserk-barbarian",
+      "variant": "Starter"
     },
     {
       "id": "usable-annihilus",
@@ -5206,7 +10457,7 @@
       "id": "usable-arioc-s-needle",
       "class": "usable",
       "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Arioc's Needle",
+      "label": "usable (guides/warlock.html #s0): Arioc's Needle",
       "names": [
         "Arioc's Needle"
       ],
@@ -5215,24 +10466,7 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/13",
-      "build": "echoing-strike-warlock-guide"
-    },
-    {
-      "id": "usable-arreat-s-face",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Arreat's Face",
-      "names": [
-        "Arreat's Face"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/9",
-      "build": "berserk-barbarian"
+      "source": "guides/warlock.html:155"
     },
     {
       "id": "usable-ars-dul-mephistos",
@@ -5303,7 +10537,7 @@
       "id": "usable-bartuc-s-cut-throat",
       "class": "usable",
       "who": "assassin",
-      "label": "usable (lightning-sentry-assassin slots): Bartuc's Cut-Throat",
+      "label": "usable (wake-of-fire-assassin slots): Bartuc's Cut-Throat",
       "names": [
         "Bartuc's Cut-Throat"
       ],
@@ -5312,8 +10546,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/lightning-sentry-assassin/slots/Weapon/5",
-      "build": "lightning-sentry-assassin"
+      "source": "pricing/data/wp-a-builds.json#/wake-of-fire-assassin/slots/Weapon/4",
+      "build": "wake-of-fire-assassin"
     },
     {
       "id": "usable-black-cleft",
@@ -5368,7 +10602,7 @@
       "id": "usable-bloodpact-shard",
       "class": "usable",
       "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Bloodpact Shard",
+      "label": "usable (guides/warlock.html #s0): Bloodpact Shard",
       "names": [
         "Bloodpact Shard"
       ],
@@ -5377,8 +10611,7 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/9",
-      "build": "echoing-strike-warlock-guide"
+      "source": "guides/warlock.html:155"
     },
     {
       "id": "usable-bone-break",
@@ -5477,22 +10710,6 @@
       "build": "dream-paladin"
     },
     {
-      "id": "usable-credendum",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (lightning-strike-amazon slots): Credendum",
-      "names": [
-        "Credendum"
-      ],
-      "qualities": [
-        "set"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/lightning-strike-amazon/slots/Belts/6",
-      "build": "lightning-strike-amazon"
-    },
-    {
       "id": "usable-crescent-moon",
       "class": "usable",
       "who": "paladin",
@@ -5511,8 +10728,8 @@
     {
       "id": "usable-crown-of-ages",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Crown of Ages",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Crown of Ages",
       "names": [
         "Crown of Ages"
       ],
@@ -5521,8 +10738,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/10",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Helmets/2",
+      "build": "blessed-hammer-paladin"
     },
     {
       "id": "usable-crown-of-thieves",
@@ -5560,7 +10777,7 @@
       "id": "usable-death-s-fathom",
       "class": "usable",
       "who": "sorceress",
-      "label": "usable (blizzard-sorceress slots): Death's Fathom",
+      "label": "usable (blizzard-sorceress Standard player): Death's Fathom",
       "names": [
         "Death's Fathom"
       ],
@@ -5569,14 +10786,15 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Weapon/5",
-      "build": "blizzard-sorceress"
+      "source": "pricing/data/wp-a-variants/blizzard-sorceress.json#/variants/1/player/Weapon/0",
+      "build": "blizzard-sorceress",
+      "variant": "Standard"
     },
     {
       "id": "usable-death-s-guard",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Death's Guard",
+      "label": "usable (double-throw-barbarian-guide Starter player): Death's Guard",
       "names": [
         "Death's Guard"
       ],
@@ -5585,8 +10803,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/7",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/0/player/Belt/0",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter"
     },
     {
       "id": "usable-death-s-hand",
@@ -5704,22 +10923,6 @@
       "build": "enchant-sorceress"
     },
     {
-      "id": "usable-demon-s-arch",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Demon's Arch",
-      "names": [
-        "Demon's Arch"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/8",
-      "build": "double-throw-barbarian-guide"
-    },
-    {
       "id": "usable-dracul-s-grasp",
       "class": "usable",
       "who": "paladin",
@@ -5767,22 +10970,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Rings/3",
       "build": "berserk-barbarian"
-    },
-    {
-      "id": "usable-eaglehorn",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (strafe-amazon slots): Eaglehorn",
-      "names": [
-        "Eaglehorn"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Weapon/6",
-      "build": "strafe-amazon"
     },
     {
       "id": "usable-entropy-locket",
@@ -5833,22 +11020,6 @@
       "build": "dream-paladin"
     },
     {
-      "id": "usable-fleshripper",
-      "class": "usable",
-      "who": "paladin",
-      "label": "usable (smite-paladin slots): Fleshripper",
-      "names": [
-        "Fleshripper"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/smite-paladin/slots/Weapon/5",
-      "build": "smite-paladin"
-    },
-    {
       "id": "usable-frostburn",
       "class": "usable",
       "who": "sorceress",
@@ -5863,22 +11034,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Gloves/3",
       "build": "enchant-sorceress"
-    },
-    {
-      "id": "usable-gargoyle-s-bite",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Gargoyle's Bite",
-      "names": [
-        "Gargoyle's Bite"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/12",
-      "build": "double-throw-barbarian-guide"
     },
     {
       "id": "usable-gerke-s-sanctuary",
@@ -5927,38 +11082,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Belts/1",
       "build": "blessed-hammer-paladin"
-    },
-    {
-      "id": "usable-giant-skull",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Giant Skull",
-      "names": [
-        "Giant Skull"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Helmets/9",
-      "build": "double-throw-barbarian-guide"
-    },
-    {
-      "id": "usable-gimmershred",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Gimmershred",
-      "names": [
-        "Gimmershred"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/10",
-      "build": "double-throw-barbarian-guide"
     },
     {
       "id": "usable-goblin-toe",
@@ -6044,7 +11167,7 @@
       "id": "usable-guardian-angel",
       "class": "usable",
       "who": "merc",
-      "label": "usable (berserk-barbarian merc): Guardian Angel",
+      "label": "usable (echoing-strike-warlock-guide merc): Guardian Angel",
       "names": [
         "Guardian Angel"
       ],
@@ -6053,8 +11176,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/mid/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/merc/Body Armor/mid/4",
+      "build": "echoing-strike-warlock-guide"
     },
     {
       "id": "usable-guardian-s-light",
@@ -6093,8 +11216,8 @@
     {
       "id": "usable-guillaume-s-face",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Guillaume's Face",
+      "who": "merc",
+      "label": "usable (berserk-barbarian merc): Guillaume's Face",
       "names": [
         "Guillaume's Face"
       ],
@@ -6103,7 +11226,7 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/8",
+      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/1",
       "build": "berserk-barbarian"
     },
     {
@@ -6255,8 +11378,8 @@
     {
       "id": "usable-immortal-king-s-detail",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Immortal King's Detail",
+      "who": "sorceress",
+      "label": "usable (meteor-sorceress slots): Immortal King's Detail",
       "names": [
         "Immortal King's Detail"
       ],
@@ -6265,8 +11388,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/meteor-sorceress/slots/Belts/4",
+      "build": "meteor-sorceress"
     },
     {
       "id": "usable-immortal-king-s-forge",
@@ -6462,22 +11585,6 @@
       "build": "strafe-amazon"
     },
     {
-      "id": "usable-m-avina-s-embrace",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (strafe-amazon slots): M'avina's Embrace",
-      "names": [
-        "M'avina's Embrace"
-      ],
-      "qualities": [
-        "set"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/5",
-      "build": "strafe-amazon"
-    },
-    {
       "id": "usable-m-avina-s-icy-clutch",
       "class": "usable",
       "who": "amazon",
@@ -6510,22 +11617,6 @@
       "build": "strafe-amazon"
     },
     {
-      "id": "usable-m-avina-s-true-sight",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (strafe-amazon slots): M'avina's True Sight",
-      "names": [
-        "M'avina's True Sight"
-      ],
-      "qualities": [
-        "set"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Helmets/7",
-      "build": "strafe-amazon"
-    },
-    {
       "id": "usable-magefist",
       "class": "usable",
       "who": "paladin",
@@ -6545,7 +11636,7 @@
       "id": "usable-manald-heal",
       "class": "usable",
       "who": "amazon",
-      "label": "usable (lightning-fury-amazon-guide slots): Manald Heal",
+      "label": "usable (lightning-fury-amazon-guide Starter player): Manald Heal",
       "names": [
         "Manald Heal"
       ],
@@ -6554,24 +11645,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Rings/6",
-      "build": "lightning-fury-amazon-guide"
-    },
-    {
-      "id": "usable-mang-song-s-lesson",
-      "class": "usable",
-      "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Mang Song's Lesson",
-      "names": [
-        "Mang Song's Lesson"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/14",
-      "build": "echoing-strike-warlock-guide"
+      "source": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json#/variants/0/player/Rings/0",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter"
     },
     {
       "id": "usable-mara-s-kaleidoscope",
@@ -6624,8 +11700,8 @@
     {
       "id": "usable-moser-s-blessed-circle",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Moser's Blessed Circle",
+      "who": "sorceress",
+      "label": "usable (lightning-sorceress slots): Moser's Blessed Circle",
       "names": [
         "Moser's Blessed Circle"
       ],
@@ -6634,8 +11710,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/6",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/lightning-sorceress/slots/Off-Hand/4",
+      "build": "lightning-sorceress"
     },
     {
       "id": "usable-nagelring",
@@ -6656,8 +11732,8 @@
     {
       "id": "usable-naj-s-puzzler",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Naj's Puzzler",
+      "who": "paladin",
+      "label": "usable (dream-paladin slots): Naj's Puzzler",
       "names": [
         "Naj's Puzzler"
       ],
@@ -6666,14 +11742,14 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Weapon-Swap/7",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/dream-paladin/slots/Weapon-Swap/2",
+      "build": "dream-paladin"
     },
     {
       "id": "usable-natalya-s-soul",
       "class": "usable",
-      "who": "amazon",
-      "label": "usable (lightning-fury-amazon-guide slots): Natalya's Soul",
+      "who": "assassin",
+      "label": "usable (lightning-sentry-assassin slots): Natalya's Soul",
       "names": [
         "Natalya's Soul"
       ],
@@ -6682,8 +11758,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/lightning-fury-amazon-guide/slots/Boots/5",
-      "build": "lightning-fury-amazon-guide"
+      "source": "pricing/data/wp-a-builds.json#/lightning-sentry-assassin/slots/Boots/3",
+      "build": "lightning-sentry-assassin"
     },
     {
       "id": "usable-nature-s-peace",
@@ -6705,7 +11781,7 @@
       "id": "usable-nightsmoke",
       "class": "usable",
       "who": "paladin",
-      "label": "usable (blessed-hammer-paladin slots): Nightsmoke",
+      "label": "usable (smite-paladin slots): Nightsmoke",
       "names": [
         "Nightsmoke"
       ],
@@ -6714,8 +11790,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Belts/5",
-      "build": "blessed-hammer-paladin"
+      "source": "pricing/data/wp-a-builds.json#/smite-paladin/slots/Belts/1",
+      "build": "smite-paladin"
     },
     {
       "id": "usable-nightwing-s-veil",
@@ -6748,22 +11824,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Belts/2",
       "build": "double-throw-barbarian-guide"
-    },
-    {
-      "id": "usable-ondal-s-wisdom",
-      "class": "usable",
-      "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Ondal's Wisdom",
-      "names": [
-        "Ondal's Wisdom"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/15",
-      "build": "echoing-strike-warlock-guide"
     },
     {
       "id": "usable-opalvein",
@@ -6917,7 +11977,7 @@
       "id": "usable-razorswitch",
       "class": "usable",
       "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Razorswitch",
+      "label": "usable (guides/warlock.html #s0): Razorswitch",
       "names": [
         "Razorswitch"
       ],
@@ -6926,8 +11986,7 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/16",
-      "build": "echoing-strike-warlock-guide"
+      "source": "guides/warlock.html:150"
     },
     {
       "id": "usable-razortail",
@@ -7034,7 +12093,7 @@
       "id": "usable-rockfleece",
       "class": "usable",
       "who": "merc",
-      "label": "usable (berserk-barbarian merc): Rockfleece",
+      "label": "usable (blessed-hammer-paladin merc): Rockfleece",
       "names": [
         "Rockfleece"
       ],
@@ -7043,14 +12102,14 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Body Armor/early/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/merc/Body Armor/early/3",
+      "build": "blessed-hammer-paladin"
     },
     {
       "id": "usable-rockstopper",
       "class": "usable",
-      "who": "merc",
-      "label": "usable (berserk-barbarian merc): Rockstopper",
+      "who": "paladin",
+      "label": "usable (blessed-hammer-paladin slots): Rockstopper",
       "names": [
         "Rockstopper"
       ],
@@ -7059,8 +12118,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/mid/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Helmets/3",
+      "build": "blessed-hammer-paladin"
     },
     {
       "id": "usable-rotting-fissure",
@@ -7097,8 +12156,8 @@
     {
       "id": "usable-sander-s-riprap",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Sander's Riprap",
+      "who": "sorceress",
+      "label": "usable (enchant-sorceress slots): Sander's Riprap",
       "names": [
         "Sander's Riprap"
       ],
@@ -7107,8 +12166,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Boots/5",
-      "build": "double-throw-barbarian-guide"
+      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/slots/Boots/4",
+      "build": "enchant-sorceress"
     },
     {
       "id": "usable-sander-s-taboo",
@@ -7278,7 +12337,7 @@
       "id": "usable-sigon-s-wrap",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Sigon's Wrap",
+      "label": "usable (berserk-barbarian Starter player): Sigon's Wrap",
       "names": [
         "Sigon's Wrap"
       ],
@@ -7287,8 +12346,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/6",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/0/player/Belt/0",
+      "build": "berserk-barbarian",
+      "variant": "Starter"
     },
     {
       "id": "usable-silkweave",
@@ -7342,7 +12402,7 @@
       "id": "usable-skull-collector",
       "class": "usable",
       "who": "warlock",
-      "label": "usable (echoing-strike-warlock-guide slots): Skull Collector",
+      "label": "usable (guides/warlock.html #s0): Skull Collector",
       "names": [
         "Skull Collector"
       ],
@@ -7351,8 +12411,7 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/echoing-strike-warlock-guide/slots/Weapon/17",
-      "build": "echoing-strike-warlock-guide"
+      "source": "guides/warlock.html:155"
     },
     {
       "id": "usable-skullder-s-ire",
@@ -7406,7 +12465,7 @@
       "id": "usable-spectral-shard",
       "class": "usable",
       "who": "paladin",
-      "label": "usable (blessed-hammer-paladin slots): Spectral Shard",
+      "label": "usable (fist-of-the-heavens-paladin slots): Spectral Shard",
       "names": [
         "Spectral Shard"
       ],
@@ -7415,8 +12474,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/blessed-hammer-paladin/slots/Weapon/5",
-      "build": "blessed-hammer-paladin"
+      "source": "pricing/data/wp-a-builds.json#/fist-of-the-heavens-paladin/slots/Weapon/4",
+      "build": "fist-of-the-heavens-paladin"
     },
     {
       "id": "usable-spellsteel",
@@ -7454,7 +12513,7 @@
       "id": "usable-stormshield",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Stormshield",
+      "label": "usable (berserk-barbarian Hardcore player): Stormshield",
       "names": [
         "Stormshield"
       ],
@@ -7463,14 +12522,15 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Off-Hand/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/3/player/Off-Hand/0",
+      "build": "berserk-barbarian",
+      "variant": "Hardcore"
     },
     {
       "id": "usable-string-of-ears",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): String of Ears",
+      "label": "usable (double-throw-barbarian-guide Hardcore player): String of Ears",
       "names": [
         "String of Ears"
       ],
@@ -7479,8 +12539,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Belts/6",
-      "build": "double-throw-barbarian-guide"
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/3/player/Belt/1",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Hardcore"
     },
     {
       "id": "usable-suicide-branch",
@@ -7501,8 +12562,8 @@
     {
       "id": "usable-tal-rasha-s-adjudication",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Tal Rasha's Adjudication",
+      "who": "sorceress",
+      "label": "usable (blizzard-sorceress slots): Tal Rasha's Adjudication",
       "names": [
         "Tal Rasha's Adjudication"
       ],
@@ -7511,8 +12572,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Amulets/5",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Amulets/1",
+      "build": "blizzard-sorceress"
     },
     {
       "id": "usable-tal-rasha-s-fine-spun-cloth",
@@ -7566,7 +12627,7 @@
       "id": "usable-tal-rasha-s-lidless-eye",
       "class": "usable",
       "who": "sorceress",
-      "label": "usable (blizzard-sorceress slots): Tal Rasha's Lidless Eye",
+      "label": "usable (blizzard-sorceress Set Build player): Tal Rasha's Lidless Eye",
       "names": [
         "Tal Rasha's Lidless Eye"
       ],
@@ -7575,14 +12636,15 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/blizzard-sorceress/slots/Weapon/7",
-      "build": "blizzard-sorceress"
+      "source": "pricing/data/wp-a-variants/blizzard-sorceress.json#/variants/3/player/Weapon/0",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build"
     },
     {
       "id": "usable-tarnhelm",
       "class": "usable",
-      "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Tarnhelm",
+      "who": "assassin",
+      "label": "usable (fire-blast-assassin slots): Tarnhelm",
       "names": [
         "Tarnhelm"
       ],
@@ -7591,8 +12653,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Helmets/6",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-builds.json#/fire-blast-assassin/slots/Helmets/2",
+      "build": "fire-blast-assassin"
     },
     {
       "id": "usable-telling-of-beads",
@@ -7659,22 +12721,6 @@
       "build": "berserk-barbarian"
     },
     {
-      "id": "usable-the-gnasher",
-      "class": "usable",
-      "who": "paladin",
-      "label": "usable (smite-paladin slots): The Gnasher",
-      "names": [
-        "The Gnasher"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/smite-paladin/slots/Weapon/7",
-      "build": "smite-paladin"
-    },
-    {
       "id": "usable-the-oculus",
       "class": "usable",
       "who": "sorceress",
@@ -7710,7 +12756,7 @@
       "id": "usable-the-scalper",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): The Scalper",
+      "label": "usable (double-throw-barbarian-guide Starter player): The Scalper",
       "names": [
         "The Scalper"
       ],
@@ -7719,8 +12765,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/6",
-      "build": "double-throw-barbarian-guide"
+      "source": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json#/variants/0/player/Other/0",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter"
     },
     {
       "id": "usable-the-stone-of-jordan",
@@ -7806,7 +12853,7 @@
       "id": "usable-trang-oul-s-claws",
       "class": "usable",
       "who": "barbarian",
-      "label": "usable (berserk-barbarian slots): Trang-Oul's Claws",
+      "label": "usable (berserk-barbarian Max Mobility player): Trang-Oul's Claws",
       "names": [
         "Trang-Oul's Claws"
       ],
@@ -7815,8 +12862,9 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Gloves/7",
-      "build": "berserk-barbarian"
+      "source": "pricing/data/wp-a-variants/berserk-barbarian.json#/variants/5/player/Gloves/0",
+      "build": "berserk-barbarian",
+      "variant": "Max Mobility"
     },
     {
       "id": "usable-trang-oul-s-girth",
@@ -7833,22 +12881,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Belts/2",
       "build": "berserk-barbarian"
-    },
-    {
-      "id": "usable-trang-oul-s-guise",
-      "class": "usable",
-      "who": "necromancer",
-      "label": "usable (poison-nova-necromancer slots): Trang-Oul's Guise",
-      "names": [
-        "Trang-Oul's Guise"
-      ],
-      "qualities": [
-        "set"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/poison-nova-necromancer/slots/Helmets/7",
-      "build": "poison-nova-necromancer"
     },
     {
       "id": "usable-trang-oul-s-scales",
@@ -7883,38 +12915,6 @@
       "build": "poison-nova-necromancer"
     },
     {
-      "id": "usable-twitchthroe",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (strafe-amazon slots): Twitchthroe",
-      "names": [
-        "Twitchthroe"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/8",
-      "build": "strafe-amazon"
-    },
-    {
-      "id": "usable-tyrael-s-might",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (strafe-amazon slots): Tyrael's Might",
-      "names": [
-        "Tyrael's Might"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/strafe-amazon/slots/Body Armor/9",
-      "build": "strafe-amazon"
-    },
-    {
       "id": "usable-undead-crown",
       "class": "usable",
       "who": "merc",
@@ -7929,22 +12929,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/merc/Helmet/early/1",
       "build": "berserk-barbarian"
-    },
-    {
-      "id": "usable-valkyrie-wing",
-      "class": "usable",
-      "who": "amazon",
-      "label": "usable (lightning-strike-amazon slots): Valkyrie Wing",
-      "names": [
-        "Valkyrie Wing"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/lightning-strike-amazon/slots/Helmets/6",
-      "build": "lightning-strike-amazon"
     },
     {
       "id": "usable-vampire-gaze",
@@ -7966,7 +12950,7 @@
       "id": "usable-venom-ward",
       "class": "usable",
       "who": "merc",
-      "label": "usable (enchant-sorceress merc): Venom Ward",
+      "label": "usable (fist-of-the-heavens-paladin merc): Venom Ward",
       "names": [
         "Venom Ward"
       ],
@@ -7975,8 +12959,8 @@
       ],
       "must": [],
       "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/enchant-sorceress/merc/Body Armor/early/6",
-      "build": "enchant-sorceress"
+      "source": "pricing/data/wp-a-builds.json#/fist-of-the-heavens-paladin/merc/Body Armor/early/4",
+      "build": "fist-of-the-heavens-paladin"
     },
     {
       "id": "usable-verdungo-s-hearty-cord",
@@ -8122,38 +13106,6 @@
       "asks": null,
       "source": "pricing/data/wp-a-builds.json#/berserk-barbarian/slots/Weapon-Swap/1",
       "build": "berserk-barbarian"
-    },
-    {
-      "id": "usable-wormskull",
-      "class": "usable",
-      "who": "necromancer",
-      "label": "usable (summoner-necromancer-guide slots): Wormskull",
-      "names": [
-        "Wormskull"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/summoner-necromancer-guide/slots/Helmets/6",
-      "build": "summoner-necromancer-guide"
-    },
-    {
-      "id": "usable-wraith-flight",
-      "class": "usable",
-      "who": "barbarian",
-      "label": "usable (double-throw-barbarian-guide slots): Wraith Flight",
-      "names": [
-        "Wraith Flight"
-      ],
-      "qualities": [
-        "unique"
-      ],
-      "must": [],
-      "asks": null,
-      "source": "pricing/data/wp-a-builds.json#/double-throw-barbarian-guide/slots/Weapon/13",
-      "build": "double-throw-barbarian-guide"
     },
     {
       "id": "usable-wraithstep",

@@ -65,9 +65,15 @@ class Stash:
     listed: frozenset[int] = frozenset()
     used: list[int] = field(default_factory=list)
     next_unit: int = 500
+    cube: list[Carried] = field(default_factory=list)  # the cube's items (`use_carried` takes one out first)
 
     def pack(self) -> Pack:
-        return Pack(tuple(self.items), pointer=self.pointer.unit_id if self.pointer is not None else None)
+        return Pack(
+            tuple(self.items),
+            pointer=self.pointer.unit_id if self.pointer is not None else None,
+            cube_items=frozenset(i.unit_id for i in self.cube),
+            in_cube=tuple(self.cube),
+        )
 
     def near(self, point: tuple[float, float]) -> bool:
         return abs(point[0] - self.at[0]) < 0.01 and abs(point[1] - self.at[1]) < 0.02
@@ -296,3 +302,78 @@ def test_with_the_stash_closed_first_the_use_needs_the_inventory_key(clicks_on, 
     monkeypatch.setattr(terrorize, 'USE_WITH_STASH_OPEN', False)
     with pytest.raises(Abort, match='no inventory key read'):
         terrorize.terrorize(Run(Stash({DEEP: 97})), None, 4)  # pyrefly: ignore[bad-argument-type] the fake run
+
+
+# -- a carried shard (`use_carried`, actloop.py OVERFLOW, 2026-10-21) -------------------------------------------------
+
+
+def carried_use(game: Stash, item: Carried, key: str | None = 'i') -> terrorize.Used | None:
+    return terrorize.use_carried(Run(game), item, key, lambda area: True)  # pyrefly: ignore[bad-argument-type] the fake run
+
+
+def test_a_carried_shard_is_right_clicked_where_it_lies_and_its_stack_stays(caplog, clicks_on):
+    shard = Carried(9, NORTHERN, 3, 2, (1, 1))
+    game = Stash({NORTHERN: 99}, items=[shard], panels=())
+    with caplog.at_level('INFO'):
+        used = carried_use(game, shard)
+    assert used is not None
+    assert used.confirmed
+    assert (used.shard, used.act, used.before, used.after, used.carried, used.listed) == (NORTHERN, 5, 99, 99, True,
+                                                                                            True)  # fmt: skip
+    assert game.used == [NORTHERN]
+    assert game.stacks == {NORTHERN: 99}  # nothing taken out of the full stack
+    (right,) = [click for click in game.clicks if click[0] == 'tap']
+    assert right[2] == pytest.approx(cell_point(WINDOW, INVENTORY, (3, 2)))
+    assert 'Macro: terrorize: the carried Northern Worldstone Shard used for act 5; the act read terrorized' in (
+        caplog.text
+    )
+
+
+def test_a_carried_shard_in_the_cube_is_taken_out_first(clicks_on, monkeypatch):
+    shard = Carried(9, NORTHERN, 0, 0, (1, 1))
+    game = Stash({NORTHERN: 99}, cube=[shard], panels=())
+    outs: list[int] = []
+
+    def unpack(run, key, items, **_):
+        for item in items:
+            outs.append(item.unit_id)
+            game.cube.remove(item)
+            game.items.append(replace(item, x=6, y=1))
+        return len(items)
+
+    monkeypatch.setattr(terrorize, 'unpack', unpack)
+    used = carried_use(game, shard)
+    assert outs == [9]
+    assert used is not None
+    assert used.confirmed
+    assert game.used == [NORTHERN]
+    (right,) = [click for click in game.clicks if click[0] == 'tap']
+    assert right[2] == pytest.approx(cell_point(WINDOW, INVENTORY, (6, 1)))
+    # With no inventory key a cube's shard is not taken out: nothing clicked
+    other = Stash({NORTHERN: 99}, cube=[shard], panels=())
+    assert carried_use(other, shard, key=None) is None
+    assert other.clicks == []
+
+
+def test_a_carried_shard_the_game_refuses_stays_carried_and_is_not_confirmed(caplog, clicks_on):
+    shard = Carried(9, NORTHERN, 3, 2, (1, 1))
+    game = Stash({NORTHERN: 99}, items=[shard], use=None, panels=())
+    with caplog.at_level('INFO'):
+        used = carried_use(game, shard)
+    assert used is not None
+    assert not used.gone
+    assert not used.confirmed
+    assert game.items == [shard]
+    assert 'the right click on the carried Northern Worldstone Shard at (3, 2) did not use it: it stays carried' in (
+        caplog.text
+    )
+
+
+def test_a_carried_shard_is_used_only_in_town_and_with_the_clicks_on(monkeypatch):
+    shard = Carried(9, NORTHERN, 3, 2, (1, 1))
+    with pytest.raises(Abort, match='used in town'):
+        terrorize.use_carried(Run(Stash({NORTHERN: 99}, items=[shard]), area=107), shard, 'i')  # pyrefly: ignore[bad-argument-type] the fake run
+    monkeypatch.setattr(terrorize, 'CLICKS', False)
+    game = Stash({NORTHERN: 99}, items=[shard])
+    assert carried_use(game, shard) is None
+    assert game.clicks == []

@@ -290,6 +290,19 @@ class BuffFacts:
     lapsing: bool = False
     # Life lost within HURT_SECONDS (macros/buffs.py `Buffs.hurt`), asked lazily; None: unknown, taken as hurt
     hurt: Callable[[], bool] | None = None
+    # (skill, unit) -> the casts in a row on that unit that did not show on it (macros/buffs.py `Buffs.settle`): a
+    # Herald pack's mark goes on another member after one (combat/pack.py MARK_ANY_MEMBER)
+    missed: Mapping[tuple[int, int], int] = field(default_factory=dict)
+    # Clock of the last move the safety chose to rebuff Battle Orders clear of the hostiles (macros/cta.py REBUFF,
+    # macros/safety.py `Safety.rebuffed_at`): its landing casts it though the character was just hurt
+    rebuffed: float = -math.inf
+    # Clock that rebuff retreat landed (macros/safety.py `Safety.landed`): the Death Mark again after it
+    # (builds/warlock/mark.py REMARK_AFTER_REBUFF)
+    rebuff_landed: float = -math.inf
+    # Why the safety's last look bars Battle Orders cast in place (macros/safety.py CAST_REACH); None: not barred
+    cast_barred: str | None = None
+    # A monster's state words read raw (`Run.reads.unit_states`), asked lazily; None: not read
+    states: Callable[[Monster], bytes | None] | None = None
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when never."""
@@ -342,6 +355,11 @@ class Buff:
     # Seconds a cast lasts for a buff that ends by itself (Consume: 300); drives `BuffFacts.lapsing`
     # (rca/2026-10-14/run-1214-findings.md §3.4)
     lasts: float | None = None
+    # A shown buff cast again before it ends (Battle Orders: macros/cta.py `renew_orders`, 2026-10-22): asked with the
+    # facts and the seconds left of its last cast that took (None: none known, as after a restart), it gives the
+    # reason to cast again now, or None. With it, `lasts` drives `BuffFacts.lapsing` by this rule alone, and a lapsing
+    # row is due though its `state` shows (macros/buffs.py `lapsing`, `Buffs.missing`).
+    renew: Callable[[BuffFacts, float | None], str | None] | None = None
     # A cast on a monster checked on it (the player, 2026-10-20 ~18:45: "ok, recast"): whether a monster's state
     # words (game/layout.py STATE_RUN, raw: `Run.unit_states`) show this row's cast on it. A cast not shown
     # `shows_within` s after its key is cast again, `recasts` times at most a monster (macros/buffs.py `Buffs.settle`).

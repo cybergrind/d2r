@@ -58,7 +58,10 @@ def test_a_mark_that_never_takes_is_cast_again_recasts_times_and_said(monkeypatc
     assert said
     assert any(line.endswith('cast again (try 2)') for line in said)
     first = max(casts, key=casts.__getitem__)
-    if casts[first] == 1 + MARK_RECASTS:
+    unit = first.rsplit('(', 1)[1].rstrip(')')
+    # A target killed after its last try leaves nothing more to say (2026-10-22: with the arena's Might at level 16,
+    # x2.9, the elite 306 died right after the third try; macros/hunt.py "the leader ... held is gone")
+    if casts[first] == 1 + MARK_RECASTS and not any(f'leader {unit} held is gone' in line for line in lines):
         assert any(first in line and line.endswith('not cast again on it while the last would last') for line in said)
     # The key comes MARK_SHOWS (0.8 s) after the one before at the soonest: the check's window, then the skill's delay
     gaps = [later - before for (before, _), (later, _) in pairwise(keys)]

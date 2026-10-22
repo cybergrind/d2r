@@ -1,6 +1,7 @@
 """What the pickup step takes because the loot filter shows it: the filter's Show rules by item class."""
 
 import json
+import os
 from pathlib import Path
 
 from inventory_tracking.items.identity import ETHEREAL_FLAG, IDENTIFIED_FLAG, SOCKETED_FLAG
@@ -238,3 +239,70 @@ def test_the_filter_shows_every_base_the_ground_read_may_pick():
                     if shown_label(rules, BY_CODE[code], quality, flag) is None:
                         hidden.append((row.id, code, quality, flag))
     assert hidden == []
+
+
+# --- the game's own copy of the profile (GAME_COPY; rca/2026-10-22/hidden-staff-findings.md) ---
+
+STAVES_GRAY = 'SHOW Staff Mod Staves Gray'  # added 2026-10-20 ~18:45, not in the game's copy of 14:58 that day
+
+
+def game_copy(saved_games, *, without=(), edit=None):
+    """The repo profile as the game saved it (`<name>.fltr`), with the rules named in `without` left out."""
+    profile = json.loads(FILTER.read_text())
+    profile['rules'] = [rule for rule in profile['rules'] if rule['name'] not in without]
+    if edit is not None:
+        edit(profile)
+    saved_games.mkdir(exist_ok=True)
+    path = saved_games / f'{profile["name"]}.fltr'
+    path.write_text(json.dumps(profile))
+    return path
+
+
+def test_the_superior_gothic_staff_is_shown_by_the_repo_file_and_hidden_by_the_games_older_copy(tmp_path):
+    # 08:30:24 on 2026-10-22: "superior Gothic Staff 0os +1 Lightning +1 Meteor: taken (shown)", and no aim of 4
+    # presses had a label under the pointer: the game's copy had 19 rules, the repo file 23
+    gothic = BY_CODE['8bs']  # d2data weapons.json: 8bs Gothic Staff (bst Battle Staff's exceptional)
+    assert BASES[str(gothic)]['name'] == 'Gothic Staff'
+    assert STAVES_GRAY in {rule['name'] for rule in json.loads(FILTER.read_text())['rules']}
+    copy = game_copy(tmp_path / 'saved', without=(STAVES_GRAY,))
+    assert shown_label(pickup_rules(6, FILTER), gothic, 3, WHITE) == 'Superior Gothic Staff'
+    assert shown_label(pickup_rules(6, copy), gothic, 3, WHITE) is None
+    # Nor over the cell cap: a 1x4 staff is under it, so the oversize rules never had it
+    assert not any(gothic in rule.classes for rule in oversize_rules(6, frozenset({2, 3}), copy))
+
+
+def test_the_pickup_reads_the_games_copy_when_there_is_one(tmp_path, monkeypatch):
+    from inventory_tracking.loot import shown
+
+    monkeypatch.setattr(shown, 'GAME_COPY', True)
+    saved = tmp_path / 'saved'
+    copy = game_copy(saved, without=(STAVES_GRAY,))
+    path, stamp = shown.profile(FILTER, saved)
+    assert path == copy
+    assert stamp == copy.stat().st_mtime_ns
+    assert shown_label(pickup_rules(6, path, stamp), BY_CODE['8bs'], 3, WHITE) is None
+
+    # The player imports the repo file: the game rewrites its copy, and the next read follows it
+    copy.write_text(FILTER.read_text())
+    os.utime(copy, ns=(stamp + 10**9, stamp + 10**9))
+    path, again = shown.profile(FILTER, saved)
+    assert again != stamp
+    assert shown_label(pickup_rules(6, path, again), BY_CODE['8bs'], 3, WHITE) == 'Superior Gothic Staff'
+
+
+def test_without_a_readable_copy_or_with_the_switch_off_the_repo_file_is_read(tmp_path, monkeypatch):
+    from inventory_tracking.loot import shown
+
+    monkeypatch.setattr(shown, 'GAME_COPY', True)
+    monkeypatch.setattr(shown, 'UNREADABLE', set())
+    assert shown.profile(FILTER, tmp_path / 'none') == (FILTER, 0)  # no copy
+    bad = tmp_path / 'bad'
+    game_copy(bad, edit=lambda profile: profile['rules'][7].update(equipmentCategory=['nosuch']))
+    assert shown.profile(FILTER, bad) == (FILTER, 0)  # a category the reader does not know
+    broken = tmp_path / 'broken'
+    game_copy(broken).write_text('{"rules": [')
+    assert shown.profile(FILTER, broken) == (FILTER, 0)  # half written
+    monkeypatch.setattr(shown, 'GAME_COPY', False)
+    assert shown.profile(FILTER, tmp_path / 'saved') == (FILTER, 0)
+    game_copy(tmp_path / 'saved')
+    assert shown.profile(FILTER, tmp_path / 'saved') == (FILTER, 0)

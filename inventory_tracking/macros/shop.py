@@ -16,8 +16,10 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.config import BELT
 from inventory_tracking.game.layout import GOLD_PER_LEVEL, GOLD_STAT, KEY_STACK, LEVEL_STAT, MONSTER_UNIT, TOME_CHARGES
-from inventory_tracking.game.records import Carried, Monster, Pack, Stocked, World
+from inventory_tracking.game.records import Carried, Loot, Monster, Pack, Stocked, World
+from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.loot.api import reserve_short
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
@@ -27,12 +29,16 @@ from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.junk import named
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source
 from inventory_tracking.macros.routines import screen_fraction
+from inventory_tracking.macros.targeting import keep_mid_walk, menu_drift, menu_or_stand
 from inventory_tracking.macros.teleport import ground_fraction
 from inventory_tracking.macros.waypoint import panel_point
+from inventory_tracking.models import PotionType
+from inventory_tracking.native.layout import BELT_COLUMNS
 from inventory_tracking.shop.capture import VENDORS
+from inventory_tracking.tracking.belt import UNSEEN, column_shortages, lowest, potion_kind
 
 
-__all__ = ['MIN_STOCK', 'restock', 'short']
+__all__ = ['BUY_POTIONS', 'MIN_STOCK', 'potions_wanted', 'restock', 'short']
 
 JAMELLA = 405  # monstats *hcIdx (shop/capture.py VENDORS)
 NAMES = {**VENDORS, 246: 'Deckard Cain'}  # the ones served, for the log: the vendors and Cain (macros/cain.py CAIN)
@@ -82,6 +88,20 @@ SALE_MOST = 35_000  # the most a vendor pays for an item (every best sale of 202
 GOLD_SECONDS = 1.0  # for the gold carried to settle after a purchase, or to change after a sale
 GOLD_SETTLE = 0.25
 WALKING = (2, 3, 6)  # the character's walk, run and town walk: the view moves with it
+# Healing potions bought into the belt's healing columns at her trade window (the player, 2026-10-21 ~13:38: "can we
+# also add into town routine ability to buy hp potions"; "empty belt = defect"). Only the best healing grade in her
+# stock, one plain right click a potion, each checked by the belt read; only while the healing columns are short and
+# the carried gold stays over POTIONS_RESERVE (a vendor takes what the carried gold does not cover from the stash's,
+# repair.py GOLDBANK: the reserve keeps that from happening). False: none bought, as before
+BUY_POTIONS = True
+# Healing potions by grade, the weakest first: hp1-hp5, d2data misc.json classid (Minor 602 ... Super 606). Jamella
+# and Malah stock hp1-hp4, Ormus hp1-hp3, Lysander and Drognan hp1-hp2, Akara hp1 (misc.json `<Vendor>Min`); in Hell
+# each becomes hp5 (misc.json HellUpgrade), so she sells Super Healing there
+HEALING_GRADES = (602, 603, 604, 605, 606)
+# Carried gold kept after the potions: over what an unread repair quote wants carried (~72k at the 11k staff quote,
+# repair.py UNREAD_COVER, UNREAD_EXTRA). The loop carried 214k-950k on 2026-10-20
+POTIONS_RESERVE = 100_000
+POTION_COST_MOST = 2_000  # gold one potion may cost at most (Super Healing: misc.json cost 500), for the check
 
 
 def short(pack: Pack | None, source: PortalSource = FROM_TOME) -> bool:
@@ -319,6 +339,8 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int
             run.actuator.click()  # its tab (Misc, the fourth)
             run.pace.sleep(TAB_SETTLE)
             _buy(run, rect, item, what)
+        if BUY_POTIONS:
+            _potions(run, rect, stock)
     finally:
         _close(run)
     after = run.carried()
@@ -421,6 +443,115 @@ def _buy(run: Run, rect, item: Stocked, what: Buy) -> None:
             continue
         missed += 1
         LOG.info('Macro: shop: %s: still %s after the Shift + right click', what.name, had)
+
+
+def healing_short(loot: Loot | None) -> int | None:
+    """Healing potions the belt's healing columns miss (tracking/belt.py `column_shortages`); None for an unread belt
+    (macros/supply.py `unread`)."""
+    from inventory_tracking.macros.supply import unread
+
+    if loot is None or unread(loot):
+        return None
+    return column_shortages(loot.belt, loot.columns, BELT.layout)[1]
+
+
+def affordable_potions(coins: int | None) -> bool:
+    """Whether the carried gold buys a potion and keeps POTIONS_RESERVE; unread gold buys none."""
+    return coins is not None and coins >= POTIONS_RESERVE + POTION_COST_MOST
+
+
+def potions_wanted(loot: Loot | None, coins: int | None, least: int = 1) -> int:
+    """The healing potions a stop at her would buy (BUY_POTIONS): the healing columns' shortage when it is `least` or
+    more and the carried gold `coins` affords them; else 0."""
+    short = healing_short(loot)
+    if not BUY_POTIONS or not short or short < least or not affordable_potions(coins):
+        return 0
+    return short
+
+
+def healing_columns(loot: Loot) -> frozenset[int]:
+    """The belt columns (0-3) a healing potion belongs in: the configured layout's (config BELT, the player's 2026-10-13
+    layout), else the kind each column last held (`Loot.columns`), as `column_shortages` reads an empty one."""
+    if BELT.layout is not None:
+        return frozenset(c for c, kind in enumerate(BELT.layout) if kind is PotionType.HEALING)
+    kinds = loot.columns.kinds if loot.columns is not None else (None,) * BELT_COLUMNS
+    found = set()
+    for column in range(BELT_COLUMNS):
+        first = lowest(loot.belt, column)
+        kind = potion_kind(first) if first is not None else (kinds[column] or UNSEEN)
+        if kind is PotionType.HEALING:
+            found.add(column)
+    return frozenset(found)
+
+
+def _loose_potions(run: Run) -> frozenset[int]:
+    pack = run.reads.carried()
+    return frozenset(i.unit_id for i in pack.items if i.txt in HEALING_GRADES) if pack is not None else frozenset()
+
+
+def _potions(run: Run, rect, stock: dict[int, Stocked]) -> None:
+    """The belt's healing columns topped up from her stock (BUY_POTIONS): the best grade she has, a plain right click a
+    potion, each checked by the belt read. Stops at a full belt, the gold at POTIONS_RESERVE, BUY_CLICKS clicks in a
+    row that bought nothing, or a potion that landed elsewhere than a healing column (the inventory, a rejuvenation
+    column): never more than one is bought past what the belt takes."""
+    loot = run.reads.loot()
+    before = healing_short(loot)
+    if not before or loot is None:
+        return  # full or unread: no tab click
+    grade = max((txt for txt in stock if txt in HEALING_GRADES), default=None)
+    if grade is None:
+        LOG.info('Macro: shop: potions: belt short %d, none bought: no healing potion in her stock', before)
+        return
+    name = (item_base(grade) or {}).get('name', f'potion {grade}')
+    first = _gold(run)
+    if not affordable_potions(first):
+        LOG.info('Macro: shop: potions: belt short %d, none bought: carried gold %s, %d kept', before, first,
+                 POTIONS_RESERVE)  # fmt: skip
+        return
+    item, columns = stock[grade], healing_columns(loot)
+    run.actuator.move(*panel_point(rect, *tab_point(item.tab)), scatter=(15, 5))
+    run.actuator.click()  # its tab
+    run.pace.sleep(TAB_SETTLE)
+    bought, missed, why = 0, 0, ''
+    for _ in range(before + BUY_CLICKS):
+        now = run.reads.loot()
+        short = healing_short(now)
+        if now is None or not short:
+            break
+        if not affordable_potions(_gold(run)):
+            why = f': carried gold {_gold(run)}, {POTIONS_RESERVE} kept'
+            break
+        if missed >= BUY_CLICKS:
+            why = f': {missed} clicks bought nothing'
+            break
+        loose = _loose_potions(run)
+        run.actuator.move(*cell_point(rect, VENDOR, (item.x, item.y)), scatter=(5, 5))
+        run.actuator.tap('Button3')  # a plain right click buys one (Shift would fill every column the game picks)
+
+        def came(_w: World, b=now.belt, held=loose) -> bool:
+            after = run.reads.loot()
+            return (after is not None and after.belt_read and after.belt != b) or _loose_potions(run) != held
+
+        if run.seen(came, BOUGHT_SECONDS) is None:
+            missed += 1
+            continue
+        missed = 0
+        if _loose_potions(run) - loose:
+            bought += 1
+            why = ': one landed in the inventory'
+            break
+        after = run.reads.loot()
+        cells = [c for c, (was, is_now) in enumerate(zip(now.belt, after.belt if after else now.belt, strict=True))
+                 if is_now in HEALING_GRADES and was != is_now]  # fmt: skip
+        if not cells:
+            continue
+        bought += 1
+        if cells[0] % BELT_COLUMNS not in columns:
+            why = f': one landed in belt column {cells[0] % BELT_COLUMNS + 1}, not a healing column'
+            break
+    spent = (first - last) if (last := _settled(run)) is not None and first is not None else None
+    LOG.info('Macro: shop: potions: belt short %d -> %s, bought %d %s for %s gold%s', before,
+             healing_short(run.reads.loot()), bought, name, spent, why)  # fmt: skip
 
 
 def _note(run: Run, aspect: float, what: str) -> None:
@@ -622,12 +753,20 @@ def _open_menu(run: Run, aspect: float) -> tuple[float, float]:
                 raise Abort(f'{VENDORS.get(SERVING[0], "the vendor")} is not in sight')
             run.actuator.move(drawn[0], drawn[1] - BODY, scatter=(3, 3))
         run.actuator.click()
-        opened = run.seen(lambda w: 'npc_interact' in w.open_panels, MENU_SECONDS)
+        # Her menu, or None once the character stands with none (targeting.MENU_STAND: not MENU_SECONDS of waiting)
+        opened = menu_or_stand(run, 'npc_interact', MENU_SECONDS, WALKING)
         if opened is not None and opened.player is not None and opened.player.mode in WALKING:
-            # Opened as the character still walked up: drawn elsewhere once it stands
+            # Opened as the character still walked up: drawn elsewhere once it stands, by as far as the view moves;
+            # kept when that is under half a line (targeting.MENU_KEEP_MID_WALK), else closed and opened again standing
+            her = _her(opened)
+            stood = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)
+            drift = None if her is None or stood is None else menu_drift(opened, stood, (her.x, her.y), aspect)
+            if stood is not None and 'npc_interact' in stood.open_panels and keep_mid_walk(drift, LINE):
+                _note(run, aspect, f'her menu opened mid-walk: kept, the view moved {drift:.4f} by the stand')
+                _picture(run)
+                return _drawn_now(run, aspect)
             _note(run, aspect, 'her menu opened mid-walk: opened again standing')
             _close(run)
-            run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)
             continue
         if opened is not None:
             _note(run, aspect, 'her menu open')

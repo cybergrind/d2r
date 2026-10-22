@@ -219,6 +219,8 @@ def test_wall_time_decides_nothing(monkeypatch):
     plain = play(gloams(), [Press(0, ATTACK), Press(1.0, PICKUP)], 6.0)
     started = time.monotonic()
     monkeypatch.setattr(driver, 'WALL_LIMIT', 1e9)
+    monkeypatch.setattr(driver, 'STALL_WALL', 1e9)  # the watchdog's wall bounds too (driver.py STALL_WALL, SLOW_RATIO)
+    monkeypatch.setattr(driver, 'SLOW_RATIO', 1e9)
     monkeypatch.setattr(time, 'monotonic', lambda: started + 1000.0 * (time.perf_counter() - started))
     assert play(gloams(), [Press(0, ATTACK), Press(1.0, PICKUP)], 6.0) == plain
 

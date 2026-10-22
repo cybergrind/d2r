@@ -388,20 +388,36 @@ def test_auto_disabled_keeps_the_manual_lease(watcher):
     assert check.visible is None
 
 
-def test_triage_shop_only_shows_sell_slow_and_self(monkeypatch):
+def test_triage_shop_shows_a_sale_at_the_priced_floor_and_the_reviewed_patterns_whatever_the_verdict(monkeypatch):
+    # 2026-10-22: 48 of 52 alerts were CHECK without a price ("not just any +2 skills", the player)
     from inventory_tracking.presentation import Tone
     from inventory_tracking.shop import service
 
+    cases = {  # name: (verdict, asks lower quartile, a reviewed pattern)
+        'sell': ('sell', 4.0, False),
+        'slow': ('slow', 2.5, False),
+        'cheap': ('sell', 0.79, False),
+        'self': ('self', 9.0, False),
+        'check': ('check', None, False),
+        'pattern': ('check', None, True),
+        'vendor pattern': ('vendor', None, True),
+        'vendor': ('vendor', 0.1, False),
+    }
     observations = [
         {'item': {'name': name}, 'vendor': 'Anya', 'source': {'position': [0, 0], 'container': {'page': 0}}}
-        for name in ('sell', 'slow', 'self', 'vendor')
+        for name in cases
     ]
     monkeypatch.setattr(service, 'decode_stock', lambda _: (observations, []))
-    monkeypatch.setattr(service, 'match_item', lambda _: pytest.fail('Old shop rules called'))
-    result = service.assess(
-        {'stock_count': 4, 'timing': {}},
-        retrieve=lambda o: {'triage': {'verdict': o['item']['name'], 'reason': 'test', 'band': None}},
-    )
-    assert [h['name'] for h in result['hits']] == ['sell', 'slow', 'self']
+    monkeypatch.setattr(service, 'match_item', lambda o: ['+6 Tornado'] if cases[o['item']['name']][2] else [])
+
+    def retrieve(observation):
+        verdict, price, _ = cases[observation['item']['name']]
+        band = {'q1_ist': price, 'sellers': 5} if price is not None else None
+        return {'triage': {'verdict': verdict, 'reason': 'test', 'band': band}}
+
+    result = service.assess({'stock_count': len(cases), 'timing': {}}, retrieve=retrieve)
+    assert [h['name'] for h in result['hits']] == ['sell', 'slow', 'pattern', 'vendor pattern']
+    assert result['hits'][2]['reasons'] == ['+6 Tornado']
+    assert 'triage' not in result['hits'][2]
     tones = {line.tone for line in service.result_lines(result)}
-    assert {Tone.TIER_HIGH, Tone.TIER_MED, Tone.TIER_LOW} <= tones
+    assert {Tone.TIER_HIGH, Tone.TIER_MED, Tone.PREFERRED} <= tones

@@ -96,7 +96,16 @@ def shape(where: str, script: Script, after: Script | None) -> list[str]:
     found = []
     kinds = [stage.kind for stage in script.stages]
     ways = [stage for stage in script.stages if stage.to or stage.tours]
-    if len(ways) > 1:
+    # A way on into a side level right before the level's way back (a tomb's Orifice into Duriel's Lair, done where the
+    # tomb has none): the branch's end is still its way back (routes/catalog/act2.py `tombs`, 2026-10-21)
+    side = (
+        len(ways) == 2
+        and ways[1].back
+        and not ways[0].back
+        and not ways[0].tours
+        and script.stages[-2:] == (ways[0], ways[1])
+    )
+    if len(ways) > 1 and not side:
         found.append(f'{where}: {len(ways)} ways on')
     last = script.stages[-1] if script.stages else None
     if last is None:
@@ -107,6 +116,7 @@ def shape(where: str, script: Script, after: Script | None) -> list[str]:
         ways
         and ways[0] is not last
         and not ways[0].tours
+        and not side
         and not (ways[0].to in TOWNS and script.stages[-2] is ways[0])
     ):
         found.append(f'{where}: stages after the way on')
@@ -115,7 +125,11 @@ def shape(where: str, script: Script, after: Script | None) -> list[str]:
     elif ways and ways[0].to in TOWNS and last.kind != LEAVE:
         found.append(f'{where}: goes to town without leaving the game')
     # A tour leads into each of its levels, and a way back (`back`) is a branch's end: the next script is another branch
-    leads = bool(ways) and (ways[0].to == after.area or after.area in ways[0].tours or ways[0].back) if after else True
+    leads = (
+        any(way.to == after.area or after.area in way.tours or way.back for way in (ways[-1:] if side else ways[:1]))
+        if after
+        else True
+    )
     if after is not None and not leads:
         found.append(f'{where}: does not lead to {short_name(after.area)}, the next level of the route')
     return found

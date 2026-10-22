@@ -25,7 +25,7 @@ from inventory_tracking.macros.build import BuffFacts
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 
 
-ROW = next(row for row in BUFFS if row.skill == ENGORGE)
+ROW = next(row for row in BUFFS if row.skill == ENGORGE and row.due is plan.engorge_on_a_key)  # the lazy row
 # CybergrindAA's Defiler as the client reads it (the takes 20261020T2*): life in 128ths, its maximum in whole points
 FULL = Monster(20, 744, 1, 5004.0, 5000.0, 1, ally=True, life=128, max_life=230)
 HURT = replace(FULL, life=60)  # 47%

@@ -4,11 +4,19 @@
 import pytest
 
 from inventory_tracking.game.records import Carried
+from inventory_tracking.loot import wants
 from inventory_tracking.macros.keepers import amulet_keeper
 
 
 AMULET, RING = 535, 537
 RARE, MAGIC, CRAFTED = 6, 4, 8
+
+
+@pytest.fixture(autouse=True)
+def bar_off(monkeypatch):
+    # the keeper as it was: with the keep bar on (loot/wants.py KEEP_BAR, the player's 2026-10-21 rulings) it stands
+    # aside and the rare amulet want rows judge (test_the_keep_bar_leaves_amulets_to_the_want_rows)
+    monkeypatch.setattr(wants, 'KEEP_BAR', False)
 
 
 def item(txt: int = AMULET, quality: int = RARE) -> Carried:
@@ -47,3 +55,9 @@ def test_a_crafted_amulet_is_judged_too_and_a_magic_one_or_a_ring_is_not():
     assert amulet_keeper(item(quality=CRAFTED), {7: 30 << 8}) == '+30 life'
     assert amulet_keeper(item(quality=MAGIC), {7: 30 << 8}) is None
     assert amulet_keeper(item(RING), {7: 30 << 8}) is None
+
+
+def test_the_keep_bar_leaves_amulets_to_the_want_rows(monkeypatch):
+    monkeypatch.setattr(wants, 'KEEP_BAR', True)
+    assert amulet_keeper(item(), {7: 41 << 8, 39: 35}) is None
+    assert amulet_keeper(item(), {}) == 'its stats unread'

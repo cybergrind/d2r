@@ -21,6 +21,12 @@ from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Observation, Po
 RETAP_SECONDS = 0.25  # the held input idle this long between casts: released and pressed again
 CAST_SECONDS = 0.8  # for the first cast animation to show after the press
 REAIM_UNITS = 1.0  # the focal point this far from where the pointer was put: aimed again
+# One strike cast while the input is held (combat/stance.py CAST_SECONDS): held, the game chains the casts and the
+# character's mode stays in the cast (`CastWatch.chained`). 2026-10-21 16:54:56-16:55:28: 31.9 s in mode 10, 88 casts
+# by the blades, 5 counted by the casts seen (rca/2026-10-21/no-hits-findings.md)
+CHAIN_SECONDS = 0.36
+# A gap between two looks that both saw the cast counts at most this long (a buff cast under the strike between them)
+CHAIN_GAP = 1.0
 STRAY_PIXELS = 25  # the pointer this far from where it was put (the player's hand): aimed again
 HAND_REST = 0.2  # seconds the pointer must rest where the player's hand left it before it is aimed again
 MOVE_SETTLE = 0.12  # seconds the character stands free after a move was asked for before the click is made again
@@ -133,15 +139,25 @@ class CastWatch:
     casts: int = 0
     acting: bool = False
     idle_since: float | None = None
+    seen_at: float | None = None  # the step before, while it saw the cast
+    held: float = 0.0  # seconds of the cast seen without a break so far (this run of casts)
+    chained_before: int = 0  # the casts the runs before this one held past their first (`chained`)
 
     def step(self, now: float, acting: bool) -> str | None:
         """Note whether the character is casting. RETAP: the hold idle RETAP_SECONDS (release and press again);
         NO_CAST: nothing cast CAST_SECONDS after the press (the strike is not on this input); else None."""
         if acting:
+            if self.acting and self.seen_at is not None:
+                self.held += min(max(now - self.seen_at, 0.0), CHAIN_GAP)
+            else:
+                self.held = 0.0
             self.casts += not self.acting
-            self.acting, self.idle_since = True, None
+            self.acting, self.idle_since, self.seen_at = True, None, now
             return None
-        self.acting = False
+        if self.acting:
+            self.chained_before += int(self.held / CHAIN_SECONDS)
+            self.held = 0.0
+        self.acting, self.seen_at = False, None
         if not self.casts and now - self.began > CAST_SECONDS:
             return NO_CAST
         if self.idle_since is None:
@@ -155,6 +171,13 @@ class CastWatch:
         """A cast of the macro's own ran meanwhile (a mark, a sigil): it is no missing strike."""
         if not self.casts:
             self.began = now
+
+    @property
+    def chained(self) -> int:
+        """The casts made since the press, the chained ones too: `casts` counts a cast seen to begin, and a held
+        strike chains its casts with the mode never leaving the cast, so one run of CHAIN_SECONDS x n seen counts
+        1 + n (W1 of rca/2026-10-21/no-hits-findings.md: 5 counted, 88 cast)."""
+        return self.casts + self.chained_before + int(self.held / CHAIN_SECONDS)
 
 
 @dataclass

@@ -12,18 +12,22 @@ act loop (macros/actloop.py) makes it at a game's start.
   the client's terror list names the act). With CLICKS off it reads and says what it would do, and clicks nothing.
 - Confirmed (`Used.confirmed`): the shard's unit gone from the carried items and the stack one lower; `listed`
   whether the tracker then reads every grouped level of the act terrorized (None: not looked at).
+- `over_limit` / `use_carried` (2026-10-21, actloop.py OVERFLOW): the shards whose stack is at the stash's cap
+  (game/layout.py STACK_MOST, 99), and a carried shard right-clicked where it lies (one in the cube taken out first):
+  confirmed by its unit gone, its stack not one higher.
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView
+from inventory_tracking.game.stash import SHARD_FLOOR, STACK_MOST  # the floor: the player's, 2026-10-20
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.storage import MATERIALS_TAB
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, cell_point, close, open_inventory, rune_slot
+from inventory_tracking.macros.cube import INVENTORY, cell_point, close, open_inventory, rune_slot, unpack
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.stash import open_stash, tab_point
 from inventory_tracking.macros.waypoint import panel_point
@@ -34,8 +38,6 @@ from inventory_tracking.routes.tz_groups import manual_zone
 # Item class -> the act its right click terrorizes (misc.txt xa1-xa5 `calc1`; the classes from
 # items/data/item_metadata.json, checked 2026-10-20): Western, Eastern, Southern, Deep, Northern Worldstone Shard
 SHARDS = {674: 1, 675: 2, 676: 3, 677: 4, 678: 5}
-# A shard is used only from a stack of this many or more (the player, 2026-10-20: "any stone with 90+ quantity")
-SHARD_FLOOR = 90
 # Ties to the cheaper (Traderie SC/NL/PC asks of 2026-09-18: Western 0.03, Eastern 0.03, Southern 0.05, Deep 0.12,
 # Northern 0.17 Ist; findings §3)
 SHARD_ORDER = (674, 675, 676, 677, 678)
@@ -68,11 +70,13 @@ class Used:
     after: int | None
     gone: bool
     listed: bool | None = None
+    carried: bool = False  # a shard carried before the use (`use_carried`): its stack stays as it was
 
     @property
     def confirmed(self) -> bool:
-        """The shard used: gone from the inventory and its stack one lower (findings §1 #4: one shard a use)."""
-        return self.gone and self.after == self.before - 1
+        """The shard used: gone from the inventory and its stack one lower (findings §1 #4: one shard a use); a
+        carried one's stack not one higher (not put back onto it)."""
+        return self.gone and self.after == (self.before if self.carried else self.before - 1)
 
 
 def name_of(shard: int) -> str:
@@ -90,6 +94,14 @@ def choose_shard(view: StashView | None, act: int | None = None) -> int | None:
     if not held:
         return None
     return max(held, key=lambda shard: (view.count(shard), -SHARD_ORDER.index(shard)))
+
+
+def over_limit(view: StashView | None) -> tuple[int, ...]:
+    """The shards whose Materials-tab stack is at the stash's cap (STACK_MOST: game/records.py `StashView.full`), so
+    one more cannot be stored, in SHARD_ORDER; () with the stash unread."""
+    if view is None:
+        return ()
+    return tuple(shard for shard in SHARD_ORDER if view.count(shard) >= STACK_MOST)
 
 
 def stacks_said(view: StashView | None) -> str:
@@ -167,6 +179,71 @@ def terrorize(
         'not looked at' if listed is None else 'read terrorized' if listed else 'not read terrorized',
     )  # fmt: skip
     run.say(f'Terrorize: act {shard_act} by a {name_of(shard)}')
+    return used
+
+
+def use_carried(
+    run: Run,
+    item: Carried,
+    inventory_key: str | None,
+    terrorized: Callable[[int], bool | None] | None = None,
+) -> Used | None:
+    """A carried shard (`item`; one in the cube taken out into the inventory first) right-clicked where it lies, in
+    town, the inventory open (the stash's when no inventory key is read: USE_WITH_STASH_OPEN's right click); the use,
+    or None when nothing was clicked (CLICKS off, no key for the cube, the shard not carried or not out of the cube).
+    `Abort` out of town or with no game window."""
+    world = run.world()
+    player = world.player
+    if player is None or player.area not in TOWN_IDS or item.txt not in SHARDS:
+        raise Abort('a Worldstone Shard is used in town')
+    name, act = name_of(item.txt), SHARDS[item.txt]
+    if not CLICKS:
+        LOG.info('Macro: terrorize: the carried %s would be used for act %d: the clicks are off', name, act)
+        return None
+    pack = run.reads.carried()
+    if pack is not None and item.unit_id in pack.cube_items:
+        if inventory_key is None:
+            LOG.info('Macro: terrorize: the %s is in the cube and no inventory key is read: not used', name)
+            return None
+        unpack(run, inventory_key, [item])
+        pack = run.reads.carried()
+    held = next((i for i in pack.items if i.unit_id == item.unit_id), None) if pack is not None else None
+    if pack is None or held is None:
+        LOG.info('Macro: terrorize: the %s is not in the inventory: not used', name)
+        return None
+    view = run.reads.stash_view()
+    before = view.count(held.txt) if view is not None else 0
+    try:
+        if inventory_key is not None:
+            rect = run.actuator.keys.focused_window_rect()
+            if 'inventory' not in run.world().open_panels:
+                open_inventory(run, inventory_key)
+        else:
+            rect = run.actuator.keys.focused_window_rect() if 'stash' in world.open_panels else open_stash(run)
+        if rect is None:
+            raise Abort('no game window')
+        run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(4, 4))
+        run.actuator.tap('Button3')
+
+        def gone_from(p: Pack, unit: int = held.unit_id) -> bool:
+            return all(i.unit_id != unit for i in p.items)
+
+        gone = until(run, gone_from, ITEM_SECONDS, read=run.reads.carried)
+    finally:
+        close(run, ('stash', 'inventory', 'cube'))
+    after_view = run.reads.stash_view()
+    after = after_view.count(held.txt) if after_view is not None else None
+    used = Used(held.txt, act, before, after, gone is not None, carried=True)
+    if not used.gone:
+        LOG.info('Macro: terrorize: the right click on the carried %s at (%d, %d) did not use it: it stays carried',
+                 name, held.x, held.y)  # fmt: skip
+        return used
+    used = replace(used, listed=_listed(run, act, terrorized))
+    LOG.info('Macro: terrorize: the carried %s used for act %d%s; the act %s', name, act,
+             '' if used.confirmed else ': its stack is not as it was',
+             'not looked at' if used.listed is None else 'read terrorized' if used.listed else 'not read terrorized',
+             )  # fmt: skip
+    run.say(f'Terrorize: act {act} by a carried {name}')
     return used
 
 

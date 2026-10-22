@@ -27,6 +27,10 @@ CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST = 354, 355, 356  # Horadric Cube, Horadric
 SEWER_STAIRS, SEWER_LEVER = 366, 367  # Kurast Sewers 1
 HEART_CHEST, BRAIN_CHEST, EYE_CHEST = 405, 406, 407  # Khalim's
 FROZEN_ANYA = 460  # DrehyaOutsideTown
+# SevenTombsReceptacle, the true tomb's Orifice (objpreset act 2 index 126 in TombNTalrasha.ds1 and its three turns),
+# and DurielPortal ("Duriel's Lair"), the portal the game spawns 13 units west and 3 south of it once the Horadric
+# Staff quest is done (D2MOO A2Q6.cpp ACT2Q6_Timer_UpdateObjects; objects.txt, checked against d2data 2026-10-21)
+ORIFICE, DURIEL_PORTAL = 152, 100
 ANCIENTS_ALTAR, ANCIENTS_GATEWAY = 546, 547
 THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
 # objpreset.txt `PlaceUniqueChest`: a spot where the game rolls a chest class at level creation (JungleChest 181 or
@@ -41,7 +45,7 @@ CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL, UNIQUE_CHEST
 MARKABLE = frozenset((
     SUPER_CHEST, *SEALS, ARCANE_PORTAL, MEPHISTO_BRIDGE, HELL_GATE, CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST,
     SEWER_STAIRS, SEWER_LEVER, HEART_CHEST, BRAIN_CHEST, EYE_CHEST, FROZEN_ANYA, ANCIENTS_ALTAR,
-    ANCIENTS_GATEWAY, THRONE_PORTAL, UNIQUE_CHEST,
+    ANCIENTS_GATEWAY, THRONE_PORTAL, UNIQUE_CHEST, ORIFICE,
 ))  # fmt: skip
 
 

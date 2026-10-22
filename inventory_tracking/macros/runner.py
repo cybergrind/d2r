@@ -20,8 +20,10 @@ from inventory_tracking.automation.ledger import OSD_LEDGER, PotionLedger
 from inventory_tracking.common import LOG
 from inventory_tracking.game.kept import BeltKept, PutDown
 from inventory_tracking.game.records import Pack
+from inventory_tracking.game.stash import SNAPSHOT as STASH_SNAPSHOT, Stash
 from inventory_tracking.input.focus import FocusTracker
 from inventory_tracking.levels.model import Target
+from inventory_tracking.macros import midgame
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.buffmode import WORDS
 from inventory_tracking.macros.build import Build
@@ -32,12 +34,13 @@ from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.kindpick import PICKER_TICK, KindPicker, entries
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.loop import ANDARIEL, Kind, Loop, loop_kinds
+from inventory_tracking.macros.merc import MercWatch
 from inventory_tracking.macros.pad import PadPlay
 from inventory_tracking.macros.pickmode import MODES, next_mode
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import FULL, NOTHING_LEFT, Pursuit
 from inventory_tracking.macros.runmode import DOUBLE, TERROR
-from inventory_tracking.macros.running import buffing, execution, jump, legs, recovery, room, valuables, watch
+from inventory_tracking.macros.running import buffing, execution, jump, legs, merclost, recovery, room, valuables, watch
 from inventory_tracking.macros.running.base import (
     ATTACK,
     BUFF,
@@ -168,16 +171,27 @@ class MacroRunner:
         self.closed = False  # `close` was called: nothing starts any more
         # The KP_6 loop (macros/loop.py): on, it follows every run that nothing else follows.
         # Andariel first (the player, 2026-10-19: "switch loop to the andariel"); a place of another kind still tells
-        self.loop = Loop(store=loop_items, kind=ANDARIEL)
+        # The stash's one record (game/stash.py), its snapshot next to the loop's items for the watch tools
+        self.loop = Loop(
+            store=loop_items,
+            kind=ANDARIEL,
+            stash=Stash(snapshot=loop_items.parent / STASH_SNAPSHOT if loop_items is not None else None),
+        )
         self.loop.forget = self._forget_given_up  # GHEED_STASH: the level run tries the charm again
         # the game whose stash view was logged, the shared page shown last (macros/visit.py `Remembered`)
         self.stash_memory = Remembered()
+        self.stash_polled = -math.inf  # the stash record's last refresh by the poll (running/watch.py `_stash_poll`)
         self.where: tuple[float, float] | None = None  # where the character was at the last poll (`_place`)
         self.dead_mode: int | None = None  # the character's mode at the last poll (`_dead`)
         self.life_seen: tuple[int, int] | None = None  # (life, max life) at the last poll (loop.py `beset`)
         self.valuable_left: Callable[[], str | None] = self._valuable_left  # (tests give their own)
         self.carried_now: Callable[[], Pack | None] = self._carried_now  # the inventory now, for `_gheeds_swap`
         self.attacker_near: Callable[[], bool] = self._attacker_near  # a hostile by the character, for `_beset_facts`
+        # The merc's looks and the belt's, and the town trip they make due (macros/merc.py, running/merclost.py; the
+        # player, 2026-10-21 ~19:00: "we have lost merc -> probably better retreat to the town and refill hp potions in
+        # the belt"); the look itself (tests give their own)
+        self.merc = MercWatch()
+        self.merc_read: Callable[[], merclost.Look | None] = self._merc_read
         # An item unit's stats from the run's memory (GameMemory.item_stats)
         self.item_stats: Callable[[int], dict[int, int]] | None = None
         # Valuables seen this game and still on the ground (sightings.py); the ground census's items (game/memory.py)
@@ -188,6 +202,11 @@ class MacroRunner:
         # The verdicts of carried identified items, read now (`IdentifyWorker.appraise`, macros/junk.py `junk_of`)
         self.appraise: Callable[[list[int]], dict[int, str]] = lambda units: {}
         self.resuming = False  # the loop was on before the service restarted (`resume`): turned on at the next poll
+        # A restart asked for at the loop's next safe point (`hold_restart`, macros/midgame.py): the state it brings
+        self.restart_target: dict | None = None
+        # The kind asked from the next game before a restart with the loop on: set once the resume turned it on (a
+        # turn on takes a pending kind at once, `_toggle_loop`, and the game goes on in its own kind)
+        self.resume_pending: Kind | None = None
         # The loop's pickup mode (macros/pickmode.py); the KP_6 presses not judged yet and their timer
         self.pickup_mode = MODES[0]
         self.loop_taps: list[float] = []
@@ -399,6 +418,8 @@ class MacroRunner:
         """A level run ended by the hunt itself (hunt.py `end_run`). With the loop on, the attack mode its leg turned
         on ends with it and the next leg follows (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
         with self.lock:
+            if self.loop.on and self.loop.kind.agenda:
+                self._zone_seen()
             if self.loop.on and self.loop.kind.agenda and why != 'the level was left':
                 # A terror zone kind's run worked its level (macros/agenda.py `Agenda.ran`), unless it left it
                 area = self.hunter.ended_area if self.hunter is not None else None
@@ -423,6 +444,30 @@ class MacroRunner:
             self.attack_mode = False
             if self.working and self.routine == ATTACK:
                 self.cancelled.set()
+
+    def _zone_seen(self) -> None:
+        """What the run's end tells zone navigation (macros/zonenav.py `LevelState`): the level whose tour last found no
+        room left, its rooms read (hunt.py `Hunter.toured`), is explored, whichever level the run ended on (a walk
+        across a passage ends it on the next); the level it ended on had its map read when any of its rooms is
+        explored (the tracker's `visited_rooms`). Read whatever the end: the zone's verdicts, not the agenda's runs."""
+        hunter, agenda = self.hunter, self.loop.agenda
+        if hunter is None:
+            return
+        toured = getattr(hunter, 'toured', None)
+        if toured is not None and toured[1] > 0:
+            agenda.mapped.add(toured[0])
+            agenda.explored.add(toured[0])
+        # Each level the run toured to its end, a level left across a passage too (hunt.py `tours_done`), read once
+        done = getattr(hunter, 'tours_done', None)
+        if isinstance(done, set):
+            agenda.mapped |= done
+            agenda.explored |= done
+            done.clear()
+        ended = getattr(hunter, 'ended_area', None)
+        area = ended if ended is not None else self.area_seen
+        explored = getattr(hunter, 'explored', None)
+        if area is not None and explored is not None and explored(area):
+            agenda.mapped.add(area)
 
     def _press(self, routine: str) -> None:
         """A press of the macro's own, as the player's key would make it (`request`)."""
@@ -616,10 +661,16 @@ class MacroRunner:
             return {
                 'loop': self.loop.on,
                 'pickup_mode': self.pickup_mode,
-                'loop_kind': (self.loop.pending or self.loop.kind).key,  # a restart is made in the lobby
+                # The kind playing and the one asked from the next game: a restart mid-game (macros/midgame.py) goes
+                # on in the kind it was (a lobby restart takes the asked one at its first leg: loop.py `leg`)
+                'loop_kind': self.loop.kind.key,
+                'loop_pending': self.loop.pending.key if self.loop.pending is not None else None,
                 'sightings': self.sightings.state(),
                 # The player's Gheed's Fortune on a shared page mid-swap (macros/charms.py): fetched back after it
                 'gheeds': self.loop.parked.state() if self.loop.parked is not None else None,
+                # The game the character is in (macros/midgame.py `snapshot`): the next service goes on in it when it
+                # is the same game (a restart at a safe point mid-game, or with the loop off: no second shard)
+                'game': midgame.snapshot(self.loop, self.progress),
             }
 
     def resume(self, state: dict) -> None:
@@ -631,22 +682,60 @@ class MacroRunner:
             if state.get('loop_kind') in loop_kinds():
                 self.loop.kind = loop_kinds()[state['loop_kind']]
                 self.loop.chosen = True  # kept from before the restart
+            pending = loop_kinds().get(state.get('loop_pending') or '')
+            self.resuming = bool(state.get('loop'))
+            if self.resuming:
+                self.resume_pending = pending  # after the resume's own turn on (watch.py `poll`): from the next game
+            else:
+                self.loop.pending = pending  # the player's next KP_6 on takes it (`_toggle_loop`)
             if isinstance(state.get('sightings'), dict):
                 self.sightings.restore(state['sightings'])
                 # A restart is made for a fix: the trips back start over, or a valuable out of trips stops it at once
                 self.sightings.again()
+            if isinstance(state.get('game'), dict):
+                self.loop.carried = state['game']  # taken up at the first leg in that game (loop.py `Loop.leg`)
             parked = Parked.restore(state.get('gheeds'))
             if parked is not None:
                 self.loop.parked = parked
                 LOG.info("Macro: charms: the player's Gheed's Fortune (unit %d) is on shared page %s: fetched back "
                          'first', parked.unit_id, parked.page)  # fmt: skip
-            self.resuming = bool(state.get('loop'))
         LOG.info(
             'Macro: resumed after a restart: loop %s, pickup %s, run %s',
             'on' if self.resuming else 'off',
             self.pickup_mode,
             self.loop.kind.name,
         )
+
+    def hold_restart(self, when: str, target: dict) -> None:
+        """A restart asked for at the loop's next safe point (`when`: macros/midgame.py TOWN, SAFE; restart.py
+        --when): the loop stands there and `restart_due` gives `target`, the state the next service takes up. With the
+        loop off, due at once."""
+        with self.lock:
+            self.restart_target = dict(target)
+            self.loop.restart_when, self.loop.unsafe_said = when, None
+        LOG.info('Macro: loop: a restart waits for a safe point (%s)', when)
+
+    def cancel_restart(self) -> None:
+        """The restart's wait given up (restart.py past its --wait): the loop goes on, nothing held."""
+        with self.lock:
+            held = self.restart_target is not None
+            self.restart_target = self.loop.restart_when = self.loop.unsafe_said = None
+        if held:
+            LOG.info('Macro: loop: the restart no longer waits for a safe point')
+
+    def restart_due(self) -> dict | None:
+        """The state to restart with (`hold_restart`) once due, None while not: the loop stands at a safe point, or
+        it is off (the player's pause wins: the next service keeps it off)."""
+        with self.lock:
+            target = self.restart_target
+            if target is None:
+                return None
+            if self.loop.on and self.loop.safe_point is None:
+                return None
+            if not self.loop.on:
+                target = {**target, 'loop': False}
+            self.restart_target = None
+            return target
 
     def close(self) -> None:
         """Shutdown is final: the run is cancelled, nothing follows it, and no request starts another."""
@@ -923,6 +1012,10 @@ class MacroRunner:
     _room_after_press = room._room_after_press
     _room_errand = room._room_errand
     _resume_errand = room._resume_errand
+
+    # merclost.py
+    _merc_poll = merclost._merc_poll
+    _merc_read = merclost._merc_read
 
     # watch.py
     poll = watch.poll

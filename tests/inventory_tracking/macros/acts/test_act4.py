@@ -10,7 +10,8 @@ from tests.inventory_tracking.macros.test_tzloop import CATACOMBS, FORTRESS
 LIVE = (
     'Macro: tz: zone Act4-Manual + Act1-Catacombs: Diablo from 107: [107, 108], [107] crossed to the boss, worked '
     'after it; Diablo from 107: [107]; Diablo from 106: [106]; Izual from 103: [103, 104, 105]; '
-    'Andariel from 35: [35, 36, 37]'
+    'Andariel from 35: [35, 36, 37]; '
+    'Andariel from 32: [32, 33, 34]'
 )
 
 
@@ -24,6 +25,7 @@ def test_the_act_4_plan_is_the_live_one(monkeypatch, caplog):
         ('Diablo', 106, (106,)),  # the City of the Damned
         ('Izual', 103, (103, 104, 105)),  # the Steppes and the Plains, walked out of the Fortress
         ('Andariel', 35, (35, 36, 37)),  # the rotation
+        ('Andariel', 32, (32, 33, 34)),  # its levels before her (tzroutine.py SKIPPED_TRIPS, 2026-10-22)
     ]
     assert plan.excursions[0].passes == frozenset((107,))
     assert line_of(plan) in LIVE
@@ -50,8 +52,12 @@ def test_an_act_4_game_is_the_shard_then_diablo_first_then_the_act_then_the_rota
         ('waypoint', 35),  # the rotation: the Catacombs, Andariel
         ('door', 36),
         ('door', 37),
+        ('portal', 1),  # then the Inner Cloister, the Cathedral, Catacombs 1 (tzroutine.py SKIPPED_TRIPS)
+        ('waypoint', 32),
+        ('door', 33),
+        ('door', 34),
     ]
-    assert walk.levels == [107, 108, 106, 104, 105, 35, 36, 37]
+    assert walk.levels == [107, 108, 106, 104, 105, 35, 36, 37, 32, 33, 34]
     assert walk.runs.index(107, 1) > walk.runs.index(108)  # the River's own run after Diablo's
     seals = ['Grand Vizier of Chaos', 'Lord De Seis', 'Infector of Souls']
     assert walk.kills == [*seals, 'Diablo', 'Izual', 'Andariel']

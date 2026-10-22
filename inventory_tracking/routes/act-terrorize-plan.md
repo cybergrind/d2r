@@ -49,8 +49,17 @@ town visit as today).
 
 ```python
 ACT = Kind(
-    'act', 'Terror act', 0, FIELD, PANDEMONIUM_FORTRESS, metric='elite and Herald kills an hour',
-    game_seconds=ACT_GAME_SECONDS, agenda=True, packaged=True, swaps_gheeds=True, word='ACT',
+    'act',
+    'Terror act',
+    0,
+    FIELD,
+    PANDEMONIUM_FORTRESS,
+    metric='elite and Herald kills an hour',
+    game_seconds=ACT_GAME_SECONDS,
+    agenda=True,
+    packaged=True,
+    swaps_gheeds=True,
+    word='ACT',
 )
 ```
 

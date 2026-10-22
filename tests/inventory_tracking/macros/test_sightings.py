@@ -139,3 +139,45 @@ def test_with_no_arrival_grace_the_first_read_judges_as_before(monkeypatch):
     seen.update(loot(), (5048.0, 5049.0), 103, 1.0)
     seen.update(loot(), (5626.5, 4497.5), CITY, 20.0)
     assert seen.left() is None
+
+
+# -- a read that still holds the level just left (16:28:26 on 2026-10-21, session 20261021T131533Z-b2235979) --------
+
+TRAVINCAL, DURANCE_1 = 83, 100
+DURANCE_HERE = (17634.0, 5216.0)
+
+
+def charm() -> Drop:
+    return Drop(77, 5153.0, 1496.0, 'Large Charm', VALUABLE)
+
+
+def test_a_drop_read_far_off_after_a_level_change_is_remembered_on_the_level_left_and_never_planned_here():
+    seen = Sightings()
+    seen.update(loot(), (5158.0, 1487.0), TRAVINCAL, 0.0)
+    seen.update(loot(charm()), DURANCE_HERE, DURANCE_1, 1.0)  # 13 ms into Durance of Hate 1: Travincal's charm
+    (found,) = seen.outstanding()
+    assert found.area == TRAVINCAL
+    went: list = []
+    assert not seen.fetch(DURANCE_HERE, DURANCE_1, 2.0, went.append)  # never across Durance's rooms
+    assert went == []
+    assert seen.left() == 'Large Charm at (5153, 1496)'  # still on the ground: the guard keeps the game
+    seen.update(loot(), (5150.0, 1490.0), TRAVINCAL, 30.0)  # back on Travincal, by its place
+    seen.update(loot(), (5150.0, 1490.0), TRAVINCAL, 30.0 + ARRIVAL_SECONDS)  # settled, unread: off the ground
+    assert seen.left() is None
+
+
+def test_a_sighting_noted_on_the_wrong_level_is_not_planned_and_one_carried_now_is_dropped(caplog):
+    # The kept state of the live service: the charm noted on Durance 1, 12949 away; the player took it by hand
+    seen = Sightings()
+    seen.update(loot(), DURANCE_HERE, DURANCE_1, 0.0)
+    seen.items[77] = sightings_module.Sighting(77, 'Large Charm', 5153.0, 1496.0, DURANCE_1, 0.0)
+    went: list = []
+    assert not seen.fetch(DURANCE_HERE, DURANCE_1, 1.0, went.append)
+    assert went == []
+    with caplog.at_level('INFO'):
+        seen.update(loot(), DURANCE_HERE, DURANCE_1, 2.0)
+    assert seen.outstanding()[0].area != DURANCE_1  # not on this level
+    with caplog.at_level('INFO'):
+        seen.update(Loot(game=GAME, carried=frozenset({77})), DURANCE_HERE, DURANCE_1, 3.0)
+    assert seen.left() is None
+    assert 'Macro: remembered Large Charm at (5153, 1496): carried now' in caplog.text

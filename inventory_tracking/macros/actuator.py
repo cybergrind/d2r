@@ -29,8 +29,11 @@ AIM_TRIES = 3
 # Why a macro stopped, for the KP_6 loop's stop rules (runner.py `classify`): the player's hand, a Gheed's Fortune
 # carry-one refusal, no inventory room, the watchdog's stand, a keeper no stash page takes, hit outside a fight
 # (fought back or left: stops.py `first`), nothing to play (a terror zone with no excursion, games with no level run:
-# macros/tzloop.py `choose`, 2026-10-19), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
-Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'idle', 'zone', 'lobby', 'other']
+# macros/tzloop.py `choose`, 2026-10-19), a drop no click took (pickup.py `Missed`, 2026-10-21), anything else
+# (rca/2026-10-18/arch-loop-orchestration.md Option A)
+Cause = Literal[
+    'hand', 'refused', 'room', 'stall', 'stash', 'beset', 'idle', 'zone', 'lobby', 'door', 'pickup', 'other'
+]
 
 
 class Abort(Exception):

@@ -16,15 +16,17 @@ from inventory_tracking.levels.exits import short_name, through
 from inventory_tracking.levels.model import Level
 from inventory_tracking.levels.presets import display_name, open_passage
 from inventory_tracking.levels.route import centre
+from inventory_tracking.macros import actloop
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.loop import TZ_PICKUP, UNREAD
 from inventory_tracking.macros.lootpolicy import GUARD, verdict
 from inventory_tracking.macros.pickmode import kept
-from inventory_tracking.macros.pickup import FETCH_HOPS, SHUNNED, approach, moved_in_hand, wanted
+from inventory_tracking.macros.pickup import FETCH_HOPS, SHUNNED, approach, moved_in_hand, waived, wanted
 from inventory_tracking.macros.running.base import AT_DROP_UNITS
 from inventory_tracking.macros.shop import walk_until
-from inventory_tracking.macros.sightings import Sighting
+from inventory_tracking.macros.sightings import Sighting, far
+from inventory_tracking.macros.terrorize import SHARDS
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.native.memory import one_unit_table
 
@@ -35,11 +37,18 @@ if TYPE_CHECKING:
 
 def _picked(self: MacroRunner, loot: Loot, tome: Callable[[], int | None] | None = None) -> Loot:
     """The drops the pickup goes for: those of the pickup level (macros/pickmode.py, KP_5), in every activity.
-    `tome()`: the Tome of Identify's charges (`tome_charges`), for a big field item into the free block."""
-    loot = kept(loot, self.pickup_mode, tome)
+    `tome()`: the Tome of Identify's charges (`tome_charges`), for a big field item into the free block. A drop the
+    pickup waived for the game (pickup.py `waive`: its label never under the pointer) is out of it, so neither the
+    guard (`_valuable_left`) nor the sightings hold the game for it."""
+    loot = kept(waived(loot), self.pickup_mode, tome)
     if not self.loop.on:
         return loot
-    skipped = self.loop.sold_full  # a full stash stack's rune is not picked up (macros/loop.py `sold_full`)
+    # A full stash stack's rune or material is not picked up (macros/loop.py `sold_full`, from the stash's one record:
+    # none while it is unknown), but a Worldstone Shard always is (macros/actloop.py SHARD_ALWAYS_PICKED, 2026-10-22),
+    # else one used at the next town stop while the game's overflow slot is free (PICK_OVER_LIMIT, 2026-10-21)
+    skipped = self.loop.sold_full
+    if skipped & SHARDS.keys():
+        skipped = skipped - (SHARDS.keys() if actloop.SHARD_ALWAYS_PICKED else actloop.picked_shards(self.loop))
     if skipped:
         loot = dataclasses.replace(
             loot, drops=tuple(d for d in loot.drops if d.kind != VALUABLE or d.txt not in skipped)
@@ -56,9 +65,13 @@ def tome_charges(memory: GameMemory) -> int | None:
 
 def _sighted(self: MacroRunner, memory: GameMemory, loot: Loot) -> Loot:
     """`loot` noted in the game's sightings (macros/sightings.py), with the loop on and in one of its levels (not
-    its town reads)."""
+    its town reads); the drops not on the character's level (sightings.py `far`: the level just left, still held by
+    the client, 16:28:26 on 2026-10-21) left out of what the pickup goes for."""
     if self.loop.on and memory.where_area in self.loop.kind.levels:
         self.sightings.update(loot, memory.where, memory.where_area, time.monotonic())
+    here = memory.where
+    if here is not None and any(far(here, drop) for drop in loot.drops):
+        loot = dataclasses.replace(loot, drops=tuple(drop for drop in loot.drops if not far(here, drop)))
     return loot
 
 

@@ -15,7 +15,7 @@ import pytest
 
 from inventory_tracking.game.decode import item_size
 from inventory_tracking.game.records import VALUABLE, Carried, Drop, Pack
-from inventory_tracking.loot import api
+from inventory_tracking.loot import api, keep
 from inventory_tracking.loot.api import CLASSES, FIELD_IDENTIFY, MOST_TRIES, Field, droppable, reserve_short
 from inventory_tracking.loot.facts import ItemFacts, Owner, Where, from_observation
 from inventory_tracking.loot.keep import Action
@@ -626,10 +626,14 @@ def test_only_a_big_set_or_unique_item_is_noted_with_the_loop_and_the_switch_on(
         # could use" (keep.py FIRST_COPY_USABLE_ONLY): no build names Bloodtree Stump
         pytest.param(190, 0.719, 'vendor', (), True, id='first_copy_no_build_names_dropped'),
         pytest.param(190, 0.719, 'check', (), False, id='first_copy_check_kept'),
-        pytest.param(215, 0.8, 'vendor', (200,), False, id='better_than_every_owned_kept_though_vendor'),
-        pytest.param(215, 0.8, 'slow', (200, 210), False, id='better_cheap_kept'),
+        # "Top picks + usable best" (the player, 2026-10-21 ~08:55; keep.py BEST_COPY_USABLE_ONLY): the best copy is
+        # kept only when a build names it or it is dear; no build names Bloodtree Stump
+        pytest.param(215, 0.8, 'vendor', (200,), True, id='better_than_every_owned_but_no_build_names_it_dropped'),
+        pytest.param(215, 0.8, 'slow', (200, 210), True, id='better_cheap_no_build_names_it_dropped'),
+        pytest.param(215, 0.8, 'self', (200, 210), False, id='better_cheap_own_use_kept'),
         pytest.param(190, 1.4, 'sell', (205,), False, id='expensive_duplicate_kept'),
-        pytest.param(190, None, 'vendor', (205,), False, id='no_price_by_its_rolls_kept'),
+        # WORSE_COPY_GOES (the player, 2026-10-21 08:27: "Worse copy goes"): whatever its KB ask band
+        pytest.param(190, None, 'vendor', (205,), True, id='no_price_by_its_rolls_worse_dropped'),
     ],
 )
 def test_a_big_unique_is_put_down_in_the_field_only_as_a_surplus_copy(looped, lines, damage, worth, verdict, owned,
@@ -650,7 +654,7 @@ def test_a_big_unique_is_put_down_in_the_field_only_as_a_surplus_copy(looped, li
         assert hands.rejected == [30]  # never picked up again this game
 
 
-def test_the_surplus_rule_is_pure_and_never_drops_without_evidence():
+def test_the_surplus_rule_is_pure_and_never_drops_without_evidence(monkeypatch):
     from tests.inventory_tracking.loot.test_valuables import facts_of as fixture_facts
 
     stump = replace(fixture_facts({**STUMP, 'rolls': {'17:0': 190}}), size=(2, 4))
@@ -660,17 +664,43 @@ def test_the_surplus_rule_is_pure_and_never_drops_without_evidence():
     assert api.surplus(stump, assess(stump, worth=0.5, verdict='slow'), []) is None  # no build names it (K4)
     assert api.surplus(stump, assess(stump, worth=0.5, verdict='self'), []) == 'the first copy'
     assert api.surplus(stump, assess(stump, worth=None, verdict='slow'), []) == 'the first copy'  # no price (S8)
-    # No price by its rolls: dropped only as the same item, equal or worse, with a KB band under 1 Ist
+    # No price by its rolls: dropped as the same item, equal or worse than an owned copy, whatever its KB band
+    # (WORSE_COPY_GOES, the player 2026-10-21 08:27: "Worse copy goes")
     under = Band(0.2, 0.6, 15, '2026-10-04')
     assert api.surplus(stump, assess(stump, worth=None, band=under), owned) is None
-    assert api.surplus(stump, assess(stump, worth=None, band=Band(0.2, 1.0)), owned) is not None
-    assert api.surplus(stump, assess(stump, worth=None), owned) is not None  # no band at all: kept (Q13)
+    assert api.surplus(stump, assess(stump, worth=None, band=Band(0.2, 1.0)), owned) is None
+    assert api.surplus(stump, assess(stump, worth=None), owned) is None  # no band at all
+    assert api.surplus(stump, assess(stump, worth=None), stumps(180)) is not None  # better than the owned: kept
     sigon = replace(
         fixture_facts({'base': 'Gothic Plate', 'code': 'gth', 'quality': 'set', 'name': "Sigon's Shelter"}), size=(2, 3)
     )
     same = [replace(sigon, unit_id=101, owner=Owner.PLAYER)]
+    assert api.surplus(sigon, assess(sigon, worth=None), same) is None  # fixed stats: an equal copy
+    # Off: only with a KB band under 1 Ist (Q13 as before)
+    monkeypatch.setattr(api, 'WORSE_COPY_GOES', False)
+    assert api.surplus(stump, assess(stump, worth=None, band=under), owned) is None
+    assert api.surplus(stump, assess(stump, worth=None, band=Band(0.2, 1.0)), owned) is not None
+    assert api.surplus(stump, assess(stump, worth=None), owned) is not None  # no band at all: kept (Q13)
     assert api.surplus(sigon, assess(sigon, worth=None), same) is not None  # the KB has no price (unresolved)
     assert api.droppable(sigon, assess(sigon, worth=None), same) is not None
+
+
+def test_a_better_copy_no_build_names_is_a_surplus_copy_and_a_usable_one_is_not(monkeypatch):
+    # "Top picks + usable best" (the player, 2026-10-21 ~08:55; keep.py BEST_COPY_USABLE_ONLY; rca/2026-10-21/
+    # weak-keepers-findings.md B5): the 107% Patriarch of 04:35:32 (0.48 Ist, vendor) over the owned 105% one
+    from tests.inventory_tracking.loot.test_api_town import patriarch
+    from tests.inventory_tracking.loot.test_valuables import GOBLIN, facts_of as fixture_facts
+
+    better, mine = patriarch(107), [patriarch(105, 9, Owner.PLAYER)]
+    assert api.surplus_copy(better, assess(better, worth=0.48, verdict='vendor'), mine) is None
+    assert api.surplus(better, assess(better, worth=0.48, verdict='vendor'), mine) is None
+    assert api.surplus_copy(better, assess(better, worth=0.48, verdict='self'), mine) is not None  # own use: kept
+    assert api.surplus_copy(better, assess(better, worth=None, verdict='vendor'), mine) is not None  # no price (S8)
+    toe = fixture_facts({**GOBLIN, 'rolls': {'16:0': 58}})  # usable: berserk-barbarian Boots, the 3rd option
+    toes = [fixture_facts({**GOBLIN, 'rolls': {'16:0': 53}}, 9, owner=Owner.PLAYER)]
+    assert api.surplus_copy(toe, assess(toe, worth=0.1, verdict='vendor'), toes) is not None
+    monkeypatch.setattr(keep, 'BEST_COPY_USABLE_ONLY', False)
+    assert api.surplus_copy(better, assess(better, worth=0.48, verdict='vendor'), mine) is not None
 
 
 def in_cube(*items: Carried, inventory: tuple[Carried, ...] = (), charges: int = 20) -> Pack:
@@ -683,7 +713,7 @@ def test_a_big_unique_in_the_cube_is_taken_out_identified_and_dropped_or_put_bac
     inventory, put down when surplus; a kept one goes back into the cube."""
     hands = Hands(in_cube(club(30), club(31, x=2)))
     hands.reads[30] = stump_read(30, 190, 0.719)  # surplus: dropped
-    hands.reads[31] = stump_read(31, 219, 0.9, 'slow')  # better than the owned: kept
+    hands.reads[31] = stump_read(31, 219, 0.9, 'self')  # better than the owned, own use: kept (`slow`: B5 drops it)
     copies = stumps(205)
     hands.copies = lambda facts: copies  # pyrefly: ignore[bad-assignment] # one owned copy
     assert noted(looped, 30)
@@ -1102,7 +1132,9 @@ def test_the_visits_cells_leave_no_grand_charm_after_a_thresher():
     assert not api.leaves_room(VISIT, item_size(THRESHER))
 
 
-@pytest.mark.parametrize(('read', 'dropped'), [((190, 0.719), True), ((219, 0.9, 'slow'), False)])
+# The better one appraised `self` (own use): kept; `slow`, no build names Bloodtree Stump, it would go too
+# (keep.py BEST_COPY_USABLE_ONLY, the player 2026-10-21 ~08:55: "Top picks + usable best")
+@pytest.mark.parametrize(('read', 'dropped'), [((190, 0.719), True), ((219, 0.9, 'self'), False)])
 def test_a_big_item_in_the_cube_comes_out_into_the_block_at_save_and_exit(looped, lines, read, dropped):
     """The read stands in for the Thresher's (a surplus copy drops, a better one is kept): out of the cube into the
     2x4 block without the 1x3 after it, identified, then put down or back into the cube; the player's untouched."""
@@ -1359,9 +1391,11 @@ def town_book(*entries: tuple[int, Appraised]):
         ('equal and cheap: sold', 205, 0.653, 'vendor', (205,), True),
         ('the first copy no build names: sold (FIRST_COPY_USABLE_ONLY)', 190, 0.653, 'slow', (), True),
         ('the first copy appraised check: kept', 190, 0.653, 'check', (), False),
-        ('better than every owned copy: kept', 219, 0.8, 'slow', (200,), False),
+        # "Top picks + usable best" (the player, 2026-10-21 ~08:55): no build names Bloodtree Stump, the best copy goes
+        ('better than every owned copy, no build names it: sold', 219, 0.8, 'slow', (200,), True),
+        ('better than every owned copy, appraised self: kept', 219, 0.8, 'self', (200,), False),
         ('1 Ist or more by its rolls: kept', 190, 1.4, 'sell', (205,), False),
-        ('no price by its rolls: kept (Q13)', 190, None, 'vendor', (205,), False),
+        ('no price by its rolls, worse than an owned copy: sold (WORSE_COPY_GOES)', 190, None, 'vendor', (205,), True),
     ],
 )
 def test_m2_sells_a_cheap_duplicate_set_or_unique_copy_that_is_not_better(why, damage, worth, verdict, owned, sold):

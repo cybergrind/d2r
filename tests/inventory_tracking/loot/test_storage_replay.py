@@ -36,6 +36,41 @@ GOLDEN_PLANS: dict[str, dict[str, str]] = json.loads(GOLDEN.read_text())
 KEPT_STOPS = dict(stops(sorted(p for p in FIXTURES.glob('*.json') if p != GOLDEN)))
 
 
+@pytest.fixture(autouse=True)
+def _gems_rule_before(monkeypatch):
+    # The golden plans are the rule before macros/town.py GEMS_KEEP_FLAWLESS (2026-10-21): its gem transmutes are
+    # checked apart (`test_the_gem_rule_only_adds_gem_transmutes_to_each_kept_stop`)
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', None)
+
+
+def test_the_gem_rule_only_adds_gem_transmutes_to_each_kept_stop(monkeypatch):
+    # With GEMS_KEEP_FLAWLESS on, each kept stop plans as before but for gem transmutes after its rune transmutes
+    # (three flawless into a perfect, never a perfect cubed, 15 left a kind) and carried gems onto the room they make
+    added = 0
+    for name, snapshot in KEPT_STOPS.items():
+        if snapshot.view is None:
+            continue
+        holdings = storage.Holdings(snapshot.pack, snapshot.own, snapshot.junk, snapshot.unknown)
+        before = town.stash_stop(holdings, snapshot.view, snapshot.needs)
+        monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', 15)
+        now = town.stash_stop(holdings, snapshot.view, snapshot.needs)
+        monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', None)
+        gems = now.runes[len(before.runes) :]
+        assert now.runes[: len(before.runes)] == before.runes, name
+        assert now.rune_puts[: len(before.rune_puts)] == before.rune_puts, name
+        assert len(gems) <= town.GEM_TRANSMUTES, name
+        assert all(town.perfect_of(step.txt) == step.into and step.gem is None for step in gems), name
+        counts = dict(snapshot.view.stacks)
+        for step in gems:
+            counts[step.txt] -= 3
+        assert all(count >= 15 for txt, count in counts.items() if town.gem_recipe(txt) is not None and
+                   any(step.txt == txt for step in gems)), name  # fmt: skip
+        rest = {key: getattr(now, key) for key in ('puts', 'out_for_sale', 'drops', 'shuffles', 'parks', 'full')}
+        assert rest == {key: getattr(before, key) for key in rest}, name
+        added += len(gems)
+    assert added > 0  # the kept stops hold flawless stacks over 15
+
+
 def test_the_golden_file_covers_every_kept_stop():
     assert sorted(KEPT_STOPS) == sorted(GOLDEN_PLANS)
     assert len(KEPT_STOPS) >= 50

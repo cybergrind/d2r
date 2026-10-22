@@ -7,7 +7,9 @@ read in full (`must`, and one of `any`), and the rolls that decide its worth (`m
 True, False, or None when the facts do not hold the stat (an unread ground roll, an unidentified affix). A row with
 no `must` is a pickup row only (it never makes an item a keeper). A row with `keep_up_to` (the Spirit base Monarch)
 keeps copies until that many are owned (loot/ground_judge.py, loot/keep.py). A condition with `count` asks that many of
-its stats at the floor (2026-10-20, rare boots "two resistances >= 25": the second best of the four resistances).
+its stats at the floor (2026-10-20, rare boots "two resistances >= 25": the second best of the four resistances). A
+condition with `either` holds when one of its conditions does (all res 15+ or one res 30+: one good stat). A row with
+`good` keeps only when `good_count` of those conditions hold (KEEP_BAR: three good stats).
 """
 
 import json
@@ -20,7 +22,18 @@ from typing import Any, Literal
 from inventory_tracking.loot.facts import ItemFacts
 
 
-__all__ = ['WANTS_FILE', 'Need', 'RollSpec', 'Want', 'load', 'matching', 'parse', 'wants']
+__all__ = ['KEEP_BAR', 'WANTS_FILE', 'Need', 'RollSpec', 'Want', 'in_force', 'load', 'matching', 'parse', 'wants']
+
+# The keep bar for magic, rare and crafted items (rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55:
+# "circlets need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ...
+# this need to be smart and have a reasoning behind, why some item at least beats shako"; on class items and unpriced
+# unknowns: "we need not just 1 row, but probably 3 stats with good rolls to keep"; ~09:20 the rulings on its
+# questions: magic class items "2 of 2", the rare +2 Warlock grimoire with one good stat kept, the magic +2 Warlock /
+# 20 FCR circlet not, the Barbarian helm +2 with +3 Battle Orders kept, rare body armor, shields and weapons junk
+# unless 1 Ist, boots and rare gloves as designed). True: the rows built with `bar: on` (loot/build_wants.py, KEEP_BAR
+# rows: three good stats each near its slot's top roll) are in force and the rows they replace (`bar: off`) are not;
+# loot/keep.py widens its junk kinds (`junk_unwanted`, `junk_magic`). False: today's rows and junk kinds
+KEEP_BAR = True
 
 WANTS_FILE = Path(__file__).parent / 'data' / 'wants.json'
 FACETS = frozenset(('ethereal', 'sockets', 'quality', 'identified'))
@@ -54,6 +67,7 @@ class Need:
     equals: Any = None
     scale: int = 1
     count: int = 1
+    either: tuple[Need, ...] = ()  # one of these holds (the other fields unused)
 
     def value(self, facts: ItemFacts) -> Any:
         """The facts' value for this condition; None when not read."""
@@ -71,6 +85,8 @@ class Need:
         return sorted(found, reverse=True)[self.count - 1] // self.scale
 
     def holds(self, facts: ItemFacts) -> bool | None:
+        if self.either:
+            return _one(self.either, facts)
         value = self.value(facts)
         if value is None:
             return None
@@ -83,6 +99,8 @@ class Need:
         return not (self.max is not None and value > self.max)
 
     def said(self, facts: ItemFacts | None = None) -> str:
+        if self.either:
+            return '(' + ' or '.join(need.said(facts) for need in self.either) + ')'
         name = '|'.join(self.keys)
         bound = (
             f'={self.equals}' if self.equals is not None
@@ -102,6 +120,15 @@ def _all(needs: Sequence[Need], facts: ItemFacts) -> bool | None:
     if any(result is False for result in results):
         return False
     return None if any(result is None for result in results) else True
+
+
+def _tally(needs: Sequence[Need], count: int, facts: ItemFacts) -> bool | None:
+    """True when `count` of `needs` hold, False when too few can, else None (unread ones could make it)."""
+    results = [need.holds(facts) for need in needs]
+    held = sum(result is True for result in results)
+    if held >= count:
+        return True
+    return None if held + sum(result is None for result in results) >= count else False
 
 
 def _one(needs: Sequence[Need], facts: ItemFacts) -> bool | None:
@@ -136,6 +163,9 @@ class Want:
     matters: tuple[RollSpec, ...] = ()
     asks: Mapping[str, Any] | None = field(default=None, compare=False)
     source: str = ''
+    good: tuple[Need, ...] = ()  # the good stats: `good_count` of them must hold (KEEP_BAR)
+    good_count: int = 0
+    bar: Literal['on', 'off'] | None = None  # in force only with KEEP_BAR on ('on') or off ('off'); None: always
 
     def applies(self, facts: ItemFacts) -> bool:
         """Whether the row is about this item at all: its base, quality and name."""
@@ -155,13 +185,15 @@ class Want:
         """Read in full: whether it is a keeper by this row (None: a roll not read; False for a pickup row)."""
         if self.must is None or not self.applies(facts):
             return False
-        every, one = _all(self.must, facts), _one(self.any, facts)
-        if every is False or one is False:
+        every, one, enough = _all(self.must, facts), _one(self.any, facts), _tally(self.good, self.good_count, facts)
+        if every is False or one is False or enough is False:
             return False
-        return None if every is None or one is None else True
+        return None if every is None or one is None or enough is None else True
 
 
 def _need(row: Mapping[str, Any]) -> Need:
+    if 'either' in row:
+        return Need((), either=tuple(_need(need) for need in row['either']))
     keys = tuple(row['keys']) if 'keys' in row else (row['key'],)
     among = row.get('in')
     return Need(keys, row.get('min'), row.get('max'), tuple(among) if among is not None else None,
@@ -195,6 +227,9 @@ def parse(row: Mapping[str, Any]) -> Want:
         matters=tuple(_spec(s) for s in row.get('matters', ())),
         asks=row.get('asks'),
         source=row['source'],
+        good=tuple(_need(n) for n in row.get('good', ())),
+        good_count=row.get('good_count', 0),
+        bar=row.get('bar'),
     )
 
 
@@ -209,6 +244,11 @@ def wants() -> tuple[Want, ...]:
     return load()
 
 
+def in_force(row: Want) -> bool:
+    """Whether `row` counts under the KEEP_BAR switch as it is now."""
+    return row.bar is None or (row.bar == 'on') == KEEP_BAR
+
+
 def matching(facts: ItemFacts, rows: Sequence[Want] | None = None) -> tuple[Want, ...]:
-    """The rows `facts` is a keeper by (`holds` True)."""
-    return tuple(row for row in (wants() if rows is None else rows) if row.holds(facts) is True)
+    """The rows in force `facts` is a keeper by (`holds` True)."""
+    return tuple(row for row in (wants() if rows is None else rows) if in_force(row) and row.holds(facts) is True)

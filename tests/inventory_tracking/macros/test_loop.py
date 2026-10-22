@@ -16,6 +16,7 @@ from inventory_tracking.macros.loop import (
     NEXT_GAME,
     PICK_UP,
     PORTAL,
+    STILL_RECOVER,
     STILL_SECONDS,
     TO_THE_CHESTS,
     TO_THE_FORTRESS,
@@ -30,7 +31,7 @@ from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
-from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
+from tests.inventory_tracking.macros.fakes import KEYS, Game, player, stash_with, world
 
 
 KURAST_DOCKS, LOWER_KURAST, PANDEMONIUM_FORTRESS = 75, 79, 103
@@ -314,6 +315,26 @@ def test_a_character_standing_still_too_long_is_said_once_and_moving_counts_afre
     assert not loop.still((5384.3, 2614.3), STILL_SECONDS + 2)  # said once
     assert not loop.still((5400.0, 2614.0), 2 * STILL_SECONDS + 5)  # moved: afresh
     assert not loop.still(None, 10 * STILL_SECONDS)
+
+
+def test_a_stand_asks_one_recovery_before_the_watchdog_leaves_the_game():
+    # Kurast Sewers Level 1, 17:51:38-17:52:30 on 2026-10-21: "idle: 7 hostiles, none in reach; nearest the elite 215
+    # ... shot blocked" for 45 s, then the game was left; a new target first (running/watch.py), the leave last
+    assert STILL_RECOVER is not None
+    assert STILL_RECOVER < STILL_SECONDS
+    loop = Loop()
+    loop.start()
+    here = (12816.5, 5402.5)
+    assert not loop.still(here, 0.0, 'g')
+    assert not loop.recovery_due(STILL_RECOVER - 1, 'g')
+    assert not loop.still(here, STILL_RECOVER + 1, 'g')
+    assert loop.recovery_due(STILL_RECOVER + 1, 'g')
+    assert not loop.recovery_due(STILL_RECOVER + 2, 'g')  # once a stand
+    assert not loop.recovery_due(STILL_RECOVER + 2, 'h')  # another game's: none
+    assert loop.still(here, STILL_SECONDS + 1, 'g')  # the stall guard stays the last resort
+    assert not loop.still((12900.0, 5402.5), STILL_SECONDS + 2, 'g')  # moved: a new stand
+    assert loop.still((12900.0, 5402.5), STILL_SECONDS + 3 + STILL_RECOVER, 'g') is False
+    assert loop.recovery_due(STILL_SECONDS + 3 + STILL_RECOVER, 'g')  # a new stand asks afresh
 
 
 def test_a_stand_that_kills_is_no_stall():
@@ -631,7 +652,7 @@ def test_a_cube_holding_only_a_full_gem_stacks_gems_sends_the_loop_to_no_session
         play.pack = Pack((cube, *own, *extra), ('###', '###', '###', '#..'), in_cube=cubed)
         loop = Loop(on=True)
         loop.own = frozenset({(CUBE_CLASS, 0, 2), *((item.txt, item.x, item.y) for item in own)})
-        loop.full = {flawless}
+        loop.stash = stash_with({flawless})
         loop.done = GAME
         return loop.leg(
             play.run(),
@@ -809,14 +830,45 @@ def test_a_game_makes_several_trips_for_room_while_each_makes_room_up_to_trips_a
     assert loop.trips_in(GAME) == 0
 
 
+def test_a_terror_zone_game_trips_for_room_more_than_an_andariel_game():
+    # 19:02:56 on 2026-10-21: a 40 min terror zone game had made its 3 trips and the loop stopped by a Large Charm (the
+    # player: "it is just a time to visit the town, but it seems that this part of the logic is broken")
+    from inventory_tracking.macros.loop import TRIPS_A_GAME, TRIPS_A_ZONE_GAME, TZ
+
+    loop = Loop(on=True, kind=TZ, trip=GAME, trips=TRIPS_A_GAME, returned=GAME, trip_gained=4)
+    assert loop.may_trip(GAME)
+    loop.trips = TRIPS_A_ZONE_GAME
+    assert not loop.may_trip(GAME)
+    loop.trips, loop.trip_gained = TRIPS_A_GAME, 0  # the last made no room: another cannot help
+    assert not loop.may_trip(GAME)
+
+
+def test_the_zone_legs_bounds_count_the_merc_trips():
+    # macros/merc.py's trips (the merc lost, the belt empty) go by the zone legs as the room's do
+    from inventory_tracking.macros import merc
+    from inventory_tracking.macros.loop import MERC_TRIP, MERC_TRIPS, REPEATS, TRIPS_A_ZONE_GAME, TZ_BACK
+
+    assert merc.TRIPS_A_GAME == MERC_TRIPS
+    assert merc.MERC_TRIP == MERC_TRIP
+    assert REPEATS[MERC_TRIP] == MERC_TRIPS
+    assert REPEATS[TZ_BACK] >= 1 + TRIPS_A_ZONE_GAME + MERC_TRIPS + 2
+
+
 def test_a_game_with_its_own_visit_every_trips_visit_and_a_cut_one_is_not_given_up():
     # REPEATS: the start's visit, TRIPS_A_GAME trips' visits and one cut by the player's hand; the trips' and the
     # Gheed's swap's ways to the Fortress and back
-    from inventory_tracking.macros.loop import ROUTE_VISITS, THROUGH_PORTAL, TO_THE_ENCAMPMENT, TRIP, TRIPS_A_GAME
+    from inventory_tracking.macros.loop import (
+        ROUTE_VISITS,
+        THROUGH_PORTAL,
+        TO_THE_ENCAMPMENT,
+        TRIP,
+        TRIPS_A_GAME,
+        TRIPS_A_ZONE_GAME,
+    )
 
     loop = Loop()
     legs = {
-        TOWN: 1 + TRIPS_A_GAME + 1 + ROUTE_VISITS,  # and the routes' own (`route_starts_full`)
+        TOWN: 1 + TRIPS_A_ZONE_GAME + 1 + ROUTE_VISITS,  # the zone kinds' trips, the routes' own (`route_starts_full`)
         TRIP: TRIPS_A_GAME,
         TO_THE_FORTRESS: 1 + TRIPS_A_GAME + 2,
         TO_THE_ENCAMPMENT: TRIPS_A_GAME + 2,
@@ -997,7 +1049,7 @@ def test_a_full_material_stack_is_not_picked_up_as_a_full_rune_stack_but_a_gem_o
 
     essence, shard, rune = class_of('Twisted Essence of Suffering'), class_of('Western Worldstone Shard'), 629
     gem, rejuvenation = class_of('Flawless Ruby'), class_of('Full Rejuvenation Potion')
-    loop = Loop(full={essence, shard, rune, gem, rejuvenation})
+    loop = Loop(stash=stash_with({essence, shard, rune, gem, rejuvenation}))
     assert loop.sold_full == frozenset({essence, shard, rune})
 
 

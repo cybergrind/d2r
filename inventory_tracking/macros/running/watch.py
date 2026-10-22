@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.stash import REFRESH_SECONDS
 from inventory_tracking.macros.actuator import Abort, Cause
 from inventory_tracking.macros.hunting.base import SIGHT
-from inventory_tracking.macros.loop import GAME_SECONDS, STILL_SECONDS
+from inventory_tracking.macros.loop import GAME_SECONDS, STILL_RECOVER, STILL_SECONDS
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.running.base import (
     JOURNEY_SECONDS,
@@ -51,6 +52,9 @@ def poll(self: MacroRunner, now: float) -> None:
                 if not self.loop.on and not self.closed:
                     self._say('Loop resumed after a restart')
                     self._toggle_loop()
+                if self.resume_pending is not None:
+                    # The kind asked before the restart, from the next game (runner.py `resume`)
+                    self.loop.pending, self.resume_pending = self.resume_pending, None
         if self.progress is not None:
             self.progress.note(game, area)
         self.unread = False
@@ -80,7 +84,7 @@ def poll(self: MacroRunner, now: float) -> None:
                     if self.working:
                         self.cancelled.set()
                 else:
-                    stood_after_cube(self, warned)
+                    stood_after_cube(self, warned, now)
             kills = self.hunter.score.killed if self.hunter is not None else 0  # a fight in place is no stall
             # The Throne's wave wait is no stall either (hunting/throne.py `Waves.due`, bounded by its WAVE_WAIT)
             waves = self.hunter is not None and self.hunter.waves.due(now)
@@ -96,6 +100,16 @@ def poll(self: MacroRunner, now: float) -> None:
                 why, cause = f'the character is hit standing outside a fight (life {life[0]}/{life[1]})', 'beset'
             elif self.loop.on and game is not None and self.loop.still(self.where, now, game, kills, waves):
                 why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
+            if (
+                why is None
+                and self.loop.on
+                and not self.loop.waiting
+                and self.hunter is not None
+                and self.loop.recovery_due(now, game)
+            ):
+                # A recovery before the stall's leave (loop.py STILL_RECOVER): the hunt's next look chooses anew
+                self.hunter.recover_asked = now
+                LOG.info('Macro: loop: the character has not moved for %.0f s: a new target first', STILL_RECOVER)
             if why is not None:
                 # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS) or beset: the run is cancelled,
                 # the next leg leaves the game or fights back
@@ -103,6 +117,8 @@ def poll(self: MacroRunner, now: float) -> None:
                 self.attack_mode = False
                 if self.working:
                     self.cancelled.set()
+        # The merc lost, or the belt empty in a dangerous fight: a town trip at its safe moment (running/merclost.py)
+        self._merc_poll(now)
         if game is None:
             self.staff_checked = None
         elif game != self.staff_checked and area is not None:
@@ -120,7 +136,17 @@ def poll(self: MacroRunner, now: float) -> None:
         self.capture_lock.release()
 
 
-def stood_after_cube(self: MacroRunner, warned: tuple[str, float]) -> None:
+# How long a stand after the game's cube waits for the hostiles within SIGHT to leave before the room rules go on
+# anyway, the character's life over HOLD_LIFE of its most. 20:57:32-20:58:18 on 2026-10-21 (Bloody Foothills): a
+# Grand Charm's stand waited 46 s, 40 hostiles 25-27 away and none in reach, nothing struck, until the still
+# watchdog's 45 s (the player: "we have stayed under the fire for minute or so"; "without any movement or firing,
+# something really has blocked us"); 21:12: "we're still waiting under fire for 45 seconds. fix that!": 6 -> 3).
+# 0: wait for the watchdog as before
+HOLD_MOST = 3.0
+HOLD_LIFE = 0.7
+
+
+def stood_after_cube(self: MacroRunner, warned: tuple[str, float], now: float | None = None) -> None:
     """The run's stand by a valuable with no room (`warned`: the warning and its clock), the cube already tried in
     this game (`Loop.room_tried`, once a game): the next room rule now, not after the still watchdog's 45 s. Under the
     lock. In the Canyon of the Magi at 14:03:35 on 2026-10-20 the run stood 45 s by a magic Ring, the cube made room
@@ -132,7 +158,7 @@ def stood_after_cube(self: MacroRunner, warned: tuple[str, float]) -> None:
       and the run goes on; the game is not left for it.
     - Else the stop rules (macros/stops.py `decide`: the room package, a trip, a drop, the loop held), as the
       watchdog's 'stall' stop would, once no hostile is within SIGHT (a Town Portal is not cast in a fight); while
-      one is, the stand is held (said once) and the watchdog stays the backstop."""
+      one is, the stand is held (said once) up to HOLD_MOST (`_hold_over`), the watchdog the backstop."""
     text, since = warned
     if since <= self.stand_answered:
         return  # answered already (the cube's room, a stop's rules): the watchdog stays its backstop
@@ -144,7 +170,7 @@ def stood_after_cube(self: MacroRunner, warned: tuple[str, float]) -> None:
             hunter.waived.add(hunter.warned)
         LOG.info('Macro: loop: %s: the cube was tried in this game and no game is kept for it: the run goes on', text)
         return
-    if self.attacker_near():
+    if self.attacker_near() and not _hold_over(self, since, now):
         if self.stand_held != since:
             self.stand_held = since
             LOG.info('Macro: loop: %s: the cube was tried in this game; %s lies on the ground: the next room rule '
@@ -157,6 +183,17 @@ def stood_after_cube(self: MacroRunner, warned: tuple[str, float]) -> None:
         self.cancelled.set()
 
 
+def _hold_over(self: MacroRunner, since: float, now: float | None) -> bool:
+    """Whether a stand's wait for the hostiles near is over (HOLD_MOST after MAKE_ROOM_AFTER, life over HOLD_LIFE)."""
+    if not HOLD_MOST or now is None or now - since < MAKE_ROOM_AFTER + HOLD_MOST:
+        return False
+    life = self.life_seen
+    if life is not None and life[1] > 0 and life[0] < HOLD_LIFE * life[1]:
+        return False
+    LOG.info('Macro: loop: the stand waited %.0f s for the hostiles near: the room rules go on', now - since)
+    return True
+
+
 def _place(self: MacroRunner) -> tuple[str | None, int | None]:
     self.source.ensure_connected()
     table = one_unit_table(self.source.capture)
@@ -166,9 +203,30 @@ def _place(self: MacroRunner) -> tuple[str | None, int | None]:
     try:
         place = memory.place()
         self.where, self.dead_mode, self.life_seen = memory.where, memory.mode, memory.life
+        _stash_poll(self, memory, *place)
         return place
     finally:
         memory.close()
+
+
+# While the stash's record is unknown (a service start in the field, a touch since its read), it is tried this often
+# outside town too: a whole read is a read wherever it is made (unknown otherwise: unknown means take)
+STASH_UNKNOWN_SECONDS = 10.0
+
+
+def _stash_poll(self: MacroRunner, memory: GameMemory, game: str | None, area: int | None) -> None:
+    """The stash's one record refreshed (game/stash.py): every REFRESH_SECONDS in town, so a hand's use of the stash
+    is in it before the next level; every STASH_UNKNOWN_SECONDS elsewhere while it is unknown. The player,
+    2026-10-22: "updated every time we're in town/after each interaction with stash"."""
+    if game is None or area is None:
+        return
+    stash = self.loop.stash
+    now = stash.clock()
+    every = REFRESH_SECONDS if area in TOWN_IDS else STASH_UNKNOWN_SECONDS if stash.current() is None else None
+    if every is None or now - self.stash_polled < every:
+        return
+    self.stash_polled = now
+    stash.read(memory.read_stash, game=game)
 
 
 def _dead(self: MacroRunner) -> bool:

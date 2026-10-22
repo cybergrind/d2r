@@ -40,7 +40,7 @@ from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import STRIKE_REACH, Choice, Foe, Observation, clear_line
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.geometry import Point
-from inventory_tracking.macros.hunt import ELITE_LIFE
+from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.takes.timeline import GAME_RATE
 
 

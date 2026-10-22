@@ -2,13 +2,19 @@
 
 Prebuff: Consume on a Defiler with one Defiler left out, Hex: Purge, Psychic Ward. Upkeep: Battle Command and
 Battle Orders from a Call to Arms (macros/cta.py), Hex: Purge and Psychic Ward kept up, Consume again when run out,
-a Defiler when none is alive. Fight: Hex: Purge and Psychic Ward, a Defiler where it pays (defiler.py `price`),
-Death Mark (mark.py), Sigil: Lethargy under an elite, Engorge on a corpse. Multi-step casts are in casters.py.
+a Defiler when none is alive. Fight: Engorge first for a pet in danger or among a dangerous pack (pets.py watches the
+pets' life), Hex: Purge and Psychic Ward, a Defiler where it pays (defiler.py `price`),
+Death Mark (mark.py), Bind Demon again in a tier 4-5 Herald pack fight (bind.py), Sigil: Lethargy under an elite or
+at a tier 4-5 Herald pack's densest disc, Engorge on a corpse. Multi-step casts are in casters.py.
 """
 
 import math
+from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
+from inventory_tracking.builds.warlock import pets
+from inventory_tracking.builds.warlock.bind import bind_due, bind_said, bind_target
 from inventory_tracking.builds.warlock.defiler import defiler_missing, worth_a_defiler
 from inventory_tracking.builds.warlock.mark import (
     MARK_LEADERS,
@@ -26,6 +32,7 @@ from inventory_tracking.builds.warlock.mark import (
     worth_a_mark,
 )
 from inventory_tracking.builds.warlock.skills import (
+    BIND_DEMON,
     CONSUME,
     DEATH_MARK,
     ENGORGE,
@@ -34,6 +41,7 @@ from inventory_tracking.builds.warlock.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.game.layout import DEFILER_CLASS
 from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.buffs import Buffs
@@ -42,7 +50,8 @@ from inventory_tracking.macros.cta import ROWS as CTA_ROWS
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import is_boss
 from inventory_tracking.macros.routines import DEAD
-from inventory_tracking.native.layout import HIRELING_CLASS_ID
+from inventory_tracking.native.layout import DEAD_MODES, HIRELING_CLASS_ID
+from inventory_tracking.terror.danger import DANGER, Unit, table as threat_table, threat
 
 
 # Engorge (skills.txt 379, on a corpse): heals the demons and cuts the damage they take; cast when a demon is hurt
@@ -66,7 +75,7 @@ ENGORGE_LOOKS = 2  # corpses the pointer is put on for one cast at most
 # every ENGORGE_HURT_SECONDS instead of ENGORGE_SECONDS: 276 casts and 165 tries that missed an hour (probe.log of
 # 22:00-23:57). True: hurt by its life against the client's LIFE_SHARE (`demon_hurt`): 14 of the takes' 447 tries
 # had one hurt, and a replay of them leaves 155 of 340 casts. False: against max_life, as before.
-ENGORGE_LIFE_SHARE = False
+ENGORGE_LIFE_SHARE = True
 LIFE_SHARE = 128  # a monster's life as the client holds it: 128ths of its maximum
 # No Engorge for the buff alone (a demon hurt still gets one) while a fight ends: ENGORGE_ENDING_FOES hostiles or
 # fewer left, none a leader or a boss. 28-31% of the casts of 2026-10-20 came in the last 1.5 s before "Nothing left
@@ -75,6 +84,35 @@ LIFE_SHARE = 128  # a monster's life as the client holds it: 128ths of its maxim
 # False: the buff cast whatever is left.
 ENGORGE_SPARE_ENDS = False
 ENGORGE_ENDING_FOES = 2
+# A pet in danger gets Engorge first and fast (the player, 2026-10-21 ~15:45, of the bound Urdar lost to a tier 5 Dark
+# Archer Herald pack: "heavy hitting enemies, several engagements without healing him and monitoring of his health /
+# could be very easily avoided if we just have use engorge"; rca/2026-10-21/demon-lost-findings.md). The Urdar went
+# 128 -> 0 in 12 s, 94/128 in 4 s, with one Engorge landed: ENGORGE_HURT_SECONDS gave one heal a life bar. True: a pet
+# under ENGORGE_BELOW or falling (pets.py PET_FALL in PET_FALL_SECONDS) has Engorge due before the fight's other casts
+# (`engorge_first`, the first fight row) every ENGORGE_DANGER_SECONDS, and a dead pet asks for none (`engorged`).
+# The buff alone stays lazy (ENGORGE_SECONDS, ENGORGE_SPARE_ENDS, the batch reasoning above): over today's 142 takes a
+# pet is in danger ~21 s an hour, ~35 casts. False: ENGORGE_HURT_SECONDS for a hurt pet, last in the fight, as before.
+PET_ENGORGE = True
+# Seconds between two Engorges while a pet is in danger: about one cast (0.32 s, the sigil's median from a free
+# character) and a look either side; its heal shows 0.1-0.3 s after the key (the take's one heal), so the look before
+# the next knows whether the last took.
+ENGORGE_DANGER_SECONDS = 0.6
+# After PET_UNHEALED Engorges in a row that brought no heal (pets.py `judge`), ENGORGE_UNHEALED_SECONDS between two: a
+# life read wrong, or no corpse the cast can take, is not cast at every 0.6 s.
+PET_UNHEALED = 4
+ENGORGE_UNHEALED_SECONDS = 2.0
+# Engorge for its buff first where the pack is dangerous (the player, 2026-10-21 ~15:45: "herald was a t5 dark archier
+# - these especially dangerous"): with a tier 4-5 Herald's pack among the foes (combat/pack.py `in_pack`), or heavy
+# hitters near a pet (`heavy`: terror/danger.py's threat of the hostiles within PET_HEAVY_REACH of one at the deadly
+# packs' caution line, DANGER.caution), Engorge is due first at the fight's start and again every ENGORGE_PACK_SECONDS
+# while it lasts. Its buff (skills.txt 379 aurastate engorge for ln56 frames: Param5 125 + Param6 75 a level, 5 s at
+# level 1; damage resist, life drain, attack rate) and its heal (30%+, 38/128) every 5 s cover the take's pack's rate
+# on their own (94/128 in 4 s). Over today's takes heavy hitters stood within 20 of a pet 1.1% of the pet-time (Blood
+# Lords, dolls, Horrors, Dark Archers, the Council): ~19 casts in 2.3 h. False: the buff by ENGORGE_SECONDS alone.
+ENGORGE_PACK_FIRST = True
+ENGORGE_PACK_SECONDS = 5.0
+PET_HEAVY_REACH = 20.0  # world units from a pet within which a hostile's threat counts
+PET_HEAVY = DANGER.caution
 # Hex: Purge (skills.txt 389): the strikes deal their damage through it, so it is cast whenever the state lacks it
 # (macros/buffs.py STATE_RETRY). Psychic Ward (skills.txt 387, a pool used up by damage) is kept up the same way
 # (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us sometimes"), under the strike no
@@ -105,6 +143,17 @@ SIGIL_LASTS = 19.0  # seconds
 # Others are left as they were: a leader that is not dangerous by SIGIL_SECONDS, trash none (casters.py `sigil`).
 # False: SIGIL_SECONDS and HERALD_SIGIL_SECONDS alone, as before.
 SIGIL_KEEPS = True
+# The player, 2026-10-21 ~20:42: "we can put sigil in advance before herald's packa spawning. then we could reposition
+# in if required". A Herald's pack shows 5.0 s after its omen (macros/hunt.py HERALD_OMEN; 4.95-5.35 s over the 81
+# tier 4-5 spawns of 2026-10-21's takes) and first acts a median 0.5 s after; 61% of it stands within 6 of the spot in
+# its first second, 43% at 2-4 s (rca/2026-10-21/arachnid-herald-2-findings.md, "sigil before the spawn"). True: with an
+# omen pending within OMEN_SIGIL_REACH and no member of a tier 4-5 pack in reach, the sigil goes at the omen's spot,
+# once an omen (`omen_anchor`, casters.py `omen_sigil`); it lasts SIGIL_LASTS, the pack shows within 5 s. False: the
+# sigil waits for the pack, as before.
+OMEN_SIGIL = False
+OMEN_SIGIL_REACH = 22.0  # units: the strike's reach (hunting/base.py OMEN_STAND 20 + a margin): the spot on screen
+OMEN_TXT = -1  # the txt id of the stand-in a pending omen is laid under (no monster stands there yet)
+OMEN_UNIT = 0xFFFF0000  # the stand-ins' unit ids from here up, one a spot
 SIGIL_LOOK = 0.5  # seconds between two looks whether a dangerous monster still stands in its sigil
 # Seconds between two sigils at least. One cast is 0.32 s (the median of 48 from a free character in the takes of
 # 2026-10-20), its missile shows 0.37 s after the key (the median of 1,957; p95 0.48 s) and its state on a monster
@@ -122,8 +171,19 @@ TICK = 0.01  # seconds past a clock that a test of "older than" holds at
 # seconds of summon and aim in which nothing is struck.
 CONSUME_CLEAR = 30.0  # world units
 CONSUME_SECONDS = 300.0  # one cast's time (skills.txt 381 at CybergrindAA's level): its row's `lasts`
-CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped
+CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped, or a fight (casters.py)
 CONSUME_RETRY = 20.0  # seconds
+# The player, 2026-10-21 ~21:02: "also, T5 herald fight - we stood and do NOTHING under the fire, not damaging anything
+# for solid 15 seconds" (rca/2026-10-21/consume-in-fight-findings.md). At 20:59:03.66 Consume ran out 17 units from a
+# Herald's pending omen (read at 20:58:59.68: the pack 5 s on) with nothing within CONSUME_CLEAR; the renewal began,
+# the tier 5 pack (15 Flayers) showed within 30 0.07 s later and the Herald was first struck 8.5 s after. True: no
+# renewal while a Herald omen is pending within CONSUME_OMEN_REACH (combat/pack.py `omens`): its pack is the fight
+# coming, and the renewal waits for the quiet after it (the max life 8.5% lower meanwhile: 2661 for 2907 in the take).
+# False: the omen is not looked at, as before.
+CONSUME_OMEN_DEFER = True
+# Units: the run waits at the omen stand, 24 from its spot (combat/pack.py PACK_OMEN_STAND), and an omen is read on the
+# screen (hunt.py `omens_now`), so one this near is the fight coming here.
+CONSUME_OMEN_REACH = 60.0
 
 
 def purge_shown(world: World) -> bool | None:
@@ -167,10 +227,44 @@ def kept(monster: Monster) -> bool:
     return SIGIL_KEEPS and dangerous(monster)
 
 
+def pack_anchor(facts: BuffFacts) -> Monster | None:
+    """The member of a tier 4-5 Herald pack in reach the pack's sigil row is asked with (combat/pack.py SIGIL_COVER;
+    casters.py `pack_sigil` finds where it goes): the Herald, else the nearest; None with none or the switch off."""
+    player = facts.world.player
+    if not herald_pack.SIGIL_COVER or player is None:
+        return None
+    found = [m for m in facts.reachable if herald_pack.in_pack(m.tier)]
+    if not found:
+        return None
+    here = (player.x, player.y)
+    return min(found, key=lambda m: (not herald(m), math.dist(here, (m.x, m.y))))
+
+
+def omen_anchor(facts: BuffFacts) -> Monster | None:
+    """A stand-in at the spot of a pending Herald omen within OMEN_SIGIL_REACH (combat/pack.py `omens`), its sigil
+    not laid yet, with no member of a tier 4-5 pack in reach (OMEN_SIGIL); None else."""
+    player = facts.world.player
+    if not OMEN_SIGIL or player is None or any(herald_pack.in_pack(m.tier) for m in facts.reachable):
+        return None
+    here = (player.x, player.y)
+    for spot in herald_pack.omens(facts.now):
+        if math.dist(here, spot) > OMEN_SIGIL_REACH:
+            continue
+        unit = OMEN_UNIT + (int(spot[0]) * 7919 + int(spot[1])) % 0xFFFF
+        if facts.since(SIGIL_LETHARGY, unit) == math.inf:
+            return Monster(unit, OMEN_TXT, 1, spot[0], spot[1])
+    return None
+
+
 def sigil_due(facts: BuffFacts) -> bool:
-    """Whether the sigil's caster is asked now: under a Herald in reach, else under the monster the strike is aimed
+    """Whether the sigil's caster is asked now: with a tier 4-5 Herald pack in reach every SIGIL_LOOK s (the caster
+    judges the cover, `pack_anchor`); else under a Herald in reach, else under the monster the strike is aimed
     through, an elite or boss. One kept in its sigil (`kept`) is looked at every SIGIL_LOOK s (casters.py `sigil` asks
     whether it still stands in one); else its last one is SIGIL_SECONDS old (a Herald's HERALD_SIGIL_SECONDS)."""
+    if pack_anchor(facts) is not None:
+        return facts.since(SIGIL_LETHARGY) > SIGIL_LOOK
+    if omen_anchor(facts) is not None:
+        return facts.since(SIGIL_LETHARGY) > SIGIL_GAP
     first = herald_in_reach(facts)
     if first is not None:
         every = SIGIL_LOOK if kept(first) else HERALD_SIGIL_SECONDS
@@ -262,19 +356,23 @@ def keep_reason(
 
 
 def prey(facts: BuffFacts) -> Monster | None:
-    """Whom the sigil is laid under: a Herald in reach, else the monster the strike is aimed through."""
-    return herald_in_reach(facts) or facts.prey
+    """Whom the sigil is laid under: a tier 4-5 Herald pack's anchor (`pack_anchor`: the caster lays it at the pack's
+    disc), else a Herald in reach, else the monster the strike is aimed through."""
+    return pack_anchor(facts) or omen_anchor(facts) or herald_in_reach(facts) or facts.prey
 
 
 def engorged(world: World) -> list[Monster]:
-    """The units Engorge is for: the character's own and the Defilers, not the mercenary."""
+    """The units Engorge is for: the character's own and the Defilers, not the mercenary; with PET_ENGORGE not a dead
+    one (the Urdar's corpse counted as a hurt demon for four tries after its death, 15:41:43-50)."""
     player = world.player
     if player is None:
         return []
     return [
         m
         for m in world.monsters
-        if (m.ally or m.owner == player.unit_id or m.txt_id == DEFILER_CLASS) and m.txt_id != HIRELING_CLASS_ID
+        if (m.ally or m.owner == player.unit_id or m.txt_id == DEFILER_CLASS)
+        and m.txt_id != HIRELING_CLASS_ID
+        and not (PET_ENGORGE and pets.dead(m))
     ]
 
 
@@ -329,10 +427,72 @@ def engorge_on_a_key(facts: BuffFacts) -> bool:
     return ENGORGE in facts.world.slots and engorge_due(facts)
 
 
+def danger_every(watch: pets.PetWatch) -> float:
+    """Seconds between two Engorges while a pet is in danger: ENGORGE_DANGER_SECONDS, ENGORGE_UNHEALED_SECONDS after
+    PET_UNHEALED that brought no heal."""
+    return ENGORGE_DANGER_SECONDS if watch.unhealed < PET_UNHEALED else ENGORGE_UNHEALED_SECONDS
+
+
+def named(found: Sequence[Monster]) -> str:
+    """'15 Dark Archer': the count and the most common kind of `found`."""
+    txt = Counter(m.txt_id for m in found).most_common(1)[0][0]
+    row = threat_table().monsters.get(txt)
+    return f'{len(found)} {row.name if row is not None else f"monster {txt}"}'
+
+
+def heavy(hostiles: Sequence[Monster]) -> float:
+    """What `hostiles` threaten together by terror/danger.py's table (hit x rate x reach, raised by rank, a Herald's
+    tier, modifiers and auras); 0 for kinds it has no row for."""
+    units = [Unit(m.unit_id, m.txt_id, m.x, m.y, m.modifiers, flags=m.flags, tier=m.tier) for m in hostiles]
+    return sum(threat(unit, units, threat_table(), DANGER)[0] for unit in units)
+
+
+def pack_danger(facts: BuffFacts) -> str | None:
+    """Why the fight is dangerous to the pets alive, in words (ENGORGE_PACK_FIRST): a tier 4-5 Herald's pack among
+    the foes, else heavy hitters near a pet (`heavy` at PET_HEAVY within PET_HEAVY_REACH); None else."""
+    live = pets.alive(facts.world)
+    if not live:
+        return None
+    foes = [m for m in facts.foes if m.mode not in DEAD_MODES]
+    pack = [m for m in foes if herald_pack.in_pack(m.tier)]
+    if pack:
+        return f'a tier {max(m.tier for m in pack)} Herald pack ({named(pack)})'
+    near = [m for m in foes if any(math.dist((m.x, m.y), (p.x, p.y)) <= PET_HEAVY_REACH for p in live)]
+    score = heavy(near) if near else 0.0
+    if score < PET_HEAVY:
+        return None
+    return f'heavy hitters ({named(near)}, threat {score:.1f} within {PET_HEAVY_REACH:.0f})'
+
+
+def engorge_first(facts: BuffFacts) -> bool:
+    """Engorge before the fight's other casts (the first fight row; the pets watched at every look, pets.py): a pet in
+    danger (PET_ENGORGE: under ENGORGE_BELOW of its life or falling) every `danger_every` s, else a dangerous pack
+    (ENGORGE_PACK_FIRST, `pack_danger`) every ENGORGE_PACK_SECONDS. Its lines (pets.py PET_LINES) say the pet's life."""
+    world = facts.world
+    if world.player is None:
+        return False
+    watch = pets.watch_of(facts.cast_at)
+    perils = watch.look(world, facts.now, ENGORGE_BELOW)
+    pets.pull(watch, facts.now, world)  # the fight pulled off the bound demon while no Engorge lands (pets.py PET_PULL)
+    able = ENGORGE in world.slots and facts.corpses is not None
+    if perils:
+        watch.tell(perils, facts.now, 'Engorge now' if able and PET_ENGORGE else 'no Engorge now')
+        if PET_ENGORGE:
+            return able and facts.since(ENGORGE) > danger_every(watch)
+    if not (ENGORGE_PACK_FIRST and able) or facts.since(ENGORGE) <= ENGORGE_PACK_SECONDS:
+        return False
+    why = pack_danger(facts)
+    if why is None:
+        return False
+    watch.tell_pack(world, why, facts.now)
+    watch.pack_at = facts.now
+    return True
+
+
 def consume_due(facts: BuffFacts) -> bool:
     """Whether attack mode casts Consume again now: the state lacks it, or it would end inside the boss's fight ahead
     (`BuffFacts.lapsing`, rca/2026-10-14/run-1214-findings.md §3.4); both skills on keys, no hostile within
-    CONSUME_CLEAR, the last try CONSUME_RETRY old."""
+    CONSUME_CLEAR, no Herald coming within CONSUME_OMEN_REACH (CONSUME_OMEN_DEFER), the last try CONSUME_RETRY old."""
     world = facts.world
     player = world.player
     if player is None or player.mode in DEAD:
@@ -346,7 +506,10 @@ def consume_due(facts: BuffFacts) -> bool:
         return False
     if facts.since(CONSUME) <= CONSUME_RETRY:
         return False
-    return all(math.dist((player.x, player.y), (m.x, m.y)) > CONSUME_CLEAR for m in facts.foes)
+    here = (player.x, player.y)
+    if CONSUME_OMEN_DEFER and any(math.dist(here, spot) <= CONSUME_OMEN_REACH for spot in herald_pack.omens(facts.now)):
+        return False
+    return all(math.dist(here, (m.x, m.y)) > CONSUME_CLEAR for m in facts.foes)
 
 
 # The plan, each phase in casting order. Hex: Purge and Psychic Ward by the character's state (`state`); Consume by
@@ -371,6 +534,8 @@ BUFFS: tuple[Buff, ...] = (
         CONSUME, 'upkeep', consume_due, needs='prebuff', caster='consume', also=(SUMMON_DEFILER,), lasts=CONSUME_SECONDS
     ),
     Buff(SUMMON_DEFILER, 'upkeep', defiler_missing, on='ground', caster='defiler'),
+    # Engorge first for a pet in danger or among a dangerous pack (`engorge_first`, 2026-10-21); the pets watched here
+    Buff(ENGORGE, 'fight', engorge_first, on='corpse', caster='engorge'),
     Buff(HEX_PURGE, 'fight', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'fight', ward_in_a_fight, state=ward_shown),
     Buff(SUMMON_DEFILER, 'fight', defiler_missing, on='ground', worth=worth_a_defiler, caster='defiler'),
@@ -389,6 +554,8 @@ BUFFS: tuple[Buff, ...] = (
         shows_within=MARK_SHOWS,
         recasts=MARK_RECASTS,
     ),
+    # Bind Demon again with the bound demon gone in a tier 4-5 Herald pack fight (bind.py, combat/pack.py REBIND_DEMON)
+    Buff(BIND_DEMON, 'fight', bind_due, on='monster', target=bind_target, said=bind_said, caster='bind'),
     Buff(SIGIL_LETHARGY, 'fight', sigil_due, on='ground', target=prey, caster='sigil'),
     Buff(ENGORGE, 'fight', engorge_on_a_key, on='corpse', caster='engorge'),
 )

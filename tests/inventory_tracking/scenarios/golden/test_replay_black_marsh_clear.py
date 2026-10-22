@@ -61,11 +61,19 @@ def test_the_replay_fights_the_fight_of_the_record():
     # second for the key before once a look saw that one's cast (routines.quick_cast_over), so the record's "still on
     # the right button" lines of waits made then, and of none (a warp seconds old), are not said, and an Engorge
     # comes 3 s sooner (rca/2026-10-14/death-mark-engage.md §3).
+    # 73 since 2026-10-21, the leader held (attack.py HOLD_LEADER; the player ~18:58: "we're not focusing";
+    # rca/2026-10-21/herald-aiming-findings.md): the replay strikes the pack's three leaders one after the other until
+    # each is gone (929016492 from 0.53 s, 3681926826 from 2.86 s, 1597421053 from 6.78 to 13.46 s) where that
+    # evening's lines went over the pack, so its fight is another one: 6 of its 9 Blade Warps where the record's went.
     assert len(recorded) == 115
-    assert len(found.same) >= 94, found.table()
+    assert len(found.same) >= 70, found.table()
     moves = [(a.kind, a.what) for a, _ in found.same if a.kind in ('sweep', 'walk', 'landed', 'skill', 'engorge')]
-    assert moves.count(('skill', 'Blade Warp')) >= 8
+    assert moves.count(('skill', 'Blade Warp')) >= 6
     assert moves.count(('skill', 'Sigil: Lethargy')) >= 1
+    held = [a.what for a in played if a.kind == 'other' and a.what.startswith('strike: the leader')]
+    for leader in ('929016492', '3681926826', '1597421053'):  # each one held is struck until it is gone
+        assert any(what.startswith(f'strike: the leader {leader} held until it dies') for what in held), held
+        assert f'strike: the leader {leader} held is gone: let go' in held, held
     # The record's Engorge (15.6 s) waited out the second after a Blade Warp; today's two come at 3.4 s and 19.6 s,
     # in no recorded place (2026-10-14): cast all the same
     assert sum(1 for action in played if action.kind == 'engorge') >= 1

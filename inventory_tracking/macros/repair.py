@@ -14,6 +14,7 @@ from pathlib import Path
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import GOLD_STAT
 from inventory_tracking.game.records import Teleport, Wear, World
+from inventory_tracking.game.stash import BANK_STAT as GOLDBANK  # the personal stash tab's gold
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.shop import (
@@ -52,7 +53,6 @@ QUOTED: list[int] = []  # the cost the game quoted at the last visit: none again
 
 # A vendor takes what the carried gold does not cover from the stash's (D2MOO SUnitNpc.cpp 1782-1795: STAT_GOLDBANK).
 # The player, 2026-10-17: "you can repair only on collected gold in the inventory". STASH_TOUCHED turns repairs off.
-GOLDBANK = 15  # itemstatcost.txt `goldbank`: the stash's gold
 # The share of the carried gold a repair may cost (0.9 and 0.98 refused real repairs on 2026-10-17)
 CARRIED_SHARE = 0.99
 UNREAD_COVER, UNREAD_EXTRA = 2.0, 50_000  # an unread cost is safe with this many times the expected, and more, carried

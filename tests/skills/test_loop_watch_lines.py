@@ -329,6 +329,28 @@ def test_the_loop_resumed_by_a_restart() -> None:
         assert logwords.RESUMED_ANY in line
 
 
+def test_a_restart_held_for_a_safe_point_mid_game() -> None:
+    # restart.py --when town|safe (macros/midgame.py, 2026-10-21): armed, not yet, the stand, the game taken up
+    form = one('macros/runner.py', 'a restart waits for a safe point')
+    assert logwords.RESTART_HELD in logged(form % 'safe')
+    assert logwords.RESTART_DROPPED in logged(one('macros/runner.py', 'no longer waits for a safe point'))
+    form = one('macros/loop.py', 'no safe point for the restart yet')
+    found = logwords.NOT_SAFE.search(logged(form % 'a hostile 12 away'))
+    assert found is not None
+    assert found.groups() == ('a hostile 12 away',)
+    form = one('macros/loop.py', 'safe point: ')
+    found = logwords.SAFE_POINT.search(logged(form % ('River of Flame', 'cyber41 (player unit 7)')))
+    assert found is not None
+    assert found.groups() == ('River of Flame', 'cyber41 (player unit 7)')
+    form = one('macros/midgame.py', 'taken up after a restart')
+    over = "; over the limit {5: 'used'}"  # actloop.py OVERFLOW (2026-10-21)
+    line = logged(form % ('cyber41 (player unit 7)', 812.4, [104, 105], 'used', [3, 5], over, 1, 'none'))
+    found = logwords.CARRIED.search(line)
+    assert found is not None
+    assert found.groups() == ('cyber41 (player unit 7)', '812')
+    assert logwords.RESUMED_ANY not in line  # restart.py's resume line is the runner's alone
+
+
 def test_the_players_press() -> None:
     form = one('macros/runner.py', 'Macro: request %s, ')
     assert logwords.REQUEST_LOOP in logged(form % ('loop', 0, 'loop'))
@@ -494,6 +516,9 @@ def test_a_sale_and_the_gold() -> None:
     keys = logged(one('macros/shop.py', 'Macro: shop: keys %s') % (17, 17, 0, 0, '', 20, 20))
     assert logwords.NOTE.search(keys) is not None
     assert logwords.DID.search(keys) is not None
+    potions = logged(one('macros/shop.py', 'potions: belt short %d ->') % (5, 0, 5, 'Super Healing Potion', 2250, ''))
+    assert logwords.NOTE.search(potions) is not None
+    assert logwords.DID.search(potions) is not None
 
 
 def test_a_repair() -> None:
@@ -521,6 +546,24 @@ def test_the_trade_sessions_report() -> None:
     assert found is not None
     assert found.groups() == ('3.5', '8.4')
     assert logwords.NOW.search(line) is not None
+    old = logged(form % ('', 0, 2, 4, 'free', 9, 0, 17, '?', '?', 'clear', 27.6, done.replace('gamble -, ', '')))
+    assert logwords.VISIT_STOPS.search(old) is not None  # the logs before gamble.py's stop
+
+
+def test_a_gamble_sessions_end_and_its_loud_stop() -> None:
+    from inventory_tracking.macros.gamble import PREFIX, Gambled
+
+    (form,) = set(produced('macros/gamble.py', 'session done: %s'))
+    done = Gambled(bought=3, kept=['unique Ring'], sold=2, paid=150_000, back=6_000, carried=(950_000, 806_000),
+                   bank=(2_500_000, 2_500_000), stop='3 rings', seconds=12.5)  # fmt: skip
+    line = logged(form % (PREFIX, done.said()))
+    found = logwords.GAMBLED.search(line)
+    assert found is not None
+    assert found.groups() == ('3', '1', '2', '150000', '6000', '144000')
+    assert logwords.DID.search(line) is not None
+    assert logwords.NOW.search(line) is not None
+    loud = one('macros/gamble.py', 'gambling stopped')
+    assert logwords.NOW.search(logged(loud % (PREFIX, 'buy 1: the price ...'), logging.WARNING)) is not None
 
 
 def test_the_stash_by_the_view() -> None:
@@ -671,6 +714,28 @@ def test_watch_takes_the_loops_own_wait_for_no_stall() -> None:
     assert shown.stalled(t + 1560 + 80)
 
 
+def test_the_battle_orders_rebuff_lines() -> None:
+    """macros/cta.py REBUFF (2026-10-22): the retreat, the cast in place and the wait for a retreat, each from its
+    production format."""
+    assert "ORDERS_SAID = 'buff: Battle Orders'" in (PRODUCTION / 'macros' / 'cta.py').read_text()
+    (form,) = (text for text in produced('macros/cta.py', 'Macro: %s: %s: %s') if text == 'Macro: %s: %s: %s')
+    retreat = one('macros/safety.py', 'Macro: buff: Battle Orders: %s: retreat to')
+    renewed = one('macros/buffs.py', 'Macro: buff: %s: %s: cast again now')
+    cases = [
+        (logged(form % ('buff: Battle Orders', 'expired 0.4 s ago', 'a retreat first (a hostile within 10)')),
+         ('expired 0.4 s ago', 'a retreat first')),
+        (logged(form % ('buff: Battle Orders', 'expired 3.1 s ago', 'cast in place (no retreat in 3 s)')),
+         ('expired 3.1 s ago', 'cast in place')),
+        (logged(retreat % ('6 s left', 15062.18, 5630.08, 18.2, 1, 3)), ('6 s left', 'retreat')),
+        (logged(renewed % ('Battle Orders', 'age not known: cast in place (nothing within 10, not hurt within 2 s)')),
+         ('age not known', 'cast in place')),
+    ]  # fmt: skip
+    for line, groups in cases:
+        found = logwords.ORDERS.search(line)
+        assert found is not None, line
+        assert found.groups() == groups
+
+
 # --- The tools hold no line pattern of their own ---------------------------------------------------------------------
 
 
@@ -737,7 +802,7 @@ def test_an_item_the_census_saw_after_the_click_is_missed(tmp_path: Path, capsys
 
 
 def test_a_full_stack_put_down_is_no_miss(tmp_path: Path) -> None:
-    """visit.py's put-down line counts the kind full, so a Perfect Ruby left on the ground is by design."""
+    """visit.py's put-down line is the loop's own drop: the Perfect Ruby it left on the ground is by design."""
     lines = [
         '2026-10-18 15:02:40,000 INFO Macro: Loop: game 7, the chests',
         '2026-10-18 15:02:41,000 INFO Macro: stash: the Perfect Ruby put down: its stack is full and no vendor buys it',
@@ -760,9 +825,120 @@ def test_the_loops_own_town_drop_is_no_miss(tmp_path: Path, capsys) -> None:
     ]
     assert unpicked_by_games(lines, tmp_path) == [('Ring', None)]
     assert 'MISSED' not in missed_by_watch(lines, capsys)
-    seen_later = [lines[0], lines[2], lines[1], lines[4]]  # a ring first seen after the drop: not the drop's
+    # Seen just after the drop's line is the drop's too (04:00:09,296 on 2026-10-21: a unique Amulet put down, the
+    # census at 04:00:09,450, called MISSED); seen more than DROP_LINES after it is not
+    (after := tmp_path / 'after').mkdir()
+    assert unpicked_by_games([lines[0], lines[2], lines[1], lines[4]], after) == [('Ring', None)]
+    filler = [f'2026-10-20 09:23:03,{n:03d} INFO Macro: agenda: target an unexplored room' for n in range(25)]
+    seen_later = [
+        lines[0],
+        lines[2],
+        *filler,
+        '2026-10-20 09:23:04,000 INFO Macro: ground: rare Ring at (5094, 5062): left',
+        lines[4],
+    ]
     (later := tmp_path / 'later').mkdir()
     assert unpicked_by_games(seen_later, later) == [('Ring', 'a rare ring')]
+
+
+RESTARTED_A = [
+    '2026-10-21 21:50:00,000 INFO Macro: Loop: game 6, TZ level',
+    '2026-10-21 21:52:01,900 INFO Macro: ground: magic Jewel at (5024, 5039): left',
+    '2026-10-21 21:52:02,000 INFO Macro: inventory: 535 (1762274061) at (2, 3) dropped in town: Jamella not needed',
+]
+RESTARTED_B = [
+    '2026-10-21 21:54:52,408 INFO Macro: loop: game cyberr14 (player unit 391320830) taken up after a restart: '
+    '843 s into it, levels done [83], trips 0, package none',
+    '2026-10-21 21:54:52,459 INFO Macro: Loop: game 6, TZ up',
+    '2026-10-21 21:55:00,000 INFO Macro: ground: rare Amulet at (5022, 5043): left',  # the pile's, never seen in A
+    '2026-10-21 21:55:00,100 INFO Macro: ground: rare Amulet at (5100, 5100): left',
+]
+NEXT_GAME = ['2026-10-21 22:26:36,000 INFO Macro: Loop: game 7, next game']
+
+
+def two_sessions(tmp_path: Path, first: list[str], second: list[str]) -> Path:
+    (a := tmp_path / '20261021T185447Z-aaaaaaaa').mkdir()
+    (a / 'probe.log').write_text('\n'.join(first) + '\n')
+    (b := tmp_path / '20261021T191838Z-bbbbbbbb').mkdir()
+    (b / 'probe.log').write_text('\n'.join(second) + '\n')
+    return b
+
+
+def test_a_town_drop_before_a_restart_is_no_miss_after_it(tmp_path: Path, capsys) -> None:
+    """The rare Amulet put down in town in one session, seen lying there by the session that took the game up after
+    a restart (22:26:35 on 2026-10-21), is the loop's own. An item first seen after the restart and never put down
+    is MISSED as before."""
+    b = two_sessions(tmp_path, RESTARTED_A, [*RESTARTED_B, *NEXT_GAME])
+    assert games.resumes(b)
+    assert not games.resumes(b.parent / '20261021T185447Z-aaaaaaaa')
+    assert games.inherited(b) == {('magic', 'Jewel', (5024, 5039), True)}
+    found = [(i.place, why) for i, why in games.read(b, None, None)[3]]
+    assert found == [((5022, 5043), None), ((5100, 5100), 'a rare amulet')]
+    # A session that starts a game of its own inherits nothing
+    other = [RESTARTED_B[1].replace('game 6', 'game 7'), *RESTARTED_B[2:]]
+    (tmp_path / 'c').mkdir()
+    assert games.inherited(two_sessions(tmp_path / 'c', RESTARTED_A, other)) == set()
+
+
+def test_the_put_down_follows_a_chain_of_restarts_and_stops_at_another_game(tmp_path: Path) -> None:
+    b = two_sessions(tmp_path, RESTARTED_A, RESTARTED_B)
+    (c := tmp_path / '20261021T221838Z-cccccccc').mkdir()
+    (c / 'probe.log').write_text('\n'.join([RESTARTED_B[0], RESTARTED_B[3]]) + '\n')
+    assert ('magic', 'Jewel', (5024, 5039), True) in games.inherited(c)
+    (b / 'probe.log').write_text('\n'.join([*RESTARTED_B, *NEXT_GAME]) + '\n')
+    assert games.inherited(c) == set()
+
+
+def test_watch_keeps_the_put_down_across_a_followed_restart(tmp_path: Path, capsys) -> None:
+    seen = watch.Watch(1e9, 1e9)
+    seen.full = set()
+    for line in [*RESTARTED_A, *RESTARTED_B, *NEXT_GAME]:
+        seen.line(line)
+    out = capsys.readouterr().out
+    assert 'MISSED: game 6, rare Amulet at (5100, 5100)' in out
+    assert '(5022, 5043)' not in out
+
+
+def test_watch_started_on_the_resumed_log_looks_back_and_clears_at_the_next_game(tmp_path: Path, capsys) -> None:
+    b = two_sessions(tmp_path, RESTARTED_A, RESTARTED_B)
+    seen = watch.Watch(1e9, 1e9)
+    seen.full = set()
+    seen.carried |= games.inherited(b)  # what main() does when it follows into a log
+    for line in [*RESTARTED_B, *NEXT_GAME]:
+        seen.line(line)
+    out = capsys.readouterr().out
+    assert 'MISSED: game 6, rare Amulet at (5100, 5100)' in out
+    assert '(5022, 5043)' not in out
+    assert seen.carried == set()  # cleared by the next game's first leg
+
+
+def test_a_field_put_down_carries_over_by_its_exact_key_only(tmp_path: Path, capsys) -> None:
+    """The pile rule is for town drops: a monster's drop 3 units from a junk item put down in the field, first seen
+    after a restart, is still MISSED; the junk item itself, seen again at its own place, is not."""
+    field = [
+        '2026-10-21 21:50:00,000 INFO Macro: Loop: game 6, TZ level',
+        '2026-10-21 21:52:00,000 INFO Macro: ground: magic Jewel at (5024, 5039): left',
+        '2026-10-21 21:52:01,000 INFO Macro: inventory: 537 (5) at (3, 3) dropped in the field: K8 worthless, no want',
+    ]
+    filler = [f'2026-10-21 21:54:53,{n:03d} INFO Macro: agenda: target an unexplored room' for n in range(25)]
+    after = [
+        RESTARTED_B[0],
+        RESTARTED_B[1],
+        *filler,
+        '2026-10-21 21:55:00,000 INFO Macro: ground: magic Jewel at (5024, 5039): left',
+        '2026-10-21 21:55:00,100 INFO Macro: ground: rare Amulet at (5022, 5042): left',
+    ]
+    b = two_sessions(tmp_path, field, after)
+    assert games.inherited(b) == {('magic', 'Jewel', (5024, 5039), False)}
+    found = [(i.place, why) for i, why in games.read(b, None, None)[3]]
+    assert found == [((5024, 5039), None), ((5022, 5042), 'a rare amulet')]
+    seen = watch.Watch(1e9, 1e9)
+    seen.full = set()
+    for line in [*field, *after, *NEXT_GAME]:
+        seen.line(line)
+    out = capsys.readouterr().out
+    assert 'MISSED: game 6, rare Amulet at (5022, 5042)' in out
+    assert 'Jewel' not in out
 
 
 def test_the_field_drop_and_summary_lines_from_the_loot_layer() -> None:
@@ -840,3 +1016,208 @@ def test_watch_reports_missing_evidence_without_claiming_service_dead(tmp_path, 
     seen = watch.Watch(75, 120)
     seen.health(tmp_path / 'missing.log')
     assert 'unavailable' in capsys.readouterr().out
+
+
+def test_a_zone_child_blocked_is_an_event_and_not_a_game_left() -> None:
+    # macros/zonenav.py (2026-10-21): a door no click takes blocks its child, the parent goes on; a level whose map is
+    # never read is blocked too
+    door = logged(
+        one('macros/tzloop.py', 'blocked, %s goes on')
+        % ('no click took Forgotten Temple', 'Forgotten Temple', 'Upper Kurast')
+    )
+    (form,) = (text for text in produced('macros/tzloop.py', 'Macro: zone: ') if text == 'Macro: zone: %s')
+    verdict = logged(form % 'Forgotten Reliquary (96) blocked: its map was never read in 2 runs')
+    for line in (door, verdict):
+        assert logwords.ZONE.search(line) is not None
+        assert logwords.EVENT.search(line) is not None
+        assert logwords.NOW.search(line) is not None
+        assert logwords.GAME_LEFT not in line
+    found = logwords.ZONE_BLOCKED.search(verdict)
+    assert found is not None
+    assert found.groups() == ('Forgotten Reliquary', 'its map was never read in 2 runs')
+    assert logwords.ZONE_BLOCKED.search(door) is not None
+    cleared = logged(form % 'Upper Kurast (81) cleared, without [97]')
+    assert logwords.ZONE_BLOCKED.search(cleared) is None
+    assert logwords.EVENT.search(cleared) is None
+
+
+def test_a_zone_way_spent_or_a_child_skipped_for_time_is_a_blocked_event() -> None:
+    # macros/tzloop.py (2026-10-21): a way in made over zonenav.py WAY_TRIES legs with no arrival (Upper Kurast's
+    # passage to the Causeway, 13:48:00), and a child the time budget skips: both block the child, the zone goes on
+    form = 'Macro: zone: %s (%d) blocked: %s'
+    assert produced('macros/tzloop.py', 'Macro: zone: ').count(form) == 2  # way_spent's and zone_budget's
+    for why in ('its way in from Upper Kurast was made 6 times with no arrival', 'no time left for it (90 s left)'):
+        line = logged(form % ('Kurast Causeway', 82, why))
+        found = logwords.ZONE_BLOCKED.search(line)
+        assert found is not None
+        assert found.groups() == ('Kurast Causeway', why)
+        assert logwords.EVENT.search(line) is not None
+        assert logwords.NOW.search(line) is not None
+        assert logwords.GAME_LEFT not in line
+
+
+def test_the_zone_resumed_after_a_restart_is_said_at_once() -> None:
+    # macros/tzloop.py zone_resume (zonenav.py RESUME, 2026-10-21): the zone's facts taken back after a service restart
+    line = logged(one('macros/tzloop.py', 'resumed after a restart') % ('Act3-Manual', 12, 7, 1))
+    assert logwords.NOW.search(line) is not None
+    assert logwords.EVENT.search(line) is None  # no child blocked in it
+    assert logwords.ZONE_BLOCKED.search(line) is None
+
+
+def test_a_trip_skipped_at_a_door_is_an_event_and_not_a_game_left() -> None:
+    # tzloop.py SKIP_DOOR (2026-10-21): "no click took Crypt" skips the trip; the game goes on
+    line = logged(one('macros/tzloop.py', 'is skipped, the game is not left') % ('no click took Crypt', 'Crypt'))
+    assert 'no click took Crypt' in line
+    assert logwords.EVENT.search(line) is not None
+    assert logwords.NOW.search(line) is not None
+    assert logwords.LEFT.search(line) is None
+    assert logwords.GAME_LEFT not in line
+
+
+def test_a_drop_given_up_for_the_game_is_an_event_and_not_a_game_left() -> None:
+    # pickup.py GIVE_UP_CHEAP (2026-10-21): a potion no click took never leaves the game (Travincal, 13:37:24)
+    # pickup.py WAIVE_UNLABELLED (2026-10-22): a valuable whose label never showed, at its second unlabelled press
+    why = 'a super healing potion was under the pointer at 3 aims and no click picked it up'
+    unlabelled = 'no click picked up Superior Gothic Staff: its label under the pointer at none of 18'
+    cheap, waived = sorted(produced('macros/pickup.py', 'given up for this game'), key=len)
+    for line in (
+        logged(cheap % ('a super healing potion', 4769, 2633, why)),
+        logged(waived % ('Superior Gothic Staff', 22555, 9581, unlabelled, 2)),
+    ):
+        assert logwords.EVENT.search(line) is not None
+        assert logwords.NOW.search(line) is not None
+        assert logwords.LEFT.search(line) is None
+        assert logwords.GAME_LEFT not in line
+
+
+def test_a_game_kept_after_a_stop_is_an_event_and_not_a_game_left() -> None:
+    # stops.py KEEP (2026-10-21): a terrorized game's door, a pickup no click took
+    line = logged(one('macros/running/recovery.py', 'the game is kept') % ('no click took Crypt', 'act 1 terrorized'))
+    assert logwords.EVENT.search(line) is not None
+    assert logwords.NOW.search(line) is not None
+    assert logwords.LEFT.search(line) is None
+    assert logwords.GAME_LEFT not in line
+
+
+def test_the_safetys_doll_lines() -> None:
+    # macros/safety.py Safety.dolls_waited (combat/threats/dolls.py DOLL_LAND, 2026-10-21): the landings left out near
+    # live dolls, once a goal, and the bar lifted past dolls.PATIENCE
+    form = one('macros/safety.py', 'near a live doll left out')
+    line = logged(form % (3, 's', 'full clear: a group of 7', 'Hold'))
+    found = logwords.DOLLS_LEFT_OUT.search(line)
+    assert found is not None
+    assert found.groups() == ('3', 'full clear: a group of 7', 'Hold')
+    single = logged(form % (1, '', 'Ort Rune, on the way', 'a jump of 12 to (1.0, 2.0), safe approach'))
+    assert logwords.DOLLS_LEFT_OUT.search(single) is not None
+    lifted = logged(one('macros/safety.py', 'is no longer barred') % ('a group of 4', 4.0, 'Move'))
+    patient = logwords.DOLLS_PATIENT.search(lifted)
+    assert patient is not None
+    assert patient.group(1) == 'a group of 4'
+
+
+def test_a_shard_over_the_limit_used_or_refused_is_said_at_once() -> None:
+    # actloop.py OVERFLOW (the player, 2026-10-21 ~15:22: "our game turns into clearing act 5 after the act 3")
+    used = logged(one('macros/actloop.py', 'terrorized too, played after') % ('Northern', 99, '', 5, 'act 3'))
+    assert used.endswith('Macro: act: Northern shard over the limit (99): act 5 terrorized too, played after act 3')
+    found = logwords.OVERFLOW.search(used)
+    assert found is not None
+    assert found.groups()[:4] == ('Northern', '99', '5', 'act 3')
+    carried = logged(one('macros/actloop.py', 'terrorized too, played after') % ('Western', 99, ', a carried one', 1,
+                                                                               'acts 3 and 5'))  # fmt: skip
+    found = logwords.OVERFLOW.search(carried)
+    assert found is not None
+    assert found.groups()[:4] == ('Western', '99', '1', 'acts 3 and 5')
+    refused = logged(one('macros/actloop.py', 'refused (%s)') % ('Eastern', 99, 'still carried', 2, 'kept'))
+    found = logwords.OVERFLOW.search(refused)
+    assert found is not None
+    assert found.group(5, 6) == ('still carried', '2')
+    stopped = logged(one('macros/actloop.py', 'not used (%s)') % ('Eastern', 99, 'no game window', 2))
+    found = logwords.OVERFLOW.search(stopped)
+    assert found is not None
+    assert found.group(5, 6) == ('no game window', '2')
+    for line in (used, carried, refused, stopped):
+        assert logwords.NOW.search(line) is not None
+        assert logwords.DID.search(line) is not None
+        assert logwords.EVENT.search(line) is None  # no stop: the game goes on
+        assert logwords.GAME_LEFT not in line
+
+
+def test_the_bound_demon_lost_is_said_at_once_and_noted_in_its_game(capsys) -> None:
+    # builds/warlock/pets.py PetWatch.say_lost (the player, 2026-10-21 ~15:45: "we have lost our daemon")
+    form = one('builds/warlock/pets.py', 'lost at')
+    line = logged(form % ('bound Urdar', 2147553209, 0, 128, 1, 128, '; the last Engorge 3.2s before'))
+    found = logwords.PET_LOST.search(line)
+    assert found is not None
+    assert found.groups() == ('bound Urdar', '2147553209', '0')
+    defiler = logged(form % ('Defiler', 1077230691, 0, 128, 6, 128, ''))
+    assert logwords.PET_LOST.search(defiler) is not None
+    seen = watch.Watch(1e9, 1e9)
+    seen.line('2026-10-21 15:41:00,000 INFO Macro: Loop: game 12, the zone')
+    capsys.readouterr()
+    seen.line(defiler)
+    assert 'PET LOST' not in capsys.readouterr().out  # a Defiler dies often: not the player's daemon
+    seen.line(line)
+    out = capsys.readouterr().out
+    assert out.startswith('PET LOST: bound Urdar (2147553209) at ')
+    assert out.rstrip().endswith(', 0/128')
+    assert seen.notes == ['bound Urdar lost']
+
+
+def test_a_pets_fall_line_reads() -> None:
+    # pets.py PetWatch.tell: 'Macro: pet: bound Urdar 73/128, -55 in 1.4s: Engorge now'
+    form = one('builds/warlock/pets.py', 'Macro: pet: %s %d/%d, %s: %s')
+    line = logged(form % ('bound Urdar', 73, 128, '-55 in 1.4s', 'Engorge now'))
+    assert line.endswith('Macro: pet: bound Urdar 73/128, -55 in 1.4s: Engorge now')
+    found = logwords.PET_DANGER.search(line)
+    assert found is not None
+    assert found.groups() == ('bound Urdar', '73', '-55 in 1.4s', 'Engorge now')
+
+
+def test_the_merc_lost_trip_is_an_event_and_not_a_game_left() -> None:
+    # macros/merc.py (2026-10-21, the player: "we have lost merc -> probably better retreat to the town and refill hp
+    # potions in the belt"): the trip, the belt's trip, a revive the carried gold does not cover
+    moment = 'no hostile within 30'
+    trip = logged(one('macros/merc.py', 'merc lost: a town trip') % (moment,))
+    belt = logged(one('macros/merc.py', 'belt low: a town trip') % ('healing potions low on the belt', moment))
+    short = logged(one('macros/merc.py', 'does not cover the revive') % (40000, 50000, 'unread'))
+    for line in (trip, belt, short):
+        assert logwords.EVENT.search(line) is not None, line
+        assert logwords.NOW.search(line) is not None, line
+        assert logwords.LEFT.search(line) is None, line
+        assert logwords.GAME_LEFT not in line
+    dead = logged(one('macros/merc.py', 'merc: dead: ') % ('its corpse read', 4, ' (unit 377627261)'))
+    revived = logged(one('macros/merc.py', 'merc: revived at Tyrael') % (50000, 300000, 250000, 50000))
+    for line in (dead, revived):
+        assert logwords.NOW.search(line) is not None, line
+        assert logwords.EVENT.search(line) is None, line  # no stop, no recovery: the game goes on
+
+
+# 08:59 on 2026-10-22 (TZ leveling, Catacombs 4): the Eastern Worldstone Shard the read listed, never picked, the game
+# left. The watch said nothing: runs/alt-d/full-stacks.json named the Eastern full (from the night before). A shard is
+# always picked up (macros/actloop.py SHARD_ALWAYS_PICKED), so one on the ground is MISSED whatever the stash's snapshot
+EASTERN_LEFT = [
+    '2026-10-22 08:59:20,000 INFO Macro: Loop: game 2, TZ level',
+    '2026-10-22 08:59:23,656 INFO Macro: ground: normal Eastern Worldstone Shard at (22544, 9516): taken (material)',
+    '2026-10-22 08:59:23,812 INFO Macro: ground: normal Eastern Worldstone Shard at (22544, 9516): taken (material)',
+    '2026-10-22 08:59:26,651 INFO Macro: Loop: game 2, TZ loot',
+    '2026-10-22 08:59:26,707 INFO Macro: Loop: game 2, Save and Exit',
+    '2026-10-22 08:59:27,664 INFO Macro: Loop: game 3, next game',
+]
+
+
+def test_a_shard_left_on_the_ground_is_missed_even_when_the_snapshot_names_its_stack_full(
+    tmp_path: Path, capsys, monkeypatch
+) -> None:
+    runs = tmp_path / 'runs'
+    runs.mkdir()
+    (runs / games.STASH_SNAPSHOT).write_text(
+        '{"full_names": ["Eastern Worldstone Shard", "Twisted Essence of Suffering"]}'
+    )
+    monkeypatch.setattr(games, 'RUNS', runs)
+    assert games.full_stacks() == {'Eastern Worldstone Shard', 'Twisted Essence of Suffering'}
+    assert unpicked_by_games(EASTERN_LEFT, tmp_path) == [('Eastern Worldstone Shard', 'what the marks point at')]
+    assert 'MISSED: game 2, normal Eastern Worldstone Shard at (22544, 9516)' in missed_by_watch(EASTERN_LEFT, capsys)
+    essence = [line.replace('Eastern Worldstone Shard', 'Twisted Essence of Suffering') for line in EASTERN_LEFT]
+    (tmp_path / 'essence').mkdir()
+    # a full stack's material: left by design
+    assert unpicked_by_games(essence, tmp_path / 'essence') == [('Twisted Essence of Suffering', None)]

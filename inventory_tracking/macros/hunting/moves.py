@@ -6,11 +6,12 @@ from contextlib import contextmanager, nullcontext
 from typing import TYPE_CHECKING
 
 from inventory_tracking.combat.policy import RUN_MODES, observe
-from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, Camp, camp, no_footing
+from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, RUN_SPEED, Camp, camp, no_footing
 from inventory_tracking.combat.survival import pressure
+from inventory_tracking.combat.threats import manaburn
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import NO_OWNER
-from inventory_tracking.game.records import Monster, Teleport, World
+from inventory_tracking.game.records import Loot, Monster, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.macros import route
@@ -18,8 +19,8 @@ from inventory_tracking.macros.actuator import Abort, Expired
 from inventory_tracking.macros.build import Intent, NoWay
 from inventory_tracking.macros.drinking import key_of, on_belt
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.goals import PICK_UP, Goal
-from inventory_tracking.macros.hunting import shrines
+from inventory_tracking.macros.goals import PICK_UP, Goal, spot_of
+from inventory_tracking.macros.hunting import choice, shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     BOSS_MARK_UNITS,
@@ -49,14 +50,25 @@ from inventory_tracking.macros.hunting.base import (
     threat,
 )
 from inventory_tracking.macros.pickup import Refused, pick_up
-from inventory_tracking.macros.pursuit import PASSAGE, Defer, Ended, Hold, Move as Advance, Operate, Pursuit
+from inventory_tracking.macros.pursuit import (
+    ENTRY_REACH,
+    PASSAGE,
+    Defer,
+    Ended,
+    Hold,
+    Move as Advance,
+    Operate,
+    Pursuit,
+)
 from inventory_tracking.macros.routines import SUPER_UNIQUE_FLAG, take_battle_weapons
+from inventory_tracking.macros.running.base import DOOR_PRESS
 from inventory_tracking.macros.safety import WALK_ROUND, WAY_SHARE
 from inventory_tracking.macros.sight import clear_shot, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
     EXPIRED,
     MOVED,
+    STILL_SECONDS,
     USES,
     Covered,
     entry_spot,
@@ -64,6 +76,7 @@ from inventory_tracking.macros.teleport import (
     hop_toward,
     in_view,
     marked_thing,
+    missed_from,
     ready,
     scaled,
     use_thing,
@@ -90,7 +103,7 @@ from inventory_tracking.macros.travel import (
 )
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.routes.model import FIGHT, STAND, USE
+from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
 from inventory_tracking.terror.bosses import BOSSES
 
 
@@ -102,14 +115,133 @@ if TYPE_CHECKING:
 # may have taken late. 00:45:48 on 2026-10-21: De Seis seal "did not take the click" (the walk began after
 # STILL_SECONDS), the act expired, the seal opened (mode 1 at the character beside it), the next look said "At De Seis
 # seal" and went on with no wait; De Seis came 0.9 s after the seal, behind the Teleports, and was never fought.
-# Off: an object found used brings nothing, as before.
-SETTLE_FOUND_USED = False  # off for the 2026-10-21 ~01:00 restart: no regression tests or wide suite yet
+# Off: an object found used brings nothing, as before. On since the 01:10 restart of 2026-10-21; re-checked 13:40 the
+# same day (the same miss at 08:37:01 on 2026-10-20; tests/inventory_tracking/macros/test_seal_route.py).
+SETTLE_FOUND_USED = True
 
 
 def found_used_settles(goal: Goal) -> bool:
     """Whether an object found used at `goal`'s operate is waited out as one just used (SETTLE_FOUND_USED): the
     route's `use` stage, noted done by this operate, so the wait comes once (no renewal at the same object)."""
     return SETTLE_FOUND_USED and goal.stage is not None and goal.stage.kind == USE
+
+
+# The hands' time at an object to use (`priced_for`) also holds the walk its click sends the character on, and a first
+# click that moved nobody (STILL_SECONDS, then the click again). 01:14:40.48-01:14:41.99 on 2026-10-21: Infector seal 2
+# clicked from 19 units, the first click moved nobody, the second at +0.8 s walked the character there, and the act's
+# 1.5 s (`operate_dwell`) expired 0.08 s before the seal showed open; De Seis seal the same at 00:45:48 (game 2 of
+# 20261020T211911Z-0a4e743b). Off: `operate_dwell` alone, as before.
+USE_WALK_PRICED = True
+
+
+def operate_window(dwell: float, here: Point, goal: Goal) -> float:
+    """Seconds the hands are given at `goal` (`priced_for`): `dwell`, and for an object to use (USE_WALK_PRICED) the
+    walk to it at RUN_SPEED and one click's STILL_SECONDS more."""
+    if not USE_WALK_PRICED or goal.do != USE or goal.mark is None:
+        return dwell
+    return dwell + math.dist(here, goal.place) / RUN_SPEED + STILL_SECONDS
+
+
+def here_of(world: World) -> Point:
+    """The character's place in `world` (one is there whenever an act is made)."""
+    player = world.player
+    assert player is not None
+    return (player.x, player.y)
+
+
+# 2026-10-21: the hands' time at a drop also holds the way there at RUN_SPEED and one click's STILL_SECONDS, at most
+# PICK_WALK_MOST more. 79 of 122 pickups that ran out their 1.5 s on 2026-10-20/21 were under way (a Blade Warp of
+# 0.9-1.1 s onto gold 13-20 away, the pile's other drops taken first, a click made as the time ran out), and two
+# run-outs give a drop up (26 on those days, gold mostly). Off: `operate_window` alone, as before.
+PICK_WALK_PRICED = True
+PICK_WALK_MOST = 1.5
+
+
+def hands_window(dwell: float, here: Point, goal: Goal) -> float:
+    """Seconds the hands are given at `goal` (`priced_for`): a drop's with its way (PICK_WALK_PRICED), else
+    `operate_window`'s."""
+    if PICK_WALK_PRICED and goal.do == PICK_UP:
+        return dwell + min(math.dist(here, goal.place) / RUN_SPEED + STILL_SECONDS, PICK_WALK_MOST)
+    return operate_window(dwell, here, goal)
+
+
+# 2026-10-21 02:49:37 (loop journal): a Teleport onto the stairs' mark of Sewers 2 landed 7.1 off (the stairs are no
+# ground), the next three from there moved nothing ("priced act expired" x3, ~5 s), then a walk of 4 took the stairs;
+# the same at 01:58 on 10-20 and 02:35, 09:12 on 10-21. Within PASSAGE_WALK_UNITS of a way out that is a door, stairs
+# or a portal (not an open passage), the Teleport onto it is a walk to PASSAGE_SHORT from the mark (where that walk of
+# 4 went). Off: the Teleport, as before.
+PASSAGE_WALK = True
+PASSAGE_WALK_UNITS = 12.0
+PASSAGE_SHORT = 3.5
+# 2026-10-21: a Teleport aimed again at the spot the last hop missed by MOVED or more, from where that hop landed and
+# within REHOP_WALK_UNITS of it, moved nothing in 33 of 48 such hops on 2026-10-20/21 (~1.4 s each, 7 in a row at
+# Coldcrow's mark); it is a walk there instead. Off: the Teleport again, as before.
+REHOP_WALK = True
+REHOP_WALK_UNITS = 10.0
+SPOT_SAME = 1.0  # world units: a step's spot that is the goal's place
+
+
+def short_of(here: Point, place: Point, short: float) -> Point:
+    """The point `short` units from `place` toward `here` (`place` itself when `here` is nearer)."""
+    gap = math.dist(here, place)
+    if gap <= short:
+        return place
+    return (place[0] + (here[0] - place[0]) * short / gap, place[1] + (here[1] - place[1]) * short / gap)
+
+
+def last_leg(goal: Goal, step: Step, here: Point, area: int) -> Step:
+    """The look's step, or a walk where its Teleport would move nothing: onto a way out from near it (PASSAGE_WALK),
+    or onto the spot the last hop missed from where it landed (REHOP_WALK)."""
+    if step.skill != TELEPORT:
+        return step
+    gap = math.dist(here, step.spot)
+    if (
+        PASSAGE_WALK
+        and goal.do == ENTER
+        and not goal.crossed
+        and math.dist(step.spot, goal.place) <= SPOT_SAME
+        and math.dist(here, goal.place) <= PASSAGE_WALK_UNITS
+    ):
+        marked = goal.mark is not None and math.dist(goal.place, spot_of(goal.mark)) <= SPOT_SAME
+        spot = short_of(here, goal.place, PASSAGE_SHORT) if marked else goal.place
+        LOG.info(
+            'Macro: pursuit: %s %.1f away: walked to (%.1f, %.1f), not hopped onto (a hop onto a way out lands '
+            'beside it)', goal.label, math.dist(here, goal.place), *spot,
+        )  # fmt: skip
+        return Step(spot)
+    missed = missed_from(area, here, step.spot)
+    if REHOP_WALK and missed is not None and gap <= REHOP_WALK_UNITS:
+        LOG.info(
+            'Macro: pursuit: the last hop onto (%.1f, %.1f) landed %.1f off it, here: walked the %.1f left',
+            *step.spot, missed, gap,
+        )  # fmt: skip
+        return Step(step.spot)
+    return step
+
+
+# A level run's move toward its way out by a door, stairs or a portal (not an open passage) that did not move the
+# character within ENTRY_REACH of it ends the run there: the route's press goes through by the door's click
+# (macros/route.py, levels/doors.py), as at a way no hop gets nearer to (pursuit.py `to_the_door`). 23:18:59-23:19:45
+# on 2026-10-21: the Forgotten Tower's way back to the Black Marsh lies in the wall, the nearest ground 3.0 from it,
+# its goal's reach 2.0; the walk onto it moved nothing 16 times, the safety's spots too, until the 45 s still watchdog
+# left the game (rca/2026-10-21/tower-stall-findings.md). The way in, from the same 3.0, took the door's click at once.
+# False: the move again at the next look, as before
+DOOR_WALK_PRESS = True
+
+
+def door_stuck(act: Advance, here: Point, running: bool, stop: Abort) -> bool:
+    """Whether the run ends at `act`'s way out (DOOR_WALK_PRESS): a level run's move toward a door, stairs or portal
+    that `stop` says did not move the character (not `Untaken`, a cooldown), within ENTRY_REACH of it."""
+    goal = act.goal
+    return (
+        DOOR_WALK_PRESS
+        and running
+        and goal.do == ENTER
+        and not goal.crossed
+        and 'did not move' in str(stop)
+        and not isinstance(stop, Untaken)
+        and math.dist(here, goal.place) <= ENTRY_REACH
+    )
 
 
 def dead_end(self: Hunter, spot: Point, now: float) -> None:
@@ -135,6 +267,26 @@ def barred(self: Hunter, act, now: float) -> bool:
     if act.step.skill == TELEPORT and now < self.stuck_until:
         return False  # stuck: a Teleport crosses what the move that failed did not
     return any(until > now and math.dist(act.step.spot, spot) <= DEAD_END_NEAR for spot, until in self.dead_ends)
+
+
+def mana_rejuvenation(self: Hunter, run: Run, loot: Loot, rejuvenations: int) -> bool:
+    """A Rejuvenation for the mana in a scary moment (combat/threats/manaburn.py MANA_REJUVENATION,
+    `rejuvenation_for_mana`; the player, 2026-10-21 ~16:30: "we can restore mana with rejuv potions, in a very scary
+    moments, but make sure that we don't overuse it"), after the life's own drinks; whether one went out."""
+    kind, now = PotionType.REJUVENATION, run.clock()
+    look = self.safety.mana_look
+    since = now - self.drinker.drunk_at.get(kind, -math.inf)
+    why = manaburn.rejuvenation_for_mana(look, now, rejuvenations, since, self.safety.mana_drunk)
+    if why is None or look is None or not loot.belt_read or self.drinker.busy or self.drinker.shift_down(run):
+        return False
+    key = key_of(loot, kind)
+    if key is None or not self.drinker.take(run, key, kind, loot, pressure(self.drinker.readings)):
+        return False
+    if look.key is not None:
+        self.safety.mana_drunk[look.key] = now
+    LOG.info('Macro: drink: Rejuvenation for mana: %s', why)
+    self.tell(run, 'the mana restored; the next look decides the act')
+    return True
 
 
 def pursue(
@@ -177,6 +329,8 @@ def pursue(
             if key is not None and self.drinker.take(run, key, kind, loot, pressure(self.drinker.readings)):
                 self.tell(run, 'recovering the life budget; the next look decides the act')
                 return True
+        if mana_rejuvenation(self, run, loot, supply[kind]):
+            return True
     if isinstance(act, Hold):
         # A fight's cached yield from the last look must not release this strike again
         self.judged = (stamp, run.clock(), False)
@@ -221,7 +375,8 @@ def pursue(
                     # keeps its sweep for the fights on its way
                     self.sweep.end()
             else:
-                with self.priced_for(run, self.build.settings.safety.operate_dwell):
+                dwell = self.build.settings.safety.operate_dwell
+                with self.priced_for(run, hands_window(dwell, here_of(world), act.goal)):
                     self.operate(run, world, act.goal, key_names)
         self.told.new(None)
         self.refused = None
@@ -240,9 +395,17 @@ def pursue(
             self.drops.tried[act.goal.unit] = str(stop)
         if isinstance(stop, Covered):
             self.blocked(run, stop.units)
-        elif isinstance(act, Operate) and self.base is not None:
-            self.missed = (self.base.label, run.clock() + BLOCK_SECONDS)  # tried again from nearer
+        elif isinstance(act, Operate) and (choice.NEARER_CLEARING or self.base is not None):
+            # Tried again from nearer (choice.py `from_nearer`): under the act's own goal (NEARER_CLEARING), else the
+            # route's goal of the look
+            missed = act.goal if choice.NEARER_CLEARING else self.base
+            assert missed is not None
+            self.missed = (choice.missed_key(missed), run.clock() + BLOCK_SECONDS)
         self.give_up(run, f'no {"move toward" if isinstance(act, Advance) else "use of"} {act.goal.label}: {stop}')
+        if isinstance(act, Advance) and door_stuck(act, here_of(world), running, stop):
+            away = math.dist(here_of(world), act.goal.place)
+            self.end_run(run, f'by {act.goal.label}, {away:.1f} away, no move onto it: {DOOR_PRESS}', posted)
+            return False
         self.nap(run, FRAME)
     return True
 
@@ -319,6 +482,41 @@ def priced_for(self: Hunter, run: Run, seconds: float):
         run.observe = previous
 
 
+# A jump toward the goal that a retreat undoes with no strike between is not jumped to again for BOUNCE_SECONDS: the
+# Herald pack of 21:23:43-52 on 2026-10-21 (session 20261021T181554Z-33b73fa1), the elite 650 (2331124910) at
+# (10146.5, 7382.5) with Mana Burn: the pursuit's hop from (10122, 7358.5), 35 off it, to (10147.5, 7357.5), 25 off
+# it and out of the strike's reach, then at once "retreating: no progress act fits the life budget" back, 16 jumps
+# in 8 s, no cast, until the player paused the loop. The coordinator, 2026-10-21 ~21:30: "when a jump toward the goal
+# does not bring a strike, stop jumping". The spot is a dead end for the look (`barred`): another place, a hold or
+# a look again. False: the hop is made again at the next look.
+BOUNCE_BARS = True
+BOUNCE_WINDOW = 2.0  # seconds from the progress move to the retreat that undoes it
+BOUNCE_NEAR = 3.0  # world units: the retreat made from within this of the progress move's spot
+BOUNCE_SECONDS = 6.0
+
+
+def bounced(self: Hunter, act: Advance, here: Point, now: float) -> None:
+    """BOUNCE_BARS: note the pursuit's own move (no reason); a retreat made within BOUNCE_NEAR of the last one's
+    spot within BOUNCE_WINDOW with no strike since makes that spot a dead end for BOUNCE_SECONDS (`barred`); said."""
+    if not BOUNCE_BARS or act.dodge:
+        return
+    if not act.reason:
+        self.progressed = (act.step.spot, now)
+        return
+    if not act.reason.startswith('retreat') or self.progressed is None:
+        return
+    spot, at = self.progressed
+    if now - at > BOUNCE_WINDOW or math.dist(here, spot) > BOUNCE_NEAR or self.struck_at >= at:
+        return
+    self.progressed = None
+    self.dead_ends = [*self.dead_ends[-20:], (spot, now + BOUNCE_SECONDS)]
+    LOG.info(
+        'Macro: pursuit: the move to (%.1f, %.1f) %.1f s ago brought no strike and a retreat undoes it (%s): not moved '
+        'to for %.0fs',
+        *spot, now - at, act.reason, BOUNCE_SECONDS,
+    )  # fmt: skip
+
+
 def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, place: Point, key_names) -> None:
     """Makes the navigator's move toward the goal. A casting delay about to end is waited out and the move
     priced again (`Travel.pause`); an empty staff in hand is swapped for the main weapons (`foot_step`)."""
@@ -350,6 +548,9 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
     if staff is not None and staff.charges == 0 and staff.in_hand:
         run.keys.update(key_names(world, (SWAP_WEAPONS,)))
         take_battle_weapons(run)
+    if not act.reason:  # a reason's move (a retreat, a dodge) is the safety's own
+        step = last_leg(goal, step, (player.x, player.y), player.area)
+    bounced(self, act, (player.x, player.y), run.clock())
     by = 'Walking' if step.skill is None else skill_name(step.skill)
     if goal.crossed and step.skill is None and step.spot == goal.place:
         # The walk across an open passage (pursuit.py `through`), said whether the safety priced it or not
@@ -489,7 +690,8 @@ def pursue_once(self: Hunter, run: Run, key_names, *, attacking: bool) -> Judged
             with self.priced_for(run, act_window(found.act.step)):
                 self.advance(run, world, ground, found.act, found.place, key_names)
         elif isinstance(found.act, Operate):
-            with self.priced_for(run, self.build.settings.safety.operate_dwell):
+            dwell = self.build.settings.safety.operate_dwell
+            with self.priced_for(run, hands_window(dwell, here_of(world), found.act.goal)):
                 self.operate(run, world, found.act.goal, key_names)
         return found
     finally:

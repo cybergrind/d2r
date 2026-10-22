@@ -6,13 +6,17 @@ from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import World
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
+from inventory_tracking.macros import cta, route, zonenav
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import ZONE_LEFT
 from inventory_tracking.macros.cain import identify_all
 from inventory_tracking.macros.cube import perfect_of, stash, stash_only, transmute, unpack
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter, threat
+from inventory_tracking.macros.hunting import throne
+from inventory_tracking.macros.hunting.base import hostiles
 from inventory_tracking.macros.junk import identify, junk_of, named
 from inventory_tracking.macros.loop import LegHands
 from inventory_tracking.macros.navigation import Abilities, means
@@ -21,13 +25,15 @@ from inventory_tracking.macros.portal import portal_source
 from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.routines import show_items_on
 from inventory_tracking.macros.running.base import PICK_SLACK, PICKUP, TRANSMUTES, VERDICT_SECONDS
+from inventory_tracking.macros.running.recovery import back_for_bosses
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL, skill_name
-from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem
+from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem, sold_full
 from inventory_tracking.macros.townexit import walk_out as walk_out_of_town
 from inventory_tracking.macros.travel import cut
 from inventory_tracking.macros.tzloop import full_clear
 from inventory_tracking.macros.tzroutine import Itinerary, policy_of
 from inventory_tracking.macros.visit import Hands, visit
+from inventory_tracking.routes.model import USE
 
 
 if TYPE_CHECKING:
@@ -57,6 +63,9 @@ def _trip_levels(self: MacroRunner) -> frozenset[int] | None:
     plan, area = self.loop.agenda.plan, self.area_seen
     if not isinstance(plan, Itinerary) or area is None:
         return None
+    if zonenav.on(plan):
+        # Zone navigation: each level's run ends on it, its verdict read as it ends (macros/zonenav.py `allowed`)
+        return zonenav.allowed(zonenav.graph_of(plan), area) or frozenset((area,))
     trip = plan.excursion_of(area, self.loop.agenda.finished)
     return frozenset(trip.areas) if trip is not None else frozenset((area,))
 
@@ -64,7 +73,12 @@ def _trip_levels(self: MacroRunner) -> frozenset[int] | None:
 def _agenda_policy(self: MacroRunner, area: int) -> str:
     """How a terror zone kind's level run works level `area` (macros/tzroutine.py `policy_of`)."""
     plan = self.loop.agenda.plan
-    trip = plan.excursion_of(area, self.loop.agenda.finished) if isinstance(plan, Itinerary) else None
+    trip = None
+    if isinstance(plan, Itinerary):
+        # Zone navigation judges each level by itself: its trip's policy even once that trip is over (Duriel's Lair
+        # after the last tomb, tzroutine.py `trip_of`)
+        finished = self.loop.agenda.finished
+        trip = plan.trip_of(area, finished) if zonenav.on(plan) else plan.excursion_of(area, finished)
     wanted = getattr(self.progress, 'wanted', None)
     if trip is not None and area in trip.zone and wanted is not None and wanted(area) is False:
         # The zone moved on under the run (23:30 on 2026-10-19: Spider Forest explored 1.5 min after the zone went to
@@ -79,13 +93,37 @@ def _way_on(
 ) -> None:
     """At the way on (stairs, a door): what lies there first, then the press through (macros/pursuit.py
     `to_the_door`); else the level run to it. The level is not come back to, so its loot goes first."""
-    player = run.world().player
+    world = run.world()
+    player = world.player
     if player is not None and self.at_the_way_on(player):
         if take_one():
+            return
+        waves = self.hunter.waves if self.hunter is not None else None
+        shut = throne_shut(waves, self.progress, world, time.monotonic())
+        if shut is not None:
+            # The Chamber's portal before Baal left (17:24:25-17:24:39 on 2026-10-21: 16 clicks, the game left): the
+            # level run waits for it (hunting/throne.py `wave_goal`: the hall, Baal's walk, PORTAL_OPENS)
+            LOG.info('Macro: run: Throne of Destruction: the portal is not open yet (%s): the level run first', shut)
+            level_run()
             return
         self._teleport_step(run, key_names)
     else:
         level_run()
+
+
+def throne_shut(waves: throne.Waves | None, progress, world: World, now: float) -> str | None:
+    """Why the way on's press at the Throne's portal to the Worldstone Chamber is not made yet (hunting/throne.py
+    `portal_shut`), None elsewhere, with PORTAL_GATE off, or once it opened."""
+    player = world.player
+    if not throne.PORTAL_GATE or waves is None or player is None or player.area != throne.THRONE:
+        return None
+    staged = route.staged(progress, player.area)
+    if staged is None or staged[1].kind != USE or staged[1].to != throne.CHAMBER:
+        return None
+    waves.begin(world.game_name)
+    seat = throne.seat_of(world.monsters)
+    hall = throne.hall_of(hostiles(world), seat) if seat is not None else []
+    return throne.portal_shut(waves, seat=seat, hall=hall, now=now, here=(player.x, player.y))
 
 
 def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
@@ -152,9 +190,10 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         parked: list[int] = []
 
         def staying() -> frozenset[tuple[int, int, int]]:
-            # the cube takes the loop's items, not the full stacks' runes and materials (for Jamella)
+            # the cube takes the loop's items, not the full stacks' runes and materials (for Jamella): the visit's
+            # stacks, read at its stash stop
             pack = run.reads.carried()
-            sold = self.loop.sold_full
+            sold = sold_full(full)
             held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
             return (self.loop.own or frozenset()) | held
 
@@ -247,7 +286,38 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         navigate=navigate,
         walk_out=walk_out,
         inventory_key=inventory_key,
+        back_for_bosses=lambda: back_for_bosses(self, run.reads.loot()),
+        orders_on_arrival=lambda: orders_on_arrival(hunter, run, key_names),
     )
+
+
+def orders_on_arrival(hunter: Hunter | None, run: Run, key_names) -> str:
+    """Battle Orders at a beset recovery's portal return (macros/tzloop.py DANGER_RETURN), before any fight: when the
+    arrival's swap did not cast it (routines.py `took_input`, cta.py `cast_in_hand`: a load shown skips it) and it is
+    due by the arrival rule (cta.py `arrival_due`: not shown, under ARRIVAL_LEFT s left, or its age not known), the
+    attack mode's own row for it is cast by its rules: in the quiet under ARRIVAL_LEFT, with a hostile near only as
+    REBUFF's cast in place, else left to the danger pricing and its retreat (macros/safety.py REBUFF_RETREAT). What
+    was done."""
+    if hunter is None:
+        return 'no hunt to cast with'
+    world = run.world()
+    if not cta.arrival_due(run, world):
+        return 'not due (cast at the arrival, or time enough left)'
+    buffs = hunter.buffs
+    row = next((r for r in buffs.rows('upkeep') if r.caster == 'cta'), None)
+    if row is None:
+        return 'no Call to Arms row'
+    foes = hostiles(world)
+    due = buffs.due(run, row, buffs.facts(run, world, foes, ahead=cta.ARRIVAL_LEFT))
+    if due is None:
+        return 'not cast now: a hostile near, the fight rules first'
+    try:
+        buffs.cast(run, due, key_names)
+    except Abort as stop:
+        if run.stops(stop):
+            raise
+        return f'not cast ({stop}); the upkeep casts it'
+    return 'cast'
 
 
 def _identify_loot(self: MacroRunner, run: Run, items: Sequence) -> None:
@@ -304,11 +374,9 @@ def _shared_town_visit(
     hands = Hands(inventory_key, identify_loot, lambda items: junk_of(items, self.appraise),
                   lambda: run.reads.stash_view(), transmute_gems, appraise=self.appraise)  # fmt: skip
     needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
-    done = visit(run, hands, needs, own, exit, full=frozenset(self.loop.full),
+    # The visit reads the stash itself (through the one record); `full` is the record's for an unread stash
+    done = visit(run, hands, needs, own, exit, full=self.loop.stash.full(),
                  waited=self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip
-    if done.full != frozenset(self.loop.full):
-        self.loop.full = set(done.full)
-        self.loop.keep_full()
     if done.repair_failed:
         self.loop.repair_failed = self.loop.games
     return done.contract

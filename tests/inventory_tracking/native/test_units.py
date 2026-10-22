@@ -21,6 +21,15 @@ def test_cycle_terminates_and_marks_incomplete():
     assert 'cycle' in result['errors'][0]['error']
 
 
+def test_the_units_flag_word_is_published():
+    # game/layout.py UNIT_FLAGS: a Slime Prince under the bog read 0x30000001 (rca/2026-10-21/no-hits-findings.md W1)
+    record = bytearray(unit(1, 128))
+    struct.pack_into('<I', record, 0x124, 0x30000001)
+    heads = [4096] + [0] * 127
+    result = walk_units(lambda address, size: bytes(record), heads, 1, max_units=1)
+    assert result['units'][0]['flags'] == 0x30000001
+
+
 def test_wrong_type_is_not_published():
     heads = [4096] + [0] * 127
     result = walk_units(lambda address, size: unit(1, 128), heads, 4)

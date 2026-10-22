@@ -8,8 +8,8 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.macros import loop as loop_module, tzloop
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros import loop as loop_module, tzloop, tzroutine
+from inventory_tracking.macros.actuator import Abort, Cause
 from inventory_tracking.macros.agenda import (
     KILL,
     LEAVE_GAME,
@@ -39,10 +39,12 @@ from inventory_tracking.macros.loop import (
     loop_kinds,
 )
 from inventory_tracking.macros.route import PERFORMED
+from inventory_tracking.macros.teleport import Untook
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.macros.tzroutine import Itinerary
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
+from inventory_tracking.terror.tracker import ZoneTracker
 from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
 
 
@@ -59,13 +61,26 @@ def at(area: int):
     return world(area, player=player(area))
 
 
+class Book(ZoneTracker):
+    """The terror tracker as the game's boss book (macros/bossledger.py: its file-backed records, none kept here), its
+    kills the game's (`Script.killed`)."""
+
+    def __init__(self, killed: set[str]) -> None:
+        super().__init__()
+        self.game_killed = killed
+
+    def killed(self) -> frozenset[str]:
+        return frozenset(self.game_killed)
+
+
 class Script:
     """A terror zone game: the fakes' game read, the leg routines recorded and moving the character."""
 
     def __init__(self, area: int, monkeypatch: pytest.MonkeyPatch, zone: frozenset[int] = CATACOMBS):
         self.play = Game(at(area))
         self.killed: set[str] = set()
-        self.progress = Progress(ROUTES, PERFORMED, lambda: frozenset(self.killed), wanted=lambda a: a in zone)
+        self.book = Book(self.killed)
+        self.progress = Progress(ROUTES, PERFORMED, self.book.killed, wanted=lambda a: a in zone)
         self.progress.note(GAME, area)
         self.zone = zone
         self.calls: list[tuple] = []
@@ -76,6 +91,18 @@ class Script:
         self.loop.start()
         self.runs: list[int] = []
         self.on_run = lambda area: None
+        # Zone navigation (macros/zonenav.py): the levels whose map a run never reads, the doors no click takes
+        self.unmapped: set[int] = set()
+        self.stuck: set[int] = set()
+        # The levels whose way in is an object no click takes yet (teleport.py `Untook`: the Throne's portal before
+        # Baal left): the ways made before it takes, None never
+        self.untook: dict[int, int | None] = {}
+        self.untook_why = 'no click took {}'  # its words, the mark's label put in
+        # The levels whose next run ends at a child's door before its rooms ("Enter when passing"): left unexplored
+        self.cut_short: set[int] = set()
+        # The levels whose next run ends at its route's door and stands there, a warp's press the leg's (live: "at
+        # Forgotten Reliquary: going through takes a press", 14:10:58 on 2026-10-21): mapped, not explored, no move
+        self.at_door: set[int] = set()
         monkeypatch.setattr(tzloop, 'travel', lambda run, to, marks=None: self.go('waypoint', to))
         monkeypatch.setattr(tzloop, 'to_town', self.to_town)
         monkeypatch.setattr(loop_module, 'through_portal', lambda run, near=None: self.go('through', self.portal_from))
@@ -100,9 +127,25 @@ class Script:
 
     def level_run(self) -> None:
         # The runner's: the level run posted and over by itself (runner.py `_run_over`: `Agenda.ran`)
-        self.runs.append(self.area)
-        self.on_run(self.area)
-        self.loop.agenda.ran(self.area)
+        area = self.area
+        self.runs.append(area)
+        self.on_run(area)
+        if area in self.at_door:
+            self.at_door.discard(area)
+            self.loop.agenda.mapped.add(area)
+        elif area in self.cut_short:
+            # The run took its route's way on (a door beside it) before its rooms: over in the next level
+            self.cut_short.discard(area)
+            self.loop.agenda.mapped.add(area)
+            step = self.progress.step(area)
+            assert step is not None
+            assert step.stage.to
+            self.go('door', step.stage.to)
+        elif area not in self.unmapped:
+            # runner.py `_zone_seen`: the run's tour found no room left, the level's map read
+            self.loop.agenda.mapped.add(area)
+            self.loop.agenda.explored.add(area)
+        self.loop.agenda.ran(area)
 
     def take_one(self) -> bool:
         return self.picks.pop(0) if self.picks else False
@@ -111,6 +154,14 @@ class Script:
         step = self.progress.step(self.area)
         assert step is not None
         assert step.stage.to
+        if step.stage.to in self.stuck:
+            raise Abort(f'no click took {step.stage.mark}', cause='door')
+        if step.stage.to in self.untook:
+            left = self.untook[step.stage.to]
+            if left is None or left > 0:
+                self.untook[step.stage.to] = None if left is None else left - 1
+                self.calls.append(('untook', step.stage.to))
+                raise Untook(self.untook_why.format(step.stage.mark))
         self.go('door', step.stage.to)
 
     def sighted(self, area: int | None) -> str | None:
@@ -154,7 +205,7 @@ def test_a_catacombs_terror_zone_game_kills_the_elites_on_the_way_then_andariel_
             game.killed.add('Andariel')
 
     game.on_run = run_of
-    legs = [game.leg() for _ in range(16) if game.play.world.in_game]
+    legs = [game.leg() for _ in range(24) if game.play.world.in_game]
     legs = legs[: legs.index(LEAVE) + 1]
 
     assert legs == [
@@ -162,9 +213,15 @@ def test_a_catacombs_terror_zone_game_kills_the_elites_on_the_way_then_andariel_
         *[TZ_LEVEL, TZ_NEXT_LEVEL] * 2,  # Catacombs 2-3 (from the Catacombs 2 waypoint): each run, then the way on
         TZ_LEVEL,  # Level 4: the unique, then her fight (the route's goal)
         TZ_LOOT,
+        # Then the levels before her from the Inner Cloister's waypoint (tzroutine.py SKIPPED_TRIPS, 2026-10-22: Bone
+        # Ash in the Cathedral)
+        TZ_PORTAL,
+        TZ_WAYPOINT,
+        *[TZ_LEVEL, TZ_NEXT_LEVEL] * 2,
+        TZ_LEVEL,
         LEAVE,  # no goals left: Save and Exit, the next game
     ]
-    assert game.runs == [35, 36, 37]
+    assert game.runs == [35, 36, 37, 32, 33, 34]
     assert [kind for area, kind in targets if area == 35] == [KILL, None]  # the champion, then the way on
     assert [kind for area, kind in targets if area == 37] == [KILL, None]  # the unique, then Andariel
     assert all(kind is None for area, kind in targets if area not in (35, 37))
@@ -501,8 +558,8 @@ def test_a_level_whose_goals_run_out_is_left_and_never_with_a_valuable_on_the_gr
     assert game.leg() == TZ_PICKUP
     del game.sightings[37]  # off the ground
     assert game.leg() == TZ_LEVEL  # its first run (the leaders), whatever the route says
-    assert game.leg() == LEAVE  # the route over, nothing seen: no goals
-    assert 'Save and Exit' in game.play.said
+    # The route over, nothing seen: the level left, by the Town Portal for the levels before her (SKIPPED_TRIPS)
+    assert game.leg() == TZ_PORTAL
 
 
 def test_the_leave_leg_itself_refuses_a_game_with_a_valuable_on_another_level(monkeypatch):
@@ -577,7 +634,7 @@ def test_the_terror_zone_kinds_are_offered_only_once_promoted(monkeypatch):
     assert set(loop_kinds()) == {'lk', 'andariel'}
     monkeypatch.setattr(tzloop, 'ENABLED', True)
     assert set(loop_kinds()) == {'lk', 'andariel', 'tz', 'tzclear'}
-    assert (TZ.metric, TZ_CLEAR.name) == ('experience an hour', 'Full clear TZ')
+    assert (TZ.metric, TZ_CLEAR.name) == ('experience and elite kills an hour', 'Full clear TZ')
     assert TZ.game_seconds is not None
     assert TZ.game_seconds > 240.0
 
@@ -1100,7 +1157,11 @@ NEAREST = (69, 66, 72, 67, 71, 68, 70)  # the order the tour's entrances come ne
 
 def tomb_tour(game: Script, order: tuple[int, ...] = NEAREST, noted: bool = True):
     """The way on of the Canyon's game: from the Canyon the press through the nearest entrance not yet entered, noted
-    gone through as macros/route.py `note_toured` does (`noted`); from a tomb its way back to the Canyon."""
+    gone through as macros/route.py `note_toured` does (`noted`); from a tomb its way back to the Canyon.
+
+    Each tomb entered is read without the Orifice (levels/handlers/tal_rasha.py DURIEL, on since 2026-10-21: the
+    card goal's `absent` on arrival, the client holding every room of the level from its entry), so its route's
+    Orifice `use` is done and its way on is its way back; the lair's own games: tests/.../acts/test_act2_duriel.py."""
 
     def door() -> None:
         if game.area != CANYON:
@@ -1111,6 +1172,7 @@ def tomb_tour(game: Script, order: tuple[int, ...] = NEAREST, noted: bool = True
         if noted:
             game.progress.used(CANYON, 'Tomb', (float(tomb), 0.0), ())
         game.go('tomb', tomb)
+        game.progress.absent(tomb, 'Orifice')
 
     return door
 
@@ -1121,6 +1183,9 @@ def test_a_canyon_game_clears_the_canyon_then_each_tomb_once_by_the_nearest_entr
     # 14:02:17 on 2026-10-20: the Canyon's run over at a tomb's entrance, no goals left, Save and Exit. The player,
     # 2026-10-20 ~14:03: "we need to utilize smaller tombs too - it gives a great ext/hour rate"
     caplog.set_level('INFO')
+    # The tour's mechanics: no tomb here holds the Orifice (`tomb_tour`), so Duriel is out of reach and the boss
+    # ledger's game end stops the loop for the player (tzloop.py BOSS_STAYS: `test_a_tomb_tour_with_no_orifice_...`)
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)
     game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
     game.door = tomb_tour(game)
     legs = [game.leg() for _ in range(40) if game.play.world.in_game]
@@ -1145,6 +1210,9 @@ def test_a_canyon_game_clears_the_canyon_then_each_tomb_once_by_the_nearest_entr
 
 
 def test_a_room_trip_from_a_tomb_comes_back_through_the_portal_and_the_tour_goes_on(monkeypatch):
+    # The tour's mechanics: no tomb here holds the Orifice (`tomb_tour`), so Duriel is out of reach and the boss
+    # ledger's game end stops the loop for the player (tzloop.py BOSS_STAYS: `test_a_tomb_tour_with_no_orifice_...`)
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)
     game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
     game.door = tomb_tour(game)
     exits: list[Exit] = []
@@ -1167,6 +1235,9 @@ def test_a_room_trip_from_a_tomb_comes_back_through_the_portal_and_the_tour_goes
 def test_back_by_the_waypoint_mid_tour_the_tombs_entered_are_done_and_the_rest_follow(monkeypatch):
     # A trip to town that comes back by the Canyon's waypoint, not the portal: the tomb half done counts done (no level
     # twice in a game), the tour goes on with those not entered
+    # The tour's mechanics: no tomb here holds the Orifice (`tomb_tour`), so Duriel is out of reach and the boss
+    # ledger's game end stops the loop for the player (tzloop.py BOSS_STAYS: `test_a_tomb_tour_with_no_orifice_...`)
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)
     game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
     game.door = tomb_tour(game)
     legs = []
@@ -1185,6 +1256,9 @@ def test_back_by_the_waypoint_mid_tour_the_tombs_entered_are_done_and_the_rest_f
 def test_a_tomb_entered_again_ends_the_game_and_no_tomb_is_run_twice(monkeypatch, caplog):
     # The entrance not noted gone through (route.py `note_toured`): the tour still leads to it
     caplog.set_level('INFO')
+    # The tour's mechanics: no tomb here holds the Orifice (`tomb_tour`), so Duriel is out of reach and the boss
+    # ledger's game end stops the loop for the player (tzloop.py BOSS_STAYS: `test_a_tomb_tour_with_no_orifice_...`)
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)
     game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
     game.door = tomb_tour(game, noted=False)
     legs = [game.leg() for _ in range(20) if game.play.world.in_game]
@@ -1193,6 +1267,34 @@ def test_a_tomb_entered_again_ends_the_game_and_no_tomb_is_run_twice(monkeypatch
     assert legs == [TZ_WAYPOINT, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_NEXT_LEVEL, LEAVE]
     assert game.runs == [CANYON, NEAREST[0]]
     assert any("Tal Rasha's Tomb 4 entered again" in record.getMessage() for record in caplog.records)
+
+
+def until_stopped(game: Script, legs: list[str], count: int, after=None) -> Abort:
+    """The game's legs into `legs` (`after()` after each) until one stops it; the stop."""
+    for _ in range(count):
+        try:
+            legs.append(game.leg())
+        except Abort as stop:
+            return stop
+        if after is not None:
+            after()
+    raise AssertionError(f'no stop in {count} legs: {legs}')
+
+
+def test_a_tomb_tour_with_no_orifice_found_stops_the_loop_for_the_player_naming_duriel(monkeypatch):
+    # The player, 2026-10-22: "we should always kill act bosses": a Tal Rasha's game never ends with Duriel alive; with
+    # no way into his Lair found, the loop stops where it is (cause 'idle': stops.py STOP, no Save and Exit)
+    game = Script(LUT_GHOLEIN, monkeypatch, zone=TAL_RASHAS)
+    game.door = tomb_tour(game)
+    legs: list[str] = []
+    stopped = until_stopped(game, legs, 40)
+    assert str(stopped) == "no goals left, but Duriel (Duriel's Lair) alive: the loop stops here for the player"
+    assert stopped.cause == 'idle'
+    assert LEAVE not in legs
+    assert 'Save and Exit' not in game.play.said
+    assert game.runs == [CANYON, *NEAREST]  # every tomb toured first
+    game.killed.add('Duriel')  # once he is dead, the game ends as before
+    assert game.leg() == LEAVE
 
 
 def test_the_canyons_tour_takes_fewer_ways_on_than_the_loops_repeat_guard():
@@ -1224,6 +1326,7 @@ def test_a_terrorized_act_4_game_is_diablo_from_the_river_then_its_rest_the_city
 ):
     # The player, 2026-10-20 ~21:27: "we must go river of flame -> CS -> kill diablo -> do rest of flame river -> city
     # of damned/planes of despair and etc" (game 21, 21:22:11: the City's waypoint first, City and River before him)
+    tzroutine.itinerary.cache_clear()  # its plan line is said as it is made: not by another test before it
     game = Script(FORTRESS, monkeypatch, zone=ACT4)
     policies: list[tuple[int, str]] = []
 
@@ -1234,7 +1337,8 @@ def test_a_terrorized_act_4_game_is_diablo_from_the_river_then_its_rest_the_city
 
         policies.append((area, policy_of(area, plan.excursion_of(area, game.loop.agenda.finished))))
         if area == 108:
-            game.killed.add('Diablo')
+            # The seals' bosses, then Diablo (the game's boss ledger holds all four: routes/catalog/act4.py)
+            game.killed.update(('Grand Vizier of Chaos', 'Lord De Seis', 'Infector of Souls', 'Diablo'))
             game.progress.looted(108)
         if area == 105:
             game.killed.add('Izual')
@@ -1315,7 +1419,7 @@ def test_an_act4_game_uses_the_deep_shard_first_then_diablo_first_whatever_the_l
     with caplog.at_level('INFO'):
         assert game.leg() == TZ_SHARD
         assert game.calls == [('terrorize', 4)]
-        assert game.loop.agenda.acts == frozenset((4,))
+        assert game.loop.agenda.acts == (4,)
         assert game.leg() == TZ_WAYPOINT  # the act planned with the rotation, the act and its boss first
     assert game.calls[-1] == ('waypoint', 107)
     plan = game.loop.agenda.plan
@@ -1381,6 +1485,7 @@ def test_the_shard_waits_for_a_visit_due_and_goes_to_the_fortress_from_another_t
     assert due.leg(visit=visit) == TOWN
     assert due.leg() == TZ_SHARD
     joined = act4_game(monkeypatch, area=107)  # a game joined in a field level (a restart): the zones read
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)  # its first leg's end, not the bosses left (BOSS_STAYS)
     joined.leg()
     assert all(call[0] != 'terrorize' for call in joined.calls)
 
@@ -1456,3 +1561,253 @@ def test_the_izual_trip_works_the_plains_under_tz_plus_and_fights_izual_before_i
     if not carried:
         assert legs[:4] == [TZ_OUT, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_LEVEL]
         assert [call for call in game.calls if call[0] != 'prebuff'][:2] == [('walk out', 104), ('door', 105)]
+
+
+# The Burial Grounds zone (rca/2026-10-21/crypt-door-findings.md §6): two trips from Cold Plains' waypoint, the Crypt
+# [3, 17, 18] then the Mausoleum [3, 17, 19]. 08:01-08:07 on 2026-10-21, four games: "no click took Crypt" left each
+# game; the Mausoleum's trip was never tried
+BURIAL_GROUNDS = frozenset((17, 18, 19))
+
+
+def door_game(monkeypatch, refused: tuple[int, ...] = (18,), cause: Cause | None = 'door') -> tuple[Script, LegHands]:
+    """A Burial Grounds game whose doors into `refused` take no click (teleport.py `walk_into`'s stop, `cause`)."""
+    from inventory_tracking.routes.model import ENTER
+
+    game = Script(ROGUE_ENCAMPMENT, monkeypatch, zone=BURIAL_GROUNDS)
+    game.on_run = lambda area: game.killed.add('Blood Raven') if area == 17 else None  # the Mausoleum's script's
+
+    def way_on() -> None:
+        step = game.progress.step(game.area)
+        if step is None or step.stage.kind != ENTER or not step.stage.to:
+            game.level_run()
+        elif step.stage.to in refused:
+            raise Abort(f'no click took {"Crypt" if step.stage.to == 18 else "Mausoleum"}', cause=cause)
+        else:
+            game.door()
+
+    return game, replace(game.hands(), way_on=way_on)
+
+
+def door_legs(game: Script, hands: LegHands, count: int = 14, stops: list[str] | None = None) -> list[str]:
+    """The game's legs; a stop for the player (cause 'idle': tzloop.py BOSS_STAYS) into `stops` when given."""
+    legs = []
+    for _ in range(count):
+        if not game.play.world.in_game:
+            break
+        try:
+            legs.append(game.loop.leg(game.play.run(), keys, game.progress, hands))
+        except Abort as stop:
+            if stops is None or stop.cause != 'idle':
+                raise
+            stops.append(str(stop))
+            break
+    return legs
+
+
+BONEBREAKER_LEFT = 'no goals left, but Bonebreaker (Crypt) alive: the loop stops here for the player'
+
+
+def test_a_door_no_click_takes_skips_its_trip_and_the_zone_goes_on(monkeypatch, caplog):
+    game, hands = door_game(monkeypatch)
+    stops: list[str] = []
+    with caplog.at_level('INFO'):
+        legs = door_legs(game, hands, stops=stops)
+    assert legs[:6] == [
+        TZ_WAYPOINT,
+        TZ_NEXT_LEVEL,  # into the Burial Grounds
+        TZ_LEVEL,  # its run (Blood Raven killed on the way)
+        TZ_NEXT_LEVEL,  # the Crypt's door: no click takes it, the trip skipped, the game not left
+        TZ_LOOT,  # the Mausoleum's trip from where the character stands: Blood Raven's loot
+        TZ_NEXT_LEVEL,  # into the Mausoleum
+    ]
+    assert 18 in game.loop.agenda.finished  # the Crypt's trip over
+    assert [call for call in game.calls if call[0] == 'door'] == [('door', 17), ('door', 19)]
+    # The game's end with the Crypt's Bonebreaker alive: the loop stops for the player (tzloop.py BOSS_STAYS), never
+    # a Save and Exit
+    assert stops == [BONEBREAKER_LEFT]
+    assert LEAVE not in legs
+    assert set(game.runs) == {17, 19}  # the Mausoleum worked before the game's end
+    assert 'Macro: loop: no click took Crypt: the trip to Crypt is skipped, the game is not left' in caplog.text
+
+
+def test_the_last_trips_door_failing_ends_the_game_by_the_agenda(monkeypatch, caplog):
+    game, hands = door_game(monkeypatch, refused=(18, 19))
+    stops: list[str] = []
+    with caplog.at_level('INFO'):
+        legs = door_legs(game, hands, stops=stops)
+    assert legs == [TZ_WAYPOINT, TZ_NEXT_LEVEL, TZ_LEVEL, TZ_NEXT_LEVEL, TZ_LOOT, TZ_NEXT_LEVEL]
+    # no trip left after the Mausoleum's door: the game's end, as the agenda makes it, Bonebreaker alive: the loop stops
+    assert stops == [BONEBREAKER_LEFT]
+    assert {18, 19} <= game.loop.agenda.finished
+    assert 19 not in game.runs
+    assert 'no click took Mausoleum: the trip to Mausoleum is skipped' in caplog.text
+
+
+def test_another_stop_on_the_way_on_still_leaves_the_game(monkeypatch):
+    game, hands = door_game(monkeypatch, cause=None)
+    with pytest.raises(Abort, match='no click took Crypt'):
+        door_legs(game, hands)
+    assert 18 not in game.loop.agenda.finished  # the runner's recovery leaves the game (stops.py RECOVER)
+
+
+def test_a_door_no_click_takes_with_the_switch_off_still_leaves_the_game(monkeypatch):
+    monkeypatch.setattr(tzloop, 'SKIP_DOOR', False)
+    game, hands = door_game(monkeypatch)
+    with pytest.raises(Abort, match='no click took Crypt') as stopped:
+        door_legs(game, hands)
+    assert stopped.value.cause == 'door'
+    assert 18 not in game.loop.agenda.finished
+
+
+# tzloop.py PORTAL_FIGHT_FIRST (rca/2026-10-22/portal-cast-findings.md): the Sling's Town Portal was cast with 5
+# hostiles within 30 (09:30:05 on 2026-10-22) and with Fetishes striking at 3 units (22:26:32 on 2026-10-21); a block
+# dropped it
+FETISH = 142  # monstats fetish2
+
+
+def fetish_near(game: Script) -> None:
+    from inventory_tracking.game.records import Monster
+
+    here = game.play.world.player
+    assert here is not None
+    foe = Monster(77, FETISH, 4, here.x + 3.0, here.y, life=128, max_life=128)
+    game.play.world = replace(game.play.world, monsters=(foe,))
+
+
+def portal_trip(monkeypatch, *, turned: bool = False) -> tuple[Script, list[str]]:
+    from dataclasses import replace as changed
+
+    monkeypatch.setattr(tzloop, '_portal_fights', {})
+    game = Script(36, monkeypatch)
+    game.loop.agenda.begin(game.loop.observe(game.play.world))
+    tzloop.trip(game.loop, GAME, 36)
+    fetish_near(game)
+    fought: list[str] = []
+
+    def fight() -> None:
+        fought.append('plain')
+        game.level_run()
+
+    def fight_back() -> None:
+        fought.append('back')
+        game.level_run()
+
+    hands = changed(
+        game.hands(),
+        fight=fight,
+        fight_back=fight_back,
+        terrorized=lambda area: area in game.zone and not (turned and area == 36),  # its zone turned: 36 off it
+    )
+    game.hands = lambda visit=None: hands  # every leg the same hands
+    return game, fought
+
+
+def portals_cast(game: Script) -> list[tuple]:
+    return [call for call in game.calls if call[0] == 'portal']
+
+
+def test_a_town_portal_with_a_hostile_near_fights_first_then_is_cast(monkeypatch):
+    game, fought = portal_trip(monkeypatch)
+    # The second fight kills it: the read shows none near after it
+    game.on_run = lambda area: game.go('stay', area) if len(game.runs) == 2 else None
+
+    legs = [game.leg() for _ in range(3)]
+
+    assert legs == [TZ_PORTAL, TZ_PORTAL, TZ_PORTAL]
+    assert fought == ['back', 'back']  # the run against an attacker, twice
+    assert game.runs == [36, 36]
+    assert portals_cast(game) == [('portal', ROGUE_ENCAMPMENT)]  # cast once none is near
+
+
+def test_a_hostile_that_stays_near_is_fought_portal_fights_times_then_the_portal_is_cast(monkeypatch):
+    game, fought = portal_trip(monkeypatch)
+
+    legs = [game.leg() for _ in range(tzloop.PORTAL_FIGHTS + 1)]
+
+    assert legs == [TZ_PORTAL] * (tzloop.PORTAL_FIGHTS + 1)
+    assert len(fought) == tzloop.PORTAL_FIGHTS
+    assert portals_cast(game) == [('portal', ROGUE_ENCAMPMENT)]  # the bound: cast all the same
+
+
+def test_on_a_level_no_longer_terrorized_the_plain_run_fights_before_the_portal(monkeypatch):
+    # 09:30:05 on 2026-10-22: the zone turned mid-fight; the agenda's run ends at once there (choice.py ZONE_LEFT)
+    from dataclasses import replace as changed
+
+    game, fought = portal_trip(monkeypatch)
+    hands = changed(game.hands(), terrorized=lambda area: False)  # The Worldstone Keep Level 3 at 09:30:05
+    goal = game.loop.agenda.stack[-1]
+
+    assert tzloop.portal_fight(game.play.run(), hands, GAME, goal)
+    assert fought == ['plain']  # past nothing: what is near is fought
+    game.play.world = at(36)  # fought: none near
+    assert not tzloop.portal_fight(game.play.run(), hands, GAME, goal)
+    assert fought == ['plain']
+
+
+def test_with_the_switch_off_the_portal_is_cast_with_a_hostile_near(monkeypatch):
+    game, fought = portal_trip(monkeypatch)
+    monkeypatch.setattr(tzloop, 'PORTAL_FIGHT_FIRST', False)
+
+    assert game.leg() == TZ_PORTAL
+    assert fought == []
+    assert portals_cast(game) == [('portal', ROGUE_ENCAMPMENT)]
+
+
+# --- the game's bosses (macros/bossledger.py; tzloop.py BOSS_STAYS, BOSS_ZONES; 2026-10-22) ---
+
+
+def test_a_level_only_crossed_is_no_bosss_but_an_act_bosss_level_always_is():
+    # The player, 2026-10-22: "we should always kill act bosses, no need to kill hepasto if it is just travel through":
+    # the Chaos Sanctuary alone terrorized (10-20 08:32-08:51), the River of Flame crossed to it
+    sanctuary = tzroutine.itinerary(frozenset((108,)))
+    assert sanctuary is not None
+    assert tzloop.boss_scope(sanctuary) == frozenset((108,))
+    worldstone = tzroutine.itinerary(frozenset((128, 129, 130, 131, 132)))
+    assert worldstone is not None
+    assert {131, 132} <= tzloop.boss_scope(worldstone)
+
+
+def test_the_way_to_act_3s_last_town_is_not_taken_with_a_council_member_alive(monkeypatch, caplog):
+    # Maffer Dragonhand left in Durance 3 in 11 games, the game ended through the Red portal after Mephisto
+    # (rca/2026-10-22/boss-audit-findings.md §4 cause 4): the game's end (agenda.py `game_end`) asks the ledger
+    from inventory_tracking.levels.model import Room
+
+    game = Script(102, monkeypatch, zone=DURANCE)
+    game.killed.add('Mephisto')
+    game.progress.stood(102, 'Red portal')
+    game.progress.looted(102)
+    game.loop.agenda.begin(game.loop.observe(game.play.world))
+    game.loop.agenda.ran(102)
+    legs: list[str] = []
+
+    def council() -> None:
+        # The run read Durance 3's rooms: the Council's piece (macros/bossledger.py `rooms`); two of them killed
+        game.loop.agenda.bosses.rooms(102, [Room(796, 100, 100, 24, 24, variant=0, block=(100, 100, 24, 24))])
+        game.killed.update(('Bremm Sparkfist', 'Wyand Voidbringer'))
+
+    with caplog.at_level('INFO'):
+        stopped = until_stopped(game, legs, 6, council)
+    assert stopped.cause == 'idle'
+    assert str(stopped) == (
+        'Town Portal home: the game ends in The Pandemonium Fortress, but Maffer Dragonhand (Durance of Hate Level 3) '
+        'alive: the loop stops here for the player'
+    )
+    assert [call for call in game.calls if call[0] != 'prebuff'] == []  # stopped in Durance 3
+    assert 'Save and Exit' not in game.play.said
+
+
+def test_a_door_to_a_boss_alive_is_tried_its_tries_then_the_loop_stops_for_the_player(monkeypatch, caplog):
+    # SKIP_DOOR blocked a door at once (Bonebreaker's Crypt, 10-21 07:56-08:06); with its boss alive it is tried
+    # USE_TRIES times, the game kept, then the loop stops naming him (`boss_stays`), the game never left
+    from inventory_tracking.macros import zonenav
+
+    monkeypatch.setattr(zonenav, 'ROTATION', True)
+    game, hands = door_game(monkeypatch)
+    stops: list[str] = []
+    with caplog.at_level('INFO'):
+        legs = door_legs(game, hands, count=30, stops=stops)
+    assert stops == ['Crypt: no click took its door (no click took Crypt): Bonebreaker (Crypt) alive: the loop stops '
+                     'here for the player']  # fmt: skip
+    assert caplog.text.count('a boss alive there: the game is not left') == tzloop.USE_TRIES - 1
+    assert LEAVE not in legs
+    assert 18 not in game.loop.agenda.blocked

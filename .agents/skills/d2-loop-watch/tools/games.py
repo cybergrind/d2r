@@ -10,6 +10,8 @@ next game, a recovery that left it, a stop, the player's KP_6). Then:
 - what the loop did besides (stash visits, repairs, sales, shopping);
 - TZ leveling's experience (lines since 2026-10-19 21:37): a game's gain, experience an hour over the games' whole
   time, the loop's own rate since it turned on (its last line), and the levels by experience a minute;
+- the TZ kinds' metric (the player, 2026-10-21: "the main metric xp/hour! elites/hour!"): experience (the levels'
+  lines) and elite kills (terror-probe.jsonl) an hour over the games' own play, each session's part of a game;
 - the ground: every item the census saw (`Macro: ground:`) matched against the pickups of its game, and those never
   picked up sorted: MISSED is what the sure mode takes (pickmode.py `sure`: runes but the full stash stacks, the gems
   and charms and jewels the read lists, rare / set / unique rings and amulets, uniques and sets the loot filter shows
@@ -29,7 +31,6 @@ import argparse
 import json
 import re
 import statistics
-import sys
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -39,12 +40,13 @@ from pathlib import Path
 import logwords
 from logwords import (
     AIMED,
+    CARRIED,
     DID,
     EVENT,
     EXPERIENCE_GAME,
     EXPERIENCE_LEVEL,
     FIELD_DROP,
-    FULL,
+    FULL_DOWN,
     GAME_LEFT,
     GROUND,
     LEG,
@@ -62,8 +64,10 @@ from logwords import (
 
 ROOT = Path(__file__).resolve().parents[4]
 RUNS = ROOT / 'inventory_tracking' / 'runs' / 'alt-d'
+STASH_SNAPSHOT = 'stash.json'  # inventory_tracking/game/stash.py SNAPSHOT
 GEM = re.compile(r'^(Chipped |Flawed |Flawless |Perfect )?(Amethyst|Diamond|Emerald|Ruby|Sapphire|Topaz|Skull)$')
 MARKED = re.compile(r'Essence|Key of|Token|Worldstone Shard|Statue')
+SHARD = re.compile(r'Worldstone Shard')
 JEWELRY_QUALITIES = ('rare', 'set', 'unique')
 
 
@@ -83,14 +87,17 @@ class Seen:
     last: int = 0  # the log line the census last said it on
     first: int = 0  # the log line the census first said it on
     put_down: bool = False  # the loop's own, put down in town or in the field (`put_down`, `field_dropped`)
+    town: bool = False  # ... put down in town (a pile, `in_pile`); a field put-down is matched by its exact key only
 
     def missed(self, full: set[str]) -> str | None:
         """Why the sure mode would have taken it (pickmode.py `sure`), None for an item left by design."""
         name, said = self.name, self.verdicts
         if self.put_down:
             return None
-        if name in full:
-            return None  # a full stash stack's kind (runes, gems): not picked up by design (macros/loop.py `full`)
+        if name in full and not SHARD.search(name):
+            # a full stash stack's kind (runes, materials): not picked up by design (macros/loop.py `sold_full`); a
+            # Worldstone Shard always is (macros/actloop.py SHARD_ALWAYS_PICKED, 2026-10-22: one left at 08:59:26)
+            return None
         if said & {'unique', 'named'}:
             return 'a unique or set item the filter shows or the marks price'
         if name.endswith(' Rune'):
@@ -109,11 +116,12 @@ class Seen:
 DROP_LINES = 20
 
 
-def put_down(items: Iterable[Seen], line: int) -> None:
-    """Mark the items first seen within DROP_LINES before a town drop's line as the loop's own put down."""
+def put_down(items: Iterable[Seen], line: int, town: bool = True) -> None:
+    """Mark the items first seen within DROP_LINES before a drop's line as the loop's own put down (`town`: the drop
+    was in town, not in the field)."""
     for item in items:
         if 0 <= line - item.first <= DROP_LINES:
-            item.put_down = True
+            item.put_down, item.town = True, town
 
 
 def field_dropped(item: Seen, drop: int | None) -> None:
@@ -123,16 +131,67 @@ def field_dropped(item: Seen, drop: int | None) -> None:
         item.put_down = True
 
 
-def full_stacks() -> set[str]:
-    """The names of the stash's full stacks (runs/alt-d/full-stacks.json, by the repo's item metadata)."""
-    try:
-        sys.path.insert(0, str(ROOT))
-        from inventory_tracking.items.metadata import item_base
+# A town drop's pile lands within this many units of its items (a Jewel at (5024, 5039), an Amulet at (5022, 5043)
+# dropped in the same visit, 21:52:02 on 2026-10-21): the census sees only some of a visit's drops
+PILE = 6
 
-        ids = json.loads((RUNS / 'full-stacks.json').read_text())
-        return {base['name'] for base in map(item_base, ids) if base}
-    except ImportError, OSError, ValueError:
+
+def carried_keys(items: Iterable[Seen]) -> set[tuple]:
+    """The (quality, name, place, town) keys of the put-down items: what `inherited` and the watch carry over."""
+    return {(i.quality, i.name, i.place, i.town) for i in items if i.put_down}
+
+
+def carry_over(item: Seen, seed: Iterable[tuple]) -> None:
+    """Mark `item`, first seen now, as put down when `seed` holds its exact key, or, for a TOWN put-down only, an
+    item of the pile within PILE units of it. A field put-down matches its exact key only: a monster's drop lying
+    beside a junk item the loop put down in the field must stay a miss."""
+    for quality, name, (x, y), town in seed:
+        exact = (quality, name, (x, y)) == (item.quality, item.name, item.place)
+        if exact or (town and abs(item.place[0] - x) <= PILE and abs(item.place[1] - y) <= PILE):
+            item.put_down, item.town = True, town
+            return
+
+
+def resumes(directory: Path) -> bool:
+    """Whether the session's log takes a game up after a restart (logwords.CARRIED)."""
+    try:
+        return CARRIED.search((directory / 'probe.log').read_text(errors='replace')) is not None
+    except OSError:
+        return False
+
+
+def previous(directory: Path) -> Path | None:
+    """The session dir just before `directory` in its runs dir (names are UTC times), None without one."""
+    older = sorted(d.name for d in directory.parent.iterdir() if d.is_dir() and (d / 'probe.log').exists())
+    before = [name for name in older if name < directory.name]
+    return directory.parent / before[-1] if before else None
+
+
+def inherited(directory: Path) -> set[tuple]:
+    """The (quality, name, place) keys of the items the loop put down earlier in the game this session takes up after
+    a restart (2026-10-21: a rare Amulet dropped in town in one session, seen lying there by the next two, was called
+    MISSED): the previous session's put-down items of its last game, and its own inheritance while it too resumed that
+    game. A resumed session's census may see an item of the pile that the earlier one never did (`carry_over`). Empty
+    when the session starts a game of its own."""
+    if not resumes(directory) or (before := previous(directory)) is None:
         return set()
+    seed = inherited(before)
+    played, _, _, ground = read(before, None, None, seed)
+    if len(played) > 1:
+        seed = set()  # the earlier session went on to another game
+    last = played[-1].number if played else None
+    return seed | carried_keys(i for i, _ in ground if i.game == last)
+
+
+def full_stacks() -> set[str]:
+    """The names of the stash's full stacks as the service last read them: its snapshot (runs/alt-d/stash.json,
+    written by game/stash.py `Stash` at each read; read here, never written). Empty without one: every item counts."""
+    try:
+        found = json.loads((RUNS / STASH_SNAPSHOT).read_text())
+    except OSError, ValueError:
+        return set()
+    names = found.get('full_names') if isinstance(found, dict) else None
+    return {str(name) for name in names} if isinstance(names, list) else set()
 
 
 def reconcile(seen: list[Seen], picks: list[str], aims: dict[str, set[tuple[int, int]]]) -> None:
@@ -171,10 +230,39 @@ class Game:
     experience: int | None = None
     rate: str | None = None
     levels: list[tuple[str, int, int]] = field(default_factory=list)  # (level, gain, seconds) as each was left
+    # The TZ kinds' second metric (the player, 2026-10-21 ~21:18: "the main metric xp/hour! elites/hour!"): the elite
+    # kills in this session's part of the game (`elite_kills`) and that part's seconds (to its end or the last line)
+    elites: int = 0
+    played: float = 0.0
 
     @property
     def seconds(self) -> float | None:
         return (self.ended - self.started).total_seconds() if self.ended else None
+
+
+KILL_EVENT = 'elite_kill'  # terror/shards.py ShardWatch's event in terror-probe.jsonl, as elites.py reads it
+
+
+def elite_kills(directory: Path) -> list[datetime]:
+    """When each elite of the session died (champions, uniques, super uniques, Heralds), once a unit, local time: the
+    `elite_kill` events of its terror-probe.jsonl (elites.py `kills_in`, which also splits them by kind)."""
+    path = directory / 'terror-probe.jsonl'
+    if not path.exists():
+        return []
+    found, seen = [], set()
+    with path.open(encoding='utf-8', errors='replace') as stream:
+        for line in stream:
+            if KILL_EVENT not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if row.get('event') != KILL_EVENT or row.get('unit_id') in seen or not row.get('at'):
+                continue
+            seen.add(row.get('unit_id'))
+            found.append(datetime.fromisoformat(row['at']).astimezone().replace(tzinfo=None))
+    return found
 
 
 def sessions(args) -> list[Path]:
@@ -190,7 +278,8 @@ def clicked(items: Iterable[Seen], clicks: list[tuple[tuple[int, int], int]]) ->
             item.picked = True
 
 
-def read(directory: Path, since: datetime | None, until: datetime | None):
+def read(directory: Path, since: datetime | None, until: datetime | None, seed: set[tuple] | None = None):
+    seed = inherited(directory) if seed is None else seed  # keys the loop put down before a restart (`inherited`)
     games: list[Game] = []
     events: list[str] = []
     did: Counter[str] = Counter()
@@ -207,7 +296,9 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
     game: Game | None = None
     leg: tuple[str, datetime] | None = None
     asked = False
-    dropped_at: int | None = None  # the last field drop's line (`field_dropped`)
+    dropped_at: int | None = None  # the last drop's line (`field_dropped`) and whether it was in town
+    dropped_town = False
+    last_at: datetime | None = None  # the window's last line: an open game's part ends there
 
     def settle() -> None:
         clicked(items.values(), clicks)
@@ -230,14 +321,15 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
         at = stamp(line)
         if at is None or (since and at < since) or (until and at > until):
             continue
+        last_at = at
         if REQUEST_LOOP in line:
             asked = True
-        if (m := FULL.search(line)) is not None:
-            full.add(m.group(1))
-        if TOWN_DROP.search(line) or FIELD_DROP.search(line):
-            put_down(items.values(), number_of_line)
-            if FIELD_DROP.search(line):
-                dropped_at = number_of_line
+        if TOWN_DROP.search(line) or FIELD_DROP.search(line) or FULL_DOWN.search(line):
+            town = not FIELD_DROP.search(line)
+            put_down(items.values(), number_of_line, town)
+            # Either drop's own sighting can come just after its line too (a town drop: 04:00:09,296 on 2026-10-21,
+            # the census at 04:00:09,450 saw the unique Amulet put down, and it was called MISSED)
+            dropped_at, dropped_town = number_of_line, town
             continue
         if (m := LEG.search(line)) is not None:
             number, name = int(m.group(1)), m.group(2).strip()
@@ -301,12 +393,21 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
                 )
                 item.first = number_of_line
                 field_dropped(item, dropped_at)
+                item.town = item.put_down and dropped_town
+                if not item.put_down:
+                    carry_over(item, seed)
             elif item.game is None and game is not None:
                 item.game = game.number
             item.last = number_of_line
             if m.group(8):
                 item.verdicts.add(m.group(8))
     settle()
+    kills = elite_kills(directory)
+    for played in games:
+        end = played.ended or last_at
+        if end is not None:
+            played.played = max((end - played.started).total_seconds(), 0.0)
+            played.elites = sum(1 for died in kills if played.started <= died < end)
     full |= full_stacks()
     for item in ground:
         if item.game is None and game is not None:
@@ -341,6 +442,23 @@ def experience(games: list[Game]) -> dict | None:
             name: {'a_minute': round(60 * gain / spent) if spent else None, 'gain': gain, 'visits': visits}
             for name, (gain, spent, visits) in sorted(levels.items(), key=lambda kv: -kv[1][0] / max(kv[1][1], 1))
         },
+    }
+
+
+def metric(games: list[Game]) -> dict | None:
+    """The TZ kinds' metric over the games' own play (each session's part of a game, a restart's gap cut): elite kills
+    and experience (the levels' lines) an hour; None without a game played."""
+    seconds = sum(g.played for g in games)
+    if not seconds:
+        return None
+    kills = sum(g.elites for g in games)
+    gained = sum(gain for g in games for _, gain, _ in g.levels)
+    return {
+        'hours': round(seconds / 3600, 2),
+        'elite_kills': kills,
+        'elites_an_hour': round(3600 * kills / seconds, 1),
+        'experience': gained,
+        'experience_an_hour': round(3600 * gained / seconds),
     }
 
 
@@ -404,6 +522,7 @@ def main() -> None:
         ],
         'left_by_design_worth_a_look': dict(look.most_common()),
         'experience': experience(games),
+        'metric': metric(games),
     }
     if args.json:
         print(json.dumps(summary, indent=1, default=str))
@@ -421,6 +540,10 @@ def main() -> None:
             f'{name} {row["a_minute"]:,}/min {row["gain"]:+,} x{row["visits"]}'
             for name, row in list(exp['levels_a_minute'].items())[:8] if row['a_minute'] is not None
         ))  # fmt: skip
+    if (both := summary['metric']) is not None and (both['elite_kills'] or both['experience']):
+        print(f'metric (TZ kinds: experience and elite kills an hour, over {both["hours"]} h of the games\' play): '
+              f'{both["experience_an_hour"]:,} experience, {both["elites_an_hour"]} elite kills an hour '
+              f'({both["experience"]:+,}, {both["elite_kills"]} elites)')  # fmt: skip
     print(f'\nslowest {args.slowest}:')
     for g in sorted(ended, key=lambda g: -(g.seconds or 0))[: args.slowest]:
         top = ', '.join(f'{n} {s:.0f}s' for n, s in sorted(g.legs.items(), key=lambda kv: -kv[1])[:3])

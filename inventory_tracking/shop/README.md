@@ -67,42 +67,34 @@ drops and player trade items cannot qualify merely by their flags.
 
 ## Targets
 
-Since 2026-09-26 (evening) the scan primarily alerts on blue patterns that sell in this
-economy, taken from `guides/pricing.html` §2 (blue table), `guides/pricing-primer.html`
-§3.3 and the Anya rows of `guides/pindle-anya.html` §4.1 (Traderie asks 2026-09-18/19).
-Everything the earlier build-list catalog added — starter and pre-runeword pieces
-("Before Spirit" daggers, survival belts, resistance gloves/boots/rings, all-res
-grimoires), Teleport / Life Tap / Lower Resist charges, Echoing weapons (1-Ist median
-behind 63 sellers), Cruel/Quickness weapons, +3 tree circlets/amulets without a class
-prefix, charms and jewels (never vendor stock) — no longer alerts. The compiled catalog
-(`magic_targets.json`, [MAGIC_COVERAGE.md](MAGIC_COVERAGE.md), `build_catalog.py`)
-remains an offline audit tool, reachable with `match_item(..., build_candidates=True)`.
+Since 2026-10-22 only really good buys alert ("notify on a really good items ... not just any +2 skills", the
+player). Before, every appraisal verdict but VENDOR alerted, and 48 of the 52 alerts of 2026-10-06..22 were CHECK
+without a price ("+2 Warlock skills", "+3 Chaos Skills", "+3 Warcries"). Now an item alerts when (`service.py`):
 
-On 2026-09-27, reviewed +3 skill-tree amulets became an explicit self-use exception.
-Plain rolls show `Build use`; useful FCR/life/MF suffixes (gold find for Warcries)
-show `Build review`. These labels are not resale-price claims. See
-[amulet evidence and matching rules](AMULETS.md).
+- a reviewed pattern of `rules.py` matches, whatever the appraisal says (the appraisal has no price for most of
+  them and called some VENDOR), or
+- the appraisal sells it (SELL or SELL slow) at asks of 2.5 Ist or more (lower quartile; the High tier's floor,
+  `pricing.html` §4.2). CHECK without a price, SELF-USE and cheaper sales stay quiet.
 
-Other alerts (decoded native stats; thresholds are the priced rolls):
+The reviewed patterns, each confirmed on the scoped Traderie asks (SC/NL/PC/RotW, caches 2026-08-19 to 10-09, asks
+only: no fills are cached) and the d2data affix tables on 2026-10-22; one example per class is in
+`tests/inventory_tracking/shop/test_premium.py`:
 
-- Jeweler's Monarch of Deflecting (4 sockets / 20 block / 30 FBR); any other 4-socket
-  magic Monarch or Archon Plate (4os-magic bucket minimum).
-- Jeweler's body armor: 4 sockets with life ≥ 90 (of the Whale, priced band),
-  15 damage reduction (of Amicae), 24 FHR (of Stability) or 10+ dexterity (of Precision).
-- Circlets: +2 class skills, better with 20 FCR (of the Magus), sockets or 30 FRW;
-  any 3-socket magic Tiara / Diadem (Artisan's), 30 FRW noted.
-- Gloves of Alacrity: +3 Bow / Passive / Javelin / Martial Arts with 20 IAS
-  (+2 Passive "Gymnastic" stays in the shop).
-- Claws with +3 Traps (Cunning) or +2 Assassin (Witch-hunter's) and 30+ IAS; the label
-  names Lightning Sentry / Death Sentry / Wake of Fire staffmods when present.
-- Amazon javelins: +3 Javelin and Spear with 40 IAS plus either +Amazon skills or the
-  +6 automod total.
-- Reviewed staffmod targets require +2 of the skill's own class / +3 of its own
-  tree, plus a native +3 primary skill: +5 / +6 total. Extra utility/mastery
-  staffmods can be named as companions, but never qualify the item alone.
-  No generic two-staffmod, plain Warcries-helm, plain tree-grimoire, socketed
-  +1 Necromancer head, or FCR + lone-staffmod shortcut remains.
-  See [the skill review](SKILL_REVIEW.md) for the full 155-skill disposition.
+- Jeweler's body armor of the Whale: 4 sockets and 90+ life on any base tier (28 sellers, Q1 45.7). Amicae,
+  Stability, Precision, 81-89 life and plain 4-socket Monarchs or Archon Plates no longer alert (thin or a wall).
+- Jeweler's of Deflecting (4 sockets, 20 block, 30 FBR) on a Monarch, Aegis, Ward or Paladin shield.
+- Circlets: +3 Fire / Lightning / Cold / Poison and Bone / Combat (Paladin) / Eldritch / Chaos with 20 FCR, or a +3
+  tree with 80+ life, 25+ strength or dexterity, 30+ MF or 20% damage reduction; any 30 FRW; a 3-socket Diadem, or a
+  3-socket Tiara with 25+ MF. A +2 class circlet, with or without 20 FCR, is not kept (2026-10-21).
+- Gloves: +3 Bow, Javelin or Martial Arts with 20 IAS (of Alacrity; 20 is the most a magic glove rolls). +3 Passive
+  asks a median of 1.
+- Amazon javelins: +5 Javelin skills (the base's automod included) and 40 IAS, +6 and 30 IAS, or +2 Amazon, +3
+  Javelin and 40 IAS.
+- A paid skill's staffmod with its class prefix or its own tree prefix, +5 or more in all (`staffmods.py` PAID: the
+  triage's paid skills, the claws' Death Sentry / Wake of Fire / Phoenix Strike and the Warlock's paid list). Claws
+  with a prefix and IAS but no paid staffmod no longer alert; IAS is named in a claw's label. IAS on a Warlock dagger
+  counts for nothing: Echoing Strike is cast.
+- Amulets: a reviewed +3 tree with 80+ life, 25+ strength or dexterity or 30+ MF (vendors rarely stock amulets).
 
 Larzuk outcomes, affix generation chances, item prices and requirements are not
 predicted, and a hit is a resale or explicitly labeled self-use candidate, not a BiS claim. Prices are never

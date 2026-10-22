@@ -5,7 +5,9 @@ game's data, never from memory).
     uv run --offline python -m inventory_tracking.macros.build_rune_cube <install>
 
 A recipe: an enabled, not ladder-only row (the player is Non-Ladder) turning a rune with a quantity into the next, plus
-any gem it takes ("loop should use required gems + runes", 2026-10-18). Slots and the convert button are in the left
+any gem it takes ("loop should use required gems + runes", 2026-10-18). A gem recipe (`gems`, 2026-10-21): such a row
+taking only a quantity of one flawless gem into its perfect one ("could we also cube gems, probably I's like to keep
+15 flawless gems", the player); seven rows: the six colours and the Skull. Slots and the convert button are in the left
 panel's layout units.
 """
 
@@ -54,6 +56,30 @@ def recipes(table: Iterable[Mapping[str, str]], by_code: Mapping[str, int]) -> d
     return found
 
 
+def gem_recipes(table: Iterable[Mapping[str, str]], by_code: Mapping[str, int]) -> dict[str, dict]:
+    """Flawless-to-perfect gem recipes by input class: output class, gem count, description. Only rows whose one
+    input is a quantity of a flawless gem and whose output is the perfect gem of its kind (no rune, nothing else)."""
+    names = {int(cid): base['name'] for cid, base in metadata()['bases'].items()}
+    found: dict[str, dict] = {}
+    for row in table:
+        if row.get('enabled') != '1' or row.get('firstLadderSeason'):
+            continue
+        first = row.get('input 1', '').strip('"').split(',')
+        output = row.get('output', '').strip('"')
+        if first[0] not in by_code or output not in by_code or any(row.get(f'input {n}', '') for n in range(2, 8)):
+            continue
+        txt, into = by_code[first[0]], by_code[output]
+        name = names.get(txt, '')
+        if not name.startswith('Flawless ') or names.get(into) != 'Perfect ' + name.removeprefix('Flawless '):
+            continue
+        extra = [part for part in first[1:] if not part.startswith('qty=')]
+        qty = next((int(part.removeprefix('qty=')) for part in first[1:] if part.startswith('qty=')), 1)
+        if extra:
+            continue  # an input with qualifiers: not a plain gem
+        found[str(txt)] = {'into': into, 'gems': qty, 'description': row.get('description', '')}
+    return found
+
+
 def _strip(text: str) -> str:
     """The layout file's JSON without its comments and trailing commas."""
     text = re.sub(r'//[^\n]*', '', text)
@@ -91,14 +117,15 @@ def main() -> None:
     slots, convert = layout(game.read(LAYOUT).decode('utf-8'), by_code)
     data = {
         'source': 'the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the '
-        f"next), {LAYOUT} (the Runes, Gems and Materials tabs' slots and the cube's convert button); read 2026-10-18, "
-        'the Materials tab 2026-10-20',
+        f"next; three flawless gems into the perfect one), {LAYOUT} (the Runes, Gems and Materials tabs' slots and the "
+        "cube's convert button); read 2026-10-18, the Materials tab 2026-10-20, the gem recipes 2026-10-21",
         'recipes': recipes(rows(game, 'cubemain'), by_code),
+        'gems': gem_recipes(rows(game, 'cubemain'), by_code),
         'slots': slots,
         'convert': convert,
     }
     OUTPUT.write_text(json.dumps(data, indent=1) + '\n')
-    print(f'{len(data["recipes"])} recipes, {len(slots)} slots -> {OUTPUT}')
+    print(f'{len(data["recipes"])} recipes, {len(data["gems"])} gem recipes, {len(slots)} slots -> {OUTPUT}')
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ from collections.abc import Callable, Sequence
 from contextlib import ExitStack
 from dataclasses import replace
 
-from inventory_tracking.combat import threats
+from inventory_tracking.combat import pack as herald_pack, threats
 from inventory_tracking.combat.controller import (
     CLICK,
     GAVE_UP,
@@ -30,8 +30,10 @@ from inventory_tracking.combat.controller import (
     aim_choice,
     serve,
 )
+from inventory_tracking.combat.mechanics.life import rank_share
 from inventory_tracking.combat.policy import MIN_FOCAL, RUN_MODES, STRIKE_REACH, Choice, Policy, observe
 from inventory_tracking.combat.score import LiveScore
+from inventory_tracking.combat.threats import dolls
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
 from inventory_tracking.game.records import Drop, Loot, Monster, World
@@ -39,15 +41,16 @@ from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Target, unpack_cells
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
+from inventory_tracking.macros import cta, safety as safety_module
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.agenda import Agenda
-from inventory_tracking.macros.buffs import Buffs
-from inventory_tracking.macros.build import Attack, Build, Intent
+from inventory_tracking.macros.buffs import Buffs, worn_cta
+from inventory_tracking.macros.build import Attack, BuffFacts, Build, Intent
 from inventory_tracking.macros.cube import tidy
 from inventory_tracking.macros.drinking import Drinker
 from inventory_tracking.macros.drop_ledger import DropLedger
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.goals import PLACE_NEAR, WAIT, Goal, boss_ahead
+from inventory_tracking.macros.goals import FIGHT, PLACE_NEAR, WAIT, Goal, boss_ahead
 from inventory_tracking.macros.hunting import choice, judging, moves, sweep
 from inventory_tracking.macros.hunting.base import (
     AT_ONCE_CLEAR,
@@ -59,6 +62,7 @@ from inventory_tracking.macros.hunting.base import (
     FIRST_STRIKE_SECONDS,
     FOLLOW_CHECK,
     FRAME,
+    GUARD_COUNTS_HELD,
     HARD_SCORE,
     HERALD_OMEN,
     HURT_SECONDS,
@@ -70,6 +74,7 @@ from inventory_tracking.macros.hunting.base import (
     MAIN_AFTER,
     MISSES_IN_A_ROW,
     NEARING_SECONDS,
+    NO_HARM_SECONDS,
     OMEN_LOOK,
     OMEN_SECONDS,
     POLL,
@@ -98,7 +103,6 @@ from inventory_tracking.macros.hunting.shrines import ShrineWatch
 from inventory_tracking.macros.hunting.throne import Waves
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import LEVEL_LEFT, NONE, SETTLE, Move as Advance, Pursuit, Told, settled
-from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import ACTING, DEAD, Dead, take_battle_weapons
 from inventory_tracking.macros.runmode import Mode, Taps, tapped
 from inventory_tracking.macros.safety import Safety
@@ -117,6 +121,70 @@ from inventory_tracking.terror.danger import Unit, packs
 
 __all__ = ['Bearings', 'Hunter', 'threat', 'walled']
 
+# The boss the pursuit goes for (the pursued goal's own fight, not a clearing one) is a boss here too (`Hunter.boss`):
+# never left alone as untouchable (`untouched`), its fight held from within the engage ring instead. The arena's
+# Vizier stall, 2026-10-21: the Vizier, a super unique and the route's fight boss, took no damage from 19.6 units in 4
+# casts, was left alone for UNTOUCHABLE_SECONDS, and the pursuit stood "in reach and not struck" to the play's end in
+# 3 of 10 seeds (rca/2026-10-21/arena-failures-findings.md S1). False: act bosses, Heralds and dear classes alone.
+PURSUED_IS_BOSS = True
+
+# The game sends Echoing Strike's blades to the unit under the pointer, not to the ground the line aims at. The
+# Arachnid Lair's first T5 Herald, 2026-10-21 20:30: the held line stood on it, but a Flame Spider drawn over its feet
+# took the hover on 21 of its 46 casts in reach (7 of them with 3+ blades on the Herald, against 25 of 25 when the
+# hover named it), until the minions in front were dead (rca/2026-10-21/arachnid-herald-1-findings.md). Player,
+# 2026-10-21 ~20:34: "we had a quite significant hiccups in delivering damage, until later sstage"; ~20:15: "we need
+# to do the best aiming when we're trying to focus mob". True: while the attack holds a leader (attack.py
+# HOLD_LEADER), a hover naming another monster moves the pointer onto the leader's body, up it, then away from the
+# neighbour (HELD_NUDGES, a look HOVER_SECONDS after each), the strike held all along; back on the line when none
+# names it. The hover is looked at every HELD_LOOK_SECONDS then. False: the line's ground whatever is drawn over it.
+HELD_ON_BODY = True
+HELD_NUDGES = 3
+HELD_LOOK_SECONDS = 0.15
+HELD_UP = 0.025  # window fractions, as buffs.py NUDGE_UP / NUDGE_AWAY
+HELD_AWAY = 0.015
+
+# The Fane's arena, 2026-10-22 (tests/.../situations/fane_death.py; rca/2026-10-21/fane-death-sim-findings.md §4):
+# Battle Orders ran out at 8.68 s after 3.2 s unhurt at full life inside its renewal window, and the strike bout never
+# asked the upkeep, which runs between bouts only; one blow then took 2056 of 1896. The player: "probably we need to
+# keep track of battle order and predict when it runs off, retreat and rebuff". True: every look tracks Battle Orders
+# (macros/cta.py `orders_look`, for the safety's ORDERS_PREDICT and REBUFF_RETREAT), and a bout yields at once when it
+# is due and its cast is (the upkeep's row due: `orders_due`). False: the upkeep between bouts alone.
+BOUT_ORDERS = True
+# The same arena, under late looks (drawn, rolled, seed 5): the bout held 12 s in the pack while 4 rejuvenations were
+# drunk. True: a rejuvenation drunk within ALARM_SECONDS makes the safety's next look one of DANGER_SECONDS
+# (macros/safety.py DANGER_LOOK), and the bout asks the safety at once after it, not at the next DECIDE_SECONDS.
+# False: as before.
+BOUT_ALARM = True
+# The player, 2026-10-22, of danger-durance-1956 (seed 9: a tier 1 Herald's unique doll, one melee blow of 2982 against
+# 2907 life, while the macro stood for Battle Orders and then blade-warped for its rebuff beside it): "you just aggro
+# doll herald with death mark and then kill him VERY fast, because it has relatively low life even T5"
+# True: with such a doll in reach, the build's fight casts (its Death Mark first: builds/warlock/mark.py
+# `unmarked_herald`) are asked before the bout's first strike, so the demons take its aggro, and the strike holds it
+# (echoing_strike/attack.py HOLD_LEADER); Battle Orders waits for the kill (macros/cta.py DOLL_HERALD_FIRST). False: the
+# first strike flies unmarked, as before.
+DOLL_HERALD_MARK = True
+# FIGHT_CAST_REACH (2026-10-22, the survival agent's round 6 from the pursuit-mode fane-death-20, seed 4, windowed
+# speeds: the bout's last bout_reach was at 5.24 s with the elite Night Lord (x3.85, 3581 a blow under Amplify Damage
+# against 2393 life) 9.3 off and closing at ~6.7 a second; Death Mark and the Sigil were cast under the strike,
+# 5.24-6.24 s, with no look, and the yield at 6.24 found it 2.7 off: the jump was in the air at its blow, 6.68 s): the
+# bout's casts under the strike (the mark, the sigil) wait while melee blows that together take the life can come
+# within reach in CAST_SECONDS (macros/safety.py CAST_REACH, `BuffFacts.cast_barred`), and go one a look while such
+# blows can come within reach in FIGHT_PACE_SECONDS (drawn, seeds 14 and 18, the `fast` pace: Engorge, Death Mark and
+# the Sigil back to back, 1.2-1.5 s blind, the x5.75 unique 21-24 off at the first): the bout goes on looking every
+# frame and yields at BOUT_REACH. 320 pursuit plays (4 scenes x 20 seeds, late and on-time looks, windowed and `fast`
+# paces), with WALK_REACH: 9 deaths before; 2 with the bar alone; 0 with one cast a look always, but the capped t5 Hulk
+# Herald dead in 12 of 20 (15 with this off); 0 and 16 of 20 (11 rejuvenations) with the pace bound to 2 s. False:
+# they are cast as their rows ask, back to back, blind for the casts.
+FIGHT_CAST_REACH = True
+FIGHT_PACE_SECONDS = 2.0  # one cast a look while blows that take the life can come in reach in this time
+ALARM_SECONDS = 2.0
+
+
+def holding(attack: object) -> int | None:
+    """The leader the attack holds until it dies (attack.py HOLD_LEADER), or None: an attack without a hold too."""
+    held = getattr(attack, 'holding', None)
+    return held() if callable(held) else None
+
 
 def walled(level: Level) -> set[Bounds]:
     """The rooms of `level` whose loaded grid has no walkable sub-tile: nothing stands or is seen in them."""
@@ -128,6 +196,14 @@ def walled(level: Level) -> set[Bounds]:
         if bounds in rooms and cells is not None and '1' not in cells:
             found.add(bounds)
     return found
+
+
+def forget(build: Build) -> None:
+    """Have the build's attack drop what its earlier looks left, where it keeps any (an attack's `forget`: the
+    Warlock's leader held, builds/warlock/echoing_strike/attack.py HOLD_LEADER)."""
+    dropped = getattr(build.attack, 'forget', None)
+    if dropped is not None:
+        dropped()
 
 
 class Hunter:
@@ -152,6 +228,7 @@ class Hunter:
         self.stuck_until = -math.inf  # until when the loop's moves may take Teleport though it is off (`stuck`)
         # The build's attack, moves and buff plan: the fallback until the runner names the character's (`use`).
         self.build: Build = build
+        forget(build)  # a build's attack may keep what its looks saw (the Warlock's leader held): not another hunt's
         # A policy asked where to cast in place of the build's attack (a test's, a harness's): see `policy`
         self.aimed_by: Policy | None = policy
         self.buffs = Buffs(self.build)  # the build's buff plan as it is run, and when each cast was made (buffs.py)
@@ -166,6 +243,9 @@ class Hunter:
         # unit -> (clock judged, Teleport brings it within LOOP_PICK_SECONDS): the loop's far valuables (`on_the_way`)
         self.far_judged: dict[int, tuple[float, bool]] = {}
         self.untouchable: dict[int, float] = {}  # unit -> clock time until which it is left alone
+        self.unshot_since: dict[int, float] = {}  # a fight goal's unit -> since when no shot comes (`unshot`)
+        # The loop's still watchdog asks for a recovery (running/watch.py `recover`): the clock time, None: none
+        self.recover_asked: float | None = None
         self.swap_failed_at = -math.inf  # clock time a swap to the main weapons last did not come
         self.move: Move | None = None  # the move the player asked for and has not got yet: before any strike
         self.left_down = False  # the left mouse button at the last look
@@ -174,9 +254,13 @@ class Hunter:
         self.safety = Safety(timer=time.perf_counter)
         self.dropped = 0  # acts of slow looks dropped in a row (`stale`)
         self.expired_motion = False  # an expired macro click still moving: safety owns the next act
+        self.reach_decision: dict | None = None  # the decision a BOUT_REACH yield was made under (`bout_reach`)
         self.struck_at = -math.inf  # clock time the fight last saw the character cast under the held strike
         self.life_seen: int | None = None  # the character's life at the last priced look (`safety_priced`)
         self.hurt_at = -math.inf  # clock time a priced look last saw the character's life go down
+        # (the goal's key, since when, the dead seen then, the hostiles' life then) of the run's moves with no progress
+        # (judging.py DANCE_BUDGET)
+        self.dance: tuple[object, float, frozenset[int], dict[int, int]] | None = None
         self.own_read: tuple[bool, float] | None = None  # (Teleport the character's own, read at) (`own_teleport`)
         self.unmoved_since: float | None = None  # since when the loop's run made no move with a hostile in reach
         self.stands: Point | None = None  # where attack mode last saw the character
@@ -199,6 +283,7 @@ class Hunter:
         self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
         self.held_said: set[int] = set()  # the drops that staying was said for
         self.held_logged = -math.inf
+        self.cover_said: set[tuple[int, bool]] = set()  # the held leaders and outcomes `onto_held` said
         self.stepping: Step | None = None  # the step the fight stopped for
         self.guarding: Advance | None = None  # the safety step the fight stopped for with the pursuit off (`guard`)
         self.sweep = Sweep()
@@ -214,6 +299,7 @@ class Hunter:
         self.shrines = ShrineWatch()  # the Experience Shrines of this game (hunting/shrines.py, 2026-10-20)
         self.use_tries: dict[int, int] = {}  # a route's object (unit): the tries to use it (ROUTE_USE_TRIES)
         self.dead_ends: list[tuple[Point, float]] = []  # spots a move did not reach, and until when they are passed
+        self.progressed: tuple[Point, float] | None = None  # the pursuit's last own move's spot and clock (`bounced`)
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
         self.run_over: Callable[[str], None] | None = None
         # The runner's (`_carry_one`): whether a unique Grand Charm refused for the carried Gheed's Fortune
@@ -278,6 +364,10 @@ class Hunter:
         self.omen_area: int | None = None
         self.omen_looked = -math.inf
         self.toured: tuple[int, int, int] | None = None  # (level, rooms, explored) said to have no stop
+        # Every level whose tour found no stop since the runner last read them (runner.py `_zone_seen`): a run carried
+        # across a passage tours two levels, and `toured` names only the last. Barracks' 52 of 52 rooms, then the Outer
+        # Cloister's: Barracks was never judged explored and entered again 6 times (16:02:14-16:03:03 on 2026-10-21)
+        self.tours_done: set[int] = set()
         # The runner's: makes cube room for a valuable the inventory has none for (cube.py `stash`), how many went;
         # tried once a drop (`room_tried`)
         self.room_maker: Callable[[Run], int] | None = None
@@ -303,6 +393,7 @@ class Hunter:
         if build is self.build:
             return
         self.build = build
+        forget(build)
         self.buffs = Buffs(build)
         self.travel = Travel(build.movement)
         self.drinker = Drinker(build.settings.drink)
@@ -331,12 +422,23 @@ class Hunter:
     def policy(self, policy: Policy | None) -> None:
         self.aimed_by = policy
 
-    def boss(self, monster: Monster) -> bool:
-        """Whether `monster` is a boss: an act boss (BOSSES), a Herald, or a class with a dearer life price
-        (`SafetySettings.dear`)."""
+    def boss(self, monster: Monster, *, pursued: bool = True) -> bool:
+        """Whether `monster` is a boss: an act boss (BOSSES), a Herald, a class with a dearer life price
+        (`SafetySettings.dear`), or the one the pursued goal fights (PURSUED_IS_BOSS; `pursued` False leaves that
+        out, for a pickup's "fight first" monster that no shot reaches: hunting/judging.py `kept`)."""
         if monster.tier and monster.leader:
             return True  # a Terror Zone's Herald (stat 367, a unique): fought to its end (HERALD_OMEN)
-        return monster.txt_id in BOSSES or any(monster.txt_id == txt for txt, _ in self.build.settings.safety.dear)
+        if monster.txt_id in BOSSES or any(monster.txt_id == txt for txt, _ in self.build.settings.safety.dear):
+            return True
+        goal = self.pursued
+        return (
+            pursued
+            and PURSUED_IS_BOSS
+            and goal is not None
+            and goal.do == FIGHT
+            and not goal.clearing
+            and goal.unit == monster.unit_id
+        )
 
     def omens_now(self, run: Run, area: int, now: float) -> list[Point]:
         """The spots a Herald is coming to on level `area` (HERALD_OMEN), each kept OMEN_SECONDS from its first read."""
@@ -355,6 +457,7 @@ class Hunter:
                     LOG.info('Macro: run: a Herald comes at (%.1f, %.1f) in 5 s: the run waits for it there', x, y)
                     run.say('A Herald is coming')
         self.omens = {spot: until for spot, until in self.omens.items() if until > now}
+        herald_pack.saw_omens(self.omens.items())
         return list(self.omens)
 
     def nearing_only(self, world: World, foes: Sequence[Monster], ground: Ground, here: Point, now: float) -> bool:
@@ -426,6 +529,24 @@ class Hunter:
         LOG.info(
             'Macro: %s takes no damage (%s after %d casts through it): left alone for %.0fs',
             label(prey), life(prey), seen, UNTOUCHABLE_SECONDS,
+        )  # fmt: skip
+        run.say(f'{label(prey)} takes no damage: left alone')
+        return True
+
+    def unharmed(self, run: Run, prey: Monster, since: float, *, striking: bool) -> bool:
+        """Whether `prey`, the line's monster, is left alone now as one that takes no damage: the strike is held and
+        nothing in reach has lost life since `since` for NO_HARM_SECONDS. Never a boss (`boss`: an act boss, a
+        Herald, a dear class, the pursued fight's boss) nor a monster whose life cannot be read."""
+        if NO_HARM_SECONDS is None or not striking or not prey.max_life or self.boss(prey):
+            return False
+        quiet = run.clock() - since
+        if quiet < NO_HARM_SECONDS:
+            return False
+        self.tested.pop(prey.unit_id, None)
+        self.untouchable[prey.unit_id] = run.clock() + UNTOUCHABLE_SECONDS
+        LOG.info(
+            'Macro: %s takes no damage (%s; nothing in reach lost life in %.1fs of strikes): left alone for %.0fs',
+            label(prey), life(prey), quiet, UNTOUCHABLE_SECONDS,
         )  # fmt: skip
         run.say(f'{label(prey)} takes no damage: left alone')
         return True
@@ -639,6 +760,7 @@ class Hunter:
                 continue
             assert attack is not None  # the character is seen
             foes = self.foes(world, run.clock())
+            self.keep_orders(run, world, foes)
             if self.leashed and player.mode in DEAD:
                 self.end_run(run, 'the character died')
             elif self.running and (not self.sweep.steps or run.clock() > self.sweep.until):
@@ -841,6 +963,8 @@ class Hunter:
         before = self.route[1] if self.route[0] == level.area else []
         stops = tour(bounds, here, seen, nearest.keys(), before)
         self.route = (level.area, stops)
+        if not stops and level.rooms and seen:
+            self.tours_done.add(level.area)
         if not stops and self.toured != (level.area, len(level.rooms), len(seen)):
             # Said once a level and count: a full clear once ended with rooms unexplored, nothing saying why
             self.toured = (level.area, len(level.rooms), len(seen))
@@ -1013,6 +1137,7 @@ class Hunter:
         first. `renewing`: only a buff that would end inside the coming boss fight (`ahead`)."""
         player = world.player
         facts = self.buffs.facts(run, world, foes, ahead=self.ahead(player.area if player is not None else None))
+        facts = self.rebuff_facts(facts)  # a rebuff retreat's landing (cta.py REBUFF_GRACE)
         due = self.buffs.first(run, 'upkeep', facts, renewing=renewing)
         if due is None:
             return False
@@ -1030,6 +1155,78 @@ class Hunter:
             self.buffs.remember(due.row, run.clock())
         return True
 
+    def keep_orders(self, run: Run, world: World, foes: Sequence[Monster]) -> cta.OrdersLook | None:
+        """Battle Orders at this look for the safety (macros/cta.py `orders_look`: ORDERS_PREDICT, REBUFF_RETREAT), the
+        rejuvenation alarm (BOUT_ALARM, DANGER_LOOK) and the aura reads (AURA_FORECAST); the look, or None."""
+        safety = self.safety
+        if safety.states_of is None and run.reads is not None:
+            safety.states_of = run.reads.unit_states
+        drunk = self.drinker.drunk_at.get(PotionType.REJUVENATION)
+        safety.alarmed = BOUT_ALARM and drunk is not None and run.clock() - drunk <= ALARM_SECONDS
+        track = cta.track_of(run)
+        track.rebuffed_at = safety.rebuffed_at
+        track.threat = self.cast_threat  # asked fresh at the cast (macros/safety.py CAST_REACH)
+        safety.landed(herald_pack.HOP.at)  # the rebuff retreat's landing, when this hop is it
+        loot = self.drinker.last
+        looked = cta.orders_look(
+            run, world, foes, hurt=self.buffs.hurt(run), max_life=loot.max_life if loot is not None else None,
+            worn=worn_cta(run), barred=self.cast_threat(world),
+        )  # fmt: skip
+        safety.orders = looked
+        return looked
+
+    def rebuff_facts(self, facts: BuffFacts) -> BuffFacts:
+        """`facts` with the safety's last rebuff retreat: chosen (cta.py REBUFF_GRACE) and landed (mark.py
+        REMARK_AFTER_REBUFF)."""
+        safety = self.safety
+        return replace(
+            facts, rebuffed=safety.rebuffed_at, rebuff_landed=safety.rebuff_landed,
+            cast_barred=self.cast_threat(facts.world),
+        )  # fmt: skip
+
+    def bout_reach(self, run: Run, world: World) -> str | None:
+        """Why the strike bout yields to the safety's look now (macros/safety.py BOUT_REACH), at the life last read: not
+        within BOUT_REACH_EVERY s of the safety's last look (it chose this bout knowing the threat: no spin of looks and
+        bouts on one clock)."""
+        decision = self.safety.decision
+        looked = decision.get('looked_at') if decision else None
+        if looked is not None and run.clock() - looked < safety_module.BOUT_REACH_EVERY:
+            return None
+        if decision is self.reach_decision:
+            # Yielded once and the safety has not looked since: a mode with no look of its own (attack mode alone,
+            # the tests' players) went back into the bout at once, and yield and bout spun on one clock (the wide
+            # suite, 2026-10-22: test_hunt's chained casts and test_pad's controller strike hung). The bout goes on.
+            return None
+        loot = self.drinker.last
+        reach = self.safety.cast_threat(world, loot.life if loot is not None else None, bout=True)
+        if reach is not None:
+            self.reach_decision = decision
+        return reach
+
+    def paced(self, world: World) -> bool:
+        """Whether the bout's casts go one a look (FIGHT_CAST_REACH): melee blows that together take the life can come
+        within reach in FIGHT_PACE_SECONDS, at the life last read."""
+        loot = self.drinker.last
+        life = loot.life if loot is not None else None
+        return self.safety.cast_threat(world, life, seconds=FIGHT_PACE_SECONDS) is not None
+
+    def cast_threat(self, world: World) -> str | None:
+        """Why the Call to Arms is not swapped to here now (macros/safety.py CAST_REACH), at the life last read."""
+        loot = self.drinker.last
+        return self.safety.cast_threat(world, loot.life if loot is not None else None)
+
+    def orders_due(self, run: Run, world: World, foes: Sequence[Monster]) -> str | None:
+        """Why the bout yields for Battle Orders now (BOUT_ORDERS): due (`OrdersLook.due`), safe to cast here, and
+        its upkeep row due by the upkeep's own rules (macros/buffs.py `Buffs.due`); None: the bout goes on."""
+        looked = self.safety.orders
+        if not BOUT_ORDERS or looked is None or looked.due is None or not looked.safe:
+            return None
+        row = next((r for r in self.buffs.rows('upkeep') if r.caster == 'cta'), None)
+        if row is None:
+            return None
+        facts = self.rebuff_facts(self.buffs.facts(run, world, foes))
+        return looked.due if self.buffs.due(run, row, facts) is not None else None
+
     def ahead(self, area: int | None) -> float:
         """Seconds of a boss's fight the route brings next on level `area` (goals.py `boss_ahead`: the fight's
         stage, or the last seal of an arm): BOSS_AHEAD, else 0."""
@@ -1043,14 +1240,15 @@ class Hunter:
     def tough(self, world: World, reachable: list[Monster]) -> bool:
         """Whether what is in reach is worth the main weapons (damage, capped resistances; user, 2026-10-12: "we
         should swap to it against most of tough/hard-hitting enemies/bosses"): a pack leader or a Herald's own,
-        TOUGH_POINTS of life (an elite's times ELITE_LIFE), or a pack threat score (terror/danger.py) of HARD_SCORE.
+        TOUGH_POINTS of life (an elite's times ELITE_LIFE unless combat/mechanics/life.py TIER_LIFE has its rank in
+        the points: `rank_share`), or a pack threat score (terror/danger.py) of HARD_SCORE.
         Examples: macros/history/hunt.md."""
         if world.player is None:
             return False
         if any(m.tier or m.leader for m in reachable):
             return True
         seen = observe(world.player, reachable, ())
-        if sum(foe.left * (ELITE_LIFE if foe.elite else 1.0) for foe in seen.foes.values()) >= TOUGH_POINTS:
+        if sum(foe.left * rank_share(foe.elite) for foe in seen.foes.values()) >= TOUGH_POINTS:
             return True
         units = [Unit(m.unit_id, m.txt_id, m.x, m.y, m.modifiers, None, False, m.flags, m.tier) for m in reachable]
         return any(pack.score >= HARD_SCORE for pack in packs(units))
@@ -1117,7 +1315,11 @@ class Hunter:
         first = bosses + list(dict.fromkeys(masters))
         first += [m.unit_id for m in reachable if m.unit_id in barring and m.unit_id not in {*first, *lost}]
         aimer = self.aimed_by if self.aimed_by is not None else attack
-        found = aim_choice(aimer, seen, [m.unit_id for m in reachable if m.unit_id not in lost], first=first)
+        struck = [m.unit_id for m in reachable if m.unit_id not in lost]
+        # Dolls running in before anything else: they die before they arrive, not on the character (DOLL_FIRST, F3 of
+        # rca/2026-10-21/dolls-tz-findings.md); the best line through one of them, whatever else it holds
+        first = dolls.first_struck(here, seen.foes, struck) or first
+        found = aim_choice(aimer, seen, struck, first=first)
         assert found is not None  # the caller has something in reach
         return found
 
@@ -1189,6 +1391,51 @@ class Hunter:
             tried.append(f'{shift:+.0f}: item {over[1]}')
         LOG.info("Macro: an item's label under every aim along the line to (%.1f, %.1f): %s", *focal, ', '.join(tried))
 
+    def onto_held(
+        self, run: Run, view: Viewport, here: Point, prey: Monster, world: World, focal: Point, covering: int
+    ) -> bool:
+        """Move the pointer onto the held leader's body while the hover names the monster `covering` instead
+        (HELD_ON_BODY): its body, then up it, then away from the neighbour, a look HOVER_SECONDS after each; back on
+        the line to `focal` when none names it. Whether the hover names it at the end; said once a leader and way."""
+        named = [covering]
+        point = view.body(here, prey.x, prey.y)
+        for nudge in range(HELD_NUDGES):
+            other = next((m for m in world.monsters if m.unit_id == named[-1]), None)
+            if nudge == 0:
+                moved = point
+            elif nudge == 1 or other is None:
+                moved = (point[0], point[1] - HELD_UP)
+            else:
+                there = view.body(here, other.x, other.y)
+                dx, dy = point[0] - there[0], point[1] - there[1]
+                away = math.hypot(dx, dy) or 1.0
+                moved = (point[0] + dx / away * HELD_AWAY, point[1] - HELD_UP + dy / away * HELD_AWAY)
+            if not view.on_screen(moved):
+                continue
+            run.actuator.aim(*moved, scatter=(1, 1))
+            run.pace.sleep(HOVER_SECONDS)
+            over = run.hovered() if run.hovered is not None else None
+            if over is not None and over[0] == MONSTER_UNIT and over[1] == prey.unit_id:
+                self.say_held(prey, True, f'the pointer on its body after {nudge + 1} moves', named)
+                return True
+            if over is not None and over[0] == MONSTER_UNIT:
+                named.append(over[1])
+        where = view.aim(here, focal)
+        if where is not None:
+            run.actuator.aim(*where, scatter=(2, 2))
+        self.say_held(prey, False, f'still covered after {HELD_NUDGES} moves: back on the line', named)
+        return False
+
+    def say_held(self, prey: Monster, on: bool, how: str, named: list[int]) -> None:
+        """Log a held leader's cover once a leader and outcome (`onto_held`)."""
+        if (prey.unit_id, on) in self.cover_said:
+            return
+        self.cover_said.add((prey.unit_id, on))
+        LOG.info(
+            'Macro: strike: %s held, the hover named %s over it (the blades go to the unit under the pointer): %s',
+            label(prey), ', '.join(str(unit) for unit in dict.fromkeys(named)), how,
+        )  # fmt: skip
+
     def fight(self, run: Run, ground: Ground, aspect: float, key_names, until: float | None = None) -> None:
         """Strike while anything is in reach and the player stands: one hold of the strike input, the pointer on
         the policy's line, asked again every DECIDE_SECONDS and when its monster is gone. Ends when nothing is in
@@ -1207,7 +1454,11 @@ class Hunter:
         lined: int | None = None  # the monster the line last logged went through
         labels_due = math.inf  # clock time of the next look for an item's label under the standing pointer
         counted = 0  # the casts seen up to the last look
+        harmed_at = started  # clock time something in reach last lost life or died (`unharmed`)
+        lives: dict[int, int] = {}  # unit -> its life at the look before, what is in reach with a life read
         guarded_at = -math.inf  # clock time of the last safety look of the mode alone (`guard`)
+        alarmed = self.safety.alarmed  # a rejuvenation was drunk just now at the last look (BOUT_ALARM)
+        held_back: str | None = None  # why the bout's casts were last held (FIGHT_CAST_REACH), said once
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
             stack.callback(setattr, self.buffs, 'let_go', None)
@@ -1243,6 +1494,25 @@ class Hunter:
                 if not reachable:
                     ended = 'Nothing left in reach'
                     break
+                read_lives = {m.unit_id: m.life for m in reachable if m.max_life}
+                if any(points < lives.get(unit, points) for unit, points in read_lives.items()) or not (
+                    lives.keys() <= alive
+                ):
+                    harmed_at = run.clock()  # something in reach lost life, or died
+                lives = read_lives
+                self.keep_orders(run, world, foes)
+                due = self.orders_due(run, world, foes) if again is not None else None
+                if due is not None:
+                    ended = f'Yielded (Battle Orders: {due})'  # the upkeep casts it at the mode's next look
+                    break
+                reach = self.bout_reach(run, world)
+                if reach is not None:
+                    self.judged = (math.nan, -math.inf, False)  # the safety asked at the next look (BOUT_REACH)
+                    ended = f'Yielded ({reach})'
+                    break
+                if self.safety.alarmed and not alarmed:
+                    self.judged = (math.nan, -math.inf, False)  # a rejuvenation just drunk: the safety asked at once
+                alarmed = self.safety.alarmed
                 if self.pursuing and self.key_asks(run, world, foes, ground, unstruck=again is None):
                     ended = 'Yielded (the key asks for a move)'  # the mode makes it at its next look
                     break
@@ -1311,23 +1581,40 @@ class Hunter:
                 if choice is None or prey is None or run.clock() - decided_at >= DECIDE_SECONDS:
                     choice, decided_at = self.choose(world, foes, reachable, ground, view), run.clock()
                     prey = next(m for m in foes if m.unit_id == choice.unit)
-                if self.untouched(run, prey, cast.casts - counted):
+                made = cast.chained if GUARD_COUNTS_HELD else cast.casts
+                if self.untouched(run, prey, made - counted):
                     choice = None  # left alone: the next look chooses among the rest
-                    counted = cast.casts
+                    counted = made
                     if self.pursuing and prey.unit_id in self.nearing:
                         ended = f'Getting back in reach of {label(prey)}'  # a boss: the run's move comes first
                         break
+                    if self.nap(run, FRAME):  # a frame before the next look: never a spin on one clock (BOUT_NAP)
+                        ended = 'Yielded (a move was asked for)'
+                        break
                     continue
-                counted = cast.casts
+                counted = made
+                if self.unharmed(run, prey, max(harmed_at, cast.began), striking=again is not None and made > 0):
+                    choice, harmed_at = None, run.clock()  # left alone: the rest gets its own NO_HARM_SECONDS
+                    if self.nap(run, FRAME):  # a frame before the next look (BOUT_NAP)
+                        ended = 'Yielded (a move was asked for)'
+                        break
+                    continue
                 # The strike first, the mark and sigil under it once a cast is out: before it they held the first
                 # strike back on half the fight starts (2026-10-10). The first cast flies unmarked.
                 struck = again is not None and (cast.casts > 0 or run.clock() - cast.began >= FIRST_STRIKE_SECONDS)
+                if again is not None and DOLL_HERALD_MARK and any(dolls.herald_doll(m) for m in reachable):
+                    struck = True  # the doll Herald's mark before the first strike (DOLL_HERALD_MARK)
                 if struck:
                     # The build's casts under the strike in plan order; one that moved the pointer has the aim put
                     # back. With the safety's last prices of the build's draw (build.py `Draw`), while fresh
                     draws = self.safety.priced(run.clock())
                     asked = self.buffs.facts(run, world, foes, reachable, prey, draws)
-                    for row in self.buffs.rows('fight'):
+                    asked = self.rebuff_facts(asked)  # the mark after a rebuff retreat (mark.py REMARK_AFTER_REBUFF)
+                    if FIGHT_CAST_REACH and asked.cast_barred is not None:
+                        if held_back != asked.cast_barred:
+                            LOG.info('Macro: fight casts held: %s', asked.cast_barred)
+                        held_back = asked.cast_barred
+                    for row in () if FIGHT_CAST_REACH and asked.cast_barred is not None else self.buffs.rows('fight'):
                         due = self.buffs.due(run, row, asked)
                         if due is None:
                             continue
@@ -1337,6 +1624,8 @@ class Hunter:
                                 aim.forget()
                             cast.excuse(run.clock())
                             self.buffs.resume(run, again)
+                        if FIGHT_CAST_REACH and self.paced(world):
+                            break  # one cast a look: the bout looks again (BOUT_REACH) before the next
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
                 if run.pad is not None:
                     # Controller mode: the client strikes its own target, turned toward the prey (macros/pad.py).
@@ -1351,10 +1640,14 @@ class Hunter:
                     labels_due = run.clock() + HOVER_SECONDS  # once the game has noted what is under it
                 elif pointer == left_at and run.hovered is not None and run.clock() >= labels_due:
                     # The pointer stands where the macro left it: an item's label may be under it now.
-                    labels_due = run.clock() + LABEL_SECONDS
+                    held_prey = HELD_ON_BODY and holding(attack) == prey.unit_id
+                    labels_due = run.clock() + (HELD_LOOK_SECONDS if held_prey else LABEL_SECONDS)
                     over = run.hovered()
                     if over is not None and over[0] == ITEM_UNIT:
                         self.off_labels(run, view, here, choice.focal)
+                        aim.put(choice.focal, here, run.actuator.keys.pointer())
+                    elif held_prey and over is not None and over[0] == MONSTER_UNIT and over[1] != prey.unit_id:
+                        self.onto_held(run, view, here, prey, world, choice.focal, over[1])
                         aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:
                     run.say(f'{skill_name(attack.skill)} ({how}) at {label(prey)}, {life(prey)}')

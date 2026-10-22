@@ -38,6 +38,13 @@ MODIFIERS = slice(0x20, 0x29)
 # Player modes that are an action under way: attacks, casts, skill sequences (classic table; macros/routines.py).
 ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
 HERALD_TIER_STAT = 367  # itemstatcost `heraldtier`: on a Terror Zone's Herald and on its minions (terror/tracker.py)
+# itemstatcost `modifierlist_skill` / `_level`: the skill and level of the last state put on a unit, on a monster the
+# aura it holds or stands in (the takes' first sightings: the Fane's Might unique 98 at 16, its neighbours 98 at 16,
+# the Herald's minions Concentration 113 at 16; macros/safety.py AURA_FORECAST)
+MODIFIER_SKILL_STAT, MODIFIER_LEVEL_STAT = 350, 351
+# itemstatcost `damagepercent`: on a monster the sum of the damage auras on it, its own among them (the Fane's Might
+# unique and its neighbours read 190 = Might 16; beside Might and Concentration, 475; macros/safety.py AURA_FORECAST)
+DAMAGE_PERCENT_STAT = 25
 ALIGNMENT_STAT = 172  # non-zero on allies: summons, the mercenary (terror/tracker.py)
 # A unit's skill list (third-parties/d2go memory/player.go): pointers to the left/right button skill records,
 # each starting with a pointer to its skills.txt record, whose first u16 is the skill id.
@@ -147,7 +154,6 @@ SKILL_IN_USE = 0x18  # in the skill list: the pointer to the skill being used
 SKILL_RECORD = 0x50  # bytes of the skill record kept: its row pointer first, the points and base level within
 
 
-STACK_MOST = 99  # a resource tab's stack at most: the Tal Runes' refused at 99 (the player, 2026-10-17)
 SHARED_PAGES = 5  # the shared stash's pages ("Page 1 / 5", macros/stash.py SHARED_PAGES)
 ITEM_PAGE = 0x55  # item data: the inventory page byte (native/units.py describe_item; 4 a stash's)
 STASH_ITEM_PAGE = 4  # collection/capture.py STASH_PAGE
@@ -169,6 +175,11 @@ SHOP_GRIDS = (2, 3, 4, 5)  # a vendor's four tabs, in order (shop/capture.py SHO
 # (2026-10-12; unopened chests, jars, shrines). Bit 0x04 was set on unbroken jars only (`IsAttackable0`).
 UNIT_FLAGS = 0x124
 SELECTABLE_FLAG = 0x02
+# On a monster bit 0x04 is "can be attacked": clear on a frog demon or a Water Watcher under the water (mode 14, flags
+# 0x1), a vulture in the air (mode 8), Hydras, traps and townsfolk (0x9). Set on 102,680 of the 102,810 hostiles' life
+# drops of the 677 takes of 2026-10-21; the 130 others are units already left out (traps, Hydras, Water Watchers on
+# the submerge frame) and 7 flip frames (rca/2026-10-19/untargetable-findings.md, rca/2026-10-21/no-hits-findings.md)
+ATTACKABLE_FLAG = 0x04
 
 
 BANK = 267  # objects.txt `Bank` (*ID), the stash a town's character puts its things in (macros/stash.py)

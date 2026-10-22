@@ -24,6 +24,16 @@ FULL_PAGE: tuple[str, ...] = ('#' * 10,) * 10
 OPEN_PAGE: tuple[str, ...] = ('.' * 10,) * 10
 
 
+@pytest.fixture(autouse=True)
+def first_runs_floor(monkeypatch):
+    """The cases' gold sums were written at the first runs' floor (3M); the live floor is 200,000 since 2026-10-21
+    ~15:20 (gamble.py GAMBLE_FLOOR, `test_the_live_floor_is_the_players_200k`)."""
+    from inventory_tracking.macros import gamble as gamble_module
+
+    monkeypatch.setattr(gamble_module, 'GAMBLE_FLOOR', 3_000_000)
+    monkeypatch.setattr(gamble_module, 'CARRIED_FLOOR', 0)  # the carried floor of ~16:45 has its own tests
+
+
 def class_of(name: str) -> int:
     [found] = [int(cid) for cid, base in metadata()['bases'].items() if base['name'] == name]
     return found
@@ -49,7 +59,7 @@ def fortress(pack: Pack, pages: Sequence[tuple[str, ...]], game: type[Game] = Ga
 
 
 def read(run) -> StashView:
-    view = run.stash_view() if run.stash_view is not None else None
+    view = run.reads.stash_view()
     assert view is not None
     return view
 
@@ -329,7 +339,7 @@ class Town:
         def judge(items):
             return [i for i in items if i.unit_id in self.junked]
 
-        return Hands(lambda: 'i', self.identify, judge, lambda: run.stash_view() if run.stash_view else None,
+        return Hands(lambda: 'i', self.identify, judge, run.reads.stash_view,
                      appraise=appraised(self.play, self.junked))  # fmt: skip
 
     def visit(self, exit: Exit = Exit.WAYPOINT) -> Visited:
@@ -395,6 +405,57 @@ def test_halbu_comes_after_jamella_and_a_game_left_from_beside_him_walks_nowhere
     town.order.clear()
     town.visit(Exit.WAYPOINT)
     assert town.stops() == ['jamella', 'halbu', 'waypoint']
+
+
+def belt_behind_a_charm(monkeypatch) -> tuple[Game, Town]:
+    """22:34:05 on 2026-10-21: room planned for the cube's unique Sharkskin Belt and the junk Large Charm together, but
+    the charm (the taller) came out first into the belt's 2 x 1 ("cube: no room in the inventory for the item 391");
+    the two inventory keepers' puts free a 2 x 1 at (0, 0)."""
+    cube = Carried(1, CUBE_CLASS, 8, 0, (2, 2))
+    keepers = (thing(20, 'Ring', 0, 0), thing(21, 'Ring', 1, 0))
+    cells = [(0, 1), (1, 1), (0, 2), (1, 2), (7, 1), (7, 2), (8, 2), (9, 2)] + [(x, 3) for x in range(10)]
+    junk = tuple(thing(100 + n, 'Ring', x, y) for n, (x, y) in enumerate(cells))
+    charm = Carried(60, class_of('Large Charm'), 0, 0, (1, 2), quality=4)
+    belt = Carried(50, class_of('Sharkskin Belt'), 1, 0, (2, 1), quality=7)
+    pack = Pack((cube, *OWN_CHARMS, *keepers, *junk), ('###', '#..', '...', '...'), frozenset({50, 60}),
+                (charm, belt), keys=24)  # fmt: skip
+    play = fortress(pack, [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({60, *(i.unit_id for i in junk)}))
+    town.run = play.run()
+    return play, town
+
+
+def test_a_cube_keeper_the_junk_took_the_room_of_is_taken_out_again_once_the_puts_make_room(monkeypatch):
+    # The player, 2026-10-21: "every time we visit town and traders - we need to to the routine => get back with clear
+    # cube and clear inventory space"; the same take-out and puts once more, the stash reopened in place
+    play, town = belt_behind_a_charm(monkeypatch)
+    own = own_of((carried(play).items[0], *OWN_CHARMS))
+
+    done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert town.stops() == ['stash', 'jamella', 'waypoint']  # no walk back
+    assert play.stash_opened == 2  # opened again in place for the belt
+    assert sorted(play.page_items[5]) == [20, 21, 50]
+    assert carried(play).in_cube == ()
+    assert 60 in town.sold
+    assert done.contract.misses == ()
+    assert done.contract.cube == 0
+
+
+def test_with_keeper_out_again_off_the_belt_stays_in_the_cube_as_played(monkeypatch, caplog):
+    monkeypatch.setattr('inventory_tracking.macros.visit.KEEPER_OUT_AGAIN', False)
+    play, town = belt_behind_a_charm(monkeypatch)
+    own = own_of((carried(play).items[0], *OWN_CHARMS))
+
+    with caplog.at_level('INFO'):
+        done = visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert any('no room in the inventory for the item' in r.message for r in caplog.records)
+    assert play.stash_opened == 1
+    assert sorted(play.page_items[5]) == [20, 21]
+    assert [i.unit_id for i in carried(play).in_cube] == [50]
+    assert done.contract.cube == 1
+    assert any('Sharkskin Belt' in miss for miss in done.contract.misses)
 
 
 def test_a_cube_long_battle_bow_goes_into_the_stash_in_the_same_stop(monkeypatch):
@@ -988,6 +1049,8 @@ class RuneStash(Game):
         from collections import Counter
 
         from inventory_tracking.macros.cube import rune_recipe, rune_slot, stash_transmute
+        from inventory_tracking.macros.stash import resource_tabs
+        from inventory_tracking.macros.town import gem_recipe
         from inventory_tracking.macros.waypoint import panel_point
         from tests.inventory_tracking.macros.fakes import WINDOW
 
@@ -998,7 +1061,8 @@ class RuneStash(Game):
                     panel_point(WINDOW, *at), event[2]) < 0.01), None)  # fmt: skip
                 if txt is not None:
                     self.right_clicked.append(txt)
-                    moved = min(self.take, self.stacks.get(txt, 0))
+                    # Only a stack on the tab shown (2 Gems, 4 Runes) is under the click
+                    moved = min(self.take, self.stacks.get(txt, 0)) if resource_tabs().get(txt) == self.stash_tab else 0
                     self.stacks[txt] = self.stacks.get(txt, 0) - moved
                     used = {(i.x, i.y) for i in pack.in_cube}
                     cells = [(x, y) for y in range(4) for x in range(3) if (x, y) not in used][:moved]
@@ -1025,7 +1089,12 @@ class RuneStash(Game):
                 self.transmutes.append(tuple(i.unit_id for i in pack.in_cube))
                 kinds = Counter(i.txt for i in pack.in_cube)
                 runes, recipe = next(
-                    ((t, r) for t in kinds if (r := rune_recipe(t)) is not None and kinds[t] == r.runes), (None, None)
+                    (
+                        (t, r)
+                        for t in kinds
+                        if (r := rune_recipe(t) or gem_recipe(t)) is not None and kinds[t] == r.runes
+                    ),
+                    (None, None),
                 )
                 wanted = Counter({runes: recipe.runes, **dict.fromkeys(recipe.gems, 1)}) if recipe else None
                 if self.converts and recipe is not None and kinds == wanted:
@@ -1525,6 +1594,36 @@ def test_the_switch_off_keeps_jamella_at_every_visit_with_junk(monkeypatch):
     assert done.contract.misses == ()
 
 
+def test_past_down_a_game_items_put_down_in_one_game_jamella_sells_the_junk(monkeypatch, caplog):
+    # 02:04:06 on 2026-10-21: nine items put down by the stash in one game covered its aims (visit.py DOWN_A_GAME)
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, '_down', {'game': play.world.game_name, 'items': 5})
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    assert sorted(town.sold) == [11, 12]
+    assert play.fallen == []
+    assert done.contract.misses == ()
+    assert 'Jamella needed (5 items put down in this game already, 2 more would cover the stash)' in caplog.text
+
+
+def test_the_items_put_down_are_counted_afresh_in_a_new_game(monkeypatch):
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, '_down', {'game': 'an older game', 'items': 6})
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash']
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert visit_module._down == {'game': play.world.game_name, 'items': 2}
+
+
 def test_a_repair_due_with_jamella_skipped_is_still_halbus(monkeypatch):
     play, town, _openings = at_need_town(monkeypatch, staff=Teleport(5, 69, False))
 
@@ -1571,3 +1670,391 @@ def test_the_cubes_junk_is_put_down_from_the_open_cube_in_the_same_opening(caplo
     assert carried(play).in_cube == ()
     assert play.world.open_panels == ()
     assert 'Macro: inventory: 537 (12) at (0, 0) dropped in town: Jamella not needed' in caplog.text
+
+
+# The loop's potions in the inventory put down in town, not stashed (visit.py POTIONS_DOWN; the player, 2026-10-21
+# ~00:55: "we store these potions in shared stash - we should just drop them if accidentally picked into inventory")
+
+
+def potion_town(monkeypatch):
+    """A visit with a keeper Ring and a Super Healing Potion in the loop's cells, a Full Rejuvenation Potion in the
+    cube; Jamella not needed (a full tome, keys, gold)."""
+    import inventory_tracking.macros.visit as visit_module
+
+    keeper = replace(thing(10, 'Ring', 6, 0), quality=4, identified=False)
+    potion = thing(13, 'Super Healing Potion', 8, 0)
+    cubed = thing(14, 'Full Rejuvenation Potion', 0, 0)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, keeper, potion), ('#..', '...', '...', '...'), frozenset({14}), (cubed,),
+                keys=24, identifies=20)  # fmt: skip
+    play = fortress(pack, [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play)
+    monkeypatch.setattr(visit_module, 'gold', lambda run: RICH)
+    return play, town
+
+
+def test_the_loops_potions_in_the_inventory_and_the_cube_are_put_down_in_town_not_stashed(monkeypatch, caplog):
+    play, town = potion_town(monkeypatch)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert sorted(i.unit_id for i in play.fallen) == [13, 14]
+    assert play.page_items[5] == [10]  # the keeper alone stashed
+    assert all(i.unit_id not in (13, 14) for i in (*carried(play).items, *carried(play).in_cube))
+    assert done.contract.misses == ()
+    assert caplog.text.count('dropped in town: a potion out of the belt') == 2
+    assert 'Macro: town visit: 2 potions out of the belt put down, 2 fell' in caplog.text
+
+
+def test_the_players_potion_in_his_own_cells_is_never_put_down(monkeypatch):
+    play, town = potion_town(monkeypatch)
+    own_potion = thing(15, 'Super Healing Potion', 9, 3)  # a cell the player's own item started in
+    assert play.pack is not None
+    play.pack = replace(play.pack, items=(*play.pack.items, own_potion))
+    own = own_of((THE_CUBE, *OWN_CHARMS, own_potion))
+    town.run = play.run()
+
+    visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert 15 not in [i.unit_id for i in play.fallen]
+    assert 15 in [i.unit_id for i in carried(play).items]
+
+
+def test_the_switch_off_stashes_the_loops_potions_as_before(monkeypatch):
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town = potion_town(monkeypatch)
+    monkeypatch.setattr(visit_module, 'POTIONS_DOWN', False)
+
+    town.visit()
+
+    assert play.fallen == []
+    assert 13 in play.page_items[5]  # stashed as a K1 keeper (runes, gems, potions)
+
+
+def test_a_due_gamble_runs_after_the_stash_and_the_junk_is_then_sold_not_put_down(monkeypatch, caplog):
+    # The player, 2026-10-21 ~09:45: "probably we need to implement gambling ... then we would be able to sell items
+    # again" (macros/gamble.py; its session is tested in test_gamble.py)
+    import inventory_tracking.macros.visit as visit_module
+    from inventory_tracking.macros import gamble
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, 'GAMBLE_LAST', False)  # the order before 2026-10-21 ~14:15
+    sessions: list[object] = []
+    monkeypatch.setattr(gamble, 'due', lambda carried, bank, cap: 'carried gold at the cap')
+    monkeypatch.setattr(gamble, 'gamble', lambda run, judge: sessions.append(judge))
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert len(sessions) == 1
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']  # beside her after it: the junk sold
+    assert sorted(town.sold) == [11, 12]
+    assert play.fallen == []
+    assert done.contract.misses == ()
+    assert 'Macro: town visit: gamble: carried gold at the cap' in caplog.text
+    line = next(r.message for r in caplog.records if 'trade session done' in r.message)
+    assert ', gamble ' in line
+    assert ', gamble -' not in line
+
+
+def test_the_gamble_comes_after_the_sales_the_refills_and_the_repair(monkeypatch, caplog):
+    # The player, 2026-10-21 ~14:15: "we need to to gambling only after we did all other routines (sell, refill,
+    # repair)" (visit.py GAMBLE_LAST)
+    from inventory_tracking.macros import gamble
+
+    play, town, _openings = at_need_town(monkeypatch)
+    order: list[str] = []
+    monkeypatch.setattr(gamble, 'due', lambda carried, bank, cap: 'carried gold at the cap')
+    monkeypatch.setattr(gamble, 'gamble', lambda run, judge: order.append(f'gamble after {len(play.fallen)} down'))
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert order == ['gamble after 2 down']  # the junk dealt with (put down: no Jamella needed) before the session
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert done.contract.misses == ()
+    said = caplog.text
+    assert said.index('Jamella not needed') < said.index('Macro: town visit: gamble: carried gold at the cap')
+
+
+def test_no_gamble_due_is_the_visit_as_before(monkeypatch):
+    from inventory_tracking.macros import gamble
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(gamble, 'GAMBLE', False)
+    monkeypatch.setattr(gamble, 'gamble', lambda run, judge: pytest.fail('no session with GAMBLE off'))
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash']
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+
+
+# Healing potions at Jamella (shop.py BUY_POTIONS, visit.py POTIONS_WALK; the player, 2026-10-21 ~13:38: "can we also
+# add into town routine ability to buy hp potions"), and the loop's potions into the belt before any is put down
+# (visit.py POTIONS_TO_BELT; 13:45:01 on 2026-10-21: one picked up again held the 2x4 block)
+
+SUPER, FULL_REJUVENATION = 606, 531  # d2data misc.json classid of hp5, rvl
+
+
+def belted(healing: int):
+    """A read belt: both rejuvenation columns full, `healing` Super Healing Potions in the healing columns 3-4."""
+    from inventory_tracking.game.records import Loot
+
+    cells: list[int | None] = [None] * 16
+    for row in range(4):
+        cells[4 * row], cells[4 * row + 1] = FULL_REJUVENATION, FULL_REJUVENATION
+    for n in range(healing):
+        cells[4 * (n % 4) + 2 + n // 4] = SUPER
+    return Loot(belt=tuple(cells), life=2907, max_life=2907, stats=((12, 95), (14, RICH)), game=('g', 7))
+
+
+def test_a_belt_short_of_a_column_of_healing_potions_takes_the_visit_to_jamella(monkeypatch, caplog):
+    play, town, _openings = at_need_town(monkeypatch)
+    play.loot = belted(healing=4)
+
+    with caplog.at_level('INFO'):
+        town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    assert 'Macro: town visit: Jamella needed (belt short 4 healing potions): the junk sold' in caplog.text
+
+
+def test_any_healing_gap_takes_every_visit_to_jamella_and_a_full_belt_none(monkeypatch):
+    # the player, 2026-10-21 ~20:40: "hp refill is just an another step in routine" (POTIONS_WALK 1, was 4)
+    play, town, _openings = at_need_town(monkeypatch)
+    play.loot = belted(healing=7)
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash', 'jamella', 'waypoint']
+    play, town, _openings = at_need_town(monkeypatch)
+    play.loot = belted(healing=8)
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash']
+
+
+def test_with_buy_potions_off_the_belt_makes_no_walk_to_jamella(monkeypatch):
+    play, town, _openings = at_need_town(monkeypatch)
+    play.loot = belted(healing=0)
+    monkeypatch.setattr('inventory_tracking.macros.shop.BUY_POTIONS', False)
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash']
+
+
+def test_after_a_gamble_beside_her_any_healing_gap_is_bought(monkeypatch):
+    import inventory_tracking.macros.visit as visit_module
+    from inventory_tracking.macros import gamble
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, 'GAMBLE_LAST', False)  # beside her after a session: the order before ~14:15
+    assert play.pack is not None
+    play.pack = replace(play.pack, items=tuple(i for i in play.pack.items if i.unit_id != 11), in_cube=(),
+                        cube_items=frozenset())  # nothing to sell  # fmt: skip
+    town.junked.clear()
+    play.loot = belted(healing=7)
+    monkeypatch.setattr(gamble, 'due', lambda carried, bank, cap: 'carried gold at the cap')
+    monkeypatch.setattr(gamble, 'gamble', lambda run, judge: None)
+
+    town.visit()
+
+    assert 'jamella' in town.stops()
+
+
+def test_the_loops_potion_goes_into_the_belt_with_room_not_down(monkeypatch, caplog):
+    play, town = potion_town(monkeypatch)
+    play.loot = belted(healing=6)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert 13 not in [i.unit_id for i in play.fallen]  # the Super Healing Potion went into the belt
+    assert 13 not in [i.unit_id for i in carried(play).items]
+    assert sum(cell == SUPER for cell in play.loot.belt) == 7
+    assert [i.unit_id for i in play.fallen] == [14]  # the cube's put down as before
+    assert done.contract.misses == ()
+    assert 'Macro: town visit: 1 potions out of the belt went into the belt' in caplog.text
+
+
+def test_a_belt_that_does_not_take_the_potion_has_it_put_down(monkeypatch):
+    play, town = potion_town(monkeypatch)
+    play.loot = belted(healing=6)
+    play.belt_takes = False
+
+    done = town.visit()
+
+    assert sorted(i.unit_id for i in play.fallen) == [13, 14]
+    assert play.pack is not None
+    assert play.pack.pointer is None
+    assert done.contract.misses == ()
+
+
+def test_a_potion_the_walk_back_picks_up_is_not_carried_out_of_town(monkeypatch):
+    # 13:45:01 on 2026-10-21: the potion put down by the waypoint was picked up by the walk back to it; the contract
+    # read "block 2x4 taken, 1 keepers carried (normal Super Healing Potion at (4, 3))"
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch, keys=2)  # Jamella needed: the walk from her to the waypoint
+    play.loot = belted(healing=8)
+    picked = thing(20, 'Super Healing Potion', 8, 1)
+    real = visit_module.walk_until
+
+    def walk_until(run, place, bounds, what):
+        found = real(run, place, bounds, what)
+        assert play.pack is not None
+        play.pack = replace(play.pack, items=(*play.pack.items, picked))  # its label under a walk's click
+        return found
+
+    monkeypatch.setattr(visit_module, 'walk_until', walk_until)
+
+    done = town.visit()
+
+    assert 20 in [i.unit_id for i in play.fallen]  # the belt full: put down
+    assert done.contract.misses == ()
+
+
+# Flawless gems over 15 a kind cubed from the Gems tab (the player, 2026-10-21 ~14:45: "could we also cube gems,
+# probably I's like to keep 15 flawless gems"; town.py GEMS_KEEP_FLAWLESS)
+
+
+@pytest.fixture
+def keep_15(monkeypatch):
+    from inventory_tracking.macros import town
+
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', 15)
+
+
+def gems_stop(carry: Sequence[Carried] = (), **counts: int) -> RuneStash:
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, *carry)), [FULL_PAGE] * 6, RuneStash)
+    play.stacks = {class_of(name.replace('_', ' ')): count for name, count in counts.items()}
+    assert isinstance(play, RuneStash)
+    return play
+
+
+def test_18_flawless_rubies_make_one_perfect_on_the_gems_tab_leaving_15(keep_15, caplog):
+    play = gems_stop(Flawless_Ruby=18, Perfect_Ruby=2)
+    ruby, perfect = class_of('Flawless Ruby'), class_of('Perfect Ruby')
+
+    with caplog.at_level('INFO'):
+        stop(play)
+
+    assert play.right_clicked == [ruby]  # one right click on its stack, the Gems tab shown
+    assert len(play.transmutes) == 1
+    assert (play.stacks[ruby], play.stacks[perfect]) == (15, 3)  # the perfect gem onto its stack
+    assert carried(play).in_cube == ()
+    assert play.stash_opened == 1
+    assert 'Macro: cube: three Flawless Ruby into a Perfect Ruby at the stash (stacks 15 and 3)' in caplog.text
+    assert 'Macro: stash: gems cubed: 1 of 1 planned (keep 15 flawless a kind)' in caplog.text
+    assert 'runes cubed' not in caplog.text
+    assert play.world.open_panels == ()
+
+
+def test_17_flawless_make_no_transmute_and_30_make_the_visits_bound(keep_15):
+    from inventory_tracking.macros.town import GEM_TRANSMUTES
+
+    play = gems_stop(Flawless_Topaz=17)
+    stop(play)
+    assert play.right_clicked == []
+    assert play.stacks[class_of('Flawless Topaz')] == 17
+
+    play = gems_stop(Flawless_Topaz=30, Perfect_Topaz=0)
+    stop(play)
+    assert len(play.transmutes) == min(5, GEM_TRANSMUTES)
+    assert play.stacks[class_of('Flawless Topaz')] == 30 - 3 * min(5, GEM_TRANSMUTES)
+    assert play.stacks[class_of('Perfect Topaz')] == min(5, GEM_TRANSMUTES)
+    assert carried(play).in_cube == ()
+
+
+def test_a_carried_flawless_goes_onto_the_tab_first_then_the_transmute_and_perfects_are_never_cubed(keep_15):
+    gem = thing(21, 'Flawless Emerald', 6, 3)
+    play = gems_stop((gem,), Flawless_Emerald=17, Perfect_Emerald=40, Perfect_Skull=60)
+
+    stop(play)
+
+    emerald, perfect = class_of('Flawless Emerald'), class_of('Perfect Emerald')
+    assert play.right_clicked == [emerald]
+    assert (play.stacks[emerald], play.stacks[perfect], play.stacks[class_of('Perfect Skull')]) == (15, 41, 60)
+    assert all(i.unit_id != gem.unit_id for i in carried(play).items)
+    assert carried(play).in_cube == ()
+
+
+def test_rune_and_gem_transmutes_in_one_stop_each_from_its_tab(keep_15, caplog):
+    play, tal = runes_stop(Tal_Rune=99, Ral_Rune=10, Flawless_Diamond=21)
+    diamond = class_of('Flawless Diamond')
+
+    with caplog.at_level('INFO'):
+        stop(play)
+
+    assert play.right_clicked == [tal.txt] * 3 + [diamond] * 2
+    assert play.stacks[diamond] == 15
+    assert play.stacks[class_of('Perfect Diamond')] == 2
+    assert 'Macro: stash: runes cubed: 3 of 3 planned, 1 carried runes put after' in caplog.text
+    assert 'Macro: stash: gems cubed: 2 of 2 planned' in caplog.text
+    assert carried(play).in_cube == ()
+
+
+def test_the_switch_off_cubes_no_gem_from_the_tab(monkeypatch):
+    from inventory_tracking.macros import town
+
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', None)
+    play = gems_stop(Flawless_Ruby=50, Perfect_Ruby=0)
+
+    stop(play)
+
+    assert play.right_clicked == []
+    assert play.stacks[class_of('Flawless Ruby')] == 50
+
+
+def test_a_visit_cubes_the_gems_over_15_and_keeps_its_contract(keep_15, monkeypatch):
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, junk), keys=24), [FULL_PAGE] * 6, RuneStash)
+    play.stacks = {class_of('Flawless Sapphire'): 24, class_of('Perfect Sapphire'): 0}
+    town = Town(monkeypatch, play, frozenset({11}))
+
+    done = town.visit()
+
+    assert play.stacks[class_of('Flawless Sapphire')] == 15
+    assert play.stacks[class_of('Perfect Sapphire')] == 3
+    assert done.contract.misses == ()
+    assert done.contract.cube == 0
+    assert done.contract.block_free
+
+
+def test_the_rule_as_set_cubes_17_into_5_perfect_leaving_2(caplog):
+    play = gems_stop(Flawless_Ruby=17, Perfect_Ruby=0)
+
+    with caplog.at_level('INFO'):
+        stop(play)
+
+    assert len(play.transmutes) == 5
+    assert (play.stacks[class_of('Flawless Ruby')], play.stacks[class_of('Perfect Ruby')]) == (2, 5)
+    assert carried(play).in_cube == ()
+    assert 'Macro: stash: gems cubed: 5 of 5 planned (keep 0 flawless a kind)' in caplog.text
+
+
+def test_a_full_stacks_gem_waiting_in_the_cube_is_topped_up_and_the_visit_bound_holds(monkeypatch):
+    # 14:23:53 on 2026-10-21: a Flawless Amethyst in the cube, its stack at 99 (the player, 14:53: "flawless
+    # amethysts were 99 and we did not cube it for a long time")
+    gem = Carried(30, class_of('Flawless Amethyst'), 0, 0, (1, 1))
+    junk = replace(thing(11, 'Amulet', 7, 0), quality=4)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, junk), ('#..', '...', '...', '...'), frozenset({30}), (gem,), keys=24)
+    play = fortress(pack, [FULL_PAGE] * 6, RuneStash)
+    play.stacks = {class_of('Flawless Amethyst'): 99, class_of('Perfect Amethyst'): 10}
+    assert isinstance(play, RuneStash)
+    town = Town(monkeypatch, play, frozenset({11}))
+
+    done = town.visit()
+
+    amethyst = class_of('Flawless Amethyst')
+    assert play.left_clicked == [amethyst, amethyst]  # the cube's one topped up to three
+    assert play.right_clicked == [amethyst] * 4
+    assert len(play.transmutes) == 5  # GEM_TRANSMUTES this visit, the rest the next
+    assert (play.stacks[amethyst], play.stacks[class_of('Perfect Amethyst')]) == (85, 15)
+    assert done.contract.misses == ()
+    assert done.contract.cube == 0
+    assert done.contract.block_free

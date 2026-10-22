@@ -7,32 +7,43 @@ buff executor (macros/buffs.py) with a `Casting` and answers with a `Tried`.
 import math
 import struct
 import weakref
-from collections.abc import Sequence
+from collections.abc import Generator, Sequence
+from contextlib import contextmanager
 from dataclasses import replace
 
+from inventory_tracking.builds.warlock import bind as binding, buffs as plan, pets
+from inventory_tracking.builds.warlock.bind import BIND_NO_KEY, BIND_RETRY
 from inventory_tracking.builds.warlock.buffs import (
     CONSUME_RETRY,
     CONSUME_SOON,
     ENGORGE_LOOKS,
     ENGORGE_REACH,
     ENGORGE_RETRY,
+    OMEN_TXT,
+    SIGIL_EARLY,
+    SIGIL_EDGE,
     SIGIL_GAP,
+    SIGIL_LASTS,
     SIGIL_LOOK,
     SIGIL_MISSILES,
+    SIGIL_RADIUS,
     SIGIL_SECONDS,
     SIGIL_SHOWS,
     SIGIL_UNSHOWN,
     UNSHOWN,
     SigilWatch,
+    danger_every,
     demon_hurt,
     engorge_every,
     keep_reason,
     kept,
 )
-from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY
-from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
+from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY, world_spot
+from inventory_tracking.builds.warlock.mark import demons
+from inventory_tracking.builds.warlock.skills import BIND_DEMON, CONSUME, ENGORGE, SUMMON_DEFILER
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, ITEM_UNIT, MONSTER_UNIT, NO_OWNER
+from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, ITEM_UNIT, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT
 from inventory_tracking.game.records import Monster, Player, World
 from inventory_tracking.game.view import BODY_LIFT, FEET
 from inventory_tracking.macros.actuator import Abort
@@ -40,6 +51,7 @@ from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
 from inventory_tracking.macros.cta import CASTERS as CTA_CASTERS
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.hunting.base import hostiles
 from inventory_tracking.macros.pad import heading_degrees, turned
 from inventory_tracking.macros.routines import (
     ACTING,
@@ -52,6 +64,7 @@ from inventory_tracking.macros.routines import (
     take_prebuff_weapons,
     world_point,
 )
+from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import label
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
@@ -71,6 +84,22 @@ CONSUME_ATTEMPTS = 3
 # and the game was left. Kashya 14 off (2026-10-07) never was. Such a miss has another Defiler summoned elsewhere.
 TOWN_COVER = 4.0
 CONSUME_PAD_WAIT = 10.0  # seconds: Consume due in controller mode is asked again this often (`consume_again`)
+# A Consume that took another Defiler than the one aimed at is a Consume (rca/2026-10-21/demon-lost-findings.md cause
+# 6, verified in the take 20261021T124057Z-22): at 15:41:24.6 "Consume ran out" summoned a Defiler for it (by design,
+# `renew_consume`), 1.4 units from the one standing out, which `crowd` does not count (`bystanders` leaves the Defilers
+# out); the key at 15:41:25.44 took the standing one (128 -> 0 at 15:41:25.49, the character's mana cap 2661 -> 2907,
+# the state on) and the press was judged "not seen in 2.5s", again in 20 s. True: the state on with a Defiler of those
+# out before the key gone or dead is the Consume done, said; one Defiler stays out either way. False: only the one
+# aimed at.
+CONSUME_ANY_DEFILER = True
+# The player, 2026-10-21 ~21:02: "also, T5 herald fight - we stood and do NOTHING under the fire, not damaging anything
+# for solid 15 seconds" (rca/2026-10-21/consume-in-fight-findings.md). At 20:59:03.66 Consume ran out and its renewal
+# began with nothing within CONSUME_CLEAR; the tier 5 pack (15 Flayers) showed within 30 0.07 s later and the renewal
+# went on: two summons, a Defiler crowded by the bound Pit Lord summoned again, two Consume keys, 8.3 s with no strike.
+# True: a renewal in the field (`renew_consume`) stops at the first look with a hostile within CONSUME_CLEAR of the
+# character (`FightCame`, `fight_breaks`) and is put off to the first quiet, CONSUME_SOON on at the soonest (buffs.py
+# `consume_due` holds it off while the hostiles are near). False: it goes on to its end, as before.
+CONSUME_BREAKS = True
 # World units a Defiler may walk while the pointer travels before the pointer follows it (user, 2026-10-07).
 AIM_DRIFT = 1.0
 AIM_TRIES = 4
@@ -79,6 +108,11 @@ PANEL_OPEN = 'a panel is open'  # what stops a summon with the player's panel op
 
 def defilers(world: World) -> list[Monster]:
     return [monster for monster in world.monsters if monster.txt_id == DEFILER]
+
+
+def standing(world: World) -> set[int]:
+    """The Defilers alive in the look (a consumed one may stay listed dead: 0/128, mode 0)."""
+    return {m.unit_id for m in defilers(world) if not pets.dead(m)}
 
 
 def bystanders(world: World, but: int | None = None) -> list[Monster]:
@@ -134,7 +168,8 @@ def open_spots(
 ) -> list[tuple[float, float]]:
     """SUMMON_SPOTS from the `skip`-th on, those with nobody near first (a Defiler next to the bound demon cannot be
     consumed safely). With the ground known (`run.ground`), only spots a summon can stand on, NEAR_SPOTS last;
-    all of them when none can. A replacement (`skip`): spots `tried` last, then the farthest from a bystander first."""
+    all of them when none can. A replacement (`skip`): spots `tried` last, then the farthest from a bystander first.
+    With a tier 4-5 Herald pack about, the spot between the character and the pack first (`between`)."""
     spots = list(SUMMON_SPOTS[skip % len(SUMMON_SPOTS) :] + SUMMON_SPOTS[: skip % len(SUMMON_SPOTS)])
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or world.player is None:
@@ -158,7 +193,9 @@ def open_spots(
         # Nor beside a townsperson, who takes the pointer (TOWN_COVER; 22:35:05 on 2026-10-19)
         return spot in tried, bool(crowd(world, x, y)), bool(townsfolk_over(world, x, y)), -apart
 
-    return sorted(spots, key=order)
+    found = sorted(spots, key=order)
+    first = between(run, world) if not skip and not tried else None
+    return [first, *found] if first is not None else found
 
 
 def summon_defiler(
@@ -377,17 +414,28 @@ def consume(run: Run, defiler: Monster, tried: list[tuple[float, float]] | None 
         if not clear(run.world()):  # somebody walked up during the pointer move
             continue
         before, began = (mine(run.world()) if run.pad is not None else {}), run.clock()
+        others = {m.unit_id for m in defilers(run.world()) if m.unit_id != defiler.unit_id and not pets.dead(m)}
         press_skill(run, CONSUME)
         if run.pad is not None and not run.pad.pressed:
             continue  # the client's target left the Defiler before the press: nothing cast (`Pad target:`)
 
-        def consumed(w: World, unit: int = defiler.unit_id) -> bool:
-            return bool(w.player and w.player.consume) and all(m.unit_id != unit for m in defilers(w))
+        def consumed(w: World, unit: int = defiler.unit_id, others: set[int] = others) -> bool:
+            if not (w.player and w.player.consume):
+                return False
+            if all(m.unit_id != unit for m in defilers(w)):
+                return True
+            return CONSUME_ANY_DEFILER and bool(others - standing(w))
 
         done = run.seen(consumed, 2.5)
         if run.pad is not None:
             log_pad_consume(run, defiler.unit_id, before, began, done)
         if done is not None:
+            taken = others - standing(done) if any(m.unit_id == defiler.unit_id for m in defilers(done)) else set()
+            if taken:
+                LOG.info(
+                    'Macro: Consume took the Defiler %s standing beside the one aimed at (%d): the state is on, one '
+                    'Defiler stays out', ', '.join(map(str, sorted(taken))), defiler.unit_id,
+                )  # fmt: skip
             run.pause('key')
             return
         world = run.world()
@@ -445,13 +493,59 @@ def defiler_dance(cast: Casting) -> Tried:
     return Tried(run.clock(), cast=True)
 
 
+class FightCame(Exception):
+    """A hostile came within CONSUME_CLEAR during a renewal of Consume in the field (CONSUME_BREAKS): the renewal stops
+    at that look. Not an Abort: `Run.seen` would take it for evidence not seen and go on waiting."""
+
+
+def fight_near(world: World) -> str | None:
+    """Why a renewal of Consume stops at this look: the hostiles within CONSUME_CLEAR of the character (hunting/base.py
+    `hostiles`, the untouchable among them: they hurt as well; never a Defiler, whose owner may read unset), in words;
+    None with none."""
+    player = world.player
+    if player is None:
+        return None
+    here = (player.x, player.y)
+    near = sorted((math.dist(here, (m.x, m.y)), m.txt_id) for m in hostiles(world) if m.txt_id != DEFILER)
+    near = [(units, txt) for units, txt in near if units <= plan.CONSUME_CLEAR]
+    if not near:
+        return None
+    return f'{len(near)} hostile within {plan.CONSUME_CLEAR:.0f}, the nearest (class {near[0][1]}) at {near[0][0]:.1f}'
+
+
+@contextmanager
+def fight_breaks(run: Run) -> Generator[None]:
+    """Within the block every look at the game (`Run.observe`, chained) raises `FightCame` once a hostile is within
+    CONSUME_CLEAR (CONSUME_BREAKS): the renewal takes no more than a look once a fight comes."""
+    if not CONSUME_BREAKS:
+        yield
+        return
+    before = run.observe
+
+    def watch(world: World) -> None:
+        if before is not None:
+            before(world)
+        why = fight_near(world)
+        if why is not None:
+            raise FightCame(why)
+
+    run.observe = watch
+    try:
+        yield
+    finally:
+        run.observe = before
+
+
 def renew_consume(run: Run) -> None:
     """Consume cast anew mid-run when the buff has run out (user, 2026-10-12: "auto-attack doesn't refresh consume
     buff right now"): a Defiler summoned for it is the one consumed, and another is summoned after. Not the standing
-    one: it follows the character with the bound demon beside it."""
-    take_prebuff_weapons(run)
-    tried: list[tuple[float, float]] = []
-    consume(run, summon_defiler(run, tried=tried), tried)
+    one: it follows the character with the bound demon beside it. A hostile within CONSUME_CLEAR at any look before
+    the Consume lands stops it (`FightCame`, CONSUME_BREAKS). The Defiler left out after it is summoned whatever comes:
+    else the upkeep's own Defiler row summons it by the same routine (golden loop_counts.json, walking into reach)."""
+    with fight_breaks(run):
+        take_prebuff_weapons(run)
+        tried: list[tuple[float, float]] = []
+        consume(run, summon_defiler(run, tried=tried), tried)
     if not defilers(run.world()):
         summon_defiler(run)
 
@@ -477,6 +571,8 @@ def consume_again(cast: Casting) -> Tried:
     try:
         run.keys.update(cast.key_names(cast.world, keys_of(cast.row)))
         renew_consume(run)
+    except FightCame as came:
+        return put_off(run, came, started, renewing=on)
     except (Abort, ValueError) as stop:
         if run.stops(stop):
             raise
@@ -489,6 +585,21 @@ def consume_again(cast: Casting) -> Tried:
         LOG.info('Macro: no Consume (%s); again in %.0fs', stop, wait)
         return tried
     return Tried(started, cast=True)
+
+
+def put_off(run: Run, came: FightCame, started: float, *, renewing: bool) -> Tried:
+    """The answer to a renewal a fight stopped (`FightCame`): a Consume when its state came on in the look the fight
+    showed in (not for `renewing`, a Consume still on before a boss: its state says nothing), else the next try in the
+    first quiet, CONSUME_SOON on at the soonest."""
+    player = run.world().player
+    if not renewing and player is not None and player.consume is True:
+        LOG.info('Macro: Consume is on; %s: no Defiler left out for it (the fight row summons one)', came)
+        return Tried(started, cast=True)
+    LOG.info(
+        'Macro: Consume put off for the fight: %s %.1fs into the renewal; again in the first quiet (%.0fs on at the '
+        'soonest)', came, run.clock() - started, CONSUME_SOON,
+    )  # fmt: skip
+    return Tried.again(run.clock(), CONSUME_RETRY, CONSUME_SOON)
 
 
 def defiler_out(cast: Casting) -> Tried:
@@ -524,6 +635,71 @@ def defiler_out(cast: Casting) -> Tried:
     return Tried(started, cast=True)
 
 
+def between(run: Run, world: World) -> tuple[float, float] | None:
+    """The window fraction the fight's Defiler is summoned at between the character and a tier 4-5 Herald pack
+    (combat/pack.py PETS_BETWEEN, defiler.py `world_spot`): on the screen and on ground a summon stands on (the level
+    map's, where known); None else."""
+    spot = world_spot(world)
+    rect = run.actuator.keys.focused_window_rect()
+    player = world.player
+    if spot is None or rect is None or player is None:
+        return None
+    ground = run.reads.ground()
+    if ground and not standable(ground, (player.x, player.y), spot):
+        return None
+    fraction = ground_fraction(player, *spot, rect[2] / rect[3])
+    if not on_screen(fraction):
+        return None
+    LOG.info('Macro: Defiler: summoned between the character and the pack at (%.1f, %.1f)', *spot)
+    return fraction
+
+
+# Binds that bring no demon are given up for a while (rca/2026-10-21/demon-lost-findings.md cause 5): after the Urdar's
+# death three Bind Demons went on Dark Archers of the tier 5 pack (15:41:41.9, 46.1, 49.8) and no ally came. The game's
+# data lets it bind them: skills.txt 382 (Bind Demon) TargetableOnly 1, LineOfSight 4, pettype binddemon, petmax 1, the
+# capture a chance (Param3 12 "Growthrate/start for % capture", Param4 64 "Cap for % capture", Param8 100 "Synergy
+# Chance to Bind w/ Death Mark", all "referenced in monpet.txt", which the dump lacks), a channel (srvmissilea
+# binddemonchannelmaker, anim SQ, seqnum 6, interrupt 1); monstats cr_archer3 (*hcIdx 162) demon 1, montype
+# corruptrogue equiv1 demon, monstats2 isSel 1: a demon `bind.bindable` keeps. No sequence mode showed on the character
+# after any of the three keys, and the three targets died 0.3, 1.1 and 0.9 s after them under the strike. True: after
+# BIND_MISSES binds in a row within BIND_FORGET s with none bound (the row is asked only while none is out, so a bind
+# asked again is one that brought none), none for BIND_PAUSE s, said. False: one every BIND_RETRY s while due.
+BIND_GIVE_UP = True
+BIND_MISSES = 2
+BIND_FORGET = 20.0  # seconds: an older bind counts for nothing
+BIND_PAUSE = 30.0
+BINDS: weakref.WeakKeyDictionary[object, list[float]] = weakref.WeakKeyDictionary()  # executor -> its binds' clocks
+
+
+def bind(cast: Casting) -> Tried:
+    """Bind Demon on the demon chosen (bind.py `bind_target`): the shared cast on a monster. With no key the macro can
+    press it is said and asked again after BIND_NO_KEY, not a stop of the fight. Binds that brought no demon are given
+    up for BIND_PAUSE (BIND_GIVE_UP)."""
+    run = cast.run
+    started = run.clock()
+    if not binding.BIND_DEMON_CASTS:  # the player binds it himself (bind.py BIND_DEMON_CASTS): never pressed
+        return Tried.again(started, BIND_RETRY, BIND_NO_KEY, touched=False)
+    made = BINDS.setdefault(cast.buffs, [])
+    made[:] = [at for at in made if 0.0 <= started - at <= BIND_FORGET]
+    if BIND_GIVE_UP and len(made) >= BIND_MISSES:
+        LOG.info(
+            'Macro: bind: %d %s casts in %.0fs brought no demon: none for %.0fs', len(made), skill_name(BIND_DEMON),
+            started - made[0], BIND_PAUSE,
+        )  # fmt: skip
+        made.clear()
+        return Tried.again(started, BIND_RETRY, BIND_PAUSE, touched=False)
+    try:
+        tried = cast.buffs.shared(cast)
+    except (Abort, ValueError) as stop:
+        if run.stops(stop):
+            raise
+        LOG.info('Macro: bind: no %s (%s); again in %.0fs', skill_name(BIND_DEMON), stop, BIND_NO_KEY)
+        return Tried.again(started, BIND_RETRY, BIND_NO_KEY, touched=False)
+    if tried.cast and tried.at is not None:
+        made.append(tried.at)
+    return tried
+
+
 # Under the held strike the game's record of the unit under the pointer (`Run.hovered`) stays on what it named before,
 # mostly the strike's own target, wherever the pointer goes: all 276 Engorge misses of the takes 20261020T2* came with
 # the strike held, the live monster named stood a median 8.6 units off the corpse aimed at (96 of 172 more than 8),
@@ -537,17 +713,36 @@ def defiler_out(cast: Casting) -> Tried:
 # put on the corpses and the record read there, the look's live monsters as they were.
 ENGORGE_HOVER_FIRST = False
 ENGORGE_HOVER_RETRY = 1.0  # seconds to the next look at the record while the held strike keeps it
+# A try for a pet in danger that is refused or misses is made again at once with another corpse (the findings' cause
+# 2: at 15:41:34.1 two corpses were refused, a live archer named under the pointer, and the next try waited 2.5 s, the
+# Urdar 128 -> 34 meanwhile; at 15:41:36.6 the key went with an object, type 2, under the pointer and no heal came).
+# True, with a pet in danger (pets.py `perilous`, buffs.py PET_ENGORGE): the held strike let go before the pointer
+# moves, so that the record follows it (the comment above); up to ENGORGE_DANGER_LOOKS corpses within
+# ENGORGE_DANGER_REACH; the next try ENGORGE_DANGER_RETRY after one refused. Always: an object under the pointer keeps
+# the cast off the corpse as an item's label does (`covers`). False: ENGORGE_LOOKS within ENGORGE_REACH, ENGORGE_RETRY
+# after, an object taken as nothing, as before.
+ENGORGE_RETRY_AT_ONCE = True
+ENGORGE_DANGER_LOOKS = 4
+ENGORGE_DANGER_REACH = 30.0  # world units; on the screen still
+ENGORGE_DANGER_RETRY = 0.25  # seconds
 
 
 def covers(over: tuple[int, int] | None, alive: set[int]) -> bool:
-    """Whether the unit the record names keeps Engorge off the corpse: a live monster or an item's label."""
-    return over is not None and (over[0] == ITEM_UNIT or (over[0] == MONSTER_UNIT and over[1] in alive))
+    """Whether the unit the record names keeps Engorge off the corpse: a live monster, an item's label, an object
+    (ENGORGE_RETRY_AT_ONCE)."""
+    if over is None:
+        return False
+    if over[0] == ITEM_UNIT or (ENGORGE_RETRY_AT_ONCE and over[0] == OBJECT_UNIT):
+        return True
+    return over[0] == MONSTER_UNIT and over[1] in alive
 
 
 def engorge(cast: Casting) -> Tried:
     """Engorge on the nearest corpse in view within ENGORGE_REACH. With no corpse there nothing is
     touched; with one that the pointer could not be kept on, the pointer was moved and no cast made.
-    Under the held strike the record of what is under the pointer is read first (ENGORGE_HOVER_FIRST)."""
+    Under the held strike the record of what is under the pointer is read first (ENGORGE_HOVER_FIRST). For a pet in
+    danger more corpses, further, the strike let go first and the next try soon (ENGORGE_RETRY_AT_ONCE); the key is
+    told to the pets' watch, which judges its heal (pets.py `keyed`)."""
     run, world, aspect = cast.run, cast.world, cast.aspect
     assert world is not None
     assert aspect is not None
@@ -555,36 +750,49 @@ def engorge(cast: Casting) -> Tried:
     player = world.player
     assert player is not None
     assert run.corpses is not None
+    watch = pets.watch_of(getattr(cast.buffs, 'cast_at', None))
+    urgent = ENGORGE_RETRY_AT_ONCE and plan.PET_ENGORGE and watch.perilous(run.clock())
+    # The pack's Engorge (buffs.py ENGORGE_PACK_FIRST) lets the strike go too and is asked again by its own cadence:
+    # live at 16:16:39-42 its tries were refused three times in 3 s (the held strike's record on a live Fallen), each
+    # asked again at once as `engorge_every`'s 15 s left it overdue against ENGORGE_PACK_SECONDS.
+    packed = not urgent and watch.packed(run.clock())
+    reach, looks = (ENGORGE_DANGER_REACH, ENGORGE_DANGER_LOOKS) if urgent else (ENGORGE_REACH, ENGORGE_LOOKS)
+    every, retry = (danger_every(watch), ENGORGE_DANGER_RETRY) if urgent else (engorge_every(world), ENGORGE_RETRY)
+    if packed:
+        every = min(every, plan.ENGORGE_PACK_SECONDS)
     here = (player.x, player.y)
     corpses = run.corpses()
     near = [
         corpse
         for corpse in corpses
-        if math.dist(here, corpse[1:]) <= ENGORGE_REACH and on_screen(ground_fraction(player, *corpse[1:], aspect))
+        if math.dist(here, corpse[1:]) <= reach and on_screen(ground_fraction(player, *corpse[1:], aspect))
     ]
-    every = engorge_every(world)
     if not near:
-        return Tried.again(run.clock(), every, ENGORGE_RETRY, touched=False)
+        return Tried.again(run.clock(), every, retry, touched=False)
     alive = {m.unit_id for m in world.monsters}
+    let_go = getattr(cast.buffs, 'let_go', None)
     if ENGORGE_HOVER_FIRST:
         alive -= {unit for unit, _, _ in corpses}
-        let_go = getattr(cast.buffs, 'let_go', None)
         if run.pad is None and run.hovered is not None and let_go is not None:
             over = run.hovered()
             if covers(over, alive):
-                if not demon_hurt(world):
+                if not (demon_hurt(world) or urgent or packed):
                     LOG.info('Macro: no Engorge: the held strike keeps the pointer record on %s; not moved', over)
                     return Tried.again(run.clock(), every, ENGORGE_HOVER_RETRY, touched=False)
                 LOG.info('Macro: Engorge for a hurt demon: the strike let go, the pointer record on %s', over)
                 let_go()
+    elif (urgent or packed) and run.pad is None and let_go is not None:
+        let_go()  # the record follows the pointer once the strike is let go
     run.keys.update(cast.key_names(world, (ENGORGE,)))
     # The nearest corpse the pointer really has under it (a live monster often stands on one).
-    for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:ENGORGE_LOOKS]:
+    for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:looks]:
         if run.pad is not None:
             # Controller mode: the client's target has to name the corpse (macros/pad.py).
             if not run.pad.aim_unit(MONSTER_UNIT, unit, here, (x, y), f'the corpse {unit}'):
                 continue
             cast.buffs.key(run, ENGORGE)
+            if run.pad.pressed:
+                watch.keyed(run.clock())
             # Whether Engorge's target (controllerskillsettings.json targetGroup 0, the monsters) can name a corpse
             # at all: the aim's own `Pad target:` lines, and this one for a press (controller-gaps.md step 3).
             LOG.info(
@@ -605,13 +813,14 @@ def engorge(cast: Casting) -> Tried:
                 continue
         cast.buffs.key(run, ENGORGE)
         at = run.clock()
+        watch.keyed(at)
         LOG.info(
             'Macro: Engorge on the corpse %d at (%.1f, %.1f), %.1f away; under the pointer %s',
             unit, x, y, math.dist(here, (x, y)), over,
         )  # fmt: skip
         return Tried(at, cast=True)
     # the pointer was moved: the strike's aim is put back
-    return Tried.again(run.clock(), every, ENGORGE_RETRY)
+    return Tried.again(run.clock(), every, retry)
 
 
 # The sigil goes under the monster where it stands at the key, read again then (the player, 2026-10-20 ~23:05): the
@@ -662,6 +871,10 @@ def sigil(cast: Casting) -> Tried:
     sigil (buffs.py `kept`) is looked at every SIGIL_LOOK s and gets one when `keep_reason` names why; none sooner than
     SIGIL_GAP after the last."""
     run, target, world = cast.run, cast.target, cast.world
+    if herald_pack.SIGIL_COVER and target is not None and herald_pack.in_pack(target.tier):
+        return pack_sigil(cast)
+    if target is not None and target.txt_id == OMEN_TXT:
+        return omen_sigil(cast)
     watch = watch_of(cast.buffs)
     now = run.clock()
     area = world.player.area if world is not None and world.player is not None else None
@@ -696,11 +909,78 @@ def sigil(cast: Casting) -> Tried:
     return tried
 
 
+def omen_sigil(cast: Casting) -> Tried:
+    """The sigil laid at a pending Herald omen's spot before its pack shows (buffs.py OMEN_SIGIL, `omen_anchor`'s
+    stand-in): cast on the ground there, once; off the screen it is asked again in a second."""
+    run, target = cast.run, cast.target
+    assert target is not None
+    now = run.clock()
+    tried = cast.buffs.shared(cast)
+    if not tried.cast or tried.at is None:
+        return Tried.again(now, SIGIL_LOOK, 1.0)
+    world = cast.world
+    area = world.player.area if world is not None and world.player is not None else None
+    watch_of(cast.buffs).lay(target.unit_id, (target.x, target.y), area, tried.at)
+    LOG.info("Macro: sigil: at the Herald's coming (%.1f, %.1f), before its pack shows", target.x, target.y)
+    return tried
+
+
+def pack_sigil(cast: Casting) -> Tried:
+    """A tier 4-5 Herald pack's sigil (combat/pack.py SIGIL_COVER): at the disc that covers the most of the pack, or on
+    the demon that holds it (`sigil_spot`), of the world read now. Laid again only when the one that lies covers under
+    SIGIL_HALF of the pack and a disc covers more, or when it runs out (SIGIL_EARLY); none sooner than SIGIL_GAP after
+    the last. Where it lies is the missile read (its radius too), else where it was aimed; who stands in it is told by
+    place (SIGIL_EDGE inside the radius), not by fifteen monsters' state words a look."""
+    run, anchor = cast.run, cast.target
+    assert anchor is not None
+    watch = watch_of(cast.buffs)
+    now = run.clock()
+    world = run.world() if SIGIL_AIM_AFRESH else cast.world
+    if world is None or world.player is None:
+        world = cast.world
+    if world is None or world.player is None:
+        return Tried(now, touched=False)
+    player = world.player
+    here, area = (player.x, player.y), player.area
+    hostiles = [m for m in world.monsters if not m.ally and m.owner == NO_OWNER]
+    pack = herald_pack.nearby(here, herald_pack.members(hostiles))
+    if not pack:
+        return Tried(now, touched=False)
+    seen, lying = in_flight(run, world)
+    radius = (lying[2] if lying is not None else SIGIL_RADIUS) - SIGIL_EDGE
+    gone = seen and lying is None and watch.age(now) >= SIGIL_SHOWS  # none of the character's in flight
+    spot, where = herald_pack.sigil_spot(here, pack, [(d.x, d.y) for d in demons(world)], radius)
+    if watch.lies(now, area) and not gone and watch.age(now) <= SIGIL_LASTS - SIGIL_EARLY:
+        at = (lying[0], lying[1]) if lying is not None else watch.place
+        assert at is not None
+        inside = herald_pack.covering(at, pack, radius)
+        if len(inside) >= herald_pack.SIGIL_HALF * len(pack):
+            return Tried(now, touched=False)
+        if herald_pack.cover_weight(spot, pack, radius) <= herald_pack.cover_weight(at, pack, radius):
+            return Tried(now, touched=False)  # no disc covers more: kept
+        if watch.age(now) < SIGIL_GAP:
+            assert watch.at is not None
+            return Tried(watch.at + SIGIL_GAP - SIGIL_LOOK, touched=False)
+        why = f'the one that lies covers {len(inside)} of {len(pack)}'
+    elif watch.lies(now, area) and not gone:
+        why = f'the sigil runs out in {max(0.0, SIGIL_LASTS - watch.age(now)):.1f} s'
+    else:
+        why = 'no sigil of the character lies'
+    tried = cast.buffs.shared(replace(cast, world=world, target=replace(anchor, x=spot[0], y=spot[1])))
+    if not tried.cast or tried.at is None:
+        # Off the screen: no sigil now, asked again in a second.
+        return Tried.again(now, SIGIL_LOOK, 1.0)
+    watch.lay(anchor.unit_id, spot, area, tried.at)
+    LOG.info("Macro: sigil: the pack's at (%.1f, %.1f), %s within %.1f: %s", *spot, where, radius, why)
+    return tried
+
+
 CASTERS: dict[str, Caster] = {
     'defiler dance': defiler_dance,
     'consume': consume_again,
     'engorge': engorge,
     'sigil': sigil,
     'defiler': defiler_out,
+    'bind': bind,
     **CTA_CASTERS,  # Call to Arms (macros/cta.py)
 }

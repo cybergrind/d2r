@@ -151,3 +151,98 @@ def test_only_an_identified_unique_grand_charm_of_gheeds_row_is_the_players_ghee
 def carried(play: Game) -> Pack:
     assert play.pack is not None
     return play.pack
+
+
+# The player, 2026-10-21 ~09:00: "I have dropped low roll gheed's charms, it looks like we don't need that many of
+# them. low rolls doesn't sell"; keep only "MF38, or MF35 + very good gold roll"; "also - do not sell our current gheed
+# charm" (charms.py GHEEDS_LOW_DOWN, loot/keep.py GHEEDS_MF, GHEEDS_MF_WITH_GOLD, GHEEDS_GOLD)
+GOLD_FIND = 79
+
+
+def swap(mine: dict[int, int], newer: dict[int, int] | None) -> tuple[Game, Parked, Carried, dict]:
+    """The player's Gheed's (unit 1) parked on page 3, the new one (unit 7) carried, both with `stats`."""
+    cube, theirs = Carried(2, CUBE_CLASS, 1, 0, (2, 2)), theirs_at()
+    play = stash_game(Pack((theirs, cube), ('...',) * 4), [EMPTY, FULL, EMPTY, EMPTY, EMPTY, EMPTY])
+    stats = {1: mine} if newer is None else {1: mine, 7: newer}
+    parked = park(play.run(), theirs, stats.get)
+    new = Carried(7, grand_charm(), 9, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
+    play.pack = Pack((cube, new), ('...',) * 4)
+    return play, parked, new, stats
+
+
+def test_a_low_new_gheeds_that_loses_is_put_down_in_town_not_stashed_and_the_players_comes_back(caplog):
+    from inventory_tracking.macros import visit
+
+    play, parked, new, stats = swap({MAGIC_FIND: 36}, {MAGIC_FIND: 30, GOLD_FIND: 150})
+
+    with caplog.at_level('INFO'):
+        kept = choose(play.run(), parked, new, stats.get)
+
+    assert (kept.unit_id, kept.x, kept.y) == (1, 0, 0)
+    assert [i.unit_id for i in play.fallen] == [7]
+    assert play.page_items == {3: []}  # the player's left page 3, nothing put on a shared page
+    assert sorted(i.unit_id for i in carried(play).items) == [1, 2]
+    assert play.world.open_panels == ()
+    assert "the new Gheed's Fortune is low (magic find 30%, gold find 150%): put down in town, not stashed" in (
+        caplog.text
+    )
+    assert visit._down['items'] == 1  # it lies by the stash: counted with the town's (visit.py DOWN_A_GAME)
+
+
+@pytest.mark.parametrize(
+    'newer', [{MAGIC_FIND: 38, GOLD_FIND: 80}, {MAGIC_FIND: 35, GOLD_FIND: 140}], ids=['MF 38', 'MF 35 gold 140']
+)
+def test_a_good_new_gheeds_that_loses_is_stashed_as_before(newer):
+    play, parked, new, stats = swap({MAGIC_FIND: 40}, newer)
+
+    kept = choose(play.run(), parked, new, stats.get)
+
+    assert kept.unit_id == 1
+    assert play.fallen == []
+    assert play.page_items == {3: [7]}
+
+
+@pytest.mark.parametrize('newer', [None, {MAGIC_FIND: 25}, {GOLD_FIND: 90}], ids=['none read', 'gold', 'magic find'])
+def test_a_new_gheeds_whose_rolls_are_unread_is_stashed_as_before(newer):
+    play, parked, new, stats = swap({MAGIC_FIND: 36}, newer)
+
+    kept = choose(play.run(), parked, new, stats.get)
+
+    assert kept.unit_id == 1
+    assert play.fallen == []
+    assert play.page_items == {3: [7]}
+
+
+def test_a_low_new_gheeds_that_wins_is_carried_and_the_players_stays_on_the_shared_page():
+    play, parked, new, stats = swap({MAGIC_FIND: 20, GOLD_FIND: 80}, {MAGIC_FIND: 30, GOLD_FIND: 90})
+
+    kept = choose(play.run(), parked, new, stats.get)
+
+    assert (kept.unit_id, kept.x, kept.y) == (7, 0, 0)
+    assert play.fallen == []
+    assert play.page_items == {3: [1]}
+
+
+@pytest.mark.parametrize('rival', [True, False], ids=['a low tie', 'no new one'])
+def test_the_players_low_gheeds_is_never_put_down(rival):
+    low = {MAGIC_FIND: 22, GOLD_FIND: 85}
+    play, parked, new, stats = swap(low, dict(low) if rival else None)
+
+    kept = choose(play.run(), parked, new if rival else None, stats.get)
+
+    assert (kept.unit_id, kept.x, kept.y) == (1, 0, 0)
+    assert [i.unit_id for i in play.fallen] == ([7] if rival else [])
+    assert all(i.unit_id != 1 for i in play.fallen)
+
+
+def test_with_the_switch_off_a_low_loser_is_stashed_as_before(monkeypatch):
+    from inventory_tracking.macros import charms
+
+    monkeypatch.setattr(charms, 'GHEEDS_LOW_DOWN', False)
+    play, parked, new, stats = swap({MAGIC_FIND: 36}, {MAGIC_FIND: 30, GOLD_FIND: 90})
+
+    kept = choose(play.run(), parked, new, stats.get)
+
+    assert kept.unit_id == 1
+    assert play.fallen == []
+    assert play.page_items == {3: [7]}

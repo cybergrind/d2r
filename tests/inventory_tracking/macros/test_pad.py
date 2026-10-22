@@ -727,9 +727,10 @@ def test_a_door_the_walk_does_not_take_is_used_by_a_on_the_tile_the_client_targe
 def test_a_door_neither_walk_nor_target_takes_stops_and_says_so():
     play, run = at_the_door(walks_in=False)
     said = r'did not take the pad \(walked through the mark from \(7801\.6, 5602\.5\), no door tile'
-    with pytest.raises(Abort, match=said):
+    with pytest.raises(Abort, match=said) as stopped:
         teleport.pad_door(run, CS_MARK, character_of(run.world()))
     assert play.pad.presses() == []
+    assert stopped.value.cause == 'door'  # as the keyboard's "no click took": the trip skipped (tzloop.py SKIP_DOOR)
 
 
 def test_save_and_exit_is_refused_in_controller_mode():

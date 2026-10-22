@@ -25,6 +25,7 @@ from inventory_tracking.game.records import (
     Wear,
     World,
 )
+from inventory_tracking.game.stash import Stash
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.timing import Pace
@@ -55,8 +56,8 @@ class Reads:
         return read() if read is not None else None
 
     def stash_view(self) -> StashView | None:
-        read = self._run.stash_view
-        return read() if read is not None else None
+        """The stash read now through its one record (game/stash.py `Stash.read`), None unread."""
+        return self._run.stash.read()
 
     def loot(self) -> Loot | None:
         read = self._run.loot
@@ -112,12 +113,18 @@ class Run:
         self.cancelled = cancelled or Event()
         self.say = say
         self.keys: dict[int, str] = {}
+        # The character's Show Items key (input/keybindings.py `show_items_key`), set where the skill keys are read;
+        # None: not known
+        self.show_items_key: str | None = None
         self.hands = hands  # base codes of the weapon set in hand (world.GameMemory.hands)
         self.teleport = teleport  # the worn Teleport staff (world.GameMemory.teleport)
         self.loot = loot  # drops, belt and life for the pickup step (world.GameMemory.loot)
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
+        # Whether the record `hovered` read last names nothing, not unread (world.GameMemory.nothing_hovered; macros/
+        # targeting.py HOVER_NOTHING); None: not known
+        self.hover_nothing: Callable[[], bool] | None = None
         # Whether Teleport is the character's own (Enigma), not charges; None unread
         self.own_teleport: Callable[[], bool | None] | None = None  # world.GameMemory.own_teleport
         # Skills worn items give (the Sling's Town Portal, portal.py `portal_source`); None unread
@@ -156,8 +163,9 @@ class Run:
         # Why a carried item is kept whatever the appraisal says (macros/keepers.py); never sold
         self.kept_item: Callable[[Carried], str | None] | None = None
         self.stock: Callable[[int], tuple[Stocked, ...]] | None = None  # a vendor's stock (GameMemory.stock)
-        # the stash's pages and resource stacks, None unread (world.GameMemory.stash_view)
-        self.stash_view: Callable[[], StashView | None] | None = None
+        # The stash's one record (game/stash.py): every read of the stash goes through it; attached to the game's
+        # read by the runner (running/execution.py), to a fake's in tests, none: unread
+        self.stash: Stash = Stash()
         # research: every object unit shown, raw (world.GameMemory.objects)
         self.objects: Callable[[], list[dict]] | None = None
         self.research: Callable[..., list[str]] | None = None  # world.GameMemory.hover_candidates

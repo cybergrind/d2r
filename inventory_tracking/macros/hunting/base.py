@@ -4,11 +4,12 @@ import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.layout import ATTACKABLE_FLAG, NO_OWNER
 from inventory_tracking.game.records import Monster, Thing, World
 from inventory_tracking.levels.model import Room, Target
-from inventory_tracking.levels.route import room_at
+from inventory_tracking.levels.route import passable, room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import (
@@ -50,6 +51,18 @@ SUBMERGED = frozenset(range(258, 264))
 # monstats.txt MonType `vulture` (combat/data/tables.json): the blades pass through them in the air (modes AIRBORNE)
 VULTURES = frozenset((110, 111, 112, 113, 608))
 AIRBORNE = frozenset((1, 8))
+# What the game lets be struck now: a monster whose flag word reads the "can be attacked" bit clear (game/layout.py
+# ATTACKABLE_FLAG) is no hostile. Flayer Jungle, 16:54:56 on 2026-10-21 (the player: "we're often struggling with
+# trying to kill enemies for extended periods of time, but actually we're not even hitting them"): an elite Slime
+# Prince submerged in the bog (mode 14, flags 0x30000001) took 63 casts in 23.7 s, 80 s of strikes at submerged frogs
+# that day (rca/2026-10-21/no-hits-findings.md; the design of rca/2026-10-19/untargetable-findings.md §3). False: the
+# flag word is not looked at.
+ATTACKABLE = True
+# The stopgap when the flag word is unread (a replay's frames, a synthetic monster): monstats.txt frogdemon1-3 (Swamp
+# Dweller, Bog Creature, Slime Prince) in mode 14, their Submerge (Sk1mode seq_froghidden), are no hostile
+FROGS_SUBMERGED = True
+FROGS = frozenset((247, 248, 249))
+FROG_HIDDEN = 14  # monster mode SQ
 FIRST_STRIKE_SECONDS = 0.3  # the held strike with no cast seen yet: the mark and sigil wait no longer
 WALK_CLICKS = 2  # clicks for one walk to a firing spot
 WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to (as NEAR_WARP)
@@ -150,6 +163,28 @@ STEP_FAILURES = 2
 # A monster whose life UNTOUCHED_CASTS casts left unchanged (in the air, burrowed, immune) is no hostile for
 # UNTOUCHABLE_SECONDS, then tried again.
 UNTOUCHED_CASTS = 4
+# The casts counted for it are the ones made, chained ones too (combat/controller.py `CastWatch.chained`): the casts
+# seen to begin were 40 % of the casts made on 2026-10-21, and "4 casts" took 10 to 63 (rca/2026-10-21/
+# no-hits-findings.md §4). False: the casts seen to begin (`CastWatch.casts`), as before. Off from 2026-10-21 18:10:
+# live, 14 leaves in the first 12 min after the 17:58 restart against 1 in the 76 min before, of monsters losing life
+# (the monster 129 2616831891: 128/128 at 18:10:12, "takes no damage (55/128 after 4 casts)" at 18:10:14); the
+# NO_HARM_SECONDS floor catches the chained strikes that did nothing instead (no-hits-findings.md §8).
+GUARD_COUNTS_HELD = False
+# With the strike held and nothing in reach losing life for this many seconds, the monster the line goes through is
+# left alone as one that takes no damage (`Hunter.unharmed`), a boss or the pursued fight's boss never (the
+# coordinator's ruling, 2026-10-21: "leave THAT monster for a while, not the fight"). None: no floor.
+NO_HARM_SECONDS: float | None = 3.0
+# A fight goal whose monster no shot reaches from where the moves end (a wall between; the dolls' stand-off kept): its
+# monster is left alone after this many seconds, as one that takes no damage (`judging.unshot`), so the goal goes on:
+# the pickup it barred, the next hostile, the route's stage. Kurast Sewers 1, 17:51:43-17:52:29 on 2026-10-21: "the
+# fight first (2 in the way): as near as a move ends, and nothing in reach", an Undead SoulKiller elite 22 away behind a
+# wall, 45 s still and the game left (rca/2026-10-21/no-hits-findings.md §7). None: no leave.
+UNSHOT_SECONDS: float | None = 3.0
+# A fight goal out of reach goes to a firing spot (`firing_spots`) and stands on it: the way there ends on the spot, not
+# the goal's stand-off short of it (a pickup's dolls are fought from 20: the spot 7 away was "as near as a move ends"
+# and nothing moved), and a stand-off's spots at least that far from the monster (up to the rings' outer one) come
+# first. False: the spot is gone to with the goal's own stand-off, as before.
+FIRING_STAND = True
 # Units along the line the pointer is tried at when an item's label lies under the aim (`off_labels`).
 LABEL_SHIFTS = (0.0, 4.0, 8.0, -3.0, 12.0, -6.0)
 LABEL_SECONDS = 0.5  # between two looks for a label under a pointer that stands
@@ -225,6 +260,18 @@ OMEN_NEAR = 22.0
 # up within 10 all at once: 2026-10-18 00:54:55)
 OMEN_STAND = 20.0
 OMEN_SLACK = 4.0  # a stand this near OMEN_STAND from the spot already is kept: no move
+# The stand with a way out (2026-10-21, the player ~15:50: "another super-sketchy battle against bird that burned all
+# mana, we were tanking most of T5 herald damage without being able to hit"; "make sure that we don't stuck or die";
+# rca/2026-10-21/mana-burn-findings.md item 2). The pack's modifiers are not known before it shows, and a Mana Burn or
+# Extra Fast pack (18.7 units a second at 15:46:12) is on the stand a second after it does: the stand is where a hop
+# out lies behind it, away from the spot (`way_out`: WAY_OUT_UNITS beyond it in the level's rooms, the line between
+# over no void wider than WAY_OUT_VOID tiles), turned round the spot by STAND_TURNS from the character's side when
+# that one has none; once the pack shows, a draining one is kept at range by the safety (combat/threats/manaburn.py
+# BURN_RANGE). False: the stand on the character's side whatever lies behind it, as before.
+STAND_WAY_OUT = True
+WAY_OUT_UNITS = 16.0  # a hop out (combat/threats/manaburn.py HOP_LENGTHS[0])
+WAY_OUT_VOID = 1.0  # tiles of void the way out may cross (levels/route.py `passable`; a walk crosses none)
+STAND_TURNS = (0.0, 30.0, -30.0, 60.0, -60.0, 90.0, -90.0)  # degrees round the spot from the character's side
 OMEN_LOOK = 0.25
 # Seconds of fighting a timed buff must last when the route's stage brings a boss (goals.py `boss_ahead`): renewed
 # before it in the quiet (macros/buffs.py `lapsing`; run-1214-findings.md §3.4)
@@ -353,7 +400,7 @@ def door_entry(card: Target | None) -> Point | None:
 
 def hostiles(world: World) -> list[Monster]:
     """Live monsters the hunt may strike: not owned, not allied, not townsfolk, scenery, a siege door
-    or wall, a cast Hydra or a bird in the air, placed."""
+    or wall, a cast Hydra or a bird in the air, placed, and attackable now (`strikable`)."""
     return [
         m
         for m in world.monsters
@@ -366,7 +413,17 @@ def hostiles(world: World) -> list[Monster]:
         and m.txt_id not in TOWN_NPCS
         and m.txt_id not in BARRICADES
         and not (m.txt_id in VULTURES and m.mode in AIRBORNE)
+        and strikable(m)
     ]
+
+
+def strikable(monster: Monster) -> bool:
+    """Whether the game lets `monster` be struck now: its flag word's ATTACKABLE_FLAG (ATTACKABLE); with the word
+    unread, anything but a frog demon submerged (FROGS_SUBMERGED)."""
+    flags = monster.unit_flags
+    if ATTACKABLE and flags is not None:
+        return bool(flags & ATTACKABLE_FLAG)
+    return not (FROGS_SUBMERGED and monster.txt_id in FROGS and monster.mode == FROG_HIDDEN)
 
 
 def strike_input(run: Run, world: World, key_names, skill: int) -> tuple[tuple[str, ...], str]:
@@ -412,12 +469,51 @@ def act_window(step) -> float:
     return step.seconds + (REPRESS_SECONDS if step.skill == TELEPORT else 0.0)
 
 
-def omen_stand(spot: Point, here: Point) -> Point:
+def omen_distance() -> float:
+    """Units from a Herald's omen spot the full clear waits at: PACK_OMEN_STAND with the pack tactic, else
+    OMEN_STAND."""
+    return herald_pack.PACK_OMEN_STAND if herald_pack.PACK_TACTIC and herald_pack.PACK_OMEN else OMEN_STAND
+
+
+def way_out(spot: Point, stand: Point, rooms: Sequence[Room]) -> bool:
+    """Whether a hop out lies behind `stand`, away from `spot` (STAND_WAY_OUT): the stand and the place WAY_OUT_UNITS
+    beyond it in the level's rooms, the line between over no void wider than WAY_OUT_VOID tiles. True with no rooms
+    known, or the stand on the spot."""
+    away = math.dist(spot, stand)
+    if not rooms or away < 1e-6:
+        return True
+    out = (
+        stand[0] + (stand[0] - spot[0]) / away * WAY_OUT_UNITS,
+        stand[1] + (stand[1] - spot[1]) / away * WAY_OUT_UNITS,
+    )
+    start, end = (stand[0] / TILE_UNITS, stand[1] / TILE_UNITS), (out[0] / TILE_UNITS, out[1] / TILE_UNITS)
+    return (
+        room_at(rooms, start) is not None
+        and room_at(rooms, end) is not None
+        and passable(rooms, start, end, WAY_OUT_VOID)
+    )
+
+
+def omen_stand(spot: Point, here: Point, rooms: Sequence[Room] = ()) -> Point:
     """Where a full clear waits for a Herald coming to `spot` (HERALD_OMEN): OMEN_STAND from it on the character's
-    side; where it stands already when that is within OMEN_SLACK of it."""
+    side (combat/pack.py PACK_OMEN_STAND, 24, with the pack tactic: the player, 2026-10-21 ~10:00, "the omen stand at
+    24"); where it stands already when that is within OMEN_SLACK of it. With STAND_WAY_OUT and the level's `rooms`, a
+    stand with a hop out behind it (`way_out`): the first of STAND_TURNS round the spot that has one, else the
+    character's side as before."""
+    stand = omen_distance()
     away = math.dist(spot, here)
-    if abs(away - OMEN_STAND) <= OMEN_SLACK:
+    if abs(away - stand) <= OMEN_SLACK and (not STAND_WAY_OUT or way_out(spot, here, rooms)):
         return here
+    bearing = math.atan2(here[1] - spot[1], here[0] - spot[0]) if away >= 1e-6 else 0.0
+
+    def at(turn: float) -> Point:
+        angle = bearing + math.radians(turn)
+        return (spot[0] + stand * math.cos(angle), spot[1] + stand * math.sin(angle))
+
+    if STAND_WAY_OUT and rooms:
+        found = next((at(turn) for turn in STAND_TURNS if way_out(spot, at(turn), rooms)), None)
+        if found is not None:
+            return found
     if away < 1e-6:
-        return (spot[0] + OMEN_STAND, spot[1])
-    return (spot[0] + (here[0] - spot[0]) * OMEN_STAND / away, spot[1] + (here[1] - spot[1]) * OMEN_STAND / away)
+        return (spot[0] + stand, spot[1])
+    return (spot[0] + (here[0] - spot[0]) * stand / away, spot[1] + (here[1] - spot[1]) * stand / away)

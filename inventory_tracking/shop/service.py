@@ -25,6 +25,10 @@ AUTO_ATTEMPTS = 3  # failed automatic scans per stock key before waiting for a c
 AWAY_BACKOFF = 5  # poll interval multiplier outside town
 HIT_SECONDS = 10  # OSD lease for a result with shopping targets
 QUIET_SECONDS = 5  # OSD lease for no-target results, status and failures
+# A priced triage verdict's least asks for an alert: the High tier's floor (pricing.html §4.2, Vex 2.585). Under it, and
+# for a CHECK with no price (48 of the 52 alerts 2026-10-06..22: "+2 Warlock skills; no supported price"), a vendor buy
+# is not worth the gold and the trip ("notify on really good items ... not just any +2 skills", the player, 2026-10-22)
+PRICED_IST = 2.5
 
 
 def triage_stock(record):
@@ -33,17 +37,26 @@ def triage_stock(record):
     return assess(record, retrieve=shop_retrieve)
 
 
+def priced(triage):
+    """Whether a triage verdict alone makes a vendor item a target: sold, or slowly, at PRICED_IST or more."""
+    if triage is None or triage['verdict'] not in ('sell', 'slow'):
+        return False
+    band = triage.get('band') or {}
+    price = band.get('q1_ist', band.get('median_ist'))
+    return price is not None and price >= PRICED_IST
+
+
 def assess(record, *, retrieve=None):
     observations, issues = decode_stock(record)
     hits = []
     for observation in observations:
         triage = retrieve(observation).get('triage') if retrieve else None
-        if triage is not None:
+        # The reviewed patterns always count (rules.py), a triage verdict only with a price
+        reasons = match_item(observation)
+        if priced(triage):
             from inventory_tracking.appraisal.triage import headline
 
-            reasons = [headline(triage)] if triage['verdict'] != 'vendor' else []
-        else:
-            reasons = match_item(observation)
+            reasons = [headline(triage), *reasons]
         if reasons:
             hits.append(
                 {
@@ -52,7 +65,7 @@ def assess(record, *, retrieve=None):
                     'position': observation['source']['position'],
                     'page': observation['source']['container']['page'],
                     'reasons': reasons,
-                    **({'triage': triage} if triage is not None else {}),
+                    **({'triage': triage} if priced(triage) else {}),
                 }
             )
         if observation.get('unresolved_stats'):

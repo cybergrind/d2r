@@ -39,12 +39,12 @@
   "points": 400.0
  },
  "death_mark": {
-  "source": "skills.txt 375 Death Mark: auratargetstate death_mark puts aurastat2/3 normal_damage_reduction and magic_damage_reduction (stats 34, 35) at ln12 = Param1 -5 + Param2 -2 x (level - 1) and aurastat1 armorclass (stat 31) at ln56 = -50 - 35 x (level - 1) on the target for ln34 = 125 + 13 x (level - 1) frames. Stats 34/35 are FLAT: the client subtracts them from each element of each hit as read, with no floor (ai_d2_dmg_element 0x14038FB70, rca/2026-10-14/death-mark.md), so a mark adds `points` to each element of each hit before the resistance, not a percent. The marked monsters of the 11 takes of 2026-10-13 with the state read (state 212) carry 34 = 35 = -31 and 31 = -505: level 14 (+9 all skills, stat 127). The mark goes on the hostile nearest the pointer at the press of its key, 'd' for CybergrindAA (2026-10-14)",
-  "dated": "2026-10-14",
-  "level": 14,
-  "points": 31,
-  "defence": 505,
-  "frames": 294,
+  "source": "skills.txt 375 Death Mark: auratargetstate death_mark puts aurastat2/3 normal_damage_reduction and magic_damage_reduction (stats 34, 35) at ln12 = Param1 -5 + Param2 -2 x (level - 1) and aurastat1 armorclass (stat 31) at ln56 = -50 - 35 x (level - 1) on the target for ln34 = 125 + 13 x (level - 1) frames. Stats 34/35 are FLAT: the client subtracts them from each element of each hit as read, with no floor (ai_d2_dmg_element 0x14038FB70, rca/2026-10-14/death-mark.md), so a mark adds `points` to each element of each hit before the resistance, not a percent. The marked monsters of the 11 takes of 2026-10-13 with the state read (state 212) carry 34 = 35 = -31 and 31 = -505: level 14 (+9 all skills, stat 127). The mark goes on the hostile nearest the pointer at the press of its key, 'd' for CybergrindAA (2026-10-14). Level 15 since 2026-10-17 (the player, 2026-10-21 ~17:41: \"note: we haven't used death mark on baal, that is incorrect\"): the marked monsters' stat 34 reads -33 in 7,088 of 7,542 stats events of 2026-10-21's takes (-31, level 14, in the rest), Baal's 31 = -540 (17:38:22); the state 212 spans on monsters that lived through them and got no key meanwhile, 2026-10-17 to 21: 13 of 17 lasted 12.27-12.35 s (307 frames), 4 of 17 11.76-11.81 s (294 frames, level 14)",
+  "dated": "2026-10-21",
+  "level": 15,
+  "points": 33,
+  "defence": 540,
+  "frames": 307,
   "target_radius": 4.0,
   "key": "d"
  },

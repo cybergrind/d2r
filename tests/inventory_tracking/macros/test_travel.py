@@ -14,7 +14,7 @@ import pytest
 
 from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.common import LOG
-from inventory_tracking.game.records import Teleport
+from inventory_tracking.game.records import HEALING, VALUABLE, Drop, Loot, Teleport
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros import travel as travel_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
@@ -585,3 +585,54 @@ def test_with_the_walked_way_still_growing_and_no_straight_stride_there_is_no_fa
         leg = way_leg(here, behind, OWN_MOVE)
     assert reason(leg) == GROWING
     assert isinstance(way_leg(here, behind, OWN_MOVE), Step)  # with no clock the way is grown: round the wall
+
+
+# --- walk clicks off item labels (travel.py WALK_OFF_LABELS; the player, 2026-10-21 ~00:55: "not always clicking
+# correct object (we often can pickup hp/rejuv potion) that we wanted"; all five potions the takes of 2026-10-20 put
+# into the inventory were taken by a walk's click) ---
+
+
+def label_on(play: Game, goal: tuple[float, float], drop: Drop) -> Drop:
+    """`drop` lying where a click at `goal` has its label under the pointer (the fakes' 14 pixels up)."""
+    placed = replace(drop, x=goal[0] + play.pick_above / 16, y=goal[1] + play.pick_above / 16)
+    play.loot = Loot((placed,), (606, 606, 531, 531) * 4, 1000, 1000)
+    return placed
+
+
+def test_a_walk_click_with_a_potions_label_under_it_is_moved_off_the_label(caplog):
+    play = Game(world())
+    run = play.run()
+    label_on(play, (5010.0, 5000.0), Drop(70, 0.0, 0.0, 'a super healing potion', HEALING))
+
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, [], name='a group of 6')
+
+    assert play.picked == []
+    assert len(play.walks) == 1
+    assert math.dist(play.walks[0], (5010.0, 5000.0)) < 3.5
+    assert 'Macro: walk toward a group of 6: an item (4, 70) under the click at (5010.0, 5000.0)' in caplog.text
+
+
+def test_a_walk_click_on_a_wanted_valuables_label_takes_it():
+    play = Game(world())
+    run = play.run()
+    rune = label_on(play, (5010.0, 5000.0), Drop(71, 0.0, 0.0, 'Ist Rune', VALUABLE))
+
+    step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, [])
+
+    assert play.picked == [rune.label]
+
+
+@pytest.mark.parametrize('shifts', [(), None], ids=['no aim free', 'the switch off'])
+def test_with_no_free_aim_or_the_switch_off_the_walk_is_clicked_where_aimed(monkeypatch, shifts):
+    if shifts is None:
+        monkeypatch.setattr(travel_module, 'WALK_OFF_LABELS', False)
+    else:
+        monkeypatch.setattr(travel_module, 'WALK_LABEL_SHIFTS', shifts)
+    play = Game(world())
+    run = play.run()
+    label_on(play, (5010.0, 5000.0), Drop(70, 0.0, 0.0, 'a super healing potion', HEALING))
+
+    step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, [])
+
+    assert play.picked == ['a super healing potion']

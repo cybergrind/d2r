@@ -1,4 +1,6 @@
-"""Reviewed +3 tree amulets: self-use evidence, not a resale-price claim.
+"""Reviewed +3 tree amulets with a big suffix: 80+ life, 25+ strength or dexterity, 30+ MF (4 sellers, asks Q1 22.8;
+a plain +3 tree asks a median of 0.57 from 20 sellers, one with 10 FCR 7.6 from 14; 2026-09-18/19). Vendors rarely
+stock amulets (AMULETS.md).
 
 2026-09-27 review and source distinctions: AMULETS.md. Native stat188 layers,
 not properties.json's sequential skilltab parameters. Only reviewed trees alert.
@@ -23,6 +25,8 @@ TREE_USES = {
     58: 'Abyss',
 }
 
+SUFFIXES = ((7, 80, 'life'), (0, 25, 'strength'), (2, 25, 'dexterity'), (80, 30, 'MF'))
+
 
 def match_amulet(observation, stats):
     item = observation['item']
@@ -37,16 +41,8 @@ def match_amulet(observation, stats):
     for layer, use in TREE_USES.items():
         if value(StatId.SKILL_TAB, layer) != 3:
             continue
-        extras = []
-        for stat, low, high, label in ((105, 10, 10, 'FCR'), (7, 81, 100, 'life'), (80, 26, 35, 'MF')):
-            amount = value(stat)
-            if low <= amount <= high:
-                extras.append(f'{amount:g} {label}')
-        gold = value(79)
-        if layer == 34 and 41 <= gold <= 80:
-            extras.append(f'{gold:g} gold find')
-        quality = 'Build review' if extras else 'Build use'
-        name = f'{CLASS_NAMES[layer // 8]} {SKILL_TABS[layer // 8][layer % 8]}'
-        suffix = ' / ' + ' / '.join(extras) if extras else ''
-        reasons.append(f'{quality}: +3 {name}{suffix} — {use}')
+        extras = [f'{value(stat):g} {label}' for stat, low, label in SUFFIXES if value(stat) >= low]
+        if extras:
+            name = f'{CLASS_NAMES[layer // 8]} {SKILL_TABS[layer // 8][layer % 8]}'
+            reasons.append(f'+3 {name} / {" / ".join(extras)} amulet — {use}')
     return reasons

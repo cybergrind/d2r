@@ -23,10 +23,10 @@ from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.mobs import (
     AURA_FACTOR,
     AURA_MOD,
+    AURA_RANGE,
     BLAST,
     BLAST_KIND,
     BLAST_RADIUS,
-    BOOST_RANGE,
     RANGED_REACH,
     SHOT_FRAMES,
     Mobs,
@@ -264,7 +264,7 @@ def aura_scenes() -> tuple[Scene, Scene, Scene]:
     """A striker beside the character with an Aura Enchanted monster near it; the same with the aura
     taken off; the striker alone. A monster's rolls are its own, so the three differ by the aura only."""
     striker = mob(1, HELL_BOVINE, 2.0, 0.0)
-    holder = mob(2, GHOUL, 2.0 + BOOST_RANGE - 4.0, 0.0)
+    holder = mob(2, GHOUL, 2.0 + AURA_RANGE - 4.0, 0.0)
     with_aura = scene([striker, mob(2, GHOUL, holder.at[0] - HERE[0], 0.0, mods=(AURA_MOD,))])
     return with_aura, scene([striker, holder]), scene([striker])
 
@@ -286,16 +286,16 @@ def test_an_aura_ends_with_its_holder():
 
 
 def test_a_scene_may_name_its_own_auras_and_one_out_of_range_raises_nothing():
-    # the holder is an archer out of its own reach: it only stands there
-    striker, away = mob(1, HELL_BOVINE, 2.0, 0.0), RANGED_REACH + 5.0
+    # the holder is an archer out of its own reach and its aura's: it only stands there
+    striker, away = mob(1, HELL_BOVINE, 2.0, 0.0), max(RANGED_REACH, AURA_RANGE) + 5.0
     alone = played(Mobs(scene([striker]), random.Random(3)), 100)
     far = scene([striker, mob(2, RETURNED_ARCHER, 2.0, away)])
     assert played(Mobs(far, random.Random(3), auras={2: 3.0}), 100) == pytest.approx(alone)
     assert played(Mobs(far, random.Random(3), auras={}), 100) == pytest.approx(alone)
     # the same archer with a cow that stands inside its aura, and the character beside the cow
-    idle = mob(1, HELL_BOVINE, 2.0, away - BOOST_RANGE + 1.0)
+    idle = mob(1, HELL_BOVINE, 2.0, away - AURA_RANGE + 1.0)
     near = scene([idle, mob(2, RETURNED_ARCHER, 2.0, away)])
-    hero = (idle.at[0] + 2.0, idle.at[1])  # beside the cow, and within the archer's reach: it shoots too
+    hero = (idle.at[0] + 2.0, idle.at[1])  # beside the cow
     lone = played(Mobs(scene([idle]), random.Random(3)), 200, hero)
     both = played(Mobs(near, random.Random(3), auras={}), 200, hero)
     raised = played(Mobs(near, random.Random(3), auras={2: 3.0}), 200, hero)
@@ -524,3 +524,18 @@ def test_equal_seeds_give_equal_fights_with_shooters_and_novas():
 
     assert fight(7) == fight(7)
     assert fight(7) != fight(8)
+
+
+def test_a_walker_shows_the_client_s_walk_and_swing_modes_and_its_own_while_it_stands():
+    """mobs.py SHOWN_MOTION: a monster walking in reads WL 2 and its swing A1 4, as the live client shows them (a
+    take's NU 1 kept on a walker read as idle: the pursuit-mode Fane deaths, fane-death-sim-findings.md §11)."""
+    mobs = Mobs(
+        scene([mob(1, HELL_BOVINE, 10.0, 0.0, mode=1), mob(2, HELL_BOVINE, 90.0, 0.0, mode=1)]), random.Random(1)
+    )
+    seen: dict[int, set[int]] = {1: set(), 2: set()}
+    for _ in range(300):
+        mobs.tick(HERE, (), OPEN)
+        for found in mobs.monsters():
+            seen[found.unit_id].add(found.mode)
+    assert {2, 4} <= seen[1]
+    assert seen[2] == {1}  # far beyond its notice: it stands in the take's mode

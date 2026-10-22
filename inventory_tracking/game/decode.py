@@ -20,6 +20,7 @@ from inventory_tracking.game.layout import (
     COOLDOWN_BIT,
     CURSOR_MODE,
     DAMAGE_PERCENT,
+    DAMAGE_PERCENT_STAT,
     DEFENSE_PERCENT,
     DEFILER_CLASS,
     EMPTY_SLOT,
@@ -41,6 +42,8 @@ from inventory_tracking.game.layout import (
     MISSILE_RECORD,
     MISSILE_SLOTS,
     MISSILE_UNIT,
+    MODIFIER_LEVEL_STAT,
+    MODIFIER_SKILL_STAT,
     MODIFIERS,
     MONSTER_DATA,
     MONSTER_OWNER,
@@ -105,7 +108,7 @@ from inventory_tracking.items.modifiers import owned_chain
 from inventory_tracking.items.stat_constants import SKILL_TABS, StatId
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
-from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
+from inventory_tracking.levels.model import CLICKED, DURIEL_PORTAL, PORTAL, TOWN_PORTAL, WIRTS_BODY
 from inventory_tracking.native.item_diagnostics import capture_stat_candidates
 from inventory_tracking.native.layout import (
     DEAD_MODES,
@@ -221,7 +224,7 @@ def monsters_and_dead(
         except OSError, ValueError:
             continue
         owner = struct.unpack_from('<I', data, MONSTER_OWNER)[0]
-        ally, life, max_life, tier, resists = False, 0, 0, 0, ()
+        ally, life, max_life, tier, resists, aura, raised = False, 0, 0, 0, (), None, None
         if unit['stats_pointer']:
             with contextlib.suppress(OSError, ValueError, struct.error):
                 full = read_stats(read, unit['stats_pointer'] + FULL_STATS)
@@ -230,12 +233,23 @@ def monsters_and_dead(
                 tier = stats.get(HERALD_TIER_STAT, 0)
                 life, max_life = stats.get(LIFE_STAT, 0) >> 8, stats.get(MAX_LIFE_STAT, 0) >> 8
                 resists = tuple((stat, stats[stat]) for stat in MONSTER_RESISTS if stat in stats)
+                if stats.get(MODIFIER_SKILL_STAT):
+                    aura = (stats[MODIFIER_SKILL_STAT], stats.get(MODIFIER_LEVEL_STAT, 0))
+                raised = stats.get(DAMAGE_PERCENT_STAT, 0)
         raw = b''
         if unit['txt_id'] == DEFILER_CLASS:
             with contextlib.suppress(OSError, ValueError):
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
-        monster = replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer'])
+        monster = replace(
+            monster,
+            ally=ally,
+            life=life,
+            max_life=max_life,
+            raw=raw,
+            stats_at=unit['stats_pointer'],
+            unit_flags=unit.get('flags'),
+        )
         whole = states = skill = b''
         if records:
             whole = unit.get('record', b'') + data
@@ -245,7 +259,13 @@ def monsters_and_dead(
             if unit['mode'] in STRIKING_MODES:
                 skill = skill_in_use(read, unit.get('record', b''))
         monster = replace(
-            monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier, resists=resists
+            monster,
+            path=record,
+            modifiers=tuple(mod for mod in data[MODIFIERS] if mod),
+            tier=tier,
+            resists=resists,
+            aura=aura,
+            damage_percent=raised,
         )
         found.append(replace(monster, record=whole, states=states, skill=skill))
     return tuple(found), frozenset(corpses)
@@ -288,10 +308,11 @@ def carried_rows(read, unit: dict | None) -> tuple[tuple[str, ...] | None, tuple
 def stash_view_of(
     main: dict, players: Sequence[dict], grids_by_owner: Mapping[int, dict], items: Sequence[dict]
 ) -> StashView | None:
-    """The stash from one read (`GameMemory.stash_view`): `main` the character's player unit, `players` the other
-    player units (each with its `details` name and full stats, as collection/capture.py `is_shared_candidate` reads
-    them, and its `order`, the u64 at STASH_ORDER_OFFSET), `grids_by_owner` their grids by unit id
-    (`read_owner_grids`), `items` the item units (`unit_id`, `address`, `txt_id`, `mode`, `owner`, `page`, `count`).
+    """The stash from one read (`GameMemory.read_stash`, reached only through game/stash.py `Stash.read`): `main` the
+    character's player unit, `players` the other player units (each with its `details` name and full stats, as
+    collection/capture.py `is_shared_candidate` reads them, and its `order`, the u64 at STASH_ORDER_OFFSET),
+    `grids_by_owner` their grids by unit id (`read_owner_grids`), `items` the item units (`unit_id`, `address`,
+    `txt_id`, `mode`, `owner`, `page`, `count`).
 
     The personal page is the character's grid 6; the shared pages are the same-name units with no level or life, in
     their order. One more such unit owns the Gems, Materials and Runes tabs, its grid 6 always empty, and orders last
@@ -583,8 +604,9 @@ def containers() -> frozenset[int]:
 
 # Doors too: a closed one across an open passage's walk is clicked open (macros/hunting/moves.py `door_across`; the
 # Outer Cloister's gate into the Barracks, 04:00:40 on 2026-10-20)
+# The Duriel's Lair portal the true tomb's Orifice mark clicks (macros/teleport.py USES, 2026-10-21)
 USED = (
-    frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, BANK, *CLICKED, *WAYPOINT_CLASSES))
+    frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, DURIEL_PORTAL, BANK, *CLICKED, *WAYPOINT_CLASSES))
     | containers()
     | frozenset(door_sizes())
 )

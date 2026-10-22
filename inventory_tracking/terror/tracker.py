@@ -37,6 +37,7 @@ constants on this build). Unit ids are taken to stay the same in a rejoined game
 
 import json
 import math
+import os
 import time
 from collections import deque
 from dataclasses import dataclass, field
@@ -102,6 +103,14 @@ TERROR_VOTES = 6  # plain-monster sightings per Terror Zone that decide
 LEVEL_SEED, LEVEL_SEED_SIZE = 0x1E4, 8  # level struct bytes: the same in a rejoined game
 STORED_GAMES = 8  # games kept in the store, the latest last
 SAVE_SECONDS = 5.0  # between saves while playing; leaving a game and a Herald always save
+# The boss book (the player, 2026-10-22: "we need to kill all bosses, no exceptions to that"; "make sure that all
+# state is backed by files on filesystem and survives restarts/reloads. <game-id>-<level> as key"): where each boss of a
+# game lives, the unit taken for it, whether it was seen and how it is known, by '<game-id>-<level>' (macros/
+# bossledger.py `game_key`: the game's name and the player's unit id), in the store's 'bosses' beside its 'games';
+# written atomically on every change, read back at the service's start, entries older than BOOK_SECONDS dropped. Which
+# were killed is `slain` (one record of it). macros/bossledger.py `BossLedger` is the macros' view of it
+BOOK_SECONDS = 24 * 3600.0
+BOOK_MOVE = 15.0  # world units a boss seen moves before its place is written again
 # The game's names of those modifiers (monumod.json ids, d2data 2026-10-06): the zone's own line
 # under 'Terrorized: <level>' in the game's top-right text.
 MODIFIER_NAMES = {
@@ -185,10 +194,13 @@ def percent(value: float) -> str:
 
 
 class ZoneTracker:
-    def __init__(self, store: Path | None = None, *, clock=time.monotonic):
-        self.store, self.clock = store, clock
+    def __init__(self, store: Path | None = None, *, clock=time.monotonic, wall=time.time):
+        self.store, self.clock, self.wall = store, clock, wall
         self.saved_at = -math.inf
         self.left: dict[int, str] = {}  # the levels of the game just left, until the next level is entered
+        # The boss book (BOOK_SECONDS): '<game-id>-<level>' -> boss name -> its record; the game it is written for
+        self.book: dict[str, dict[str, dict]] = self.stored_book()
+        self.book_game: str | None = None
         self.reset()
 
     def reset(self):
@@ -205,6 +217,8 @@ class ZoneTracker:
         # area -> bounds of the rooms the player was in or next to: where monsters would have shown
         self.explored: dict[int, set[tuple]] = {}
         self.loaded: dict[int, int] = {}  # area -> rooms ever loaded, as the probe counts them
+        # The tracker's thread writes it while the macro's reads it: readers iterate a copy, `tuple(....items())`
+        # (07:55:09 on 2026-10-21: "dictionary changed size during iteration" in `remembered` ended a level run)
         self.positions: dict[int, tuple[int, int, int]] = {}  # hostile unit id -> (area, x, y), alive
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
         # hostile unit id -> (txt id, modifiers, aura) as first seen: what makes a pack deadly (danger.py)
@@ -425,11 +439,104 @@ class ZoneTracker:
             return
         mine = {str(area): seed for area, seed in self.game_levels.items()}
         others = [g for g in self.stored_games() if not any(mine.get(a) == seed for a, seed in g['levels'].items())]
-        games = [*others, {'levels': mine, 'state': self.state()}][-STORED_GAMES:]
+        self.write({'games': [*others, {'levels': mine, 'state': self.state()}][-STORED_GAMES:], 'bosses': self.book})
+
+    def write(self, data: dict) -> None:
+        """The store written atomically (a file beside it, then renamed over it): `data`'s keys in place of the file's,
+        the others kept."""
+        if self.store is None:
+            return
         try:
-            self.store.write_text(json.dumps({'games': games}, separators=(',', ':')), encoding='utf-8')
+            held = json.loads(self.store.read_text(encoding='utf-8'))
+            held = held if isinstance(held, dict) else {}
+        except OSError, ValueError:
+            held = {}
+        held |= data
+        part = self.store.with_name(f'{self.store.name}.part')
+        try:
+            part.write_text(json.dumps(held, separators=(',', ':')), encoding='utf-8')
+            os.replace(part, self.store)
         except OSError as exc:
             LOG.warning('Terror tracker: games not saved to %s: %s', self.store, exc)
+
+    def stored_book(self) -> dict[str, dict[str, dict]]:
+        """The boss book as stored, entries older than BOOK_SECONDS dropped."""
+        if self.store is None:
+            return {}
+        try:
+            book = json.loads(self.store.read_text(encoding='utf-8')).get('bosses', {})
+        except OSError, ValueError, AttributeError:
+            return {}
+        now = self.wall()
+        kept: dict[str, dict[str, dict]] = {}
+        for key, records in book.items() if isinstance(book, dict) else ():
+            if not isinstance(records, dict):
+                continue
+            fresh = {
+                str(name): record
+                for name, record in records.items()
+                if isinstance(record, dict) and now - float(record.get('at', 0.0)) <= BOOK_SECONDS
+            }
+            if fresh:
+                kept[str(key)] = fresh
+        return kept
+
+    def boss_game(self, game: str | None) -> None:
+        """The game the boss book is written for (macros/bossledger.py `game_key`), None: none."""
+        self.book_game = game
+
+    def boss_note(
+        self,
+        area: int,
+        name: str,
+        *,
+        place: tuple[float, float] | None = None,
+        unit: int | None = None,
+        seen: bool = False,
+        by: str = '',
+        tried: bool = False,
+    ) -> bool:
+        """Boss `name` of level `area` in this game's book (`boss_game`): its place, the unit taken for it, seen, how
+        known, the recoveries kept for it (`tried`: one more, macros/running/recovery.py BOSS_RECOVERY); written at once
+        when that changed (a place only once it moved BOOK_MOVE). Whether it changed."""
+        if self.book_game is None:
+            return False
+        records = self.book.setdefault(f'{self.book_game}-{area}', {})
+        stored = records.get(name)
+        fresh = stored is None
+        record: dict[str, object] = (
+            dict(stored) if stored is not None else {'place': None, 'unit': None, 'seen': False, 'by': by}
+        )
+        changed = fresh
+        if place is not None:
+            old = record.get('place')
+            if not isinstance(old, list) or len(old) != 2 or math.dist(old, place) >= BOOK_MOVE:
+                record['place'], changed = [round(place[0], 1), round(place[1], 1)], True
+        if unit is not None and record.get('unit') != unit:
+            record['unit'], changed = unit, True
+        if seen and not record.get('seen'):
+            record['seen'], changed = True, True
+        if tried:
+            count = record.get('tries')
+            record['tries'], changed = (count if isinstance(count, int) else 0) + 1, True
+        if not changed:
+            return False
+        record['at'] = self.wall()
+        records[name] = record
+        self.write({'bosses': self.book})
+        return True
+
+    def boss_book(self) -> list[tuple[int, str, dict]]:
+        """(level, name, record) of this game's book (`boss_game`)."""
+        if self.book_game is None:
+            return []
+        prefix = f'{self.book_game}-'
+        return [
+            (int(key[len(prefix) :]), name, record)
+            for key, records in self.book.items()
+            if key.startswith(prefix) and key[len(prefix) :].isdigit()
+            for name, record in records.items()
+        ]
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
@@ -538,7 +645,7 @@ class ZoneTracker:
     def packs(self, area: int) -> list[Pack]:
         """The packs of hostile monsters alive in `area`, the most dangerous first (danger.py)."""
         units = []
-        for unit_id, (where, x, y) in self.positions.items():
+        for unit_id, (where, x, y) in tuple(self.positions.items()):
             if where == area and unit_id in self.traits:
                 txt_id, found, carried = self.traits[unit_id]
                 flags, tier = self.ranks.get(unit_id, (0, 0))
@@ -577,7 +684,7 @@ class ZoneTracker:
             unit_id: 'danger' if pack.band == 'deadly' else 'caution' for pack in found for unit_id in pack.members
         }
         dots: dict[str, list[MapPoi]] = {'mob': [], 'caution': [], 'leader': [], 'danger': [], 'elite': []}
-        for unit_id, (where, x, y) in self.positions.items():
+        for unit_id, (where, x, y) in tuple(self.positions.items()):
             if where == area and unit_id not in self.live_heralds:
                 kind = bands.get(unit_id) or 'mob'
                 if unit_id in self.leaders:  # told apart from its pack whatever the band (user, 2026-10-06)
@@ -649,7 +756,7 @@ class ZoneTracker:
         world units: what the hunt teleports toward when none is in reach (macros/hunt.py)."""
         return [
             (unit_id, float(x), float(y), unit_id in self.leaders)
-            for unit_id, (where, x, y) in self.positions.items()
+            for unit_id, (where, x, y) in tuple(self.positions.items())
             if where == area and unit_id not in self.allies
         ]
 
@@ -659,7 +766,7 @@ class ZoneTracker:
         (macros/card_goal.py)."""
         return [
             (unit_id, self.traits[unit_id][0], self.ranks.get(unit_id, (0, 0))[0], float(x), float(y))
-            for unit_id, (where, x, y) in self.positions.items()
+            for unit_id, (where, x, y) in tuple(self.positions.items())
             if where == area and unit_id not in self.allies and unit_id in self.traits
         ]
 

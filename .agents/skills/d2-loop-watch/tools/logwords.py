@@ -95,6 +95,20 @@ RESUMED_ANY = 'resumed after a restart'
 RESUMED_ON = 'resumed after a restart: loop on'
 RESUMED_OFF = 'resumed after a restart: loop off'
 
+# A restart in the middle of a game (restart.py --when town|safe; macros/midgame.py, 2026-10-21). The service armed it:
+# runner.py MacroRunner.hold_restart `'Macro: loop: a restart waits for a safe point (%s)'` (town|safe); dropped:
+# `cancel_restart` `'Macro: loop: the restart no longer waits for a safe point'`.
+RESTART_HELD = 'a restart waits for a safe point'
+RESTART_DROPPED = 'the restart no longer waits for a safe point'
+# The loop stands at one, the service restarts at its next tick: (where, the game). loop.py Loop.hold_at_safe_point
+# `'Macro: loop: safe point: %s, %s: the loop stands for the restart'`; not yet: (why), said when it changes.
+# No such line in runs/alt-d up to 2026-10-21 14:50 (the test builds them).
+SAFE_POINT = re.compile(r'Macro: loop: safe point: (.+?), (.+): the loop stands for the restart$')
+NOT_SAFE = re.compile(r'Macro: loop: no safe point for the restart yet: (.+)$')
+# The new service took the game up at its first leg there: (the game). macros/midgame.py restore
+# `'Macro: loop: game %s taken up after a restart: %.0f s into it, ...'`.
+CARRIED = re.compile(r'Macro: loop: game (.+?) taken up after a restart: (-?\d+) s into it')
+
 # The run's kind chosen by a triple KP_6 or the `loop-kind` request, or taking at the next game: runner.py
 # `MacroRunner._say_kind`, loop.py `Loop.leg`. No such line in runs/alt-d up to 2026-10-18 (the test builds one).
 KIND = re.compile(r'Macro: Loop run: (.+)$')
@@ -117,6 +131,45 @@ STOPS_HERE = 'stops here'
 #     loop goes on
 LEFT = re.compile(r'Macro: loop: (.*): the game is left and the loop goes on')
 GAME_LEFT = 'game is left'
+# A door no click takes on a terror zone's way on: its trip skipped, the game not left (no GAME_LEFT in it), the zone
+# goes on. tzloop.py skip_door `'Macro: loop: %s: the trip to %s is skipped, the game is not left and the zone goes on'`
+# (SKIP_DOOR, 2026-10-21). The EVENT and NOW lines carry it.
+# 2026-10-21 09:00:00,000 INFO Macro: loop: no click took Crypt: the trip to Crypt is skipped, the game is not left and
+#     the zone goes on
+
+# Zone navigation (macros/zonenav.py, the switch `ACTS`): a level's verdict, the graph once a game, the old rule's
+# verdicts said (stage 0). tzloop.py zone_choose `'Macro: zone: %s'`, zone_judged `'Macro: zone: graph %s: %s; ...'`,
+# zone_note `'Macro: zone: done by the old rule: %s'`.
+# 2026-10-21 10:00:00,000 INFO Macro: zone: Upper Kurast (81) cleared, without [97]
+ZONE = re.compile(r'Macro: zone: (.*)$')
+# A child of the zone that cannot be done in this game: (the level, why). tzloop.py zone_choose's verdict
+# `'Macro: zone: %s'` with zonenav.py `said`: `<name> (<area>) blocked: <why>`; a door no click takes, tzloop.py
+# zone_door `'Macro: zone: %s: %s blocked, %s goes on'` (no GAME_LEFT: the zone goes on). EVENT and NOW carry both.
+# 2026-10-21 10:00:00,000 INFO Macro: zone: Forgotten Reliquary (96) blocked: its map was never read in 2 runs
+# 2026-10-21 10:00:00,000 INFO Macro: zone: no click took Forgotten Temple: Forgotten Temple blocked, Upper Kurast goes
+#     on
+# Also a way in made over zonenav.py WAY_TRIES legs with no arrival (tzloop.py way_spent) and a child skipped for the
+# game's time (TIME_BUDGET, tzloop.py zone_budget), both `'Macro: zone: %s (%d) blocked: %s'` (2026-10-21).
+# 2026-10-21 14:00:00,000 INFO Macro: zone: Kurast Causeway (82) blocked: its way in from Upper Kurast was made 6 times
+#     with no arrival
+ZONE_BLOCKED = re.compile(r'Macro: zone: (?:.*: )?(.+?)(?: \(\d+\))? blocked(?:: (.*)|, .* goes on)$')
+
+# A drop no click took that the loop keeps no game for, given up for the game (no GAME_LEFT: the press goes on);
+# pickup.py give_up `'Macro: pickup: %s at (%.0f, %.0f) given up for this game (%s); the game is kept and the press
+# goes on'` (GIVE_UP_CHEAP, 2026-10-21). A stop answered by keeping the game: running/recovery.py _loop_stopped
+# `'Macro: loop: %s: the game is kept (%s): the leg is made again'` (stops.py KEEP). EVENT and NOW carry both.
+# 2026-10-21 14:00:00,000 INFO Macro: pickup: a super healing potion at (4769, 2633) given up for this game (a super
+#     healing potion was under the pointer at 3 aims and no click picked it up); the game is kept and the press goes on
+
+# A Worldstone Shard over the limit (its stack at the cap) used in an act kind's game after the kind's own (actloop.py
+# OVERFLOW, 2026-10-21): (shard, stack, act, played after); refused or stopped: (shard, stack, why, act). actloop.py
+# overflow `'Macro: act: %s shard over the limit (%d)%s: act %d terrorized too, played after %s'`, `'... (%d): refused
+# (%s): act %d not played; the shard %s'`, `'... (%d): not used (%s): act %d not played'`. DID and NOW carry them.
+# 2026-10-21 15:40:00,000 INFO Macro: act: Northern shard over the limit (99): act 5 terrorized too, played after act 3
+OVERFLOW = re.compile(
+    r'Macro: act: (\w+) shard over the limit \((\d+)\)(?:, a carried one)?: '
+    r'(?:act (\d) terrorized too, played after (.+)|(?:refused|not used) \((.*?)\): act (\d) not played)'
+)
 
 # A routine's own stop or crash. runner.py MacroRunner._guarded `'Macro stopped: %s'`; runner.py
 # `LOG.exception('Macro failed')` (ERROR, a traceback after it).
@@ -124,30 +177,56 @@ GAME_LEFT = 'game is left'
 # 2026-10-17 01:37:07,758 ERROR Macro failed
 MACRO_STOPPED = 'Macro stopped'
 
+# The merc lost or the belt low on healing potions: a town trip at the first safe moment, a recovery of its own
+# (macros/merc.py, 2026-10-21; the player: "we have lost merc -> probably better retreat to the town and refill hp
+# potions in the belt"). merc.py `trip` `'Macro: merc lost: a town trip to refill the belt and revive the merc (%s)'`,
+# `'Macro: belt low: a town trip to refill the belt (%s; %s)'`; `revive` `'Macro: merc: carried gold %s does not
+# cover the revive ...'`. EVENT and NOW carry them; NOW also the death read (`MercWatch.see` `'Macro: merc: dead:
+# ...'`), the wait for the safe moment and the revive (`'Macro: merc: revived at Tyrael ...'`, `'... not revived'`).
+# 2026-10-21 19:40:00,000 INFO Macro: merc lost: a town trip to refill the belt and revive the merc (no hostile within
+#     30)
+
 # The stops, recoveries and errors a game's notes and the events list carry (games.py `read`): the whole matched text.
 EVENT = re.compile(
-    r'Macro: (loop stopped.*|loop: .*(game is left|stops here).*)|Macro failed.*|Traceback.*|\bERROR\b.*'
+    r'Macro: (loop stopped.*|loop: .*(game is left|game is kept|stops here|trip to .* is skipped).*|zone: .* blocked.*'
+    r'|pickup: .* given up for this game.*'
+    r'|merc lost: a town trip.*|belt low: a town trip.*|merc: carried gold .* does not cover the revive.*)'
+    r'|Macro failed.*|Traceback.*|\bERROR\b.*'
 )
 # What the loop did besides its legs (games.py `did`): the stash (stash.py unload, visit.py stash_stop), a
-# repair (repair.py), a sale and the keys bought (shop.py restock), the cube (cube.py stash).
+# repair (repair.py), a sale and the keys bought (shop.py restock), the cube (cube.py stash), a gamble session
+# (gamble.py `gamble`, GAMBLED).
 # 2026-10-18 16:00:01,499 INFO Macro: stash: by the view: 6 items put in (pages 2,4), 0 dropped, 0 left for the scan,
 #     2 openings, 12.6s
 # 2026-10-18 16:03:49,890 INFO Macro: cube: 4 of 4 of the loop's items moved in
-DID = re.compile(r'Macro: (stash: .*put in.*|repair: the staff .*|shop: sold .*|shop: keys .*|cube: .*moved.*)')
+DID = re.compile(
+    r'Macro: (stash: .*put in.*|repair: the staff .*|shop: sold .*|shop: keys .*|cube: .*moved.*'
+    r'|gamble: session done.*|shop: potions: .*|act: .* shard over the limit.*)'
+)
 # The lines the live watch says the moment they come (watch.py `NOW`): stops, recoveries, full stacks, sales, repairs,
-# the restart's resume, identification, the trade session's report, errors. Producers as for EVENT, DID, FULL, SOLD,
+# the restart's resume (and the zone's facts taken back after it: tzloop.py zone_resume `'Macro: zone: %s resumed
+# after a restart: ...'`, zonenav.py RESUME, 2026-10-21), identification, the trade session's report, errors.
+# Producers as for EVENT, DID, FULL, SOLD,
 # REPAIRED, IDENTIFIED, VISIT_STOPS; `shop: the item %d is no longer at` shop.py restock; `repair: the stash gold
-# went` repair.py and `repair: the cost` repair.py.
+# went` repair.py and `repair: the cost` repair.py; a gamble session's end and a price no gold stat paid (gamble.py
+# `gamble`, `Session._unread_price`, a WARNING).
 NOW = re.compile(
-    r'Macro: (loop stopped|loop: .*(game is left|stops here)|stash: the .* stack is full|shop: (sold|could not)'
-    r'|repair: the (staff|stash|cost)|resumed after a restart|identify: |shop: the item .* no longer'
-    r'|trade session done)'
+    r'Macro: (loop stopped|loop: .*(game is left|game is kept|stops here|trip to .* is skipped)|zone: .* blocked'
+    r'|pickup: .* given up for this game'
+    r'|stash: the .* stack is full'
+    r'|shop: (sold|could not)|repair: the (staff|stash|cost)|resumed after a restart|zone: .* resumed after a restart'
+    r'|identify: '
+    r'|shop: the item .* no longer'
+    r'|trade session done|gamble: session done|gamble: .*gambling stopped|act: .* shard over the limit'
+    r'|merc lost: |belt low: |merc: (dead|revived|not revived|carried gold))'
     r'|Macro failed|Traceback|ERROR'
 )
-# A game's notes in the live watch (watch.py `NOTE`): the cube's moves, the stash's puts, the shop's keys.
+# A game's notes in the live watch (watch.py `NOTE`): the cube's moves, the stash's puts, the shop's keys and healing
+# potions (shop.py `_potions`, BUY_POTIONS 2026-10-21).
 # 2026-10-18 16:00:10,027 INFO Macro: shop: keys 17 -> 17, portals 0 -> 0 (Town Portal from the Sling: none bought),
 #     identifies 20 -> 20
-NOTE = re.compile(r'Macro: (cube: .*moved|stash: .*put in|shop: keys)')
+# 2026-10-21 14:00:00,000 INFO Macro: shop: potions: belt short 5 -> 0, bought 5 Super Healing Potion for 2250 gold
+NOTE = re.compile(r'Macro: (cube: .*moved|stash: .*put in|shop: keys|shop: potions)')
 
 
 # --- TZ leveling's experience (games.py, watch.py) -------------------------------------------------------------------
@@ -173,6 +252,102 @@ EXPERIENCE_LEVEL = re.compile(r'Macro: experience: (?!game \d+:)(.+?): ([+-][\d,
 def amount(text: str) -> int:
     """A number as the experience lines write it: '+1,234,567' -> 1234567."""
     return int(text.replace(',', ''))
+
+
+# --- The safety among exploding dolls (combat/threats/dolls.py DOLL_LAND, off since 2026-10-21 ~14:55) ----------------
+
+# Jump landings near a live doll left out, said once a goal: (how many, the goal, what was done). safety.py
+# Safety.dolls_waited `'Macro: safety: dolls: %d landing%s near a live doll left out (%s); %s'`.
+# 2026-10-21 14:40:15,416 INFO Macro: safety: dolls: 1 landing near a live doll left out (full clear: a group of 7); a
+#     jump of 9 to (17856.9, 6549.7), safe approach
+DOLLS_LEFT_OUT = re.compile(r'Macro: safety: dolls: (\d+) landings? near a live doll left out \((.+?)\); (.+)$')
+# The asked move's bar lifted after dolls.PATIENCE with nothing in reach: (the goal). The same function's
+# `'Macro: safety: dolls: %s held %.0f s with nothing in reach: its landing is no longer barred; %s'`.
+# 2026-10-21 14:40:51,637 INFO Macro: safety: dolls: full clear: the elite 216 (510263862) held 4 s with nothing in
+#     reach: its landing is no longer barred; a jump of 24 to (17818.0, 6686.7), toward the goal
+DOLLS_PATIENT = re.compile(r'Macro: safety: dolls: (.+?) held \d+ s with nothing in reach: its landing is no longer')
+
+
+# --- The pets (builds/warlock/pets.py, 2026-10-21) ------------------------------------------------------------------
+
+# A pet dead: (its name, its unit, its life at the look). pets.py PetWatch.say_lost `'Macro: pet: %s (%d) lost at
+# %d/%d, %d/%d before%s'`: the bound demon always, a Defiler only when it was hurt before (not one Consume took). The
+# watch says `PET LOST` for the bound demon (the player, 2026-10-21 ~15:45: "we have lost our daemon").
+# 2026-10-21 15:41:39,800 INFO Macro: pet: bound Urdar (2147553209) lost at 0/128, 1/128 before; the last Engorge 3.2s
+#     before
+PET_LOST = re.compile(r'Macro: pet: (bound .+?|Defiler|\w+) \((\d+)\) lost at (\d+)/\d+')
+BOUND_WORD = 'bound '  # the bound demon's name begins so (pets.py `name_of`)
+# A pet's life falling fast or under a share: (name, life, why, what is done). pets.py PetWatch.tell `'Macro: pet: %s
+# %d/%d, %s: %s'`.
+# 2026-10-21 15:41:30,600 INFO Macro: pet: bound Urdar 73/128, -55 in 1.4s: Engorge now
+PET_DANGER = re.compile(r'Macro: pet: (.+?) (\d+)/\d+, (.+): (Engorge now|no Engorge now)$')
+
+
+# --- Battle Orders through a fight (macros/cta.py REBUFF, 2026-10-22) ----------------------------------------------
+
+# What the rebuff did: (the state: 'N s left', 'age not known' or 'expired[ N s ago]'; the action: 'retreat', 'cast in
+# place' or 'a retreat first'). cta.py say_orders `'Macro: %s: %s: %s'` with ORDERS_SAID 'buff: Battle Orders' (a run
+# out in a fight), safety.py Safety.rebuff_chosen `'Macro: buff: Battle Orders: %s: retreat to (%.1f, %.1f), ...'` and
+# buffs.py Buffs.cast `'Macro: buff: %s: %s: cast again now'` with cta.py renew_orders' reason (a renewal in a fight).
+# Not yet in a real log (2026-10-22): the lines as the production formats make them.
+# 2026-10-22 12:00:00,000 INFO Macro: buff: Battle Orders: 6 s left: retreat to (15062.2, 5630.1), 18 clear of the
+#     hostiles, to cast it there (1 of 3)
+# 2026-10-22 12:00:00,900 INFO Macro: buff: Battle Orders: 6 s left: cast in place (nothing within 10, at the rebuff
+#     landing): cast again now
+# 2026-10-22 12:00:05,000 INFO Macro: buff: Battle Orders: expired 0.4 s ago: a retreat first (a hostile within 10)
+ORDERS = re.compile(
+    r'Macro: buff: Battle Orders: (\d+ s left|age not known|expired(?: [\d.]+ s ago)?): (retreat|cast in place|a '
+    r'retreat first)'
+)
+
+# --- The anomalies in a take (anomalies.py, 2026-10-21) -------------------------------------------------------------
+
+# The player, 2026-10-21 ~21:08: "monitor all time that we weren't moving/killing/doing something"; anomalies.py reads
+# the take's own `log` events (the same lines, without the stamp) and these from probe.log.
+# A take closed: (take, why). takes/record.py Recorder.close `'Combat take %s closed (%s): %s'`; watch.py runs the
+# detector on it.
+# 2026-10-21 20:45:08,925 INFO Combat take 20261021T174501Z-131 closed (changed level): {'frames': 176, ...}
+TAKE_CLOSED = re.compile(r'Combat take (\S+) closed \(([^)]*)\)')
+# The run waits for a Herald where it comes (no IDLE in it, up to its N s): (seconds). hunt.py's omens
+# `'Macro: run: a Herald comes at (%.1f, %.1f) in 5 s: the run waits for it there'`.
+# 2026-10-21 18:40:00,000 INFO Macro: run: a Herald comes at (5120.5, 4310.5) in 5 s: the run waits for it there
+HERALD_WAIT = re.compile(r'Macro: run: a Herald comes at \(.*?\) in (\d+) s: the run waits for it there')
+# The Throne's wave wait (no IDLE after it in the Throne): the hall clear, or the stand at Lister's place.
+# hunting/throne.py `waves.say('the hall is clear: waiting for the waves at the Throne')`, WAVES_STAND's goal.
+# 2026-10-21 19:12:00,000 INFO Macro: run: Throne of Destruction: the hall is clear: waiting for the waves at the Throne
+# 2026-10-21 19:12:01,000 INFO Macro: At Lister the Tormentor: the stand for the waves
+WAVES = re.compile(r'Macro: (?:run: .*waiting for the waves|.*: the stand for the waves)')
+# A strike aimed at a unit, or its line through it: (what: monster|elite, its class, its unit, its life of 128).
+# The fight's strike line (`<skill> (right click) at <the unit>, N/128`) and hunt.py's `'Macro: line through %s, %s,
+# %.1f away, ...'`.
+# 2026-10-21 18:27:48,375 INFO Macro: Echoing Strike (right click) at the monster 142 (1181201124), 126/128
+# 2026-10-21 18:27:57,919 INFO Macro: Echoing Strike (right click) at the elite 99 (730608447), 23/128
+# 2026-10-21 20:57:10,800 INFO Macro: line through the monster 673 (719323509), 27/128, 19.4 away, focal (...)
+STRIKE = re.compile(r'Macro: (?:[A-Z][\w ]*? \(\w+ click\) at|line through) the (\w+) (\d+) \((\d+)\), (\d+)/128')
+# The agenda's elite target (a pack or a Herald's leader): (class, unit, tier). hunting/choice.py.
+# 2026-10-19 09:27:40,514 INFO Macro: agenda: target the elite 279 (1817783950) (kill, tier 4, 2 leaders known here)
+ELITE_TARGET = re.compile(r'Macro: agenda: target the elite (\d+) \((\d+)\) \(\w+, tier (\d+)')
+# A jump cast: (the skill). The skill's press `'Macro: %s on %s, player mode %d'` (Teleport on t, Blade Warp on s).
+# 2026-10-21 20:57:07,300 INFO Macro: Teleport on t, player mode 1
+JUMP_CAST = re.compile(r'Macro: (Teleport|Blade Warp) on \w+, player mode \d+')
+# A jump's reason: the goal it went toward (folded), a better place in the fight, keeping range from a pack (and why).
+# teleport.py hop_to `'Teleport toward {label}: {left} left after this'`, the Blade Warp's twin, hunt.py's run line,
+# pack.py's `'Macro: Pack: keeping range: %s'`.
+# 2026-10-21 20:57:12,300 INFO Macro: Teleport toward full clear: a group of 13: 19 left after this
+# 2026-10-21 20:57:13,400 INFO Macro: run: a better place in the fight with 1 of 62 hostiles in reach, from (...)
+# 2026-10-21 18:27:49,373 INFO Macro: Pack: keeping range: extra fast: 2 of the pack on the character within 18 (...)
+JUMP_REASON = re.compile(
+    r'Macro: (?:(?:Teleport|Blade Warp) toward (.+?)(?:: \d+ left after this.*)?$|run: (a better place) in the fight'
+    r'|Pack: (keeping range)(?:: ([a-z ]+):)?)'
+)
+# The lines that name no cause for a still or a long fight (the census, gold, the shadow verdicts, the strike's line,
+# the minute's rate, the keys' echo, the level's experience): left out of `cause?:`
+NOISE = re.compile(
+    r'Macro: (?:ground: |gold pile |loot: shadow|line through |Last minute|Teleport$|Blade Warp$|\w[\w ]* on \w, player'
+    r' mode|experience: |shrine: |door .* marked|teleport aimed at |Blade Warp aimed at )'
+)
+NUMBER = re.compile(r'-?\d+(?:\.\d+)?')  # a log line's numbers, folded to N for its kind
+PLACE = re.compile(r' ?(?:at |from )?\(N(?:, N)*\)')  # a folded place or unit, '(N, N)', left out of the kind
 
 
 # --- The ground and the pickups --------------------------------------------------------------------------------------
@@ -235,6 +410,10 @@ PICKUP = re.compile(r'Macro: pickup: .*?; (.+?) at \(')
 # pattern took "X put down: its" for the name before, so the kind never counted full).
 # 2026-10-18 11:46:36,925 INFO Macro: stash: the Twisted Essence of Suffering stack is full
 FULL = re.compile(r'Macro: stash: the (.+?)(?: put down: its)? stack is full')
+# The visit's own put-down of a full stack's material (visit.py `_drops`): the census sees it lying in town after this
+# line, a drop of the loop's own like TOWN_DROP's (games.py, watch.py; since 2026-10-22 the tools keep no list of full
+# kinds of their own: the service's stash snapshot alone, game/stash.py)
+FULL_DOWN = re.compile(r'Macro: stash: the (.+?) put down: its stack is full')
 
 # Teleport casts (trade.py, speed.py, tz.py count them in the log and the takes' `log` events). teleport.py hop_to
 # `run.say(f'Teleport toward {target.label}: {left:.0f} left after this{charges}')`.
@@ -277,7 +456,19 @@ REPAIRED = re.compile(
 # 2026-10-18 16:00:12,913 INFO Macro: trade session done: cube 0 items, block 2x4 free, 9 inventory cells free, junk
 #     left 0, keys 17, portals from the Sling, staff ?, ground clear, 27.6 s (cain 3.5, stash 12.7, jamella 8.4,
 #     halbu -, walk 2.9)
-VISIT_STOPS = re.compile(r'Macro: trade session done.*\(cain (\S+), stash \S+, jamella (\S+), halbu \S+, walk \S+\)$')
+# (gamble.py's stop since 2026-10-21, before jamella: optional, older logs have none)
+VISIT_STOPS = re.compile(
+    r'Macro: trade session done.*\(cain (\S+), stash \S+, (?:gamble \S+, )?jamella (\S+), halbu \S+, walk \S+\)$'
+)
+# A gamble session's end: (bought, kept, sold, paid, back, spent). gamble.py `gamble` `'%s session done: %s'` with
+# `Gambled.said`.
+# 2026-10-21 10:30:00,000 INFO Macro: gamble: session done: 3 rings bought, 1 kept (unique Ring), 2 sold; gold paid
+#     150000, back 6000, spent 144000; carried 950000 -> 806000, personal stash 2500000 -> 2500000; 12.5 s; stop: 3
+#     rings
+GAMBLED = re.compile(
+    r'Macro: gamble: session done: (\d+) rings bought, (\d+) kept.*?, (\d+) sold; gold paid (\d+), back (\d+), '
+    r'spent (-?\d+)'
+)
 
 
 # --- The Andariel run (andy.py) --------------------------------------------------------------------------------------

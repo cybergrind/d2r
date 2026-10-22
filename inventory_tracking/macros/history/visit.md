@@ -30,6 +30,11 @@ waypoint; continue activity".
   Serpentskin Armor for page 5 needed (the 15:14 replay on 2026-10-18).
 - Probe P1 unknown: whether a Ctrl + click on a cube item in the stash's resource view takes it out; so the stash is
   closed, `unpack` run, and the stash opened again in place.
+- `KEEPER_OUT_AGAIN`: 22:34:05 on 2026-10-21 the cube's unique Sharkskin Belt and a junk Large Charm were planned out
+  together, but `unpack` (tallest first) took the charm out into the belt's 2 x 1, and the belt stayed in the cube
+  (short of the contract). A planned cube keeper still in the cube after the puts is taken out again through the room
+  they made, the stash reopened in place, once a stop (the player: "get back with clear cube and clear inventory
+  space"; "do not invent any IFs here: reuse routines").
 - Junk into the cube (`_into_cube`): 14:28 on 2026-10-18 a set Amulet kept for Jamella held the one 2 x 3 a unique
   Embossed Plate needed, and the plate stayed in the cube.
 - Junk parked on a page (`_park`): 16:35 on 2026-10-18 a junk Fuscina held the only 2 x 2 set Battle Boots could come

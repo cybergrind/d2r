@@ -48,7 +48,8 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
 
 1. **Never leave a game while a valuable the loop would pick up lies on the ground.** No restart, recovery or watchdog
    may cost loot. `runner.valuable_left` guards the loop's own exits. A restart is safe only through
-   `tools/restart.py`, which waits for the lobby (the player, 2026-10-17: "that is the exact thing we want ot avoid").
+   `tools/restart.py`, which waits for the lobby, or with `--when town|safe` for the loop's own safe point mid-game
+   (the player, 2026-10-17: "that is the exact thing we want ot avoid").
    A valuable in the read is taken **now**, not left for a trip back (the player, 2026-10-18 18:24, IMPORTANT: "we left
    Ko rune on ground and moved away"): on the loop's Teleport run a valuable Teleport reaches within
    `hunt.LOOP_PICK_SECONDS` is a side goal whatever the walk round a wall; the sightings' trip back is only the net.
@@ -110,12 +111,13 @@ Switches for a change under test are module constants with a dated comment (e.g.
 | Tool | What it does |
 | --- | --- |
 | `watch.py` | Follows the newest `runs/alt-d/*/probe.log` across restarts. Prints one line per game (seconds, legs over 25 s, cube/stash/shop notes), and a `MISSED:` line for each valuable of the game never picked up. At once: stops, recoveries ("the game is left"), guard stops, identify verdicts, sales, repairs, errors, tracebacks, `PLAYER: loop on/off`, and `STALL` after `--stall` s with no leg and no teleport, kill or pickup while on, or one leg past 300 s (`LONG_LEG`). A re-armed watch reads the current log quietly first. |
-| `restart.py --loop on\|off\|keep [--kind andariel\|lk]` | Waits for a safe moment: at once if the loop is off, else the next `next game` leg (the lobby). Then it writes `runs/alt-d/restart.request` and confirms the new service's `resumed after a restart` line. Exit 1: no safe moment, nothing written. Exit 2: no resume seen. |
+| `restart.py --loop on\|off\|keep [--kind andariel\|lk] [--when lobby\|town\|safe]` | Waits for a safe moment: at once if the loop is off, else the next `next game` leg (the lobby; `--when lobby`, the default). `--when town\|safe`: mid-game, the game goes on (Restart below). Then it writes `runs/alt-d/restart.request` and confirms the new service's `resumed after a restart` line. Exit 1: no safe moment, nothing restarted. Exit 2: no resume seen. |
 | `kind.py andariel\|lk\|tz\|tzclear` | Switches the loop's kind without a restart (`loop-kind` request, runner.py `choose_kind`): at once with the loop off, else from the next game. The card says `Loop run: <kind>[ from the next game]`; a restart keeps it. |
 | `andy.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-takes] [--json]` | **Andariel kills an hour of play** and the kill-to-kill cycle by phase (loot, next game, town/prebuff, waypoint, Catacombs 2 arrival, each level's run to the stairs and press, Catacombs 4 arrival to in reach, in reach to dead, trade sessions, recoveries); walks on the down levels; the fight per take; `--against` with a 90% bootstrap interval. About 9 s for 2 h. |
 | `games.py [--since 'YYYY-MM-DD HH:MM'] [--last N] [--sessions DIR...] [--json]` | Games, games an hour, median/p90, each leg, slowest games, every recovery, stop and error, what was done, **MISSED** valuables, what is left by design. |
 | `speed.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-towns]` | The Lower Kurast run: chests an hour (YIELD), where a stay's time goes (standing / casting / moving, stall reasons by log line, legs against Blade Warp's pace), inactive time in town and on the level. |
 | `trade.py [--since ..] [--until ..]` | Items identified by base and verdict, junk sold and its gold, gold an hour of play and a second of trade time, payback by kind (under 1 over 20+ items: leave that kind on the ground). |
+| `anomalies.py <take>... \| --since 'YYYY-MM-DD HH:MM' [--summary] [--json]` | A closed take's anomalies, one `ANOMALY: <kind> <take> <from-to> <s>s: <facts>; cause?: <log kinds>` line each: **IDLE** (≥ 8 s with no move, no strike, no kill and no hostile hurt in a field level with the loop on; not town, lobby, a panel, the Throne's wave wait, a Herald's wait while none is near), **LONG_FIGHT** (one target struck at > 30 s, or an elite's pack: its class, life over time, casts a second, jumps), **JUMP_CLUSTER** (≥ 6 jumps in 15 s within 25 of their centroid, ≤ 1 kill, ≥ 5 s: their reasons). Thresholds as flags. watch.py runs it on each take that closes. Baseline: `rca/2026-10-21/anomalies-baseline.md`. |
 | `logwords.py` | The shared log patterns of watch/games/andy (a log line changed in code is changed here, and its test). |
 
 Deeper: `python -m inventory_tracking.takes.legs <take>...`; `.agents/skills/d2-rca/tools/session.py` (`log`, `idle`,
@@ -129,7 +131,8 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 2. Check the state: `games.py --last 15` (or `andy.py --since <last restart>`) and the tail of the newest `probe.log`.
    Is serve up? Is the loop on, which kind? Who turned it off?
 3. Arm the watch with the Monitor tool, `timeout_ms: 1800000`, description "KP_6 loop: games, stops, stalls":
-   `cd <repo> && python3 -u .agents/skills/d2-loop-watch/tools/watch.py 2>&1`. A monitor lives at most 30 minutes; on
+   `cd <repo> && python3 -u .agents/skills/d2-loop-watch/tools/watch.py 2>&1` (it also says each closed take's
+   `ANOMALY:` lines). A monitor lives at most 30 minutes; on
    its expiry notice re-arm it the same way, without asking. One watch at a time: TaskStop the old one first.
 4. If the loop is off and the player asked to start it: `restart.py --loop on --kind andariel` (it needs the character
    in a game or the lobby, and the game window as the player left it).
@@ -154,6 +157,7 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 | `Show Items was off before the level run: turned on` / `Show Items stays off` | Rule 2. The second stops the run: check `osd.log` and the key binding. |
 | `PLAYER: loop off` | Rule 7. Say where any valuable lies; finish notes; keep watching. |
 | `== following ...` | A new service: expect `resumed after a restart: loop on, ..., run Andariel`. |
+| `ANOMALY: IDLE\|LONG_FIGHT\|JUMP_CLUSTER <take> ...` | The player, 2026-10-21 ~21:08: "do automatic searching-rca-fixing loop for all cases where we wereen't active for a long time". RCA the case: the take's frames in the window (`anomalies.py <take> --json`, `d2-rca/tools/session.py idle\|unit <take>`), the probe.log lines at its local times; `cause?:` is a hint, not the cause. Then **Fix** via an agent (Develop). The same kind seen twice with the same cause is a **Fix** ahead of speed work. Waits by design (an inventory-full stand while a stop is due, the loop's own wait) are noted, not fixed. |
 
 ## Fix (rounds of the improvement loop)
 
@@ -214,6 +218,25 @@ root, with `timeout 600` (TZ games run 4-7 min: pass `--wait 1200` and `timeout 
 game before is finished ("reload on the next town visit" means this). The watch follows the new log by itself.
 After it: the journal line (time, session id, what went live, what did not), and tell the player what is live. With
 the loop off by the player, a restart keeps it off (`--loop keep`) unless the player asked otherwise.
+
+**Mid-game** (the player, 2026-10-21 ~14:50: "pick new code in the middle of the act run, without save/exit, just
+continue"; a shard's act game is ~45 min): `restart.py --loop on --when safe` (or `--when town`), with `timeout 600`.
+The request goes at once with `"when"`; the service holds it (`a restart waits for a safe point`) and the loop stands
+at its next safe point between two legs (`Macro: loop: safe point: <where>, <game>`; the refusals as `no safe point
+for the restart yet: <why>`), the service restarts, and the new one goes on in the same game (`Macro: loop: game
+<game> taken up after a restart: N s into it, ...`), no Save and Exit, no new shard. A safe point (macros/midgame.py
+`refusal`): the lobby; or the character alive, no panel open, no Gheed's swap, nothing due (room in the cube, an item
+dropped for room, a fight back, a game given up, a visit cut short, a trip for room), and then a town (`town`, `safe`:
+a room package's town legs are carried), or for `safe` a field level with no hostile within 30, no valuable in the read
+or remembered on the level and no package under way (a level whose run ended). Past `--wait` the hold is cancelled
+and nothing restarts (exit 1); the player's KP_6 off meanwhile restarts with the loop off. `--kind` with `--when` is the
+kind from the next game. Carried (keyed by the game's name and the character's unit id, taken up at the first leg in
+that game, never in a new one): the agenda (the shard's outcome and acts, levels run, done, entered, mapped, explored,
+blocked, the package on the stack, chests opened, goals dropped), the route facts, the game's clock (ACT_SECONDS goes
+on), the trips and visit marks, the visit's put-down count, the sightings, the kind playing and the one asked next.
+Re-derived: the zone's facts (zone-facts.json), the bosses killed (terror-games.json), the volatile cells, the plan.
+The same game state rides every restart, so a restart with the loop off mid-game (after a stop) no longer loses the
+shard's act either. The character stands ~7 s while the service restarts: `make osd` keeps healing.
 
 ## Speed: analyse and optimise (every hour of play)
 

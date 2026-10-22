@@ -395,3 +395,131 @@ def test_an_item_the_players_by_its_stats_is_never_sold():
     assert play.pack is not None
     assert junk in play.pack.items
     assert dict(play.loot.stats)[14] == 500_000
+
+
+# Healing potions bought into the belt (shop.py BUY_POTIONS; the player, 2026-10-21 ~13:38: "can we also add into town
+# routine ability to buy hp potions"). Columns 1-2 rejuvenation, 3-4 healing (config BELT); cell = row x 4 + column
+
+
+SUPER, GREATER, FULL_REJUVENATION = 606, 605, 531  # d2data misc.json classid of hp5, hp4, rvl
+
+
+def belt(healing: int) -> tuple[int | None, ...]:
+    """Both rejuvenation columns full, `healing` Super Healing Potions in the healing columns (column 3 first)."""
+    cells: list[int | None] = [None] * 16
+    for row in range(4):
+        cells[4 * row], cells[4 * row + 1] = FULL_REJUVENATION, FULL_REJUVENATION
+    for n in range(healing):
+        cells[4 * (n % 4) + 2 + n // 4] = SUPER
+    return tuple(cells)
+
+
+POTION_STOCK = (Stocked(GREATER, 3, 0, 0), Stocked(SUPER, 3, 1, 0))  # Hell's Jamella: hp4 upgraded to hp5 (HellUpgrade)
+
+
+def potion_shop(healing: int = 5, gold: int = 500_000, stock: tuple[Stocked, ...] = POTION_STOCK):
+    from inventory_tracking.game.records import Loot
+
+    play = fortress(keys=24, portals=20)
+    assert play.pack is not None
+    play.pack = replace(play.pack, key_room=False)  # nothing else to buy
+    play.stock = (*STOCK, *stock)
+    play.loot = Loot(belt=belt(healing), life=2907, max_life=2907, stats=((12, 95), (14, gold)), game=('g', 7))
+    return play
+
+
+def potion_buys(play) -> list:
+    return [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' not in e[3]]
+
+
+def test_a_short_belt_is_topped_up_with_the_best_healing_potion_she_sells(caplog):
+    play = potion_shop(healing=5)
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.loot.belt == belt(8)  # three Super Healing Potions into the healing columns
+    assert play.potions_bought == 3
+    assert all(play.stock_cell(*e[2]) == (1, 0) for e in potion_buys(play))  # the Super's cell, not the Greater's
+    assert dict(play.loot.stats)[14] == 500_000 - 3 * 450
+    assert 'Macro: shop: potions: belt short 3 -> 0, bought 3 Super Healing Potion for 1350 gold' in caplog.text
+
+
+def test_a_full_belt_buys_no_potion():
+    play = potion_shop(healing=8)
+
+    restock(play.run())
+
+    assert not potion_buys(play)
+    assert play.potions_bought == 0
+
+
+def test_gold_under_the_reserve_buys_no_potion(caplog):
+    # A vendor takes what the carried gold does not cover from the stash's (repair.py GOLDBANK): never come near it
+    play = potion_shop(healing=2, gold=101_000)
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert not potion_buys(play)
+    assert 'Macro: shop: potions: belt short 6, none bought: carried gold 101000, 100000 kept' in caplog.text
+
+
+def test_unread_gold_or_an_unread_belt_buys_no_potion():
+    play = potion_shop(healing=2)
+    play.loot = replace(play.loot, stats=((12, 95),))
+    restock(play.run())
+    assert not potion_buys(play)
+
+    play = potion_shop(healing=2)
+    play.loot = replace(play.loot, belt_read=False)
+    restock(play.run())
+    assert not potion_buys(play)
+
+
+def test_a_vendor_without_healing_potions_sells_none(caplog):
+    play = potion_shop(healing=2, stock=())
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert not potion_buys(play)
+    assert 'Macro: shop: potions: belt short 6, none bought: no healing potion in her stock' in caplog.text
+
+
+def test_the_switch_off_buys_no_potion_as_before(monkeypatch):
+    monkeypatch.setattr('inventory_tracking.macros.shop.BUY_POTIONS', False)
+    play = potion_shop(healing=2)
+
+    restock(play.run())
+
+    assert not potion_buys(play)
+    assert play.loot.belt == belt(2)
+
+
+def test_a_potion_that_lands_in_the_inventory_ends_the_buying(caplog):
+    # A belt with fewer rows than read, or the game's own choice: one potion at most past what the belt takes
+    play = potion_shop(healing=2)
+    play.potion_lands = lambda cells, txt: None  # never into the belt
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.potions_bought == 1
+    assert play.pack is not None
+    assert [i.txt for i in play.pack.items].count(SUPER) == 1
+    assert 'bought 1 Super Healing Potion for 450 gold: one landed in the inventory' in caplog.text
+
+
+def test_a_potion_that_lands_in_a_rejuvenation_column_ends_the_buying(caplog):
+    play = potion_shop(healing=2)
+    cells = list(belt(2))
+    cells[0::4] = [None] * 4  # column 1 empty: the game may put a healing potion there
+    play.loot = replace(play.loot, belt=tuple(cells))
+    play.potion_lands = lambda cells, txt: 0
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.potions_bought == 1
+    assert 'bought 1 Super Healing Potion for 450 gold: one landed in belt column 1, not a healing' in caplog.text

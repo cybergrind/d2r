@@ -6,7 +6,9 @@ Run: PYTHONPATH=. uv run --offline python -m inventory_tracking.combat.mechanics
 Bundled: the Warlock skills and blade missiles; every monster's Hell level, HP percentages, defence and
 resistances (monstats, by *hcIdx); monlvl's Hell columns; each area's Hell monster level; the enchantment
 missiles, monumod's constants and the Terror Zone Herald tiers (sim/monsters.py); `harmless_missiles`
-(takes/hurts.py). A regular monster's points are the area level's HP(H) times its MinHP(H)..MaxHP(H) percent.
+(takes/hurts.py); `terror`, Hell's Terror Zone monster level rule and the levels it can hold (mechanics/life.py).
+A regular monster's points are the area level's HP(H) times its MinHP(H)..MaxHP(H) percent; a terrorized level's
+monsters take the Terror Zone's level instead of the area's (`level`).
 """
 
 import argparse
@@ -40,6 +42,9 @@ MONSTER_FIELDS = (
     # How it moves and strikes (sim/monsters.py): the AI and its parameters, the attacks' damage and to-hit.
     'AI', 'aidel(H)', 'aidist(H)', 'aip1(H)', 'aip2(H)', 'aip3(H)', 'aip4(H)', 'aip5(H)', 'isMelee',
     'A1MinD(H)', 'A1MaxD(H)', 'A1TH(H)', 'A2MinD(H)', 'A2MaxD(H)', 'A2TH(H)',
+    # A demon (1): what Bind Demon (skills.txt 382) can take (builds/warlock/bind.py, 2026-10-21; the 189 rows were
+    # added to the bundle from pricing/raw/game-excel/monstats.txt, which matches the bundle's other columns)
+    'demon',
 )  # fmt: skip
 # monumod.txt's constants (a second table in the file's last columns), by their description: Hell's.
 UNIQUE_CONSTANTS = {
@@ -69,6 +74,16 @@ def pick(row: dict[str, str], fields) -> dict[str, str]:
     return {field: row[field] for field in fields if row.get(field, '') != ''}
 
 
+def terror_levels(found: Any) -> set[int]:
+    """The level ids of every DesecratedLevel in a part of desecratedzones.json (its zones, its manual zones)."""
+    if isinstance(found, dict):
+        own = {found['level_id']} if found.get('type') == 'DesecratedLevel' else set()
+        return own.union(*(terror_levels(value) for value in found.values()))
+    if isinstance(found, list):
+        return set().union(*(terror_levels(value) for value in found))
+    return set()
+
+
 def build(install: Path) -> dict[str, Any]:
     from terror_zones.game_files import GameFiles
 
@@ -88,6 +103,14 @@ def build(install: Path) -> dict[str, Any]:
         }
         for tier, row in enumerate(hell['defaults']['herald_tiers'], 1)
     }
+    zone = json.loads(ZONES.read_text())['desecrated_zones'][0]
+    terror = {
+        'bound_min': hell['defaults']['bound_incl_min'],
+        'bound_max': hell['defaults']['bound_incl_max'],
+        'boost_level': hell['defaults']['boost_level'],
+        'modifiers': sorted({row['unique_mod'] for row in hell['always_unique_mod_pool']}),
+        'levels': sorted(terror_levels(zone['zones']) | terror_levels(zone['manual_zones'])),
+    }
     difficulty = next(r for r in rows(game, 'difficultylevels') if r['Name'] == 'Hell')
     unique = {name: [constants[text] for text in texts] for name, texts in UNIQUE_CONSTANTS.items()}
     unique.update((name, [int(difficulty[column])]) for name, column in RANK_DAMAGE.items())
@@ -104,6 +127,7 @@ def build(install: Path) -> dict[str, Any]:
         'harmless_missiles': sorted(own | inert),
         'unique': unique,
         'heralds': heralds,
+        'terror': terror,
         'source': f'D2R install {install.name}: data/global/excel skills, missiles, monstats, monlvl, levels, monumod',
         'skills': {str(sid): pick(skills[sid], SKILL_FIELDS) for sid in SKILLS},
         'missiles': {str(mid): pick(missiles[mid], MISSILE_FIELDS) for mid in MISSILES},
@@ -123,27 +147,29 @@ def area_level(area: int) -> int | None:
     return int(found) if found else None
 
 
-def monster_points(txt_id: int, area: int) -> tuple[int, int] | None:
-    """(least, most) life points of a regular monster of `txt_id` in `area` on Hell: the area's
-    monster level row of monlvl scaled by the monster's HP percent range; None when unknown."""
+def monster_points(txt_id: int, area: int, level: int | None = None) -> tuple[int, int] | None:
+    """(least, most) life points of a regular monster of `txt_id` in `area` on Hell: the monster level's row of
+    monlvl (the area's, or `level` when given: a Terror Zone's, mechanics/life.py) scaled by the monster's HP percent
+    range; None when unknown."""
     monster = tables()['monsters'].get(str(txt_id))
-    level = area_level(area)
+    level = level or area_level(area)
     if monster is None or level is None or not monster.get('MinHP(H)'):
         return None
     base = int(tables()['monlvl'][str(level)]['HP(H)'])
     return base * int(monster['MinHP(H)']) // 100, base * int(monster['MaxHP(H)']) // 100
 
 
-def default_points(area: int) -> float:
-    """A monster without a monstats row: the area level's base points (100%)."""
-    level = area_level(area)
+def default_points(area: int, level: int | None = None) -> float:
+    """A monster without a monstats row: the monster level's base points (100%), the area's unless `level`."""
+    level = level or area_level(area)
     return float(tables()['monlvl'][str(level)]['HP(H)']) if level else 0.0
 
 
-def points_of(txt_id: int, area: int) -> float:
-    """Life points of a monster at full health for the models: the mean of its range, else the area's base."""
-    found = monster_points(txt_id, area)
-    return sum(found) / 2 if found else default_points(area)
+def points_of(txt_id: int, area: int, level: int | None = None) -> float:
+    """Life points of a monster at full health for the models: the mean of its range, else the base points; at the
+    area's monster level, or at `level` when given."""
+    found = monster_points(txt_id, area, level)
+    return sum(found) / 2 if found else default_points(area, level)
 
 
 def main(argv=None) -> int:

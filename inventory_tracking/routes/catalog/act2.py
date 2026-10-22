@@ -1,9 +1,36 @@
 """Act 2 routes (levels/routes.md)."""
 
+from inventory_tracking.levels.handlers.tal_rasha import DURIEL
 from inventory_tracking.routes.model import Route, back, enter, fight, leave, level, loot, tour, use
 
 
 TOMBS = (66, 67, 68, 69, 70, 71, 72)
+DURIELS_LAIR = 73
+
+
+def tombs(duriel: bool = DURIEL) -> Route:
+    """The Canyon cleared first (a full clear's rest of the level comes before the route's goal), then its seven tombs
+    one by one, the nearest not yet entered first, each cleared and left by its way back (the player, 00:45 on
+    2026-10-18: "for canyon of the magi loop: we should go through every tomb one by one"; "Canyon first, then tombs").
+    A tomb's own script is its way back alone: a full clear does the tomb before it, and a `clear` stage is never done.
+
+    `duriel` (levels/handlers/tal_rasha.py DURIEL, 2026-10-21): each tomb's way on is the Orifice's portal into
+    Duriel's Lair first, done where the tomb has no Orifice (its mark absent: routes/progress.py `done`), so only the
+    true tomb's run goes into the lair, whichever tomb it is; Duriel fought there, his loot, the game's end or the
+    Town Portal back to the tour (macros/tzroutine.py `produce`). The player, 2026-10-20 ~22:50: "toms ... -> duriel ->
+    rest of tombs"."""
+    way_in = (use('Orifice', DURIELS_LAIR),) if duriel else ()
+    lair = (level(DURIELS_LAIR, fight('Duriel', 'Duriel'), loot(), leave()),) if duriel else ()
+    return Route(
+        "Tal Rasha's Tombs",
+        (46,),
+        (
+            level(46, tour('Tomb', TOMBS), loot(), leave()),
+            *(level(tomb, *way_in, back('Canyon of the Magi', 46)) for tomb in TOMBS),
+            *lair,
+        ),
+    )
+
 
 ROUTES = [
     Route(
@@ -60,19 +87,7 @@ ROUTES = [
             level(61, fight('Fangskin', 'Fangskin'), loot(), leave()),
         ),
     ),
-    # The canyon cleared first (a full clear's rest of the level comes before the route's goal), then its seven tombs
-    # one by one, the nearest not yet entered first, each cleared and left by its way back (the player, 00:45 on
-    # 2026-10-18: "for canyon of the magi loop: we should go through every tomb one by one"; "Canyon first, then
-    # tombs"). A tomb's own script is its way back alone: a full clear does the tomb before it, and a `clear` stage is
-    # never done.
-    Route(
-        "Tal Rasha's Tombs",
-        (46,),
-        (
-            level(46, tour('Tomb', TOMBS), loot(), leave()),
-            *(level(tomb, back('Canyon of the Magi', 46)) for tomb in TOMBS),
-        ),
-    ),
+    tombs(),
     Route(
         'Summoner',
         (40, 52, 74),

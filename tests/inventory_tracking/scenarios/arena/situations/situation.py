@@ -54,10 +54,18 @@ from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO
 from tests.inventory_tracking.scenarios.arena.driver import Press
 from tests.inventory_tracking.scenarios.arena.kp4 import Mark, RoutePlay
-from tests.inventory_tracking.scenarios.arena.mobs import AURA_MOD
+from tests.inventory_tracking.scenarios.arena.mobs import AURA_MOD, sure_swings
 from tests.inventory_tracking.scenarios.arena.scene import Drop, Mob, Prop, Scene
 from tests.inventory_tracking.scenarios.arena.situations.bestiary import name_of, txt_of
-from tests.inventory_tracking.scenarios.arena.situations.stage import ARENA_AWARE, Hurt, Spawn, Stage, Tick, awareness
+from tests.inventory_tracking.scenarios.arena.situations.stage import (
+    ARENA_AWARE,
+    Hurt,
+    Orders,
+    Spawn,
+    Stage,
+    Tick,
+    awareness,
+)
 
 
 FIXTURES = Path(__file__).parent / 'fixtures'
@@ -258,6 +266,31 @@ class Situation:
     # `logic('today')` off; None the build's default, on as the live loop plays (2026-10-19, batch E). Not part of the
     # file: a fixture is the moment, and each of its variants says which logic plays it.
     pursuit: bool | None = None
+    # The arena's rules this situation plays by (game.py RULES: the sigil slows, pets fight, bodies block); () none,
+    # as every situation before 2026-10-21
+    rules: tuple[str, ...] = ()
+    # Battle Orders up from the start and run out at its time (stage.py `Orders`); None: not played, as every situation
+    # before 2026-10-22
+    orders: Orders | None = None
+    # Teleport of the character's own (Enigma: stage.py `own_teleport`); None: not read, as before
+    own_teleport: bool | None = None
+    # Types played hand to hand though the threat table calls them ranged (stage.py `melee`); () none, as before
+    melee: tuple[int, ...] = ()
+    # The auras by unit (stage.py `auras`: the factor on the others' blows); None: mobs.py's default, as before
+    auras: dict[int, float] | None = None
+    # Each melee blow cut at the game's most for its monster (stage.py `capped`); False: the fitted spread's tail
+    capped: bool = False
+    # The character's defence and level: melee swings hit with the game's chance (stage.py `defence`, mobs.py
+    # `Mobs.landing`); None: the fitted chance, as every situation before 2026-10-22
+    defence: tuple[float, int] | None = None
+    # The character's chance to block a melee blow (stage.py `block`); None: game.py's BLOCK_CHANCE, as before
+    block: float | None = None
+    # Units a second by monster type (stage.py `speeds`, the takes' pace); None: the model's, as before 2026-10-22
+    speeds: dict[int, float] | None = None
+    # The client's life read every `life_read` s (stage.py `life_read`); None: the tick's life, as before 2026-10-22
+    life_read: float | None = None
+    # Each unit's damagepercent (stat 25) as the take read it (mobs.py `damage_percent`); None: `auras`, as before
+    damage_percent: dict[int, list[tuple[float, float]]] | None = None
 
     # -- built by hand ----------------------------------------------------------------------------------
 
@@ -380,13 +413,15 @@ class Situation:
         self.scene.drops.append(Drop(self.unit(), label, self.spot(at)))
         return self
 
-    def companions(self, *offsets: Point, txt: int = 338) -> Situation:
+    def companions(self, *offsets: Point, txt: int = 338, life: float | None = None) -> Situation:
         """Companions of the character's at the offsets. The arena's companions stand, are never hurt and
-        deal nothing: they are only someone else a monster may go for. `txt` 338 is the mercenary's row in
+        deal nothing: they are only someone else a monster may go for (but with the arena's rule PETS_FIGHT,
+        game.py, where a demon has `life` points, its most life too). `txt` 338 is the mercenary's row in
         the Vizier fixture (unit 3830005408 of take 20261013T060607Z-108)."""
+        points = 128.0 if life is None else float(life)
         for offset in offsets:
             unit = self.unit()
-            self.scene.mobs.append(Mob(unit, txt, self.spot(offset), 0, 128.0, 128.0, owner=1, ally=True))
+            self.scene.mobs.append(Mob(unit, txt, self.spot(offset), 0, points, points, owner=1, ally=True))
         return self
 
     def thing(self, txt: int, *, at: Point, mode: int = 0) -> int:
@@ -435,10 +470,13 @@ class Situation:
         if self.attack:
             given.insert(0, Press(0.0, ATTACK))
         watch = [unit for unit, _ in self.bosses]
-        with awareness(self.aware):
+        with awareness(self.aware), sure_swings(self.defence is not None):
             arena = Stage(
                 self.scene, seed=seed, osd=PLAYER_HEALING if healer else None, spawns=self.spawns,
-                curses=self.curses, aware=self.aware, lands=self.lands, watch=watch,
+                curses=self.curses, aware=self.aware, lands=self.lands, watch=watch, rules=self.rules,
+                orders=self.orders, own_teleport=self.own_teleport, melee=self.melee, auras=self.auras,
+                capped=self.capped, defence=self.defence, block=self.block, speeds=self.speeds,
+                life_read=self.life_read, damage_percent=self.damage_percent,
             )  # fmt: skip
             play = RoutePlay(arena, given, seconds, seed, self.marks, self.opened, self.bosses, self.as_it_was)
             if self.pursuit is not None:
@@ -571,6 +609,29 @@ def dump(situation: Situation, path: Path) -> None:
         'aware': situation.aware,
         'lands': {str(txt): chance for txt, chance in situation.lands.items()},
         'recorded': situation.recorded,
+        **({'rules': list(situation.rules)} if situation.rules else {}),  # none: the fixtures written before them
+        **({'orders': asdict(situation.orders)} if situation.orders is not None else {}),
+        **({'own_teleport': situation.own_teleport} if situation.own_teleport is not None else {}),
+        **({'melee': list(situation.melee)} if situation.melee else {}),
+        **(
+            {'auras': {str(unit): factor for unit, factor in situation.auras.items()}}
+            if situation.auras is not None
+            else {}
+        ),
+        **({'capped': True} if situation.capped else {}),
+        **({'defence': list(situation.defence)} if situation.defence is not None else {}),
+        **({'block': situation.block} if situation.block is not None else {}),
+        **({'speeds': {str(txt): pace for txt, pace in situation.speeds.items()}} if situation.speeds else {}),
+        **({'life_read': situation.life_read} if situation.life_read is not None else {}),
+        **(
+            {
+                'damage_percent': {
+                    str(unit): [list(row) for row in rows] for unit, rows in situation.damage_percent.items()
+                }
+            }
+            if situation.damage_percent is not None
+            else {}
+        ),
         'scene': scene_file._plain(situation.scene),
     }
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
@@ -606,4 +667,22 @@ def load(path: Path) -> Situation:
         assumed=dict(data['assumed']),
         source=data['source'],
         recorded=data['recorded'],
+        rules=tuple(data.get('rules', ())),
+        orders=Orders(**data['orders']) if data.get('orders') else None,
+        own_teleport=data.get('own_teleport'),
+        melee=tuple(data.get('melee', ())),
+        auras={int(unit): float(factor) for unit, factor in data['auras'].items()} if 'auras' in data else None,
+        capped=bool(data.get('capped', False)),
+        defence=(float(data['defence'][0]), int(data['defence'][1])) if data.get('defence') else None,
+        block=data.get('block'),
+        speeds={int(txt): float(pace) for txt, pace in data['speeds'].items()} if data.get('speeds') else None,
+        life_read=data.get('life_read'),
+        damage_percent=(
+            {
+                int(unit): [(float(at), float(value)) for at, value in rows]
+                for unit, rows in data['damage_percent'].items()
+            }
+            if 'damage_percent' in data
+            else None
+        ),
     )

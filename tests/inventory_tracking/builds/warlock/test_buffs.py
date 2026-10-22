@@ -17,12 +17,14 @@ from inventory_tracking.builds.warlock.buffs import (
     WARD_SECONDS,
     Rotation,
     consume_due,
+    engorge_on_a_key,
     purge_shown,
     ward_shown,
 )
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.mark import MARK_DELAY, mark_due, strongest
 from inventory_tracking.builds.warlock.skills import (
+    BIND_DEMON,
     CONSUME,
     DEATH_MARK,
     ENGORGE,
@@ -115,14 +117,18 @@ def test_the_plan_casts_each_phase_in_the_order_the_hunt_and_the_prebuff_had():
         # summons one of its own), before Death Mark under the strike (the mark sends it)
         # Battle Orders from a Call to Arms first, out of town (macros/cta.py, 2026-10-17)
         'upkeep': [BATTLE_ORDERS, HEX_PURGE, PSYCHIC_WARD, CONSUME, SUMMON_DEFILER],
-        'fight': [HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, DEATH_MARK, SIGIL_LETHARGY, ENGORGE],
+        # Bind Demon again in a tier 4-5 Herald pack fight (builds/warlock/bind.py, 2026-10-21); Engorge first for a pet
+        # in danger or among a dangerous pack (buffs.py `engorge_first`, 2026-10-21), the lazy one last
+        'fight': [ENGORGE, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, DEATH_MARK, BIND_DEMON, SIGIL_LETHARGY, ENGORGE],
     }
     assert [(row.skill, row.phase, row.caster) for row in BUFFS if row.caster] == [
         (CONSUME, 'prebuff', 'defiler dance'),
         (BATTLE_ORDERS, 'upkeep', 'cta'),
         (CONSUME, 'upkeep', 'consume'),
         (SUMMON_DEFILER, 'upkeep', 'defiler'),
+        (ENGORGE, 'fight', 'engorge'),
         (SUMMON_DEFILER, 'fight', 'defiler'),
+        (BIND_DEMON, 'fight', 'bind'),
         (SIGIL_LETHARGY, 'fight', 'sigil'),
         (ENGORGE, 'fight', 'engorge'),
     ]
@@ -248,7 +254,7 @@ def test_engorge_with_no_corpse_in_reach_touches_nothing_and_looks_again_after_t
     play = game()
     buffs, run = Buffs(ECHOING_STRIKE_BUILD), play.run()
     run.corpses = lambda: ((91, 5000.0 + ENGORGE_REACH + 1.0, 5000.0),)
-    row = next(row for row in BUFFS if row.skill == ENGORGE)
+    row = next(row for row in BUFFS if row.skill == ENGORGE and row.due is engorge_on_a_key)
     demon = Monster(20, 744, 1, 5004.0, 5000.0, 1, ally=True, life=60, max_life=100)
     seen = replace(play.world, monsters=(demon,))
     play.clock.now = 50.0

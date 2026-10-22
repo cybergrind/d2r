@@ -368,7 +368,7 @@ Each row is one route: where it may start, then each level with its stages in or
 | Maggot Lair | Far Oasis | Far Oasis: enter Maggot Lair<br>Maggot Lair 1: enter Next level<br>Maggot Lair 2: enter Next level<br>Maggot Lair 3: fight Coldworm the Burrower → loot → leave |
 | Ancient Tunnels | Lost City | Lost City: enter Ancient Tunnels<br>Ancient Tunnels: use Chest → loot → leave |
 | Claw Viper Temple | Lost City | *Lost City*: enter Valley of Snakes<br>Valley of Snakes: enter Claw Viper Temple<br>Claw Viper Temple 1: enter Next level<br>Claw Viper Temple 2: fight Fangskin → loot → leave |
-| Tal Rasha's Tombs | Canyon of the Magi | Canyon of the Magi: tour Tomb → loot → leave<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi |
+| Tal Rasha's Tombs | Canyon of the Magi | Canyon of the Magi: tour Tomb → loot → leave<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Tal Rasha's Tomb: use Orifice → back to Canyon of the Magi<br>Duriel's Lair: fight Duriel → loot → leave |
 | Summoner | Lut Gholein, Palace Cellar 1, Arcane Sanctuary | Harem 1: enter Harem 2<br>Harem 2: enter Palace Cellar 1<br>Palace Cellar 1: enter Palace Cellar 2<br>Palace Cellar 2: enter Palace Cellar 3<br>Palace Cellar 3: use Arcane Sanctuary<br>Arcane Sanctuary: fight The Summoner → loot → leave |
 | Harem | Palace Cellar 1 | *Palace Cellar 1*: enter Harem 2<br>*Harem 2*: enter Harem 1<br>*Harem 1*: loot → leave |
 | Sewers 1 | Sewers 2 | *Sewers 2*: enter Sewers 1<br>*Sewers 1*: loot → leave |
@@ -434,6 +434,7 @@ Chaos Sanctuary (River of Flame), Eldritch and Shenk (Frigid Highlands; the macr
 these), Pindleskin (the macro request), Nihlathak (Halls of Pain), Baal (Worldstone Keep 2), and
 the hell pits and ice caves of act 5.
 
-Left out on purpose: Duriel (needs the staff; his lair is in no Herald group), the Cow Level, the
+Left out on purpose: Duriel (needs the staff; his lair is in no Herald group; since 2026-10-21 on the Tal
+Rasha's Tombs route, entered by the true tomb's Orifice: levels/handlers/tal_rasha.py DURIEL), the Cow Level, the
 Arreat Summit (the Ancients are a one-time quest), Uber Tristram and the Pandemonium runs.
 

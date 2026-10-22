@@ -23,12 +23,16 @@ from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import Choice
 from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.game.records import HEALING, VALUABLE, Drop, Monster, Player, Teleport, World
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
+    HELD_NUDGES,
+    HELD_UP,
     MISSES_IN_A_ROW,
     NEARING_SECONDS,
+    NO_HARM_SECONDS,
     QUIET_UNITS,
     RUN_IN_PLACE,
     STRIKE_REACH,
@@ -676,6 +680,45 @@ def test_a_water_watcher_under_the_water_is_no_hostile():
     # all"): tentacle2 (259) and tentaclehead2 (262) struck 4 times each for nothing; a frog demon (247) is fought
     foes = tuple(foe(unit, 5001.0, 5001.0, txt_id=txt) for unit, txt in enumerate((258, 259, 263, 247), 1))
     assert [m.txt_id for m in hostiles(world(monsters=foes))] == [247]
+
+
+def test_what_the_game_says_cannot_be_attacked_is_no_hostile():
+    # Flayer Jungle, 16:54:56 on 2026-10-21 (the player: "we're often struggling with trying to kill enemies for
+    # extended periods of time, but actually we're not even hitting them"): an elite Slime Prince (249) submerged in
+    # the bog, mode 14, flag word 0x30000001, took 63 casts (rca/2026-10-21/no-hits-findings.md W1). The word's bit
+    # 0x04 decides where it was read: a fetish shaman's mode 14 (0xf) is a sequence like any other
+    submerged = replace(foe(1, 5001.0, 5001.0, txt_id=249, unit_flags=0x30000001), mode=14)
+    surfaced = foe(2, 5001.0, 5001.0, txt_id=249, unit_flags=0xF)
+    shaman = replace(foe(3, 5001.0, 5001.0, txt_id=279, unit_flags=0xF), mode=14)
+    bird = replace(foe(4, 5001.0, 5001.0, txt_id=113, unit_flags=0x1), mode=2)  # landing, still in the air for the game
+    flayer = replace(foe(5, 5001.0, 5001.0, txt_id=143, unit_flags=0xF), mode=2)
+    found = hostiles(world(monsters=(submerged, surfaced, shaman, bird, flayer)))
+    assert [m.unit_id for m in found] == [2, 3, 5]
+
+
+@pytest.mark.parametrize(('flags', 'stopgap', 'struck'), [(None, True, [2, 3]), (None, False, [1, 2, 3])])
+def test_a_frog_under_the_bog_is_no_hostile_where_the_flag_word_was_not_read(monkeypatch, flags, stopgap, struck):
+    # A replay's frames and the tests' monsters carry no flag word: frogdemon1-3 (247-249) in mode 14 are the stopgap's
+    from inventory_tracking.macros.hunting import base
+
+    monkeypatch.setattr(base, 'FROGS_SUBMERGED', stopgap)
+    frogs = (
+        replace(foe(1, 5001.0, 5001.0, txt_id=248, unit_flags=flags), mode=14),
+        replace(foe(2, 5001.0, 5001.0, txt_id=248, unit_flags=flags), mode=1),  # on land: fought
+        replace(foe(3, 5001.0, 5001.0, txt_id=279, unit_flags=flags), mode=14),  # a fetish shaman's sequence
+    )
+    assert [m.unit_id for m in hostiles(world(monsters=frogs))] == struck
+
+
+def test_with_the_flag_switch_off_the_word_is_not_looked_at(monkeypatch):
+    from inventory_tracking.macros.hunting import base
+
+    monkeypatch.setattr(base, 'ATTACKABLE', False)
+    monsters = (
+        foe(1, 5001.0, 5001.0, txt_id=143, unit_flags=0x1),
+        replace(foe(2, 5001.0, 5001.0, txt_id=249), mode=14),
+    )
+    assert [m.unit_id for m in hostiles(world(monsters=monsters))] == [1]
 
 
 def test_a_monster_behind_a_closed_door_is_not_struck_until_the_door_opens():
@@ -1900,6 +1943,60 @@ def test_a_monster_that_takes_no_damage_is_left_alone_and_the_rest_is_fought():
     assert any(text.startswith('Nothing left in reach') for text in play.said)  # the fight ended with it alive
 
 
+@pytest.mark.parametrize('counts_held', [True, False])
+def test_a_monster_that_takes_no_damage_from_chained_casts_is_left_alone_after_four_casts(monkeypatch, counts_held):
+    # W2 of rca/2026-10-21/no-hits-findings.md, Flayer Jungle 15:27:05-15:27:24: a submerged Slime Prince took 49 casts
+    # in 18 s and was never left alone: the held strike's casts chain with the mode never leaving the cast, and the
+    # casts seen to begin stayed under UNTOUCHED_CASTS. Counting the casts made (GUARD_COUNTS_HELD) leaves it after 4.
+    patch_hunt(monkeypatch, 'GUARD_COUNTS_HELD', counts_held)
+    patch_hunt(monkeypatch, 'NO_HARM_SECONDS', None)  # the count alone
+    frog = foe(10, 5008.0, 5000.0, txt_id=249, life=128, max_life=128)
+    play = game(frog)
+    play.chains = True
+    play.toughness[10] = 1000
+    play.unhurt.add(10)
+    hunt = hunter(play)
+    attack_mode(play, hunt, until=6.0)
+    struck = [unit for unit, _ in play.strikes]
+    if counts_held:
+        assert 'the monster 249 (10) takes no damage: left alone' in play.said
+        assert struck.count(10) <= UNTOUCHED_CASTS + 2
+    else:  # the bug as played: struck on and on, never left alone
+        assert 10 not in hunt.untouchable
+        assert struck.count(10) > 3 * UNTOUCHED_CASTS
+
+
+def test_nothing_in_reach_losing_life_for_the_floor_leaves_the_lines_monster_alone(monkeypatch):
+    # The coordinator's ruling, 2026-10-21: no life drop on anything in reach for 3 s leaves that monster alone, not the
+    # fight; W1 (rca/2026-10-21/no-hits-findings.md) struck a submerged Slime Prince 23.7 s.
+    patch_hunt(monkeypatch, 'UNTOUCHED_CASTS', 1000)  # the floor alone
+    frog = foe(10, 5008.0, 5000.0, txt_id=249, life=128, max_life=128)
+    play = game(frog)
+    play.chains = True
+    play.toughness[10] = 1000
+    play.unhurt.add(10)
+    hunt = hunter(play)
+    attack_mode(play, hunt, until=8.0)
+    assert 10 in hunt.untouchable
+    assert 'the monster 249 (10) takes no damage: left alone' in play.said
+    struck = [at for unit, at in play.strikes if unit == 10]
+    assert NO_HARM_SECONDS is not None
+    assert len(struck) <= (NO_HARM_SECONDS + 1.0) / 0.3  # one cast in ACTING_SECONDS
+
+
+def test_the_floor_leaves_no_boss_alone_and_waits_while_something_else_in_reach_loses_life(monkeypatch):
+    patch_hunt(monkeypatch, 'UNTOUCHED_CASTS', 1000)
+    baal = foe(10, 5008.0, 5000.0, txt_id=544, life=128, max_life=128)
+    play = game(baal)
+    play.chains = True
+    play.toughness[10] = 1000
+    play.unhurt.add(10)
+    hunt = hunter(play)
+    attack_mode(play, hunt, until=6.0)
+    assert hunt.untouchable == {}
+    assert not any('left alone' in text for text in play.said)
+
+
 def test_a_boss_that_takes_no_damage_is_never_left_alone():
     # The player, 2026-10-14: Baal's random teleports made "takes no damage after 4 casts" leave him alone 20 s; 2 of 10
     # arena seeds did not kill him in 60 s (rca/2026-10-14/baal-sim.md). Ordinary elites keep the rule (above).
@@ -1914,6 +2011,33 @@ def test_a_boss_that_takes_no_damage_is_never_left_alone():
     assert any('takes no damage: getting nearer' in text for text in play.said)
     struck = [unit for unit, _ in play.strikes]
     assert struck.count(10) > 2 * UNTOUCHED_CASTS  # the strikes go on at him
+
+
+@pytest.mark.parametrize('switch', [True, False])
+def test_the_pursued_fights_boss_is_never_left_alone_with_the_switch_on(monkeypatch, switch):
+    # rca/2026-10-21/arena-failures-findings.md S1: the arena's Vizier (306, a super unique, the route's fight boss)
+    # took no damage in 4 casts from 19.6 units and was left alone for 20 s; the pursuit stood "in reach and not struck"
+    # to the play's end. With PURSUED_IS_BOSS the pursued fight's own unit is a boss: got nearer to, never left alone.
+    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros.goals import FIGHT, Goal
+    from inventory_tracking.macros.travel import PRESSED
+
+    monkeypatch.setattr(hunt_module, 'PURSUED_IS_BOSS', switch)
+    vizier = foe(10, 5019.6, 5000.0, flags=0x0A, txt_id=306, life=8809, max_life=8809)
+    other = foe(11, 5010.0, 5000.0, flags=0x0A, txt_id=306, life=8809, max_life=8809)
+    play = game(vizier, other)
+    hunt, run = hunter(play), play.run()
+    assert not hunt.boss(vizier)  # nothing pursued: an elite as any
+    hunt.pursued = Goal('Grand Vizier of Chaos', (vizier.x, vizier.y), FIGHT, REACH, PRESSED, unit=10)
+    assert hunt.boss(vizier) is switch
+    assert not hunt.boss(other)  # not the pursued fight's unit
+    assert hunt.untouched(run, vizier, UNTOUCHED_CASTS)
+    assert (10 in hunt.nearing, 10 in hunt.untouchable) == (switch, not switch)
+    # A clearing fight's unit (the way's or the rest of the level's) keeps the rule
+    hunt.pursued = replace(hunt.pursued, unit=11, clearing=True)
+    assert not hunt.boss(other)
+    assert hunt.untouched(run, other, UNTOUCHED_CASTS)
+    assert 11 in hunt.untouchable
 
 
 def test_a_boss_the_strikes_did_nothing_to_is_in_reach_only_within_the_engage_ring_for_a_while():
@@ -2465,6 +2589,95 @@ def test_the_loops_fight_lets_go_when_its_run_is_over(monkeypatch):
         assert hunted.key_asks(run, play.world, [], Ground(())) is yields
 
 
+@pytest.mark.parametrize(
+    ('reason', 'dodge', 'held', 'switch', 'yields'),
+    [
+        ('', False, True, True, False),  # the full clear's move toward a fight: struck from here
+        ('firing spot', False, True, True, True),  # a firing spot still goes: the closing in (test_ancients)
+        ('pack: keeping range', False, True, True, True),  # the safety's move still lets go
+        ('', True, True, True, True),  # a dodge too
+        ('', False, False, True, True),  # nothing held
+        ('', False, True, False, True),  # the switch off: as before
+    ],
+)
+def test_a_fight_holding_a_leader_in_reach_does_not_let_go_for_the_pursuits_move_toward_a_fight(
+    monkeypatch, caplog, reason, dodge, held, switch, yields
+):
+    # The day's Herald fights, 2026-10-21: 15 of the 85 jump-seconds were "Teleport toward full clear" with the Herald
+    # in reach (rca/2026-10-21/arachnid-herald-1-findings.md); the coordinator: "strike from where we are"
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros.goals import Goal
+    from inventory_tracking.macros.hunting import judging
+    from inventory_tracking.macros.hunting.base import Judged
+    from inventory_tracking.macros.pursuit import Move
+    from inventory_tracking.macros.travel import PRESSED
+
+    monkeypatch.setattr(judging, 'HELD_STRIKES_ON', switch)
+    judging.HELD_ON_SAID.clear()
+    leader = foe(21, 5012.0, 5000.0, flags=CHAMPION, life=90, max_life=90)
+    other = foe(22, 5030.0, 5000.0)
+    play = game(leader, other)
+    hunted = hunter(play)
+    monkeypatch.setattr(type(hunted), 'pursuing', property(lambda _self: True))
+    monkeypatch.setattr(hunted.attack, 'holding', lambda: leader.unit_id if held else None)
+    run = play.run()
+    goal = Goal('full clear: the monster 22', (other.x, other.y), 'fight', 4.0, PRESSED, unit=other.unit_id)
+    move = Judged(Move(Step((5020.0, 5000.0)), goal, reason, dodge=dodge), goal, goal.place)
+    monkeypatch.setattr(hunted, 'judge', lambda *_a, **_k: move)
+    monkeypatch.setattr(hunted, 'pursuit', SimpleNamespace(pressed_at=1.0))
+    hunted.judged = (1.0, -10.0, False)
+    with caplog.at_level('INFO'):
+        asks = hunted.key_asks(run, play.world, [leader, other], Ground(()))
+    assert asks is yields
+    said = 'full clear: the monster 22: no move, the leader 21 held is in reach 12.0 away: struck from here'
+    assert (said in caplog.text) is not yields
+    if not yields:
+        assert hunted.yielded is None  # no act kept for the next look either
+
+
+@pytest.mark.parametrize(
+    ('struck', 'later', 'switch', 'bars'),
+    [
+        (False, 0.4, True, True),  # the session of 21:23:43-52 on 2026-10-21: undone at once, no cast between
+        (True, 0.4, True, False),  # a strike came of the jump: it was worth it
+        (False, 3.0, True, False),  # a retreat long after is another matter
+        (False, 0.4, False, False),  # the switch off: as before
+    ],
+)
+def test_a_jump_toward_the_goal_a_retreat_undoes_with_no_strike_is_not_jumped_to_again(
+    monkeypatch, caplog, struck, later, switch, bars
+):
+    # Elite 650 (2331124910), 2026-10-21 21:23:43-52: 16 jumps between (10122, 7358.5) and (10147.5, 7357.5), out of
+    # the strike's reach at both, the pursuit's hop each time undone by "retreating: no progress act fits the life
+    # budget"; the coordinator: "when a jump toward the goal does not bring a strike, stop jumping"
+    from inventory_tracking.macros.goals import Goal
+    from inventory_tracking.macros.hunting import moves
+    from inventory_tracking.macros.pursuit import Move
+    from inventory_tracking.macros.travel import PRESSED
+
+    monkeypatch.setattr(moves, 'BOUNCE_BARS', switch)
+    play = game(foe(21, 5050.0, 5000.0, flags=CHAMPION))
+    hunted, run = hunter(play), play.run()
+    goal = Goal('full clear: the elite 21', (5050.0, 5000.0), 'fight', 4.0, PRESSED, unit=21)
+    there = (5025.0, 5000.0)
+    progress = Move(Step(there), goal)
+    hunted.struck_at = -10.0
+    moves.bounced(hunted, progress, (5000.0, 5000.0), run.clock())
+    play.clock.now += later
+    if struck:
+        hunted.struck_at = run.clock() - 0.1
+    retreat = Move(Step((5000.0, 5000.0)), goal, 'retreating: no progress act fits the life budget')
+    with caplog.at_level('INFO'):
+        moves.bounced(hunted, retreat, (there[0] + 0.9, there[1]), run.clock())
+    assert hunted.barred(progress, run.clock()) is bars
+    assert ('brought no strike and a retreat undoes it' in caplog.text) is bars
+    assert not hunted.barred(retreat, run.clock())  # the retreat itself is never barred
+    if bars:
+        play.clock.now += moves.BOUNCE_SECONDS + 0.1
+        assert not hunted.barred(progress, run.clock())  # for a while only
+
+
 # --- the Gheed's swap (macros/pickup.py `Refused`): the level run ends for it ---
 
 
@@ -2734,3 +2947,74 @@ def test_a_level_run_back_in_a_town_ends_at_once_not_after_the_still_watchdog(ca
     assert ended == [LEVEL_LEFT]
     assert not hunt.leashed
     assert "run: in Harrogath, off the run's level Durance of Hate Level 2: the level run ends at once" in caplog.text
+
+
+# --- a held leader covered under the pointer (HELD_ON_BODY, rca/2026-10-21/arachnid-herald-1-findings.md) ---
+
+COVERED = foe(21, 5014.0, 5000.0, flags=CHAMPION, life=90, max_life=90)  # the leader the attack holds
+COVER = foe(22, 5012.0, 5001.0, life=90, max_life=90)  # a minion drawn over its feet
+
+
+def covering_hover(play, view, here, *, up_to=None):
+    """The hover of the Arachnid Lair's Herald, 2026-10-21 20:30: the minion under the pointer over the leader's
+    feet and the lower body; the leader where the pointer is at least `up_to` (window fraction) up from its body
+    point, nowhere for None."""
+    body = view.body(here, COVERED.x, COVERED.y)
+
+    def hovered():
+        _, down = play.keys.fraction()
+        if up_to is not None and down <= body[1] - up_to:
+            return (1, COVERED.unit_id)
+        return (1, COVER.unit_id)
+
+    return hovered
+
+
+def test_a_covered_held_leader_gets_the_pointer_up_its_body_until_the_hover_names_it(caplog):
+    play = game(COVERED, COVER)
+    hunt, run, view = hunter(play), play.run(), Viewport(ASPECT)
+    here = (me(play.world).x, me(play.world).y)
+    run.hovered = covering_hover(play, view, here, up_to=HELD_UP / 2)
+    with caplog.at_level('INFO'):
+        on = hunt.onto_held(run, view, here, COVERED, play.world, (COVERED.x, COVERED.y), COVER.unit_id)
+    assert on
+    assert run.hovered() == (1, COVERED.unit_id)  # the pointer stays where the hover names it
+    assert 'the hover named 22 over it (the blades go to the unit under the pointer)' in caplog.text
+    assert 'the pointer on its body after 2 moves' in caplog.text
+
+
+def test_a_held_leader_covered_wherever_the_pointer_goes_has_the_pointer_back_on_the_line(caplog):
+    play = game(COVERED, COVER)
+    hunt, run, view = hunter(play), play.run(), Viewport(ASPECT)
+    here = (me(play.world).x, me(play.world).y)
+    run.hovered = covering_hover(play, view, here)
+    focal = (COVERED.x + 1.0, COVERED.y)
+    with caplog.at_level('INFO'):
+        on = hunt.onto_held(run, view, here, COVERED, play.world, focal, COVER.unit_id)
+    assert not on
+    line = view.aim(here, focal)
+    assert line is not None
+    assert math.dist(play.keys.fraction(), line) < 0.005  # the line's ground: the blades meet there at least
+    assert f'still covered after {HELD_NUDGES} moves: back on the line' in caplog.text
+    hunt.onto_held(run, view, here, COVERED, play.world, focal, COVER.unit_id)
+    assert caplog.text.count('still covered') == 1  # said once a leader and outcome
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_the_fight_puts_the_pointer_on_a_covered_held_leaders_body_only_with_the_switch(monkeypatch, caplog, on):
+    # Arachnid Lair, 2026-10-21 20:30-20:30:40: the held line stood on the Herald, the hover named a Flame Spider in
+    # front of it on 21 of 46 casts, and the blades met on the spider (the player: "hiccups in delivering damage").
+    from inventory_tracking.macros import hunt as hunt_module
+
+    monkeypatch.setattr(hunt_module, 'HELD_ON_BODY', on)
+    play = game(COVERED, COVER)
+    play.toughness[COVERED.unit_id] = play.toughness[COVER.unit_id] = 50
+    hunt, run, view = hunter(play), play.run(), Viewport(ASPECT)
+    here = (me(play.world).x, me(play.world).y)
+    run.hovered = covering_hover(play, view, here, up_to=HELD_UP / 2)
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    play.arrivals.append((3.0, run.cancelled.set))
+    with caplog.at_level('INFO'), pytest.raises(Abort, match='cancelled'):
+        hunt.attack_mode(run, keys)
+    assert 'held until it dies' in caplog.text  # the attack holds the leader
+    assert ('the pointer on its body after' in caplog.text) is on

@@ -40,12 +40,13 @@ import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import OFFSETS, REACH, LinePolicy, virtual_cast
+from inventory_tracking.builds.warlock.echoing_strike.attack import MIN_SCORE, OFFSETS, REACH, LinePolicy, virtual_cast
 from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
 from inventory_tracking.builds.warlock.echoing_strike.sim.input import CAST_FRAMES
 from inventory_tracking.combat.controller import aim_choice
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import AIM_BEYOND, MIN_FOCAL, Foe, observe
+from inventory_tracking.combat.threats import dolls
 from inventory_tracking.game.layout import LEADER_FLAGS, NO_OWNER
 from inventory_tracking.game.records import Monster, Player
 from inventory_tracking.levels.geometry import Point
@@ -294,7 +295,13 @@ def today(view: View) -> Action:
     if not reachable:
         return None  # attack mode waits: nothing is in reach
     player, monsters = records(view.scene)
-    choice = aim_choice(LinePolicy(), observe(player, monsters, ()), reachable)
+    seen, policy = observe(player, monsters, ()), LinePolicy()
+    # Hunter.choose's dolls first (combat/threats/dolls.py DOLL_FIRST), as the build's `aim` with `through` lays it
+    first = dolls.first_struck(seen.origin, seen.foes, reachable)
+    found = policy.choose(seen, through=first) if first else None
+    if found is not None and found.worth >= MIN_SCORE:
+        return Cast(found.focal, found.unit)
+    choice = aim_choice(policy, seen, reachable)
     return Cast(choice.focal, choice.unit) if choice is not None else None
 
 

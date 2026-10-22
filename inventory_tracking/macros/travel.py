@@ -19,14 +19,15 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
 from functools import partial
 
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import MONSTER_UNIT, NO_OWNER
-from inventory_tracking.game.records import Monster, Player, Teleport, World
+from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT
+from inventory_tracking.game.records import GOLD, VALUABLE, Monster, Player, Teleport, World
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
-from inventory_tracking.levels.model import Ground, Room, Target, Walkable
+from inventory_tracking.levels.model import SEALS, Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
@@ -53,6 +54,22 @@ STEP_WALK_SECONDS = 0.7  # a walk's click must show the character moving within 
 HURRY_FREE = 0.02
 HURRY_SECONDS = 0.3
 HOVER_UNITS = 12.0  # a monster named under the pointer counts only this near the aim (the name lingers)
+# Walk clicks kept off item labels (the player, 2026-10-21 ~00:55: "not always clicking correct object (we often can
+# pickup hp/rejuv potion) that we wanted"): with the labels shown, a walk's click on one takes that item instead of a
+# step. All five potions the takes of 2026-10-20 show put into the inventory were taken so (4 of 84 town visits
+# stashed one), each followed by "the character did not move" and its spot barred. With an item under the
+# pointer that is no wanted valuable or gold of the read, the walk point is moved WALK_LABEL_SHIFTS world units
+# (along the line, across it) until no label is under it; with none free it is clicked where aimed. False: clicked
+# where aimed, as before
+WALK_OFF_LABELS = True
+# Walk clicks kept off a closed Chaos Sanctuary seal (2026-10-21, the arena's CS run, seed 3, as the code stood at
+# 13:40): a walk's click on the seal's picture opens it, as `use_thing`'s does. A safety retreat and a firing spot
+# toward the route's goal "Infector seal 2" walked onto it at 169.31 s (the arena's play) with the Infector still
+# fought: the seal opened at 170.36 s, unasked and out of the route's order, the Infector died at 173.0 s, and
+# Diablo is called by the fifth seal. With a closed seal under the pointer the walk point is moved off it as off an
+# item label (WALK_LABEL_SHIFTS); a seal is opened only by `use_thing`. False: clicked where aimed, as before
+WALK_OFF_SEALS = True
+WALK_LABEL_SHIFTS = ((-1.5, 0.0), (0.0, 1.5), (0.0, -1.5), (1.5, 0.0), (-3.0, 0.0), (0.0, 3.0), (0.0, -3.0))
 JUMP_REACH = 26.0  # units of a jump: in view, and within the blade's range
 JUMP_LEAST = 8.0  # a stride shorter than this is walked
 JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
@@ -1190,6 +1207,7 @@ class Travel:
         )  # fmt: skip
         self.tally.units += math.dist((origin.x, origin.y), (landed.x, landed.y))
         self.tally.jumps += 1
+        herald_pack.hopped(landed_at, math.dist((origin.x, origin.y), (landed.x, landed.y)))  # mark.py REMARK_AFTER_HOP
         if skill in self.delayed:
             self.timed(skill, before, (began, aimed, waited, keyed, released))
             self.landed_at[skill] = landed_at
@@ -1547,6 +1565,10 @@ def step_walk(
                 under = [m for m in alive if m.unit_id == over[1] and math.dist((m.x, m.y), goal) <= HOVER_UNITS]
                 if under:
                     raise Covered(f'{label(under[0])} is under the pointer there', (under[0].unit_id,))
+            if over is not None and (
+                (WALK_OFF_LABELS and over[0] == ITEM_UNIT and not wanted_item(run, over[1])) or closed_seal(run, over)
+            ):
+                where = off_item_labels(run, player, goal, aspect, where, over, alive, name)
         run.actuator.click()
         within = HURRY_SECONDS if hurried else STEP_WALK_SECONDS
         if run.seen(lambda w: w.player is not None and moved(w.player, player), within) is not None:
@@ -1557,6 +1579,67 @@ def step_walk(
                 'move in %.2fs: clicked again, settled', name, settled, within,
             )  # fmt: skip
     raise Abort('the character did not move')
+
+
+def closed_seal(run: Run, over: tuple[int, int] | None) -> bool:
+    """Whether `over` (the unit under the pointer) is a Chaos Sanctuary seal not opened yet (WALK_OFF_SEALS): a walk's
+    click on it would open it."""
+    if not WALK_OFF_SEALS or over is None or over[0] != OBJECT_UNIT or run.things is None:
+        return False
+    return any(t.unit_id == over[1] and t.txt_id in SEALS and not t.mode for t in run.things())
+
+
+def wanted_item(run: Run, unit: int) -> bool:
+    """Whether item `unit` is a valuable or gold the read's pickup takes (a walk's click on it takes it, as wanted)."""
+    if run.loot is None:
+        return False
+    return any(drop.unit_id == unit and drop.kind in (VALUABLE, GOLD) for drop in run.loot().drops)
+
+
+def off_item_labels(
+    run: Run,
+    player: Player,
+    goal: Point,
+    aspect: float,
+    where: tuple[float, float],
+    over: tuple[int, int],
+    alive: Sequence[Monster],
+    name: str,
+) -> tuple[float, float]:
+    """Where a walk toward `goal` is clicked with item `over` (WALK_OFF_LABELS) or a closed seal (WALK_OFF_SEALS)
+    under the pointer at `where`: the first WALK_LABEL_SHIFTS point in view with no item, closed seal or one of
+    `alive` under it, the pointer left there; with none, `where` again (the pointer put back)."""
+    here = (player.x, player.y)
+    length = math.dist(here, goal)
+    along = ((goal[0] - here[0]) / length, (goal[1] - here[1]) / length) if length > 0 else (1.0, 0.0)
+    across = (-along[1], along[0])
+    tried = [f'{over}']
+    assert run.hovered is not None  # the caller read it
+    for forth, side in WALK_LABEL_SHIFTS:
+        point = (goal[0] + along[0] * forth + across[0] * side, goal[1] + along[1] * forth + across[1] * side)
+        if length + forth <= 0:
+            continue
+        shifted = ground_fraction(player, *point, aspect)
+        if not in_view(shifted):
+            continue
+        run.actuator.aim(*shifted, scatter=(2, 2))
+        run.pace.sleep(HOVER_SECONDS)
+        now = run.hovered()
+        foe = now is not None and now[0] == MONSTER_UNIT and any(m.unit_id == now[1] for m in alive)
+        if now is not None and (foe or (now[0] == ITEM_UNIT and not wanted_item(run, now[1])) or closed_seal(run, now)):
+            tried.append(f'{forth:+.1f}/{side:+.1f}: {now}')
+            continue
+        LOG.info(
+            'Macro: walk toward %s: %s %s under the click at (%.1f, %.1f): clicked at (%.1f, %.1f) instead (%s)',
+            name, 'an item' if over[0] == ITEM_UNIT else 'a closed seal', over, *goal, *point, ', '.join(tried),
+        )  # fmt: skip
+        return shifted
+    LOG.info(
+        'Macro: walk toward %s: an item under every aim near (%.1f, %.1f) (%s): clicked where aimed',
+        name, *goal, ', '.join(tried),
+    )  # fmt: skip
+    run.actuator.aim(*where, scatter=(2, 2))
+    return where
 
 
 def free(run: Run) -> bool:

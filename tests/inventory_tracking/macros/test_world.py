@@ -256,6 +256,26 @@ def test_a_monsters_resistances_are_read_off_its_stat_list_and_an_immunity_is_10
     assert not plain.immune(MAGIC_RESIST)
 
 
+def test_the_aura_a_monster_holds_or_stands_in_is_read_off_its_stat_list():
+    # stats 350/351 (`modifierlist_skill`/`_level`): a Night Lord beside the Fane's Might unique showed Might 98 at 16
+    # at first sight (take 20261021T203514Z-95, units.jsonl); macros/safety.py AURA_FORECAST prices it (2026-10-22)
+    memory = Memory()
+    units = [monster(memory, 0, 132, more=((25, 190), (350, 98), (351, 16))), monster(memory, 1, 19)]
+    heads = memory.block(TABLE + 1024, 1024)
+    previous = 0
+    for address in reversed(units):
+        struct.pack_into('<Q', memory.blocks[address], 0x158, previous)
+        previous = address
+    struct.pack_into('<Q', heads, 2 * 8, previous)
+
+    under, plain = monsters(memory.read, TABLE)
+
+    assert under.aura == (98, 16)
+    assert under.damage_percent == 190  # damagepercent: the auras' sum on it
+    assert plain.aura is None
+    assert plain.damage_percent == 0
+
+
 def test_dead_monsters_are_read_on_request_with_their_stat_list_address():
     memory = Memory()
     units = [monster(memory, 0, 19), monster(memory, 4, 19, mode=12)]
@@ -652,7 +672,7 @@ def test_a_call_to_arms_in_either_set_is_read_from_the_worn_items(monkeypatch):
 
 
 def stash_owner(unit_id: int, order: int, stats=()) -> dict:
-    """A player unit as `GameMemory.stash_view` reads it: its name and full stats (collection/capture.py)."""
+    """A player unit as `GameMemory.read_stash` reads it: its name and full stats (collection/capture.py)."""
     return {
         'unit_id': unit_id,
         'type': 0,
@@ -717,13 +737,15 @@ def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owne
     assert again.full() == {631}
 
 
-def test_an_items_tree_and_class_skills_are_read_off_their_layers():
+def test_an_items_tree_and_class_skills_are_read_off_their_layers(monkeypatch):
     # 08:17 on 2026-10-19: Wraithra Clasp, +2 to Summoning Skills (188 on the tree's layer), read on layer 0 alone had
     # no skills and was sold; keepers.py keeps a rare amulet with +2 skills
     from inventory_tracking.game.decode import item_values
     from inventory_tracking.game.records import Carried
+    from inventory_tracking.loot import wants
     from inventory_tracking.macros.keepers import amulet_keeper
 
+    monkeypatch.setattr(wants, 'KEEP_BAR', False)  # the keeper as it was; with the keep bar the want rows judge
     read = [
         {'id': 188, 'layer': 41, 'raw': 2},  # +2 to a skill tree
         {'id': 83, 'layer': 7, 'raw': 1},  # +1 to a class's skills

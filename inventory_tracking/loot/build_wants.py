@@ -490,6 +490,18 @@ ROWS: list[dict[str, Any]] = [
         'source': 'inventory_tracking/macros/pickmode.py:86',
         'quote': '0 socket +3 abyss',
     },
+    {
+        'id': 'void-dagger-0os-plus3-apocalypse',
+        'class': 'G8',
+        'who': 'warlock',
+        'label': '0os elite-line dagger with +3 Apocalypse (Larzuk)',
+        'bases': VOID_BASES,
+        'qualities': WHITE,
+        'ground': [sockets(0), at_least('107:401', 3)],
+        'must': [sockets(0), at_least('107:401', 3)],
+        'source': 'inventory_tracking/macros/pickmode.py:87',
+        'quote': 'add 0os +3 apocalypse too',
+    },
     # G9 Warlock class items (PK-blue-class-items; pricing.html §7)
     {
         'id': 'warlock-class-item-identify',
@@ -504,6 +516,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-plus2-dagger-grimoire',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G9',
         'who': 'warlock',
         'label': '+2 Warlock dagger / grimoire',
@@ -515,6 +528,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-grimoire-plus3-tree',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G9',
         'who': 'warlock',
         'label': 'magic grimoire +3 to a Warlock tree',
@@ -548,6 +562,7 @@ ROWS: list[dict[str, Any]] = [
     # (6, with a third stat), +2 Eldritch/Chaos/Demon + 20 FCR 11.4 (1) and 17.1 -> 22.8 (3, with a third stat)
     {
         'id': 'warlock-circlet-fcr-plus2-warlock-extra',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G10',
         'who': 'warlock',
         'label': 'Warlock helm, really good: rare circlet 20 FCR, +2 Warlock and a third stat',
@@ -564,6 +579,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-circlet-fcr-plus2-eldritch-extra',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G10',
         'who': 'warlock',
         'label': 'Warlock helm, really good: rare circlet 20 FCR, +2 Eldritch (Echoing Strike) and a third stat',
@@ -579,6 +595,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-circlet-fcr-plus2',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G10',
         'who': 'warlock',
         'label': 'Warlock helm: circlet 20 FCR with +2 Warlock or +3 Eldritch',
@@ -596,6 +613,7 @@ ROWS: list[dict[str, Any]] = [
     # (never field-dropped: a want), not as always-keep rows. Every other rare circlet is junk (keep.py K8)
     {
         'id': 'rare-circlet-plus2-class',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G10',
         'who': 'trade',
         'label': 'rare circlet +2 class skills (any class, FCR or not)',
@@ -608,6 +626,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'rare-circlet-fcr-gate',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G10',
         'who': 'trade',
         'label': 'rare circlet 20 FCR with +1 class skills, +2 to a skill tree or 30 FRW',
@@ -621,6 +640,7 @@ ROWS: list[dict[str, Any]] = [
     # G11 rare rings and amulets (PK-blue-jewelry-gloves; pricing.html §6)
     {
         'id': 'ring-dual-leech-fcr',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G11',
         'who': 'trade',
         'label': 'ring: 10 FCR, life leech and mana leech',
@@ -634,6 +654,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-ring-fcr-res-life',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G11',
         'who': 'warlock',
         'label': 'Warlock ring: 10 FCR, res and life',
@@ -646,6 +667,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'warlock-amulet-plus2-fcr',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G11',
         'who': 'warlock',
         'label': 'Warlock amulet: +2 Warlock and 10 FCR',
@@ -658,6 +680,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'rare-amulet-fcr-life-skills',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G11',
         'who': 'trade',
         'label': 'rare / crafted amulet with any FCR, any life or +2 skills',
@@ -872,6 +895,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'rare-belt-24fhr-life-res-extra',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G22',
         'who': 'trade',
         'label': 'rare belt, really good: 24 FHR, life 30+, a resistance 20+ and a second one 20+ or str 15+',
@@ -884,6 +908,7 @@ ROWS: list[dict[str, Any]] = [
     },
     {
         'id': 'rare-belt-24fhr-companion',
+        'bar': 'off',  # KEEP_BAR replaces it (BAR_ROWS)
         'class': 'G22',
         'who': 'trade',
         'label': "rare belt, the guide's priced gate: 24 FHR with str 15+, life 30+ or a resistance 20+",
@@ -1406,6 +1431,321 @@ WHITE_CLASS_ROWS: list[dict[str, Any]] = [
 ]
 ROWS += WHITE_CLASS_ROWS
 
+# Mang Song's Lesson, every copy (the player, 2026-10-21 ~09:25: "mang's song - we keep if we find any"): the Warlock
+# guide's 14th weapon option, so USABLE_SLOT_DEPTH no longer names it usable; an always-keep row keeps each copy,
+# better or not, priced or not (keep.py K3). uniqueitems.json row 322 "Mang Song's Lesson", code 6ws (Archon Staff)
+ROWS.append(
+    {
+        'id': 'own-mang-songs-lesson',
+        'class': 'own',
+        'who': 'warlock',
+        'label': "Mang Song's Lesson: every copy kept",
+        'names': ["Mang Song's Lesson"],
+        'qualities': ['unique'],
+        'must': [],
+        'always_keep': True,
+        'source': f'{WARLOCK}:155; third-parties/d2data/json/uniqueitems.json',
+        'quote': "Mang Song's",
+    }
+)
+
+# The keep bar (loot/wants.py KEEP_BAR; rca/2026-10-21/keep-bar-design.md; the player, 2026-10-21 ~08:55: "circlets
+# need to have not just one good stat, not even 2 good stats, they need like 3 stats to worth anything ... why some
+# item at least beats shako"; "we need not just 1 row, but probably 3 stats with good rolls to keep"; the rulings of
+# ~09:20). A magic, rare or crafted item is kept by its stats when GOOD_COUNT of its slot's good stats hold, each at a
+# floor near the slot's top roll (d2data magicprefix/magicsuffix), with the slot's required stats: the ones that make
+# it beat what a build wears instead (Shako, Mara's, SoJ, Arachnid, Magefist, the class uniques). The asks
+# (pricing/data/appraisal-market.jsonl, 2026-09-18/19, one vote a seller, the lowest): the seller-floor lower quartile
+# steps up at three good stats in every slot where the asks separate (circlets 5.4 -> 11.4 Ist, belts 5.9 -> 11.4,
+# gloves 1.0 -> 8.2, grimoires 2.6 -> 22.8, daggers 11.4 -> 57). Magic class items roll one prefix and one suffix:
+# their two of two (the player, ~09:20: "Yes, 2 of 2"). Boots keep their G21 rows (already four or five good stats)
+DESIGN = 'rca/2026-10-21/keep-bar-design.md'
+GOOD_COUNT = 3
+SKILLS_2 = at_least([*CLASS_SKILLS, *SKILL_TREES], 2)  # +2 to a class's skills or to one of its trees
+ANY_SKILLS_2 = at_least(['127:0', *CLASS_SKILLS, *SKILL_TREES], 2)  # amulets roll +all skills too
+MAGIC_SKILLS = {'either': [at_least(CLASS_SKILLS, 2), at_least(SKILL_TREES, 3)]}  # the magic +3 tree prefixes
+ALL_RES = at_least(RESISTS, 15, count=4)  # all four at 15: all res 15+
+RES_GOOD = {'either': [ALL_RES, at_least(RESISTS, 30)]}  # all res 15+ or one resistance 30+
+LIFE_40, SOCKETS_2, MF_25 = at_least('7:0', 40, LIFE), at_least('sockets', 2), at_least('80:0', 25)
+FCR_10, FCR_20, FRW_30 = at_least('105:0', 10), at_least('105:0', 20), at_least('96:0', 30)
+WARLOCK_CORE = at_least(['83:7', *WARLOCK_TABS], 2)  # +2 Warlock or +2 to a Warlock tree
+
+GOOD_CIRCLET = [SKILLS_2, FCR_20, FRW_30, SOCKETS_2, LIFE_40, ALL_RES, at_least(['0:0', '2:0'], 20),
+                at_least('9:0', 60, LIFE), at_least('80:0', 20)]  # fmt: skip
+CIRCLET_BEATS_SHAKO = [FCR_20, FRW_30, SOCKETS_2]  # what Shako cannot give: one of them is required
+GOOD_AMULET = [ANY_SKILLS_2, FCR_10, LIFE_40, RES_GOOD, at_least(['0:0', '2:0'], 15), at_least('9:0', 60, LIFE), MF_25]
+GOOD_RING = [FCR_10, at_least('7:0', 30, LIFE), {'either': [at_least(RESISTS, 10, count=4), at_least(RESISTS, 25)]},
+             {'either': [at_least('0:0', 15), at_least('2:0', 12)]}, at_least('9:0', 60, LIFE), at_least('60:0', 5),
+             at_least('62:0', 4), at_least('19:0', 100), at_least('80:0', 15)]  # fmt: skip
+GOOD_BELT = [at_least('99:0', 24), at_least('7:0', 30, LIFE), at_least(RESISTS, 20), at_least(RESISTS, 20, count=2),
+             at_least('0:0', 15), FCR_10]  # fmt: skip
+GOOD_GLOVES = [at_least('93:0', 20), SKILLS_2, at_least('0:0', 15), at_least('2:0', 15), at_least(RESISTS, 20),
+               at_least(RESISTS, 20, count=2), at_least(['60:0', '62:0'], 3), at_least('80:0', 15)]  # fmt: skip
+
+# The paid +3 skills a class item's staff mod counts with (pricing.html §3.3 "Paid skills"; the claws' Death Sentry,
+# Wake of Fire and Phoenix Strike: the player, 2026-10-20 ~21:05; the Warlock's: pricing.html §7 and the asks of
+# rca/2026-10-21/weak-keepers-findings.md §1). Skill ids from third-parties/d2data/json/skills.json (`*Id`)
+BARBARIAN_PAID = (149, 155, 154, 150, 148)  # Battle Orders, Battle Command, War Cry, Grim Ward, Increased Speed
+DRUID_PAID = (245, 249, 250, 244, 247, 248, 243, 239)  # Tornado, Armageddon, Hurricane, Volcano, Summon Grizzly,
+# Fury, Shock Wave, Fire Claws
+NECROMANCER_PAID = (92, 93, 84)  # Poison Nova, Bone Spirit, Bone Spear
+SORCERESS_PAID = (53, 49, 48, 63, 57, 58, 52, 47, 62, 56, 51, 61, 59, 64, 65)  # Chain Lightning, Lightning, Nova,
+# Lightning Mastery, Thunder Storm, Energy Shield, Enchant, Fire Ball, Hydra, Meteor, Fire Wall, Fire Mastery,
+# Blizzard, Frozen Orb, Cold Mastery
+PALADIN_PAID = (121, 112)  # Fist of the Heavens, Blessed Hammer
+ASSASSIN_PAID = (271, 278, 267, 276, 262, 280)  # Lightning Sentry, Venom, Fade, Death Sentry, Wake of Fire Sentry,
+# Royal Strike (Phoenix Strike)
+WARLOCK_PAID = (402, 389, 388, 384, 401, 376, 377, 381, 382, 400, 399, 380, 390)  # Abyss, Hex Purge, Echoing Strike,
+# Eldritch Blast, Apocalypse, Summon Tainted, Summon Defiler, Consume, Bind Demon, Sigil Death, Miasma Chains, Blood
+# Boil, Blade Warp
+PAID_SKILLS: dict[str, tuple[int, ...]] = {
+    'phlm': BARBARIAN_PAID, 'pelt': DRUID_PAID, 'head': NECROMANCER_PAID, 'wand': NECROMANCER_PAID,
+    'orb': SORCERESS_PAID, 'scep': PALADIN_PAID, 'h2h': ASSASSIN_PAID, 'h2h2': ASSASSIN_PAID, 'knif': WARLOCK_PAID,
+    'grim': WARLOCK_PAID, 'ashd': (), 'ajav': (), 'aspe': (), 'abow': (),
+}  # fmt: skip
+CLASS_KINDS = tuple(PAID_SKILLS)
+MELEE_KINDS = ('knif', 'h2h', 'h2h2', 'ajav', 'aspe')  # ethereal 200%+ ED stands in for the +2 core
+WEAPON_KINDS = (*MELEE_KINDS, 'abow')
+
+
+def paid(kind: str, count: int = 1) -> dict:
+    return at_least([f'107:{skill}' for skill in PAID_SKILLS[kind]], 3, count=count)
+
+
+def class_goods(kind: str) -> list[dict]:
+    """A class item's good stats beside its +2 core: the paid +3 skills, sockets, its slot's stat, life, res, the
+    weapon's damage, leech and magic find (keep-bar-design.md, the class row)."""
+    found = [paid(kind), paid(kind, 2)] if PAID_SKILLS[kind] else []
+    found.append(SOCKETS_2)
+    if kind in ('orb', 'wand', 'scep', 'grim'):
+        found.append(FCR_10)
+    if kind in ('h2h', 'h2h2', 'knif', 'abow'):
+        found.append(at_least('93:0', 20))
+    if kind in ('ajav', 'aspe'):
+        found.append(at_least('93:0', 30))
+    if kind in ('phlm', 'pelt', 'head', 'ashd'):
+        found.append(at_least('99:0', 10))
+    if kind in ('ashd', 'head', 'grim'):
+        found.append({'either': [at_least('20:0', 20), at_least('102:0', 30)]})
+    if kind in WEAPON_KINDS:
+        found += [at_least('17:0', 150), at_least('218:0', 1)]
+    return [*found, LIFE_40, RES_GOOD, at_least('60:0', 5), MF_25]
+
+
+def _bar(row: dict[str, Any]) -> dict[str, Any]:
+    return {'bar': 'on', 'who': 'trade', **row}
+
+
+def class_bar_rows() -> list[dict[str, Any]]:
+    """Per class kind: the rare one by three good stats (its +2 core one of them), the ethereal melee one by its 200%+
+    ED and two more, the magic one by its two of two (the core and a paid +3 skill)."""
+    rows = []
+    for kind in CLASS_KINDS:
+        who = 'warlock' if kind in ('knif', 'grim') else 'trade'
+        quote = '| Class items, magic and rare'
+        rows.append(_bar({'id': f'bar-rare-{kind}-three-good', 'class': 'bar', 'who': who,
+                          'label': f'rare class item ({kind}): +2 class or tree and three good stats',
+                          'types': [kind], 'qualities': ['rare', 'crafted'], 'must': [SKILLS_2],
+                          'good': [SKILLS_2, *class_goods(kind)], 'good_count': GOOD_COUNT,
+                          'source': f'{DESIGN}:180', 'quote': quote}))  # fmt: skip
+        if kind in MELEE_KINDS:
+            rows.append(_bar({'id': f'bar-rare-{kind}-eth-melee', 'class': 'bar', 'who': who,
+                              'label': f'rare class weapon ({kind}): ethereal 200%+ ED and two more good stats',
+                              'types': [kind], 'qualities': ['rare', 'crafted'],
+                              'must': [eth(), at_least('17:0', 200)], 'good': [SKILLS_2, *class_goods(kind)],
+                              'good_count': 2, 'source': f'{DESIGN}:180', 'quote': quote}))  # fmt: skip
+        if PAID_SKILLS[kind]:
+            second = [paid(kind)] if kind != 'grim' else []
+            extra = {'any': [paid(kind), ALL_RES]} if kind == 'grim' else {}
+            label = 'a paid +3 skill' if kind != 'grim' else 'a paid +3 skill or all res 15+'
+            rows.append(_bar({'id': f'bar-magic-{kind}-two-of-two', 'class': 'bar', 'who': who,
+                              'label': f'magic class item ({kind}): +2 class or +3 tree and {label}',
+                              'types': [kind], 'qualities': ['magic'], 'must': [MAGIC_SKILLS, *second], **extra,
+                              'source': f'{DESIGN}:180', 'quote': quote}))  # fmt: skip
+        else:
+            suffix = (
+                [at_least('93:0', 30)] if kind in ('ajav', 'aspe')
+                else [at_least('93:0', 20)] if kind == 'abow'
+                else [SOCKETS_2, at_least('99:0', 10), {'either': [at_least('20:0', 20), at_least('102:0', 30)]},
+                      RES_GOOD, LIFE_40]
+            )  # fmt: skip
+            rows.append(_bar({'id': f'bar-magic-{kind}-two-of-two', 'class': 'bar', 'who': who,
+                              'label': f'magic class item ({kind}): +2 class or +3 tree and a top suffix',
+                              'types': [kind], 'qualities': ['magic'], 'must': [MAGIC_SKILLS], 'any': suffix,
+                              'source': f'{DESIGN}:180', 'quote': quote}))  # fmt: skip
+    return rows
+
+
+BAR_ROWS: list[dict[str, Any]] = [
+    _bar(
+        {
+            'id': 'bar-warlock-circlet-three-good',
+            'class': 'bar',
+            'who': 'warlock',
+            'always_keep': True,
+            'label': 'Warlock helm that beats Shako: rare circlet +2 Warlock or Warlock tree, 20 FCR / 30 FRW / 2os, '
+            'three good stats',
+            'bases': CIRCLETS,
+            'qualities': ['rare', 'crafted'],
+            'must': [WARLOCK_CORE],
+            'any': CIRCLET_BEATS_SHAKO,
+            'good': GOOD_CIRCLET,
+            'good_count': GOOD_COUNT,
+            'matters': [spec('7:0', 'Life', 1, 60, scale=LIFE), spec('39:0', 'Fire Resist', 1, 40)],
+            'source': f'{DESIGN}:172; {WARLOCK}:158',
+            'quote': '| Circlet (rare, crafted) | Shako',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-rare-circlet-three-good',
+            'class': 'bar',
+            'label': 'rare circlet that beats Shako: +2 class or tree, 20 FCR / 30 FRW / 2os, three good stats',
+            'bases': CIRCLETS,
+            'qualities': ['rare', 'crafted'],
+            'must': [SKILLS_2],
+            'any': CIRCLET_BEATS_SHAKO,
+            'good': GOOD_CIRCLET,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:172',
+            'quote': '| Circlet (rare, crafted) | Shako',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-warlock-amulet-three-good',
+            'class': 'bar',
+            'who': 'warlock',
+            'always_keep': True,
+            'label': "Warlock amulet that beats Mara's: +2 Warlock or Warlock tree and three good stats",
+            'bases': ['Amulet'],
+            'qualities': ['rare', 'crafted'],
+            'must': [WARLOCK_CORE],
+            'good': GOOD_AMULET,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:174',
+            'quote': "| Amulet (rare, crafted) | Mara's",
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-rare-amulet-three-good',
+            'class': 'bar',
+            'label': "rare amulet that beats Mara's: +2 skills and three good stats",
+            'bases': ['Amulet'],
+            'qualities': ['rare', 'crafted'],
+            'must': [ANY_SKILLS_2],
+            'good': GOOD_AMULET,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:174',
+            'quote': "| Amulet (rare, crafted) | Mara's",
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-warlock-magic-amulet-plus2-fcr',
+            'class': 'bar',
+            'who': 'warlock',
+            'always_keep': True,
+            'label': 'Warlock amulet: magic +2 Warlock and 10 FCR (two of two)',
+            'bases': ['Amulet'],
+            'qualities': ['magic'],
+            'must': [at_least('83:7', 2), FCR_10],
+            'source': f'{DESIGN}:175; {WARLOCK}:163',
+            'quote': '| Amulet (magic) |',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-warlock-ring-three-good',
+            'class': 'bar',
+            'who': 'warlock',
+            'always_keep': True,
+            'label': 'Warlock ring: 10 FCR and three good stats',
+            'bases': ['Ring'],
+            'qualities': ['rare', 'crafted'],
+            'must': [FCR_10],
+            'good': GOOD_RING,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:176; {WARLOCK}:164',
+            'quote': '| Ring (rare, crafted) | SoJ',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-rare-ring-three-good',
+            'class': 'bar',
+            'label': 'rare ring: 10 FCR or 100+ AR and three good stats',
+            'bases': ['Ring'],
+            'qualities': ['rare', 'crafted'],
+            'must': [],
+            'any': [FCR_10, at_least('19:0', 100)],
+            'good': GOOD_RING,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:176',
+            'quote': '| Ring (rare, crafted) | SoJ',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-rare-belt-three-good',
+            'class': 'bar',
+            'label': 'rare belt: 24 FHR (or a crafted 10 FCR) and three good stats',
+            'types': ['belt'],
+            'qualities': ['rare', 'crafted'],
+            'must': [],
+            'any': [at_least('99:0', 24), FCR_10],
+            'good': GOOD_BELT,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:177; {PRICING}:236',
+            'quote': '| Belt (rare, crafted) | Arachnid',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-rare-gloves-three-good',
+            'class': 'bar',
+            'label': 'rare gloves: 20 IAS and three good stats',
+            'types': ['glov'],
+            'qualities': ['rare', 'crafted'],
+            'must': [at_least('93:0', 20)],
+            'good': GOOD_GLOVES,
+            'good_count': GOOD_COUNT,
+            'source': f'{DESIGN}:179; {PRICING}:234',
+            'quote': '| Gloves (rare, crafted) | Magefist',
+        }
+    ),
+    # The rulings of ~09:20 on the two-stat exceptions
+    _bar(
+        {
+            'id': 'bar-rare-grimoire-plus2-warlock-and-one',
+            'class': 'bar',
+            'who': 'warlock',
+            'label': 'rare grimoire +2 Warlock and one good stat (the player: kept)',
+            'types': ['grim'],
+            'qualities': ['rare', 'crafted'],
+            'must': [at_least('83:7', 2)],
+            'any': class_goods('grim'),
+            'source': f'{DESIGN}:181; {PRICING}:346',
+            'quote': '| Exception: grimoire |',
+        }
+    ),
+    _bar(
+        {
+            'id': 'bar-barbarian-helm-plus2-and-3-bo',
+            'class': 'bar',
+            'label': 'Barbarian helm +2 Barbarian or Warcries with +3 Battle Orders (the player: kept)',
+            'types': ['phlm'],
+            'qualities': ['magic', 'rare', 'crafted'],
+            'must': [{'either': [at_least('83:4', 2), at_least('188:34', 2)]}, at_least('107:149', 3)],
+            'source': f'{DESIGN}:182',
+            'quote': '| Exception (needs ruling): BO helm |',
+        }
+    ),
+    *class_bar_rows(),
+]
+ROWS += BAR_ROWS
+
 
 # The usable list (loot/keep.py FIRST_COPY_USABLE_ONLY): the set and unique items a build the player may play names as
 # gear, one `usable` row each, by name alone (no rolls). The player, 2026-10-20 ~20:10: "ok, let's probably keep only
@@ -1421,6 +1761,13 @@ VARIANTS = 'pricing/data/wp-a-variants'
 USABLE_CLASSES = frozenset(('Paladin', 'Sorceress', 'Barbarian', 'Necromancer', 'Amazon'))
 USABLE_BUILDS = ('echoing-strike-warlock-guide', 'lightning-sentry-assassin', 'wake-of-fire-assassin',
                  'fire-blast-assassin')  # fmt: skip
+# A build's top picks only (the player, 2026-10-21 ~08:55, answering "What should count as usable?": "Top picks + usable
+# best"; rca/2026-10-21/weak-keepers-findings.md B4): a slot list of wp-a-builds.json (`slots`, and the merc's lists
+# by stage) names a set or unique item as usable only among its first USABLE_SLOT_DEPTH options (index < 5). Given up
+# by it on 2026-10-21: 19 rows, among them M'avina's True Sight (strafe-amazon Helmets, the 8th), Credendum, Eaglehorn,
+# Trang-Oul's Guise and Wraith Flight; Bartuc's Cut-Throat stays (wake-of-fire-assassin Weapon, the 5th).
+# A planner variant and a guide line read below still name it whatever its place. None: every entry, as before
+USABLE_SLOT_DEPTH: int | None = 5
 # The guide sections read (h2/h3 ids: from the first id up to the second)
 USABLE_SECTIONS = ((WARLOCK, 's0', 's3'), (WARLOCK, 's4', 's5'), (PRICING, 's6', 's7'))
 # Named there but not as this build's gear: a line saying it (its words -> the names it rejects, None: all on the line)
@@ -1490,14 +1837,23 @@ def _usable_row(name: str, who: str, label: str, source: str, **extra: Any) -> d
             **extra}  # fmt: skip
 
 
+def _top_pick(pointer: str) -> bool:
+    """Whether the slot list entry at JSON `pointer` (".../Helmets/7") is among its list's first USABLE_SLOT_DEPTH."""
+    last = pointer.rpartition('/')[2]
+    return USABLE_SLOT_DEPTH is None or not last.isdigit() or int(last) < USABLE_SLOT_DEPTH
+
+
 def usable_rows() -> list[dict[str, Any]]:
-    """The `usable` rows (the module text above BUILDS), the first source of each name; every source checked."""
+    """The `usable` rows (the module text above BUILDS), the first source of each name; every source checked. A slot
+    list names an item only among its top picks (USABLE_SLOT_DEPTH)."""
     found: dict[str, dict[str, Any]] = {}
     builds = json.loads((ROOT / BUILDS).read_text())
     for slug in usable_builds(builds):
         klass = builds[slug]['class']
         for part in ('slots', 'merc'):
             for pointer, text in _entries(builds[slug].get(part, {}), f'/{slug}/{part}'):
+                if not _top_pick(pointer):
+                    continue
                 for name in names_in(text):
                     who = 'merc' if part == 'merc' else klass.lower()
                     found.setdefault(name, _usable_row(name, who, f'{slug} {part}', f'{BUILDS}#{pointer}', build=slug))

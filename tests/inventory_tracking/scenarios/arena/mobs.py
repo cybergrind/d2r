@@ -20,35 +20,56 @@ refit. `Horde` is that pack with what it lacks:
 `Mobs` says which monsters shoot and what (the threat table's `ranged` and its points a shot; the
 types the takes show shooting that the table does not call ranged) and adds what is not a monster's
 own move: an exploding corpse (the table's `death_damage`) deals BLAST to a character within
-BLAST_RADIUS, and a live monster with a damage aura raises the blows of the others within BOOST_RANGE.
+BLAST_RADIUS, and a live monster with a damage aura raises the blows of the others within AURA_RANGE.
 
 What is this file's own assumption, not a table's or a take's, is named where it is set: the points
 of a shot, the kind of a blast, which aura an Aura Enchanted monster has, that a type nothing calls a
 shooter fights hand to hand.
 
-Not modelled, as in `sim.monsters`: fleeing, bodies in each other's way, damage that is no blow. A
-companion of the character's stands where the scene has it and is never hurt; the companions a
-monster goes for are the places `tick` is given.
+Not modelled, as in `sim.monsters`: fleeing, damage that is no blow. A companion of the character's stands where the
+scene has it and is never hurt; the companions a monster goes for are the places `tick` is given (game.py plays them,
+with its rule PETS_FIGHT, from the blows on them `tick` keeps in `mate_blows`).
+
+Two rules a play may turn on (game.py `Arena.rules`, 2026-10-21; rca/2026-10-21/herald-fight-findings.md §3.4 "what
+the arena lacks"), both off unless asked so that every scene fitted and pinned before plays roll for roll as it did:
+
+- **the sigil slows** (`Horde.slowed`: a walker's place -> the factor on its speed and its attack rate): Sigil:
+  Lethargy's aurastat1 `attackrate` and aurastat3 `velocitypercent`, both ln78 = Param7 + (lvl - 1) x Param8 = -50 + 0
+  (skills.txt 393, combat/data/tables.json `skills`): half the speed, a swing begun inside it twice as long. A walker of
+  a read AI (sim/casters.py) is not slowed. Not verified: whether a boss or a Herald takes the whole slow;
+- **bodies block** (`Horde.bodies`: the character's and its companions' places with their body radii): a walker's
+  stride that would end inside another body (another walker's, the character's, a companion's) and nearer to it is a
+  stride to the side if one is free, else not made. A body's radius is half its monstats2 SizeX (BODY_RADII), the
+  character's HERO_BODY: both read as world units, an assumption of this file.
 """
 
 import math
 import random
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Generator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import replace
+from typing import Any
 
 from inventory_tracking.combat import threats
 from inventory_tracking.combat.mechanics.tables import points_of, tables
-from inventory_tracking.combat.sim import casters
-from inventory_tracking.combat.sim.casters import resisted
+from inventory_tracking.combat.sim import casters, monsters as sim_monsters
+from inventory_tracking.combat.sim.casters import hit_chance, resisted
 from inventory_tracking.combat.sim.guard import Guard
 from inventory_tracking.combat.sim.monsters import (
+    CHAMPION,
     MELEE,
+    MINION,
     PHYSICAL,
     SHOT,
     SHOT_REACH,
+    STAGGER,
     STAND,
+    STRIKE,
+    UNIQUE,
+    WALK,
     Blow,
     Pack,
+    Traits,
     Walker,
     boost,
     shoots,
@@ -59,23 +80,34 @@ from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
+from inventory_tracking.macros.safety import AURA_LEVELS, aura_raise
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.travel import walked_way
 from inventory_tracking.takes.timeline import GAME_RATE
-from inventory_tracking.terror.danger import DANGER, MIGHT
+from inventory_tracking.terror.danger import MIGHT
 from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 
 # The threat scenarios' numbers, used here as they are there (framework-plan.md has them moved to this
 # file; scenarios/threat/harness.py is left alone by this task, so they are imported, not copied):
-# BOOST_RANGE 16, Might's range at level 1 (terror/data/threats.json auras); BLAST_RADIUS 4 and BLAST
-# 450 points, both that file's assumptions (the takes hold too few exploding corpses to refit them).
-from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS, BOOST_RANGE
+# BLAST_RADIUS 4 and BLAST 450 points, both that file's assumptions (the takes hold too few exploding corpses to
+# refit them).
+from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
 from tests.inventory_tracking.scenarios.threat.table import table
 
 
 # monmode.txt: the client's modes of a monster's strikes and casts (game/layout.py STRIKING_MODES), and the
 # sequence (SQ 14) Baal's inferno shows (the probe, sim/baal.py)
 CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11, 'SQ': 14}
+# A walker's motion as the client shows it (`Mobs.motion_mode`; monmode.txt WL 2, GH 3). Before 2026-10-22 a walker
+# that walked or swung kept the take's mode (often NU 1), so macros/safety.py read it as idle (Hostile.active False)
+# and combat/harm.py priced a unique running in at nothing (pursuit-mode Fane deaths, fane-death-sim-findings.md §11).
+# Only over a plain mode of the take's (NU, WL, GH, A1, A2, RN): a submerged frog or an airborne vulture keeps its own.
+WALK_MODE, GET_HIT_MODE = 2, 3
+PLAIN_MODES = frozenset((1, 2, 3, 4, 5, 15))
+SHOWN_MOTION = True
+# A raise of stat 25 (Might, Fanaticism) on a blow's physical points alone in every scene, as the game does; before
+# 2026-10-22 an uncapped scene raised the whole blow, elements too (the coordinator, after the death agent's note)
+PHYSICAL_RAISE = True
 SUMMONED = 7_000_000  # unit ids of the monsters a cast raises (sim/casters.py `Summon`), counted from here
 
 
@@ -89,14 +121,45 @@ SHOT_LANDS = SHOT_FRAMES // 2
 # The kind of damage of an exploding corpse: this file's assumption (the table only says which corpses
 # explode, monstats `deathDmg`).
 BLAST_KIND = PHYSICAL
+# Units within which a melee blow reaches the character under `capped` (`Mobs.in_reach`): the population replay's
+# striker distance (rca/2026-10-21/fane-death-sim-findings.md §8), the game's melee range and the two bodies
+MELEE_REACH = 4.0
+# A thrown missile under `capped` (2026-10-22, rca/2026-10-21/fane-death-sim-findings.md §10): the takes' javelins
+# (missiles.txt pantherjav5, SrcDamage 128) of 2026-10-20 to 22, 22 hits, hold the Slingers' throws at 463-627 (1126 for
+# two) beside a tier 5 pack whose stat 25 read 285, 300-498 beside one with none: x1.25 between them, not the x3.85 of
+# stat 25, and no throw over 345 raw beside a tier 5 Herald whose monstats most there is 905. A throw at its type's most
+# with neither its stat 25 nor its Herald tier's boost (x2.5) is the least envelope over all 22 (the tier 5 Herald's 750
+# against the 627 seen). False: as each says
+SHOT_RAISED = False  # True: a shot raised by its stat 25 as a melee blow is
+SHOT_TIER = False  # True: a shot's cut at its most with the Herald tier's boost
 AURA_MOD = 30  # monumod `aura`: Aura Enchanted (threat_table.json rules.modifiers)
 # What an Aura Enchanted monster's aura does to the blows around it. A scene's Mob says that it has an
-# aura, not which: this file's assumption is Might, the factor terror/danger.py counts for it
-# (DANGER.aura_physical, 2.0), on the whole blow as scenarios/threat/harness.py `rate` puts a boost.
-AURA_FACTOR = DANGER.aura_physical[MIGHT]
+# aura, not which: this file's assumption is Might, on the whole blow as scenarios/threat/harness.py `rate` puts a
+# boost. Its level (2026-10-22, rca/2026-10-21/fane-death-sim-findings.md §8-§9): the takes' stats 350/351 show Might at
+# 16 on the Aura Enchanted (macros/safety.py AURA_LEVELS), +190% (x2.9) within 46 units; over the takes' 1658 fight
+# windows the arena with each unit's own stat 25 takes 1.10 of the game's life a swing from the aura holders' packs,
+# with half of it (x1.95, terror/danger.py's 2.0, level 7's) 0.77, with none 0.43. So level 16's factor and range, in
+# place of DANGER.aura_physical (2.0) and BOOST_RANGE (16, level 1's)
+AURA_RAISE, AURA_RANGE = aura_raise(MIGHT, AURA_LEVELS[MIGHT])
+AURA_FACTOR = 1.0 + AURA_RAISE / 100
 # monstats element types (the threat table's `elements`) as the kinds of damage a resistance cuts.
 KINDS = {'fire': 'fire', 'ltng': 'lightning', 'cold': 'cold', 'frze': 'cold'}
 ELEMENTAL, MAGIC = 'elemental', 'magic'  # parts nothing resists: an element the table does not name, and magic
+# Sigil: Lethargy's slow (the module text): ln78 of skills.txt 393 at any level, Param7 -50 with Param8 0.
+_SIGIL = tables()['skills']['393']
+SIGIL_SLOW = 1.0 + float(_SIGIL['Param7']) / 100.0
+# Body radii in world units (the module text): half of monstats2 SizeX (pricing/raw/game-excel, read 2026-10-21):
+# thornhulk1/2 (127, 128) 3, blunderbore4 (189, the Urdar) 3, megademon2 (361, the Pit Lord) 3, warputriddefiler (744)
+# 2. Any other type BODY_RADIUS; the character HERO_BODY. Assumptions where no row is named.
+BODY_RADII: dict[int, float] = {127: 1.5, 128: 1.5, 189: 1.5, 361: 1.5, 744: 1.0}
+BODY_RADIUS = 1.0
+HERO_BODY = 1.0
+SIDESTEP = (90.0, -90.0, 45.0, -45.0)  # degrees off a blocked stride a walker tries instead, in this order
+
+
+def body_of(txt: int) -> float:
+    """A body's radius by its type (BODY_RADII)."""
+    return BODY_RADII.get(txt, BODY_RADIUS)
 
 
 # The character's resistances before the cap, in Hell (the penalty of 100 taken off), by the weapon set's base
@@ -107,6 +170,32 @@ RAW_RESISTS: dict[frozenset[str], dict[str, float]] = {
     frozenset(('fla', 'uit')): {'fire': 90.0, 'lightning': 79.0, 'cold': 89.0, 'poison': 95.0},
     frozenset(('6cs', 'wa3')): {'fire': 54.0, 'lightning': 8.0, 'cold': 18.0, 'poison': 24.0},
 }
+
+
+# [table] monumod.txt constants 10, 12, 13: the attack rating bonus of a champion, a unique's minion and a unique, in %
+# (sim/monsters.py `boost` holds the damage bonuses; the attack rating ones are not in tables.json)
+RANK_RATING = {CHAMPION: 75, MINION: 50, UNIQUE: 100}
+
+
+@contextmanager
+def sure_swings(on: bool = True) -> Generator[None]:
+    """While the block runs, sim/monsters.py's swings at the character take life every time (`swing_of`'s
+    `takes_life` 1), for `Mobs.landing` to roll the game's chance to hit instead; off: nothing changes. The live
+    forecast (combat/harm.py) holds its own `swing_of` and is not touched."""
+    if not on:
+        yield
+        return
+    plain = sim_monsters.swing_of
+
+    def swing_of(txt: int) -> Mapping[str, Any]:
+        found = plain(txt)
+        return {**found, 'takes_life': {**found['takes_life'], 'value': 1.0}}
+
+    sim_monsters.swing_of = swing_of  # pyrefly: ignore[bad-assignment]
+    try:
+        yield
+    finally:
+        sim_monsters.swing_of = plain
 
 
 def raw_resists(codes: Sequence[str]) -> dict[str, float] | None:
@@ -170,10 +259,74 @@ class Horde(Pack):
         self.barred = no_footing(ground, self.doors)  # None: open ground
         self.frame = 0
         self.ways: dict[int, tuple[tuple[int, int], list[Point]]] = {}  # unit -> the goal's cell, the way left
+        # The arena's rules (the module text), None while off: the factor a walker's place puts on its speed and
+        # attack rate, and the bodies besides the walkers' that a stride may not end in.
+        self.slowed: Callable[[Point], float] | None = None
+        self.bodies: Sequence[tuple[Point, float]] | None = None
+        self.base: dict[int, Traits] = {}  # unit -> its traits as made, before a slow
 
     def step(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
         self.frame = frame
-        return super().step(frame, targets)
+        slow = self._slow() if self.slowed is not None else {}
+        before = {unit: (walker.at, walker.doing, walker.until) for unit, walker in self.walkers.items()}
+        blows = super().step(frame, targets)
+        for unit, factor in slow.items():
+            walker = self.walkers.get(unit)
+            if walker is None or unit not in before:
+                continue
+            _, doing, until = before[unit]
+            if walker.doing == STRIKE and (doing != STRIKE or walker.until != until) and walker.until > frame:
+                # A swing (or shot) begun in the sigil: its frames at the slowed attack rate
+                walker.until = frame + math.ceil((walker.until - frame) / factor)
+                if walker.lands > frame:
+                    walker.lands = frame + math.ceil((walker.lands - frame) / factor)
+        if self.bodies is not None:
+            self._unblock({unit: at for unit, (at, _, _) in before.items()})
+        return blows
+
+    def _slow(self) -> dict[int, float]:
+        """Each walker's speed as the sigil slows it this frame (`slowed`); the walkers it slows and their factor."""
+        assert self.slowed is not None
+        found = {}
+        for unit, walker in self.walkers.items():
+            if walker.mind is not None:
+                continue
+            base = self.base.setdefault(unit, walker.traits)
+            factor = self.slowed(walker.at)
+            walker.traits = base if factor >= 1.0 else replace(base, speed=base.speed * factor)
+            if factor < 1.0:
+                found[unit] = factor
+        return found
+
+    def _unblock(self, before: Mapping[int, Point]) -> None:
+        """Every stride of this frame that ended inside another body and nearer to it: one to the side (SIDESTEP)
+        if that is free, else none (the module text, bodies block)."""
+        assert self.bodies is not None
+        for unit in sorted(self.walkers):
+            walker = self.walkers[unit]
+            old = before.get(unit)
+            if old is None or walker.at == old:
+                continue
+            radius = body_of(walker.txt)
+            others = [*self.bodies, *((w.at, body_of(w.txt)) for u, w in self.walkers.items() if u != unit)]
+
+            def blocked(spot: Point, start: Point = old, mine: float = radius, near=others) -> bool:
+                return any(
+                    math.dist(spot, at) < mine + theirs and math.dist(spot, at) < math.dist(start, at) - 1e-9
+                    for at, theirs in near
+                )
+
+            if not blocked(walker.at):
+                continue
+            dx, dy = walker.at[0] - old[0], walker.at[1] - old[1]
+            walker.x, walker.y = old
+            for turn in SIDESTEP:
+                angle = math.radians(turn)
+                side = (old[0] + dx * math.cos(angle) - dy * math.sin(angle),
+                        old[1] + dx * math.sin(angle) + dy * math.cos(angle))  # fmt: skip
+                if self._footing(side) and not blocked(side):
+                    walker.x, walker.y = side
+                    break
 
     def _open(self, start: Point, end: Point) -> bool:
         """Whether nothing bars the straight walk from `start` to `end` (the cell stood on is not looked at)."""
@@ -253,8 +406,12 @@ class Horde(Pack):
 class Mobs:
     """A scene's monsters, played tick by tick. All rolls come from `rng`: equal scenes, equal seeds
     and equal calls give equal answers. `auras` (unit -> the factor on the blows of the others within
-    BOOST_RANGE while it lives) is for a scene that knows its auras and curses; left out, every Aura
+    AURA_RANGE while it lives) is for a scene that knows its auras and curses; left out, every Aura
     Enchanted monster of the scene has AURA_FACTOR. The scene given is not changed."""
+
+    # With `capped`: each melee blow is the game's own roll (`bounded`) in place of the fitted spread's, cut
+    # (rca/2026-10-21/fane-death-sim-findings.md §2, a variant set on the class for a run of plays)
+    uniform_roll: bool = False
 
     def __init__(self, scene: Scene, rng: random.Random, auras: Mapping[int, float] | None = None) -> None:
         self.mobs: dict[int, Mob] = {mob.unit: replace(mob) for mob in scene.mobs}
@@ -286,12 +443,29 @@ class Mobs:
         # The character's resistances before the cap, Hell's penalty taken off, of the set in hand (game.py
         # sets it at each tick, `RAW_RESISTS`); None: only what the set's shares say.
         self.raw: Mapping[str, float] | None = None
+        # Each melee blow cut at the game's own most for its monster (`bounded`); False: the fitted spread's whole tail,
+        # as every scene before 2026-10-22
+        self.capped = False
+        # The character's defence and level (`landing`): a melee swing at the character lands with the game's chance
+        # to hit (sim/casters.py `hit_chance`) instead of the fitted one; None: the fitted chance, as before. Its rolls
+        # are a stream of their own, drawn last, so no other roll moves.
+        self.defence: tuple[float, int] | None = None
+        self.hit_rng = random.Random(rng.getrandbits(32))
+        # Each unit's damagepercent (stat 25) as the take read it (fane-death-sim-findings.md §8): the sum
+        # of the damage auras on it (Might L16 +190, Concentration L16 +285, Fanaticism L12 +118 in the takes), its own
+        # aura among them, on the physical points alone with `capped`; it replaces `auras`. None: `auras`, as before
+        self.damage_percent: dict[int, list[tuple[float, float]]] | None = None  # unit -> (seconds, percent), in order
+        # `uniform_roll` (the class's, a variant): its rolls a stream of their own, drawn last
+        self.roll_rng = random.Random(rng.getrandbits(32))
         # The monsters a cast raised (sim/casters.py `Summon`: Baal's tentacles and clone): unit -> (its summoner, the
         # frame it is gone at or None). They go when that frame comes or their summoner dies; neither is a kill.
         self.area = scene.hero.area
         self.seed = 1  # a newcomer's rolls (`spawn`); stage.py's `Cast` gives the play's
         self.summoned: dict[int, tuple[int, int | None]] = {}
         self.next_summon = SUMMONED
+        # The blows of the last tick on the character's companions: (the index of the companion among those `tick` was
+        # given, its raw points), for game.py's rule PETS_FIGHT
+        self.mate_blows: list[tuple[int, float]] = []
 
     @staticmethod
     def _walker(mob: Mob) -> Walker:
@@ -349,6 +523,16 @@ class Mobs:
             if (lasts is not None and self.frame >= lasts) or summoner not in self.pack.walkers:
                 self.vanish(unit)
 
+    def turn(self, unit: int) -> None:
+        """A hostile made the character's (Bind Demon, game.py `Arena.bind`): out of the pack and the hostiles, an
+        ally where it stands with the life it has; no kill."""
+        mob = self.mobs.get(unit)
+        if mob is None or unit not in self.hostile:
+            return
+        self.hostile.remove(unit)
+        self.pack.remove(unit)
+        mob.ally = True
+
     def vanish(self, unit: int) -> None:
         """A raised monster gone, not killed: it lies where it stood, out of the pack."""
         self.summoned.pop(unit, None)
@@ -367,9 +551,16 @@ class Mobs:
         factor = 1.0
         if mob is None:
             return factor
+        if self.damage_percent is not None:
+            # The take's own reading (`damage_percent`): the sum of the damage auras on the unit, its own among them,
+            # the last at or before this tick (the first while none is yet)
+            readings = self.damage_percent.get(unit, ())
+            now = self.frame / GAME_RATE
+            value = next((value for at, value in reversed(readings) if at <= now), readings[0][1] if readings else 0.0)
+            return 1.0 + value / 100
         for other in self.live():
             raises = self.auras.get(other, 1.0)
-            if other != unit and raises != 1.0 and math.dist(self.mobs[other].at, mob.at) <= BOOST_RANGE:
+            if other != unit and raises != 1.0 and math.dist(self.mobs[other].at, mob.at) <= AURA_RANGE:
                 factor *= raises
         return factor
 
@@ -384,11 +575,122 @@ class Mobs:
         through = resisted(through, self.pack.minds.hex_on(0, self.frame), self.raw)
         return {kind: 1.0 - share for kind, share in through.items()}
 
+    def bounded(self, blows: Sequence[Blow]) -> list[Blow]:
+        """The blows with each melee one cut at the game's most for its monster (`capped`, 2026-10-22,
+        rca/2026-10-21/fane-death-sim-findings.md): the game rolls a blow uniformly between its least and its most
+        (monstats A1MinD/A1MaxD(H) times monlvl DM(H) at its level, times its rank's, Extra Strong's and its Herald
+        tier's boost: `Traits.damage`), and an enchantment's element at most its share of that (`Traits.elements`);
+        sim/monsters.py `spread` draws the fitted size spread over the mean, whose top decile (x1.84 to x4.99, fitted
+        on 50 blows of mean 64) gives a level 96 unique blows of the character's whole life. The auras round it (on the
+        physical points alone, as the game's Might) and the curses on the character are put on after (`landed`,
+        `stopped`), so the cut is the game's most under them too. Shots, sparks, novas and a read AI's casts are left
+        as they are."""
+        found = []
+        for blow in blows:
+            walker = self.pack.walkers.get(blow.unit)
+            if blow.kind == SHOT and walker is not None and walker.mind is None:
+                found.append(self._shot_cut(blow, walker))
+                continue
+            if blow.kind != MELEE or walker is None or walker.mind is not None:
+                found.append(blow)
+                continue
+            least, most = walker.traits.damage
+            if self.uniform_roll:
+                # The game's own roll: physical uniform from its least to its most, each element a uniform share of it
+                physical = self.roll_rng.uniform(least, most)
+                parts = {PHYSICAL: physical} | {
+                    kind: physical * self.roll_rng.uniform(low, high) for kind, low, high in walker.traits.elements
+                }
+                found.append(replace(blow, damage=sum(parts.values()), parts=parts))
+                continue
+            shares = {element: top for element, _, top in walker.traits.elements}
+            parts = {
+                kind: min(
+                    points, most if kind == PHYSICAL else most * shares.get(kind, 0.0) if kind in shares else points
+                )
+                for kind, points in (blow.parts or {PHYSICAL: blow.damage}).items()
+            }
+            found.append(replace(blow, damage=sum(parts.values()), parts=parts))
+        return found
+
+    def _shot_cut(self, blow: Blow, walker: Walker) -> Blow:
+        """A shooter's shot cut at its most (`capped`, 2026-10-22, rca/2026-10-21/fane-death-sim-findings.md §10): each
+        kind at the larger of the shot's own points (`shot_parts`) and what the type's monstats attack gives it at most
+        (`Traits.damage`, its elements' top shares), both without the Herald tier's boost (SHOT_TIER), as a melee blow
+        is cut (`bounded`). sim/monsters.py draws a shot's size from the fitted spread over the mean (x4.6 seen), which
+        made a Slinger's throw 2326 raw points, 7754 taken (danger-area110-1912, seed 18); the game's missile has no
+        such tail. Its stat 25 does not raise it (SHOT_RAISED, `landed`)."""
+        most = walker.traits.damage[1]
+        tier = (
+            1.0
+            if SHOT_TIER
+            else boost(walker.traits.rank, walker.mods, walker.tier) / boost(walker.traits.rank, walker.mods, 0)
+        )
+        own = self.pack.shots.get(walker.unit, {})
+        shares = {element: top for element, _, top in walker.traits.elements}
+        tops = {PHYSICAL: most} | {kind: most * share for kind, share in shares.items()}
+        parts = {
+            kind: min(points, max(own.get(kind, 0.0), tops.get(kind, 0.0)) / tier) if kind in own or kind in tops
+            else points
+            for kind, points in (blow.parts or {PHYSICAL: blow.damage}).items()
+        }  # fmt: skip
+        return replace(blow, damage=sum(parts.values()), parts=parts)
+
+    def in_reach(self, blow: Blow, hero_at: Point) -> bool:
+        """Whether a melee blow at the character comes from within MELEE_REACH of it (`capped`, 2026-10-22,
+        rca/2026-10-21/fane-death-sim-findings.md §9). sim/monsters.py `reach_of` gives a share of swings the fit's
+        tail, up to 10 units: the takes' hurts name attackers that far, since a fast monster's place is read up to
+        0.4 s late (a Flesh Hunter runs 18.6 units a second). The arena's places are exact, so that tail would land the
+        unique Herald's 3033 from 9.8 units (fane-death-24 at the client's levels, seed 4); the population replay
+        (findings §8) counted the arena's blows from within 4 alone. A blow on a companion, a shot and a read AI's
+        casts are as they were."""
+        walker = self.pack.walkers.get(blow.unit)
+        if blow.kind != MELEE or blow.target != 0 or walker is None or walker.mind is not None:
+            return True
+        return math.dist(walker.at, hero_at) <= MELEE_REACH
+
+    def landing(self, blows: Sequence[Blow]) -> list[Blow]:
+        """The melee blows at the character that hit (`defence`, 2026-10-22, rca/2026-10-21/fane-death-sim-findings.md
+        §2): each lands with the game's chance to hit, AR = A1TH(H) x monlvl TH(H) at the monster's level, the rank's
+        bonus on it (RANK_RATING), against the character's defence and level (sim/casters.py `hit_chance`, [code +
+        table], clamped 5-95 %). The pack swings as if every swing took life (`sure_swings`); the block is the arena's
+        own roll after this. A blow on a companion, a shot and a read AI's casts are as they were."""
+        found = []
+        for blow in blows:
+            walker = self.pack.walkers.get(blow.unit)
+            chance = self.to_hit(walker) if blow.kind == MELEE and blow.target == 0 and walker is not None else None
+            if chance is None or self.hit_rng.random() < chance:
+                found.append(blow)
+        return found
+
+    def to_hit(self, walker: Walker) -> float | None:
+        """A walker's chance to hit the character with a swing (`landing`); None: not rolled here (no `defence`, a read
+        AI, a type with no monstats row)."""
+        row = tables()['monsters'].get(str(walker.txt))
+        if self.defence is None or walker.mind is not None or row is None:
+            return None
+        defence, level = self.defence
+        rated = 1 + RANK_RATING.get(walker.traits.rank, 0) / 100
+        row = {**row, 'A1TH(H)': str(float(row.get('A1TH(H)') or 0) * rated)}
+        return hit_chance(row, walker.traits.level, defence, level)
+
+    def struck(self, blows: Sequence[Blow], hero_at: Point | None = None) -> list[Blow]:
+        """The pack's blows of a tick as this file plays them: at the game's most (`capped`), within the game's melee
+        reach of the character (`capped`, `in_reach`), hitting with the game's chance (`defence`)."""
+        found = list(blows)
+        if self.capped:
+            found = self.bounded(found)
+            if hero_at is not None:
+                found = [blow for blow in found if self.in_reach(blow, hero_at)]
+        if self.defence is not None:
+            found = self.landing(found)
+        return found
+
     def tick(self, hero_at: Point, companions: Sequence[Point], resist: Mapping[str, float]) -> float:
         """One game tick: every live hostile thinks, moves, strikes and shoots at the character or one
         of its `companions`. The points taken off the character this tick, each kind of damage cut to
         the share `resist` lets through (a kind it does not name: all of it), under a curse on it."""
-        found = self.pack.step(self.frame, [hero_at, *companions])
+        found = self.struck(self.pack.step(self.frame, [hero_at, *companions]), hero_at)
         self.raised()
         stopped = self.stopped(resist)
         taken = 0.0
@@ -396,6 +698,7 @@ class Mobs:
             if math.dist(at, hero_at) <= BLAST_RADIUS:
                 taken += BLAST * (1.0 - stopped.get(BLAST_KIND, 0.0))
         self.blasts = []
+        self.mate_blows = [(blow.target - 1, blow.damage) for blow in found if blow.target > 0]
         for blow in found:
             if blow.target == 0 and blow.kind == MELEE and self.block_rng.random() < self.block_chance:
                 self.blocked += 1
@@ -409,7 +712,17 @@ class Mobs:
     def landed(self, blow: Blow, stopped: Mapping[str, float]) -> float:
         """The points a blow that was not blocked takes off the character: its parts times the auras around its
         monster (a swing's or a shot's), the guard's share taken off first (`_guarded`), cut by `stopped`."""
-        raised = self._raised(blow.unit) if blow.kind in (MELEE, SHOT) else 1.0
+        raised = (
+            self._raised(blow.unit)
+            if blow.kind == MELEE or (blow.kind == SHOT and (SHOT_RAISED or not self.capped))
+            else 1.0
+        )
+        if (self.capped or PHYSICAL_RAISE) and raised != 1.0:
+            # The game's Might (and Fanaticism's damage) raise a blow's physical points alone: its elements as rolled
+            # (`capped` scenes, and every scene since PHYSICAL_RAISE)
+            parts = dict(blow.parts or {PHYSICAL: blow.damage})
+            parts[PHYSICAL] = parts.get(PHYSICAL, 0.0) * raised
+            blow, raised = replace(blow, damage=sum(parts.values()), parts=parts), 1.0
         if self.guard is not None and self._ruled(blow):
             return self._guarded(blow, raised).taken(stopped)
         return blow.taken(stopped) * raised
@@ -459,6 +772,8 @@ class Mobs:
         of (combat/threats), whose cast under way the client shows by its mode (monmode.txt CAST_MODES) while the
         mode's own frames last (its `aidel` after it is spent standing)."""
         walker = self.pack.walkers.get(mob.unit)
+        if walker is not None and SHOWN_MOTION and mob.mode in PLAIN_MODES and walker.doing != casters.CAST:
+            return self.motion_mode(mob, walker)
         if walker is None or walker.mind is None or walker.doing != casters.CAST or threats.of(mob.txt) is None:
             return mob.mode
         mind = walker.mind
@@ -474,6 +789,21 @@ class Mobs:
             frames = casters.MODE_FRAMES.get((mind.ai, mind.mode), 0)
             begun = walker.until - frames - mind.delay
         return CAST_MODES.get(mind.mode, mob.mode) if self.frame - 1 < begun + frames else mob.mode
+
+    def motion_mode(self, mob: Mob, walker: Walker) -> int:
+        """The mode the client shows a walker in while it moves, swings or reels (SHOWN_MOTION): walk (WL 2), the
+        melee swing's frames as attack 1 (A1 4), get hit (GH 3); standing, a shooter's gap and a swing's rest the
+        scene's own mode."""
+        if walker.doing == WALK:
+            return WALK_MODE
+        if walker.doing == STAGGER:
+            return GET_HIT_MODE
+        if walker.doing == STRIKE and walker.unit not in self.pack.shots and walker.lands >= 0:
+            frames = sim_monsters.swing_of(mob.txt)['frames']['value']
+            begun = walker.lands - max(round(sim_monsters.fitted()['melee']['blow']['share'] * frames), 1)
+            if self.frame - 1 < begun + frames:
+                return CAST_MODES['A1']
+        return mob.mode
 
     def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
         """The missiles in flight of the classes `kinds` as game/decode.py `flights` reads them: (owner unit,
@@ -499,9 +829,18 @@ class Mobs:
                 round(mob.full),
                 modifiers=tuple(mob.mods),
                 tier=mob.tier,
+                damage_percent=self.shown_percent(mob.unit),
             )
             for mob in self.mobs.values()
         ]
+
+    def shown_percent(self, unit: int) -> int | None:
+        """A hostile's stat 25 as the live client's full stat list shows it (game/decode.py, `Monster.damage_percent`,
+        2026-10-22): the raise its blows play by (`_raised`): the take's reading where the scene carries them
+        (`damage_percent`), else the auras round it (`auras`, AURA_FACTOR); 0 for none. None for a companion."""
+        if unit not in self.hostile:
+            return None
+        return round((self._raised(unit) - 1.0) * 100)
 
     def corpses(self) -> tuple[tuple[int, float, float], ...]:
         """The monsters lying dead as (unit id, x, y), as `Run.corpses` gives them (world.corpses)."""

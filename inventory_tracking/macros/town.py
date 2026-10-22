@@ -8,18 +8,20 @@ The stash stop's plan (`stash_stop`, `place`, `after`, `surplus`, the rune trans
 wrappers so this module's NEEDS, PARK_JUNK and `rune_recipe` still decide them.
 """
 
+from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence, Set
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 
-from inventory_tracking.game.layout import STACK_MOST
 from inventory_tracking.game.records import Carried, Pack, Page, StashView, Teleport
+from inventory_tracking.game.stash import STACK_MOST, STACK_ROOM
 from inventory_tracking.loot import storage
 from inventory_tracking.loot.api import reserve_short
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.loot.storage import (
     BER,
     BIG_BLOCK,
+    CUBE_CLASS,
     GEMS_A_KIND,
     GEMS_KEPT,
     PARK_JUNK,
@@ -32,12 +34,14 @@ from inventory_tracking.loot.storage import (
     Holdings,
     Put,
     RuneCube,
+    RuneRecipe,
     StashStop,
     after,
     loot,
     out_now,
     perfect_of,
     place,
+    rune_cube,
     rune_recipe,
     surplus,
     unread_way_for_cube,
@@ -50,7 +54,10 @@ from inventory_tracking.macros.stash import MATERIALS_TAB, is_potion, resource_t
 __all__ = [
     'BER',
     'GEMS_A_KIND',
+    'GEMS_KEEP_FLAWLESS',
     'GEMS_KEPT',
+    'GEMS_TAB',
+    'GEM_TRANSMUTES',
     'PARK_JUNK',
     'RUNES_AIM',
     'RUNES_A_TAKE',
@@ -72,6 +79,8 @@ __all__ = [
     'after',
     'contract',
     'deposit_to',
+    'gem_recipe',
+    'gem_transmutes',
     'kept_gem',
     'named',
     'out_now',
@@ -85,13 +94,26 @@ __all__ = [
     'unread_way_for_cube',
 ]
 
-STACK_ROOM = 20  # the player, 2026-10-18: "at least 20 free slots" on a resource stack (step 5)
 DEPOSIT_NEAR = 2 * SALE_MOST  # gold this near the cap is deposited at the stash (macros/stash.py `deposit`)
 DEPOSIT_ROOM = 250_000  # down to the cap less this: room for a session's sales, Teleport still on (loop.py TELEPORT_ON)
 REPAIR_SHARE = 1.2  # the deposit leaves the expected repair and this share over it carried (repairs from carried gold)
 # A cube keeper the visit cannot get out (room on a page, none in the inventory) waits for the next visit, named as
 # deferred, not a miss: "keeper can wait in cube" (the player, 2026-10-18). No page with room: the loop stops.
 KEEPER_IN_CUBE = True
+# Flawless gems kept on the Gems tab, at least this many of each kind (Amethyst, Diamond, Emerald, Ruby, Sapphire,
+# Topaz, Skull); every flawless gem over it is cubed at the stash stop, three from its stack (Ctrl + Shift + right
+# click) into the perfect one (cubemain.txt via build_rune_cube.py, data/rune_cube.json `gems`), the perfect gem onto
+# its stack. The player, 2026-10-21 ~14:45: "could we also cube gems, probably I's like to keep 15 flawless gems";
+# then 14:56: "I wand to keep flawless very low (if we can have perfect)": 0, only the remainder (0-2 a kind) stays.
+# A number the player can raise. None: the rule before it (a flawless gem cubed only once its stack is full, from the
+# carried ones: `kept_gem`, cube.py `transmute`; the Flawless Amethyst stack sat at 99 from ~14:10 with one made).
+GEMS_KEEP_FLAWLESS: int | None = 0
+# At most this many gem transmutes a visit, the rest the next: one is a right click, Transmute and the perfect gem
+# back, about 2 s (three rune transmutes with a gem each took 7.3 s at 18:54 on 2026-10-18, history/visit.md), so
+# about 10 s a visit. A backlog (the Flawless Amethyst stack at 99: 33 transmutes; the other kinds 46 to 82: ~150
+# in all) goes down over visits; a game's few flawless gems need one or two.
+GEM_TRANSMUTES = 5
+GEMS_TAB = 2  # `resource_tabs`: 2 Gems, 3 Materials, 4 Runes
 
 
 @dataclass(frozen=True)
@@ -143,10 +165,108 @@ def stash_stop(
     *,
     deposit_to: int | None = None,
     park: bool | None = None,
+    gems: int = GEM_TRANSMUTES,
 ) -> StashStop:
     """The stash stop's plan (§2.2 2; loot/storage.py `stash_stop`) leaving `needs.block` free; `park` None: this
-    module's PARK_JUNK."""
-    return storage.stash_stop(h, view, needs.block, deposit_to=deposit_to, park=PARK_JUNK if park is None else park)
+    module's PARK_JUNK. Then up to `gems` gem transmutes (GEMS_KEEP_FLAWLESS) after its rune transmutes."""
+    stop = storage.stash_stop(h, view, needs.block, deposit_to=deposit_to, park=PARK_JUNK if park is None else park)
+    return _gems(stop, h, view, gems)
+
+
+def gem_recipe(txt: int) -> RuneRecipe | None:
+    """The recipe taking flawless gems of class `txt` into the perfect one (data/rune_cube.json `gems`, from the
+    installed game's cubemain.txt: the gem alone, nothing else); `runes` is its gem count. None for any other class,
+    a perfect gem's too."""
+    row = rune_cube().get('gems', {}).get(str(txt))
+    if row is None or perfect_of(txt) != row['into']:
+        return None
+    return RuneRecipe(row['into'], row['gems'], (), row['description'])
+
+
+def gem_transmutes(
+    counts: Mapping[int, int], keep: int | None = GEMS_KEEP_FLAWLESS, most: int = GEM_TRANSMUTES
+) -> tuple[RuneCube, ...]:
+    """Up to `most` gem transmutes from the stacks' counts (class -> count): one at a time, the fullest flawless stack
+    first (the smaller class on a tie), each only while `keep` of its kind stay and its perfect stack has room. None
+    `keep`: none (the rule before GEMS_KEEP_FLAWLESS). 17 keeps 17 (two over, no transmute's worth), 18 makes one."""
+    if keep is None:
+        return ()
+    counts = Counter(counts)
+    made: list[RuneCube] = []
+    while len(made) < most:
+        ready = [
+            txt
+            for txt in sorted(counts)
+            if (found := gem_recipe(txt)) is not None
+            and found.runes == RUNES_A_TAKE  # what one right click moves into the cube
+            and counts[txt] - found.runes >= keep
+            and counts[found.into] < STACK_MOST
+        ]
+        if not ready:
+            break
+        txt = max(ready, key=lambda t: (counts[t], -t))
+        found = gem_recipe(txt)
+        assert found is not None
+        counts[txt] -= found.runes
+        counts[found.into] += 1
+        made.append(RuneCube(txt, found.into))
+    return tuple(made)
+
+
+def _gems(stop: StashStop, h: Holdings, view: StashView, most: int) -> StashStop:
+    """`stop` with its gem transmutes after its rune transmutes, from the stacks as the stop leaves them, only when it
+    leaves the cube empty (anything else in it would join the recipe) or holding one or two flawless gems of one kind
+    whose stack is full (kept for the cube, `kept_gem`): the first transmute then tops those up to three from the
+    stack (visit.py `_cube_runes`). The loop's carried gems a full stack refused then go onto the room the transmutes
+    made (`rune_puts`). The player's own gems (`h.own`) are never touched."""
+    if GEMS_KEEP_FLAWLESS is None or most <= 0 or all(i.txt != CUBE_CLASS for i in h.pack.items):
+        return stop
+    left = after(h.pack, stop)
+    counts = Counter(dict(view.stacks))
+    counts.update(put.item.txt for put in (*stop.puts, *stop.rune_puts) if put.tab)
+    for step in stop.runes:
+        counts[step.txt] -= RUNES_A_TAKE
+        counts[step.into] += 1
+        if step.gem is not None:
+            counts[step.gem] -= 1
+    topped: tuple[RuneCube, ...] = ()
+    if left.in_cube:
+        topped = _topped(left.in_cube, h, counts)
+        if not topped:
+            return stop
+    gems = (*topped, *gem_transmutes(counts, GEMS_KEEP_FLAWLESS, most - len(topped)))
+    if not gems:
+        return stop
+    for step in gems[len(topped) :]:
+        counts[step.txt] -= RUNES_A_TAKE
+        counts[step.into] += 1
+    kinds = {step.txt for step in gems}
+    waiting = h.junk | h.unknown
+    late: list[Put] = []
+    for item in loot(left, h.own):
+        if item.txt in kinds and item.unit_id not in waiting and counts[item.txt] < STACK_MOST:
+            counts[item.txt] += 1
+            late.append(Put(item, 'inventory', -GEMS_TAB))
+    return replace(stop, runes=(*stop.runes, *gems), rune_puts=(*stop.rune_puts, *late))
+
+
+def _topped(cube: Sequence[Carried], h: Holdings, counts: Counter[int]) -> tuple[RuneCube, ...]:
+    """The transmute topping the cube's one or two flawless gems of one kind up to three from its stack, `counts`
+    updated; () when the cube holds anything else, junk or the unidentified, or the stack or the rule cannot."""
+    kinds = {i.txt for i in cube}
+    if len(kinds) != 1 or any(i.unit_id in h.junk | h.unknown for i in cube):
+        return ()
+    [txt] = kinds
+    found = gem_recipe(txt)
+    keep = GEMS_KEEP_FLAWLESS
+    if found is None or keep is None or found.runes != RUNES_A_TAKE or len(cube) >= found.runes:
+        return ()
+    short = found.runes - len(cube)
+    if counts[txt] < short or counts[txt] - short < keep or counts[found.into] >= STACK_MOST:
+        return ()
+    counts[txt] -= short
+    counts[found.into] += 1
+    return (RuneCube(txt, found.into),)
 
 
 def rune_transmutes(counts: Mapping[int, int], most: int = RUNE_TRANSMUTES) -> tuple[RuneCube, ...]:

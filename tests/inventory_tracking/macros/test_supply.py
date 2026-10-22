@@ -756,3 +756,65 @@ def test_a_chest_is_opened_from_afar_only_where_the_walk_to_it_is_not_round_a_wa
     corner = Ground((CORNER,))
     assert not clear_line(corner, (), CLICKED_FROM, (GEM.x, GEM.y))
     assert open_reaches(corner, (), CLICKED_FROM, (GEM.x, GEM.y), 20.0)  # 18.3 straight, 19.4 round
+
+
+# HELD_STAYS (the player, 2026-10-21 ~20:15: "we need to do the best aiming when we're trying to focus mob";
+# rca/2026-10-21/herald-aiming-findings.md §2.5): while the leader the attack holds lives in reach, neither gold nor a
+# healing potion "on the way" pulls the run out of the fight (the belt keeping its rejuvenations); valuables do
+def holding_hunter(play, loot: Loot, held: int | None):
+    from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
+
+    hunt = running(play, loot=loot)
+    attack = EchoingStrike(hold=True)
+    attack.held.unit = held
+    hunt.build = replace(hunt.build, attack=attack)
+    return hunt
+
+
+HERE = (5000.0, 5000.0)
+PILE = Drop(911, 5004.0, 5000.0, '3120 gold', 'gold')
+HERALD = Monster(50, 638, 1, 5012.0, 5000.0, 0xFFFFFFFF, 0x08, life=90, max_life=128, tier=5)
+
+
+@pytest.mark.parametrize('stays', [True, False])
+def test_gold_and_a_healing_potion_wait_while_the_held_leader_lives_in_reach(monkeypatch, caplog, stays) -> None:
+    from inventory_tracking.macros.hunting import choice
+
+    monkeypatch.setattr(choice, 'HELD_STAYS', stays)
+    play = game()
+    loot = Loot((POTION, PILE), LOW_BELT, 1748, 1818, game=NAMED)  # 8 rejuvenations on the belt
+    hunt = holding_hunter(play, loot, HERALD.unit_id)
+    with caplog.at_level(logging.INFO):
+        found = hunt.side_drop(play.run(), HERE, [HERALD], play.world)
+    if stays:
+        assert found is None or found.unit_id not in {POTION.unit_id, PILE.unit_id}
+        assert 'a super healing potion at (4998, 5006), 6 away, waits: the leader 50 held is in reach' in caplog.text
+    else:
+        assert found is not None
+        assert found.unit_id in {POTION.unit_id, PILE.unit_id}
+
+
+def test_the_side_goals_come_back_once_the_held_leader_is_out_of_reach_or_the_belt_needs_them() -> None:
+    play = game()
+    loot = Loot((POTION, PILE), LOW_BELT, 1748, 1818, game=NAMED)
+    hunt = holding_hunter(play, loot, HERALD.unit_id)
+    far = replace(HERALD, x=5000.0 + hunt.reach + 5.0)
+    found = hunt.side_drop(play.run(), HERE, [far], play.world)
+    assert found is not None
+    assert found.unit_id in {POTION.unit_id, PILE.unit_id}
+    nothing_held = holding_hunter(play, loot, None).side_drop(play.run(), HERE, [HERALD], play.world)
+    assert nothing_held is not None
+    # Two rejuvenations left (manaburn.KEPT_REJUVENATIONS): the healing potion is the fight's life, taken
+    dry = holding_hunter(play, replace(loot, belt=(JUV, JUV) + (None,) * 14), HERALD.unit_id)
+    found = dry.side_drop(play.run(), HERE, [HERALD], play.world)
+    assert found is not None
+    assert found.unit_id == POTION.unit_id
+
+
+def test_the_wait_for_a_held_leader_keeps_valuables_and_rejuvenations() -> None:
+    from inventory_tracking.macros.hunting.choice import wait_for_held
+
+    play = game()
+    loot = Loot((THUL, PILE, POTION, JUV_7), LOW_BELT, 1748, 1818, game=NAMED)
+    hunt = holding_hunter(play, loot, HERALD.unit_id)
+    assert wait_for_held(hunt, loot, HERE, [HERALD]).drops == (THUL, JUV_7)

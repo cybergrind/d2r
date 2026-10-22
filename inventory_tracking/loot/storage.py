@@ -22,8 +22,8 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Literal
 
-from inventory_tracking.game.layout import STACK_MOST
 from inventory_tracking.game.records import Carried, Pack, Page, StashView
+from inventory_tracking.game.stash import RUNES_AIM, STACK_MOST
 from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, Grid
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
@@ -119,8 +119,7 @@ GEMS_KEPT = 6
 PARK_JUNK = True
 # Rune stacks over RUNES_AIM: three runes out to the cube and transmuted into the next (`rune_recipe`; Thul to Lem take
 # a gem from the Gems tab, Pul up take two runes: not handled), the fullest first, at most RUNE_TRANSMUTES a visit,
-# never a Ber Rune: "cubed, aim to 80 or lower" (the player, 2026-10-18). Timing evidence: macros/history/town.md.
-RUNES_AIM = 80
+# never a Ber Rune: the player's aim (game/stash.py RUNES_AIM). Timing evidence: macros/history/town.md.
 RUNE_TRANSMUTES = 3
 RUNES_A_TAKE = 3  # what a Ctrl + Shift + right click on a stack moves into the cube (the player, 14:28 on 2026-10-18)
 # Ber Runes are kept for Enigma (the player, 2026-10-09)

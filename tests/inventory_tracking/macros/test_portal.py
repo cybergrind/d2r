@@ -50,13 +50,93 @@ def test_a_portal_that_was_open_before_the_cast_is_not_the_new_one():
     assert [event for event in play.keys.events if event[0] == 'click'] == []
 
 
-def test_with_no_portal_after_the_cast_it_stops_saying_so():
+def test_with_no_portal_after_the_cast_it_is_cast_once_more_then_stops_saying_so():
     play = lower_kurast()
     play.portal_opens = None
 
     with pytest.raises(Abort, match=r'no Town Portal opened .* is the tome empty\?'):
         to_town(play.run(), keys)
+    assert play.pressed() == ['x', 'x']  # portal.py CAST_FREE: once more before the stop
+
+
+def _blocks(play: Game, seconds: float, mode: int = 9) -> list[float]:
+    """The character blocks (mode 9) for `seconds`, and the game drops a Town Portal key pressed in a block or a hit
+    (09:30:05 on 2026-10-22: the Sling's 411 on the right button for one frame, no cast). The clock times of the
+    presses the game took."""
+    from dataclasses import replace
+
+    from tests.inventory_tracking.macros.fakes import character_of
+
+    def mode_now(value: int) -> None:
+        play.world = replace(play.world, player=replace(character_of(play.world), mode=value))
+
+    mode_now(mode)
+    play.later(seconds, lambda: mode_now(1))
+    act, taken = play.act, []
+
+    def dropping(event) -> None:
+        if event[0] == 'key' and event[1] == 'x':
+            if character_of(play.world).mode in (4, 9):
+                return
+            taken.append(play.clock.now)
+        act(event)
+
+    play.act = dropping
+    return taken
+
+
+@pytest.mark.parametrize('mode', [9, 4])
+def test_a_cast_in_a_block_or_a_hit_waits_for_its_end(mode):
+    # 09:30:05 on 2026-10-22: the Sling's key went in during a block (mode 9) and the game dropped it
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    taken = _blocks(play, 0.4, mode)
+
+    to_town(play.run(), keys)
+
+    assert play.pressed()[0] == 'x'
+    assert play.pressed().count('x') == 1  # one key, after the block
+    assert len(taken) == 1
+    assert taken[0] >= 0.4
+    assert play.character.area == KURAST_DOCKS
+
+
+def test_a_cast_cut_short_is_made_once_more_and_its_portal_taken():
+    # 22:26:32 on 2026-10-21: the Sling's cast was cut by a block 0.04 s in; no portal, the game left 2.5 s later
+    from inventory_tracking.macros.portal import RECAST_AFTER
+
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    act, presses = play.act, []
+
+    def first_cut(event) -> None:
+        if event[0] == 'key' and event[1] == 'x':
+            presses.append(play.clock.now)
+            if len(presses) == 1:
+                return  # the cast cut short: no portal
+        act(event)
+
+    play.act = first_cut
+
+    to_town(play.run(), keys)
+
+    assert len(presses) == 2
+    assert presses[1] - presses[0] >= RECAST_AFTER
+    assert play.character.area == KURAST_DOCKS
+
+
+def test_with_the_switch_off_a_key_in_a_block_is_pressed_at_once_and_the_game_left(monkeypatch):
+    import inventory_tracking.macros.portal as portal_module
+
+    monkeypatch.setattr(portal_module, 'CAST_FREE', False)
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    taken = _blocks(play, 0.4)
+
+    with pytest.raises(Abort, match='no Town Portal opened'):
+        to_town(play.run(), keys)
     assert play.pressed() == ['x']
+    assert taken == []
 
 
 def test_in_town_nothing_is_cast():
@@ -117,6 +197,38 @@ def test_what_lands_while_the_portal_opens_is_picked_up_before_it_is_gone_throug
     assert len(asked) == 2
     assert all(now >= 0.6 and clicks == 0 for now, clicks in asked)  # the portal open, not yet clicked
     assert play.character.area == KURAST_DOCKS
+
+
+@pytest.mark.parametrize('walk_back', [True, False])
+def test_a_pickup_that_takes_the_character_off_the_portal_walks_back_to_it(monkeypatch, walk_back):
+    # 02:30:33 on 2026-10-21: a pickup at the open portal went 47 units off it, every aim at the portal was off the
+    # screen and the game was left with a Magic Kriss on the ground (portal.py WALK_BACK)
+    from dataclasses import replace
+
+    import inventory_tracking.macros.portal as portal_module
+    from tests.inventory_tracking.macros.fakes import character_of
+
+    monkeypatch.setattr(portal_module, 'WALK_BACK', walk_back)
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    asked: list[int] = []
+
+    def first() -> bool:
+        asked.append(1)
+        if len(asked) == 1:  # the drop 45 units off: the character is there after it
+            me = character_of(play.world)
+            play.world = replace(play.world, player=replace(me, x=me.x + 45.0))
+            return True
+        return False
+
+    if not walk_back:
+        with pytest.raises(Abort, match='town is not under the pointer at any aim'):
+            to_town(play.run(), keys, first)
+        return
+    to_town(play.run(), keys, first)
+
+    assert play.character.area == KURAST_DOCKS
+    assert play.walks  # walked back on the ground before the click on the portal
 
 
 def test_a_portal_whose_middle_is_covered_is_taken_by_its_top():

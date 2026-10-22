@@ -146,6 +146,14 @@ def sealed(seed: int) -> Outcome:
     return vizier.stored(SEAL).logic('new').play(seed=seed)
 
 
+@functools.cache
+def sealed_longer(seed: int) -> Outcome:
+    """`sealed` played on to SEALED_LONGER s (the Vizier's pin of 2026-10-21 ~21:15)."""
+    return vizier.stored(SEAL).logic('new').play(seconds=SEALED_LONGER, seed=seed)
+
+
+SEALED_LONGER = 24.0
+
 # The families of plays, one `xdist_group` each (`--dist loadgroup`; a test not marked runs with its file).
 SEAL_PLAYS = pytest.mark.xdist_group('pursuit: the seal')
 STALL_RECORDED = pytest.mark.xdist_group('pursuit: the stall as recorded')
@@ -350,10 +358,17 @@ def test_the_seal_is_opened_and_the_vizier_killed_by_the_new_logic() -> None:
     """The seal moment as recorded, 16 s: the seal is opened in every seed, and the Vizier dies within the
     window in 6 of 10 since the casters think by the client's code (sim/casters.py, 2026-10-13; 7 before; the
     pursuit off killed him in 5, rca/2026-10-13/situations.md §3)."""
-    new = [sealed(seed) for seed in TEN]
+    # Pinned 2026-10-21 ~21:15, the player on ENGORGE_PACK_FIRST (builds/warlock/buffs.py, ~15:45) and QUICK_SETTLE
+    # (macros/buffs.py, ~17:41): "yes, keep those 3 switches and pin the tests". Engorge first by the Vizier's knights
+    # puts his death later, not off: within 16 s in 5 of 10 (20:09 tree; 6 on the 21:15 one; 7 with ENGORGE_PACK_FIRST
+    # off), within 24 s in 9 and 8 of 10 (8 with it off) (rca/2026-10-21/arena-failures-findings.md T9). So: within the
+    # window in 5 of 10 (6 until then) and within 24 s in 8 of 10.
+    new = [sealed_longer(seed) for seed in TEN]
     assert all(outcome.opened for outcome in new)
-    killed = sum(1 for outcome in new if outcome.boss_dead[BOSS] is not None)
-    assert killed >= 6
+    dead = [outcome.boss_dead[BOSS] for outcome in new]
+    window = vizier.stored(SEAL).seconds  # the moment as recorded, 16 s
+    assert sum(1 for at in dead if at is not None and at <= window) >= 5, dead
+    assert sum(1 for at in dead if at is not None) >= 8, dead
 
 
 def test_the_toggle_off_stays_off_under_presses() -> None:

@@ -1,10 +1,12 @@
 """Per-game Herald tracking from probe events: group kills, tiers, allies, and the card text."""
 
+import json
+
 import pytest
 
 from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.model import Location
-from inventory_tracking.terror.tracker import ZoneTracker
+from inventory_tracking.terror.tracker import BOOK_SECONDS, ZoneTracker
 
 
 HERALD_DATA = '00' * 0x18 + '462a0802' + '00' * 0x64  # monster data +0x1A: 0x08, as the Black Marsh Herald
@@ -873,6 +875,40 @@ def test_the_bosses_killed_survive_a_restart_and_merge_with_the_parts_of_a_game(
     assert again.killed() == {'Andariel', 'Mephisto'}
     again.restore({**first.state(), 'slain': []})
     assert again.killed() == {'Andariel'}  # her dead unit is still among the dead elites
+
+
+def test_the_boss_book_survives_a_restart_by_game_and_level_beside_the_kills(tmp_path):
+    # The coordinator's ruling of 2026-10-22, the player's words: "make sure that all state is backed by files on
+    # filesystem and survives restarts/reloads. <game-id>-<level> as key". One object: the kills (`slain`) and the
+    # boss book (macros/bossledger.py's records) are this tracker's, in its one store
+    store = tmp_path / 'terror-games.json'
+    first = ZoneTracker(store, wall=lambda: 5000.0)
+    first.boss_game('cyberr13#432287142')
+    assert first.boss_note(102, 'Maffer Dragonhand', place=(603.0, 623.0), by='rooms')
+    assert not first.boss_note(102, 'Maffer Dragonhand', place=(608.0, 623.0))  # under BOOK_MOVE: no write
+    assert first.boss_note(102, 'Maffer Dragonhand', unit=3110582129, seen=True)
+    assert first.boss_note(102, 'Maffer Dragonhand', tried=True)
+    first.apply([entered(102, 0xBBBB)])
+    andariel_game(first)  # a kill saves at once: the games and the book in the one file
+    held = json.loads(store.read_text(encoding='utf-8'))
+    assert set(held) == {'games', 'bosses'}
+    assert list(held['bosses']) == ['cyberr13#432287142-102']
+    assert not list(tmp_path.glob('*.part'))
+    again = ZoneTracker(store, wall=lambda: 6000.0)  # the service restarted
+    again.boss_game('cyberr13#432287142')
+    ((area, name, record),) = again.boss_book()
+    assert (area, name) == (102, 'Maffer Dragonhand')
+    assert (record['place'], record['unit'], record['seen'], record['tries'], record['by']) == (
+        [603.0, 623.0],
+        3110582129,
+        True,
+        1,
+        'rooms',
+    )
+    again.boss_game('cyberr13#99')  # the same name, another player unit: another game
+    assert again.boss_book() == []
+    late = ZoneTracker(store, wall=lambda: 5000.0 + BOOK_SECONDS + 1)  # a day later: pruned
+    assert late.book == {}
 
 
 def test_a_game_stored_before_slain_was_kept_rebuilds_it_from_the_dead_elites():

@@ -15,8 +15,12 @@ near it").
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
+from typing import TypeGuard
 
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
+from inventory_tracking.combat.pack import BACK_SAID as PACK_BACK_SAID
+from inventory_tracking.combat.threats.dolls import BAIT_SAID
+from inventory_tracking.combat.threats.manaburn import MANA_SAID
 from inventory_tracking.macros.build import Leg, NoWay, Step
 from inventory_tracking.macros.goals import ENTRY_GOAL_NEAR, PICK_UP, PURSUED, WAIT, Goal
 from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
@@ -41,6 +45,23 @@ NONE, FULL = 'none', 'full'
 # Seconds a carried run waits for the new level's card (level guide poll 0.5 s, then rooms and walls are read).
 ENTERING = 3.0
 ENTERING_SAID = 'the level is being read: the run goes on once its card is up'
+# A level run with nothing to go to on a level whose map the level guide has not read yet (`Facts.mapped`) waits for it
+# MAP_WAIT seconds from its post or its carrying, holding what is in reach; past the wait, what is in reach is fought
+# before the run ends. The small levels' runs ended 0.4 s after the arrival, their maps read at ~0.6 s, and the agenda
+# took them for done, their hostiles alive (Durance of Hate Level 1, the Forgotten Reliquary and Temple, 09:05-09:09 on
+# 2026-10-21; rca/2026-10-21/small-levels-findings.md). False (before 2026-10-21): such a run ends at once.
+WAIT_FOR_MAP = True
+MAP_WAIT = 3.0
+MAP_SAID = "the level's map is not read yet: the run goes on once it is"
+# A boss of the game's ledger alive on the level with no place known for it (macros/bossledger.py; `Facts.bosses_left`,
+# the coordinator's relay of the boss-ledger findings, 2026-10-22, rca/2026-10-22/boss-ledger-findings.md cause 4; the
+# player: "we need to kill all bosses, no exceptions to that"): a level run whose route has nothing left but what takes
+# a press (the loot) or no stage at all is not ended (`ends_run`) while the level has an unexplored room: the judge
+# hands that room as its goal (hunting/judging.py `boss_explore`). No room left, the run ends as before, the bosses
+# named. The agenda's boss goal takes a boss with a known place (agenda.py BOSS_GOALS). Bounded by the ledger's hold
+# (zonenav.py BOSSES_HOLD off, or the level's runs past its allowance and BOSS_RUNS: no count). False: ended as before.
+BOSS_EXPLORE = True
+BOSS_EXPLORE_SAID = 'alive on this level, its place not known'
 
 
 @dataclass(frozen=True)
@@ -92,6 +113,11 @@ class Pursuit:
     def entering(self, now: float) -> bool:
         """The run was carried into its level less than ENTERING seconds ago."""
         return self.entered is not None and 0.0 <= now - self.entered <= ENTERING
+
+    def awaits_map(self, now: float) -> bool:
+        """Within MAP_WAIT seconds of the run's carrying into its level, else of its post (WAIT_FOR_MAP)."""
+        since = self.entered if self.entered is not None else self.pressed_at
+        return 0.0 <= now - since <= MAP_WAIT
 
 
 def heading(pursuit: Pursuit, goal: Goal | None) -> Pursuit | None:
@@ -147,6 +173,12 @@ class Facts:
     # navigator's shortest move, travel.py AROUND_LEAST) a way with no step left is an arrival (`moved`).
     beyond: float = math.inf
     least_move: float = 0.0
+    # The level guide has read this level's map (its rooms): a run with nothing to go to without it waits (MAP_WAIT)
+    mapped: bool = True
+    # Units from the character to the look's nearest hostile (macros/safety.py `Safety.price`); None: not priced
+    clear: float | None = None
+    # Bosses of the game's ledger alive on this level with no place known (BOSS_EXPLORE, hunting/judging.py)
+    bosses_left: int = 0
 
 
 @dataclass(frozen=True)
@@ -208,6 +240,9 @@ class Candidate:
     # A retreat ending within strike reach of the hostile whose kill ends most harm (macros/safety.py `keeper`)
     # (rca/2026-10-14/baal-sim.md fix 1)
     keeps: bool = False
+    # Units from the act's way to the look's nearest hostile: a walk's along it, a jump's at its landing
+    # (macros/safety.py `clearance`); None: not priced
+    clear: float | None = None
 
 
 RUSH_HARM_SHARE = 0.05  # of life: harm a move or use of the loop's run may be priced at over a hold
@@ -217,6 +252,34 @@ FIRING_SPOT = 'firing spot'  # reason of a move to a firing stand (macros/safety
 PASSAGE = 'an open passage: walking through into the next level'
 THROUGH_WALK = 40.0  # units: a passage no hop gets nearer to is walked from this near (`through`)
 KEEPING = 'retreating within strike reach: no act here fits the life budget'
+OVER_BUDGET = 'no progress act fits the life budget'
+# The retreat's line says why no progress act was made (`short_of`; the player, 2026-10-21: "it looks like we
+# have some major issue with estimate"): of 1482 such retreats in the day's takes 1157 had every progress act vetoed
+# (a keep range 1623 times), not over the budget, and the line said "fits the life budget" for both; at 21:07:23 at
+# 2723 of 2943 life and a full belt every act was priced 0 (rca/2026-10-21/herald-left-findings.md C2). False: the
+# one line, as before.
+RETREAT_SAYS_WHY = True
+# The death at 23:35:33.97 on 2026-10-21 (Disused Fane, take 20261021T203514Z-95, rca/2026-10-21/death-findings.md):
+# the life under its floor (budget 0) for the last 5.7 s, five "retreats" landed 2-5 units from the tier 2 Herald's pack
+# (their harm priced 2-11 on kills that never came), the sixth was a walk of 16 onto three Flesh Hunters running in.
+# The player, 2026-10-21: "we must not die or we lose exp and our gear"; "we must have top priority to no die ourselves
+# and prevent loosing experience". True: with no progress act fitting, a retreat move whose way comes within
+# AWAY_UNITS of a hostile is left for one clear of them, else for one ending farther from them than the character
+# stands, else for fighting out (`away_from`). False: the least harm among them all, as before.
+RETREAT_AWAY = True
+AWAY_UNITS = 10.0
+# The same death: at 23:35:33.94 every act was vetoed and the least lethal was a walk of 16 through a second unique
+# Flesh Hunter pack (Fire Enchanted, Conviction, Extra Fast); 804 life went in the next frame. True: with every act
+# vetoed the jump landing clear of the hostiles (AWAY_UNITS, else farther than the character stands) is made first,
+# and a walk whose way comes within AWAY_UNITS of one is never the least lethal while another act is priced
+# (`vetoed_escape`). False: the least lethal of them all, as before.
+VETOED_ESCAPE = True
+VETOED_AWAY = 'safety: every act is vetoed; the jump clearest of the hostiles is this move'
+# 2026-10-22: Battle Orders due in a fight that is not safe to cast in (macros/cta.py REBUFF, the player: "predict when
+# it runs off, retreat and rebuff"): the safety's Teleport to a spot clear of the hostiles (macros/safety.py
+# `rebuff_back`) is taken first unless vetoed, as the hop back from a Herald's pack is. False: priced as a plain move.
+REBUFF_FIRST = True
+REBUFF_SAID = 'rebuffing Battle Orders clear of the hostiles'
 # Moves toward a level run's boss skip the strike gap while nothing hurts (`onward`): F1 of
 # rca/2026-10-18/andariel-cadence-findings.md §5 (the player, 2026-10-18: "F1: ok"). Off: I2 as before.
 RUSH_THE_BOSS = True
@@ -247,6 +310,75 @@ def onward(facts: Facts, feasible: list[Candidate], pursuit: Pursuit | None) -> 
     return [c for c in feasible if isinstance(c.act, Move) and not c.act.reason and c.harm.mean <= least]
 
 
+def short_of(facts: Facts, allowed: list[Candidate]) -> str:
+    """Why no progress act is made, for the retreat's line (RETREAT_SAYS_WHY): over the budget (the least worst
+    progress act's worst and mean, the budget, the life), or every one vetoed (the first's veto), or none priced."""
+    if not RETREAT_SAYS_WHY:
+        return OVER_BUDGET
+    priced = [c for c in allowed if not c.retreat]
+    if priced:
+        best = min(priced, key=lambda c: c.harm.worst)
+        return (
+            f'{OVER_BUDGET} (the least worst progress act: worst {best.harm.worst:.0f}, mean {best.harm.mean:.0f}, '
+            f'budget {facts.budget:.0f} of {facts.life:.0f} life)'
+        )
+    vetoes = [veto(c.harm, facts.life, facts.safety) for c in facts.candidates if not c.retreat]
+    said = next((why for why in vetoes if why), None)
+    return f'every progress act is vetoed ({said})' if said is not None else 'no progress act was priced'
+
+
+def judged_move(c: Candidate) -> bool:
+    """A move whose clearance is priced (`Candidate.clear`)."""
+    return isinstance(c.act, Move) and c.clear is not None
+
+
+def nearer(c: Candidate, facts: Facts) -> bool:
+    """A priced move whose way comes nearer a hostile than the character stands (a walk straight away does not: its
+    nearest pass is where it starts)."""
+    return c.clear is not None and facts.clear is not None and c.clear < facts.clear - 1e-6
+
+
+def away_from(facts: Facts, escapes: list[Candidate]) -> list[Candidate]:
+    """The retreats to choose among (RETREAT_AWAY): the moves whose way stays AWAY_UNITS clear of the hostiles while
+    one is priced; else those never nearer a hostile than the character stands; else none of the moves while another
+    act is priced (fighting out). Every other act stays; unpriced clearances leave the retreats as they are."""
+    if not RETREAT_AWAY or facts.clear is None:
+        return escapes
+    moves = [c for c in escapes if judged_move(c)]
+    if not moves:
+        return escapes
+    others = [c for c in escapes if not judged_move(c)]
+    clear = [c for c in moves if c.clear is not None and c.clear >= AWAY_UNITS]
+    if clear:
+        return [*clear, *others]
+    unturned = [c for c in moves if not nearer(c, facts)]
+    if unturned:
+        return [*unturned, *others]
+    return others or escapes
+
+
+def vetoed_escape(facts: Facts, lethal: Callable[[Candidate], float]) -> tuple[Candidate | None, list[Candidate]]:
+    """With every act vetoed (VETOED_ESCAPE): the jump to make, landing AWAY_UNITS clear of the hostiles, else farther
+    from them than the character stands, the least lethal of those (the clearest on a tie); None when none is priced.
+    Then the acts the least lethal is chosen among: a walk whose way comes nearer a hostile than the character stands
+    only while nothing else is priced."""
+    candidates = list(facts.candidates)
+    if not VETOED_ESCAPE or facts.clear is None:
+        return None, candidates
+    skilled = [
+        c
+        for c in candidates
+        if judged_move(c) and isinstance(c.act, Move) and c.act.step.skill is not None and not c.harm.barred
+    ]
+    here = facts.clear
+    away = [c for c in skilled if c.clear is not None and c.clear >= AWAY_UNITS]
+    away = away or [c for c in skilled if c.clear is not None and c.clear > here]
+    if away:
+        return min(away, key=lambda c: (lethal(c), -(c.clear or 0.0), c.harm.mean, c.seconds)), candidates
+    walked = [c for c in candidates if not (isinstance(c.act, Move) and c.act.step.skill is None and nearer(c, facts))]
+    return None, walked or candidates
+
+
 def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     """One price in seconds, constrained by both life budget and the unliftable veto. `pursuit`: the mailbox, for a
     level run's boss (`onward`); None: no run."""
@@ -264,6 +396,16 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
                 kept = moving
         facts = replace(facts, candidates=kept)
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
+    # A hop back from a tier 4-5 Herald's pack comes first while it is not vetoed (combat/pack.py, the player,
+    # 2026-10-21 ~10:00: "a Teleport back when anything is within 10")
+    # So does the way in to dolls a demon holds (combat/threats/dolls.py DOLL_BAIT, off; the player, 2026-10-21 14:58)
+    # And the leave under the mana floor (combat/threats/manaburn.py MANA_FLOOR; the player, 2026-10-21 ~15:50: "we
+    # were tanking most of T5 herald damage without being able to hit (=low mana)")
+    # And the rebuff of Battle Orders clear of the hostiles (REBUFF_FIRST; macros/cta.py REBUFF)
+    saids = (PACK_BACK_SAID, BAIT_SAID, MANA_SAID, *((REBUFF_SAID,) if REBUFF_FIRST else ()))
+    backs = [c for c in allowed if isinstance(c.act, Move) and c.act.reason.startswith(saids)]
+    if backs:
+        return min(backs, key=lambda c: c.seconds + facts.kappa * c.harm.mean).act
     feasible = [c for c in allowed if c.harm.worst <= facts.budget and not c.retreat]
     if facts.near and facts.attacking and not facts.rush:
         # No attack pause (I2): with a hostile in reach, keep only acts after which a strike comes within
@@ -305,10 +447,12 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
         kept = min(keeping, key=lambda c: c.seconds + facts.kappa * c.harm.mean)
         assert isinstance(kept.act, Move)
         return Move(kept.act.step, kept.act.goal, KEEPING)
+    # Never toward the pack while no progress act fits the life (RETREAT_AWAY)
+    escapes = away_from(facts, escapes)
     if escapes:
         chosen = min(escapes, key=lambda c: (c.harm.mean, c.harm.worst, c.seconds))
         if isinstance(chosen.act, Move):
-            return Move(chosen.act.step, chosen.act.goal, 'retreating: no progress act fits the life budget')
+            return Move(chosen.act.step, chosen.act.goal, f'retreating: {short_of(facts, allowed)}')
         if isinstance(chosen.act, Hold):
             return Hold(chosen.act.goal, 'fighting out: less harm than any reachable retreat')
         return chosen.act
@@ -320,7 +464,12 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     def lethal(c: Candidate) -> float:
         return sum(loss >= facts.life for loss in c.harm.losses) / max(len(c.harm.losses), 1)
 
-    chosen = min(facts.candidates, key=lambda c: (bool(c.harm.barred), lethal(c), c.harm.mean, c.seconds))
+    # A jump clear of the hostiles first, never a walk through them (VETOED_ESCAPE)
+    away, candidates = vetoed_escape(facts, lethal)
+    if away is not None:
+        assert isinstance(away.act, Move)
+        return Move(away.act.step, away.act.goal, f'retreating: {VETOED_AWAY}')
+    chosen = min(candidates, key=lambda c: (bool(c.harm.barred), lethal(c), c.harm.mean, c.seconds))
     said = 'safety: every act is vetoed; the least lethal is'
     if isinstance(chosen.act, Move):
         return Move(chosen.act.step, chosen.act.goal, f'retreating: {said} this move')
@@ -348,6 +497,9 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
             if goal is None and pursuit.entering(facts.now):
                 # Carried in a moment ago: the card is not up yet, which ends nothing
                 return Hold() if facts.in_reach and facts.attacking else NoWay(ENTERING_SAID)
+            if WAIT_FOR_MAP and not pressed and not facts.mapped and not routed(goal) and pursuit.awaits_map(facts.now):
+                # In a moment ago, the map not read: nothing to go to is not known yet
+                return Hold() if facts.in_reach and facts.attacking else NoWay(MAP_SAID)
             return run_level(facts, pressed, pursuit)
     if pursuit is not None and pressed:
         if goal is None:
@@ -382,21 +534,46 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     return NoWay('nothing in reach and no fight to go to')
 
 
+def routed(goal: Goal | None) -> TypeGuard[Goal]:
+    """A route stage on the level, or something of the run's own to go to (`run_level`)."""
+    return goal is not None and bool(goal.route or goal.do in (PICK_UP, WAIT) or goal.guarded or goal.clearing)
+
+
+def ends_run(goal: Goal | None, pressed: bool) -> bool:
+    """Whether `run_level` ends a level run on `goal` with no press: no route stage, or one that takes a press (the
+    loot). BOSS_EXPLORE's test."""
+    if pressed:
+        return False
+    if not routed(goal):
+        return True
+    return goal.do != ENTER and goal.do not in PURSUED
+
+
+def unfound(facts: Facts) -> str:
+    """'; 2 bosses alive on this level, its place not known: no room left' for an end with `bosses_left`, else ''."""
+    count = facts.bosses_left
+    if not BOSS_EXPLORE or count <= 0:
+        return ''
+    return f'; {count} boss{"es" if count > 1 else ""} of the ledger {BOSS_EXPLORE_SAID}: no room left to explore'
+
+
 def run_level(facts: Facts, pressed: bool, pursuit: Pursuit | None = None) -> Act:
     """A level run's look without an `advance` press: what is in reach first, a drop on the way, then the route's
     stage of this level. What is left that is not this loop's ends the run, or is handed on with a fresh press."""
     goal = facts.goal
-    if goal is None or (not goal.route and goal.do not in (PICK_UP, WAIT) and not goal.guarded and not goal.clearing):
+    if not routed(goal):
         # No route stage on this level: the key is its own step (a pickup, a chest, the sweep)
         if pressed:
             return Defer(None)
-        return Ended(f'{NOTHING_LEFT}: no route stage, no boss known')
+        if WAIT_FOR_MAP and not facts.mapped and facts.in_reach and facts.attacking:
+            return Hold()  # the map's wait over and still no map: what is in reach is fought before the run ends
+        return Ended(f'{NOTHING_LEFT}: no route stage, no boss known{unfound(facts)}')
     if goal.do == ENTER and not (facts.there and pressed):
         return to_the_door(facts, goal, pursuit)
     if goal.do not in PURSUED:
         if pressed:
             return Defer(goal)
-        return Ended(f'what is left of the route is {goal.label}, which takes a press')
+        return Ended(f'what is left of the route is {goal.label}, which takes a press{unfound(facts)}')
     # The loop's run at its chest or drop with idle hostiles in reach: the open or pickup is offered, the price may
     # still hold. The player, 2026-10-17: "we don't even need to kill some trash mobs and can loot and leave";
     # "strikes on hp loss".

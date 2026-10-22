@@ -119,3 +119,26 @@ def test_a_lightning_sentry_claw_with_a_paid_second_plus3_ranks_higher():
     assert better_than(blocking, [alone], matters).better
     assert not better_than(alone, [blocking], matters).better
     assert {row.id for row in matching(talons(3, {'107:267': 3}))} == set()  # +3 Fade alone: no row
+
+
+def _usable_sources() -> dict[str, str]:
+    return {row['names'][0]: row['source'] for row in build_wants.usable_rows()}
+
+
+def test_a_set_or_unique_is_usable_only_among_a_slot_lists_first_five_options(monkeypatch):
+    # The player, 2026-10-21 ~08:55, answering "What should count as usable?": "Top picks + usable best"
+    # (rca/2026-10-21/weak-keepers-findings.md B4): index 0-4 of a build's slot list, a planner variant or a guide line
+    found = _usable_sources()
+    assert found['Goblin Toe'].endswith('/berserk-barbarian/slots/Boots/2')  # 3rd option
+    assert found["Bartuc's Cut-Throat"].endswith('/wake-of-fire-assassin/slots/Weapon/4')  # 5th option
+    assert found["Trang-Oul's Scales"].endswith('/poison-nova-necromancer/slots/Body Armor/4')
+    assert found['Skull Collector'] == 'guides/warlock.html:155'  # a guide line: stays whatever its slot depth
+    for name in ("M'avina's True Sight", 'Credendum', 'Eaglehorn', "Trang-Oul's Guise", 'Wraith Flight'):
+        assert name not in found, name  # the 8th, 7th, 7th, 8th and 14th options
+    assert 'Fleshripper' not in found  # smite-paladin Weapon/5: the 6th option only
+    assert "M'avina's Embrace" not in found  # strafe-amazon Body Armor/5
+    monkeypatch.setattr(build_wants, 'USABLE_SLOT_DEPTH', None)  # off: every entry of a slot list, as before
+    found = _usable_sources()
+    assert found['Fleshripper'].endswith('/smite-paladin/slots/Weapon/5')
+    assert found["M'avina's True Sight"].endswith('/strafe-amazon/slots/Helmets/7')
+    assert found["Bartuc's Cut-Throat"].endswith('/lightning-sentry-assassin/slots/Weapon/5')

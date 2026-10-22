@@ -24,7 +24,26 @@ def no_hop_landed_yet(monkeypatch):
     none carried from test to test."""
     monkeypatch.setattr(teleport, 'LANDED', [])
     monkeypatch.setattr(teleport, 'LANDING', [])
+    monkeypatch.setattr(teleport, 'MISSED', [])
     monkeypatch.setattr(teleport, 'FAR_FAILED', {})
+
+
+@pytest.fixture(autouse=True)
+def zone_navigation_off(monkeypatch):
+    """Zone navigation (zonenav.ACTS, zonenav.ROTATION) is the live loop's choice of acts and of the rotating zones: off
+    under test, so the itinerary's tests keep their trips; a zone test turns it on for its acts or the rotation."""
+    from inventory_tracking.macros import zonenav
+
+    monkeypatch.setattr(zonenav, 'ACTS', frozenset())
+    monkeypatch.setattr(zonenav, 'ROTATION', False)
+
+
+@pytest.fixture(autouse=True)
+def no_town_drops_counted(monkeypatch):
+    """The items put down in town in the game (visit.py `_down`) are kept per process: none from test to test."""
+    from inventory_tracking.macros import visit
+
+    monkeypatch.setattr(visit, '_down', {'game': '', 'items': 0})
 
 
 @pytest.fixture(autouse=True)

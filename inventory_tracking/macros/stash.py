@@ -16,8 +16,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.layout import BANK, GOLD_STAT
 from inventory_tracking.game.records import Carried, Pack, World
+from inventory_tracking.game.stash import BANK_STAT
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.levels.model import Target
 
@@ -111,8 +112,6 @@ def crowded(pack: Pack, own: frozenset[tuple[int, int, int]] = frozenset()) -> b
 # The inventory's gold button (playerinventoryoriginallayouthd.json `gold_button` at (429, 1347) of the right panel):
 # with the stash open it deposits, else it drops the gold on the ground
 GOLD_BUTTON = (429 + 27, 1347 + 24)
-GOLD_STAT = 14
-BANK_STAT = 15  # itemstatcost.txt `goldbank`: logged with a refused deposit (which tab's gold it is: unverified)
 # Gold goes to the tab shown, and a full one refuses it (2026-10-19 07:38): Personal is shown first. One refusal ends
 # deposits until a restart
 REFUSED: list[int] = []  # the carried gold when a deposit was refused
@@ -215,6 +214,7 @@ def unload(
         # 2026-10-17)
         unpack(run, inventory_key, cubed_out)
         pack = carried() or pack
+    run.stash.touched()  # the stash's record: read again after the scan (game/stash.py)
     rect = run.actuator.keys.focused_window_rect()
 
     def place(world: World) -> tuple[float, float] | None:
@@ -346,11 +346,47 @@ def unload(
     return moved
 
 
+# Items put down in town lie by the stash all game, and their labels can cover every aim at it: at 04:10:36 on
+# 2026-10-21 the aims had item labels under them ("not under the pointer at any aim"), the stash was not opened and nine
+# keepers stayed in the cube (at 02:04:06 and 02:17:10 too). True: with every aim refused that way and Show Items on,
+# the labels are hidden by its key, the stash clicked, and the key pressed again (`show_items_on` checks them on before
+# each level run anyway). False: the visit goes on without the stash, as before
+LABELS_OFF_AT_THE_STASH = True
+LABELS_SECONDS = 0.6  # for a press of Show Items to show in its byte (routines.py SHOW_ITEMS_WAIT)
+
+
+def _covered_by_labels(run: Run, stop: Abort) -> bool:
+    """LABELS_OFF_AT_THE_STASH: whether the stash's aims were refused with the labels on and a key to hide them."""
+    from inventory_tracking.macros.teleport import Covered
+
+    if not LABELS_OFF_AT_THE_STASH or isinstance(stop, Covered) or 'not under the pointer at any aim' not in str(stop):
+        return False
+    return run.show_items_key is not None and run.world().show_items is True
+
+
+def _with_labels_off(run: Run, act) -> None:
+    """`act` with Show Items off, the labels on again after it whatever came of it."""
+    key = run.show_items_key
+    assert key is not None
+    LOG.info('Macro: stash: item labels under every aim: Show Items off by %s for the click', key)
+    run.actuator.tap(key)
+    if run.seen(lambda w: w.show_items is False, LABELS_SECONDS) is None:
+        LOG.info('Macro: stash: Show Items did not go off')
+    try:
+        act()
+    finally:
+        if run.world().show_items is False:
+            run.actuator.tap(key)
+            on = run.seen(lambda w: w.show_items is True, LABELS_SECONDS) is not None
+            LOG.info('Macro: stash: Show Items on again%s', '' if on else ': not yet (the level run checks it)')
+
+
 def open_stash(run: Run) -> tuple[int, int, int, int]:
     """Walk to the stash and open it with the inventory, as `unload` does; the window's rect. `Abort` when not seen or
-    not opened."""
+    not opened. The stash's record is touched (game/stash.py `Stash.touched`): what the stop changes is read again."""
     if run.pad is not None:
         raise Abort('the stash needs mouse mode')
+    run.stash.touched()
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')
@@ -375,7 +411,12 @@ def open_stash(run: Run) -> tuple[int, int, int, int]:
         raise Abort('the stash is not in sight')
     thing = min(shown, key=lambda t: math.dist((t.x, t.y), (player.x, player.y)))
     mark = Target(player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), 'the stash', 'stash', use=BANK)
-    use_thing(run, mark, player, thing, rect[2] / rect[3])
+    try:
+        use_thing(run, mark, player, thing, rect[2] / rect[3])
+    except Abort as stop:
+        if not _covered_by_labels(run, stop):
+            raise
+        _with_labels_off(run, lambda: use_thing(run, mark, run.world().player or player, thing, rect[2] / rect[3]))
     if run.seen(lambda w: {'stash', 'inventory'} <= set(w.open_panels), PANEL_SECONDS) is None:
         raise Abort('the stash did not open with the inventory')
     run.actuator.rebase()

@@ -26,19 +26,18 @@ def skill(name):
     return next(int(k) for k, v in metadata()['skills'].items() if v['name'] == name)
 
 
-def test_jewelers_monarch_of_deflecting_needs_block_and_fbr_but_any_four_socket_monarch_sells():
+def test_jewelers_monarch_of_deflecting_needs_four_sockets_block_and_fbr():
+    # 2026-10-22: Deflecting 74.6 -> 114 (17 sellers); a plain 4-socket Monarch is a 22.8 wall, a bare Archon unlisted
     stats = [(194, 0, 4), (20, 0, 20), (102, 0, 30)]
     assert any('Deflecting' in r for r in match_item(observation('Monarch', stats)))
-    for missing in (1, 2):
-        result = match_item(observation('Monarch', stats[:missing] + stats[missing + 1 :]))
-        assert result
-        assert not any('Deflecting' in r for r in result)
-    assert not match_item(observation('Monarch', stats[1:]))
+    assert any('Deflecting' in r for r in match_item(observation('Aegis', stats)))
+    for missing in (0, 1, 2):
+        assert not match_item(observation('Monarch', stats[:missing] + stats[missing + 1 :]))
     assert not match_item(observation('Monarch', [(194, 0, 3), (20, 0, 20), (102, 0, 30)]))
-    assert match_item(observation('Archon Plate', [(194, 0, 4), (80, 0, 20)]))
+    assert not match_item(observation('Archon Plate', [(194, 0, 4), (80, 0, 20)]))
 
 
-@pytest.mark.parametrize('name', ['Hex: Purge', 'Eldritch Blast', 'Echoing Strike', 'Mirrored Blades'])
+@pytest.mark.parametrize('name', ['Hex: Purge', 'Eldritch Blast', 'Echoing Strike'])
 @pytest.mark.parametrize('bonus', [(83, 7, 2), (188, 57, 3)])
 def test_warlock_skill_combinations(name, bonus):
     result = match_item(observation('Kriss', [bonus, (107, skill(name), 3)]))
@@ -73,27 +72,36 @@ def test_other_class_staffmods(base, bonus, name):
 def test_gloves_of_alacrity():
     assert match_item(observation('Chain Gloves', [(188, 2, 3), (93, 0, 20)]))
     assert match_item(observation('Chain Gloves', [(188, 50, 3), (93, 0, 20)]))
+    assert match_item(observation('Chain Gloves', [(188, 0, 3), (93, 0, 20)]))
+    assert not match_item(observation('Chain Gloves', [(188, 1, 3), (93, 0, 20)]))  # Passive: median 1 (10 sellers)
     assert not match_item(observation('Chain Gloves', [(188, 2, 2), (93, 0, 20)]))  # Gymnastic: leave in the shop
     assert not match_item(observation('Chain Gloves', [(188, 2, 3), (93, 0, 10)]))
 
 
-def test_amazon_javelin_needs_forty_ias_and_amazon_skills_or_the_six_javelin_automod():
+def test_amazon_javelin_needs_five_javelin_and_forty_ias_six_and_thirty_or_two_amazon():
     assert match_item(observation('Matriarchal Javelin', [(188, 2, 6), (93, 0, 40)]))
-    assert match_item(observation('Matriarchal Javelin', [(188, 2, 3), (93, 0, 40), (83, 0, 1)]))
+    assert match_item(observation('Matriarchal Javelin', [(188, 2, 5), (93, 0, 40)]))
+    assert match_item(observation('Matriarchal Javelin', [(188, 2, 6), (93, 0, 30)]))
+    assert match_item(observation('Matriarchal Javelin', [(188, 2, 3), (93, 0, 40), (83, 0, 2)]))
+    assert not match_item(observation('Matriarchal Javelin', [(188, 2, 3), (93, 0, 40), (83, 0, 1)]))
     assert not match_item(observation('Matriarchal Javelin', [(188, 2, 3), (93, 0, 40)]))
+    assert not match_item(observation('Matriarchal Javelin', [(188, 2, 5), (93, 0, 30)]))
     assert not match_item(observation('Matriarchal Javelin', [(188, 2, 6), (93, 0, 20)]))
 
 
 @pytest.mark.parametrize('base', ['Blade Talons', 'Greater Talons', 'Runic Talons'])
 @pytest.mark.parametrize('ias', [30, 40])
-def test_trap_claws_with_ias_alert_without_individual_skill_bonus(base, ias):
-    assert f'+3 Traps / {ias} IAS claws' in match_item(observation(base, [(188, 48, 3), (93, 0, ias)]))
+def test_a_claw_prefix_with_ias_and_no_paid_staffmod_stays_in_the_shop(base, ias):
+    # pricing.html §2: "a prefix ... on its own is vendor"; no listing in the caches (2026-10-22)
+    assert not match_item(observation(base, [(188, 48, 3), (93, 0, ias)]))
+    assert not match_item(observation(base, [(83, 6, 2), (93, 0, ias)]))
 
 
-def test_claw_label_names_the_sentry_staffmods_and_witch_hunters_counts():
+def test_claw_label_names_the_ias_and_witch_hunters_counts():
     stats = [(188, 48, 3), (93, 0, 40), (107, skill('Lightning Sentry'), 3)]
-    assert '+3 Traps / 40 IAS claws (+3 Lightning Sentry)' in match_item(observation('Greater Talons', stats))
-    assert '+2 Assassin / 40 IAS claws' in match_item(observation('Runic Talons', [(83, 6, 2), (93, 0, 40)]))
+    assert '+6 Lightning Sentry (+3 Traps +3 staffmod); also 40 IAS' in match_item(observation('Greater Talons', stats))
+    stats = [(83, 6, 2), (107, skill('Death Sentry'), 3)]
+    assert '+5 Death Sentry (+2 Assassin +3 staffmod)' in match_item(observation('Runic Talons', stats))
 
 
 @pytest.mark.parametrize(
@@ -153,14 +161,13 @@ def test_every_class_mastery_is_in_catalog():
     [
         ('Archon Plate', [(194, 0, 4), (7, 0, 100 * 256)]),
         ('Ancient Armor', [(194, 0, 4), (7, 0, 90 * 256)]),
-        ('Ancient Armor', [(194, 0, 4), (34, 0, 15)]),
-        ('Ancient Armor', [(194, 0, 4), (99, 0, 24)]),
-        ('Ancient Armor', [(194, 0, 4), (2, 0, 15)]),
         ('Tiara', [(194, 0, 3), (96, 0, 30)]),
-        ('Tiara', [(194, 0, 3), (2, 0, 30)]),
+        ('Tiara', [(194, 0, 3), (80, 0, 25)]),
         ('Diadem', [(194, 0, 3), (80, 0, 35)]),
-        ('Circlet', [(83, 1, 2), (105, 0, 20)]),
-        ('Coronet', [(83, 7, 2)]),
+        ('Diadem', [(194, 0, 3)]),
+        ('Circlet', [(96, 0, 30)]),
+        ('Circlet', [(188, 57, 3), (105, 0, 20)]),
+        ('Coronet', [(188, 17, 3), (7, 0, 80 * 256)]),
     ],
 )
 def test_priced_magic_patterns_alert(base, stats):
@@ -172,7 +179,12 @@ def test_priced_magic_patterns_alert(base, stats):
     [
         ('Ancient Armor', [(194, 0, 4), (7, 0, 80 * 256)]),  # below the priced Whale band
         ('Ancient Armor', [(194, 0, 3), (7, 0, 100 * 256)]),
-        ('Circlet', [(188, 57, 3), (105, 0, 20)]),  # +3 tree circlet is not a priced pattern
+        ('Ancient Armor', [(194, 0, 4), (34, 0, 15)]),  # of Amicae: 2 sellers
+        ('Ancient Armor', [(194, 0, 4), (2, 0, 15)]),  # of Precision: thin
+        ('Tiara', [(194, 0, 3), (2, 0, 30)]),
+        ('Circlet', [(83, 1, 2), (105, 0, 20)]),  # +2 class / 20 FCR: Q1 2.6, not kept (2026-10-21)
+        ('Coronet', [(83, 7, 2)]),
+        ('Circlet', [(188, 56, 3), (105, 0, 20)]),  # +3 Demon: no listing
         ('Circlet', [(105, 0, 20), (194, 0, 2)]),
         ('Blade', [(188, 34, 3)]),  # Echoing weapon: 1-Ist median behind 63 sellers
         ('Winged Axe', [(17, 0, 300), (18, 0, 300), (93, 0, 40)]),  # Cruel / Quickness: no priced pattern
@@ -201,7 +213,7 @@ def test_white_staffmod_bases_are_not_shop_targets():
     assert not match_item(observation('Kriss', [(107, skill('Hex: Purge'), 3)], rarity='normal'))
 
 
-@pytest.mark.parametrize('prefix', [[], [(188, 32, 3)], [(188, 57, 2)]])
+@pytest.mark.parametrize('prefix', [[], [(188, 32, 3)], [(188, 57, 1)]])
 def test_screenshot_stiletto_requires_matching_five_or_six_skill_combination(prefix):
     stats = [(21, 0, 1), (107, skill('Abyss'), 1), (107, skill('Apocalypse'), 3), (107, skill('Eldritch Blast'), 3)]
     assert not match_item(observation('Stilleto', prefix + stats))

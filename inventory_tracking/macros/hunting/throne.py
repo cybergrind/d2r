@@ -27,9 +27,9 @@ from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Monster
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.build import Intent
 from inventory_tracking.macros.goals import FIGHT as FIGHT_GOAL, PLACE_NEAR, REACH, Goal
-from inventory_tracking.macros.travel import Point
 from inventory_tracking.routes.model import FIGHT, USE, Stage
 
 
@@ -67,11 +67,31 @@ BAAL_LEAVES = 30.0
 # 2.5 since 2026-10-20 ~23:40, the player: "wait until he moves through his portal + some extra to portal to be
 # activatable" (the clicks that took came 2.5-5.0 s after he was gone; was 1.0)
 PORTAL_OPENS = 2.5
+# The player, 2026-10-21 ~17:41: "1. wait for baal disappears 2. go near portal, wait for a few seconds 3. go through
+# portal". Near: the portal's foot, where every entry stood when the level changed (from the portal's ground point:
+# +0.5, +4.0 world units; the player's of 2026-10-11 to 10-17 at 3.4-3.9 south; 17:38:17.83 on 10-21 at (15090.6,
+# 5009.0), the level changed 0.2 s later). The walk a click makes from the throne's west side goes round it (17:38:15-
+# 17:38:17.8: south to (15083.5, 5015.5), then east and north), so the foot is gone to first, then FOOT_WAIT there.
+# A few seconds: every click 0.1 s or less after Baal was gone failed (game 2, 17:24:38.6), the clicks that took came
+# 2.5-5.0 s after him in the 2026-10-11 to 10-17 takes and 24.9 s on 10-21; FOOT_WAIT 3.0 at the foot, after
+# PORTAL_OPENS from his going, puts the click 3 s or more after him
+PORTAL_FOOT = (0.5, 4.0)
+FOOT_NEAR = 2.5  # world units from the foot: stood there
+FOOT_WAIT = 3.0
+PORTAL_AT = (15090.0, 5005.0)  # wthrone.ds1's FinalPortal (563), read there in the takes of 17:21 and 17:34 on 10-21
+PORTAL_NEAR = 'Baal is gone: to the portal'
 # Seconds since the portal stage began until the run ends with the level unchanged (agenda.py `no_way_on`)
 PORTAL_SECONDS = 30.0
 DUE_GRACE = 2.0  # seconds a wait under way covers past its last look (`Waves.due`: the no-move watchdog)
 WAVES_STAND = 'the stand for the waves'
 PORTAL_WAIT = 'the portal opens once Baal leaves his throne'
+# 2026-10-21 (rca/2026-10-21/worldstone-chamber-findings.md): the way on's press at the Chamber's portal (the zone's
+# NEXT_LEVEL leg, running/legs.py `_way_on`) clicked it 16 times in 13 s from 17:24:25.9 while Lister's last minion
+# lived (to 17:24:26.9) and Baal sat on his throne (543 until 17:24:36.9, 559 gone from the read at 17:24:38.5), and
+# the game was left at 17:24:39.2: the LOOT stage after Lister had ended the level run, so `wave_goal`'s portal waits
+# were never asked. True: while `portal_shut` says so the way on is the level run (the hall fought, Baal waited for at
+# the stand, PORTAL_OPENS after him), and the click only after. False: the portal clicked whenever the leg comes
+PORTAL_GATE = True
 PORTAL_OPENING = 'Baal is gone into the portal: it opens'
 
 
@@ -86,13 +106,14 @@ class Waves:
     portal_since: float | None = None
     clear_since: float | None = None
     gone_since: float | None = None
+    foot_since: float | None = None
     due_until: float = -math.inf
     said: str | None = None
 
     def begin(self, game: str) -> None:
         if game != self.game:
             self.game, self.quiet_since, self.portal_since = game, None, None
-            self.clear_since, self.gone_since = None, None
+            self.clear_since, self.gone_since, self.foot_since = None, None, None
             self.due_until, self.said = -math.inf, None
 
     def due(self, now: float) -> bool:
@@ -209,14 +230,21 @@ def wave_goal(
                 return hall_fight(hall, here, label, reach, spend, route, stage)
             if waves.clear_since is None:
                 waves.clear_since = now
-            if now - waves.clear_since < BAAL_LEAVES:
+            if now - waves.clear_since < BAAL_LEAVES or PORTAL_GATE:  # the player: "1. wait for baal disappears"
                 waves.due_until = now + DUE_GRACE
                 waves.say('the waves are done: waiting for Baal to leave his throne for the portal')
                 return Goal(f'{label}: {PORTAL_WAIT}', stand, REACH, PLACE_NEAR, spend, route=route, stage=stage)
         else:
             if waves.gone_since is None:
                 waves.gone_since = now
-            if now - waves.gone_since < PORTAL_OPENS:
+            portal = found.place if found is not None else PORTAL_AT
+            shut = foot_wait(waves, here, portal, now) if PORTAL_GATE else None
+            if shut is not None:
+                waves.due_until = now + DUE_GRACE
+                waves.say(shut)
+                foot = foot_of(portal)
+                return Goal(f'{label}: {shut}', foot, REACH, FOOT_NEAR, spend, route=route, stage=stage)
+            if not PORTAL_GATE and now - waves.gone_since < PORTAL_OPENS:
                 waves.due_until = now + DUE_GRACE
                 waves.say(PORTAL_OPENING)
                 return Goal(f'{label}: {PORTAL_OPENING}', stand, REACH, PLACE_NEAR, spend, route=route, stage=stage)
@@ -224,6 +252,47 @@ def wave_goal(
             waves.say('through the portal to the Worldstone Chamber')
         return found
     return found
+
+
+def foot_of(portal: Point) -> Point:
+    """Where the character stands to go through the portal on its ground point `portal` (PORTAL_FOOT)."""
+    return (portal[0] + PORTAL_FOOT[0], portal[1] + PORTAL_FOOT[1])
+
+
+def foot_wait(waves: Waves, here: Point, portal: Point, now: float) -> str | None:
+    """With Baal gone (`Waves.gone_since` set): why the portal is not clicked yet — the character not at its foot, or
+    not FOOT_WAIT there and PORTAL_OPENS since he went; None once it may be."""
+    if math.dist(here, foot_of(portal)) > FOOT_NEAR + 1.0:
+        waves.foot_since = None
+        return PORTAL_NEAR
+    if waves.foot_since is None:
+        waves.foot_since = now
+    gone = waves.gone_since if waves.gone_since is not None else now
+    if now - waves.foot_since < FOOT_WAIT or now - gone < PORTAL_OPENS:
+        return PORTAL_OPENING
+    return None
+
+
+def portal_shut(
+    waves: Waves, *, seat: Point | None, hall: Sequence[Monster], now: float, here: Point | None = None
+) -> str | None:
+    """Why the portal to the Chamber takes no click yet, None once it may: Baal (543 or 559) read (`seat`), the hall's
+    hostiles (`hall`, `hall_of`) first; once he is gone from the read, PORTAL_OPENS more (`Waves.gone_since`, shared
+    with `wave_goal`). The game opens the Chamber only as 559 reaches the portal (D2MOO AiThink.cpp BaalToStairs ->
+    A5Q6.cpp `ACT5Q6_OpenWorldStoneChamber`; `OBJECTS_OperateFunction70_BaalPortal` warps nobody before): the object's
+    mode (2 at every frame of the 17:21-17:24 take) and its selectable flag (always set) tell nothing."""
+    if seat is not None:
+        waves.gone_since = None
+        if hall:
+            return f'the throne hall first ({len(hall)} left)'
+        return 'Baal has not left his throne'
+    if waves.gone_since is None:
+        waves.gone_since = now
+    if here is not None:
+        return foot_wait(waves, here, PORTAL_AT, now)
+    if now - waves.gone_since < PORTAL_OPENS:
+        return PORTAL_OPENING
+    return None
 
 
 def seat_from(stand: Point) -> Point:

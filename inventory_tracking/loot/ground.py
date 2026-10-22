@@ -40,7 +40,7 @@ from inventory_tracking.levels.memory import player_location
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune
-from inventory_tracking.loot.shown import filter_rules, hides, shown_label
+from inventory_tracking.loot.shown import filter_rules, hides, profile, shown_label
 from inventory_tracking.loot.shrines import SHRINE_CLASSES, SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
@@ -280,7 +280,7 @@ def uniques_among(ground: list[GroundItem], *, minimum: float, rules=None) -> li
     Not one the loot filter hides (`rules`, loot/shown.py; the filter's own by default): the filter
     goes by sales and the mark by asks, and a mark on a drop without a label points at nothing to click
     (user, 2026-10-12: Tarnhelm asked 2.58 Ist on 2026-09-18 and sold at a median of 0.20 on 2026-10-09)."""
-    rules = filter_rules() if rules is None else rules
+    rules = filter_rules(*profile()) if rules is None else rules  # the game's copy (loot/shown.py GAME_COPY)
     uniques = []
     for item in ground:
         if item.txt not in BASES or item.at is None or item.data is None:

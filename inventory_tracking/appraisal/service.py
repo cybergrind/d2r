@@ -111,6 +111,7 @@ from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.card_goal import CardGoals
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
+from inventory_tracking.macros.midgame import CANCEL, WHENS
 from inventory_tracking.macros.pad import KeyRoute, PadPlay
 from inventory_tracking.macros.pickup import wanted
 from inventory_tracking.macros.route import PERFORMED
@@ -454,6 +455,22 @@ def restart_asked(output: Path) -> dict | None:
     except OSError, ValueError:
         target = {}
     return target if isinstance(target, dict) else {}
+
+
+def restart_now(macro: MacroRunner, target: dict) -> None:
+    """A restart asked for (`restart_asked`): at once (`Restart`), or with `when` (restart.py --when town|safe:
+    macros/midgame.py WHENS) at the loop's next safe point, the macro's `restart_due` then giving the state; `when`
+    'cancel' drops a wait. A kind asked (`loop_kind`) is the kind at once, none asked from the next game."""
+    target = dict(target)
+    when = target.pop('when', None)
+    if 'loop_kind' in target:
+        target.setdefault('loop_pending', None)
+    if when == CANCEL:
+        macro.cancel_restart()
+    elif when in WHENS:
+        macro.hold_restart(when, target)
+    else:
+        raise Restart(target)
 
 
 def write_resume(output: Path, state: dict) -> None:
@@ -810,6 +827,11 @@ def run_service(args, directory, report):
                         zones.terrorized if zones is not None else None,
                     )
                     macro.progress = progress
+                    # The life model prices foes at the Terror Zone's level where the tracker says a level is
+                    # terrorized (combat/mechanics/life.py TZ_LEVEL_LIFE, 2026-10-21)
+                    from inventory_tracking.combat.mechanics import life as foe_life
+
+                    foe_life.attach(zones.terrorized if zones is not None else None)
                     if args.level_guide:
                         guide = LevelGuide(
                             source,
@@ -1016,7 +1038,9 @@ def run_service(args, directory, report):
                         while True:
                             target = restart_asked(args.output)
                             if target is not None:
-                                raise Restart(target)
+                                restart_now(macro, target)
+                            if (due := macro.restart_due()) is not None:
+                                raise Restart(due)  # the loop stands at a safe point (macros/midgame.py)
                             mode = schedule.update()
                             with timer.step('appraisal'):
                                 worker.tick()

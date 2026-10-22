@@ -40,9 +40,13 @@ def test_route_inventory_covers_every_installed_level_and_reports_real_blockers(
     expected = {area for zone in installed_active_zones() for area in zone.areas}
     assert set(caps) == expected
     assert [caps[area].route for area in (20, 45, 50, 132)] == ['Countess', 'Claw Viper Temple', 'Summoner', 'Baal']
-    assert caps[73].status == 'unavailable'
-    assert caps[73].reason == 'no route script'
-    assert {area for area in expected if caps[area].status == 'unavailable'} == {73, 111, 112, 117}
+    # Duriel's Lair: the tombs' route's, entered by the true tomb's Orifice (levels/handlers/tal_rasha.py DURIEL, on
+    # since 2026-10-21; before, 'unavailable', 'no route script')
+    lair = caps[73]
+    assert (lair.route, lair.waypoint, lair.target) == ("Tal Rasha's Tombs", 46, 'boss')
+    assert lair.status == 'needs-played-check'
+    assert (lair.entry, lair.exit) == ('use Orifice', 'leave')
+    assert {area for area in expected if caps[area].status == 'unavailable'} == {111, 112, 117}
 
 
 # A whole act terrorized by a Worldstone Shard (the player, 2026-10-20 ~19:00: "for TZ/TZ+ modes we want to know how to

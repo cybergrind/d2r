@@ -849,3 +849,28 @@ def test_the_runner_gives_the_hud_the_run_modes_word_and_none_in_town() -> None:
         assert made.run_badge == 'PICK:GOOD'
     finally:
         made.close()
+
+
+def test_the_crypt_runs_way_out_ends_on_the_doors_seeded_spot(monkeypatch) -> None:
+    """08:01-08:07 on 2026-10-21 (rca/2026-10-21/crypt-door-findings.md §3): with no entry for the Crypt's door the way
+    out's goal was its mark within PLACE_NEAR, inside the tomb's walls, and the run ended on the walled south face.
+    With the door's seeded spot (teleport.py KNOWN_ENTRIES) the goal is that spot on the open east side, the last hop
+    landing on it."""
+    from inventory_tracking.macros import teleport
+    from inventory_tracking.macros.hunting.base import door_entry
+    from tests.inventory_tracking.macros.test_teleport import CRYPT_MARK, burial_door
+
+    card = burial_door('Crypt')
+    stage = next(s for r in ROUTES if r.name == 'Crypt' for s in r.scripts if s.area == card.area).stages[0]
+    assert (stage.kind, stage.to) == (ENTER, 18)
+    here = (5788.5, 5007.5)  # the 08:01 approach from the north-east
+    goal = goals.route_goal(here, spend=PRESSED, reach=22.0, stage=stage, route='Crypt', card=card,
+                            entry=door_entry(card))  # fmt: skip
+    assert goal is not None
+    seeded = (CRYPT_MARK[0] + 6.0, CRYPT_MARK[1] - 1.5)
+    assert (goal.do, goal.place, goal.near) == (ENTER, seeded, goals.ENTRY_GOAL_NEAR)
+    monkeypatch.setattr(teleport, 'DOOR_SEEDS', False)
+    old = goals.route_goal(here, spend=PRESSED, reach=22.0, stage=stage, route='Crypt', card=card,
+                           entry=door_entry(card))  # fmt: skip
+    assert old is not None
+    assert (old.place, old.near) == (CRYPT_MARK, goals.PLACE_NEAR)  # the switch off: the mark, as before

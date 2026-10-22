@@ -18,7 +18,16 @@ from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.routes.model import Route, level
 from inventory_tracking.routes.progress import Progress
-from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, patch_runner, player, world
+from tests.inventory_tracking.macros.fakes import (
+    BUILD,
+    KEYS,
+    Game,
+    character_of,
+    patch_runner,
+    player,
+    stash_with,
+    world,
+)
 
 
 # No key file is read here: every run is given its keys, or none is played by `_execute`.
@@ -1375,7 +1384,8 @@ def test_a_kind_request_switches_at_once_with_the_loop_off_and_from_the_next_gam
     assert runner.choose_kind(13.0, 13.0, 'andariel')
     assert (runner.loop.kind, runner.loop.pending) == (LK, ANDARIEL)
     assert ['Macro: Loop run from the next game: Andariel'] in shown
-    assert runner.resume_state()['loop_kind'] == 'andariel'  # a restart waits for the lobby
+    state = runner.resume_state()  # a restart mid-game goes on in the kind, the asked one from the next game
+    assert (state['loop_kind'], state['loop_pending']) == ('lk', 'andariel')
     assert runner.choose_kind(14.0, 14.0, 'lk')  # chosen back before the game ended
     assert (runner.loop.kind, runner.loop.pending) == (LK, None)
     runner.loop.on = False
@@ -1473,7 +1483,7 @@ def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
     runner.loop.on, runner.pickup_mode = True, MOST
     amethyst = Drop(1, 0.0, 0.0, 'Flawless Amethyst', VALUABLE, source='material', txt=575)
     tal = Drop(2, 0.0, 0.0, 'Tal Rune', VALUABLE, source='rune', txt=631)
-    runner.loop.full = {575, 631}
+    runner.loop.stash = stash_with({575, 631})
     assert runner._picked(Loot(drops=(amethyst, tal))).drops == (amethyst,)
     assert runner.loop.sold_full == {631}
     runner.close()

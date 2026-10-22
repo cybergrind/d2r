@@ -51,6 +51,7 @@ def walk_units(read, heads, expected_type, *, max_units=2048, records=False) -> 
                         'stats_pointer': struct.unpack_from('<Q', data, 0x88)[0],
                         'inventory_pointer': struct.unpack_from('<Q', data, 0x90)[0],
                         'next_pointer': struct.unpack_from('<Q', data, 0x158)[0],
+                        'flags': struct.unpack_from('<I', data, 0x124)[0],  # game/layout.py UNIT_FLAGS
                     }
                 )
                 if records:  # the whole unit record as read (takes/record.py writes it raw)

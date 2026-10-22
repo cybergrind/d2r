@@ -12,12 +12,13 @@ look (`in_level`, from `Hunter.agenda_target`). Pure. Safety is no goal: the arb
 
 import math
 from collections import Counter
-from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from collections.abc import Callable, Collection, Iterable
+from dataclasses import asdict, dataclass, field
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.presets import display_name
+from inventory_tracking.macros.bossledger import BossLedger
 from inventory_tracking.macros.goals import GUARD_NEAR
 
 
@@ -82,6 +83,14 @@ BIG_GROUP = 8
 # Units: a group's nearest member further than this is no detour the metric pays (a screen, as CHEST_NEAR, USE_NEAR);
 # the tour brings the rest near, and what is never near is left ("we don't want to hunt every mob").
 GROUP_NEAR = 60.0
+# TZ+ (GROUPS_TAKEN): a remnant (`remnants`: in a group of fewer than GROUP_MIN with no leader in it, a Herald's
+# minions whose Herald is dead among them) is no goal: struck when in reach, never gone to as a leader or a hostile on
+# the way (hunting/choice.py `agenda_target`, `agenda_cleared`). The player, 2026-10-21 ~21:18: "the main goal for TZ
+# leveling is to kill all packs and DO NOT hunt every single enemy. we need to kill all uniques/champions. But we
+# don't need to hunt every sinle left enemy / the main metric xp/hour! elites/hour!" (rca/2026-10-21/
+# tz-remnants-findings.md: a remnant kill cost 1.26 s and 0.95 Teleports against a pack kill's 0.69 s and 0.45, at
+# 1,349 exp a second of its gap against 2,334). False: a Herald's minions and the strikers near are goals, as before.
+REMNANTS_LEFT = True
 
 # In-level tiers (goals-plan.md §3), lowest first. Drops come before the metric; a Herald comes to the character
 # anyway. CHEST after the leaders in the read (they come at a character standing at a chest), before the rest.
@@ -103,6 +112,24 @@ CHEST_NEAR = 60.0
 USE_FIRST = True
 USE_NEAR = 60.0
 TRIES = 3  # a goal whose leg stopped this often in a game is dropped, said (progress-or-back-off)
+# A Herald seen stays the first goal while it is remembered alive, in the read or not (the player, 2026-10-21 ~21:10:
+# "we have left T5 herald without fighting it at all"): the pack's hops took the character 44+ units from the tier 5
+# Herald, out of the client's read, the tracker handed it back as a plain remembered monster (no Herald flag), after
+# the rooms, and the run went 200 units west (rca/2026-10-21/herald-left-findings.md C1). Gone once the tracker
+# forgets it (seen dead, or not where it was seen). False: a Herald first only while in the read, as before.
+HERALD_KEPT = True
+# A Herald coming whose stand is passed (no footing in view) is waited for where the character stands, not left for
+# the rooms (21:07:39 on 2026-10-21: the run explored west, the Herald came 13 s later behind it; findings C3).
+# False: the stand only, as before.
+OMEN_HOLD = True
+# A boss of the game's ledger (macros/bossledger.py) alive on this level is a goal at any distance, after the leaders in
+# the read and those remembered near, before the rooms and the way on (`Agenda.boss_goal`). The player, 2026-10-22: "we
+# need to kill all bosses, no exceptions to that"; Maffer Dragonhand (Durance 3, 11 games) went out of the read 84
+# units off and was forgotten at REMEMBERED_NEAR on "tz+ on the way" (rca/2026-10-22/boss-audit-findings.md §4 cause
+# 4). Gone for by the unit taken for it at its last place, else its preset's spot; a spot reached with no unit taken
+# is no goal (BOSS_ARRIVED). False: the leaders' rules only, as before
+BOSS_GOALS = True
+BOSS_ARRIVED = 15.0
 
 # levels.txt Act (d2data levels.json, 2026-10-19): each act's town is its first level
 TOWNS = (1, 40, 75, 103, 109)
@@ -235,6 +262,17 @@ def groups(
     return [tuple(group) for group in found.values() if len(group) >= smallest]
 
 
+def remnants(crowd: Iterable[tuple[int, Point]], kept: Collection[int] = ()) -> frozenset[int]:
+    """The units of `crowd` (unit, place) that are remnants (REMNANTS_LEFT): their group (`groups`) is fewer than
+    GROUP_MIN and holds none of `kept` (the leaders: a pack with its unique or champion is no remnant)."""
+    return frozenset(
+        unit
+        for group in groups(crowd, 1)
+        if len(group) < GROUP_MIN and not any(member in kept for member, _ in group)
+        for unit, _ in group
+    )
+
+
 def room_package(area: int) -> tuple[Objective, ...]:
     """The trip to town for room from `area` (the player's example package, 2026-10-19): Town Portal, the Fortress
     visit (macros/visit.py), back to the portal's town, through the portal, on. In act 4 no waypoint either way."""
@@ -295,6 +333,8 @@ class Agenda:
     queue: dict[tuple, Objective] = field(default_factory=dict)
     stack: list[Objective] = field(default_factory=list)
     kills: dict[int, Objective] = field(default_factory=dict)
+    # The Heralds seen in this game, unit -> label: one remembered out of the read is still a Herald (HERALD_KEPT)
+    heralds: dict[int, str] = field(default_factory=dict)
     chests: dict[int, Objective] = field(default_factory=dict)
     opened: set[int] = field(default_factory=set)
     worked: Counter[int] = field(default_factory=Counter)
@@ -312,11 +352,42 @@ class Agenda:
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
     policies: dict[int, str] = field(default_factory=dict)  # how each level was last said to be worked (`worked_as`)
     # The act kind's shard this game (macros/actloop.py): None not tried yet, else how it went (actloop.USED ...);
-    # `acts` the acts a shard terrorized in this game (planned whatever the client's list reads: tzloop.py `zone_of`)
+    # `acts` the acts a shard terrorized in this game, in the order they are played (planned whatever the client's
+    # list reads: tzloop.py `zone_of`): the kind's own act first, then the acts of shards over the limit
+    # (actloop.py OVERFLOW, 2026-10-21); `overflow` each such act tried in this game and how it went (actloop.USED,
+    # REFUSED ...): never tried twice in a game
     shard: str | None = None
-    acts: frozenset[int] = frozenset()
+    acts: tuple[int, ...] = ()
+    overflow: dict[int, str] = field(default_factory=dict)
     # Games in a row whose shard step failed (kept across games: actloop.py SHARD_FAILURES)
     shard_failures: int = 0
+    # Zone navigation (macros/zonenav.py): the levels entered in this game (`Progress.facts.entered` is cut to go into a
+    # child again), those a run read the map of (`mapped`) and whose tour found no room left (`explored`, runner.py
+    # `_run_over`), the levels blocked and why, those whose way back took no click (`no_back`), how each was last said
+    entered: set[int] = field(default_factory=set)
+    mapped: set[int] = field(default_factory=set)
+    explored: set[int] = field(default_factory=set)
+    blocked: dict[int, str] = field(default_factory=dict)
+    no_back: set[int] = field(default_factory=set)
+    zone_said: dict[int, str] = field(default_factory=dict)
+    zone_graph: str = ''  # the zone whose graph was said in this game
+    # Zone navigation (zonenav.py, 2026-10-21): the legs made by each way (from, to) into a child, up to a parent or
+    # across into the next root's levels (`WAY_TRIES`, `WALK_TRIES`); the walks that failed or ran out of tries (the
+    # Town Portal instead); the levels cleared before a service restart in this
+    # game (`RESUME`: taken back from the kept facts, tzloop.py `zone_resume`); whether the kept facts were looked
+    # for in this game, and what was last written
+    no_walk: set[tuple[int, int]] = field(default_factory=set)
+    ways: Counter[tuple[int, int]] = field(default_factory=Counter)
+    way_from: int | None = None  # the level `ways` counts from (counted afresh on each new level)
+    # The level the last zone leg was chosen on, and its self-ended runs when the character came to it (zonenav.py
+    # `ZoneView.passed`: a run ended since, at a child's door)
+    zone_at: int | None = None
+    arrival_runs: int = 0
+    kept: set[int] = field(default_factory=set)
+    zone_resumed: bool = False
+    zone_written: str = ''
+    # The game's bosses (macros/bossledger.py): a view of the terror tracker's file-backed book, no state of its own
+    bosses: BossLedger = field(default_factory=BossLedger, compare=False, repr=False)
 
     def begin(self, game: object) -> bool:
         """Start afresh (stack discarded) when `game` is new; whether it was."""
@@ -324,14 +395,84 @@ class Agenda:
             return False
         if self.stack:
             LOG.info('Macro: agenda: a new game: the package %s discarded', [goal.label for goal in self.stack])
-        self.game, self.queue, self.stack, self.kills = game, {}, [], {}
+        self.game, self.queue, self.stack, self.kills, self.heralds = game, {}, [], {}, {}
         self.chests, self.opened = {}, set()
         self.worked, self.finished, self.failures, self.dropped = Counter(), set(), Counter(), set()
         self.plan, self.wayless, self.ended_empty = None, set(), Counter()
         self.reopened = {}
         self.policies = {}
-        self.shard, self.acts = None, frozenset()
+        self.shard, self.acts, self.overflow = None, (), {}
+        self.entered, self.mapped, self.explored, self.no_back = set(), set(), set(), set()
+        self.blocked, self.zone_said, self.zone_graph = {}, {}, ''
+        self.no_walk, self.ways, self.way_from, self.kept = set(), Counter(), None, set()
+        self.zone_at, self.arrival_runs = None, 0
+        self.zone_resumed, self.zone_written = False, ''
+        self.bosses.begin(game)
         return True
+
+    def state(self) -> dict:
+        """What a service restart in this game carries over (macros/midgame.py `snapshot`), as JSON: the shard's
+        outcome and its acts in order, the overflow acts tried (never a second shard for an act terrorized), the
+        levels run, done and judged, the package under way, the chests opened, the goals dropped. The plan, the queue
+        and the in-level goals are derived again at the next leg."""
+        return {
+            'shard': self.shard,
+            'acts': list(self.acts),  # in their order: the kind's act first (actloop.py OVERFLOW)
+            'overflow': [[act, how] for act, how in sorted(self.overflow.items())],
+            'shard_failures': self.shard_failures,
+            'worked': [[area, runs] for area, runs in sorted(self.worked.items())],
+            'finished': sorted(self.finished),
+            'entered': sorted(self.entered),
+            'mapped': sorted(self.mapped),
+            'explored': sorted(self.explored),
+            'blocked': [[area, why] for area, why in sorted(self.blocked.items())],
+            'no_back': sorted(self.no_back),
+            'no_walk': sorted([list(way) for way in self.no_walk]),
+            'ways': [[list(way), count] for way, count in sorted(self.ways.items())],
+            'wayless': sorted(self.wayless),
+            'ended_empty': [[area, count] for area, count in sorted(self.ended_empty.items())],
+            'reopened': [[area, runs] for area, runs in sorted(self.reopened.items())],
+            'opened': sorted(self.opened),
+            'kept': sorted(self.kept),
+            'failures': [[list(key), count] for key, count in self.failures.items()],
+            'dropped': [list(key) for key in self.dropped],
+            'stack': [asdict(goal) for goal in self.stack],
+            'zone_at': self.zone_at,
+            'arrival_runs': self.arrival_runs,
+        }
+
+    def take_up(self, state: dict, game: object) -> None:
+        """`state` (`Agenda.state`) taken up for `game`, the same game after a service restart: `begin` then starts
+        nothing afresh. `KeyError`/`TypeError`/`ValueError` on a malformed one (taken up into a fresh agenda by
+        macros/midgame.py `restore`, which then keeps the one it had)."""
+        stack = [objective_of(goal) for goal in state['stack']]
+        self.shard, self.acts = state['shard'], tuple(dict.fromkeys(int(act) for act in state['acts']))
+        # A state written before OVERFLOW (2026-10-21) has none: no overflow act tried
+        self.overflow = {int(act): str(how) for act, how in state.get('overflow', ())}
+        self.shard_failures = int(state['shard_failures'])
+        self.worked = Counter({int(area): int(runs) for area, runs in state['worked']})
+        self.finished = {int(area) for area in state['finished']}
+        self.entered = {int(area) for area in state['entered']}
+        self.mapped = {int(area) for area in state['mapped']}
+        self.explored = {int(area) for area in state['explored']}
+        self.blocked = {int(area): str(why) for area, why in state['blocked']}
+        self.no_back = {int(area) for area in state['no_back']}
+        self.no_walk = {(int(a), int(b)) for a, b in state['no_walk']}
+        self.ways = Counter({(int(a), int(b)): int(count) for (a, b), count in state['ways']})
+        self.wayless = {int(area) for area in state['wayless']}
+        self.ended_empty = Counter({int(area): int(count) for area, count in state['ended_empty']})
+        self.reopened = {int(area): int(runs) for area, runs in state['reopened']}
+        self.opened = {int(unit) for unit in state['opened']}
+        self.kept = {int(area) for area in state['kept']}
+        self.failures = Counter({tuple(key): int(count) for key, count in state['failures']})
+        self.dropped = {tuple(key) for key in state['dropped']}
+        self.stack = stack
+        self.zone_at = state['zone_at']
+        self.arrival_runs = int(state['arrival_runs'])
+        self.queue, self.kills, self.chests, self.plan, self.heralds = {}, {}, {}, None, {}
+        self.zone_resumed, self.zone_written = False, ''
+        self.game = game
+        self.bosses.begin(game)  # the book's records of this game are the file's: read back by the tracker
 
     def push(self, *goals: Objective) -> None:
         """Push a package so `goals[0]` comes first."""
@@ -456,9 +597,13 @@ class Agenda:
         for unit, goal in list(self.kills.items()):
             if goal.area == view.area and unit not in present:
                 del self.kills[unit]
+                self.heralds.pop(unit, None)  # forgotten (seen dead or gone): a plain one if it comes back
+        if HERALD_KEPT:
+            self.heralds.update((leader.unit, leader.label) for leader in view.leaders if leader.herald)
         for leader in view.leaders:
-            tier = HERALD if leader.herald else LEADER if leader.live else LEADER_NEAR
-            self.kills[leader.unit] = kill(view.area, leader.unit, leader.place, leader.label, tier)
+            tier = HERALD if leader.herald or leader.unit in self.heralds else LEADER if leader.live else LEADER_NEAR
+            label = self.heralds.get(leader.unit, leader.label)
+            self.kills[leader.unit] = kill(view.area, leader.unit, leader.place, label, tier)
         for unit in view.spent:
             self.chests.pop(unit, None)
             self.opened.add(unit)
@@ -472,7 +617,8 @@ class Agenda:
                 self.chests[unit] = Objective(OPEN, 'Super chest', CHEST, view.area, place, unit)
 
     def in_level(self, view: LevelView) -> Objective | None:
-        """The level run's next target (goals-plan.md §3), first match: a live Herald; a Herald's omen; the side
+        """The level run's next target (goals-plan.md §3), first match: a live Herald, else one remembered alive
+        (HERALD_KEPT); a Herald's omen (its pack, its stand, else a wait in place: OMEN_HOLD); the side
         drop's guards, then the drop; a leader in sight (on TZ+ a reasonable group too, `groups_near`); a super chest
         within CHEST_NEAR; a leader remembered within REMEMBERED_NEAR; on COVER/PLUS/FULL_CLEAR the next room, then
         leaders further, unless the route's next object (`use_at`) is within USE_NEAR and no farther; on TRANSIT nothing
@@ -490,17 +636,20 @@ class Agenda:
             goal for goal in self.kills.values() if goal.area == view.area and not view.passed(where(goal), goal.unit)
         ]
         live = {leader.unit for leader in view.leaders if leader.live}
-        heralds = [goal for goal in known if goal.tier == HERALD and goal.unit in live]
+        # A Herald in the read; with HERALD_KEPT one remembered too (`observe`), the one in the read first
+        heralds = [goal for goal in known if goal.tier == HERALD and (HERALD_KEPT or goal.unit in live)]
         if heralds:
-            return min(heralds, key=lambda goal: away(where(goal)))
+            return min(heralds, key=lambda goal: (goal.unit not in live, away(where(goal))))
         if view.omens:
             spot, stand = min(view.omens, key=lambda omen: away(omen[0]))
             near = [(unit, place) for unit, place in view.hostiles if math.dist(spot, place) <= view.omen_near]
             if near:
                 unit, place = min(near, key=lambda found: away(found[1]))
                 return kill(view.area, unit, place, 'the hostile by the Herald coming', OMEN)
-            if not view.passed(stand, None):
-                return Objective(NAVIGATE, 'the stand for the Herald coming', OMEN, view.area, stand)
+            # The stand, else (OMEN_HOLD) a wait where the character stands
+            wait = stand if not view.passed(stand, None) else here if OMEN_HOLD else None
+            if wait is not None:
+                return Objective(NAVIGATE, 'the stand for the Herald coming', OMEN, view.area, wait)
         side = view.side
         if side is not None and side.place is not None:
             drop = side.place
@@ -533,6 +682,8 @@ class Agenda:
         if near:
             found = min(near, key=lambda goal: away(where(goal)))
             return Objective(KILL, found.label, LEADER_NEAR, found.area, found.place, found.unit)
+        if (boss := self.boss_goal(view)) is not None:
+            return boss
         if view.policy in WAYS_ON:
             return None
         use = view.use_at if USE_FIRST else None
@@ -548,6 +699,28 @@ class Agenda:
             found = min(remembered, key=lambda goal: away(where(goal)))
             return Objective(KILL, found.label, LEADER_FAR, found.area, found.place, found.unit)
         return None
+
+    def boss_goal(self, view: LevelView) -> Objective | None:
+        """BOSS_GOALS: the nearest boss of the ledger alive on `view`'s level, at any distance: KILL by the unit taken
+        for it (its place in the read, else where it was last seen), else NAVIGATE to its preset's spot; none passed,
+        none whose spot is reached with no unit taken there (BOSS_ARRIVED), none without a place (a route's fight:
+        the route goes to it). A zone kind's only (`plan` set by macros/tzloop.py)."""
+        if not BOSS_GOALS or self.plan is None:
+            return None
+        found: list[tuple[float, Objective]] = []
+        for boss in self.bosses.alive_in(view.area):
+            known = self.kills.get(boss.unit) if boss.unit is not None else None
+            place = known.place if known is not None and known.place is not None else boss.place
+            if place is None or view.passed(place, boss.unit):
+                continue
+            away = math.dist(view.here, place)
+            if boss.unit is None:
+                if away <= BOSS_ARRIVED:
+                    continue
+                found.append((away, Objective(NAVIGATE, boss.name, LEADER_NEAR, view.area, place)))
+            else:
+                found.append((away, kill(view.area, boss.unit, place, boss.name, LEADER_NEAR)))
+        return min(found, key=lambda pair: pair[0])[1] if found else None
 
     def worked_as(self, area: int, policy: str, population: float | None) -> None:
         """Say how level `area` is worked when that changes (once a level a game, unless it changes): its policy, on
@@ -577,6 +750,22 @@ class Agenda:
     def known(self, area: int) -> int:
         """The open KILL goals of `area`."""
         return sum(1 for goal in self.kills.values() if goal.area == area)
+
+
+def objective_of(kept: dict) -> Objective:
+    """An `Objective` from `dataclasses.asdict` of one (`Agenda.state`)."""
+    place, area, unit, to = kept.get('place'), kept.get('area'), kept.get('unit'), kept.get('to')
+    return Objective(
+        str(kept['kind']),
+        str(kept['label']),
+        int(kept['tier']),
+        int(area) if area is not None else None,
+        (float(place[0]), float(place[1])) if place is not None else None,
+        int(unit) if unit is not None else None,
+        int(to) if to is not None else None,
+        str(kept.get('exit', '')),
+        bool(kept.get('ends')),
+    )
 
 
 def cost(goal: Objective, here: Point | None) -> float:

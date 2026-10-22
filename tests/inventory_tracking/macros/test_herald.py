@@ -5,8 +5,10 @@ import math
 
 import pytest
 
+from inventory_tracking.levels.model import Room
 from inventory_tracking.macros.hunt import HERALD_OMEN, OMEN_SECONDS
-from inventory_tracking.macros.hunting.base import OMEN_STAND, omen_stand
+from inventory_tracking.macros.hunting import base
+from inventory_tracking.macros.hunting.base import omen_distance, omen_stand, way_out
 from tests.inventory_tracking.macros.fakes import patch_hunt
 from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, me
 
@@ -36,7 +38,7 @@ def test_a_herald_coming_keeps_the_run_by_its_spot_and_a_monster_far_from_it_is_
     away = foe(1, here[0] - 10.0, here[1])  # the nearest, on the other side
     place, what, unit = goal(hunt, run, play, [away], here)
     assert (what, unit) == ('the stand for the Herald coming', None)
-    assert math.isclose(math.dist(place, spot), OMEN_STAND)
+    assert math.isclose(math.dist(place, spot), omen_distance())
     by_it = foe(2, spot[0] + 10.0, spot[1] + 5.0)  # within OMEN_NEAR of the spot: fought while it is pending
     assert goal(hunt, run, play, [away, by_it], here)[2] == 2
     # Its time over and no Herald seen: the run goes on as before
@@ -57,10 +59,49 @@ def test_a_live_herald_is_the_first_goal_and_a_boss_never_left_alone():
 
 
 def test_the_stand_is_on_the_characters_side_and_kept_when_near_enough():
-    spot = (100.0, 0.0)
-    assert omen_stand(spot, (0.0, 0.0)) == (100.0 - OMEN_STAND, 0.0)
-    assert omen_stand(spot, (100.0 - OMEN_STAND - 3.0, 0.0)) == (100.0 - OMEN_STAND - 3.0, 0.0)  # no move for 3
-    assert math.isclose(math.dist(omen_stand(spot, (101.0, 1.0)), spot), OMEN_STAND)  # on the spot: steps out
+    spot, stand = (100.0, 0.0), omen_distance()
+    assert omen_stand(spot, (0.0, 0.0)) == (100.0 - stand, 0.0)
+    assert omen_stand(spot, (100.0 - stand - 3.0, 0.0)) == (100.0 - stand - 3.0, 0.0)  # no move for 3
+    assert math.isclose(math.dist(omen_stand(spot, (101.0, 1.0)), spot), stand)  # on the spot: steps out
+
+
+# The stand with a way out (hunting/base.py STAND_WAY_OUT; rca/2026-10-21/mana-burn-findings.md item 2): rooms in tiles
+# (TILE_UNITS 5). The spot's room spans tiles 94-106 x 90-110; nothing lies west of it, so the stand on the character's
+# side (west) has void behind it, and the first turn round the spot with a room behind it is taken.
+SPOT_ROOM = Room(1, 94, 90, 12, 20)
+
+
+def test_a_stand_with_void_behind_it_is_turned_round_the_spot_to_one_with_a_way_out():
+    spot, here, stand = (500.0, 500.0), (400.0, 500.0), omen_distance()
+    rooms = [SPOT_ROOM]
+    before = omen_stand(spot, here)
+    assert before == (500.0 - stand, 500.0)
+    assert not way_out(spot, before, rooms)
+    found = omen_stand(spot, here, rooms)
+    assert found != before
+    assert math.isclose(math.dist(found, spot), stand)
+    assert way_out(spot, found, rooms)
+    # A room behind the character's side: the stand there, as before
+    behind = [SPOT_ROOM, Room(2, 80, 90, 14, 20)]
+    assert omen_stand(spot, here, behind) == before
+    assert way_out(spot, before, behind)
+
+
+def test_the_stand_without_rooms_or_with_the_switch_off_is_the_characters_side(monkeypatch):
+    spot, here = (500.0, 500.0), (400.0, 500.0)
+    assert omen_stand(spot, here, ()) == omen_stand(spot, here)
+    monkeypatch.setattr(base, 'STAND_WAY_OUT', False)
+    assert omen_stand(spot, here, [SPOT_ROOM]) == omen_stand(spot, here)
+    near = (500.0 - omen_distance() - 3.0, 500.0)
+    assert omen_stand(spot, near, [SPOT_ROOM]) == near  # within OMEN_SLACK: kept, as before
+
+
+def test_a_stand_near_enough_but_with_no_way_out_is_moved():
+    spot = (500.0, 500.0)
+    near = (500.0 - omen_distance() - 3.0, 500.0)
+    found = omen_stand(spot, near, [SPOT_ROOM])
+    assert found != near
+    assert way_out(spot, found, [SPOT_ROOM])
 
 
 # -- a full inventory with room in the cube (the player, 23:55 on 2026-10-17: "if we have cube space - we should move

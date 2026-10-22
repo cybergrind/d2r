@@ -42,6 +42,7 @@ def no_hop_landed_yet(monkeypatch):
     none carried from test to test."""
     monkeypatch.setattr(teleport, 'LANDED', [])
     monkeypatch.setattr(teleport, 'LANDING', [])
+    monkeypatch.setattr(teleport, 'MISSED', [])
     monkeypatch.setattr(teleport, 'FAR_FAILED', {})
 
 

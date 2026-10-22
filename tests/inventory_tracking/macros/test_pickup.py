@@ -326,13 +326,19 @@ def test_in_a_pile_the_potion_not_wanted_is_never_clicked(caplog):
     assert play.picked == ['a healing potion']
 
 
-def test_a_potion_not_wanted_is_not_clicked_blind_either():
-    # No aim shows the healing potion at all: the press gives up before it takes the other one.
+@pytest.mark.parametrize('give_up', [True, False])
+def test_a_potion_not_wanted_is_not_clicked_blind_either(monkeypatch, give_up):
+    # No aim shows the healing potion at all: the press gives up before it takes the other one; given up for the
+    # game (GIVE_UP_CHEAP, 2026-10-21), else the press stops as before
+    monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', give_up)
     juv = Drop(52, HP_NEAR.x, HP_NEAR.y, 'a full rejuvenation potion', REJUVENATION)
     play = game(juv, HP_NEAR, belt=SHORT_HP)
     play.label_above[HP_NEAR.unit_id] = 400.0
-    with pytest.raises(Abort, match='no click picked up a healing potion'):
-        pick_up(play.run(), LEVEL, keys, nothing)
+    if give_up:
+        assert not pick_up(play.run(), LEVEL, keys, nothing)
+    else:
+        with pytest.raises(Abort, match='no click picked up a healing potion'):
+            pick_up(play.run(), LEVEL, keys, nothing)
     assert play.picked == []
 
 
@@ -433,7 +439,9 @@ def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_fo
     play.deaf_picks = 999
     with pytest.raises(Abort, match='no click picked it up'):
         pick_up(play.run(), LEVEL, keys, nothing)
-    assert 999 - play.deaf_picks == pickup.MISSED_AIMS * pickup.CLICKS
+    # 8.5 away: the first aim's two clicks moved nobody, a hop nearer (NEARER_AFTER_STILL), then the three aims
+    assert 999 - play.deaf_picks == pickup.MISSED_AIMS * pickup.CLICKS + pickup.CLICKS
+    assert 't' in play.pressed()
     asked = []
     assert not pick_up(play.run(), LEVEL, keys, lambda: asked.append(1))  # the next press does something else
     assert asked == [1]
@@ -594,10 +602,13 @@ def test_an_aim_is_taken_only_once_the_cast_under_way_is_over():
     assert 0.3 <= play.clock.now < 0.4
 
 
-def test_in_a_big_pile_the_label_is_looked_for_further_up_and_to_the_sides(caplog):
+def test_in_a_big_pile_the_label_is_looked_for_further_up_and_to_the_sides(caplog, monkeypatch):
     # Arcane Sanctuary, 16:03:45 on 2026-10-11: a Flawless Diamond among 12 drops showed at none of the 16
     # aims, four presses running; the clicks made unseen had a monster under them.
+    from inventory_tracking.macros import pile
     from inventory_tracking.macros.pickup import ITEM_AIMS, PILE_AIMS, PILE_MORE, pile_aims
+
+    monkeypatch.setattr(pile, 'PILE_SWEEP', False)  # the pile's own aims (the sweep: test_pile.py)
 
     more = pile_aims(11)
     assert (0, -174) in more
@@ -992,3 +1003,245 @@ def test_an_item_picked_for_the_field_identify_comes_after_every_other_valuable_
         assert choose(Loot((bow,), FULL, 1000, 1000, game=('game-1', 7)), ORIGIN) == Plan(bow)
     finally:
         FIELD.picked.clear()
+
+
+# --- the label guard (pickup.py LABEL_GUARD; the player, 2026-10-21 ~00:55: "not always clicking correct object (we
+# often can pickup hp/rejuv potion) that we wanted") ---
+
+
+def test_a_blind_click_is_not_made_on_an_item_that_serves_nothing():
+    # An item under the pointer that is no drop of the press's (a junk label in the pile, a potion no list named): the
+    # game takes the item under the pointer, so a blind click there picks it up into the inventory
+    wanted = Drop(60, 5004.0, 5002.0, 'Ist Rune', VALUABLE)
+    junk = Drop(61, 5004.0, 5002.0, 'a super healing potion', HEALING)
+    play = game(wanted, junk)
+    play.label_above[wanted.unit_id] = 400.0  # its label is nowhere an aim looks
+    play.label_above[junk.unit_id] = 24.0
+    with pytest.raises(Abort, match='no click picked up Ist Rune'):
+        pickup.take(play.run(), wanted)  # `others` empty: the potion is in no list of the press's
+    assert play.picked == []
+
+
+def test_the_walk_up_to_a_far_drop_is_not_clicked_on_another_items_label(caplog):
+    # The walk up clicks the drop's ground: a potion's label stacked there took the click (the walk picks it up)
+    far = Drop(80, 5012.0, 5010.0, 'Grand Charm', VALUABLE, (1, 3))
+    potion = Drop(81, far.x + 14 / 16, far.y + 14 / 16, 'a super healing potion', HEALING)
+    play = game(far, potion)
+    play.label_above[80] = 300  # its label is nowhere the aims look
+    with caplog.at_level('INFO'), pytest.raises(Abort):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == []
+    assert math.dist(play.walks[0], (far.x, far.y)) < 1.5  # walked up to it all the same, off the label
+    assert 'the walk up to Grand Charm: a label (4, 81) under its ground; clicked (0, 10) pixels below' in caplog.text
+
+
+@pytest.mark.parametrize('guard', [True, False], ids=['guarded', 'the switch off'])
+def test_the_switch_off_clicks_blind_and_walks_up_on_any_label_as_before(monkeypatch, guard):
+    monkeypatch.setattr(pickup, 'LABEL_GUARD', guard)
+    far = Drop(80, 5012.0, 5010.0, 'Grand Charm', VALUABLE, (1, 3))
+    potion = Drop(81, far.x + 14 / 16, far.y + 14 / 16, 'a super healing potion', HEALING)
+    play = game(far, potion)
+    play.label_above[80] = 300
+    with pytest.raises(Abort):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ([] if guard else ['a super healing potion'])
+
+
+# --- clicks from afar that move nobody (rca/2026-10-21/potion-click-findings.md) ---
+
+FAR_POTION = Drop(80, 5019.0, 5000.0, 'a super healing potion', HEALING)
+
+
+@pytest.fixture(autouse=True)
+def fresh():
+    """The pickup's memories of drops empty before and after each test (module-level, kept across presses in a game):
+    a drop given up for the game in one test is no drop of the next."""
+    for memory in (pickup.SHUNNED, pickup.UNMOVED, pickup.GIVEN_UP, pickup.LOOKED):
+        memory.clear()
+    yield
+    for memory in (pickup.SHUNNED, pickup.UNMOVED, pickup.GIVEN_UP, pickup.LOOKED):
+        memory.clear()
+
+
+def test_a_drop_whose_clicks_from_afar_move_nobody_is_hopped_nearer_and_taken(monkeypatch, fresh, caplog):
+    # Travincal, 13:37:16-24 on 2026-10-21: a super healing potion 18.6 away under the pointer at every aim, 11 clicks
+    # in 8 s and the character never moved; the game was left for it
+    monkeypatch.setattr(pickup, 'NEARER_AFTER_STILL', True)
+    play = game(FAR_POTION, belt=SHORT_HP)
+    play.far_refused = 15.0
+    with caplog.at_level('INFO'):
+        assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['a super healing potion']
+    assert 't' in play.pressed()  # a hop beside it
+    assert any('moved nobody from 19 away' in r.message and 'gone nearer' in r.message for r in caplog.records)
+
+
+def test_without_the_switch_the_clicks_from_afar_go_on_as_before(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'NEARER_AFTER_STILL', False)
+    play = game(FAR_POTION, belt=SHORT_HP)
+    play.far_refused = 15.0
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert 't' not in play.pressed()  # no hop: the other aims from afar, then the walk up by its ground (the fake's
+    assert play.walks  # ground click walks; in the game it had the potion under it too and walked nobody)
+
+
+def test_a_later_try_at_a_drop_whose_clicks_moved_nobody_goes_nearer_before_its_first_click(monkeypatch, fresh):
+    # A level run's pickup is cut at its priced 1.5 s: the next try starts with the remedy, not the same clicks
+    monkeypatch.setattr(pickup, 'NEARER_AFTER_STILL', True)
+    play = game(FAR_POTION, belt=SHORT_HP)
+    play.far_refused = 15.0
+    run = play.run()
+    pickup.UNMOVED[FAR_POTION.unit_id] = run.clock() + pickup.UNMOVED_SECONDS
+    assert pick_up(run, LEVEL, keys, nothing)
+    assert play.picked == ['a super healing potion']
+    assert play.pressed()[0] == 't'  # the hop before any click
+
+
+def test_a_potion_no_click_takes_is_given_up_for_the_game_and_the_press_goes_on(monkeypatch, fresh, caplog):
+    # The player, 2026-10-21 ~13:40: the loop left a shard's act for a potion no click took
+    monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
+    play = game(HP_NEAR, belt=SHORT_HP)
+    play.deaf_picks = 999
+    with caplog.at_level('INFO'):
+        assert not pick_up(play.run(), LEVEL, keys, nothing)
+    assert dict(pickup.GIVEN_UP) == {HP_NEAR.unit_id: None}
+    assert any('given up for this game' in r.message and 'the game is kept' in r.message for r in caplog.records)
+    pickup.SHUNNED.clear()  # past its 30 s: still given up for the game
+    asked = []
+    assert not pick_up(play.run(), LEVEL, keys, lambda: asked.append(1))
+    assert asked == [1]
+
+
+def test_without_the_switch_a_potion_no_click_takes_stops_the_press_as_before(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', False)
+    play = game(HP_NEAR, belt=SHORT_HP)
+    play.deaf_picks = 999
+    with pytest.raises(pickup.Missed, match='no click picked it up') as stop:
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert stop.value.cause == 'pickup'
+    assert pickup.GIVEN_UP == {}
+
+
+def test_a_valuable_no_click_takes_still_stops_the_press_with_the_pickup_cause(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
+    play = game(RUNE)
+    play.deaf_picks = 999
+    with pytest.raises(pickup.Missed, match='no click picked it up') as stop:
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert stop.value.cause == 'pickup'
+    assert stop.value.drop.unit_id == RUNE.unit_id
+    assert pickup.GIVEN_UP == {}
+
+
+def test_gold_no_click_takes_is_given_up_and_never_stops_the_press(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
+    play = game(PILE)
+    play.gold_radius = 0.0
+    play.warp_lands = False
+    play.deaf_picks = 999
+    assert not pick_up(play.run(), LEVEL, keys, nothing)
+    assert PILE.unit_id in pickup.GIVEN_UP
+
+
+def test_a_drop_given_up_in_another_game_is_looked_at_again():
+    pickup.GIVEN_UP.clear()
+    pickup.GIVEN_UP[HP_NEAR.unit_id] = ('cyber1', 7)
+    loot = Loot((HP_NEAR,), SHORT_HP, 1000, 1000, game=('cyber1', 7))
+    assert pickup.unshunned(loot, 0.0).drops == ()
+    assert pickup.unshunned(replace(loot, game=('cyber2', 7)), 0.0).drops == (HP_NEAR,)
+    assert pickup.GIVEN_UP == {}
+
+
+# --- a drop whose label the game never draws (WAIVE_UNLABELLED; rca/2026-10-22/hidden-staff-findings.md) ---
+
+STAFF = Drop(90, 5003.0, 5002.0, 'Superior Gothic Staff', VALUABLE, (1, 4))
+STAFF_GAME = ('cyberg13', 13)
+
+
+def hidden(play, *, nothing=True, show_items=True):
+    """A run on `play` whose hover record reads nothing under the pointer at every aim (`nothing`; else unread), the
+    game's Show Items toggle at `show_items`, and every click taking nothing: the loot filter hides the drop."""
+    play.deaf_picks = 999
+    play.world = replace(play.world, show_items=show_items)
+    run = play.run()
+    run.hovered = lambda: None
+    run.hover_nothing = lambda: nothing
+    return run
+
+
+def staff_game():
+    play = game(STAFF)
+    play.loot = Loot((STAFF,), FULL, 1000, 1000, game=STAFF_GAME)
+    return play
+
+
+def test_a_valuable_with_no_label_is_tried_once_more_then_given_up_for_the_game(fresh, caplog):
+    # 08:30:44-08:33:11 on 2026-10-22: four presses, every aim "unread or nothing [flag 0x0 ...]", the loop stopped
+    play = staff_game()
+    with pytest.raises(pickup.Unlabelled, match='no click picked up Superior Gothic Staff: its label') as stop:
+        pick_up(hidden(play), LEVEL, keys, nothing)
+    assert stop.value.cause == 'pickup'  # the first: the loop's rules go back for it (stops.py FETCH), as before
+    assert pickup.GIVEN_UP == {}
+    assert pickup.WAIVED == {}
+    pickup.SHUNNED.clear()
+    with caplog.at_level('INFO'):
+        assert not pick_up(hidden(play), LEVEL, keys, nothing)  # the second: waived, the press goes on
+    assert dict(pickup.GIVEN_UP) == dict.fromkeys([STAFF.unit_id], STAFF_GAME)
+    assert dict(pickup.WAIVED) == dict.fromkeys([STAFF.unit_id], STAFF_GAME)
+    assert any('given up for this game' in r.message and 'the loot filter hides it' in r.message
+               for r in caplog.records)  # fmt: skip
+    assert play.picked == []
+    # Out of what the loop guards in this game, and back in the next
+    assert pickup.waived(play.loot).drops == ()
+    assert pickup.waived(replace(play.loot, game=('cyberg14', 14))).drops == (STAFF,)
+
+
+@pytest.mark.parametrize(
+    'why', ['an unread hover record', 'Show Items off', 'Show Items unread', 'the switch off', 'no game read']
+)
+def test_a_valuable_with_no_label_is_never_waived_without_the_proof(why, fresh, monkeypatch):
+    play = staff_game()
+    if why == 'the switch off':
+        monkeypatch.setattr(pickup, 'WAIVE_UNLABELLED', False)
+    if why == 'no game read':
+        play.loot = replace(play.loot, game=None)
+    for _ in range(3):
+        pickup.SHUNNED.clear()
+        run = hidden(
+            play, nothing=why != 'an unread hover record',
+            show_items={'Show Items off': False, 'Show Items unread': None}.get(why, True),
+        )  # fmt: skip
+        with pytest.raises(pickup.Missed, match='no click picked up Superior Gothic Staff') as stop:
+            pick_up(run, LEVEL, keys, nothing)
+        assert isinstance(stop.value, pickup.Unlabelled) == (why == 'no game read')
+    assert pickup.WAIVED == {}
+    assert pickup.GIVEN_UP == {}
+
+
+def test_a_valuable_whose_label_was_under_the_pointer_is_never_waived(fresh, monkeypatch):
+    # The clicks took nothing with the label there (2026-10-10 22:16, the Large Charm): the loop's rules, as before
+    play = staff_game()
+    play.deaf_picks = 999
+    play.world = replace(play.world, show_items=True)
+    for _ in range(3):
+        pickup.SHUNNED.clear()
+        pickup.UNMOVED.clear()
+        with pytest.raises(pickup.Missed) as stop:
+            pick_up(play.run(), LEVEL, keys, nothing)
+        assert not isinstance(stop.value, pickup.Unlabelled)
+    assert pickup.WAIVED == {}
+
+
+def test_the_loop_reads_no_waived_drop_so_its_guard_keeps_no_game_for_it(fresh):
+    import threading
+    from pathlib import Path
+
+    from inventory_tracking.macros.runner import MacroRunner
+
+    found = MacroRunner(None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent'), display=lambda _: None)
+    found.loop.on = True
+    loot = Loot((STAFF, RUNE), FULL, 1000, 1000, game=STAFF_GAME)
+    before = {drop.unit_id for drop in found._picked(loot).drops}
+    assert STAFF.unit_id in before
+    pickup.WAIVED[STAFF.unit_id] = STAFF_GAME
+    assert {drop.unit_id for drop in found._picked(loot).drops} == before - {STAFF.unit_id}

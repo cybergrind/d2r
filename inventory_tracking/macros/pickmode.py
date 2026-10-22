@@ -84,8 +84,8 @@ VOID_SOCKETS = 3
 # Hex: Purge / Apocalypse"
 VOID_STAFFMODS = frozenset((402, 389, 401))
 VOID_LEVEL = 3
-# Or no socket and +3 Abyss, socketed by Larzuk ("0 socket +3 abyss - let's pickup them", the player, 2026-10-17)
-ABYSS = 402
+# Or no socket and +3 of any of them, socketed by Larzuk or the cube ("0 socket +3 abyss - let's pickup them", the
+# player, 2026-10-17; "add 0os +3 apocalypse too", 2026-10-22)
 # Monarchs and elite Paladin shields (items metadata classes); the rules follow the market study of 2026-10-17
 # (history/pickmode.md)
 MONARCH, SACRED_TARGE, SACRED_RONDACHE = 447, 498, 499
@@ -147,14 +147,14 @@ def candidate(drop: Drop, kind: str | None) -> bool:
 
 
 def void_base(drop: Drop) -> bool:
-    """Whether the drop is a white or superior Void base worth keeping: VOID_SOCKETS sockets and a VOID_STAFFMODS
-    skill at VOID_LEVEL+, or no socket and ABYSS at VOID_LEVEL+. Unread rolls: not taken (unread bases filled the
-    stash, 2026-10-17)."""
+    """Whether the drop is a white or superior Void base worth keeping: VOID_SOCKETS sockets or none, and a
+    VOID_STAFFMODS skill at VOID_LEVEL+. Unread rolls: not taken (unread bases filled the stash, 2026-10-17)."""
     found = drop.rolls
     if drop.quality not in WHITE or drop.txt not in VOID_BASES or found is None:
         return False
-    paid = VOID_STAFFMODS if found.sockets == VOID_SOCKETS else (ABYSS,) if found.sockets == 0 else ()
-    return any(skill in paid and level >= VOID_LEVEL for skill, level in found.skills)
+    if found.sockets not in (0, VOID_SOCKETS):
+        return False
+    return any(skill in VOID_STAFFMODS and level >= VOID_LEVEL for skill, level in found.skills)
 
 
 def shield_base(drop: Drop) -> bool:

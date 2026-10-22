@@ -8,7 +8,7 @@ import pytest
 
 from inventory_tracking.game.records import Carried
 from inventory_tracking.items.metadata import metadata
-from inventory_tracking.loot import keep
+from inventory_tracking.loot import api, keep
 from inventory_tracking.loot.api import town_asks, town_kept, town_sold, town_verdicts
 from inventory_tracking.loot.facts import Owner
 from inventory_tracking.loot.keep import Action, Decision
@@ -106,14 +106,23 @@ def test_the_first_copy_unreadable_copies_and_an_expensive_copy_are_kept():
     assert not town_verdicts([(toe, dear)], owned(53, 56))[0].sold  # K5
 
 
-def test_a_cheap_unpriced_copy_is_kept_unless_its_band_is_under_1_ist():
-    # S8 / Q13: no price by its rolls -> only an equal or worse copy with a KB band under 1 Ist (as the field)
+def test_a_cheap_unpriced_copy_worse_than_an_owned_one_is_sold_whatever_its_band(monkeypatch):
+    # WORSE_COPY_GOES (the player, 2026-10-21 08:27, on a 4th Bloodthief kept by its 2 Ist ask median: "Worse copy
+    # goes"); off: S8 / Q13, only an equal or worse copy with a KB band under 1 Ist (as the field)
+    import inventory_tracking.loot.api as api
+
     toe = facts_of({**GOBLIN, 'rolls': {'16:0': 50}})
     from inventory_tracking.loot.value import Band
 
     unpriced = assess(toe, worth=None, verdict='slow')
-    assert not town_verdicts([(toe, unpriced)], owned(53))[0].sold
+    dear_band = assess(toe, worth=None, verdict='slow', band=Band(0.2, 2.0, 24, '2026-09-18'))
     banded = assess(toe, worth=None, verdict='slow', band=Band(0.2, 0.6, 5, '2026-10-04'))
+    assert town_verdicts([(toe, unpriced)], owned(53))[0].sold
+    assert town_verdicts([(toe, dear_band)], owned(53))[0].sold
+    assert not town_verdicts([(toe, unpriced)], owned(48))[0].sold  # better than the owned copy: kept
+    monkeypatch.setattr(api, 'WORSE_COPY_GOES', False)
+    assert not town_verdicts([(toe, unpriced)], owned(53))[0].sold
+    assert not town_verdicts([(toe, dear_band)], owned(53))[0].sold
     assert town_verdicts([(toe, banded)], owned(53))[0].sold
 
 
@@ -144,11 +153,13 @@ def test_a_small_charm_with_no_price_is_kept_by_k7():
     'rolls',
     [{'105:0': 10}, {'7:0': 40 * 256}, {'127:0': 2}, {'83:7': 2}, {'188:57': 2}, {'188:0': 2}],
 )
-def test_a_rare_amulet_the_amulet_keeper_keeps_is_kept_by_the_wants_row(rolls):
+def test_a_rare_amulet_the_amulet_keeper_keeps_is_kept_by_the_wants_row(rolls, monkeypatch):
     # macros/keepers.py `amulet_keeper` (any FCR, any life, +2 all/class/tree skills) as the row rare-amulet-fcr-life-
-    # skills (loot/build_wants.py G11) when TOWN_DECIDES is on
+    # skills (loot/build_wants.py G11) when TOWN_DECIDES is on; the keep bar off (loot/wants.py KEEP_BAR)
+    from inventory_tracking.loot import wants
     from inventory_tracking.macros.keepers import amulet_keeper
 
+    monkeypatch.setattr(wants, 'KEEP_BAR', False)
     amulet = facts_of({'base': 'Amulet', 'code': 'amu', 'quality': 'rare', 'rolls': rolls})
     stats = {int(key.partition(':')[0]): raw for key, raw in rolls.items()}
     assert amulet_keeper(Carried(1, amulet.txt or 0, 0, 0, (1, 1), 6, True), stats) is not None
@@ -156,6 +167,26 @@ def test_a_rare_amulet_the_amulet_keeper_keeps_is_kept_by_the_wants_row(rolls):
     assert not found.sold, found.said()
     assert found.decision is not None
     assert found.decision.rule == 'K3'
+
+
+@pytest.mark.parametrize(
+    'rolls',
+    [{'105:0': 10}, {'7:0': 40 * 256}, {'127:0': 2}, {'83:7': 2}, {'188:57': 2}, {'188:0': 2}],
+)
+def test_with_the_keep_bar_one_good_stat_on_a_rare_amulet_is_sold(rolls):
+    # The keep bar (loot/wants.py KEEP_BAR; the player, 2026-10-21 ~08:55: "we need not just 1 row, but probably 3
+    # stats with good rolls to keep"): +2 skills and three good stats, else sold; the amulet guard spares it no more
+    from inventory_tracking.macros.keepers import amulet_keeper
+
+    amulet = facts_of({'base': 'Amulet', 'code': 'amu', 'quality': 'rare', 'rolls': rolls})
+    stats = {int(key.partition(':')[0]): raw for key, raw in rolls.items()}
+    assert amulet_keeper(Carried(1, amulet.txt or 0, 0, 0, (1, 1), 6, True), stats) is None
+    [found] = town_verdicts([(amulet, assess(amulet, worth=0.05, verdict='vendor'))], lambda _facts: [])
+    assert found.sold, found.said()
+    three = facts_of({'base': 'Amulet', 'code': 'amu', 'quality': 'rare',
+                      'rolls': {**rolls, '83:2': 2, '105:0': 10, '7:0': 45 * 256}})  # fmt: skip
+    [found] = town_verdicts([(three, assess(three, worth=0.05, verdict='vendor'))], lambda _facts: [])
+    assert not found.sold, found.said()
 
 
 def test_town_sold_reads_the_workers_book_and_spares_the_players():
@@ -319,4 +350,133 @@ def test_town_sold_says_the_give_ups_its_guards_keep():
     title, why = kept[5]
     assert title == 'Corpsemourn (Ornate Armor)'
     assert why.startswith('drop K6 ')
-    assert 'no price by its rolls' in why
+    assert 'not vendor' in why  # `check`: K6 alone sells no such item (the copy rule would let it go)
+
+
+# The best copy only for a usable or dear one (keep.py BEST_COPY_USABLE_ONLY; the player, 2026-10-21 ~08:55,
+# answering "What should count as usable?": "Top picks + usable best"; rca/2026-10-21/weak-keepers-findings.md B5):
+# the 107% Patriarch of 04:35:32 was kept as "K6 the best copy (0.48 Ist, worthless, verdict vendor)" over a 105% one
+PATRIARCH = {'base': 'Great Sword', 'code': 'gsd', 'quality': 'unique', 'name': 'The Patriarch', 'size': [2, 4],
+             'ranges': {'17:0': [100, 120], '18:0': [100, 120]}}  # fmt: skip
+
+
+def patriarch(ed: int, unit: int = 1, owner: Owner | None = None):
+    return facts_of({**PATRIARCH, 'rolls': {'17:0': ed, '18:0': ed}}, unit, owner=owner)
+
+
+@pytest.mark.parametrize(('worth', 'verdict'), [(0.48, 'vendor'), (0.78, 'slow')])
+def test_a_better_copy_no_build_names_is_sold_and_a_usable_better_one_kept(worth, verdict):
+    better = patriarch(107)
+    mine = [patriarch(105, 9, Owner.PLAYER)]
+    value = assess(better, worth=worth, verdict=verdict)
+    assert not value.wants
+    decision = keep.decide(better, value, mine)
+    assert (decision.action, decision.rule) == (Action.DROP, 'K6'), decision.said()
+    assert 'no build names it' in decision.reason
+    [found] = town_verdicts([(better, value)], lambda _facts: mine)
+    assert found.sold, found.said()
+    toe = facts_of({**GOBLIN, 'rolls': {'16:0': 58}})  # usable (berserk-barbarian Boots, the 3rd option)
+    [kept] = town_verdicts([(toe, assess(toe, worth=worth, verdict=verdict))], owned(53, 56))
+    assert not kept.sold, kept.said()
+
+
+@pytest.mark.parametrize(
+    ('worth', 'verdict', 'why'),
+    [(None, 'vendor', 'no price (S8)'), (0.48, 'self', 'own use'), (0.48, 'check', 'a question for the player'),
+     (1.2, 'slow', 'dear by its own rolls: K5')],
+)  # fmt: skip
+def test_a_better_unusable_copy_unpriced_not_vendor_or_dear_is_kept(worth, verdict, why):
+    better = patriarch(107)
+    [found] = town_verdicts([(better, assess(better, worth=worth, verdict=verdict))], lambda _f: [patriarch(105, 9)])
+    assert not found.sold, (why, found.said())
+
+
+def test_the_best_copy_switch_off_keeps_the_better_unusable_copy(monkeypatch):
+    better = patriarch(107)
+    mine = [patriarch(105, 9, Owner.PLAYER)]
+    monkeypatch.setattr(keep, 'BEST_COPY_USABLE_ONLY', False)
+    decision = keep.decide(better, assess(better, worth=0.48, verdict='vendor'), mine)
+    assert (decision.action, decision.rule) == (Action.KEEP, 'K6')
+    assert decision.reason.startswith('the best copy')
+    [found] = town_verdicts([(better, assess(better, worth=0.48, verdict='vendor'))], lambda _facts: mine)
+    assert not found.sold
+
+
+# Gheed's Fortune by its roll (keep.py GHEEDS_BY_ROLL; the player, 2026-10-21 ~09:00: "I have dropped low roll gheed's
+# charms, it looks like we don't need that many of them. low rolls doesn't sell"; keep only "MF38, or MF35 + very good
+# gold roll"; ~09:05: "also - do not sell our current gheed charm"). uniqueitems.json Gheed's Fortune: mag% (80) 20-40,
+# gold% (79) 80-160, cheap (87) 10-15
+def gheeds(mf: int, gold: int, unit: int = 1, owner: Owner | None = None):
+    spec = {'base': 'Grand Charm', 'code': 'cm3', 'quality': 'unique', 'name': "Gheed's Fortune",
+            'rolls': {'80:0': mf, '79:0': gold, '87:0': 12}}  # fmt: skip
+    return facts_of(spec, unit, owner=owner)
+
+
+@pytest.mark.parametrize(
+    ('mf', 'gold', 'sold'),
+    [(40, 100, False), (38, 80, False), (36, 150, False), (35, 140, False), (36, 120, True), (34, 160, True),
+     (30, 160, True)],
+)  # fmt: skip
+def test_a_loop_found_gheeds_fortune_is_kept_only_by_a_good_roll(mf, gold, sold):
+    charm = gheeds(mf, gold)
+    value = assess(charm, worth=0.5, verdict='slow')
+    decision = keep.decide(charm, value, [])
+    assert decision.gives_up == sold, decision.said()
+    assert decision.rule == 'K1'
+    [found] = town_verdicts([(charm, value)], lambda _facts: [])
+    assert found.sold == sold, found.said()
+    if sold:
+        assert "Gheed's Fortune" in found.said()
+        assert api.droppable(charm, value, []) is not None  # never put down in the field: sold in town
+
+
+def test_a_low_gheeds_with_no_roll_read_unidentified_or_the_players_is_kept():
+    unread = replace(gheeds(30, 100), rolls=None)
+    assert not town_verdicts([(unread, assess(unread, worth=0.5, verdict='slow'))], lambda _facts: [])[0].sold
+    hidden = replace(gheeds(30, 100), identified=False, name=None)
+    assert not town_verdicts([(hidden, assess(hidden, worth=None))], lambda _facts: [])[0].sold
+    mine = gheeds(30, 100, owner=Owner.PLAYER)  # "do not sell our current gheed charm"
+    decision = keep.decide(mine, assess(mine, worth=0.5, verdict='vendor'), [])
+    assert decision.action == Action.NEVER_TOUCH
+    assert not town_verdicts([(mine, assess(mine, worth=0.5, verdict='vendor'))], lambda _facts: [])[0].sold
+
+
+def test_the_carried_gheeds_is_never_sold_and_a_low_loop_find_beside_it_is():
+    # The town visit's `town_sold` with the character's own Gheed's Fortune spared (the player's, K0) and a low loop
+    # find carried beside it (the swap's new one before the choice, or one found outside the swap): only the find goes
+    book = Book()
+    for unit, mf in ((5, 30), (6, 30)):
+        spec = {'base': 'Grand Charm', 'code': 'cm3', 'quality': 'unique', 'name': "Gheed's Fortune",
+                'rolls': {'80:0': mf, '79:0': 100}}  # fmt: skip
+        book.put(unit, Appraised(observation(spec, unit), {'triage': {'decision_ist': 0.5}}, 'slow'))
+    grand = class_of('cm3')
+    carried = [Carried(5, grand, 0, 0, (1, 3), 7, True), Carried(6, grand, 1, 0, (1, 3), 7, True)]
+
+    class Copies:
+        def copies(self, facts):
+            return []
+
+    found = town_sold(carried, frozenset({5}), book, Copies())
+    assert list(found) == [6]
+
+
+@pytest.mark.parametrize(
+    'spec',
+    [{'base': 'Small Charm', 'code': 'cm1', 'quality': 'unique', 'name': 'Annihilus', 'rolls': {'127:0': 1}},
+     {'base': 'Large Charm', 'code': 'cm2', 'quality': 'unique', 'name': 'Hellfire Torch', 'rolls': {'0:0': 10}}],
+)  # fmt: skip
+def test_other_unique_charms_stay_never_sold(spec):
+    charm = facts_of(spec)
+    [found] = town_verdicts([(charm, assess(charm, worth=0.01, verdict='vendor'))], lambda _facts: [])
+    assert not found.sold
+    assert found.decision is not None
+    assert (found.decision.action, found.decision.rule) == (Action.KEEP, 'K1')
+
+
+def test_the_gheeds_switch_off_keeps_every_gheeds(monkeypatch):
+    monkeypatch.setattr(keep, 'GHEEDS_BY_ROLL', False)
+    charm = gheeds(30, 100)
+    [found] = town_verdicts([(charm, assess(charm, worth=0.5, verdict='vendor'))], lambda _facts: [])
+    assert not found.sold
+    assert found.decision is not None
+    assert found.decision.reason.startswith('never sold')

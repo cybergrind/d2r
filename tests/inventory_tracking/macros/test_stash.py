@@ -7,6 +7,7 @@ import pytest
 from inventory_tracking.game.layout import BANK
 from inventory_tracking.game.records import Carried, Pack, Thing
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE_CLASS, overflow, own_of
 from inventory_tracking.macros.stash import GEMS_TAB, RESOURCES, STASH_CUBE, Pages, open_stash, resources, unload
 from inventory_tracking.macros.waypoint import panel_point
@@ -301,3 +302,47 @@ def test_a_stash_the_walks_click_opened_is_done_with_no_aim():
     assert len(clicks) == 1  # the walk's, and no aim's
     assert play.stash_opened == 1
     assert set(play.world.open_panels) == {'inventory', 'stash'}
+
+
+# Item labels over the stash (stash.py LABELS_OFF_AT_THE_STASH; 04:10:36 on 2026-10-21: every aim had an item's label
+# under it, the stash was not opened and nine keepers stayed in the cube)
+
+
+def labelled_stash() -> Game:
+    play = fortress(Pack((GRAND, THE_CUBE, RUNE), ('...',) * 4))
+    play.world = replace(play.world, show_items=True)
+    play.labels_over_thing = 4242  # an item put down by the stash: its label over the stash's picture
+    return play
+
+
+def test_labels_over_every_aim_are_hidden_for_the_click_and_shown_again():
+    from tests.inventory_tracking.macros.fakes import SHOW_ITEMS_KEY
+
+    play = labelled_stash()
+    run = play.run()
+    run.show_items_key = SHOW_ITEMS_KEY
+
+    open_stash(run)
+
+    assert set(play.world.open_panels) == {'inventory', 'stash'}
+    assert play.world.show_items is True  # the labels on again
+    assert [e for e in play.keys.events if e == ('key', SHOW_ITEMS_KEY)] == [('key', SHOW_ITEMS_KEY)] * 2
+
+
+@pytest.mark.parametrize('why', ['switch off', 'no key known', 'labels off already'])
+def test_without_the_switch_a_key_or_labels_shown_the_covered_stash_is_not_opened(monkeypatch, why):
+    import inventory_tracking.macros.stash as stash_module
+    from tests.inventory_tracking.macros.fakes import SHOW_ITEMS_KEY
+
+    play = labelled_stash()
+    run = play.run()
+    run.show_items_key = None if why == 'no key known' else SHOW_ITEMS_KEY
+    if why == 'switch off':
+        monkeypatch.setattr(stash_module, 'LABELS_OFF_AT_THE_STASH', False)
+    if why == 'labels off already':
+        play.world = replace(play.world, show_items=None)  # unread: no press made on a guess
+
+    with pytest.raises(Abort, match='not under the pointer at any aim'):
+        open_stash(run)
+
+    assert ('key', SHOW_ITEMS_KEY) not in play.keys.events

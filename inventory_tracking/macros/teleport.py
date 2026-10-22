@@ -29,20 +29,22 @@ them next (DOOR_AIMS).
 import heapq
 import json
 import math
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.common import LOG
 from inventory_tracking.game.decode import containers
-from inventory_tracking.game.layout import BANK, ITEM_UNIT, MONSTER_UNIT, OBJECT_UNIT, TILE_UNIT
+from inventory_tracking.game.layout import BANK, ITEM_UNIT, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT, TILE_UNIT
 from inventory_tracking.game.records import Player, Thing, Warp, World
 from inventory_tracking.game.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.levels.doors import door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import (
     ARCANE_PORTAL,
+    DURIEL_PORTAL,
     HELL_GATE,
     PORTAL,
     SEALS,
@@ -62,6 +64,16 @@ from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.targeting import (
+    CLICK,
+    EMPTY,
+    WAIT,
+    door_hover,
+    entry_learnable,
+    nearest_warp,
+    nothing_under,
+    object_door,
+)
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -113,6 +125,24 @@ DEFAULT_AIMS = Path('inventory_tracking/runs/macros/door-aims.json')
 # the mark sits in). The last hop lands on that spot, and the click from there is the step in.
 DEFAULT_ENTRIES = Path('inventory_tracking/runs/macros/door-entries.json')
 ENTRY_MAX = 6.0  # world units from the mark: a last position further off is not the door's own spot
+# Entry spots known before any is learnt, by `Entries.door_key` (world units from the mark). Two doors of one preset
+# share its key (the Burial Grounds' Crypt and Mausoleum: 'preset 108:stairs'), so each door has its own row, looked up
+# before the preset's (`Entries.offset`). The Crypt's mark and warp unit stand inside the tomb's walls, closed on the
+# south and west: with no spot the level run ended on the south face, 5.7 units from the unit, and no click took
+# ("no click took Crypt" x4, 08:01-08:07 on 2026-10-21, the game left each time; rca/2026-10-21/crypt-door-findings.md
+# §2, §5). The spots are on the open east side: the player's own Crypt entries of 2026-10-17 took from mark + (6, -2);
+# the Mausoleum's one hand entry from + (5, +1), its grid open east. Checked on the four takes' grids: on footing, 3.5
+# to 3.6 units from the unit. A door's first entry learns its own row, which goes before its seed.
+KNOWN_ENTRIES: dict[str, tuple[float, float]] = {
+    'preset 108:stairs:Crypt': (6.0, -1.5),
+    'preset 108:stairs:Mausoleum': (6.0, 0.0),
+    # Flayer Dungeon 1 from the Flayer Jungle: the level changed at (-9, -7) from the mark in 7 entries out of 7 on
+    # 2026-10-19/20, each after a first click that walked 6 units and stopped (targeting-findings.md §1.1)
+    'preset 602:stairs:Flayer Dungeon 1': (-9.0, -7.0),
+}
+# False: no seeded spots (KNOWN_ENTRIES), a door with nothing learnt is gone for by its mark as before (2026-10-21, "no
+# click took Crypt" x4). The doors' own rows are learnt and read either way
+DOOR_SEEDS = True
 # World units: the remembered spot this near over open ground is walked to by the click on the door, not
 # hopped onto (user, 2026-10-10: "we have jumped twice around the entrance": a hop beside the door, a
 # hop onto the spot 6 units on, then the click).
@@ -152,6 +182,21 @@ LANDED: list[str] = []  # the game the last hop landed in
 # 2026-10-11), and the next key went down 567 ms after the one before: 180 ms of every hop were the
 # wait for the cast's end before the planning and the pointer's move.
 LANDING: list[tuple[float, float, float]] = []
+# 2026-10-21: the last hop that landed MOVED or more off its aim, as (aim, landing, area): a hop aimed there again
+# from that landing moved nothing in 33 of 48 such hops within 10 units (hunting/moves.py REHOP_WALK reads it).
+MISSED: list[tuple[Point, Point, int]] = []
+REHOP_SAME = 1.5  # world units between two aims that are the same spot
+# 2026-10-21: Teleport the character's own (no staff read) is pressed again too when nothing landed REPRESS_SECONDS
+# after the key and the character stands free where it was. 55 of 151 own hops that ran out their act on 2026-10-20/21
+# had cast and moved nothing (the server's refusal, rca/2026-10-17/teleport-not-cast-findings.md: a re-press lands),
+# 16 more had cast nothing; the re-press was the staff's only. Off: the staff's re-press only, as before.
+OWN_REPRESS = True
+# 2026-10-21: modes in which the game drops a Teleport key instead of keeping it for the end of what the character
+# does: 9 (a block; 25 of 25 such keys cast nothing on 2026-10-20/21) and 4 (a hit, 1 of 1). The key waits for the
+# mode's end, KEY_DROP_SECONDS at most. Off: pressed at once, as before (rca/2026-10-21/priced-act-expired-findings.md).
+KEY_DROP_WAIT = True
+KEY_DROP_MODES = frozenset((4, 9))
+KEY_DROP_SECONDS = 0.6
 HOP_POLL = 0.01  # seconds between looks for a hop's landing and its cast's end (30 ms otherwise, engine.POLL)
 # Seconds after the cast before is over within which a kept key's cast shows (the game issues it on its
 # next frame, or the one after when the press sat in its second entry).
@@ -191,6 +236,12 @@ DOOR_LINE = 2.0
 
 
 EXPIRED = 'priced act expired'  # hunting/moves.py `priced_for`'s stop
+
+
+class Untook(Abort):
+    """An object's clicks took nothing: no click took it, or none of its aims had it under the pointer, or it was not
+    ready for one (the Throne's portal with Baal on his throne: `baal_gone`). Zone navigation blocks the level such an
+    object leads into and goes on (tzloop.py `zone_use`); to every other caller an Abort as before."""
 
 
 class Covered(Abort):
@@ -288,6 +339,13 @@ USES = {
         ((0, -40), (0, -65), (0, -15)), 10.0, True,
         'Through {}', '{}: there', '{} is not open here',
     ),
+    # The portal into Duriel's Lair beside the true tomb's Orifice, the mark (13 units west and 3 south of it, D2MOO
+    # A2Q6.cpp): objects.txt's box is 80 pixels wide round its ground point and 80 high above it, as the red portal's.
+    # Not clicked by the step yet (levels/handlers/tal_rasha.py DURIEL, 2026-10-21)
+    DURIEL_PORTAL: Use(
+        ((0, -40), (0, -65), (0, -15)), 20.0, True,
+        'Through the portal to {}', '{}: there', 'no portal to {} is here',
+    ),
     # The portal to the Arcane Sanctuary in Palace Cellar 3: objects.txt's box is 60 pixels wide round its
     # ground point and 80 high above it. Not seen clicked by the step yet (routes.md, Phase 6).
     ARCANE_PORTAL: Use(
@@ -368,6 +426,11 @@ class Entries:
         room = room_at(target.rooms, target.point)
         return f'preset {room.preset}:{target.kind}' if room is not None else Entries.level_key(target)
 
+    @staticmethod
+    def door_key(target: Target) -> str:
+        """The door itself: its preset's key and its label, for two doors of one preset (`KNOWN_ENTRIES`)."""
+        return f'{Entries.key(target)}:{target.label}'
+
     def load(self) -> dict[str, tuple[float, float]]:
         if self.known is None:
             self.known = {}
@@ -379,13 +442,22 @@ class Entries:
                     LOG.info('Macro: the door entries could not be read (%s)', exc)
         return self.known
 
-    def offset(self, target: Target) -> tuple[float, float] | None:
-        known = self.load()
-        return known.get(self.key(target)) or known.get(self.level_key(target))
+    def offset(
+        self, target: Target, seeds: Mapping[str, tuple[float, float]] | None = None
+    ) -> tuple[float, float] | None:
+        """The door's: its own learnt row, its row of `seeds`, its preset's learnt row, its level's."""
+        known, door = self.load(), self.door_key(target)
+        return (
+            known.get(door)
+            or (seeds or {}).get(door)
+            or known.get(self.key(target))
+            or known.get(self.level_key(target))
+        )
 
     def learn(self, target: Target, offset: tuple[float, float]) -> None:
         known = self.load()
-        known[self.key(target)] = known[self.level_key(target)] = (round(offset[0], 1), round(offset[1], 1))
+        spot = (round(offset[0], 1), round(offset[1], 1))
+        known[self.door_key(target)] = known[self.key(target)] = known[self.level_key(target)] = spot
         if self.path is not None:
             try:
                 self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -398,9 +470,14 @@ ENTRIES = Entries(DEFAULT_ENTRIES)
 AIMS = Entries(DEFAULT_AIMS)  # the aim that took each door last, kept the same way
 
 
+def entry_offset(target: Target) -> tuple[float, float] | None:
+    """The entry spot of `target`'s door from its mark (world units): learnt, else seeded (`DOOR_SEEDS`)."""
+    return ENTRIES.offset(target, KNOWN_ENTRIES if DOOR_SEEDS else None)
+
+
 def entry_spot(target: Target) -> Point | None:
     """The remembered spot beside `target`'s door (tiles), if any."""
-    offset = ENTRIES.offset(target) if target.warp else None
+    offset = entry_offset(target) if target.warp else None
     if offset is None:
         return None
     door = scaled(target.point)
@@ -657,6 +734,17 @@ def moved(player: Player, since: Player) -> bool:
     return player.area != since.area or math.dist((player.x, player.y), (since.x, since.y)) >= MOVED
 
 
+def missed_from(area: int, here: Point, spot: Point) -> float | None:
+    """How far the last hop landed off its aim (MISSED) when `spot` is that aim again and the character stands where
+    it landed, in the same level: a hop from there lands no nearer (hunting/moves.py REHOP_WALK). None otherwise."""
+    if not MISSED:
+        return None
+    aim, landed, level = MISSED[0]
+    if level != area or math.dist(aim, spot) > REHOP_SAME or math.dist(landed, here) >= MOVED:
+        return None
+    return math.dist(aim, landed)
+
+
 def landed_from(player: Player, since: Player, aim: Point) -> bool:
     """Whether a hop aimed at `aim` (world units) has taken the character there: it has moved, and it
     stands or is near the aim. A character walking when the hop began moves before the hop does: the
@@ -735,7 +823,10 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     if not in_view(ground_fraction(player, *door, aspect)):
         raise Abort(f'{target.label} is not in view')
     start = (player.x, player.y)
-    known = ENTRIES.offset(target)
+    known = entry_offset(target)
+    warps = run.warps() if run.warps is not None else None
+    warp_at = nearest_warp(warps, door, WARP_NEAR)  # the door's warp unit, from the mark: its entry is learnt by it too
+    objects = object_door(warps, door, WARP_NEAR)  # no warp tile: the entrance is an object (targeting.OBJECT_DOORS)
     run.say(f'Walking into {target.label}, {math.dist(start, door):.0f} away')
     LOG.info(
         'Macro: door %s marked at (%.1f, %.1f); the character at (%.1f, %.1f), %.1f from the mark; entry %s',
@@ -786,9 +877,10 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
             if now is None or now.area != target.area:
                 AIMS.learn(target, aim)
                 offset = (last[0] - door[0], last[1] - door[1])
-                if clicks == 1 and walked < NO_WALK and math.dist(stood, door) <= ENTRY_MAX:
-                    offset = (stood[0] - door[0], stood[1] - door[1])  # proven: one click from here is the step in
-                learns = math.hypot(*offset) <= ENTRY_MAX
+                from_mark = (stood[0] - door[0], stood[1] - door[1])
+                if clicks == 1 and walked < NO_WALK and entry_learnable(from_mark, warp_at, ENTRY_MAX):
+                    offset = from_mark  # proven: one click from here is the step in
+                learns = entry_learnable(offset, warp_at, ENTRY_MAX)  # by the warp unit too (targeting.ENTRY_FROM_WARP)
                 if learns and walked >= NO_WALK and known is not None:
                     # A walk in: where the level changed replaces the remembered spot only when it was the spot
                     # clicked from (it needed the walk); a walk from elsewhere says nothing against it
@@ -799,7 +891,7 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
                     'at %+.1f, %+.1f from the mark, %.1f away (%s)',
                     target.label, run.clock() - began, walked, *start, *last, *offset, math.hypot(*offset),
                     'remembered' if learns
-                    else 'not remembered: too far from the mark' if math.hypot(*offset) > ENTRY_MAX
+                    else 'not remembered: too far from the mark' if not entry_learnable(offset, warp_at, ENTRY_MAX)
                     else 'not remembered: walked in from elsewhere',
                 )  # fmt: skip
                 if learns:
@@ -821,30 +913,35 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
         )  # fmt: skip
         return False
 
-    aims = door_aims(target, run.warps() if run.warps is not None else ())
-    waiting, unseen = [], list(aims)
+    aims = door_aims(target, warps or ())
+    waiting, unseen, empty = [], list(aims), []
     for _ in range(LOOKS):
         looked, unseen = unseen, []
         for aim in looked:
             if not aim_at(aim):
                 continue
             over = under()
-            if over is None or over[0] == TILE_UNIT:
+            does = door_hover(over, nothing=over is None and nothing_under(run), objects=objects)
+            if does == CLICK:
                 if click(aim, over):
                     return
-            elif over[0] in IN_THE_WAY:
+            elif does == WAIT:
                 LOG.info('Macro: the aim %s pixels from the door has the unit %s under it; left for last', aim, over)
                 waiting.append(aim)
+            elif does == EMPTY:
+                if aim not in empty:
+                    LOG.info('Macro: the aim %s pixels from the door has nothing under it; left till the others', aim)
+                    empty.append(aim)
             else:
                 unseen.append(aim)
         if not unseen:
             break
     if unseen:
         LOG.info('Macro: no door under the pointer at the aims %s after %d looks; clicking them', unseen, LOOKS)
-    for aim in (*unseen, *waiting, *aims[:1]):
+    for aim in (*unseen, *empty, *waiting, *aims[:1]):
         if aim_at(aim) and click(aim, under()):
             return
-    raise Abort(f'no click took {target.label}')
+    raise Abort(f'no click took {target.label}', cause='door')
 
 
 def pad_door(run: Run, target: Target, player: Player) -> None:
@@ -898,7 +995,8 @@ def pad_door(run: Run, target: Target, player: Player) -> None:
             run.say(f'{target.label}: there')
             return
     raise Abort(
-        f'{target.label} did not take the pad (walked through the mark from {_spot(start)}, no door tile targeted)'
+        f'{target.label} did not take the pad (walked through the mark from {_spot(start)}, no door tile targeted)',
+        cause='door',
     )
 
 
@@ -974,6 +1072,9 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
     # §2 A)
     if taken('before any aim', PANEL_GRACE if use.opens else 0.0):
         return
+    if THRONE_WAITS and target.use == THRONE_PORTAL:
+        baal_gone(run, target.label)
+        player = run.world().player or player
     seen = False
     covered: set[int] = set()  # the monsters under the pointer at an aim that was not clicked
     try:
@@ -1027,8 +1128,42 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
     if not seen:
         if covered:
             raise Covered(f'{target.label} is not under the pointer at any aim', covered)
-        raise Abort(f'{target.label} is not under the pointer at any aim')
-    raise Abort(f'no click took {target.label}')
+        raise Untook(f'{target.label} is not under the pointer at any aim')
+    raise Untook(f'no click took {target.label}')
+
+
+# 2026-10-21 17:24:25.9-17:24:38.6: the Throne's portal clicked 16 times while Baal (543, then 559) was read, the last
+# 0.1 s after he was gone, and none took (the game opens the Chamber only as 559 reaches it: hunting/throne.py
+# `portal_shut`). True: with Baal read, no click until he is gone (BAAL_WAIT at most), then PORTAL_OPENS; any hostile
+# in the hall meanwhile ends the wait (`Untook`: the level run fights it). False: the aims at once, as before
+THRONE_WAITS = True
+BAAL_WAIT = 25.0  # seconds: he walked 1.6 s, 10.0-11.3 s after the fifth wave's last hall monster died (5 takes)
+
+
+def baal_gone(run: Run, label: str) -> None:
+    """Wait for Baal to leave his throne before the portal is clicked (THRONE_WAITS); nothing when he is not read."""
+    from inventory_tracking.macros.hunting import throne  # here: hunting imports this module
+
+    def hall(world: World) -> bool:
+        seat = throne.seat_of(world.monsters)
+        return seat is not None and any(
+            m.owner == NO_OWNER and not m.ally and m.txt_id not in throne.BAAL and m.mode not in (0, 12)
+            and math.dist(seat, (m.x, m.y)) <= throne.HALL_UNITS
+            for m in world.monsters
+        )  # fmt: skip
+
+    world = run.world()
+    if throne.seat_of(world.monsters) is None:
+        return
+    LOG.info('Macro: %s: Baal is still on his throne: no click until he is gone (at most %.0f s)', label, BAAL_WAIT)
+    run.say(f'{label}: waiting for Baal to leave his throne')
+    seen = until(run, lambda w: throne.seat_of(w.monsters) is None or hall(w), BAAL_WAIT, poll=WALK_POLL)
+    if seen is None:
+        raise Untook(f'{label}: Baal did not leave his throne in {BAAL_WAIT:.0f} s')
+    if hall(seen):
+        raise Untook(f'{label}: the throne hall is not clear: fought first')
+    LOG.info('Macro: %s: Baal is gone into the portal: %.1f s more before the click', label, throne.PORTAL_OPENS)
+    run.pace.sleep(throne.PORTAL_OPENS)
 
 
 def world_slots(world) -> str:
@@ -1237,6 +1372,12 @@ def press_hop(run: Run, arrived: Callable[[World], bool]) -> None:
         press_skill(run, TELEPORT, HOP_POLL)
         return
     world = run.world()
+    if KEY_DROP_WAIT and world.player is not None and world.player.mode in KEY_DROP_MODES:
+        began, mode = run.clock(), world.player.mode
+        free = run.seen(lambda w: w.player is None or w.player.mode not in KEY_DROP_MODES, KEY_DROP_SECONDS, HOP_POLL)
+        world = free or run.world()
+        LOG.info('Macro: Teleport key held %.2fs for the end of mode %d (a block or a hit drops it)',
+                 run.clock() - began, mode)  # fmt: skip
     busy = world.player is not None and world.player.mode in ACTING
     press_skill(run, TELEPORT, HOP_POLL, wait=not busy)
     if not busy:
@@ -1382,11 +1523,29 @@ def hop_to(
         now = run.reads.teleport()
         return staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0
 
+    def unlanded() -> bool:
+        # Teleport the character's own (OWN_REPRESS): its cast over, the character where the hop began
+        now = run.world().player
+        return (
+            OWN_REPRESS
+            and staff is None
+            and now is not None
+            and not moved(now, player)
+            and now.mode not in ACTING
+            and now.mode not in KEY_DROP_MODES
+        )
+
     seen = run.seen(arrived, REPRESS_SECONDS, HOP_POLL)
     if seen is None and unspent():
         LOG.info(
             'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS
         )
+        press_skill(run, TELEPORT, HOP_POLL)
+    elif seen is None and unlanded():
+        LOG.info(
+            "Macro: teleport %s; nothing %.1fs after the key, the character's own Teleport, the character free where "
+            'it was: pressed again', where, REPRESS_SECONDS,
+        )  # fmt: skip
         press_skill(run, TELEPORT, HOP_POLL)
     now = run.reads.teleport()
     spent = staff is not None and now is not None and now.charges < staff.charges
@@ -1417,7 +1576,9 @@ def hop_to(
     landed = run.world().player
     if landed is not None:
         LANDING[:] = [(landed.x, landed.y, run.clock())]
+        herald_pack.hopped(run.clock(), math.dist((player.x, player.y), (landed.x, landed.y)))  # mark REMARK_AFTER_HOP
         off = (landed.x - aim[0], landed.y - aim[1])
+        MISSED[:] = [(aim, (landed.x, landed.y), landed.area)] if math.hypot(*off) >= MOVED else []
         LOG.info(
             'Macro: teleport %s; landed at (%.1f, %.1f), off by %.1f (%+.1f, %+.1f)',
             where, landed.x, landed.y, math.hypot(*off), *off,

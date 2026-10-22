@@ -10,7 +10,8 @@ memory read at it, so a visit cut and made again does only what is left.
 `stash_stop`: one walk, each put clicked once onto its planned page and checked; a refused put goes to the scan
 (`stash.unload`). Cube keepers with no room yet come out through the room the inventory's keepers leave (stash closed,
 `unpack`, reopened in place); junk in the way is moved aside, put into the cube, or parked on a page and taken back
-before the stash closes. Rulings and evidence: history/visit.md.
+before the stash closes. One planned out that found no room after all goes the same way once more (KEEPER_OUT_AGAIN).
+Rulings and evidence: history/visit.md.
 """
 
 from collections import Counter
@@ -20,6 +21,7 @@ from dataclasses import dataclass, field, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView
+from inventory_tracking.game.stash import full_of
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros import visitlog
@@ -67,6 +69,7 @@ from inventory_tracking.macros.shop import (
     SALE_MOST,
     _waypoint,
     gold_cap,
+    potions_wanted,
     restock,
     short,
     walk_until,
@@ -97,6 +100,7 @@ from inventory_tracking.macros.stash import (
 )
 from inventory_tracking.macros.town import (
     BER,
+    GEM_TRANSMUTES,
     KEEPER_IN_CUBE,
     RUNES_A_TAKE,
     RUNES_AIM,
@@ -156,13 +160,13 @@ class Remembered:
 
 def note_view(run: Run, noted: Remembered) -> None:
     """Log the stash as read once a game in Pandemonium Fortress, to measure the view against what the stop finds."""
-    if run.stash_view is None:
+    if not run.stash.attached:
         return
     world = run.world()
     if not world.in_game or world.player is None or world.player.area != FORTRESS or noted.game == world.game_name:
         return
     noted.game = world.game_name
-    view = run.stash_view()
+    view = run.reads.stash_view()
     LOG.info('Macro: stash view: %s', view.said() if view is not None else 'unread')
 
 
@@ -184,6 +188,24 @@ class Tally:
     def miss(self, item: Carried) -> None:
         if all(i.unit_id != item.unit_id for i in self.missed):
             self.missed.append(item)
+
+
+# A cube keeper planned out that is still in the cube once the stop's puts are made (the junk taken out with it took its
+# block: a unique Sharkskin Belt at 22:34:05 on 2026-10-21, "cube: no room in the inventory for the item 391", the
+# visit short of the contract) is taken out again through the room the puts made, the stash reopened in place, once a
+# stop: the same `unpack` and `_pages`. The player, 2026-10-21: "every time we visit town and traders - we need to to
+# the routine => get back with clear cube and clear inventory space"; "do not invent any IFs here: reuse routines".
+# Off: it stays in the cube for the next visit, as played before.
+KEEPER_OUT_AGAIN = True
+
+
+def _still_in_cube(run: Run, keepers: Sequence[Carried]) -> list[Carried]:
+    """Those of the cube's `keepers` (planned onto pages) still in the cube that the inventory as read now has room
+    for together (`out_now`); none when it is not read."""
+    pack = run.reads.carried()
+    if pack is None:
+        return []
+    return list(out_now(pack.inventory, [item for item in keepers if item.unit_id in pack.cube_items]))
 
 
 def stash_stop(
@@ -235,6 +257,18 @@ def stash_stop(
             ids = {item.unit_id for item in later}
             _pages(run, rect, [put for put in stop.puts if put.item.unit_id in ids], tally)
             parked = _unpark(run, rect, parked, tally)
+        stuck = _still_in_cube(run, cube_keepers) if KEEPER_OUT_AGAIN and inventory_key is not None else []
+        if stuck and inventory_key is not None:
+            # The same take-out and puts once more, through the room the puts have made (KEEPER_OUT_AGAIN)
+            LOG.info("Macro: stash: the cube's %s still in it: taken out again through the room the puts made",
+                     _keepers(stuck))  # fmt: skip
+            close_stash(run)
+            unpack(run, inventory_key, stuck)
+            rect = open_stash(run)
+            openings += 1
+            tally.shown = None
+            ids = {item.unit_id for item in stuck}
+            _pages(run, rect, [put for put in stop.puts if put.item.unit_id in ids], tally)
         if stop.runes:
             # Rune stacks down to RUNES_AIM (the player, 2026-10-18: "cubed, aim to 80 or lower"), the stash still open
             _cube_runes(run, rect, stop, tally)
@@ -580,25 +614,49 @@ def _town_decided(hands: Hands, carried: Sequence[Carried]) -> frozenset[int]:
 def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
     """The stop's rune transmutes (`StashStop.runes`, town.py RUNES_AIM), the stash open: Ctrl + Shift + right click
     moves 3 runes into the cube, Ctrl + Shift + left click 1 gem when the recipe takes one (the player, 2026-10-18),
-    each checked; Transmute; the rune made onto its stack by Ctrl + Shift + click. Then the carried runes the stacks
-    had no room for (`StashStop.rune_puts`); one refused stays carried. Anything unexpected ends the transmutes with
-    the cube emptied back onto the stacks. Never a Ber (town.py BER). How many were made."""
+    each checked; Transmute; the rune made onto its stack by Ctrl + Shift + click. The gem transmutes after them the
+    same way from the Gems tab: three flawless gems into the perfect one (town.py GEMS_KEEP_FLAWLESS, 2026-10-21).
+    Then the carried runes and gems the stacks had no room for (`StashStop.rune_puts`); one refused stays carried.
+    Anything unexpected ends the transmutes with the cube emptied back onto the stacks. Never a Ber (town.py BER).
+    How many were made."""
     pack = run.reads.carried()
-    if pack is None or pack.in_cube or all(i.txt != CUBE_CLASS for i in pack.items):
+    # The cube may hold one or two flawless gems of a full stack (kept for the cube): the plan's first gem transmute
+    # tops them up to three from their stack (town.py `_gems`), a Ctrl + Shift + left click each
+    first = stop.runes[0] if stop.runes else None
+    kinds = Counter(i.txt for i in pack.in_cube) if pack is not None else Counter()
+    topping = (
+        pack is not None and first is not None and perfect_of(first.txt) is not None and set(kinds) == {first.txt}
+        and kinds[first.txt] < RUNES_A_TAKE
+    )  # fmt: skip
+    if pack is None or (pack.in_cube and not topping) or all(i.txt != CUBE_CLASS for i in pack.items):
         LOG.info('Macro: stash: no rune transmute: %s', 'the inventory is not read' if pack is None
                  else f'the cube holds {len(pack.in_cube)} items' if pack.in_cube else 'no cube carried')  # fmt: skip
         return 0
-    began, made, shown = run.clock(), 0, None
+    began, made, cut_gems, shown = run.clock(), 0, 0, None
     for rune in stop.runes:
         slot = rune_slot(rune.txt)
         gem_slot = rune_slot(rune.gem) if rune.gem is not None else None
         if slot is None or rune.txt == BER or rune.gem == BER or (rune.gem is not None and gem_slot is None):
             break
-        if shown != RUNES_TAB:
-            _tab(run, rect, tab_point(RUNES_TAB))
-            tally.shown, shown = RESOURCE_TAB, RUNES_TAB
-        run.actuator.move(*panel_point(rect, *slot), scatter=(6, 6))
-        run.actuator.tap('Control_L', 'Shift_L', 'Button3')
+        # A rune's stack on the Runes tab, a flawless gem's (a gem transmute) on the Gems tab
+        tab = GEMS_INDEX if perfect_of(rune.txt) is not None else RUNES_TAB
+        if shown != tab:
+            _tab(run, rect, tab_point(tab))
+            tally.shown, shown = RESOURCE_TAB, tab
+        if topping:
+            topping = False
+            for _ in range(RUNES_A_TAKE - kinds[rune.txt]):
+                run.actuator.move(*panel_point(rect, *slot), scatter=(6, 6))
+                run.actuator.click('Control_L', 'Shift_L')  # one from the stack
+            if not _until(run, lambda p, t=rune.txt: _holds_only(p, {t: RUNES_A_TAKE})):
+                inside = _inside(run)
+                LOG.info("Macro: stash: the cube's %s not topped up to three from its stack (it holds %s): no gem "
+                         'transmute', _rune(rune.txt), ', '.join(_name(i) for i in inside) or 'nothing')  # fmt: skip
+                _runes_back(run, rect, [i for i in inside if i.txt == rune.txt])
+                break
+        else:
+            run.actuator.move(*panel_point(rect, *slot), scatter=(6, 6))
+            run.actuator.tap('Control_L', 'Shift_L', 'Button3')
         if not _until(run, lambda p, t=rune.txt: _holds_only(p, {t: RUNES_A_TAKE})):
             inside = _inside(run)
             LOG.info('Macro: stash: a Ctrl + Shift + right click on the %s stack put %s into the cube, not %d of it: '
@@ -633,6 +691,7 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
         if not _runes_back(run, rect, _inside(run)):
             break
         made += 1
+        cut_gems += perfect_of(rune.txt) is not None
         view = run.reads.stash_view()
         LOG.info('Macro: cube: three %s%s into a %s at the stash (stacks %s)', _rune(rune.txt),
                  f' and a {_rune(rune.gem)}' if rune.gem is not None else '', _rune(rune.into),
@@ -643,6 +702,10 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
         view = run.reads.stash_view()
         if held is None or view is None or view.room(held.txt) <= 0:
             continue
+        if put.to == -GEMS_INDEX and shown != GEMS_INDEX:
+            # A gem onto the Gems tab's stack, that tab shown (a rune's as before, whichever resource tab is shown)
+            _tab(run, rect, tab_point(GEMS_INDEX))
+            tally.shown, shown = RESOURCE_TAB, GEMS_INDEX
         run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(6, 6))
         run.actuator.click('Control_L')
         if _sent(run, rect, held, INVENTORY, _gone(held)):
@@ -650,10 +713,19 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
             late += 1
         else:
             LOG.info('Macro: stash: the %s did not go onto its stack: it stays carried', _name(held))
-    LOG.info('Macro: stash: runes cubed: %d of %d planned, %d carried runes put after, %.1fs', made, len(stop.runes),
-             late, run.clock() - began)  # fmt: skip
-    if made:
-        run.say(f'Cube: {made} rune transmute{"s" if made != 1 else ""}')
+    gems = sum(1 for rune in stop.runes if perfect_of(rune.txt) is not None)
+    if len(stop.runes) > gems:
+        LOG.info('Macro: stash: runes cubed: %d of %d planned, %d carried runes put after, %.1fs', made - cut_gems,
+                 len(stop.runes) - gems, late, run.clock() - began)  # fmt: skip
+    if gems:
+        from inventory_tracking.macros import town  # late: the switch as set now (a test sets it)
+
+        LOG.info('Macro: stash: gems cubed: %d of %d planned (keep %s flawless a kind), %d carried put after, %.1fs',
+                 cut_gems, gems, town.GEMS_KEEP_FLAWLESS, late, run.clock() - began)  # fmt: skip
+    if made - cut_gems:
+        run.say(f'Cube: {made - cut_gems} rune transmute{"s" if made - cut_gems != 1 else ""}')
+    if cut_gems:
+        run.say(f'Cube: {cut_gems} perfect gem{"s" if cut_gems != 1 else ""} made')
     return made
 
 
@@ -779,13 +851,40 @@ DROP_CAPPED_JUNK = True
 # the stash, not sold, in one inventory opening (`_put_down`). This departs from the trade contract's "all junk sold"
 # by the player's choice. False: Jamella at every visit with junk, as before
 JAMELLA_AT_NEED = True
+# The items put down in town fall at the feet by the stash, and lie there for the whole game: at 02:04:06 on 2026-10-21
+# nine of them (6 at 01:47, 3 at 01:54) had their labels under every aim of the stash, the stash was not opened and four
+# gems stayed in the cube (short of the contract). Six in a game (01:26, game 1) left it clickable. Past DOWN_A_GAME
+# items put down in one game Jamella sells the junk instead (as before JAMELLA_AT_NEED). None: no cap
+DOWN_A_GAME: int | None = 6
+_down = {'game': '', 'items': 0}  # the game the count is of (World.game_name) and the items put down in it
 JAMELLA_IDENTIFIES = 10  # "under about 10": a visit-to-visit use is about 7 scrolls (the findings, act 4 tome reads)
 # Low gold: under what a durability-only repair wants carried (repair.py WEAR_CARRIED, 200k). The staff's repairs cost
 # ~11k (11,056 at 22:49:04 on 2026-10-20), an unread quote wants twice the expected and 50k more (~72k, repair.py
 # UNREAD_COVER, UNREAD_EXTRA), keys and the tome's scrolls a few thousand; the carried gold ran 214k to 950k (the cap)
 # on 2026-10-20. Under it the sales come back before a repair could go short
 JAMELLA_GOLD_LOW = WEAR_CARRIED
-STOPS = ('cain', 'stash', 'jamella', 'halbu', 'walk')
+# Gambling after every other stop of the visit: the sales, the refills and the repair first (the player, 2026-10-21
+# ~14:15: "we need to to gambling only after we did all other routines (sell, refill, repair)"). The junk the gold's cap
+# leaves unsold is put down at Jamella's (DROP_CAPPED_JUNK), so the session has its free cells. False: the session
+# first, her sales then made under the cap
+GAMBLE_LAST = True
+STOPS = ('cain', 'stash', 'gamble', 'jamella', 'halbu', 'walk')  # the report's order (logwords.py VISIT_STOPS)
+# The loop's potions in the inventory (the belt full, or a walk's click on a label) and in the cube are put down in
+# town at the visit's start, not stashed as K1 keepers (the player, 2026-10-21 ~00:55: "we store these potions in
+# shared stash - we should just drop them if accidentally picked into inventory"). The belt's potions are never
+# touched, nor a potion in the player's own cells. False: stashed as before
+POTIONS_DOWN = True
+# A stop at Jamella for healing potions alone (shop.py BUY_POTIONS; the player, 2026-10-21 ~13:38: "can we also add into
+# town routine ability to buy hp potions"): when the belt's healing columns miss this many. 1 since 2026-10-21 ~20:40
+# (the player: "hp refill is just an another step in routine"): every visit fills the belt's healing potions, as it
+# tops up keys and scrolls, whatever made the visit. It was 4, one column of the two (town walks are the slow leg,
+# 2026-10-16); visited anyway (junk sold, keys, a gamble beside her) she topped up any gap
+POTIONS_WALK = 1
+# The loop's healing and rejuvenation potions in the inventory go into the belt where it has room (Shift + left click,
+# checked by the belt read) before the rest are put down: the one put down by the waypoint at 13:44:34 on 2026-10-21 was
+# picked up again by the walk back to it and held the 2x4 block ("1 keepers carried (normal Super Healing Potion at
+# (4, 3))", 13:45:01). False: put down as before
+POTIONS_TO_BELT = True
 
 
 def never_down(item: Carried) -> bool:
@@ -800,11 +899,12 @@ def never_down(item: Carried) -> bool:
     return kind in RUNES | GEMS | POTIONS | ORGANS | SUNDER | LOOP_GEAR or (kind in CHARMS and item.quality in (5, 7))
 
 
-def jamella_for(pack: Pack, needs: Needs, coins: int | None, down: Sequence[Carried]) -> str | None:
+def jamella_for(pack: Pack, needs: Needs, coins: int | None, down: Sequence[Carried], potions: int = 0) -> str | None:
     """Why Jamella is visited under JAMELLA_AT_NEED: the keys under MIN_STOCK (or unread), the Tome under
     JAMELLA_IDENTIFIES (or unread, or none carried), a stocked Town Portal short (shop.py `short`), the carried gold
-    under JAMELLA_GOLD_LOW (or unread), or a junk item in `down` of a kind never put down (`never_down`: she sells it
-    as before). None: she is not needed, and `down` is put down in town."""
+    under JAMELLA_GOLD_LOW (or unread), `potions` healing potions to buy (shop.py `potions_wanted` at POTIONS_WALK), or
+    a junk item in `down` of a kind never put down (`never_down`: she sells it as before). None: she is not needed, and
+    `down` is put down in town."""
     if pack.keys is None or pack.keys < MIN_STOCK:
         return f'keys {pack.keys}'
     if pack.identifies is None or pack.identifies < JAMELLA_IDENTIFIES:
@@ -813,6 +913,8 @@ def jamella_for(pack: Pack, needs: Needs, coins: int | None, down: Sequence[Carr
         return f'portals {needs.portals.count(pack)}'
     if coins is None or coins < JAMELLA_GOLD_LOW:
         return f'gold {coins}'
+    if potions:
+        return f'belt short {potions} healing potions'
     kept = next((item for item in down if never_down(item)), None)
     return f'the {_name(kept)} is never put down' if kept is not None else None
 
@@ -846,6 +948,79 @@ def _put_down(run: Run, key: str, items: Sequence[tuple[Carried, str]]) -> int:
     finally:
         close(run, ('inventory', 'cube'))
     return fell
+
+
+def _potions_down(run: Run, key: str, pack: Pack, own: frozenset[Cell]) -> Pack:
+    """POTIONS_DOWN: the loop's potions (its inventory cells and the cube) put down in one inventory opening; the
+    pack after. One that does not fall stays and is stashed as before."""
+    potions = _loop_potions(pack, own)
+    if not potions:
+        return pack
+    began = run.clock()
+    belted = _to_belt(run, key, [i for i in potions if i.unit_id not in pack.cube_items]) if POTIONS_TO_BELT else 0
+    if belted:
+        LOG.info('Macro: town visit: %d potions out of the belt went into the belt', belted)
+        potions = _loop_potions(_pack(run), own)
+    fell = _put_down(run, key, [(i, 'in town: a potion out of the belt (the belt keeps its own)') for i in potions])
+    if potions:
+        LOG.info('Macro: town visit: %d potions out of the belt put down, %d fell, %.1fs', len(potions), fell,
+                 run.clock() - began)  # fmt: skip
+    return _pack(run)
+
+
+def _loop_potions(pack: Pack, own: frozenset[Cell]) -> list[Carried]:
+    """The loop's potions: in its inventory cells and in the cube (never one in the player's own cells)."""
+    return [i for i in (*loot(pack, own), *pack.in_cube) if is_potion(i.txt)]
+
+
+def _belt_room(run: Run, txt: int) -> bool:
+    """Whether the belt's columns of the potion's kind miss one (tracking/belt.py `column_shortages`); an unread belt
+    has none."""
+    from inventory_tracking.config import BELT
+    from inventory_tracking.macros.supply import unread
+    from inventory_tracking.models import PotionType
+    from inventory_tracking.tracking.belt import column_shortages, potion_kind
+
+    kind, found = potion_kind(txt), run.reads.loot()
+    if kind is None or found is None or unread(found):
+        return False
+    rejuvenation, healing = column_shortages(found.belt, found.columns, BELT.layout)
+    return (healing if kind is PotionType.HEALING else rejuvenation) > 0
+
+
+def _to_belt(run: Run, key: str, potions: Sequence[Carried]) -> int:
+    """POTIONS_TO_BELT: each healing or rejuvenation potion in the inventory Shift + left clicked into the belt while
+    its kind's columns have room, checked by its leaving the inventory with the pointer empty; one taken up onto the
+    pointer instead is put back on its cell. How many went into the belt."""
+    rect = run.actuator.keys.focused_window_rect()
+    if not potions or rect is None or run.pad is not None:
+        return 0
+    went, shown = 0, False
+    try:
+        for item in potions:
+            if not _belt_room(run, item.txt) or protected(run, item):
+                continue
+            if not shown:
+                open_inventory(run, key)
+                shown = True
+            run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
+            run.actuator.click('Shift_L')
+            if _until(run, lambda p, i=item: p.pointer is None and _gone(i)(p)):
+                went += 1
+                LOG.info('Macro: inventory: %s (%d) at (%d, %d) into the belt', item.txt, item.unit_id, item.x, item.y)
+                continue
+            held = run.reads.carried()
+            if held is not None and held.pointer is not None:
+                run.actuator.click()  # taken up instead: put back where it was, the pointer not moved
+                if not _until(run, lambda p: p.pointer is None):
+                    raise Abort(f'the {_name(item)} is still on the pointer')
+            LOG.info('Macro: inventory: %s (%d) at (%d, %d) not taken by the belt', item.txt, item.unit_id, item.x,
+                     item.y)  # fmt: skip
+            break  # the belt does not take one: the rest are put down
+    finally:
+        if shown:
+            close(run, ('inventory',))
+    return went
 
 
 def _fall(run: Run, rect: Rect, item: Carried, in_cube: bool, why: str) -> bool:
@@ -899,10 +1074,6 @@ def _pack(run: Run) -> Pack:
     if pack is None:
         raise Abort('the inventory is not read')
     return pack
-
-
-def _full_of(view: StashView) -> frozenset[int]:
-    return frozenset(txt for txt in view.full() if not is_potion(txt))
 
 
 def _unknown(pack: Pack, own: frozenset[Cell]) -> list[Carried]:
@@ -971,7 +1142,11 @@ def _stash(
         if view is None and not nothing:
             view = _reread(run, hands)
         if view is not None:
-            planned = plan_stop(Holdings(pack, own, junk, waiting), view, needs, deposit_to=gold_to)
+            # The visit's gem transmutes bounded across its stops (a second stop follows `hands.transmute`)
+            cubed = sum(1 for done in plans or () for step in done.runes if perfect_of(step.txt) is not None)
+            planned = plan_stop(
+                Holdings(pack, own, junk, waiting), view, needs, deposit_to=gold_to, gems=GEM_TRANSMUTES - cubed
+            )
             if plans is not None:
                 plans.append(planned)
             backlog = uncubed(dict(view.stacks))
@@ -1012,7 +1187,7 @@ def _stash(
                     unload(run, own, key, tried, stay, None, pages)
             guessed = sorted(tried - set(sold_full(full)) - set(full))
             if guessed:
-                # A refusal with the stash unread is a guess, never a full stack: kept carried, not in FULL_FILE
+                # A refusal with the stash unread is a guess, never a full stack: kept carried, never counted full
                 # (the player, 2026-10-19: "we need to track this correctly")
                 LOG.info('Macro: stash: refused with the stash unread, kept carried, not counted full: %s',
                          ', '.join(_class_name(txt) for txt in guessed))  # fmt: skip
@@ -1024,7 +1199,7 @@ def _stash(
     after = hands.view()
     if record is not None:
         record.view = after
-    return _full_of(after) if after is not None else full
+    return full_of(after) if after is not None else full
 
 
 def _class_name(txt: int) -> str:
@@ -1053,6 +1228,26 @@ def _halbu(run: Run) -> bool:
             raise
         LOG.info('Macro: repair: %s: not tried again for %d games', stop, RETRY_GAMES)
         return True
+
+
+def _gamble(run: Run, hands: Hands, took: dict[str, float]) -> bool:
+    """A gamble session at Jamella when it is due (macros/gamble.py `due`: the player, 2026-10-21 ~09:45, "probably we
+    need to implement gambling"; GAMBLE off: never); whether one was begun. The rings are judged by the town's keep
+    rules (`gamble.keep_rules` over the identify worker's appraisal). A session cut short goes on with the visit."""
+    from inventory_tracking.macros import gamble
+
+    why = gamble.due(gold(run), gamble.bank_gold(run), gold_cap(run))
+    if why is None:
+        return False
+    LOG.info('Macro: town visit: gamble: %s', why)
+    with _timed(run, took, 'gamble'):
+        try:
+            gamble.gamble(run, gamble.keep_rules(hands.appraise))
+        except Abort as stop:
+            if cut(run, stop):
+                raise
+            LOG.info('Macro: town visit: gamble: %s', stop)
+    return True
 
 
 def _repair_due(run: Run, waited: bool) -> bool:
@@ -1123,15 +1318,17 @@ def visit(
     began, took = run.clock(), dict[str, float]()
     memory = memory if memory is not None else Remembered()
     key = hands.inventory_key()
-    # 1. Cain: every unidentified magic-or-better item, the cube's too, then the appraisal's verdicts
     pack = _pack(run)
+    if POTIONS_DOWN and key is not None:
+        pack = _potions_down(run, key, pack, own)
+    # 1. Cain: every unidentified magic-or-better item, the cube's too, then the appraisal's verdicts
     unknown = _unknown(pack, own)
     if unknown:
         with _timed(run, took, 'cain'):
             hands.identify(tuple(unknown))
         pack = _pack(run)
     view = hands.view()
-    stacks = _full_of(view) if view is not None else frozenset(full)
+    stacks = full_of(view) if view is not None else frozenset(full)
     carried = [*loot(pack, own), *pack.in_cube]
     stacked = frozenset(i.unit_id for i in surplus(carried, stacks))  # the full stacks' materials
     from inventory_tracking.loot import keep as loot_keep
@@ -1164,9 +1361,10 @@ def visit(
     record.note(start)
     failed, repaired = False, False
 
-    def jamella(stacks: frozenset[int], *, stock: bool) -> bool:
-        """3. Jamella (Halbu first at the gold's cap): junk sold, full materials put down, keys bought (`stock`: also
-        when nothing is sold and a stock is short). Whether she was visited."""
+    def jamella(stacks: frozenset[int], *, stock: bool, beside: bool = False) -> bool:
+        """3. Jamella (Halbu first at the gold's cap): junk sold, full materials put down, keys and healing potions
+        bought (`stock`: also when nothing is sold and a stock is short, or the belt misses POTIONS_WALK healing
+        potions, any one `beside` her after a gamble). Whether she was visited."""
         nonlocal failed, repaired
         material = _material(stacks)
 
@@ -1179,7 +1377,8 @@ def visit(
         pack = _pack(run)
         _drop(run, key, [i for i in loot(pack, own) if i.txt in material])
         pack = _pack(run)
-        if not (selling(pack) or cubed(pack) or (stock and short(pack, needs.portals))):
+        potions = potions_wanted(run.reads.loot(), gold(run), 1 if beside else POTIONS_WALK)
+        if not (selling(pack) or cubed(pack) or (stock and (short(pack, needs.portals) or potions))):
             return False
         coins, cap = gold(run), gold_cap(run)
         capped = coins is not None and cap is not None and coins + SALE_MOST > cap
@@ -1224,7 +1423,7 @@ def visit(
         items = [*loot(pack, own), *pack.in_cube]
         junked = [i for i in items if i.unit_id in junk and i.txt not in RUNE_CLASSES and i.txt not in material]
         coins = gold(run)
-        why = jamella_for(pack, needs, coins, junked)
+        why = jamella_for(pack, needs, coins, junked, potions_wanted(run.reads.loot(), coins, POTIONS_WALK))
         if why is not None:
             if junked:
                 LOG.info('Macro: town visit: Jamella needed (%s): the junk sold', why)
@@ -1232,6 +1431,13 @@ def visit(
         stacked_down = [i for i in items if i.txt in material]
         if not junked and not stacked_down:
             return True
+        game = run.world().game_name or ''
+        if _down['game'] != game:
+            _down['game'], _down['items'] = game, 0
+        if DOWN_A_GAME is not None and _down['items'] + len(junked) + len(stacked_down) > DOWN_A_GAME:
+            LOG.info('Macro: town visit: Jamella needed (%d items put down in this game already, %d more would cover '
+                     'the stash): the junk sold', _down['items'], len(junked) + len(stacked_down))  # fmt: skip
+            return False
         began = run.clock()
         fell = _put_down(
             run,
@@ -1241,6 +1447,7 @@ def visit(
                 *((i, 'in town: its stack is full and no vendor buys it') for i in stacked_down),
             ],
         )
+        _down['items'] += fell
         LOG.info("Macro: town visit: Jamella not needed (identifies %s, keys %s, gold %s): %d junk and %d full stacks' "
                  'items put down, %d fell, %.1fs', pack.identifies, pack.keys, coins, len(junked), len(stacked_down),
                  fell, run.clock() - began)  # fmt: skip
@@ -1278,12 +1485,17 @@ def visit(
         homeless = tuple(dict.fromkeys(name for planned in plans for name in named(planned.full)))
         if homeless:
             LOG.info('Macro: stash: full: %s', ', '.join(homeless))
-    # 3. Jamella after the stash (again only with something left to sell), or, not needed, the junk put down
-    late = False if down_instead(stacks) else jamella(stacks, stock=not early)
+    # 3. Jamella after the stash (again only with something left to sell), or, not needed, the junk put down; the
+    # repair; then gambling at Jamella when the gold is due (gamble.py) last (GAMBLE_LAST). Before 2026-10-21 ~14:15 the
+    # session came first so that her sales were made under the gold's cap
+    gambled = False if GAMBLE_LAST else _gamble(run, hands, took)
+    late = False if not gambled and down_instead(stacks) else jamella(stacks, stock=not early, beside=gambled)
     shop = early or late
     if not repaired and _repair_due(run, waited):
         with _timed(run, took, 'halbu'):
             failed, repaired = _halbu(run), True
+    if GAMBLE_LAST:
+        gambled = _gamble(run, hands, took)
     # A key stack out of the free block (the player, 2026-10-18: "we should have 2x4 inventory space")
     pack = _pack(run)
     _note(record, start, 'shops', pack, full=stacks)
@@ -1295,7 +1507,7 @@ def visit(
                 raise
             LOG.info('Macro: inventory: the keys not arranged: %s', stop)
     # 4. The exit: the waypoint walked to from Jamella's or Halbu's (out of its sight there); none when the game is left
-    if exit != Exit.LEAVE and (late or repaired):
+    if exit != Exit.LEAVE and (late or repaired or gambled):
         with _timed(run, took, 'walk'):
             try:
                 walk_until(run, _waypoint(run), WAYPOINT_SEEN, 'the waypoint')
@@ -1304,6 +1516,9 @@ def visit(
                     raise
                 LOG.info('Macro: town visit: toward the waypoint: %s', stop)
     pack = _pack(run)
+    if POTIONS_DOWN and key is not None and _loop_potions(pack, own):
+        # A potion the walks picked up again (its label under a walk's click: 13:45:01 on 2026-10-21)
+        pack = _potions_down(run, key, pack, own)
     in_stash: list[Carried] = []
     if junk:
         # Junk on a stash page, by its unit id (a park not taken back, wherever it landed): junk left, a miss

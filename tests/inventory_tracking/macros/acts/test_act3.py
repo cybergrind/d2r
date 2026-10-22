@@ -17,7 +17,8 @@ PLAN = (
     'Forgotten Reliquary from 81: [81, 96]; Forgotten Temple from 81: [81, 97]; Kurast Sewers from 80: [80, 92, 93]; '
     'Ruined Temple from 80: [80, 94]; Disused Fane from 80: [80, 95]; Lower Kurast from 79: [79]; '
     'Flayer Dungeon from 78: [78, 88, 89, 91]; Swampy Pit from 78: [78, 86, 87, 90]; Great Marsh from 77: [77]; '
-    'Arachnid Lair from 76: [76, 84]; Spider Cavern from 76: [76, 85]; Andariel from 35: [35, 36, 37]'
+    'Arachnid Lair from 76: [76, 84]; Spider Cavern from 76: [76, 85]; Andariel from 35: [35, 36, 37]; '
+    'Andariel from 32: [32, 33, 34]'
 )
 ACT_LEVELS = frozenset(range(76, 103))  # Spider Forest .. Durance of Hate Level 3 (the manual zone Act3-Manual)
 
@@ -44,6 +45,7 @@ def test_the_act_3_plan_is_the_durance_to_mephisto_then_the_act_down_from_travin
         ('Arachnid Lair', 76, (76, 84)),  # the Spider Forest worked on the way
         ('Spider Cavern', 76, (76, 85)),
         ('Andariel', 35, (35, 36, 37)),  # the rotation
+        ('Andariel', 32, (32, 33, 34)),  # its levels before her (tzroutine.py SKIPPED_TRIPS, 2026-10-22)
     ]
     assert not any(trip.passes for trip in plan.excursions)  # every level worked as it is crossed: no trip again
     assert 'Macro: act:' not in caplog.text  # no step skipped
@@ -117,8 +119,12 @@ def test_an_act_3_game_is_the_shard_then_mephisto_first_then_the_act_then_the_ro
         ('waypoint', 35),  # the rotation: the Catacombs, Andariel
         ('door', 36),
         ('door', 37),
+        ('portal', 1),  # then the Inner Cloister, the Cathedral, Catacombs 1 (tzroutine.py SKIPPED_TRIPS)
+        ('waypoint', 32),
+        ('door', 33),
+        ('door', 34),
     ]
-    assert set(walk.levels) == ACT_LEVELS | {35, 36, 37}  # every level of the act run
+    assert set(walk.levels) == ACT_LEVELS | {35, 36, 37, 32, 33, 34}  # every level of the act run
     assert walk.levels[:2] == [101, 102]  # Mephisto first
     assert walk.kills == [
         'Mephisto',

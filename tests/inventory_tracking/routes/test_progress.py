@@ -382,6 +382,11 @@ def test_the_canyon_tours_its_tombs_one_by_one_and_each_tomb_is_left_by_its_way_
     progress.used(46, 'Tomb', (100.0, 200.0), ())  # gone through (macros/route.py `note_toured`)
     progress.note('cyber40', 68)
     assert progress.lead(46) == Lead('Tomb', None, frozenset({(100.0, 200.0)}))  # that entrance passed
+    # A tomb's way on is the Orifice's portal into Duriel's Lair first (levels/handlers/tal_rasha.py DURIEL, on since
+    # 2026-10-21), done once the tomb is read without the Orifice (its mark absent); then its way back
+    orifice = step_at(progress, 68).stage
+    assert (orifice.kind, orifice.mark, orifice.to) == (USE, 'Orifice', 73)
+    progress.absent(68, 'Orifice')
     back = step_at(progress, 68).stage
     assert (back.kind, back.mark, back.to, back.back) == (ENTER, 'Canyon of the Magi', 46, True)
     assert not done(68, back, progress.facts)  # the canyon was entered, and the way back is still the tomb's

@@ -15,8 +15,9 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from inventory_tracking.combat.mechanics.life import foe_points, monster_level
 from inventory_tracking.combat.mechanics.movement import Route
-from inventory_tracking.combat.mechanics.tables import points_of
+from inventory_tracking.game.layout import IMMUNE
 from inventory_tracking.levels.geometry import Point
 
 
@@ -40,6 +41,14 @@ class Foe:
     left: float  # life points left
     elite: bool = False  # a unique, champion or super unique
     route: Route | None = None  # the waypoints it is walking, when the observer read them (mechanics/movement.py)
+    tier: int = 0  # its Herald's tier (stat 367, on the Herald and its minions; game/records.py); 0: none
+    # The resistance stats (game/layout.py MONSTER_RESISTS) it is immune to as read at the look; empty: none or unread
+    immune_to: frozenset[int] = frozenset()
+
+    @property
+    def herald(self) -> bool:
+        """A Terror Zone's Herald: a leader with a Herald's tier (its minions carry the tier, not the rank)."""
+        return self.elite and self.tier > 0
 
     def ahead(self, frames: int) -> Point:
         """Where it is `frames` from now: along its route, else where it stands."""
@@ -140,10 +149,17 @@ def observe(
     aimable: Callable[[Point], Point | None] | None = None,
 ) -> Observation:
     """The observation of the running game from game/records.py records (`hostiles`: the ones that may be struck).
-    A monster's points: its type's in the area by the client's life fraction. Companions are read by the attack's
-    `sees` (macros/build.py `Attack`), not here."""
+    A monster's points: its full life for the decisions (mechanics/life.py `foe_points`: its type's in the area, with
+    TIER_LIFE times its rank and its Herald's tier, with TZ_LEVEL_LIFE at a terrorized level's monster level:
+    `monster_level`) by the client's life fraction. Companions are read by the attack's `sees` (macros/build.py
+    `Attack`), not here."""
     foes = {}
+    hostiles = list(hostiles)
+    level = monster_level(player.area, hostiles)
     for m in hostiles:
-        full = points_of(m.txt_id, player.area)
-        foes[m.unit_id] = Foe(m.txt_id, (m.x, m.y), full * (m.life / m.max_life if m.max_life else 1.0), m.leader)
+        tier = getattr(m, 'tier', 0)
+        full = foe_points(m.txt_id, player.area, getattr(m, 'flags', 0), tier, level)
+        left = full * (m.life / m.max_life if m.max_life else 1.0)
+        immune_to = frozenset(stat for stat, percent in getattr(m, 'resists', ()) if percent >= IMMUNE)
+        foes[m.unit_id] = Foe(m.txt_id, (m.x, m.y), left, m.leader, tier=tier, immune_to=immune_to)
     return Observation((player.x, player.y), foes, blocked=walls(ground, doors), moving=moving, aimable=aimable)

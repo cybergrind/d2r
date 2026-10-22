@@ -86,7 +86,8 @@ def test_of_two_lines_worth_the_same_the_one_in_contact_goes_first():
     strict=True,
     reason=(
         'today the 5 Death Lords go first and 2 dolls are blown up on the '
-        'character: 1098 taken (900 of blasts), dolls first 579'
+        'character: 1098 taken (900 of blasts), dolls first 579; combat/threats/dolls.py DOLL_FIRST passes it '
+        '(390, no blast) but is off: the arena four-pack example lost more with it'
     ),
 )
 def test_exploding_dolls_die_before_they_arrive():

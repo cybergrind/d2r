@@ -39,6 +39,7 @@ The keys are the fakes' (macros/fakes.py KEYS), given for a skill only when it i
 `skills.skill_keys` asks.
 """
 
+import math
 import random
 import threading
 import time
@@ -47,6 +48,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from inventory_tracking.builds import pursuing
+from inventory_tracking.combat import pack
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.game.records import World
 from inventory_tracking.input.compositor import STEP_KEYS
@@ -55,6 +57,7 @@ from inventory_tracking.macros import opening, pickup, teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.hunt import Hunter, threat
+from inventory_tracking.macros.hunting import choice, judging
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up
@@ -67,6 +70,14 @@ from tests.inventory_tracking.scenarios.arena.scene import Scene
 
 
 WALL_LIMIT = 120.0  # wall seconds a run's thread is waited for before the play is called hung (an error, no result)
+# The watchdog (2026-10-22, the player: "maybe you could use more targetted approach with tight timeouts?"): a run whose
+# game clock stands still STALL_WALL s of wall time, or whose wall time runs past SLOW_RATIO times the game time it
+# moved (after SLOW_AFTER wall seconds), is called hung at once: every thread's stack is written (`faulthandler`, to
+# STALL_DUMP when set, else stderr) and the play ends in an error. A play takes ~0.1 s of wall a game second.
+STALL_WALL = 2.0
+SLOW_RATIO = 5.0
+SLOW_AFTER = 4.0
+STALL_DUMP: Path | None = None
 
 
 @dataclass
@@ -96,11 +107,24 @@ class ArenaTime:
 def fresh() -> None:
     """The production code's memories of a process's life, emptied: each is stamped with the clock
     of the play that made it (pickup.py SHUNNED, STOPPED and LOOKED, opening.py SHUNNED, teleport.py FAR_FAILED,
-    LANDED and LANDING)."""
+    LANDED and LANDING, combat/pack.py PULL, hunting/choice.py HELD_SAID, hunting/judging.py HELD_ON_SAID)."""
     for memory in (pickup.SHUNNED, pickup.STOPPED, pickup.LOOKED, opening.SHUNNED, teleport.FAR_FAILED):
         memory.clear()
     teleport.LANDED.clear()
     teleport.LANDING.clear()
+    teleport.MISSED.clear()
+    # The pets' ask that the fight be pulled off the bound demon (builds/warlock/pets.py PET_PULL), standing until a
+    # clock of the play that asked it: left over, the next play (its clock from zero) hopped off a demon nobody asked
+    # for (2026-10-21: the Herald's "defiler dies" seed 2 played after "rebind" seed 1 went 12.27/20.16 -> 12.69/15.47)
+    pack.PULL.why, pack.PULL.until = None, -math.inf
+    # The Herald omens hunt.py read and the last jump's landing (combat/pack.py OMENS, HOP), stamped with the play's
+    # clock: left over, the next play barred landings by an omen of another and marked again after another's hop
+    pack.OMENS.clear()
+    pack.HOP.at, pack.HOP.units = -math.inf, 0.0
+    # The held leader's waits and stays said once (2026-10-21, the arena triage agent: HELD_SAID outlived a play): a
+    # unit id of one play said nothing in the next's log
+    choice.HELD_SAID.clear()
+    judging.HELD_ON_SAID.clear()
 
 
 def key_names(world: World, skills: Sequence[int] | None = None) -> dict[int, str]:
@@ -238,8 +262,12 @@ class Play:
         self.pending.clear()
 
     def settle(self) -> None:
-        """Wait until no run works: the thread of the one working, and of whatever followed it."""
-        limit = time.monotonic() + WALL_LIMIT
+        """Wait until no run works: the thread of the one working, and of whatever followed it. The watchdog calls a run
+        hung whose game clock stands still STALL_WALL s, or moves slower than 1 / SLOW_RATIO of the wall's."""
+        began = time.monotonic()
+        limit = began + WALL_LIMIT
+        game_began = moved = self.arena.clock.now
+        moved_at = began
         while True:
             with self.runner.lock:
                 thread, working = self.runner.thread, self.runner.working
@@ -247,8 +275,30 @@ class Play:
                 thread.join(0.05)
             elif not working:
                 return
-            if time.monotonic() > limit:
+            wall, game = time.monotonic(), self.arena.clock.now
+            if game > moved:
+                moved, moved_at = game, wall
+            if wall - moved_at > STALL_WALL:
+                self.hung(f'the game clock stood at {game:.2f} s for {wall - moved_at:.1f} s of wall time')
+            if wall - began > SLOW_AFTER and wall - began > SLOW_RATIO * max(game - game_began, 0.0):
+                self.hung(f'{wall - began:.1f} s of wall time for {game - game_began:.2f} s of game time')
+            if wall > limit:
                 raise RuntimeError(f'a run of the macro did not end in {WALL_LIMIT:.0f} s of wall time')
+
+    def hung(self, why: str) -> None:
+        """The watchdog's call: every thread's stack written, the play ended, an error raised."""
+        import faulthandler
+        import sys
+
+        if STALL_DUMP is not None:
+            with STALL_DUMP.open('a') as out:
+                out.write(f'--- hung at game {self.arena.clock.now:.2f} s: {why}\n')
+                out.flush()
+                faulthandler.dump_traceback(out, all_threads=True)
+        else:
+            faulthandler.dump_traceback(sys.stderr, all_threads=True)
+        self.end()
+        raise RuntimeError(f'the macro hung: {why}')
 
     def run(self) -> Result:
         fresh()

@@ -22,15 +22,17 @@ from inventory_tracking.combat.sim import casters as rules
 from inventory_tracking.combat.sim.guard import BOSSES, UNIQUE_FLAG, UNIQUE_STUN, GuardRule
 from inventory_tracking.combat.sim.monsters import GAME_RATE, SHOT_REACH, Traits, shooter_of, shoots, swing_of
 from inventory_tracking.combat.survival import Pressure, Supply
+from inventory_tracking.combat.threats import dolls
 from inventory_tracking.config import Config, Percent, Positive
 from inventory_tracking.terror.danger import table as threat_table
 
 
 Hands = Literal['battle', 'travel']
 KINDS = ('physical', 'fire', 'lightning', 'cold', 'poison', 'magic')
-# monstats deathDmg, verified in scenarios/threat/threat_table.json (2026-10-13).
+# monstats deathDmg (F0, 2026-10-21: built from the game's table, combat/threats/dolls.py `exploding`; before, a list of
+# 8 that left out 212, 213, 444, the siege windows and the Baal clone; rca/2026-10-21/dolls-tz-findings.md §2).
 # A corpse already struck by a projectile can explode before another look.
-EXPLODING = frozenset((214, 215, 216, 441, 442, 443, 690, 691))
+EXPLODING = dolls.exploding()
 # Monster classes (monstats.txt `*hcIdx`, the client's txt id) whose presence makes life dearer by DEAR_FACTOR: the
 # bosses' own forms, no minion (the player, 2026-10-13: "probably we need to have it for diablo, baal, nihlathak,
 # mephisto, duriel"). The factor: rca/2026-10-13/diablo.md "Hooked in".
@@ -122,6 +124,12 @@ class Hostile:
     # (combat/threats) prices what an act under way still brings.
     mode: int = 0
     mode_frames: int = 0
+    # The factor the auras round it put on its blows' physical points (Might, Concentration, Fanaticism: +% damage,
+    # which is physical; macros/safety.py AURA_FORECAST builds it from the Aura Enchanted hostiles about); 1: none
+    raised: float = 1.0
+    # Units a second it was seen to move at (macros/safety.py OBSERVED_SPEED); 0: not seen moving, its table
+    # walk (`kind_of`) alone. Its walk is the larger
+    speed: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -146,6 +154,32 @@ class Look:
     # What lies on the ground and harms where it lies, by its read model (combat/threats `Lingering`): priced over a
     # way whether or not its caster is still about (Diablo's fire wall after his death).
     ground: tuple[tuple[threats.Lingering, tuple[threats.Lying, ...]], ...] = ()
+
+
+# The player, 2026-10-21 ~20:34, on the second tier 5 Herald of the Arachnid Lair (20:31:17-24, take
+# 20261021T172936Z-84): "we had a quite bad positioning and suffered alot of damage and wasn't able to reposition".
+# The merc and the demons stood 0-0.6 from the character (a Teleport takes the allies within 10 along,
+# rca/2026-10-21/herald-gloam-findings.md §3), so each Flame Spider in melee was priced at `companion_uncertainty`
+# (the nearest body wins) though 58% of them stood nearer an ally: the take lost 388 life a spider-second within 4,
+# the hold was priced at 133 over 10 s and every Teleport out at 1033 (rca/2026-10-21/arachnid-herald-2-findings.md).
+# True: a companion within GLUED of the priced place stands with the character and takes no blow off it. False: the
+# nearest body wins, however near the character it stands.
+GLUED_SHARE = False
+# AURA_SWINGERS (2026-10-22, the coordinator from the sim's round 4: "weigh the aura on units actually swinging at
+# us"): the auras' raise (`Hostile.raised`, macros/safety.py AURA_FORECAST) goes on the blows of a hostile nearer the
+# character than any companion (the body it goes for, `hostile_exposure`), not on one nearer the demons. False: on
+# every hostile's blows, as before. `most_blow` (macros/safety.py REACH_BAR) keeps the raise whatever. Off (2026-10-22,
+# measured): the capped t5 Hulk Herald stayed at 7 of 20 dead and fane-death-20 died 3 times in 40 plays.
+AURA_SWINGERS = False
+# NEAR_WAKES (2026-10-22, the sim's pursuit-mode fane-death-20, seed 7, on-time looks: the pursuit's Teleport landed
+# beside the x5.75 unique Night Lord idle in mode 1 with no line to the landing, priced at nothing; it woke and one
+# blow of 2968 killed from 86%. The coordinator: "a hostile within reach of the landing counts by its raised top blow
+# whatever its mode. Only far, inactive hostiles should price at 0"). True: a neutral hostile with no line to the place
+# is priced as any other when it can walk to the place's reach within WAKE_SECONDS. False: priced at nothing, as
+# before.
+NEAR_WAKES = True
+WAKE_SECONDS = 1.0
+GLUED = 3.0  # units: combat/pack.py DEMON_APART, the demon that "stands with" the character
 
 
 def bodies(seen: Look, m: Hostile) -> tuple[Point, ...]:
@@ -269,6 +303,11 @@ def sighted(seen: Look, start: Point, end: Point) -> bool:
     return known
 
 
+def wakes(m: Hostile, d: float) -> bool:
+    """Whether a neutral hostile `d` off walks to the reach of the place within WAKE_SECONDS (NEAR_WAKES)."""
+    return d <= rules.REACH + max(kind_of(m.txt, m.level, m.flags, m.modifiers, m.tier)[3], m.speed) * WAKE_SECONDS
+
+
 def hostile_exposure(
     m: Hostile, seen: Look, place: Point, dwell: float, protection: Protection, settings: SafetySettings
 ):
@@ -277,14 +316,24 @@ def hostile_exposure(
     unknown: list[int] = []
     curses = 0.0
     d = rules.ai_distance(m.at, place)
-    near = min((rules.ai_distance(m.at, p) for p in bodies(seen, m)), default=math.inf)
-    if min(d, near) >= rules.RADIUS or (not m.active and not sighted(seen, m.at, place)):
+    near = min(
+        (rules.ai_distance(m.at, p) for p in bodies(seen, m) if not (GLUED_SHARE and math.dist(p, place) < GLUED)),
+        default=math.inf,
+    )
+    if min(d, near) >= rules.RADIUS:
+        return (), 0.0, ()
+    # Neutral and with no line: priced at nothing, unless it reaches the place within WAKE_SECONDS (NEAR_WAKES)
+    if not m.active and not sighted(seen, m.at, place) and not (NEAR_WAKES and wakes(m, d)):
         return (), 0.0, ()
     share = 1.0 if d <= near else settings.companion_uncertainty
+    # The auras round it on the blows of one that goes for the character (AURA_SWINGERS); one nearer a companion is
+    # priced at its plain blow
+    raised = m.raised if not AURA_SWINGERS or d <= near else 1.0
     t = max(0.0, dwell - m.stunned)
     if t <= 0:
         return (), 0.0, ()
     row, model, ai, speed, delay = kind_of(m.txt, m.level, m.flags, m.modifiers, m.tier)
+    speed = max(speed, m.speed)  # as seen closing in (macros/safety.py OBSERVED_SPEED)
     # Reach during the dwell. A monster spends the approach time walking, not striking.
     melee_time = max(0.0, t - max(0.0, d - rules.REACH) / max(speed, 0.1))
 
@@ -295,6 +344,7 @@ def hostile_exposure(
         parts = [('physical', *model.damage)]
         if not ai and model.damage[1] <= 0:
             parts = [('physical', settings.unknown_points / 2, settings.unknown_points)]
+        parts = [(k, lo * raised, hi * raised) if k == 'physical' else (k, lo, hi) for k, lo, hi in parts]
         parts += [(k, model.damage[0] * lo, model.damage[1] * hi) for k, lo, hi in model.elements]
         if not ai:
             parts = [
@@ -394,6 +444,7 @@ def hostile_exposure(
             takes = fit['takes_life']
             chance = min(1.0, takes.get('high', takes['value']) * margin)
             parts = [('physical', *model.damage)] if model.damage[1] > 0 else [('physical', 0.0, 100.0)]
+            parts = [(k, lo * raised, hi * raised) for k, lo, hi in parts]  # the auras round it (`raised`)
             parts += [(k, model.damage[0] * lo, model.damage[1] * hi) for k, lo, hi in model.elements]
             found.append(
                 Exposure(
@@ -402,6 +453,23 @@ def hostile_exposure(
                 )
             )  # fmt: skip
     return tuple(found), curses, tuple(unknown)
+
+
+def most_blow(m: Hostile, protection: Protection) -> tuple[float, float]:
+    """(the most one melee blow of `m` takes, its walk in units a second): its table blow's most physical points times
+    the auras round it (`Hostile.raised`) plus its elements' most, each after the resistances as read (the curses on
+    the character in them), less the flat reduction. (0, its walk) for a type with no table blow."""
+    _, model, _, speed, _ = kind_of(m.txt, m.level, m.flags, m.modifiers, m.tier)
+    speed = max(speed, m.speed)  # as seen closing in (macros/safety.py OBSERVED_SPEED)
+    most = model.damage[1]
+    if most <= 0:
+        return 0.0, speed
+    flat = dict(protection.flat)
+    parts = [('physical', most * m.raised), *((k, most * hi) for k, _, hi in model.elements)]
+    taken = sum(
+        max(0.0, points - flat.get(kind, 0.0)) * resisted(kind, protection.resists)[0] for kind, points in parts
+    )
+    return taken, speed
 
 
 def threat_exposure(

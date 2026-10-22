@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass, field
 
-from inventory_tracking.game.layout import IMMUNE, LEADER_FLAGS, MINION_FLAG, NO_OWNER, STACK_MOST
+from inventory_tracking.game.layout import IMMUNE, LEADER_FLAGS, MINION_FLAG, NO_OWNER
+from inventory_tracking.game.stash import STACK_MOST
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.items.identity import ETHEREAL_FLAG
 from inventory_tracking.items.metadata import metadata
@@ -75,6 +76,12 @@ class Monster:
     # (stat, percent) of its resistances (game/layout.py MONSTER_RESISTS) its full stat list holds at the look; a
     # resistance the list does not hold is 0. (): unread
     resists: tuple[tuple[int, int], ...] = field(default=(), compare=False)
+    # (skill, level) of the last state put on it, as its full stat list holds at the look (stats 350/351, game/layout.py
+    # MODIFIER_SKILL_STAT): an aura it holds or stands in, or a curse; None: none, or unread
+    aura: tuple[int, int] | None = field(default=None, compare=False)
+    # Its damagepercent (stat 25, game/layout.py DAMAGE_PERCENT_STAT) as its full stat list holds at the look: the
+    # auras' +% damage on it, summed; None: unread
+    damage_percent: int | None = field(default=None, compare=False)
     # On request (`records`): the unit record and monster data raw, for unnamed fields (takes/record.py).
     record: bytes = field(default=b'', compare=False, repr=False)
     states: bytes = field(default=b'', compare=False, repr=False)  # state words (STATE_RUN), with `records`
@@ -88,6 +95,8 @@ class Monster:
     base_stats: Stats | None = None
     path_at: int = field(default=0, compare=False)  # dynamic path address: the HUD reads live positions there
     unit_at: int = field(default=0, compare=False)  # unit record address (hud/dots.py)
+    # The unit's flag word (game/layout.py UNIT_FLAGS) as the look's walk read it; None: unread (a replay, a test)
+    unit_flags: int | None = field(default=None, compare=False)
 
     @property
     def leader(self) -> bool:

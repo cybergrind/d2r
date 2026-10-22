@@ -121,6 +121,8 @@ def spec(stop: Stopped) -> Remedy:
         return R.DROP
     if left is not None:
         return R.HOLD
+    if stop.on and stop.cause == 'pickup':
+        return R.KEEP  # since 2026-10-21 (stops.py PICKUP_KEEPS): a pickup no click took never leaves a game
     return R.RECOVER if stop.on else R.NOTHING
 
 
@@ -134,3 +136,46 @@ def test_every_combination_of_the_facts_is_answered_as_before():
         assert decide(stop) is spec(stop), stop
         seen.add(decide(stop))
     assert seen == set(Remedy) - {R.DEAD, R.LEAVE, R.FIGHT, R.AGAIN, R.STOP}
+
+
+def test_a_door_no_click_takes_outside_the_skip_leaves_the_game_as_before():
+    # The 'door' cause (2026-10-21): skipped in the terror zone kinds' way on (tzloop.py SKIP_DOOR); any stop of it that
+    # reaches the rules (another kind, the switch off) is answered as 'other' was
+    assert first('door', on=True, dead=False) is None
+    assert decide(Stopped('door', True)) is decide(Stopped('other', True)) is Remedy.RECOVER
+    assert decide(Stopped('door', True, 'Ring', 'g')) is decide(Stopped('other', True, 'Ring', 'g')) is Remedy.FETCH
+
+
+TERRORIZED = {'on': True, 'game': 'cyber1', 'terrorized': True}
+
+
+@pytest.mark.parametrize(
+    ('stop', 'expected'),
+    [
+        # The player, 2026-10-21 ~13:40: "we have left terrorized act without finishing it => wasted shard"
+        (Stopped('pickup', **ON), R.KEEP),  # a potion no click took: never a game left for it
+        (Stopped('pickup', **ON, left='Ring'), R.FETCH),  # a valuable: its rules as before
+        (Stopped('pickup', on=False), R.NOTHING),
+        (Stopped('door', **TERRORIZED), R.KEEP),  # a shard's act: the door given up, the act goes on
+        (Stopped('door', **ON), R.RECOVER),  # no shard: as before
+        (Stopped('other', **TERRORIZED), R.RECOVER),  # the caps, the bounds and the unknown still leave
+        (Stopped('stall', **TERRORIZED), R.RECOVER),  # a stuck character after the escapes
+        (Stopped('door', **TERRORIZED, left='Ring'), R.FETCH),
+    ],
+)
+def test_a_pickup_or_a_terrorized_games_door_keeps_the_game(stop, expected):
+    assert decide(stop) is expected
+
+
+def test_with_the_switches_off_those_games_are_left_as_before(monkeypatch):
+    from inventory_tracking.macros import stops
+
+    monkeypatch.setattr(stops, 'PICKUP_KEEPS', False)
+    monkeypatch.setattr(stops, 'TERRORIZED_KEEPS', False)
+    assert decide(Stopped('pickup', **ON)) is R.RECOVER
+    assert decide(Stopped('door', **TERRORIZED)) is R.RECOVER
+
+
+def test_the_safety_rules_come_first_in_a_terrorized_game_too():
+    assert first('pickup', on=True, dead=True) is R.DEAD
+    assert first('beset', on=True, dead=False, beset=Beset(low=True)) is R.LEAVE

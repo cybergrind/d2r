@@ -145,7 +145,9 @@ def test_a_three_socket_dagger_with_plus_three_apocalypse_is_a_sure_valuable():
     legend = drop('Legend Spike', source='shown', quality=2)
     assert not sure(replace(legend, rolls=Rolls(3, ((APOCALYPSE, 2),))))  # +2: not paid
     assert not sure(replace(legend, rolls=Rolls(2, ((APOCALYPSE, 3),))))  # Void needs exactly three
-    assert not sure(replace(legend, rolls=Rolls(0, ((APOCALYPSE, 3),))))  # 0os: only +3 Abyss waits for Larzuk
+    # 0os waits for Larzuk or the cube (the player, 2026-10-22: "add 0os +3 apocalypse too")
+    assert sure(replace(legend, rolls=Rolls(0, ((APOCALYPSE, 3),), ethereal=True)))
+    assert not sure(replace(legend, rolls=Rolls(0, ((APOCALYPSE, 2),))))
     assert not sure(replace(drop('Dagger', source='shown', quality=2), rolls=Rolls(3, ((APOCALYPSE, 3),))))
 
 

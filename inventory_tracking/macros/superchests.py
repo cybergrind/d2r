@@ -69,6 +69,10 @@ SUPER_TRIES = 3  # hunting/base.py SUPER_TRIES (a test holds them equal): a ches
 GONE_NEAR = 15.0
 ARRIVE = 10.0  # units: a spot not read yet is gone to this near
 SPOT_SECONDS = 45.0  # a spot gone for this long and not done is left: no level waits on one for ever
+# A chest clicked (tried) and then out of the read is done as opened, not left by SPOT_SECONDS: at 09:07:23 on
+# 2026-10-21 two Upper Kurast chests opened at 09:05:41 and 09:07:12 were logged "not done in 45 s: left" (only the
+# line was wrong: nothing was lost). False: the timer says so as before
+CLICKED_IS_DONE = True
 
 
 def build_glowing(objects: Iterable[Mapping]) -> dict[int, str]:
@@ -149,10 +153,11 @@ class Book:
     done: set[tuple[int, Point]] = field(default_factory=set)
     since: dict[tuple[int, Point], float] = field(default_factory=dict)
     said: tuple[int, Point] | None = None
+    units: dict[tuple[int, Point], int] = field(default_factory=dict)  # the chest last read at each spot
 
     def begin(self, game: str) -> None:
         if game != self.game:
-            self.game, self.done, self.since, self.said = game, set(), {}, None
+            self.game, self.done, self.since, self.said, self.units = game, set(), {}, None, {}
 
     def finish(self, area: int, spot: Point, why: str) -> None:
         self.done.add((area, spot))
@@ -199,10 +204,15 @@ def level_goal(
         if key in book.done:
             continue
         thing = read.get(spot)
+        if thing is not None:
+            book.units[key] = thing.unit_id
+        clicked = book.units.get(key)
         if thing is not None and (thing.mode != 0 or thing.selectable is False):
             book.finish(area, spot, f'class {thing.txt_id} open')
         elif thing is not None and tries.get(thing.unit_id, 0) >= SUPER_TRIES:
             book.finish(area, spot, f'class {thing.txt_id} not opened in {SUPER_TRIES} tries: left')
+        elif CLICKED_IS_DONE and thing is None and clicked is not None and tries.get(clicked, 0) > 0:
+            book.finish(area, spot, 'clicked, then out of the read: opened')
         elif thing is None and math.dist(here, spot) <= GONE_NEAR:
             book.finish(area, spot, 'no chest read there: none to open')
         elif passed(spot, thing.unit_id if thing is not None else None):

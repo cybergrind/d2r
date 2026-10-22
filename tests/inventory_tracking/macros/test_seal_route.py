@@ -189,3 +189,49 @@ def test_a_second_game_in_the_same_service_opens_every_seal_and_fights_every_bos
     progress.note('cyberr99', SANCTUARY)
     assert progress.facts.used == frozenset()
     assert walk_the_sanctuary(progress, dead) == whole
+
+
+# --- the hands' time at a seal clicked from afar ---
+
+
+def test_a_seal_clicked_from_afar_is_given_the_walk_and_a_second_click(monkeypatch):
+    # 01:14:40.48 "Opening Infector seal 2, 19 away"; the first click moved nobody, the second walked the character
+    # there, and the 1.5 s expired at 01:14:41.99, 0.08 s before the seal showed open (take 20261020T221239Z-108)
+    monkeypatch.setattr(moves, 'USE_WALK_PRICED', True)
+    seal = (7915.0, 5275.0)
+    here = (7907.5, 5292.5)
+    mark = Target(SANCTUARY, ROOMS, (seal[0] / TILE_UNITS, seal[1] / TILE_UNITS), 'Infector seal 2', 'target',
+                  use=SEALS[1])  # fmt: skip
+    goal = Goal('Infector seal 2', seal, USE, 25.0, PRESSED, mark=mark, route='Diablo', stage=use('Infector seal 2'))
+    window = moves.operate_window(1.5, here, goal)
+    assert window >= 1.59 + 0.5  # the incident's open took 1.59 s from the act's start: half a second to spare
+    assert window < 4.0
+    assert moves.operate_window(1.5, seal, goal) == pytest.approx(1.5 + moves.STILL_SECONDS)
+    pick = Goal('Ring', seal, 'pick up', 40.0, PRESSED, unit=5)
+    assert moves.operate_window(1.5, here, pick) == 1.5  # a drop: the pickup's hands as before
+    monkeypatch.setattr(moves, 'USE_WALK_PRICED', False)
+    assert moves.operate_window(1.5, here, goal) == 1.5
+
+
+def test_the_seek_by_the_seal_is_given_up_after_the_seek_wait_and_the_level_explored(monkeypatch):
+    # The switch's one cost (re-checked 2026-10-21 13:40): a seal boss already dead whom the tracker did not count is
+    # looked for at his seal; the stand there ends after SEEK_WAIT (hunting/judging.py `empty_mark`), and the level is
+    # explored, as for the Throne's seek, never a stand without end
+    from inventory_tracking.macros.build import NoWay
+    from inventory_tracking.macros.hunting.base import SEEK_WAIT
+
+    monkeypatch.setattr(goals, 'SEAL_BOSS_BY_SEAL', True)
+    play = game(area=SANCTUARY)
+    hunt = hunter(play)
+    player = me(play.world)
+    seek = de_seis_goal((player.x, player.y))
+    assert seek is not None
+    assert not seek.known
+    empty = NoWay(f'{seek.label}: nothing in reach here yet', arrived=True)
+    key = (play.world.game_name, player.area, 'Lord De Seis')
+    hunt.empty_mark(play.world, seek, empty, 100.0)
+    hunt.empty_mark(play.world, seek, empty, 100.0 + SEEK_WAIT - 0.1)
+    assert key not in hunt.marks_empty  # his pack comes 0.95-1.02 s after the seal (teleport.py SEAL_BRINGS)
+    hunt.empty_mark(play.world, seek, empty, 100.0 + SEEK_WAIT)
+    assert key in hunt.marks_empty
+    assert (play.world.game_name, player.area) in hunt.wayless

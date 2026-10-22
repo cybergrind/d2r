@@ -97,11 +97,13 @@ def test_a_missing_step_is_skipped_and_said_and_its_levels_fall_to_the_rest(capl
     said = "Macro: act: act 2 step 1 (Duriel to 73): no route into Duriel's Lair yet (the Orifice): skipped"
     assert said in caplog.text
     assert "Macro: act: act 2 step 2 (No such route to 74): no catalogue route 'No such route': skipped" in caplog.text
-    assert 73 in uncovered  # no catalogue trip reaches the Lair: the itinerary's skipped
+    # The tombs' route reaches the Lair (levels/handlers/tal_rasha.py DURIEL, on since 2026-10-21), from no step here:
+    # the Rest's zone plays the tour, the Lair on it
+    assert 73 not in uncovered
     first, _ = trips[0]
     assert first.route == 'Summoner'  # the Arcane Sanctuary's rest came first, then the act's rest
     covered = {area for trip, _ in trips for area in trip.covers}
-    assert covered | set(uncovered) >= set(zone(2).areas) - {73}
+    assert covered | set(uncovered) >= set(zone(2).areas)
 
 
 def test_a_trip_crossed_after_works_its_way_right_after_and_one_worked_on_the_way_does_not():
@@ -152,4 +154,6 @@ def test_a_trip_to_a_toured_level_tours_them_all_one_by_one(monkeypatch):
     plan = plan_of(monkeypatch, 2)
     first = plan.excursions[0]
     assert (first.route, first.waypoint, first.hub, first.tours) == ("Tal Rasha's Tombs", 46, 46, tombs)
-    assert (73, 'no catalogue excursion covers it') in plan.skipped  # Duriel's Lair: the route to add
+    # Duriel's Lair on the tour since 2026-10-21 (levels/handlers/tal_rasha.py DURIEL): the true tomb's Orifice
+    assert first.areas == (46, *tombs, 73)
+    assert 73 not in dict(plan.skipped)

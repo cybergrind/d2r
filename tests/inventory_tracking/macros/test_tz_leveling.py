@@ -623,15 +623,24 @@ def test_after_the_waves_the_stand_is_kept_until_baal_leaves_then_the_portal_and
     assert waiting.label.endswith(throne.PORTAL_WAIT)
     assert waiting.place == STAND
     assert waves.due(10.0)
-    opening = wave_look(waves, portal, at, now=12.0, seat=None, stage=stage)  # he left: the portal opens
-    assert isinstance(opening, Goal)
-    assert (opening.label, opening.place) == (f'Worldstone Chamber: {throne.PORTAL_OPENING}', STAND)
+    # The player, 2026-10-21 ~17:41: "1. wait for baal disappears 2. go near portal, wait for a few seconds 3. go
+    # through portal"
+    foot = throne.foot_of(portal.place)
+    assert foot == (15090.5, 5009.0)  # where the player's entry of 17:38:17.8 stood
+    going = wave_look(waves, portal, at, now=12.0, seat=None, stage=stage)  # he left: to the portal's foot
+    assert isinstance(going, Goal)
+    assert (going.label, going.place) == (f'Worldstone Chamber: {throne.PORTAL_NEAR}', foot)
     assert waves.due(12.0)
-    assert wave_look(waves, portal, at, now=12.0 + throne.PORTAL_OPENS, seat=None, stage=stage) == portal
+    there = (15090.6, 5009.2)
+    opening = wave_look(waves, portal, there, now=13.0, seat=None, stage=stage)
+    assert isinstance(opening, Goal)
+    assert (opening.label, opening.place) == (f'Worldstone Chamber: {throne.PORTAL_OPENING}', foot)
+    assert wave_look(waves, portal, there, now=13.0 + throne.FOOT_WAIT - 0.1, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, there, now=13.0 + throne.FOOT_WAIT, seat=None, stage=stage) == portal
     stuck = throne.Waves()
     stuck.begin('g')
     assert wave_look(stuck, portal, at, now=0.0, stage=stage) != portal
-    assert wave_look(stuck, portal, at, now=throne.BAAL_LEAVES, stage=stage) == portal  # clicked whatever
+    assert wave_look(stuck, portal, at, now=throne.BAAL_LEAVES, stage=stage) != portal  # never under him
     assert wave_look(stuck, portal, at, now=throne.BAAL_LEAVES + throne.PORTAL_SECONDS, stage=stage) is None
     # A new game forgets
     stuck.begin('h')
@@ -677,8 +686,11 @@ def test_baal_walking_into_the_portal_is_still_baal_and_the_portal_waits_until_h
     # A read that has him again (a look from farther that missed him) counts his going afresh
     assert wave_look(waves, portal, at, now=128.4, seat=SEAT, stage=stage) != portal
     assert wave_look(waves, portal, at, now=128.5, seat=None, stage=stage) != portal
-    assert wave_look(waves, portal, at, now=128.5 + throne.PORTAL_OPENS - 0.01, seat=None, stage=stage) != portal
-    assert wave_look(waves, portal, at, now=128.5 + throne.PORTAL_OPENS, seat=None, stage=stage) == portal
+    foot = throne.foot_of(portal.place)
+    assert wave_look(waves, portal, foot, now=128.5 + throne.FOOT_WAIT - 0.01, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, foot, now=128.5 + throne.FOOT_WAIT, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, foot, now=128.6 + throne.FOOT_WAIT, seat=None, stage=stage) != portal
+    assert wave_look(waves, portal, foot, now=131.6 + throne.FOOT_WAIT, seat=None, stage=stage) == portal
 
 
 def test_with_baal_on_his_throne_the_portal_stage_clears_the_hall_and_his_wait_counts_from_its_clear():
@@ -702,7 +714,7 @@ def test_with_baal_on_his_throne_the_portal_stage_clears_the_hall_and_his_wait_c
     assert not waves.due(0.0)  # a fight moves: no wait to cover
     assert wave_look(waves, portal, at, [far], now=20.0, stage=stage) != portal  # clear from 20 s
     assert wave_look(waves, portal, at, [far], now=20.0 + throne.BAAL_LEAVES - 0.1, stage=stage) != portal
-    assert wave_look(waves, portal, at, [far], now=20.0 + throne.BAAL_LEAVES, stage=stage) == portal  # whatever
+    assert wave_look(waves, portal, at, [far], now=20.0 + throne.BAAL_LEAVES, stage=stage) != portal  # never under him
     # A passed one (the clearing judge's: no progress) does not hold it
     passed = throne.wave_goal(
         throne.Waves(), area=throne.THRONE, stage=stage, route='Baal', found=portal, here=at, hostiles=[minion],
@@ -857,3 +869,143 @@ def test_tz_plus_on_a_big_level_leaves_a_group_a_small_level_takes_and_fights_a_
     elite = hunt.cleared(run, play.world, [*small, champion], Ground(()), door)
     assert elite is not None
     assert elite.unit == 61  # its elite packs, as on every level
+
+
+# --- remnants are no goal on TZ+ (agenda.py REMNANTS_LEFT; rca/2026-10-21/tz-remnants-findings.md) ---
+
+
+def test_a_remnant_is_a_group_under_the_reasonable_size_with_no_leader():
+    # The player, 2026-10-21 ~21:18: "kill all packs and DO NOT hunt every single enemy"
+    from inventory_tracking.macros.agenda import GROUP_LINK, GROUP_MIN, remnants
+
+    lone, pair = [(1, (0.0, 0.0))], [(2, (200.0, 0.0)), (3, (210.0, 0.0))]
+    pack = [(10 + i, (400.0 + 10.0 * i, 0.0)) for i in range(GROUP_MIN)]
+    guarded = [(20, (600.0, 0.0)), (21, (610.0, 0.0))]  # a champion (20) and one beside it
+    assert GROUP_LINK >= 10.0
+    assert remnants([*lone, *pair, *pack, *guarded], kept={20}) == {1, 2, 3}
+
+
+def test_tz_plus_leaves_a_lone_striker_on_the_way_and_clears_a_pack_of_them(monkeypatch):
+    # The ruling of 2026-10-19 ~21:15 ("don't waste time awaiting when mobs engage us") stays for packs: a remnant
+    # striking at the party is struck when it comes in reach, never gone to
+    from inventory_tracking.macros import agenda
+    from inventory_tracking.macros.agenda import GROUP_MIN, PLUS
+
+    door = Goal('Next level', (5000.0, 5300.0), ENTER, PLACE_NEAR, PRESSED, route='Andariel')
+    play, hunt, run = agenda_hunt(PLUS)
+    play.world = replace(play.world, player=replace(me(play.world), area=35))  # Catacombs 2: under BIG_LEVEL
+    archer = replace(foe(32, 5025.0, 5000.0, txt_id=576), mode=4)
+    left = hunt.cleared(run, play.world, [archer], Ground(()), door)
+    assert left is not None
+    assert left.unit != 32
+    archers = [replace(archer, unit_id=40 + i, x=5025.0 + 5.0 * i) for i in range(GROUP_MIN)]
+    goal = hunt.cleared(run, play.world, archers, Ground(()), door)
+    assert goal is not None
+    assert (goal.do, goal.unit, goal.clearing) == (FIGHT, 40, True)
+    monkeypatch.setattr(agenda, 'REMNANTS_LEFT', False)
+    play, hunt, run = agenda_hunt(PLUS)
+    play.world = replace(play.world, player=replace(me(play.world), area=35))
+    before = hunt.cleared(run, play.world, [archer], Ground(()), door)
+    assert before is not None
+    assert (before.do, before.unit) == (FIGHT, 32)
+
+
+def test_a_heralds_minions_left_without_it_are_no_goal_and_with_it_are(monkeypatch):
+    # 21:37:51-21:38:03 on 2026-10-21, Frigid Highlands: the Herald dead, its two Demon Rascals 26 apart were the goal
+    # in turn, 11 Teleports in 12 s for one kill (JUMP_CLUSTER, take 20261021T183415Z-117)
+    from inventory_tracking.macros import agenda
+    from inventory_tracking.macros.agenda import PLUS
+    from tests.inventory_tracking.macros.test_hunt import MINION
+
+    play, hunt, run = agenda_hunt(PLUS)
+    here = (me(play.world).x, me(play.world).y)
+    rascals = [foe(70, here[0] + 26.0, here[1], MINION, txt_id=493, tier=4), foe(71, here[0] + 52.0, here[1], MINION,
+               txt_id=493, tier=4)]  # fmt: skip
+    left = hunt.agenda_target(run, play.world, rascals, here, frozenset(), ROOMS, None)
+    assert left is None or left.unit is None  # the next room: the remnants are struck in reach only
+    herald = foe(72, here[0] + 40.0, here[1], 0x08, txt_id=493, tier=4)
+    target = hunt.agenda_target(run, play.world, [*rascals, herald], here, frozenset(), ROOMS, None)
+    assert target is not None
+    assert target.unit in {70, 72}  # the Herald's pack: the Herald first (HERALD) or its minion by it
+    monkeypatch.setattr(agenda, 'REMNANTS_LEFT', False)
+    play, hunt, run = agenda_hunt(PLUS)
+    target = hunt.agenda_target(run, play.world, rascals, here, frozenset(), ROOMS, None)
+    assert target is not None
+    assert target.unit == 70
+
+
+# --- a small level entered before its map is read (rca/2026-10-21/small-levels-findings.md) ---
+
+TEMPLE, UPPER_KURAST = 96, 81  # the Forgotten Reliquary, entered from Upper Kurast at 09:09:02 on 2026-10-21
+NOTHING_LEFT_END = 'nothing is left to go to on this level: no route stage, no boss known'
+
+
+def temple_arrival():
+    """The loop's TZ+ run posted at 10.0 on arrival in the temple, the level guide's card still Upper Kurast's."""
+    from inventory_tracking.levels.model import Level
+    from inventory_tracking.macros.agenda import PLUS
+
+    play = game(area=TEMPLE)
+    hunt = hunter(play, explored=())
+    card = [Level(UPPER_KURAST, ROOMS, FLOOR)]
+    hunt.level = lambda: card[0]
+    hunt.agenda, hunt.agenda_policy = Agenda(), lambda area: PLUS
+    hunt.agenda.begin('g')
+    hunt.pursuit = Pursuit('pickup', 10.0, advance=False, leash=FULL, looped=True, agenda=True)
+    hunt.mode = Mode(True, AGENDA, agenda=True)
+    return play, hunt, card
+
+
+def test_a_temple_entered_before_its_map_is_read_waits_for_the_map_and_is_explored():
+    # 09:09:02.320 in, 09:09:02.734 "Level run over: nothing is left to go to" and the level done with 9 hostiles
+    # alive; the card came at ~0.6 s, the run was over by then
+    from inventory_tracking.levels.model import Level
+    from inventory_tracking.macros.build import NoWay
+    from inventory_tracking.macros.pursuit import MAP_SAID, Ended
+
+    play, hunt, card = temple_arrival()
+    run = play.run()
+    play.clock.now = 10.8  # the post no longer fresh: the run's own look
+    waiting = hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+    assert waiting.act == NoWay(MAP_SAID)
+    card[0] = Level(TEMPLE, ROOMS, FLOOR)  # the guide's poll read the temple
+    play.clock.now = 11.3
+    found = hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+    assert not isinstance(found.act, Ended)
+    assert found.goal is not None
+    assert found.goal.clearing  # the agenda's next room: the temple is explored
+
+
+def test_a_level_whose_map_never_comes_ends_after_the_wait_and_the_switch_off_ends_at_once(monkeypatch):
+    from inventory_tracking.macros import pursuit
+    from inventory_tracking.macros.pursuit import MAP_WAIT, Ended
+
+    play, hunt, _ = temple_arrival()
+    run = play.run()
+    play.clock.now = 10.0 + MAP_WAIT + 0.1
+    assert hunt.judge(run, play.world, [], Ground(()), in_reach=False).act == Ended(NOTHING_LEFT_END)
+    monkeypatch.setattr(pursuit, 'WAIT_FOR_MAP', False)  # as before 2026-10-21
+    play, hunt, _ = temple_arrival()
+    run = play.run()
+    play.clock.now = 10.8
+    assert hunt.judge(run, play.world, [], Ground(()), in_reach=False).act == Ended(NOTHING_LEFT_END)
+
+
+def test_the_map_wait_holds_what_is_in_reach_and_a_level_read_with_nothing_left_ends_at_once():
+    # The Worldstone Chamber's case (runner.py `_run_over`, 04:32 on 2026-10-20): its map read, nothing to go to, the
+    # run ends at once as before; the agenda's repeat guard (test_runner.py) counts those ends
+    from inventory_tracking.macros.build import NoWay, Step
+    from inventory_tracking.macros.pursuit import MAP_SAID, MAP_WAIT, Ended, Facts, Hold, decide
+
+    posted = Pursuit('pickup', 10.0, advance=False, leash=FULL, area=TEMPLE, looped=True, agenda=True)
+    nothing = Facts(10.8, None, False, False, True, lambda: Step((1.0, 1.0), None), TEMPLE, mapped=False)
+    assert decide(nothing, posted) == NoWay(MAP_SAID)
+    assert decide(replace(nothing, in_reach=True), posted) == Hold()
+    later = replace(nothing, now=10.0 + MAP_WAIT + 0.1)
+    assert decide(later, posted) == Ended(NOTHING_LEFT_END)
+    assert decide(replace(later, in_reach=True), posted) == Hold()  # still no map: what is in reach first
+    assert decide(replace(nothing, mapped=True), posted) == Ended(NOTHING_LEFT_END)
+    chamber = replace(posted, area=132)
+    assert decide(Facts(10.8, None, False, False, True, lambda: Step((1.0, 1.0), None), 132), chamber) == Ended(
+        NOTHING_LEFT_END
+    )

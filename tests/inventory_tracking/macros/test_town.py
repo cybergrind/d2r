@@ -3,6 +3,8 @@
 from collections.abc import Sequence
 from dataclasses import replace
 
+import pytest
+
 from inventory_tracking.game.decode import item_size
 from inventory_tracking.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.items.grid import Grid
@@ -112,7 +114,10 @@ def test_no_put_goes_to_a_full_stack_and_each_stacks_room_is_counted():
     assert stop.drops == (essence,)
 
 
-def test_the_cubes_resources_go_onto_their_tabs_and_its_full_runes_come_out_of_it():
+def test_the_cubes_resources_go_onto_their_tabs_and_its_full_runes_come_out_of_it(monkeypatch):
+    from inventory_tracking.macros import town
+
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', None)  # the rule before 2026-10-21; with it below
     hel = Carried(30, class_of('Hel Rune'), 0, 0, (1, 1))
     tal = Carried(31, class_of('Tal Rune'), 1, 0, (1, 1))
     gem = Carried(32, class_of('Flawless Sapphire'), 2, 0, (1, 1))
@@ -125,6 +130,10 @@ def test_the_cubes_resources_go_onto_their_tabs_and_its_full_runes_come_out_of_i
     # make room; the gem stays in the cube for its transmute, so no rune transmute this stop (the cube not empty)
     assert stop.out_for_sale == (tal,)
     assert stop.runes == ()
+    # GEMS_KEEP_FLAWLESS (2026-10-21): the cube's one sapphire is topped up to three from its stack, then four more
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', 0)
+    stop = stash_stop(Holdings(pack, OWN), view(Tal_Rune=99, Flawless_Sapphire=99))
+    assert stop.runes == (RuneCube(gem.txt, class_of('Perfect Sapphire')),) * 5
 
 
 def test_a_cube_keeper_goes_through_the_room_the_inventory_keepers_leave_onto_the_page_with_room():
@@ -929,3 +938,186 @@ def test_a_ber_rune_is_never_cubed_whatever_the_recipe(monkeypatch):
     sur = class_of('Sur Rune')
     monkeypatch.setattr(town, 'rune_recipe', lambda txt: RuneRecipe(ber, 3, (ber,)) if txt == sur else None)
     assert rune_transmutes(stacks(Sur_Rune=99, Ber_Rune=5)) == ()
+
+
+# Flawless gems over 15 a kind cubed at the stash (the player, 2026-10-21 ~14:45: "could we also cube gems, probably
+# I's like to keep 15 flawless gems"; town.py GEMS_KEEP_FLAWLESS)
+
+
+@pytest.fixture
+def keep_15(monkeypatch):
+    from inventory_tracking.macros import town
+
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', 15)
+
+
+def test_the_gem_recipes_come_from_the_games_data_seven_kinds_skulls_too():
+    from inventory_tracking.macros.town import gem_recipe
+
+    kinds = ('Amethyst', 'Diamond', 'Emerald', 'Ruby', 'Sapphire', 'Topaz', 'Skull')
+    for kind in kinds:
+        found = gem_recipe(class_of(f'Flawless {kind}'))
+        assert found is not None, kind
+        assert (found.into, found.runes, found.gems) == (class_of(f'Perfect {kind}'), 3, ())  # the gem alone
+    ruby = gem_recipe(class_of('Flawless Ruby'))
+    assert ruby is not None
+    assert ruby.description == '3 Flawless Rubies -> Perfect Ruby'  # cubemain.txt's own row
+    for name in ('Perfect Ruby', 'Ruby', 'Chipped Topaz', 'Tal Rune', 'Perfect Skull'):
+        assert gem_recipe(class_of(name)) is None, name  # a perfect gem is never cubed
+
+
+def gem_counts(**counts: int) -> dict[int, int]:
+    return stacks(**counts)
+
+
+def test_17_flawless_keep_17_and_18_make_one_perfect_leaving_15():
+    from inventory_tracking.macros.town import gem_transmutes
+
+    ruby, perfect = class_of('Flawless Ruby'), class_of('Perfect Ruby')
+    assert gem_transmutes(gem_counts(Flawless_Ruby=17, Perfect_Ruby=0), 15) == ()  # two over: no transmute's worth
+    assert gem_transmutes(gem_counts(Flawless_Ruby=15), 15) == ()
+    assert gem_transmutes(gem_counts(Flawless_Ruby=18), 15) == (RuneCube(ruby, perfect),)  # 15 left and a perfect
+
+
+def test_30_flawless_make_five_and_the_visits_bound_holds_the_rest():
+    from inventory_tracking.macros.town import GEM_TRANSMUTES, gem_transmutes
+
+    topaz, perfect = class_of('Flawless Topaz'), class_of('Perfect Topaz')
+    assert gem_transmutes(gem_counts(Flawless_Topaz=30), 15, most=10) == (RuneCube(topaz, perfect),) * 5
+    assert gem_transmutes(gem_counts(Flawless_Topaz=30), 15) == (RuneCube(topaz, perfect),) * GEM_TRANSMUTES
+    # A full stack (99): 28 transmutes over visits, GEM_TRANSMUTES a visit
+    counts, visits = gem_counts(Flawless_Amethyst=99, Perfect_Amethyst=3), 0
+    while plan := gem_transmutes(counts, 15):
+        assert len(plan) <= GEM_TRANSMUTES
+        visits += 1
+        counts[class_of('Flawless Amethyst')] -= 3 * len(plan)
+        counts[class_of('Perfect Amethyst')] += len(plan)
+    assert counts[class_of('Flawless Amethyst')] == 15
+    assert counts[class_of('Perfect Amethyst')] == 31
+    assert visits == -(-28 // GEM_TRANSMUTES)
+
+
+def test_the_fullest_kind_first_a_full_perfect_stack_stops_its_kind_and_the_switch_off_makes_none():
+    from inventory_tracking.macros.town import gem_transmutes
+
+    ruby, sapphire = class_of('Flawless Ruby'), class_of('Flawless Sapphire')
+    counts = gem_counts(Flawless_Ruby=24, Flawless_Sapphire=21, Perfect_Skull=40, Flawless_Diamond=50,
+                        Perfect_Diamond=99)  # fmt: skip
+    plan = gem_transmutes(counts, 15, most=10)
+    # Ruby 24, then Sapphire 21 against Ruby 21 (the smaller class), ...; the Diamonds' perfect stack is full
+    assert sorted(step.txt for step in plan) == sorted([ruby] * 3 + [sapphire] * 2)
+    assert plan[0].txt == ruby
+    assert all(step.txt != class_of('Flawless Diamond') for step in plan)
+    assert gem_transmutes(counts, None) == ()
+
+
+def test_the_stash_stop_plans_gem_transmutes_after_the_carried_gems_go_onto_the_tab(keep_15):
+    gem = thing(21, 'Flawless Emerald', 6, 3)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, gem), ('...',) * 4)
+
+    stop = stash_stop(Holdings(pack, OWN), view(Flawless_Emerald=17))
+
+    assert Put(gem, 'inventory', -2) in stop.puts  # 18 on the tab: one transmute's worth
+    assert stop.runes == (RuneCube(gem.txt, class_of('Perfect Emerald')),)
+    assert not stop.idle
+
+
+def test_the_stash_stop_with_17_or_a_perfect_stack_only_plans_no_gem_transmute(keep_15):
+    pack = Pack((THE_CUBE, *OWN_CHARMS), ('...',) * 4)
+
+    assert stash_stop(Holdings(pack, OWN), view(Flawless_Emerald=17)).runes == ()
+    stop = stash_stop(Holdings(pack, OWN), view(Perfect_Emerald=60, Perfect_Skull=99))
+    assert stop.runes == ()
+    assert stop.idle
+
+
+def test_a_full_flawless_stacks_carried_gem_goes_on_after_the_transmutes_and_the_players_own_never(keep_15):
+    gem = thing(21, 'Flawless Amethyst', 6, 3)
+    mine = thing(22, 'Flawless Amethyst', 7, 3)
+    own = own_of((THE_CUBE, *OWN_CHARMS, mine))
+    pack = Pack((THE_CUBE, *OWN_CHARMS, gem, mine), ('...',) * 4)
+
+    stop = stash_stop(Holdings(pack, own), view(Flawless_Amethyst=99, Perfect_Amethyst=10))
+
+    assert stop.puts == ()  # the full stack refuses it now
+    assert stop.runes == (RuneCube(gem.txt, class_of('Perfect Amethyst')),) * 5
+    assert stop.rune_puts == (Put(gem, 'inventory', -2),)  # the loop's onto the room made; the player's stays
+    left = after(pack, stop)
+    assert any(i.unit_id == mine.unit_id for i in left.items)
+    assert all(i.unit_id != gem.unit_id for i in left.items)
+    assert left.in_cube == ()
+    assert left.inventory.has_room((2, 4))
+
+
+def test_no_gem_transmute_while_the_cube_keeps_something_and_rune_transmutes_come_first(keep_15):
+    plate = replace(Carried(50, class_of('Embossed Plate'), 0, 0, (2, 3)), quality=7)
+    kept = Pack((THE_CUBE, *OWN_CHARMS), ('##.', '##.', '##.', '...'), frozenset({50}), (plate,))
+    assert stash_stop(Holdings(kept, OWN), view(Flawless_Ruby=40)).runes == ()
+
+    pack = Pack((THE_CUBE, *OWN_CHARMS), ('...',) * 4)
+    stop = stash_stop(Holdings(pack, OWN), view(Tal_Rune=99, Ral_Rune=10, Flawless_Ruby=21))
+    tal = RuneCube(class_of('Tal Rune'), class_of('Ral Rune'))
+    assert stop.runes == (tal,) * 3 + (RuneCube(class_of('Flawless Ruby'), class_of('Perfect Ruby')),) * 2
+    assert stash_stop(Holdings(pack, OWN), view(Flawless_Ruby=21), gems=1).runes == (
+        RuneCube(class_of('Flawless Ruby'), class_of('Perfect Ruby')),
+    )
+
+
+def test_the_switch_off_plans_as_before(monkeypatch):
+    from inventory_tracking.macros import town
+
+    monkeypatch.setattr(town, 'GEMS_KEEP_FLAWLESS', None)
+    gem = thing(21, 'Flawless Emerald', 6, 3)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, gem), ('...',) * 4)
+
+    stop = stash_stop(Holdings(pack, OWN), view(Flawless_Emerald=50, Perfect_Emerald=0))
+
+    assert stop.runes == ()
+    assert Put(gem, 'inventory', -2) in stop.puts  # onto its stack, as before
+
+
+# The player, 14:56 on 2026-10-21: "I wand to keep flawless very low (if we can have perfect)": GEMS_KEEP_FLAWLESS 0
+
+
+def test_the_rule_as_set_keeps_no_flawless_but_the_remainder():
+    from inventory_tracking.macros.town import GEM_TRANSMUTES, GEMS_KEEP_FLAWLESS, gem_transmutes
+
+    assert GEMS_KEEP_FLAWLESS == 0
+    assert GEM_TRANSMUTES == 5
+    ruby, perfect = class_of('Flawless Ruby'), class_of('Perfect Ruby')
+    assert gem_transmutes(gem_counts(Flawless_Ruby=17)) == (RuneCube(ruby, perfect),) * 5  # 2 left
+    assert gem_transmutes(gem_counts(Flawless_Ruby=2)) == ()
+    # 99: five this visit, the rest the next visits, 0 left (33 transmutes)
+    counts, visits = gem_counts(Flawless_Amethyst=99, Perfect_Amethyst=10), 0
+    while plan := gem_transmutes(counts):
+        assert len(plan) == min(GEM_TRANSMUTES, counts[class_of('Flawless Amethyst')] // 3)
+        visits += 1
+        counts[class_of('Flawless Amethyst')] -= 3 * len(plan)
+        counts[class_of('Perfect Amethyst')] += len(plan)
+    assert (counts[class_of('Flawless Amethyst')], counts[class_of('Perfect Amethyst')]) == (0, 43)
+    assert visits == 7
+
+
+def test_a_full_stacks_gem_kept_in_the_cube_is_topped_up_from_the_stack_first():
+    # 14:23:53 on 2026-10-21: a Flawless Amethyst moved into the cube, its stack at 99: it waited there and no
+    # transmute was planned at all; now the first transmute tops it up to three from the stack
+    gem = Carried(30, class_of('Flawless Amethyst'), 0, 0, (1, 1))
+    pack = Pack((THE_CUBE, *OWN_CHARMS), ('#..', '...', '...', '...'), frozenset({30}), (gem,))
+
+    stop = stash_stop(Holdings(pack, OWN), view(Flawless_Amethyst=99, Perfect_Amethyst=10))
+
+    step = RuneCube(gem.txt, class_of('Perfect Amethyst'))
+    assert stop.runes == (step,) * 5  # the first topped (two from the stack), four of three: 99 - 2 - 12 = 85
+    assert not stop.idle
+
+
+def test_no_topping_with_anything_else_in_the_cube_or_two_kinds():
+    gem = Carried(30, class_of('Flawless Amethyst'), 0, 0, (1, 1))
+    ruby = Carried(31, class_of('Flawless Ruby'), 1, 0, (1, 1))
+    two = Pack((THE_CUBE, *OWN_CHARMS), ('##.', '...', '...', '...'), frozenset({30, 31}), (gem, ruby))
+    stacks_full = view(Flawless_Amethyst=99, Flawless_Ruby=99)
+    assert stash_stop(Holdings(two, OWN), stacks_full).runes == ()
+    one = Pack((THE_CUBE, *OWN_CHARMS), ('#..', '...', '...', '...'), frozenset({30}), (gem,))
+    junked = stash_stop(Holdings(one, OWN, junk=frozenset({30})), stacks_full)
+    assert gem in junked.out_for_sale  # junk is never in a recipe: out of the cube for Jamella first
+    assert stash_stop(Holdings(one, OWN), view(Flawless_Amethyst=99, Perfect_Amethyst=99)).runes == ()

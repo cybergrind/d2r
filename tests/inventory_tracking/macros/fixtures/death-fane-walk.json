@@ -1,0 +1,1263 @@
+{
+ "about": "Take 20261021T203514Z-95 (Disused Fane, terror zone), the look of 23:35:32.35 local (monotonic 637691.282, 1.82 s before the death): life 1613 of 2943 (under the 65% floor, budget 0), a tier 2 Herald Flesh Hunter (4193434304) 5.4 off with its pack, Night Lords (one Cursed, Extra Strong, Fire Enchanted: Amplify Damage on the character) to the west, a second unique Flesh Hunter pack (120235824: Fire Enchanted, Aura Enchanted (Conviction), Extra Fast) running in from the east. The game chose \"retreating: no progress act fits the life budget\": a walk of 16 east to (15066.2, 5647.6), onto the runners; the one Teleport retreat was vetoed by BOUNCE_BACK (rca/2026-10-21/death-findings.md).",
+ "area": 95,
+ "player": {
+  "unit": 2984129435,
+  "mode": 10,
+  "x": 15050.5,
+  "y": 5650.5,
+  "life": 1613,
+  "max_life": 2943,
+  "mana": 729,
+  "max_mana": 745
+ },
+ "draw_lands": true,
+ "stats": [
+  [
+   0,
+   249
+  ],
+  [
+   1,
+   51
+  ],
+  [
+   2,
+   134
+  ],
+  [
+   3,
+   337
+  ],
+  [
+   6,
+   412928
+  ],
+  [
+   7,
+   753408
+  ],
+  [
+   8,
+   186624
+  ],
+  [
+   9,
+   190720
+  ],
+  [
+   10,
+   301312
+  ],
+  [
+   11,
+   301312
+  ],
+  [
+   12,
+   96
+  ],
+  [
+   13,
+   -1560968542
+  ],
+  [
+   14,
+   435859
+  ],
+  [
+   15,
+   2464142
+  ],
+  [
+   19,
+   21
+  ],
+  [
+   20,
+   22
+  ],
+  [
+   21,
+   1
+  ],
+  [
+   22,
+   27
+  ],
+  [
+   24,
+   2
+  ],
+  [
+   27,
+   625
+  ],
+  [
+   28,
+   32
+  ],
+  [
+   31,
+   1530
+  ],
+  [
+   32,
+   250
+  ],
+  [
+   36,
+   -82
+  ],
+  [
+   39,
+   109
+  ],
+  [
+   41,
+   98
+  ],
+  [
+   43,
+   118
+  ],
+  [
+   45,
+   181
+  ],
+  [
+   54,
+   7
+  ],
+  [
+   55,
+   25
+  ],
+  [
+   56,
+   100
+  ],
+  [
+   62,
+   7
+  ],
+  [
+   67,
+   138
+  ],
+  [
+   68,
+   140
+  ],
+  [
+   69,
+   130
+  ],
+  [
+   71,
+   38
+  ],
+  [
+   72,
+   228
+  ],
+  [
+   73,
+   234
+  ],
+  [
+   74,
+   20
+  ],
+  [
+   76,
+   104
+  ],
+  [
+   77,
+   100
+  ],
+  [
+   78,
+   14
+  ],
+  [
+   79,
+   181
+  ],
+  [
+   80,
+   199
+  ],
+  [
+   85,
+   9
+  ],
+  [
+   86,
+   17
+  ],
+  [
+   87,
+   10
+  ],
+  [
+   96,
+   85
+  ],
+  [
+   99,
+   55
+  ],
+  [
+   105,
+   131
+  ],
+  [
+   114,
+   25
+  ],
+  [
+   119,
+   335
+  ],
+  [
+   121,
+   75
+  ],
+  [
+   123,
+   100
+  ],
+  [
+   127,
+   14
+  ],
+  [
+   138,
+   2
+  ],
+  [
+   147,
+   5
+  ],
+  [
+   150,
+   25
+  ],
+  [
+   152,
+   1
+  ],
+  [
+   160,
+   2
+  ],
+  [
+   172,
+   2
+  ],
+  [
+   194,
+   12
+  ],
+  [
+   328,
+   1578
+  ],
+  [
+   332,
+   25
+  ],
+  [
+   349,
+   14
+  ],
+  [
+   350,
+   2412
+  ],
+  [
+   351,
+   112
+  ],
+  [
+   357,
+   23
+  ],
+  [
+   358,
+   15
+  ],
+  [
+   361,
+   52480
+  ],
+  [
+   362,
+   52480
+  ]
+ ],
+ "monsters": [
+  {
+   "unit": 3847857664,
+   "txt": 27,
+   "mode": 1,
+   "x": 15047.5,
+   "y": 5688.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 1923920640,
+   "txt": 27,
+   "mode": 1,
+   "x": 15043.5,
+   "y": 5681.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 961952128,
+   "txt": 27,
+   "mode": 1,
+   "x": 15046.5,
+   "y": 5681.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 3937635329,
+   "txt": 27,
+   "mode": 1,
+   "x": 15040.5,
+   "y": 5681.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 3555046785,
+   "txt": 47,
+   "mode": 12,
+   "x": 15052.5,
+   "y": 5648.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 12,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    16
+   ]
+  },
+  {
+   "unit": 4117174275,
+   "txt": 27,
+   "mode": 1,
+   "x": 15040.5,
+   "y": 5684.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 2278271747,
+   "txt": 47,
+   "mode": 12,
+   "x": 15045.5,
+   "y": 5648.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 12,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    16
+   ]
+  },
+  {
+   "unit": 3402510343,
+   "txt": 27,
+   "mode": 1,
+   "x": 15044.5,
+   "y": 5686.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 798463495,
+   "txt": 47,
+   "mode": 12,
+   "x": 15049.5,
+   "y": 5648.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 12,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    16
+   ]
+  },
+  {
+   "unit": 1596926990,
+   "txt": 47,
+   "mode": 12,
+   "x": 15054.5,
+   "y": 5646.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 3046940687,
+   "txt": 27,
+   "mode": 1,
+   "x": 15041.5,
+   "y": 5687.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 8,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    13,
+    26,
+    18,
+    9
+   ]
+  },
+  {
+   "unit": 1809187733,
+   "txt": 132,
+   "mode": 2,
+   "x": 15022.42,
+   "y": 5652.5,
+   "life": 127,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 60109720,
+   "txt": 47,
+   "mode": 15,
+   "x": 15079.44,
+   "y": 5651.66,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    6
+   ]
+  },
+  {
+   "unit": 3625751964,
+   "txt": 132,
+   "mode": 7,
+   "x": 15089.5,
+   "y": 5655.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 3193870364,
+   "txt": 47,
+   "mode": 12,
+   "x": 15048.5,
+   "y": 5649.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 2415856798,
+   "txt": 47,
+   "mode": 12,
+   "x": 15055.5,
+   "y": 5649.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 2984129443,
+   "txt": 338,
+   "mode": 14,
+   "x": 15050.5,
+   "y": 5650.5,
+   "life": 128,
+   "max_life": 4314,
+   "flags": 0,
+   "owner": 2984129435,
+   "ally": true,
+   "tier": 0,
+   "mods": [
+    19
+   ]
+  },
+  {
+   "unit": 3019875111,
+   "txt": 47,
+   "mode": 12,
+   "x": 15054.5,
+   "y": 5646.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 3618375466,
+   "txt": 132,
+   "mode": 2,
+   "x": 15045.13,
+   "y": 5648.67,
+   "life": 127,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 1051729067,
+   "txt": 132,
+   "mode": 1,
+   "x": 15021.5,
+   "y": 5650.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 4206932652,
+   "txt": 132,
+   "mode": 1,
+   "x": 15024.5,
+   "y": 5667.5,
+   "life": 108,
+   "max_life": 128,
+   "flags": 8,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 262084524,
+   "txt": 47,
+   "mode": 1,
+   "x": 15052.5,
+   "y": 5647.5,
+   "life": 2,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 1048354480,
+   "txt": 47,
+   "mode": 12,
+   "x": 15047.5,
+   "y": 5650.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 120235824,
+   "txt": 47,
+   "mode": 1,
+   "x": 15082.5,
+   "y": 5651.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 8,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    30,
+    6
+   ]
+  },
+  {
+   "unit": 2332265139,
+   "txt": 27,
+   "mode": 1,
+   "x": 15022.5,
+   "y": 5693.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5,
+    13
+   ]
+  },
+  {
+   "unit": 2419665721,
+   "txt": 47,
+   "mode": 15,
+   "x": 15088.43,
+   "y": 5644.52,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    6
+   ]
+  },
+  {
+   "unit": 1555902521,
+   "txt": 47,
+   "mode": 12,
+   "x": 15055.5,
+   "y": 5645.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 1073617213,
+   "txt": 47,
+   "mode": 12,
+   "x": 15056.5,
+   "y": 5646.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 4193434304,
+   "txt": 47,
+   "mode": 4,
+   "x": 15052.5,
+   "y": 5645.5,
+   "life": 24,
+   "max_life": 128,
+   "flags": 8,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    30,
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 480976064,
+   "txt": 132,
+   "mode": 1,
+   "x": 15073.5,
+   "y": 5678.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 2783642058,
+   "txt": 132,
+   "mode": 1,
+   "x": 15043.5,
+   "y": 5650.5,
+   "life": 103,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 30054860,
+   "txt": 47,
+   "mode": 15,
+   "x": 15081.42,
+   "y": 5643.68,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    6
+   ]
+  },
+  {
+   "unit": 1812867790,
+   "txt": 132,
+   "mode": 7,
+   "x": 15086.5,
+   "y": 5654.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 1207928399,
+   "txt": 47,
+   "mode": 12,
+   "x": 15055.5,
+   "y": 5647.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 3371112913,
+   "txt": 361,
+   "mode": 1,
+   "x": 15050.5,
+   "y": 5650.5,
+   "life": 128,
+   "max_life": 230,
+   "flags": 8,
+   "owner": 4294967295,
+   "ally": true,
+   "tier": 0,
+   "mods": [
+    5,
+    6,
+    27
+   ]
+  },
+  {
+   "unit": 2404912725,
+   "txt": 132,
+   "mode": 1,
+   "x": 15017.5,
+   "y": 5659.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 2103458134,
+   "txt": 132,
+   "mode": 1,
+   "x": 15022.5,
+   "y": 5665.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    7,
+    5,
+    9
+   ]
+  },
+  {
+   "unit": 131042262,
+   "txt": 47,
+   "mode": 2,
+   "x": 15055.72,
+   "y": 5648.39,
+   "life": 80,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 524169048,
+   "txt": 47,
+   "mode": 12,
+   "x": 15048.5,
+   "y": 5651.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 3582043481,
+   "txt": 27,
+   "mode": 1,
+   "x": 15026.5,
+   "y": 5696.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5,
+    13
+   ]
+  },
+  {
+   "unit": 2096708960,
+   "txt": 47,
+   "mode": 12,
+   "x": 15049.5,
+   "y": 5649.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 240488032,
+   "txt": 132,
+   "mode": 1,
+   "x": 15076.5,
+   "y": 5681.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 1391821029,
+   "txt": 47,
+   "mode": 12,
+   "x": 15044.5,
+   "y": 5649.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 2063212006,
+   "txt": 744,
+   "mode": 2,
+   "x": 15050.21,
+   "y": 5650.21,
+   "life": 125,
+   "max_life": 230,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": true,
+   "tier": 0,
+   "mods": []
+  },
+  {
+   "unit": 15019238,
+   "txt": 47,
+   "mode": 15,
+   "x": 15082.23,
+   "y": 5653.97,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    6
+   ]
+  },
+  {
+   "unit": 906433895,
+   "txt": 27,
+   "mode": 1,
+   "x": 15023.5,
+   "y": 5696.5,
+   "life": 128,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5,
+    13
+   ]
+  },
+  {
+   "unit": 65512939,
+   "txt": 47,
+   "mode": 12,
+   "x": 15052.5,
+   "y": 5647.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 3111821426,
+   "txt": 47,
+   "mode": 12,
+   "x": 15046.5,
+   "y": 5648.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 0,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    5
+   ]
+  },
+  {
+   "unit": 7509619,
+   "txt": 47,
+   "mode": 15,
+   "x": 15072.97,
+   "y": 5646.01,
+   "life": 128,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 0,
+   "mods": [
+    9,
+    6
+   ]
+  },
+  {
+   "unit": 2448667381,
+   "txt": 47,
+   "mode": 12,
+   "x": 15051.5,
+   "y": 5647.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  },
+  {
+   "unit": 3640244602,
+   "txt": 47,
+   "mode": 12,
+   "x": 15050.5,
+   "y": 5645.5,
+   "life": 0,
+   "max_life": 128,
+   "flags": 16,
+   "owner": 4294967295,
+   "ally": false,
+   "tier": 2,
+   "mods": [
+    27,
+    26
+   ]
+  }
+ ],
+ "decision": {
+  "looked_at": 637691.282405058,
+  "life": 1613.0,
+  "budget": 0.0,
+  "kappa_dear": 1.0,
+  "chosen": "Move",
+  "chosen_place": [
+   15066.241918561598,
+   5647.6378329888
+  ],
+  "reason": "retreating: no progress act fits the life budget (the least worst progress act: worst 597, mean 188, budget 0 of 1613 life)",
+  "candidates": [
+   {
+    "act": "Hold",
+    "why": "",
+    "place": [
+     15050.5,
+     5650.5
+    ],
+    "skill": null,
+    "T": 4.666,
+    "H": 187.7,
+    "worst": 597.0,
+    "veto": null,
+    "retreat": false,
+    "keeps": false
+   },
+   {
+    "act": "Move",
+    "why": "firing spot",
+    "place": [
+     15035.5,
+     5650.5
+    ],
+    "skill": 54,
+    "T": 3.547,
+    "H": 235.4,
+    "worst": 686.9,
+    "veto": null,
+    "retreat": false,
+    "keeps": false
+   },
+   {
+    "act": "Move",
+    "why": "retreat",
+    "place": [
+     15072.5,
+     5646.5
+    ],
+    "skill": 54,
+    "T": 1.811,
+    "H": 353.0,
+    "worst": 730.8,
+    "veto": "back where the last safety hop left",
+    "retreat": true,
+    "keeps": false
+   },
+   {
+    "act": "Move",
+    "why": "retreat",
+    "place": [
+     15066.241918561598,
+     5647.6378329888
+    ],
+    "skill": null,
+    "T": 2.347,
+    "H": 212.2,
+    "worst": 683.6,
+    "veto": null,
+    "retreat": true,
+    "keeps": false
+   },
+   {
+    "act": "Hold",
+    "why": "",
+    "place": [
+     15050.5,
+     5650.5
+    ],
+    "skill": null,
+    "T": 4.486,
+    "H": 629.4,
+    "worst": 1166.1,
+    "veto": null,
+    "retreat": true,
+    "keeps": false
+   }
+  ]
+ }
+}

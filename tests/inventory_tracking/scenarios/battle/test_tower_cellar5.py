@@ -170,28 +170,41 @@ def test_the_replay_makes_the_decision_that_killed_the_character():
     assert len(kinds(same, 'stand')) >= 5
 
 
+# The leader held (attack.py HOLD_LEADER, 2026-10-21; the player ~18:58: "we're not focusing"; findings
+# rca/2026-10-21/herald-aiming-findings.md): from 6.44 s the replay strikes the elite 1816397095 until it is gone
+# (11.24 s), from 13.48 s the Herald, where the game's lines went from monster to monster. The aim is what differs;
+# the rest of the game's actions are replayed in order.
+HELD = ('1816397095', str(HERALD))
+
+
 def test_the_replay_does_what_the_game_did_action_by_action():
     found = compared()
-    # 110 recorded actions in 22.7 s; all but one strike and its line are replayed, in order. Since 2026-10-20 (the
-    # player: dangerous monsters kept in their sigil, builds/warlock/buffs.py SIGIL_KEEPS) also not the sigil of
-    # 14.87 s: the Herald stood 4-5 units from the first one (radius 6) and that game's second, laid 13 units off it,
-    # ended the one it stood in; with it go the Blade Warp's key wait it waited out and two lines the strike's aim
-    # put back after it (16.05 and 16.28 s; the aim's next line, 18.2 s, is extra).
-    assert len(found.same) >= 103, found.table()
-    assert [(action.kind, action.what) for action in found.missing] == [
-        ('strike', '740045072'),
-        ('line', '740045072'),
-        ('key wait', 'Blade Warp'),
-        ('other', 'Sigil: Lethargy'),
-        ('skill', 'Sigil: Lethargy'),
-        ('line', '2960229440'),
-        ('line', '740045072'),
-    ]
-    assert [(action.kind, action.what) for action in found.extra] == [('strike', '46244625'), ('line', '46244625')]
+    # 110 recorded actions in 22.7 s. Not replayed: the game's lines and strikes through other monsters while a
+    # leader was held (18), and the pickup press of 15.47 s with its look for a step and its stand, which come 0.7 s
+    # sooner (14.75 s) in the fight the hold made. Before 2026-10-21: 103 in order, 7 missing (the sigil of 14.87 s,
+    # since 2026-10-20, SIGIL_KEEPS: it is laid at 18.53 s now, with a line saying the Herald stands in it).
+    assert len(found.same) >= 92, found.table()
+    moved = [('press', 'pickup'), ('no step', ''), ('stand', '')]
+    missing = [(action.kind, action.what) for action in found.missing]
+    assert [found for found in missing if found[0] not in ('strike', 'line')] == moved
+    assert not [what for kind, what in missing if kind == 'strike' and what in HELD]  # no strike of a held one lost
+    extra = [(action.kind, action.what) for action in found.extra]
+    assert [found for found in extra if found in moved] == moved
+    others = [found for found in extra if found not in moved]
+    assert all(
+        what in HELD
+        if kind in ('strike', 'line')
+        else kind == 'other' and what.startswith(('strike: the leader', 'sigil'))
+        for kind, what in others
+    ), others
+    assert ('other', f'strike: the leader {HERALD} held until it dies, 17.1 away') in others
 
 
 def test_the_replay_keeps_the_games_time_without_being_held_to_its_log():
-    gaps = sorted(abs(recorded.at - replayed.at) for recorded, replayed in compared().same)
+    # Up to the Herald's hold (13.48 s, HELD above) the replay acts as the game did; after it the fight is another
+    # one, its pickup 0.7 s sooner and its sigil 3.7 s later (2026-10-21)
+    gaps = sorted(abs(recorded.at - replayed.at) for recorded, replayed in compared().same if recorded.at < 13.4)
+    assert len(gaps) >= 70
     assert gaps[len(gaps) // 2] <= 0.04  # the median action is 19 ms from its recorded moment
     assert gaps[int(0.9 * len(gaps))] <= 0.12
     assert gaps[-1] <= 0.3
@@ -218,9 +231,10 @@ def test_a_replay_is_the_same_replay_again():
 
 @pytest.mark.xfail(
     strict=True,
-    reason='one strike of 110 actions: at 13.67 s the game struck through the monster 740045072 (worth 32327) and '
-    'the replay through 46244625 (worth 32048); the two lines are 0.9% apart and the monsters move between the '
-    'frame of 13.48 s, which the game read, and that of 13.52 s, which the replay reads 20 ms later',
+    reason='the replay holds a leader (attack.py HOLD_LEADER, 2026-10-21) where the game struck the pack: 18 lines '
+    'and strikes are its own (test_the_replay_does_what_the_game_did_action_by_action). Before it, one strike of 110: '
+    'at 13.67 s the game struck through the monster 740045072 (worth 32327) and the replay through 46244625 (worth '
+    '32048), 0.9% apart, the monsters moving between the frames of 13.48 s and 13.52 s',
 )
 def test_every_recorded_action_is_replayed():
     found = compared()

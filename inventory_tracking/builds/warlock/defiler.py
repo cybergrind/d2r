@@ -8,6 +8,8 @@ DEFILER_HORIZON in seconds of the strike's work on the toughest in reach, and by
 What it draws off the character is not priced: a lower bound.
 """
 
+from collections.abc import Sequence
+
 from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table
 from inventory_tracking.builds.warlock.mark import (
     MARK_CAST_SECONDS,
@@ -18,10 +20,12 @@ from inventory_tracking.builds.warlock.mark import (
     strongest,
 )
 from inventory_tracking.builds.warlock.skills import CONSUME, DEATH_MARK, SUMMON_DEFILER
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.combat.policy import observe
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import DEFILER_CLASS
+from inventory_tracking.game.layout import DEFILER_CLASS, NO_OWNER
 from inventory_tracking.game.records import Monster, World
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.build import BuffFacts, DrawPrice
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.takes.timeline import GAME_RATE
@@ -84,9 +88,49 @@ def price(facts: BuffFacts) -> DrawPrice | None:
     return DrawPrice(target.unit_id, 0.0, 0.0, saved, DEFILER_CAST_SECONDS, span)
 
 
+def pack_gate(facts: BuffFacts) -> bool:
+    """Whether a Defiler is summoned whatever its price: a tier 4-5 Herald's pack among the foes and none of it on the
+    character within PACK_BACK (the player, 2026-10-21 ~10:00, Q6: "a missing Defiler is summoned even under attack,
+    from range"; combat/pack.py DEMON_GATE). With the pack on the character the hop back comes first."""
+    player = facts.world.player
+    if not herald_pack.DEMON_GATE or player is None:
+        return False
+    pack = herald_pack.members(facts.foes)
+    if not pack:
+        return False
+    sent = [(d.x, d.y) for d in demons(facts.world)]
+    return not herald_pack.pressing((player.x, player.y), pack, sent)
+
+
+def spot_between(here: Point, hostiles: Sequence[Monster]) -> Point | None:
+    """Where the fight's Defiler is summoned with a tier 4-5 Herald pack among `hostiles`: between the character and
+    the pack (combat/pack.py PETS_BETWEEN, `between_spot`); None with no pack."""
+    found = herald_pack.members(hostiles)
+    return herald_pack.between_spot(here, herald_pack.nearby(here, found)) if found else None
+
+
+def pack_spot(facts: BuffFacts) -> Point | None:
+    """`spot_between` for the fight's foes."""
+    player = facts.world.player
+    return spot_between((player.x, player.y), facts.foes) if player is not None else None
+
+
+def world_spot(world: World) -> Point | None:
+    """`spot_between` for the hostiles of a look (the caster's, which has no foes of its own)."""
+    player = world.player
+    if player is None:
+        return None
+    hostiles = [m for m in world.monsters if not m.ally and m.owner == NO_OWNER]
+    return spot_between((player.x, player.y), hostiles)
+
+
 def worth_a_defiler(facts: BuffFacts, _target: Monster | None) -> bool:
     """The fight's row: the summon pays (`price`), said when it does (the cast follows at once: the row is due only
-    with no Defiler alive and none tried for DEFILER_RETRY)."""
+    with no Defiler alive and none tried for DEFILER_RETRY); with a Herald pack at range whatever the price
+    (`pack_gate`)."""
+    if pack_gate(facts):
+        LOG.info('Macro: Defiler: none out with a tier 4-5 Herald pack about, none of it on the character: summoned')
+        return True
     found = price(facts)
     if found is None or found.worth <= 0:
         return False

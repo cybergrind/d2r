@@ -156,36 +156,36 @@
   "Macro: line through the monster 391 (2124291227), 128/128, 11.6 away, focal (25300.4, 6068.6), worth 43520, pointer (2743, 700)"
  ],
  [
-  8.18,
-  "Macro: line through the monster 391 (2498864347), 60/128, 9.4 away, focal (25301.0, 6065.9), worth 45690, pointer (2866, 665)"
+  8.27,
+  "Macro: Engorge"
  ],
  [
-  8.31,
-  "Macro: line through the monster 391 (2124291227), 51/128, 11.3 away, focal (25300.6, 6068.4), worth 40961, pointer (2755, 701)"
+  8.27,
+  "Macro: Engorge on a, player mode 10"
  ],
  [
-  8.43,
-  "Macro: line through the monster 391 (2283704092), 128/128, 7.9 away, focal (25301.7, 6063.3), worth 34574, pointer (2992, 622)"
+  8.44,
+  "Macro: Engorge on the corpse 162989182 at (25306.5, 6059.5), 3.0 away; under the pointer None"
  ],
  [
-  9.04,
-  "Macro: line through the monster 391 (2716447177), 107/128, 6.5 away, focal (25296.0, 6061.7), worth 41614, pointer (2833, 486)"
+  8.72,
+  "Macro: line through the monster 391 (2283704092), 128/128, 7.1 away, focal (25302.5, 6063.6), worth 48533, pointer (3008, 645)"
  ],
  [
-  9.17,
-  "Macro: line through the monster 391 (1141843854), 127/128, 16.0 away, focal (25290.5, 6061.5), worth 41444, pointer (2631, 378)"
+  8.99,
+  "Macro: line through the monster 391 (1141843854), 128/128, 16.0 away, focal (25293.5, 6061.7), worth 41529, pointer (2741, 441)"
  ],
  [
-  9.28,
-  "Macro: line through the monster 391 (2283704092), 86/128, 5.1 away, focal (25302.6, 6063.3), worth 34139, pointer (3022, 642)"
+  9.27,
+  "Macro: line through the monster 391 (2283704092), 86/128, 5.1 away, focal (25302.6, 6063.3), worth 34304, pointer (3022, 642)"
  ],
  [
-  9.65,
-  "Macro: line through the monster 391 (570921927), 69/128, 21.3 away, focal (25294.7, 6076.0), worth 10210, pointer (2242, 729)"
+  9.69,
+  "Macro: line through the monster 391 (570921927), 69/128, 21.3 away, focal (25294.7, 6076.0), worth 10210, pointer (2245, 732)"
  ],
  [
   11.1,
-  "Macro: line through the monster 391 (1674814355), 124/128, 13.3 away, focal (25295.0, 6069.0), worth 4760, pointer (2518, 609)"
+  "Macro: line through the monster 391 (1674814355), 124/128, 13.1 away, focal (25295.1, 6068.9), worth 4760, pointer (2524, 608)"
  ],
  [
   11.61,
@@ -197,71 +197,71 @@
  ],
  [
   11.61,
-  "Macro: fight (right click): 6 casts seen in 5.9s, 22 down; Stepping to a better place"
+  "Macro: fight (right click): 7 casts seen in 6.0s, 22 down; Stepping to a better place"
  ],
  [
   11.61,
-  "Macro: Stepping to a better place: 22 down in 6 casts"
+  "Macro: Stepping to a better place: 22 down in 7 casts"
  ],
  [
   11.61,
-  "Macro: Last minute: 31271 points/s, 173.1 kills/min over 9.4s of combat"
+  "Macro: Last minute: 26963 points/s, 150.8 kills/min over 8.8s of combat"
  ],
  [
-  11.77,
+  11.79,
   "Macro: Blade Warp"
  ],
  [
-  11.77,
+  11.79,
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
   12.11,
-  "Macro: Blade Warp aimed at (25324.5, 6068.5), 19.0 from (25306.5, 6062.5); landed at (25325.5, 6068.5), off by 1.0, 0.34s after the key"
+  "Macro: Blade Warp aimed at (25324.5, 6068.5), 19.0 from (25306.5, 6062.5); landed at (25325.5, 6068.5), off by 1.0, 0.32s after the key"
  ],
  [
-  12.23,
+  12.21,
   "Macro: Echoing Strike (right click) at the monster 391 (663627484), 128/128"
  ],
  [
   12.29,
-  "Macro: line through the monster 391 (663627484), 128/128, 20.6 away, focal (25334.6, 6079.7), worth 50560, pointer (3119, 1083)"
+  "Macro: line through the monster 391 (663627484), 128/128, 20.6 away, focal (25334.6, 6079.7), worth 50560, pointer (3123, 1085)"
  ],
  [
   12.34,
   "Macro: first cast 0.23s after the step"
  ],
  [
-  13.16,
-  "Macro: line through the monster 391 (331813742), 107/128, 18.0 away, focal (25333.8, 6081.0), worth 43211, pointer (3043, 1096)"
+  13.14,
+  "Macro: line through the monster 391 (331813742), 107/128, 18.0 away, focal (25333.8, 6081.0), worth 43211, pointer (3041, 1098)"
  ],
  [
-  13.31,
-  "Macro: line through the monster 391 (1327271352), 68/128, 15.7 away, focal (25332.5, 6082.5), worth 11583, pointer (2932, 1099)"
+  13.27,
+  "Macro: line through the monster 391 (1327271352), 68/128, 15.7 away, focal (25332.5, 6082.5), worth 11912, pointer (2936, 1100)"
  ],
  [
-  13.61,
-  "Macro: line through the monster 391 (1674814355), 124/128, 22.1 away, focal (25304.4, 6069.0), worth 6896, pointer (2387, 312)"
+  13.71,
+  "Macro: line through the monster 391 (1674814355), 124/128, 21.6 away, focal (25304.4, 6069.0), worth 6896, pointer (2384, 311)"
  ],
  [
-  15.11,
+  15.06,
   "Macro: firing stand jump source: chosen 390, offered [390], own Teleport None, staff Teleport(charges=66, maximum=69, in_hand=False)"
  ],
  [
-  15.11,
+  15.06,
   "Macro: sweeping in the fight with 1 of 5 hostiles in reach, from (25325.5, 6068.5): a place at (25319.5, 6077.5), a jump by Blade Warp of 11 (0.6s), worth 35583 against 15036 here, 5 casts"
  ],
  [
-  15.12,
-  "Macro: fight (right click): 4 casts seen in 3.0s, 5 down; Stepping to a better place"
+  15.07,
+  "Macro: fight (right click): 3 casts seen in 3.0s, 5 down; Stepping to a better place"
  ],
  [
-  15.12,
-  "Macro: Stepping to a better place: 5 down in 4 casts"
+  15.07,
+  "Macro: Stepping to a better place: 5 down in 3 casts"
  ],
  [
-  15.12,
-  "Macro: Last minute: 28101 points/s, 155.5 kills/min over 12.3s of combat"
+  15.07,
+  "Macro: Last minute: 24803 points/s, 138.4 kills/min over 11.7s of combat"
  ],
  [
   15.46,
@@ -272,7 +272,7 @@
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
-  16.07,
+  16.08,
   "Macro: Blade Warp aimed at (25319.5, 6077.5), 10.8 from (25325.5, 6068.5); landed at (25318.5, 6078.5), off by 1.4, 0.62s after the key"
  ],
  [
@@ -281,7 +281,7 @@
  ],
  [
   16.21,
-  "Macro: line through the monster 391 (2082487612), 128/128, 12.7 away, focal (25306.1, 6075.4), worth 17812, pointer (2850, 406)"
+  "Macro: line through the monster 391 (2082487612), 128/128, 12.7 away, focal (25306.1, 6075.4), worth 17812, pointer (2846, 409)"
  ],
  [
   16.26,
@@ -309,7 +309,7 @@
  ],
  [
   17.54,
-  "Macro: Last minute: 26684 points/s, 147.8 kills/min over 13.8s of combat"
+  "Macro: Last minute: 23693 points/s, 132.3 kills/min over 13.2s of combat"
  ],
  [
   17.99,

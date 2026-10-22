@@ -477,8 +477,10 @@ def test_the_cli_writes_the_report_and_the_verdicts(tower: Take, tmp_path: Path)
     assert '| 3.00 | 1051 |' in text
     assert '### Like with like' in text
     assert '## The big drops' in text
-    # Not trusted: the arena takes far less in these three seconds than the 1,108 points of the take.
-    assert json.loads((fixtures / VERDICTS.name).read_text()) == {DEATH: False}
+    # Trusted since 2026-10-22: with the Herald's Might at level 16 (x2.9, mobs.py AURA_FACTOR) the arena takes 708 of
+    # the take's 1,108 points in these three seconds (0.64, within TRUST); with Might x2.0 it took 487 (0.44) and was
+    # not trusted
+    assert json.loads((fixtures / VERDICTS.name).read_text()) == {DEATH: True}
 
 
 def test_a_take_that_is_not_there_fails_the_cli_and_writes_nothing(tmp_path: Path):
