@@ -25,10 +25,19 @@ from inventory_tracking.macros.lootpolicy import (
     SWEEP,
     verdict,
 )
-from inventory_tracking.macros.pickmode import MODES, MOST, SURE, is_candidate
+from inventory_tracking.macros.pickmode import MODES, MOST, SURE, identify_only as is_candidate
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.sightings import Sightings
+
+
+@pytest.fixture(autouse=True, params=[True, False], ids=['assessed', 'legacy'])
+def assessed(request, monkeypatch):
+    """Through the entry point (pickmode.py ASSESS_GROUND, 2026-10-23) and today's rules (legacy): the same answers."""
+    from inventory_tracking.macros import pickmode
+
+    monkeypatch.setattr(pickmode, 'ASSESS_GROUND', request.param)
+    return request.param
 
 
 NORMAL, MAGIC, SET, RARE, UNIQUE = (RARITIES[name] for name in ('normal', 'magic', 'set', 'rare', 'unique'))
@@ -257,3 +266,23 @@ def test_supplies_are_not_the_policys():
     for supply in (Drop(9, 0.0, 0.0, '6000 gold', GOLD), Drop(10, 0.0, 0.0, 'a super healing potion', HEALING)):
         found = verdict(supply, PRESS, room=True, shown=False)
         assert (found.take, found.hold, found.disputed) == (False, False, False)
+
+
+def test_an_identify_candidate_is_held_for_the_cube_step_only_and_never_for_a_trip(monkeypatch):
+    # CANDIDATE_CUBE (2026-10-23): asked once; the guard holds it while the step is pending, not after; no trip
+    from inventory_tracking.macros import lootpolicy, pickmode
+
+    monkeypatch.setattr(lootpolicy, 'CUBE_ASKED', set())
+    monkeypatch.setattr(lootpolicy, 'CUBE_PENDING', {})
+    monkeypatch.setattr(lootpolicy, 'identify_only', lambda drop: True)
+    monkeypatch.setattr(pickmode, 'identify_only', lambda drop: True)
+    knife = Drop(81, 0.0, 0.0, 'Bone Knife', VALUABLE, (1, 2), prized=False, source='shown', quality=6)
+    assert not lootpolicy.verdict(knife, lootpolicy.GUARD, room=False, shown=True, looped=True).hold
+    assert lootpolicy.ask_cube(knife, 100.0)
+    assert not lootpolicy.ask_cube(knife, 101.0)  # once per unit
+    lootpolicy.CUBE_PENDING[81] = 100.0
+    assert lootpolicy.cube_pending(81, 105.0)
+    monkeypatch.setattr(lootpolicy.time, 'monotonic', lambda: 105.0)
+    assert lootpolicy.verdict(knife, lootpolicy.GUARD, room=False, shown=True, looped=True).hold
+    assert not lootpolicy.trip_for(knife, shown=True)
+    assert not lootpolicy.cube_pending(81, 100.0 + lootpolicy.CUBE_PENDING_SECONDS + 1)

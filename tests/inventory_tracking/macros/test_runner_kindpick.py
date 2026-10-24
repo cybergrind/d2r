@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.macros import kindpick
+from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.kindpick import entries
 from inventory_tracking.macros.loop import ANDARIEL, LK, coming_kinds
 from inventory_tracking.macros.pickmode import MOST, SURE
@@ -184,4 +185,141 @@ def test_a_kind_request_closes_the_picker_and_takes(fast):
     assert runner.picker is None
     assert runner.loop.kind == LK
     assert published[-1] == []
+    runner.close()
+
+
+# rca/2026-10-23/loop-no-legs.md: loop on, off, the picker open/choose/close, on (00:41:42-00:41:58 on 2026-10-23)
+
+
+def legs_runner(display, made):
+    """A runner whose loop legs wait for their cancel (the TZ waypoint leg the player turned off)."""
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        assert cancelled.wait(5)
+        raise Cancelled
+
+    runner = MacroRunner(
+        None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent/Saved Games'), display=display,
+        execute=execute,
+    )  # fmt: skip
+    runner.valuable_left = lambda: None
+    runner.picker_publish = lambda widgets: None
+    runner.hud_up = lambda: True
+    return runner
+
+
+def on_off_pick_on(runner, made):
+    press(runner, 10.0)  # on: the first leg
+    until(lambda: made == ['loop'])
+    press(runner, 20.0)  # off: the leg cancelled, its card raises
+    until(lambda: runner.thread is not None and not runner.thread.is_alive())
+    press(runner, 30.0, 30.01, 30.02)  # the picker
+    until(lambda: runner.picker is not None)
+    press(runner, 40.0, 40.01)  # Andariel's neighbour chosen
+    until(lambda: runner.picker is None)
+    press(runner, 50.0)  # on again
+
+
+@pytest.fixture
+def quick(monkeypatch, fast):
+    patch_runner(monkeypatch, 'DOUBLE', 0.05)
+    patch_runner(monkeypatch, 'CARD_SECONDS', 0.0)
+
+
+@pytest.mark.parametrize('error', [FileNotFoundError, RuntimeError])
+def test_a_card_that_raises_at_the_legs_stop_still_hands_over_and_the_next_on_makes_a_leg(error, caplog, quick):
+    # The 00:41:44 race made the "Macro stopped: cancelled" card raise FileNotFoundError (two writers of the layer's
+    # one temporary file); any raise at a run's end must still hand the runner over
+    made: list[str] = []
+
+    def display(lines):
+        if lines == ['Macro stopped: cancelled']:
+            raise error('macro.tmp -> macro.json')
+
+    runner = legs_runner(display, made)
+    with caplog.at_level('INFO'):
+        on_off_pick_on(runner, made)
+        until(lambda: made == ['loop', 'loop'])  # the KP_6 on made a leg
+    assert runner.loop.on
+    assert runner.working
+    assert runner.routine == 'loop'
+    press(runner, 60.0)
+    until(lambda: not runner.loop.on and not runner.working)
+    runner.close()
+
+
+def test_with_the_switch_off_the_legs_stop_that_raises_leaves_the_loop_on_without_legs(monkeypatch, quick):
+    # The defect as played: `working` stays on with no thread, every on says "Loop on" and nothing runs
+    patch_runner(monkeypatch, 'HANDOVER', False)
+    monkeypatch.setattr(threading, 'excepthook', lambda args: None)  # the dead thread's traceback (serve's stderr)
+    made: list[str] = []
+
+    def display(lines):
+        if lines == ['Macro stopped: cancelled']:
+            raise FileNotFoundError('macro.tmp -> macro.json')
+
+    runner = legs_runner(display, made)
+    on_off_pick_on(runner, made)
+    until(lambda: runner.loop.on)
+    time.sleep(0.3)
+    assert made == ['loop']  # no leg
+    assert runner.working
+    assert runner.routine == 'loop'
+    assert runner.thread is not None
+    assert not runner.thread.is_alive()
+    runner.loop.on = False
+    runner.close()
+
+
+def test_a_kp6_on_finding_working_with_its_thread_gone_says_so_and_makes_the_leg(caplog, quick):
+    made: list[str] = []
+    runner = legs_runner(lambda lines: None, made)
+    dead = threading.Thread(target=lambda: None)
+    dead.start()
+    dead.join()
+    runner.thread, runner.working, runner.routine = dead, True, 'loop'  # a run that died without handing over
+    with caplog.at_level('INFO'):
+        press(runner, 10.0)
+        until(lambda: made == ['loop'])
+    assert 'Macro: the loop run ended without handing over (its thread gone): the runner is free' in logged(caplog)
+    press(runner, 20.0)
+    until(lambda: not runner.working)
+    runner.close()
+
+
+def test_a_kp6_on_during_a_run_says_which_run_its_first_leg_follows(caplog, quick):
+    made: list[str] = []
+    runner = legs_runner(lambda lines: None, made)
+    runner.working, runner.routine = True, 'pickup'  # a step of the player's (no thread of this runner's)
+    with caplog.at_level('INFO'):
+        runner._toggle_loop()
+    assert 'Macro: loop on: its first leg follows the pickup run working now' in logged(caplog)
+    runner.loop.on = runner.working = False
+    runner.close()
+
+
+def test_the_card_is_written_by_one_thread_at_a_time(tmp_path):
+    # The HUD layer's writer (hud/scene.py `publish_layer`) shares one temporary file: two at once raise
+    from inventory_tracking.hud.scene import publish_layer
+
+    errors: list[OSError] = []
+    runner = MacroRunner(
+        None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent/Saved Games'),
+        display=lambda lines: publish_layer(tmp_path, 'macro', []), execute=lambda cancelled, routine: None,
+    )  # fmt: skip
+
+    def write():
+        for _ in range(300):
+            try:
+                runner._show(['Macro: Loop off'])
+            except OSError as error:
+                errors.append(error)
+
+    writers = [threading.Thread(target=write) for _ in range(3)]
+    for writer in writers:
+        writer.start()
+    for writer in writers:
+        writer.join()
+    assert errors == []
     runner.close()

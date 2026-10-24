@@ -1,13 +1,17 @@
 """The one read-only memory layer: binding, bounded reads, the one unit table and the guarded reads."""
 
+import ctypes
+import errno
+import threading
 from unittest.mock import patch
 
 import pytest
 
-from inventory_tracking.native import memory
+from inventory_tracking.native import memory, memory as native_memory
 from inventory_tracking.native.memory import (
     BoundedReader,
     ProcessMemory,
+    Replay,
     game_read,
     mappings_held,
     one_unit_table,
@@ -210,3 +214,177 @@ def test_stable_read_reads_twice_under_the_identity_and_mapping_checks(
         with pytest.raises(ValueError, match=expected):
             read()
     assert len(files.closed) == len(files.opened)  # whatever happened, nothing is left open
+
+
+class Spans:
+    """A process's memory as {address: bytes} with a process_vm_readv over it that counts its calls and stops at the
+    first span it cannot read, as the kernel does."""
+
+    def __init__(self, data: dict[int, bytes]) -> None:
+        self.data, self.calls, self.preads = data, [], []
+
+    def pread(self, address, size):
+        self.preads.append((address, size))
+        if address not in self.data:
+            raise ValueError('unreadable')
+        return self.data[address][:size]
+
+    def call(self, pid, local, count, remote, remote_count, flags):
+        spans = [(remote[i].iov_base, remote[i].iov_len) for i in range(remote_count)]
+        self.calls.append(spans)
+        done = b''
+        for address, size in spans:
+            if address not in self.data:
+                break
+            done += self.data[address][:size]
+        if not done:
+            ctypes.set_errno(errno.EFAULT)
+            return -1
+        ctypes.memmove(local._obj.iov_base, done, len(done))
+        return len(done)
+
+
+def test_a_pass_is_served_from_one_batch_of_the_last_passes_reads_in_their_order():
+    memory = Spans({0x100: b'HEAD', 0x200: b'ARRAY...'})
+    replay = Replay(7, memory.pread, call=memory.call)
+    with replay.pass_of('look'):  # the first: a pread each, the pattern recorded
+        assert [replay.read(0x100, 4), replay.read(0x200, 8), replay.read(0x100, 4)] == [b'HEAD', b'ARRAY...', b'HEAD']
+    assert len(memory.preads) == 3
+    assert memory.calls == []
+    memory.data[0x100] = b'NEW!'
+    memory.preads.clear()
+
+    with replay.pass_of('look'):
+        # the header read twice around its array, as read_stats rereads it: each read its own copy, in order
+        assert [replay.read(0x100, 4), replay.read(0x200, 8), replay.read(0x100, 4)] == [b'NEW!', b'ARRAY...', b'NEW!']
+        assert replay.read(0x100, 4) == b'NEW!'  # a read past the copies asked: a pread
+
+    assert memory.calls == [[(0x100, 4), (0x200, 8), (0x100, 4)]]
+    assert memory.preads == [(0x100, 4)]
+    tally = replay.report()['look']
+    assert (tally.passes, tally.served, tally.missed, tally.calls) == (2, 3, 4, 1)
+
+
+def test_an_unreadable_read_is_left_out_of_the_batch_and_a_refused_call_ends_the_batches():
+    memory = Spans({0x100: b'HEAD'})
+    replay = Replay(7, memory.pread, call=memory.call)
+    for _ in range(2):
+        with replay.pass_of('look'):
+            assert replay.read(0x100, 4) == b'HEAD'
+            with pytest.raises(ValueError, match='unreadable'):
+                replay.read(0x500, 4)
+    assert memory.calls == [[(0x100, 4)]]  # the unreadable span not asked again
+
+    def refused(*args):
+        ctypes.set_errno(errno.EPERM)
+        return -1
+
+    replay.call = refused
+    with replay.pass_of('look'):
+        assert replay.read(0x100, 4) == b'HEAD'
+    assert replay.call is None  # one pread a field from then on
+    memory.preads.clear()
+    with replay.pass_of('look'):
+        assert replay.read(0x100, 4) == b'HEAD'
+    assert memory.preads == [(0x100, 4)]
+
+
+def test_another_threads_reads_are_preads_and_a_pass_inside_a_pass_is_part_of_it():
+    memory = Spans({0x100: b'HEAD', 0x200: b'BODY'})
+    replay = Replay(7, memory.pread, call=memory.call)
+    with replay.pass_of('look'):
+        replay.read(0x100, 4)
+        with replay.pass_of('inner'):
+            replay.read(0x200, 4)
+        other = threading.Thread(target=lambda: replay.read(0x200, 4))
+        other.start()
+        other.join()
+    assert replay.patterns == {'look': [(0x100, 4), (0x200, 4)]}
+    assert replay.read(0x100, 4) == b'HEAD'  # outside a pass: a pread
+    assert len(memory.preads) == 4
+
+
+def test_a_batch_that_fails_part_way_or_raises_leaves_every_read_to_a_pread_with_its_own_bytes():
+    memory = Spans({0x100: b'AAAA', 0x200: b'BBBB', 0x300: b'CCCC'})
+    replay = Replay(7, memory.pread, call=memory.call)
+
+    def look():
+        with replay.pass_of('look'):
+            return [replay.read(address, 4) for address in (0x100, 0x200, 0x300)]
+
+    look()
+    # The game gone in the middle of the batch (ESRCH after the first span): the rest are preads
+    memory.data[0x200] = b'bbbb'  # changed since: the pread reads it as it is now
+
+    def gone(pid, local, count, remote, remote_count, flags):
+        memory.calls.append(remote_count)
+        if remote_count < 3:
+            ctypes.set_errno(errno.ESRCH)
+            return -1
+        ctypes.memmove(local._obj.iov_base, b'AAAA', 4)
+        return 4  # a partial read: the first span only
+
+    replay.call = gone
+    memory.preads.clear()
+    assert look() == [b'AAAA', b'bbbb', b'CCCC']
+    assert memory.preads == [(0x200, 4), (0x300, 4)]
+
+    def broken(*args):
+        raise RuntimeError('a binding gone wrong')
+
+    replay.call = broken
+    memory.preads.clear()
+    assert look() == [b'AAAA', b'bbbb', b'CCCC']  # the error stays in the batch
+    assert len(memory.preads) == 3
+
+    replay.call = None  # no process_vm_readv in libc
+    memory.preads.clear()
+    assert look() == [b'AAAA', b'bbbb', b'CCCC']
+    assert len(memory.preads) == 3
+
+
+def test_a_list_relinked_since_the_last_pass_is_read_where_it_points_now():
+    # unit A -> B in the first pass; then A -> C and B freed: the walk reads C, never the B of the last pass
+    a, b, c = 0x1000, 0x2000, 0x3000
+    memory = Spans({a: b.to_bytes(8, 'little'), b: bytes(8), c: bytes(8)})
+    replay = Replay(7, memory.pread, call=memory.call)
+
+    def walk():
+        found, at = [], a
+        with replay.pass_of('walk'):
+            while at:
+                found.append(at)
+                at = int.from_bytes(replay.read(at, 8), 'little')
+        return found
+
+    assert walk() == [a, b]
+    memory.data[a] = (c).to_bytes(8, 'little')
+    del memory.data[b]
+
+    assert walk() == [a, c]
+    assert memory.calls[-1] == [(a, 8), (b, 8)]  # B asked, not read: the batch stopped there, A alone came
+    assert walk() == [a, c]
+    assert memory.calls[-1] == [(a, 8), (c, 8)]
+
+
+def test_replay_off_reads_one_pread_a_field_and_the_line_says_when_the_call_is_refused(monkeypatch):
+    memory = Spans({0x100: b'AAAA'})
+    replay = Replay(7, memory.pread, call=memory.call)
+    monkeypatch.setattr(native_memory, 'REPLAY', False)
+    for _ in range(3):
+        with replay.pass_of('look'):
+            assert replay.read(0x100, 4) == b'AAAA'
+    assert memory.calls == []
+    assert len(memory.preads) == 3
+    assert replay.patterns == {}
+    assert replay.report() == {}
+
+    monkeypatch.setattr(native_memory, 'REPLAY', True)
+    replay.call = None
+    said = []
+    replay.said, replay.every = said.append, 0.0
+    for _ in range(2):
+        with replay.pass_of('look'):
+            replay.read(0x100, 4)
+    assert len(said) == 1
+    assert said[0].startswith('refused, pread; look 2 passes')

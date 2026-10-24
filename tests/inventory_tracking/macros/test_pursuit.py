@@ -24,11 +24,11 @@ from inventory_tracking.game.records import VALUABLE, Drop, Monster, Teleport
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells
-from inventory_tracking.macros import goals, movement, pickup, route, teleport, travel
+from inventory_tracking.macros import goals, movement, pickup, pursuit, route, teleport, travel
 from inventory_tracking.macros.build import BuildSettings, Intent, JumpSource, MoveFacts, NoWay, Step
 from inventory_tracking.macros.goals import PICK_UP, PURSUED, REACH, Goal, goal_of
 from inventory_tracking.macros.hunting import base as hunt_base
-from inventory_tracking.macros.pursuit import FRESH, Defer, Facts, Hold, Move, Operate, Pursuit, Told, decide
+from inventory_tracking.macros.pursuit import FRESH, Defer, Ended, Facts, Hold, Move, Operate, Pursuit, Told, decide
 from inventory_tracking.macros.runner import EXPIRES, TELEPORT as TELEPORT_KEY
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT
@@ -795,3 +795,81 @@ def test_the_retreat_says_whether_the_progress_acts_were_over_the_budget_or_veto
     assert 'worst 1200, mean 600, budget 810 of 2723 life' in over
     monkeypatch.setattr(pursuit, 'RETREAT_SAYS_WHY', False)  # the switch off: the one line, as before
     assert said(Harm(barred=kept)) == 'retreating: no progress act fits the life budget'
+
+
+BACK, WARP = Step((-16.0, 0.0), None), Step((-22.0, 0.0), 390)  # the walk back of 16, a Blade Warp
+
+
+@pytest.mark.parametrize('lifted', [True, False])
+def test_with_every_act_vetoed_the_walk_away_the_reach_bar_alone_rules_out_is_made(monkeypatch, lifted) -> None:
+    # The arena's low_life_in_melee look at 0.05 s (rca/2026-10-23/arena-red.md; pursuit.py REACH_LIFT): 500 life,
+    # three Hell Bovines in contact; the hold and the walk back barred by the reach bar (502 of 500), the Blade Warps
+    # vetoed by the rollouts (worst 697 of 500). The walk's rollouts are the least of all: the bar is lifted off it.
+    from inventory_tracking.combat.harm import Harm
+    from inventory_tracking.macros import pursuit
+    from inventory_tracking.macros.pursuit import Candidate
+
+    monkeypatch.setattr(pursuit, 'REACH_LIFT', lifted)
+    goal = Goal('the fight', (0.0, 0.0), FIGHT, REACH_UNITS, PRESSED)
+    reach = 'within reach of blows that together take the life (502 of 500)'
+    lethal = (697.0,) * 8 + (300.0,) * 2
+    hold = Candidate(Hold(goal), 1.0, Harm(221.0, 360.0, barred=reach))
+    walk = Candidate(Move(BACK, goal), 1.2, Harm(144.0, 360.0, barred=reach), retreat=True,
+                     clear=1.4, lift=True)  # fmt: skip
+    warp = Candidate(Move(WARP, goal), 1.1, Harm(490.0, 697.0, losses=lethal), retreat=True,
+                     clear=21.2)  # fmt: skip
+    near = Candidate(Move(Step((16.0, 0.0), None), goal), 1.2, Harm(144.0, 360.0, barred=reach), retreat=True,
+                     clear=0.1)  # fmt: skip
+    look = Facts(0.05, goal, False, True, True, lambda: BACK, candidates=(hold, walk, warp, near), priced=True,
+                 budget=0.0, life=500.0, clear=1.6)  # fmt: skip
+    act = decide(look, None)
+    assert isinstance(act, Move)
+    if lifted:
+        assert act.step == BACK  # judged by its rollouts: worst 360 of 500 is no veto
+        assert act.reason.startswith('retreating: every progress act is vetoed (within reach')
+    else:
+        assert act.step == WARP  # the bar stands: the Blade Warp the character died in
+        assert act.reason == f'retreating: {pursuit.VETOED_AWAY}'
+    # Not while an act is allowed: the hold allowed, the bar stays on the walk
+    free = replace(look, candidates=(replace(hold, harm=Harm(221.0, 360.0)), walk, warp), budget=400.0)
+    assert decide(free, None) == Hold(goal)
+
+
+def test_a_lifted_walk_still_lethal_by_its_rollouts_competes_on_lethality_with_the_jumps(monkeypatch) -> None:
+    from inventory_tracking.combat.harm import Harm
+    from inventory_tracking.macros import pursuit
+    from inventory_tracking.macros.pursuit import Candidate
+
+    goal = Goal('the fight', (0.0, 0.0), FIGHT, REACH_UNITS, PRESSED)
+    reach = 'within reach of blows that together take the life (900 of 500)'
+    walk = Candidate(Move(BACK, goal), 1.2, Harm(300.0, 600.0, losses=(600.0,) * 3 + (100.0,) * 7,
+                     barred=reach), retreat=True, clear=1.4, lift=True)  # fmt: skip
+    warp = Candidate(Move(WARP, goal), 1.1, Harm(490.0, 697.0, losses=(697.0,) * 8 + (1.0,) * 2),
+                     retreat=True, clear=21.2)  # fmt: skip
+    look = Facts(0.05, goal, False, True, True, lambda: BACK, candidates=(walk, warp), priced=True, budget=0.0,
+                 life=500.0, clear=1.6)  # fmt: skip
+    act = decide(look, None)
+    assert isinstance(act, Move)
+    assert act.step == BACK  # 3 of 10 lethal against 8 of 10
+    assert act.reason == f'retreating: {pursuit.VETOED_WALK}'
+
+
+# -- FIGHT_BEFORE_END (23:30:44-23:31:06 on 2026-10-23: 37 empty TZ next level legs before a tier 5 Herald pack) --
+
+
+def test_a_run_with_no_route_stage_attacked_in_reach_fights_before_it_ends():
+    assert pursuit.run_level(facts(None, in_reach=True), pressed=False) == Hold()
+
+
+def test_a_pressed_run_with_no_route_stage_attacked_in_reach_fights_before_it_hands_on():
+    assert pursuit.run_level(facts(None, in_reach=True), pressed=True) == Hold()
+
+
+def test_with_nothing_in_reach_a_run_with_no_route_stage_ends_or_hands_on_as_before():
+    assert isinstance(pursuit.run_level(facts(None), pressed=False), Ended)
+    assert pursuit.run_level(facts(None), pressed=True) == Defer(None)
+
+
+def test_off_the_run_under_attack_ends_at_once(monkeypatch):
+    monkeypatch.setattr(pursuit, 'FIGHT_BEFORE_END', False)
+    assert isinstance(pursuit.run_level(facts(None, in_reach=True), pressed=False), Ended)

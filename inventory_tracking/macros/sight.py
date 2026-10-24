@@ -9,6 +9,7 @@ level has walls read, a cell no grid covers counts as blocked (a room not read);
 import math
 from collections.abc import Sequence
 
+from inventory_tracking.levels import doors as door_model
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground
@@ -27,12 +28,15 @@ RING_STEP = 3.0
 
 def clear_shot(ground: Ground, start: Point, end: Point, doors: Sequence[Door] = ()) -> bool:
     """Whether nothing known blocks the line: a cell missiles do not fly through (flight layer, else walk bit), an
-    uncovered cell on a walled level, or a closed door."""
+    uncovered cell on a walled level, or a closed door: its box between the margins, and its leaf over the whole line
+    (levels/doors.py SHOT_LEAF: a monster pressed into a closed doorway from the far side)."""
+    closed = [door for door in doors if door.closed]
+    if door_model.SHOT_LEAF and any(door.crosses(start, end) for door in closed):
+        return False
     length = math.dist(start, end)
     if length <= 2 * MARGIN:
         return True
     walled = len(ground) > 0
-    closed = [door for door in doors if door.closed]
     steps = max(int((length - 2 * MARGIN) / SAMPLE), 1)
     for index in range(steps + 1):
         t = min((MARGIN + index * SAMPLE) / length, (length - MARGIN) / length)

@@ -140,7 +140,7 @@ from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
 from inventory_tracking.takes import macro_state
-from inventory_tracking.takes.record import CombatRecorder
+from inventory_tracking.takes.recorder_process import combat_recorder
 from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
 from inventory_tracking.terror.shards import ShardWatch
@@ -811,11 +811,13 @@ def run_service(args, directory, report):
                         # The KP_6 kind picker's card (macros/kindpick.py), opened only with a canvas up (2026-10-20)
                         macro.picker_publish = lambda widgets: publish_layer(args.hud_scene, 'picker', widgets)
                         macro.hud_up = lambda: canvas_running(args.hud_scene)
+                    # Per-game monster/Herald state: the Terror card and the level map shading; the store the
+                    # games' records are in (macros/midgame.py RECORD), attached before the resume
+                    zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
+                    macro.attach_records(zones)
                     resumed = read_resume(args.output)
                     if resumed is not None:
                         macro.resume(resumed)
-                    # Per-game monster/Herald state: the Terror card and the level map shading.
-                    zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
                     map_dots = partial(zones.map_dots, danger=APPRAISAL.danger_marks) if zones is not None else None
                     # The routes (levels/routes.md): the stage each level is at in this game. The level
                     # card leads with its mark and the teleport key performs it; the monster tracker
@@ -871,7 +873,8 @@ def run_service(args, directory, report):
                         )
                     combat = None
                     if args.combat_record:
-                        combat = CombatRecorder(
+                        # On a thread, or in its own process (takes/recorder_process.py RECORDER_PROCESS)
+                        combat = combat_recorder(
                             source,
                             capture_lock=worker.capture_lock,
                             output=args.output.parent / 'combat',

@@ -39,7 +39,15 @@ from inventory_tracking.appraisal.owned import (
     owned_summary,
 )
 from inventory_tracking.appraisal.presentation import item_tone
-from inventory_tracking.appraisal.triage import LABELS, TONES, demand_unmeasured, description, tone as triage_tone
+from inventory_tracking.appraisal.triage import (
+    LABELS,
+    TONES,
+    card_line,
+    card_tone,
+    demand_unmeasured,
+    description,
+    tone as triage_tone,
+)
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.identify.attention import (
     actionable_roles,
@@ -92,6 +100,13 @@ CLASS_SKILLS = re.compile(r'\+(\d+) to (\w+) Skill Levels')
 VERDICT_TONES = {**TONES, 'keep': Tone.VALUABLE, 'check': Tone.DEMAND}
 KEEP_IST = 1.0  # an estimate at or above one Ist is worth keeping on its own
 CHECK_IST = 0.25
+# The card shows what the loop would do with each item beside its verdict: the one assessment entry point at CARD
+# (loot/assess.py, design.md §10.4 step 4; the player, 2026-10-23: "I want to have one place that decides
+# pickups/value"). Display only: the verdict BOOK holds stays `verdict_for`'s, the price source's own step (D4). While
+# on, an item whose verdict alone would have read otherwise (vendor sold, anything else kept, the retired junk chain)
+# logs one shadow line. False: the verdict alone
+CARD_ASSESSED = True
+COUNT_WORDS = {'sell': 'trade'}  # the summary's count words for a verdict (R3: a vendor sale is VENDOR, a trade TRADE)
 
 
 def compact_stat(text: str) -> str:
@@ -300,6 +315,28 @@ def item_summary(observation, result, owned=None) -> dict[str, Any]:
     }
 
 
+def card_of(observation, result, copies=None) -> dict[str, str] | None:
+    """What the loop would do with the item, for the card: the one entry point at CARD (as the loop's item; its price
+    source the identify verdict on `result`, `copies` the owned copies, by default the collection's), as {'outcome',
+    'rule', 'why'}; None when it cannot be judged (logged)."""
+    from inventory_tracking.loot.assess import Assessor, ResultAppraiser, Site, shadow
+    from inventory_tracking.loot.facts import Owner, Where, from_observation
+    from inventory_tracking.loot.value import CollectionCopies
+
+    try:
+        facts = from_observation(observation, where=Where.INVENTORY, owner=Owner.LOOP)
+        assessor = Assessor(ResultAppraiser(lambda _: result), copies if copies is not None else CollectionCopies())
+        found = assessor.assess(facts, Site.CARD)
+    except Exception as exc:  # the card shows the verdict alone
+        LOG.info('Identify: no CARD assessment of %s: %s', observation.get('item', {}).get('name'), exc)
+        return None
+    verdict = found.value.verdict if found.value is not None else None
+    old = 'vendor' if verdict == 'vendor' else 'keep'
+    shadow(('card', facts.unit_id), Site.CARD, facts.title(), 'vendor' if found.outcome.value == 'vendor' else 'keep',
+           old, new_decides=True)  # fmt: skip
+    return {'outcome': found.outcome.value, 'rule': found.rule, 'why': found.why}
+
+
 VERDICT_ORDER = ('keep', 'check', 'vendor')
 
 
@@ -329,7 +366,7 @@ def result_lines(result) -> list[StyledLine]:
         (item_tone(i) for i in items if i['verdict'] != 'vendor' and item_tone(i) != Tone.DEFAULT),
         Tone.DEFAULT if any(demand_unmeasured(i.get('triage', {})) for i in items) else Tone.METADATA,
     )
-    summary = ' · '.join(f'{tally[v]} {v}' for v in order)
+    summary = ' · '.join(f'{tally[v]} {COUNT_WORDS.get(v, v)}' for v in order)
     lines = [StyledLine(f'Identified {len(items)} — {summary}', tone)]
     # Only items with something particular get a row; vendor items are just counted.
     shown = [i for i in items if i['verdict'] not in ('vendor', 'slow')]
@@ -341,6 +378,8 @@ def result_lines(result) -> list[StyledLine]:
             )
         )
         lines.append(StyledLine(f'       {item["reason"]}', item_tone(item)))
+        if item.get('card'):
+            lines.append(StyledLine(f'       {card_line(item["card"])}', card_tone(item['card'])))
     for unmeasured in (False, True):
         slow = [i for i in items if i['verdict'] == 'slow' and demand_unmeasured(i.get('triage', {})) == unmeasured]
         if not slow:
@@ -370,11 +409,12 @@ def describe(result) -> tuple[str, str] | None:
     """Desktop notification for the keep/check items; None when there is nothing particular."""
     order = verdict_order(result['items'])
     items = sorted(result['items'], key=lambda i: order.index(i['verdict']))
-    worth = [f'{i["verdict"].upper()} {i["name"]} — {i["reason"]}' for i in items if i['verdict'] != 'vendor']
+    worth = [f'{LABELS.get(i["verdict"], i["verdict"].upper())} {i["name"]} — {i["reason"]}' for i in items
+             if i['verdict'] != 'vendor']  # fmt: skip
     if not worth:
         return None
     tally = counts(items)
-    title = f'Identified {len(items)}: ' + ' · '.join(f'{tally[v]} {v}' for v in order)
+    title = f'Identified {len(items)}: ' + ' · '.join(f'{tally[v]} {COUNT_WORDS.get(v, v)}' for v in order)
     return title, '\n'.join(worth[:6])
 
 
@@ -611,6 +651,8 @@ class IdentifyWorker:
                         raise error
                     items.append(item_summary(observation, evidence, self.owned(observation)))
                     loot_shadow.note(observation, evidence, items[-1])  # the loot shadow's values (log only)
+                    if CARD_ASSESSED and (card := card_of(observation, evidence)) is not None:
+                        items[-1]['card'] = card
                 except Exception as exc:
                     LOG.warning('Identify assessment of %s failed: %s', name, exc)
                     issues.append(f'{name}: {exc}')

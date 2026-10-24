@@ -101,6 +101,7 @@ from inventory_tracking.items.identity import (
     IDENTITY_OFFSET,
     ITEM_DATA_SIZE,
     QUALITY_OFFSET,
+    RUNEWORD_FLAG,
     SOCKETED_FLAG,
 )
 from inventory_tracking.items.metadata import item_base, metadata
@@ -327,7 +328,8 @@ def stash_view_of(
         entry = by_unit.get(item.unit_id)
         if entry is None or 'quality' not in entry:
             return item
-        return replace(item, quality=entry['quality'], identified=entry['identified'], unique=entry['unique'])
+        return replace(item, quality=entry['quality'], identified=entry['identified'], unique=entry['unique'],
+                       runeword=entry.get('runeword', False))  # fmt: skip
 
     def page(index: int, owner: int, grid: dict | None) -> Page | None:
         if grid is None and index > 0:
@@ -404,7 +406,8 @@ def carried_items(read, unit: dict | None, items: Sequence[dict]) -> Pack | None
             )
         except OSError, ValueError, struct.error:
             return item
-        return replace(item, quality=quality, identified=bool(flags & IDENTIFIED_FLAG), unique=unique)
+        return replace(item, quality=quality, identified=bool(flags & IDENTIFIED_FLAG), unique=unique,
+                       runeword=bool(flags & RUNEWORD_FLAG))  # fmt: skip
 
     pack = replace(
         pack,
@@ -726,6 +729,7 @@ def base_rolls(read, unit: dict) -> Rolls | None:
         # A white bow's +3 Bow and Crossbow Skills automod: in the totals ([verified] 2026-10-20: 96 of 96 captured
         # superior Amazon bows hold 188 there, e.g. a superior Grand Matron Bow 188:0 = 3 with 194 = 5)
         tuple((s['layer'], s['raw']) for s in stats if s['id'] == StatId.SKILL_TAB),
+        bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & RUNEWORD_FLAG),  # D12: a runeword, no plain base
     )
     if defense is None or damage is None:
         return rolls

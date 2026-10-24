@@ -27,9 +27,12 @@ SAID = 'Macro: '
 
 
 def stamp(line: str) -> datetime | None:
-    """The line's local date and time, None for a line without one (a traceback's)."""
+    """The line's local date and time, None for a line without one (a traceback's). `fromisoformat` behind a shape
+    check reads what `strptime(STAMP_FORMAT)` reads, ~30x faster: the tools stamp millions of lines a week."""
+    if len(line) < STAMP_LEN or line[10] != ' ' or line[19] != ',':
+        return None
     try:
-        return datetime.strptime(line[:STAMP_LEN], STAMP_FORMAT)
+        return datetime.fromisoformat(line[:STAMP_LEN])
     except ValueError:
         return None
 
@@ -105,6 +108,16 @@ RESTART_DROPPED = 'the restart no longer waits for a safe point'
 # No such line in runs/alt-d up to 2026-10-21 14:50 (the test builds them).
 SAFE_POINT = re.compile(r'Macro: loop: safe point: (.+?), (.+): the loop stands for the restart$')
 NOT_SAFE = re.compile(r'Macro: loop: no safe point for the restart yet: (.+)$')
+# restart.py --when trip (macros/midgame.py TRIP, 2026-10-24): the field level's safe moment, the loop's Town Portal
+# for the restart: (where, the game). loop.py Loop.begin_restart_trip `'Macro: loop: safe moment for the restart: %s,
+# %s: Town Portal to town for it, back through it after'`; the new service's return, `Loop.back_after_restart`
+# `'Macro: loop: back through the portal left for the restart'`, and with the portal not taken (why) the loop's own way
+# back from town. No such line in runs/alt-d up to 2026-10-24 13:40 (the test builds them).
+TRIP_BEGUN = re.compile(r'Macro: loop: safe moment for the restart: (.+?), (.+): Town Portal to town for it')
+TRIP_BACK = 'back through the portal left for the restart'
+TRIP_NO_PORTAL = re.compile(
+    r"Macro: loop: the portal left for the restart is not taken \((.+)\): the loop's own way back from town$"
+)
 # The new service took the game up at its first leg there: (the game). macros/midgame.py restore
 # `'Macro: loop: game %s taken up after a restart: %.0f s into it, ...'`.
 CARRIED = re.compile(r'Macro: loop: game (.+?) taken up after a restart: (-?\d+) s into it')
@@ -204,8 +217,9 @@ DID = re.compile(
     r'|gamble: session done.*|shop: potions: .*|act: .* shard over the limit.*)'
 )
 # The lines the live watch says the moment they come (watch.py `NOW`): stops, recoveries, full stacks, sales, repairs,
-# the restart's resume (and the zone's facts taken back after it: tzloop.py zone_resume `'Macro: zone: %s resumed
-# after a restart: ...'`, zonenav.py RESUME, 2026-10-21), identification, the trade session's report, errors.
+# the restart's resume (and the game taken back from its record after it, the zone's facts with it: midgame.py
+# `restore` CARRIED, 2026-10-22; before it tzloop.py zone_resume's `'Macro: zone: %s resumed after a restart'`),
+# identification, the trade session's report, errors.
 # Producers as for EVENT, DID, FULL, SOLD,
 # REPAIRED, IDENTIFIED, VISIT_STOPS; `shop: the item %d is no longer at` shop.py restock; `repair: the stash gold
 # went` repair.py and `repair: the cost` repair.py; a gamble session's end and a price no gold stat paid (gamble.py
@@ -214,7 +228,8 @@ NOW = re.compile(
     r'Macro: (loop stopped|loop: .*(game is left|game is kept|stops here|trip to .* is skipped)|zone: .* blocked'
     r'|pickup: .* given up for this game'
     r'|stash: the .* stack is full'
-    r'|shop: (sold|could not)|repair: the (staff|stash|cost)|resumed after a restart|zone: .* resumed after a restart'
+    r'|shop: (sold|could not)|repair: the (staff|stash|cost)|resumed after a restart'
+    r'|loop: game .* taken up after a restart|zone: .* resumed after a restart'
     r'|identify: '
     r'|shop: the item .* no longer'
     r'|trade session done|gamble: session done|gamble: .*gambling stopped|act: .* shard over the limit'

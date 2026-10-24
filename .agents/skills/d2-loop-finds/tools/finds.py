@@ -23,6 +23,7 @@ import json
 import re
 import subprocess
 import sys
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -60,16 +61,29 @@ class Find:
     evidence: str = ''
 
 
-def window(args) -> tuple[list[Path], list[games.Game]]:
-    """The sessions that hold the last `args.games` games, and those games."""
+def window(args) -> tuple[list[Path], list[games.Game], dict[str, list]]:
+    """The sessions that hold the last `args.games` games, those games, and each session's ground (`games.read`).
+
+    Read newest first, stopping once the window is full: a week holds hundreds of sessions where 200 games take
+    30 to 60 (2026-10-23: reading the whole week first took 74 of the tool's 111 s)."""
     since = datetime.now() - timedelta(days=LOOKBACK_DAYS)
     scope = argparse.Namespace(sessions=None, since=since)
-    played = []
-    for directory in games.sessions(scope):
-        played += games.read(directory, since, args.until)[0]
-    played = played[-args.games :]
+    held: list[tuple[Path, list[games.Game]]] = []
+    seen: dict[str, list] = {}
+    count = 0
+    for directory in reversed(games.sessions(scope)):
+        found = games.read(directory, since, args.until)
+        if not found[0]:
+            continue
+        held.append((directory, found[0]))
+        seen[directory.name] = found[3]
+        count += len(found[0])
+        if count >= args.games:
+            break
+    held.reverse()
+    played = [g for _, session in held for g in session][-args.games :]
     names = {g.session for g in played}
-    return [d for d in games.sessions(scope) if d.name in names], played
+    return [d for d, _ in held if d.name in names], played, seen
 
 
 def appraised(item: dict, at: str, session: str, game: int | None) -> Find:
@@ -127,15 +141,21 @@ def ordinals(played: list[games.Game]) -> dict[tuple[str, int], int]:
     return {(g.session, g.number): place for place, g in enumerate(played, 1)}
 
 
-def finds(directories: list[Path], start: datetime, until: datetime | None, places: dict) -> list[Find]:
+def finds(
+    directories: list[Path], start: datetime, until: datetime | None, places: dict
+) -> tuple[list[Find], dict[str, list[tuple[int, str]]]]:
+    """The window's finds, and each session's loop stops (`logwords.STOPPED`) by their log line, for `ground`."""
     found: list[Find] = []
+    stops: dict[str, list[tuple[int, str]]] = {}
     units: set[int] = set()
     for directory in directories:
         game = None
-        for line in (directory / 'probe.log').read_text(errors='replace').splitlines():
+        for number, line in enumerate((directory / 'probe.log').read_text(errors='replace').splitlines()):
             at = games.stamp(line)
             if at is None or at < start or (until and at > until):
                 continue
+            if (m := logwords.STOPPED.search(line)) is not None:
+                stops.setdefault(directory.name, []).append((number, m.group(1)))
             if (m := games.LEG.search(line)) is not None:
                 game = places.get((directory.name, int(m.group(1))))
             elif (m := games.PICKED.search(line)) is not None and MATERIAL.search(m.group(1)):
@@ -154,18 +174,46 @@ def finds(directories: list[Path], start: datetime, until: datetime | None, plac
     for f in found:
         if f.kind == 'material':
             f.value_ist, f.median_ist, f.evidence = prices[f.name]
-    return found
+    return found, stops
 
 
-def ground(directories: list[Path], start: datetime, until: datetime | None, places: dict):
+# A loop stop this many log lines after a missed item's last sighting is told with it (the trips back to an item
+# that cannot be reached take ~30 lines: game 55 on 2026-10-21, a Large Charm "no way over the rooms")
+STOP_LINES = 300
+
+
+def ground(
+    directories: list[Path],
+    start: datetime,
+    until: datetime | None,
+    places: dict,
+    read: dict[str, list],
+    stops: dict[str, list[tuple[int, str]]],
+):
+    """`read`: each session's ground from `window`; only the oldest session, which the window's start may cut, is read
+    again from `start`. A missed item is told with what explains it: no loop game (a restart's or the player's own
+    play: 2026-10-21 08:28-08:43, the player's Gheed's Fortune and Vipermagi "taken" in town were called missed) and
+    the loop stop that named it."""
     seen = []
-    for directory in directories:
-        seen += games.read(directory, start, until)[3]
+    for number, directory in enumerate(directories):
+        seen += games.read(directory, start, until)[3] if number == 0 else read[directory.name]
     taken = {(item.name, item.place) for item, _ in seen if item.picked}
     left = [(item, why) for item, why in seen if not item.picked and (item.name, item.place) not in taken]
-    missed = [
-        f'{i.when} game {places.get((i.session, i.game))}: {i.quality} {i.name} ({why})' for i, why in left if why
-    ]
+    missed = []
+    for i, why in left:
+        if not why:
+            continue
+        place = places.get((i.session, i.game))
+        notes = [why]
+        if place is None:
+            notes.append('outside a loop game of the window: a restart or the player')
+        stop = next(
+            (text for n, text in stops.get(i.session, []) if i.first <= n <= i.last + STOP_LINES and i.name in text),
+            None,
+        )
+        if stop is not None:
+            notes.append(f'LOOP DEFECT, the loop stopped: {stop[:140]}')
+        missed.append(f'{i.when} game {place}: {i.quality} {i.name} ({"; ".join(notes)})')
     design = [
         f'{i.when} game {places.get((i.session, i.game))}: {i.quality} {i.name}'
         for i, why in left
@@ -178,7 +226,14 @@ def line(f: Find) -> str:
     stats = f' [{", ".join(f.stats)}]' if f.stats else ''
     verdict = f'; {f.verdict}' if f.verdict else ''
     said = '; '.join(text for text in (f.evidence, f.reason if f.kind == 'appraised' else '') if text)
-    return f'{f.when[11:]} game {f.game}: {f.name}{stats} - {said}{verdict}'
+    return f'{f.when[5:]} game {f.game}: {f.name}{stats} - {said}{verdict}'
+
+
+def rest(found: list[Find]) -> tuple[dict[str, int], dict[str, int]]:
+    """The window's materials by name and its appraised items by verdict: the report's one line on the small finds."""
+    materials = Counter(f.name for f in found if f.kind == 'material')
+    verdicts = Counter(f.verdict or 'none' for f in found if f.kind == 'appraised')
+    return dict(materials.most_common()), dict(verdicts.most_common())
 
 
 def main() -> None:
@@ -189,22 +244,25 @@ def main() -> None:
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args()
 
-    directories, played = window(args)
+    directories, played, read = window(args)
     if not played:
         print(f'no games in the last {LOOKBACK_DAYS} days of logs')
         return
     start = played[0].started
     places = ordinals(played)
-    found = finds(directories, start, args.until, places)
+    found, stops = finds(directories, start, args.until, places)
     priced = sorted((f for f in found if f.value_ist), key=lambda f: -(f.value_ist or 0))
     unpriced = [f for f in found if not f.value_ist and f.kind == 'appraised' and f.verdict not in ('vendor', '')]
-    missed, design = ground(directories, start, args.until, places)
+    missed, design = ground(directories, start, args.until, places, read, stops)
+    materials, verdicts = rest(found)
     summary = {
         'games': len(played),
         'from': str(start),
         'to': str(args.until or played[-1].started),
         'top': [asdict(f) for f in priced[: args.top]],
         'unpriced_worth_a_look': [asdict(f) for f in unpriced],
+        'materials': materials,
+        'appraised_verdicts': verdicts,
         'missed_on_the_ground': missed,
         'sets_and_uniques_left_by_design': design,
     }
@@ -219,12 +277,13 @@ def main() -> None:
     print('\nunpriced, worth a look:' if unpriced else '\nunpriced, worth a look: none')
     for f in unpriced:
         print(f'  {line(f)}')
+    print('\nthe rest: ' + ', '.join(f'{count} {name}' for name, count in materials.items()))
+    print(f'appraised: {sum(verdicts.values())} (' + ', '.join(f'{k} {v}' for k, v in verdicts.items()) + ')')
     print(f'\nmissed on the ground: {len(missed)}')
     for text in missed:
         print(f'  {text}')
-    print(f'sets and uniques left by design: {len(design)}')
-    for text in design:
-        print(f'  {text}')
+    # The list is long (100-200) and the report counts it: --json has every one
+    print(f'sets and uniques left by design: {len(design)} (--json lists them)')
 
 
 if __name__ == '__main__':

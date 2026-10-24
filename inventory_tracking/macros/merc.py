@@ -52,6 +52,7 @@ __all__ = [
     'MercWatch',
     'merc_package',
     'owned_merc',
+    'revive_after_visit',
     'revive_cost',
     'town_routine',
 ]
@@ -61,6 +62,13 @@ __all__ = [
 MERC_LOST_TRIP = True
 # The trip's revive at Tyrael (the same ruling). False: the trip refills the belt only
 MERC_REVIVE = True
+# MERC_AT_ANY_VISIT (2026-10-23, the cyberg46 shard game: the merc died at 04:35:43 past its game's TRIPS_A_GAME and
+# stayed dead; the visits for room and the belt at 04:54 and after passed Tyrael by, "no mana for Teleport" 199 times
+# from 04:37). True: a shared town visit in the Fortress ends with a dead merc revived (`revive`, the carried gold),
+# once a visit; it makes no trip of its own, so TRIPS_A_GAME's ping-pong cannot come back. A game whose revive failed
+# (UNREVIVED) is not tried again. Not bound to a merc seen alive in this service (LEVELS): a restart forgets that
+# (05:11 restart, the merc dead since 04:35). False: only a merc trip revives, as before.
+MERC_AT_ANY_VISIT = True
 # The same ruling, the belt's half; the player, 2026-10-21 ~20:00: "actually, we shouldn't get to the no hp potions and
 # just 2 rejuv potions. - restock hp potions in the down, we may need several tries to kill especially nasty pack ... we
 # must have top priority to no die ourselves and prevent loosing experience": the belt LOW on healing potions
@@ -117,6 +125,13 @@ SAFE_NEAR = 12.0
 # player, 2026-10-21 ~20:00). loop.py MERC_TRIPS bounds the trips' legs with it (a test holds them equal). A belt trip
 # only after one that bought healing potions (`NO_POTIONS`)
 TRIPS_A_GAME = 4
+# 2026-10-22 (rca/2026-10-22/belt-refill-findings.md): a shard game runs hours over several acts (cyberg65: 18:58 to
+# past 23:15) and its merc drinks a belt's worth in one burst; with TRIPS_A_GAME made it was never refilled again
+# ("an empty belt = defect", "top priority to no die ourselves"). On: past TRIPS_A_GAME a belt trip is still made while
+# the last trip's visit put healing potions on the belt (`Trips.may`, as loop.py TRIPS_BY_GAIN for room); one that put
+# none ends them (the ping-pong the cap was for). The count is in the game's record (macros/midgame.py), so a restart
+# neither resets nor loses it. False: TRIPS_A_GAME caps them
+BELT_TRIPS_BY_GAIN = True
 
 # The package's routine (agenda goal kind) and its leg (tzloop.py LEGS: `Loop: game N, merc trip`)
 MERC_ROUTINE = 'merc routine'
@@ -134,6 +149,58 @@ UNREVIVED: set[str] = set()
 # The games whose last trip bought no healing potion (the carried gold under the reserve, her window shut): no belt trip
 # again in them, a merc trip still
 NO_POTIONS: set[str] = set()
+
+
+@dataclass
+class Trips:
+    """The merc's and the belt's trips made in `game`: how many, the healing potions on the belt when the last was
+    pushed and what its visit put on (None: not back yet, or unread). One object, the loop's (loop.py
+    `Loop.merc_trips`), changed in place: the service's watch (`MercWatch.book`) counts them, the trip's routine
+    (`town_routine`) writes the gain, the game's record keeps them over a restart (`state`, `take_up`)."""
+
+    game: str | None = None
+    made: int = 0
+    belt: int | None = None
+    gained: int | None = None
+
+    def begin(self, game: str | None) -> None:
+        """Another game: none made in it."""
+        self.game, self.made, self.belt, self.gained = game, 0, None, None
+
+    def pushed(self, healing: int | None) -> None:
+        """A trip pushed with `healing` potions on the belt."""
+        self.made, self.belt, self.gained = self.made + 1, healing, None
+
+    def back(self, healing: int | None) -> None:
+        """The trip's visit done with `healing` potions on the belt: what it put on (None when either is unread)."""
+        self.gained = healing - self.belt if healing is not None and self.belt is not None else None
+
+    def may(self, why: str | None) -> bool:
+        """Whether a trip for `why` may be made: under TRIPS_A_GAME; past it (BELT_TRIPS_BY_GAIN) only the belt's, and
+        only while the last trip put healing potions on the belt."""
+        if self.made < TRIPS_A_GAME:
+            return True
+        return BELT_TRIPS_BY_GAIN and why == WHY_BELT and self.gained is not None and self.gained > 0
+
+    def past_cap(self) -> int:
+        """The trips made past TRIPS_A_GAME (loop.py `Loop.count`: the legs a trip makes count them too)."""
+        return max(0, self.made - TRIPS_A_GAME)
+
+    def state(self) -> dict:
+        return {'made': self.made, 'belt': self.belt, 'gained': self.gained}
+
+    def take_up(self, game: str, state: object) -> None:
+        """`state` (`state`) of `game` from the game's record; a malformed one leaves these as they are."""
+        if not isinstance(state, dict):
+            return
+        try:
+            made = int(state.get('made') or 0)
+            belt, gained = state.get('belt'), state.get('gained')
+            belt = int(belt) if belt is not None else None
+            gained = int(gained) if gained is not None else None
+        except TypeError, ValueError:
+            return
+        self.game, self.made, self.belt, self.gained = game, made, belt, gained
 
 
 def revive_cost(level: int | None) -> int:
@@ -187,8 +254,14 @@ class MercWatch:
     due: str | None = None  # the trip due (WHY_MERC, WHY_BELT), its clock
     due_at: float = 0.0
     said: str | None = None  # the wait for a safe moment, said once a trip
-    trips: int = 0  # made in `game`
+    book: Trips = field(default_factory=Trips)  # the trips made in `game` (the loop's, runner.py)
+    healing: int | None = None  # healing potions on the belt at the last look
     looked_at: float = -math.inf
+
+    @property
+    def trips(self) -> int:
+        """The trips made in `game`."""
+        return self.book.made if self.book.game == self.game else 0
 
     def see(
         self, world: World, belt: tuple[int | None, ...] | None, now: float, level: int | None = None
@@ -199,7 +272,9 @@ class MercWatch:
             return self.due  # a loading screen: no look
         if world.game_name != self.game:
             self.game, self.unit, self.gone, self.corpse, self.empty = world.game_name, None, None, False, None
-            self.due, self.said, self.trips = None, None, 0
+            self.due, self.said = None, None
+        if self.book.game != world.game_name:
+            self.book.begin(world.game_name)  # in place: the loop's record holds the same object
         merc = owned_merc(world)
         if merc is not None:
             self.had.add(player.name)
@@ -217,7 +292,7 @@ class MercWatch:
             self.due, self.due_at = WHY_MERC, now
             LOG.info('Macro: merc: dead: %s for %.0f s%s', 'its corpse read' if self.corpse else 'no merc read',
                      now - (self.gone or now), f' (unit {self.unit})' if self.unit is not None else '')  # fmt: skip
-        if self.trips >= TRIPS_A_GAME:
+        if not self.book.may(self.due):
             return None
         return self.due
 
@@ -226,6 +301,7 @@ class MercWatch:
         player = world.player
         if healing is None or player is None or player.in_town:
             return
+        self.healing = healing
         if self.due == WHY_BELT and healing >= REFILLED:
             self.due, self.empty = None, None
             LOG.info('Macro: belt: %d healing potions on it again before the trip: no trip for it', healing)
@@ -265,8 +341,8 @@ class MercWatch:
         return None
 
     def tripped(self) -> None:
-        """The trip is pushed: counted for the game."""
-        self.trips += 1
+        """The trip is pushed: counted for the game, with the belt's healing potions then."""
+        self.book.pushed(self.healing)
         self.due, self.empty, self.said = None, None, None
 
 
@@ -283,14 +359,19 @@ def merc_package(area: int) -> tuple[Objective, ...]:
     return tuple(goals)
 
 
-def town_routine(run: Run) -> None:
+def town_routine(run: Run, trips: Trips | None = None) -> None:
     """MERC_ROUTINE in the Fortress, after the visit: the merc revived at Tyrael when it is dead and the carried gold
-    covers the cost. A belt still low after the visit ends the belt's trips for the game (`NO_POTIONS`)."""
+    covers the cost. A belt still low after the visit ends the belt's trips for the game (`NO_POTIONS`). `trips`: the
+    game's (`Trips`), told what the visit put on the belt (BELT_TRIPS_BY_GAIN)."""
     world = run.world()
     player = world.player
     if player is None:
         raise Abort('no character read for the merc trip')
     healing = belt_healing(run)
+    if trips is not None and trips.game == world.game_name:
+        trips.back(healing)
+        LOG.info('Macro: merc trip %d: %s healing potions on the belt, %s before the trip: %s put on', trips.made,
+                 healing, trips.belt, trips.gained)  # fmt: skip
     if healing is None or healing < BELT_LOW:
         NO_POTIONS.add(world.game_name)
         LOG.info('Macro: merc trip: %s healing potions on the belt after the visit: no belt trip again in this game',
@@ -299,6 +380,25 @@ def town_routine(run: Run) -> None:
         LOG.info('Macro: merc trip: the merc is alive: no revive')
     elif not revive(run, player.name):
         UNREVIVED.add(world.game_name)  # no merc trip again in this game: the belt's may still come
+
+
+def revive_after_visit(run: Run) -> bool:
+    """MERC_AT_ANY_VISIT: a dead merc revived at the end of a visit in the Fortress; whether a revive was tried."""
+    if not MERC_AT_ANY_VISIT:
+        return False
+    world = run.world()
+    player = world.player
+    if (
+        player is None
+        or player.area != PANDEMONIUM_FORTRESS
+        or owned_merc(world) is not None
+        or world.game_name in UNREVIVED
+    ):
+        return False
+    LOG.info("Macro: merc: dead at the visit's end: revived at Tyrael on the way (MERC_AT_ANY_VISIT)")
+    if not revive(run, player.name):
+        UNREVIVED.add(world.game_name)
+    return True
 
 
 def belt_healing(run: Run) -> int | None:

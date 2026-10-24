@@ -614,3 +614,12 @@ def test_not_held_each_act_opens_and_closes_the_inventory_as_before():
     assert play.pressed().count('i') == 1
     assert play.pressed().count('Escape') == 1
     assert play.world.open_panels == ()
+
+
+def test_a_townsfolk_menu_is_closed_whoever_opened_it():
+    # 20:38 on 2026-10-22: a menu a walk click opened outlived a restart, and each leg stopped on it
+    from inventory_tracking.macros.cube import OPENED, left_open
+
+    OPENED.clear()
+    assert left_open(('npc_interact',)) == ('npc_interact',)
+    assert left_open(('npc_interact', 'inventory')) == ()  # the inventory not the loop's: the player's hand

@@ -14,13 +14,20 @@ the stash's cap is used too (`overflow`: at the shard step, and at each later to
 `perform`), carried ones first; its act is played after the acts before it (`Agenda.acts` in order), its time added to
 the game's cap (loop.py `Loop.allowed_seconds`). A refused use is said and left: the shard stays carried or is stashed
 again, the kind's own shard and the game untouched.
+
+Every overflow shard used (2026-10-22, the player: "use all overflow shards => maybe more acts"): no bound on the acts
+a game (OVERFLOW_MOST None), a carried shard counted toward its stack (CARRIED_COUNT), a usable one never put down
+(SPARE_USABLE, `spared`), and one carried at the game's end used there, the game going on (END_USE, `use_at_end`).
 """
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 from inventory_tracking.common import LOG
-from inventory_tracking.game.records import Carried, StashView, World
-from inventory_tracking.macros import terrorize as hands  # `hands.CLICKS` read at the call
+from inventory_tracking.game.records import Carried, Pack, StashView, World
+from inventory_tracking.macros import (
+    midgame,
+    terrorize as hands,  # `hands.CLICKS` read at the call
+)
 from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import ERRAND, PANDEMONIUM_FORTRESS, TERRORIZE, WAYPOINT, Agenda, Objective
 from inventory_tracking.macros.engine import Run
@@ -64,10 +71,34 @@ SHARD_FAILURES = 2
 # another act than the kind's is used in an act kind's game after the kind's own, its act played after the acts before
 # it. A shard under the cap is used only by its own act kind, at SHARD_FLOOR. False: the kind's own shard only
 OVERFLOW = True
-# Overflow acts a game at most (None: every act over the limit). Three stacks stood at the cap at 15:08:10 and each
-# act's drops refill its stack within a game: with no bound every game would terrorize four acts (~4 h). The player's
-# case is one act ("act 5 after the act 3"); the acts after the kind's are taken first (act 3: 4, 5, 1, 2)
-OVERFLOW_MOST: int | None = 1
+# Overflow acts a game at most (None: every act over the limit); the acts after the kind's are taken first (act 3: 4,
+# 5, 1, 2). 1 from 2026-10-21 ("one extra act"). None since 2026-10-22 ~21:00, the player's ruling: "no save/exits on
+# games with worldstone shards spent! you must finish the game correctly => all levels + use all overflow shards =>
+# maybe more acts + rotating TZ"; "why we don't use northern shards and just ddroppped them" (rca/2026-10-22/
+# overflow-findings.md). Each act over the limit is played, its time added to the game's cap (loop.py
+# `allowed_seconds`): a game with k stacks at the cap at its shard step plays 1 + k acts. 1: one extra act, as before
+OVERFLOW_MOST: int | None = None
+# A carried shard counts toward its stack (2026-10-22, rca/2026-10-22/overflow-findings.md): over the limit when the
+# stack has no room for every carried one (terrorize.py `over_limit`), so the visit uses one before the stash step.
+# Game cyberg65 at 20:07:59: the Northern stack at 98, three Northerns carried, nothing due (98 < 99); the stash took
+# one (99) and the other two were put down in the Fortress. False: the stack's count alone, as before
+CARRIED_COUNT = True
+# A carried shard the game can still use is never put down (2026-10-22, `spared`, through engine.py `protected`, which
+# every put-down asks): one a class (the inventory's first, then the cube's) of an act neither terrorized nor refused in
+# this game, in a kind with a shard use. Only a shard that cannot be used falls: its act terrorized already (a second
+# Northern after act 5's), its use refused by the game, a kind with no shard use, a game where no shard is risked
+# (NO_OVERFLOW). False: the visit puts every full stack's shard down, as before
+SPARE_USABLE = True
+# A carried shard over the limit used at the game's end too (2026-10-22, `use_at_end`; the ruling above: "use all
+# overflow shards => maybe more acts"): the end's town visit and Save and Exit in a town use it first, and a confirmed
+# use takes the game's end back, its act's levels owed (tzloop.py ACT_OWED). False: never at the game's end, as before
+END_USE = True
+# The kind's own act's shard carried is kept for the next game and used first (2026-10-23 02:12:26: two Western shards
+# found in an act 1 game were put down, its stack full and no vendor buying one; the player, 2026-10-22: "why we don't
+# use northern shards and just ddroppped them", "use all overflow shards"): the next game's own act uses a carried one
+# before its stack (`own_shard`), and the first carried copy is never put down (`spared`); a second copy still falls.
+# False: the own act's shard always from its stack, and a carried one of it put down, as before
+OWN_CARRIED = True
 # Not played for an overflow: the kind's game states, where no shard is risked (`overflow`)
 NO_OVERFLOW = frozenset((None, JOINED, GIVEN_UP, CLICKS_OFF))
 # A shard on the ground whose stack is full is picked up while the game's overflow slot is free, and used at the next
@@ -133,6 +164,24 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
     """The kind's own act's shard (`use_shard`)."""
     agenda, act = loop.agenda, act_of(loop.kind)
     assert act is not None
+    if OWN_CARRIED and hands.CLICKS and (item := carried_own(run, act)) is not None:
+        agenda.shard = FAILED  # tried once a game, as below
+        midgame.keep(loop)
+        try:
+            used = use_carried(run, item, inventory_key, terrorized)
+        except Hand:
+            agenda.shard = None
+            raise
+        except Abort:
+            agenda.shard_failures += 1
+            raise
+        if used is not None and used.confirmed:
+            agenda.shard, agenda.acts, agenda.shard_failures = USED, played((used.act, *agenda.acts), act), 0
+            midgame.keep(loop)
+            LOG.info('Macro: act: act %d terrorized by a carried %s (OWN_CARRIED): its levels are played, the boss '
+                     'first', used.act, name_of(used.shard))  # fmt: skip
+            return
+        LOG.info('Macro: act: the carried %s did not take: one from its stack', name_of(item.txt))
     view = run.reads.stash_view()
     if choose_shard(view, act) is None:
         agenda.shard = NONE_HELD
@@ -145,6 +194,7 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
         LOG.info('Macro: act: terrorize.CLICKS is off: TZ+ on the rotation this game')
         return
     agenda.shard = FAILED  # tried once a game, whatever stops it (a stash out of sight)
+    midgame.keep(loop)  # in the game's record before the click: a crash under it never tries a second shard
     try:
         used = terrorize(run, inventory_key, act, terrorized)
     except Hand:
@@ -155,6 +205,7 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
         raise
     if used is not None and used.confirmed:
         agenda.shard, agenda.acts, agenda.shard_failures = USED, played((used.act, *agenda.acts), act), 0
+        midgame.keep(loop)  # the shard spent and its act in the game's record at once
         LOG.info('Macro: act: act %d terrorized by a %s: its levels are played, the boss first', used.act,
                  name_of(used.shard))  # fmt: skip
         return
@@ -162,6 +213,14 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
     LOG.info('Macro: act: the shard did not take (%s): TZ+ on the rotation this game (%d of %d)',
              'nothing used' if used is None else 'gone, the stack not one lower' if used.gone else 'still carried',
              agenda.shard_failures, SHARD_FAILURES)  # fmt: skip
+
+
+def carried_own(run: Run, act: int) -> Carried | None:
+    """OWN_CARRIED: the first carried shard of `act` (the inventory's, then the cube's), None with none."""
+    pack = run.reads.carried()
+    if pack is None:
+        return None
+    return next((each for each in (*pack.items, *pack.in_cube) if SHARDS.get(each.txt) == act), None)
 
 
 def played(acts: Iterable[int], own: int | None) -> tuple[int, ...]:
@@ -178,8 +237,9 @@ def overflow_due(
     *,
     carried_only: bool = False,
 ) -> tuple[tuple[int, Carried | None], ...]:
-    """Pure. The overflow uses due now (`OVERFLOW`): each act of a shard over the limit (`over_limit`) but the kind's
-    own (`own`), not terrorized and not tried in this game, with the carried shard of it to use (the inventory's
+    """Pure. The overflow uses due now (`OVERFLOW`): each act of a shard over the limit (`over_limit`: its stack at the
+    cap, or with no room for the `carried` ones, CARRIED_COUNT) but the kind's own (`own`), not terrorized and not
+    tried in this game, with the carried shard of it to use (the inventory's
     first, then the cube's; None: one from its stack); the acts after `own` first (act 3: 4, 5, 1, 2), at most
     OVERFLOW_MOST played a game. () with the switch off or the stash unread. `carried_only`: only the acts of a carried
     shard (a TZ leveling game, OVERFLOW_KINDS), so one with none carried does not take the slot from one carried."""
@@ -188,7 +248,7 @@ def overflow_due(
     held = tuple(carried)
     due = sorted(
         (SHARDS[shard], shard)
-        for shard in over_limit(view)
+        for shard in over_limit(view, held if CARRIED_COUNT else ())
         if SHARDS[shard] != own
         and SHARDS[shard] not in agenda.acts
         and SHARDS[shard] not in agenda.overflow
@@ -257,18 +317,21 @@ def overflow(loop, run: Run, terrorized, inventory_key: str | None = None, *, ca
             if cut(run, stop):
                 raise
             agenda.overflow[act] = FAILED
+            midgame.keep(loop)
             LOG.info('Macro: act: %s shard over the limit (%d): not used (%s): act %d not played', name, count, stop,
                      act)  # fmt: skip
             continue
         if used is not None and used.confirmed:
             agenda.overflow[act] = USED
             agenda.acts = played((*agenda.acts, act), own)
+            midgame.keep(loop)  # the overflow shard spent and its act in the game's record at once
             # The watch tools read it (d2-loop-watch logwords.py OVERFLOW)
             LOG.info('Macro: act: %s shard over the limit (%d)%s: act %d terrorized too, played after %s', name, count,
                      ', a carried one' if item is not None else '', act, before)  # fmt: skip
             run.say(f'Act {act} too: {name} shard over the limit')
             continue
         agenda.overflow[act] = REFUSED
+        midgame.keep(loop)
         if used is None:
             why, left = 'nothing used', 'where it was'
         elif used.gone:
@@ -282,6 +345,98 @@ def overflow(loop, run: Run, terrorized, inventory_key: str | None = None, *, ca
             )
         LOG.info('Macro: act: %s shard over the limit (%d): refused (%s): act %d not played; the shard %s', name, count,
                  why, act, left)  # fmt: skip
+
+
+def use_at_end(loop, run: Run, terrorized, inventory_key: str | None = None) -> bool:
+    """END_USE: at the game's end in a town (its town visit, Save and Exit there), the carried shards over the limit
+    used (`overflow`, carried only); whether one was. A confirmed use takes the game's end back (`Loop.done`): its act's
+    levels are owed (tzloop.py ACT_OWED) and planned at the next leg. Never in a game given up (`Loop.abandon`)."""
+    if not END_USE or getattr(loop, 'abandon', False):
+        return False
+    before = loop.agenda.acts
+    overflow(loop, run, terrorized, inventory_key, carried_only=True)
+    added = tuple(act for act in loop.agenda.acts if act not in before)
+    if not added:
+        return False
+    loop.done = None
+    midgame.keep(loop)
+    LOG.info('Macro: act: the game goes on: %s terrorized at its end by a carried shard over the limit, played now',
+             played_said(added))  # fmt: skip
+    run.say(f'The game goes on: {played_said(added)}')
+    return True
+
+
+def end_due(loop, run: Run) -> tuple[int, ...]:
+    """END_USE: the acts a carried shard over the limit would terrorize at the game's end (`overflow_due`, carried
+    only); () with none, the switch off, a game given up or no shard risked in it. Read anywhere (the stash's record),
+    so a game ending in a field level goes to town for it first (tzloop.py LEAVE_GAME)."""
+    agenda, kind = loop.agenda, getattr(loop, 'kind', None)
+    own = act_of(kind) if kind is not None else None
+    if not (END_USE and OVERFLOW and hands.CLICKS) or getattr(loop, 'abandon', False) or kind is None:
+        return ()
+    if own is None and getattr(kind, 'key', None) not in OVERFLOW_KINDS:
+        return ()
+    if own is not None and agenda.shard in NO_OVERFLOW:
+        return ()
+    view = run.reads.stash_view() or run.stash.current()
+    pack = run.reads.carried()
+    carried = (*pack.items, *pack.in_cube) if pack is not None else ()
+    return tuple(act for act, item in overflow_due(view, agenda, own, carried, carried_only=True) if item is not None)
+
+
+def unusable(loop, act: int) -> str | None:
+    """Why this game cannot use a carried shard of `act` over the limit (`overflow`); None: it can (SPARE_USABLE)."""
+    if not (OVERFLOW and hands.CLICKS):
+        return 'the overflow is off'
+    kind, agenda = getattr(loop, 'kind', None), getattr(loop, 'agenda', None)
+    if kind is None or agenda is None:
+        return 'no loop kind'
+    own = act_of(kind)
+    if own is None and getattr(kind, 'key', None) not in OVERFLOW_KINDS:
+        return f'{getattr(kind, "name", kind.key)} has no shard use'
+    if own is not None and agenda.shard is not None and agenda.shard in NO_OVERFLOW:
+        return f'no shard is risked in this game ({agenda.shard})'
+    if act == own:
+        return f"act {act} is the kind's own (its shard from its stack)"
+    if act in agenda.acts:
+        return f'act {act} is terrorized in this game already'
+    if agenda.overflow.get(act) == REFUSED:
+        return f'its use was refused by the game (act {act})'
+    if OVERFLOW_MOST is not None and len(overflow_played(agenda)) >= OVERFLOW_MOST:
+        return f"the game's {OVERFLOW_MOST} extra acts are played"
+    return None
+
+
+_said_down: set[tuple[object, int]] = set()  # (game, unit): the shard's put-down said once a game (`spared`)
+
+
+def spared(loop, item: Carried, carried: Callable[[], Pack | None] | None = None) -> str | None:
+    """SPARE_USABLE: why the carried shard `item` is never put down now (engine.py `protected`): this game can still
+    use it (`unusable`), and it is the first carried of its class (the inventory's, then the cube's: the one
+    `overflow_due` takes; `carried` reads the pack now). None for any other item, or a shard that falls: why said once
+    a game (a second Northern after act 5's)."""
+    if not SPARE_USABLE or item.txt not in SHARDS:
+        return None
+    act, name = SHARDS[item.txt], name_of(item.txt)
+    agenda = getattr(loop, 'agenda', None)
+    said = (getattr(agenda, 'game', None), item.unit_id)
+    why = unusable(loop, act)
+    kept = f'a {name} act {act} can still use in this game'
+    if OWN_CARRIED and why is not None and getattr(loop, 'kind', None) is not None and act == act_of(loop.kind):
+        # the next game's own act uses it first (`own_shard`): the first copy kept, a second falls below
+        why, kept = None, f"a {name} kept for the next game's act {act} (OWN_CARRIED)"
+
+    if why is None and carried is not None and (pack := carried()) is not None:
+        first = next((each for each in (*pack.items, *pack.in_cube) if each.txt == item.txt), None)
+        if first is not None and first.unit_id != item.unit_id:
+            why = f'another {name} (unit {first.unit_id}) is kept for act {act}'
+    if why is None:
+        return kept
+    if said not in _said_down:
+        _said_down.difference_update({each for each in _said_down if each[0] != said[0]})  # this game's only
+        _said_down.add(said)
+        LOG.info('Macro: act: the %s (unit %d) may be put down: %s', name, item.unit_id, why)
+    return None
 
 
 def played_said(acts: tuple[int, ...]) -> str:

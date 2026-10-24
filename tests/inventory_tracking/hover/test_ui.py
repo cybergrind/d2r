@@ -5,7 +5,7 @@ from inventory_tracking.hover.ui import collect_ui
 
 def memory_reader():
     memory = bytearray(0x4000000)
-    struct.pack_into('<Q', memory, 0x1EE5790, 0x3000000)
+    struct.pack_into('<Q', memory, 0x1EE7790, 0x3000000)
     struct.pack_into('<Q', memory, 0x30000D0, 0x3001000)
     struct.pack_into('<Q', memory, 0x3001178, 0x3002000)
     struct.pack_into('<Q', memory, 0x3002000, 0x1700000)

@@ -61,6 +61,7 @@ def off(monkeypatch) -> None:
     monkeypatch.setattr(manaburn, 'BURN_RANGE', False)
     monkeypatch.setattr(manaburn, 'FAST_RANGE', False)
     monkeypatch.setattr(manaburn, 'MANA_FLOOR', False)
+    monkeypatch.setattr(herald_pack, 'RANGE_LEAD', False)  # 2026-10-23, after that day
 
 
 def test_today_the_arriving_pack_is_waited_for_and_now_it_is_hopped_away_from(monkeypatch) -> None:
@@ -253,6 +254,7 @@ def test_the_approach_into_the_pack_is_barred_and_not_with_burn_range_off(monkey
     assert asked(priced_toward('herald-manaburn-arriving', step))['veto'] == manaburn.LANDED
     monkeypatch.setattr(manaburn, 'BURN_RANGE', False)
     monkeypatch.setattr(manaburn, 'FAST_RANGE', False)
+    monkeypatch.setattr(herald_pack, 'RANGE_LEAD', False)  # the Herald pack's led range bars it too (2026-10-23)
     assert asked(priced_toward('herald-manaburn-arriving', step))['veto'] is None
 
 
@@ -370,6 +372,10 @@ def test_the_teleport_back_into_the_pack_between_two_keep_range_hops_is_barred(h
 
     assert asked()['veto'] == manaburn.PACK_LANDED
     monkeypatch.setattr(manaburn, 'PACK_LANDING', False)
+    # The keep range's own model bars it too (safety.py PACK_RANGE_LANDING, 2026-10-23): 9.1 from a member on the
+    # character, the hop's `why_back` there
+    assert asked()['veto'] == module.PACK_RANGE_LANDED
+    monkeypatch.setattr(module, 'PACK_RANGE_LANDING', False)
     assert asked()['veto'] is None  # as played: taken, and hop 2 of 3 took the character out again 0.55 s later
 
 
@@ -379,6 +385,7 @@ def test_just_after_a_hop_with_the_demons_idle_by_the_character_the_teleport_bac
     """The look of 20:31:38.10: the demons 0.6 from the character in neutral mode after the hop of 37.33, the nearest
     spider 12.8 from them (combat/pack.py REAGGRO_BY_MARK: the mark re-aggroes them, mark.py REMARK_AFTER_HOP)."""
     monkeypatch.setattr(manaburn, 'PACK_LANDING', False)
+    monkeypatch.setattr(module, 'PACK_RANGE_LANDING', False)
     step = Step(BACK_IN, TELEPORT)
 
     def asked() -> dict:
@@ -424,6 +431,7 @@ def test_a_move_back_to_where_the_last_safety_hop_left_is_barred_for_a_few_secon
     to A, three times, no strike (macros/safety.py BOUNCE_BACK). Here: the look of 20:31:38.10, the character at B
     (7504.5, 5076.5) 0.5 s after a safety Teleport from A, the asked Teleport back to A."""
     monkeypatch.setattr(manaburn, 'PACK_LANDING', False)
+    monkeypatch.setattr(module, 'PACK_RANGE_LANDING', False)
     step = Step(BACK_IN, TELEPORT)
     here = (7504.5, 5076.5)
 

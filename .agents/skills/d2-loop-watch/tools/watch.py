@@ -12,9 +12,12 @@ Prints (one stdout line = one event, for a Monitor):
 - `PLAYER: loop off` / `PLAYER: loop on` when the player toggles it with KP_6;
 - `STALL: ...` when the loop is on, no leg has started for --stall seconds (wall clock) and no teleport, kill or pickup
   was logged in them, or one leg runs past LONG_LEG seconds; again every --again;
-- `ANOMALY: ...` when a combat take closes (TAKE_CLOSED): anomalies.py's cases in it (IDLE, LONG_FIGHT, JUMP_CLUSTER),
-  found on a worker thread so the watch never waits for it (the player, 2026-10-21 ~21:08: "this should become a part
-  of monitoring loop");
+- `ANOMALY: ...` when a combat take closes (TAKE_CLOSED): anomalies.py's cases in it (IDLE, LONG_FIGHT, JUMP_CLUSTER,
+  NO_DAMAGE), found on a worker thread so the watch never waits for it (the player, 2026-10-21 ~21:08: "this should
+  become a part of monitoring loop");
+- `NO_DAMAGE RCA: <take> <time> unit <u>: <verdict>; <report>` after each NO_DAMAGE: nodamage.py run on it at once
+  (`uv run`, on a thread of its own), its report in rca/auto/<date>/ (the player, 2026-10-24 ~20:35: "do automatic
+  rca for such cases"); `NO_DAMAGE RCA: ... failed/not run` with the command when it cannot run;
 - `== following <session>` when a new service starts (a restart);
 - `RATE: ...` every RATE_EVERY cycles: chests an hour over the last 20 and 60 cycles (a cycle from one Lower Kurast
   arrival to the next, everything between counted; the chests from the takes, `combat.legs`), against the baseline:
@@ -30,6 +33,7 @@ loop is on. `--from-start` prints the whole current log's games instead.
 
 import argparse
 import queue
+import subprocess
 import sys
 import threading
 import time
@@ -68,13 +72,23 @@ from logwords import (
 )
 
 
-RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'alt-d'
+ROOT = Path(__file__).resolve().parents[4]
+RUNS = ROOT / 'inventory_tracking' / 'runs' / 'alt-d'
 SLOW = 25.0
 LONG_LEG = 300.0  # seconds: one leg this long is a STALL even while it moves and fights
 COMBAT = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'combat'
 BASELINE = 279  # chests an hour of cycles, 02:43-04:31 on 2026-10-17 (the journal)
 RATE_EVERY = 5
 TAKE_LEAD = 20.0  # seconds: a stay's take starts this much before its `the chests` leg at most
+NODAMAGE = Path(__file__).resolve().parent / 'nodamage.py'
+NODAMAGE_RCA = 'NO_DAMAGE RCA:'  # nodamage.py's own lines start so (Report.summary)
+RCA_SECONDS = 120.0
+
+
+def nodamage_command(case: anomalies.Case) -> list[str]:
+    """The automatic RCA of a NO_DAMAGE case (nodamage.py needs the repo's Python: the level grids, the doors)."""
+    return ['uv', 'run', '--offline', 'python', str(NODAMAGE), case.take, '--at', f'{case.start:%H:%M:%S}',
+            '--unit', str(case.data.get('unit', 0))]  # fmt: skip
 
 
 def chests_between(start: datetime, end: datetime) -> int | None:
@@ -309,6 +323,30 @@ class Watch:
                 continue
             for case in cases:
                 self.found.put(case.line())
+                if case.kind == 'NO_DAMAGE':
+                    self.rca(case)
+
+    def rca(self, case: anomalies.Case) -> None:
+        """nodamage.py on the case on a thread of its own (it loads the take's level, records and stats: seconds); its
+        one line, or the command when it cannot run."""
+        command = nodamage_command(case)
+
+        def run() -> None:
+            try:
+                done = subprocess.run(
+                    command, cwd=ROOT, capture_output=True, text=True, timeout=RCA_SECONDS, check=False
+                )
+                said = [line for line in done.stdout.splitlines() if line.strip()]
+            except (OSError, subprocess.SubprocessError) as error:
+                said, done = [], None
+                self.found.put(f'{NODAMAGE_RCA} not run ({type(error).__name__}): {" ".join(command)}'[:300])
+            if done is not None and (done.returncode or not said):
+                why = (done.stderr.strip().splitlines() or ['no case'])[-1][:120]
+                said = [f'{NODAMAGE_RCA} failed ({why}): {" ".join(command)}']
+            for line in said:
+                self.found.put(line[:400])
+
+        threading.Thread(target=run, name='nodamage', daemon=True).start()
 
     def drain(self) -> None:
         """Say the anomalies found since the last call."""

@@ -38,8 +38,9 @@ import json
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import GOLD_STAT
@@ -71,12 +72,21 @@ from inventory_tracking.macros.shop import (
 from inventory_tracking.macros.waypoint import panel_point
 
 
+if TYPE_CHECKING:
+    from inventory_tracking.loot.assess import Assessor
+    from inventory_tracking.loot.facts import ItemFacts
+    from inventory_tracking.loot.value import Value
+
+
 __all__ = [
+    'ASSESSED',
     'CARRIED_FLOOR',
     'GAMBLE',
     'GAMBLE_DRY',
     'GAMBLE_FLOOR',
     'GAMBLE_SESSION_MOST',
+    'NEAR_CAP',
+    'NEAR_CAP_ONLY',
     'RING',
     'RING_PRICE',
     'Gambled',
@@ -97,6 +107,12 @@ GAMBLE = True
 # (her stock read, tab 0, the Ring at (9, 0) for ~50,000, budget 450,000); the player: "we have topped up gold and no
 # gamble session has occured"
 GAMBLE_DRY = False
+# The rings are judged by the one assessment entry point at GAMBLE (loot/assess.py `live().assess_all`, design.md §10.4
+# step 3; the player, 2026-10-23: "I want to have one place that decides pickups/value"): the town's rules, as before.
+# Gate (2026-10-23): the same sell/keep per ring on the recorded rings (tests/inventory_tracking/macros/
+# test_gamble_assessed.py). `_sell`'s guards stay (engine.py `protected`, D3). While on, a ring the old call
+# (loot/api.py `town_verdicts` over BOOK) judges otherwise logs one shadow line. False: the old call alone
+ASSESSED = True
 # Gold the session leaves, counted as the carried gold (stat 14) plus the personal stash's (stat 15); the shared stash's
 # is no part of it. 3M for the first runs ("probably we can set some higher budget at first (not 200k, but for example
 # 3M, to test in several times)", 2026-10-21 ~09:50); the target is the sum under 200,000 (the player, ~10:10, on "<200k
@@ -118,6 +134,20 @@ GOLD_RESERVE = 50_000
 # A session at a visit that does not need it for the cap: this much over the floor (a short walk for a few rings is
 # not worth it; "identify-in-a-batch only when room runs out", the player's lazy-batch mindset, 2026-10-20)
 DUE_SPEND = 250_000
+# Gambling only near the gold's cap (the player, 2026-10-23: "Only near gold cap"): a session only once the carried
+# gold (stat 14 alone; the stashes' gold never counts toward it, and the shared stash's is never spent) is within
+# NEAR_CAP of the cap (level x 10k, shop.py `gold_cap`). Before, a visit gambled at DUE_SPEND spendable wherever the
+# gold stood: five sessions on 2026-10-22, each at ~470-550k carried of the 960k cap (probe.log 20:54-23:44), 0 rings
+# kept.
+# False: as before (DUE_SPEND far from the cap too)
+NEAR_CAP_ONLY = True
+# The margin: the carried gold rose ~280-330k an hour on 2026-10-22 (260k after the 22:15 session -> 475k at 23:01;
+# 261k after that one -> 496k at 23:44) with a room trip every ~6.6 min of loop time, ~35-40k a visit to visit. 150k
+# is about four visits' gold: a visit missed (a stop, a long level, an act boss's gold) still does not reach the cap,
+# where gold is left on the ground and her sales stop (SALE_MOST 35k). The session then spends GAMBLE_SESSION_MOST
+# (500k) from ~810k+, so the sessions come about once in 1.5 h, not every ~40 min; a wider margin would not make them
+# rarer (the session's most sets that), a narrower one risks the cap
+NEAR_CAP = 150_000
 # The carried gold never gambled below: the game takes a price from the carried gold first, then the personal stash's
 # (16:41:52 on 2026-10-21: carried 9,142 + personal stash 35,858 paid ring 5), and repairs use only the carried gold
 # while potions keep 100k carried (shop.POTIONS_RESERVE). The 16:41 session left 8,309 carried. The player, 2026-10-21
@@ -226,10 +256,15 @@ def spendable(carried: int | None, bank: int | None) -> int:
 
 def due(carried: int | None, bank: int | None, cap: int | None) -> str | None:
     """Why a town visit gambles now, None when it does not: GAMBLE on and a ring's worth `spendable` with the carried
-    gold too near its cap for a sale (shop.py `restock` sells nothing past cap - SALE_MOST), or DUE_SPEND spendable."""
+    gold within NEAR_CAP of its cap (NEAR_CAP_ONLY); off, with it too near its cap for a sale (shop.py `restock` sells
+    nothing past cap - SALE_MOST), or DUE_SPEND spendable."""
     if not GAMBLE or carried is None or cap is None:
         return None
     budget = spendable(carried, bank)
+    if NEAR_CAP_ONLY:
+        if carried + NEAR_CAP <= cap or budget < RING_PRICE:
+            return None
+        return f'carried gold {carried} within {NEAR_CAP} of the cap {cap}: {budget} to spend'
     capped = carried + SALE_MOST > cap
     if budget < RING_PRICE or (not capped and budget < DUE_SPEND):
         return None
@@ -626,40 +661,69 @@ def _stats(observation: Mapping | None) -> str:
     return '; '.join(str(row.get('text')) for row in rows if isinstance(row, Mapping) and row.get('text'))
 
 
-def keep_rules(appraise: Callable[[list[int]], object] | None) -> Judge:
+def keep_rules(appraise: Callable[[list[int]], object] | None, assessor: Callable[[], Assessor] | None = None) -> Judge:
     """The live judge: the identify worker's read and KB lookup of the rings now (`appraise`, runner.py
-    `MacroRunner.appraise`, noted into loot/shadow.py BOOK), then the town visit's decision (loot/api.py
-    `town_verdicts`: keep.py `decide` under the town's guards, the owned copies from the collection). A ring with no
-    read is kept (S8)."""
+    `MacroRunner.appraise`, noted into loot/shadow.py BOOK), then the one entry point at GAMBLE (`assessor`, live
+    loot/assess.py `live`: the town visit's decision, keep.py `decide` under the town's guards, the owned copies from
+    the collection). A ring with no read is kept (S8)."""
 
     def judge(rings: Sequence[Carried]) -> dict[int, Judged]:
-        from inventory_tracking.loot import api as loot_api
-        from inventory_tracking.loot.facts import Owner, from_carried
+        # here: the loot layers import the macros (loot/value.py `CollectionCopies`)
+        from inventory_tracking.loot.assess import Outcome, Site, carried_facts, live, shadow
+        from inventory_tracking.loot.facts import Owner
         from inventory_tracking.loot.shadow import BOOK
-        from inventory_tracking.loot.value import CollectionCopies, Value, appraise_result
 
         began = time.monotonic()
         if appraise is not None and rings:
             appraise([ring.unit_id for ring in rings])
-        items: list[tuple] = []
-        reads: dict[int, Mapping | None] = {}
-        for ring in rings:
-            entry = BOOK.get(ring.unit_id)
-            reads[ring.unit_id] = entry.observation if entry is not None else None
-            facts = from_carried(ring, owner=Owner.LOOP, observation=reads[ring.unit_id])
-            value: Value | None = appraise_result(facts, entry.result, entry.verdict) if entry is not None else None
-            items.append((facts, value))
-        verdicts = loot_api.town_verdicts(items, CollectionCopies().copies)
+        judging = (assessor or live)()
+        reads = {ring.unit_id: (entry.observation if (entry := BOOK.get(ring.unit_id)) is not None else None)
+                 for ring in rings}  # fmt: skip
+        if not ASSESSED:
+            old = _town_judged(rings, judging.copies.copies)
+            LOG.info('%s %d rings judged in %.2f s', PREFIX, len(rings), time.monotonic() - began)
+            return {unit: replace(judged, stats=_stats(reads.get(unit))) for unit, judged in old.items()}
+        found = judging.assess_all([carried_facts(ring, Owner.LOOP, BOOK) for ring in rings], Site.GAMBLE)
+        try:  # the shadow: never in the way of the entry point's decision
+            old = _town_judged(rings, judging.copies.copies)
+        except Exception as error:
+            LOG.info('%s the old keep rules failed (%s: %s): no shadow', PREFIX, type(error).__name__, error)
+            old = {}
         LOG.info('%s %d rings judged in %.2f s', PREFIX, len(rings), time.monotonic() - began)
-        return {
-            verdict.facts.unit_id: Judged(
-                verdict.facts.unit_id,
-                verdict.sold,
-                verdict.facts.title(),
-                f'{verdict.said()} [rule {verdict.decision.rule if verdict.decision is not None else "-"}]',
-                _stats(reads.get(verdict.facts.unit_id)),
-            )
-            for verdict in verdicts
-        }
+        judged = {}
+        for assessment in found:
+            unit, sold = assessment.facts.unit_id, assessment.outcome == Outcome.VENDOR
+            was = old.get(unit)
+            shadow(('gamble', unit), Site.GAMBLE, assessment.facts.title(), 'sell' if sold else 'keep',
+                   'sell' if was is not None and was.sell else 'keep', new_decides=True)  # fmt: skip
+            why = f'{"sell" if sold else "keep"}: {assessment.why} [rule {assessment.rule}]'
+            judged[unit] = Judged(unit, sold, assessment.facts.title(), why, _stats(reads.get(unit)))
+        return judged
 
     return judge
+
+
+def _town_judged(
+    rings: Sequence[Carried], copies: Callable[[ItemFacts], Sequence[ItemFacts] | None]
+) -> dict[int, Judged]:
+    """The rings judged by loot/api.py `town_verdicts` over BOOK (`keep_rules` before the entry point). Legacy until
+    ASSESSED is proven: the switch-off path and the shadow."""
+    from inventory_tracking.loot import api as loot_api
+    from inventory_tracking.loot.facts import Owner, from_carried
+    from inventory_tracking.loot.shadow import BOOK
+    from inventory_tracking.loot.value import appraise_result
+
+    items: list[tuple[ItemFacts, Value | None]] = []
+    for ring in rings:
+        entry = BOOK.get(ring.unit_id)
+        facts = from_carried(ring, owner=Owner.LOOP, observation=entry.observation if entry is not None else None)
+        items.append((facts, appraise_result(facts, entry.result, entry.verdict) if entry is not None else None))
+    return {
+        verdict.facts.unit_id: Judged(
+            verdict.facts.unit_id,
+            verdict.sold,
+            verdict.facts.title(),
+            f'{verdict.said()} [rule {verdict.decision.rule if verdict.decision is not None else "-"}]',
+        )
+        for verdict in loot_api.town_verdicts(items, copies)
+    }

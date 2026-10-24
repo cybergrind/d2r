@@ -146,3 +146,21 @@ def test_owned_jewel_comparison_is_neutral_and_not_a_keep_limit():
     header = next(line for line in document.lines if line.text.startswith('Owned:'))
     assert header.tone == Tone.METADATA
     assert header.text == 'Owned: 2 x magic Jewel with the same stats'
+
+
+def test_the_alt_d_card_says_what_the_loop_would_do_beside_the_verdict(monkeypatch):
+    # The one assessment entry point at CARD (identify/service.py CARD_ASSESSED, 2026-10-23), display only
+    from inventory_tracking.identify import service
+
+    record = saved_result()
+    record['result']['triage'] = {'verdict': 'vendor', 'reason': 'no supported trade combination', 'band': None}
+    lines = [line.text for line in ItemAssessment.from_record(record).to_osd()]
+    assert lines[0].startswith('VENDOR — ')
+    assert lines[1].startswith('Loop: VENDOR K8 — '), lines[:3]
+    del record['result']['triage']
+    lines = [line.text for line in ItemAssessment.from_record(record).to_osd()]
+    assert lines[0].startswith('Item: ')
+    assert lines[1].startswith('Loop: '), lines[:3]
+    monkeypatch.setattr(service, 'CARD_ASSESSED', False)
+    lines = [line.text for line in ItemAssessment.from_record(record).to_osd()]
+    assert not any(line.startswith('Loop: ') for line in lines)

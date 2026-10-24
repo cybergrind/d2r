@@ -106,12 +106,12 @@ def test_jewel_required_level_comes_from_verified_affixes_not_item_level():
     item = from_drop(captured)
     assert item['properties']['796'] == 18
     result = assess(item, tables)
-    assert result['verdict'] == 'check'
-    assert 'low-level' in result['reason'].lower()
+    # rca/2026-10-22/jewel-verify-G1.md P1/P8: max 10+ is a reviewed sell at any equip level, never CHECK.
+    assert result['verdict'] == 'sell'
     assert result['decision_ist'] is None
     for level in [41, 50, None]:
         properties = item['properties'] | {'796': level}
-        assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+        assert assess(item | {'properties': properties}, tables)['verdict'] == 'sell'
     for source in [
         {},
         captured['source'] | {'stat_capture_complete': False},
@@ -119,7 +119,7 @@ def test_jewel_required_level_comes_from_verified_affixes_not_item_level():
     ]:
         unknown = from_drop(captured | {'source': source})
         assert '796' not in unknown['properties']
-        assert assess(unknown, tables)['verdict'] == 'vendor'
+        assert assess(unknown, tables)['verdict'] == 'sell'
     high_prefix = next(
         int(k)
         for k, r in metadata()['affixes']['prefix'].items()
@@ -134,7 +134,7 @@ def test_jewel_required_level_comes_from_verified_affixes_not_item_level():
         }
     )
     assert high['properties']['796'] == 50
-    assert assess(high, tables)['verdict'] == 'vendor'
+    assert assess(high, tables)['verdict'] == 'sell'  # Vermilion of Carnage: VMI Medium (G1 P2)
     # Carnage is not rare-eligible; malformed IDs never establish LLD eligibility.
     rare = from_drop(captured | {'item': captured['item'] | {'rarity': 'rare'}})
     assert '796' not in rare['properties']

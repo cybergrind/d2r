@@ -8,7 +8,7 @@ import struct
 from typing import Any
 
 
-UI_MANAGER_RVA = 0x1EE5790
+UI_MANAGER_RVA = 0x1EE7790  # native/layout.py PANEL_MANAGER_RVA (2026-10-23 patch: +0x2000)
 WIDGET_BYTES = 0x700
 
 

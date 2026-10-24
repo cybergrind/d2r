@@ -103,8 +103,9 @@ def test_r2_half_the_pack_goes_for_a_demon_within_2_s_of_the_first_mark():
 
 
 @DEFAULT
-@pytest.mark.xfail(strict=True, reason='seeds 1 and 3 lose 48% and 22% with 2 and 1 potions (findings §7)')
 def test_r3_life_lost_under_15_percent_with_at_most_one_potion():
+    # Held since findings §7 (seeds 1 and 3 lost 48% and 22% with 2 and 1 potions). Met from 2026-10-23 03:20 with
+    # casters.py ENGORGE_CLEAR_AIM on (rca/2026-10-23/exp-casts-findings.md); still xfails with it off.
     for seed in SEEDS:
         found = measured('default', seed)
         assert found.lost < 0.15, (seed, found)

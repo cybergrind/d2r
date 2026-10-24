@@ -45,6 +45,9 @@ MONSTER_FIELDS = (
     # A demon (1): what Bind Demon (skills.txt 382) can take (builds/warlock/bind.py, 2026-10-21; the 189 rows were
     # added to the bundle from pricing/raw/game-excel/monstats.txt, which matches the bundle's other columns)
     'demon',
+    # The missiles its attacks throw (combat/bolts.py READ_THROWS, 2026-10-23: added to the bundle with their rows from
+    # pricing/raw/game-excel, which matches the bundle's other columns)
+    'MissA1', 'MissA2',
 )  # fmt: skip
 # monumod.txt's constants (a second table in the file's last columns), by their description: Hell's.
 UNIQUE_CONSTANTS = {
@@ -123,6 +126,11 @@ def build(install: Path) -> dict[str, Any]:
         for mid, r in missiles.items()
         if r.get('CollideType', '') in ('', '0') and not any(r.get(column) for column in damage)
     }
+    # The missiles the monsters' attacks throw (MissA1, MissA2), beside MISSILES (combat/bolts.py READ_THROWS)
+    thrown = {
+        r[column] for r in monsters.values() if r.get('Level(H)') for column in ('MissA1', 'MissA2') if r.get(column)
+    }
+    shots = {mid for mid, r in missiles.items() if r['Missile'] in thrown}
     return {
         'harmless_missiles': sorted(own | inert),
         'unique': unique,
@@ -130,7 +138,7 @@ def build(install: Path) -> dict[str, Any]:
         'terror': terror,
         'source': f'D2R install {install.name}: data/global/excel skills, missiles, monstats, monlvl, levels, monumod',
         'skills': {str(sid): pick(skills[sid], SKILL_FIELDS) for sid in SKILLS},
-        'missiles': {str(mid): pick(missiles[mid], MISSILE_FIELDS) for mid in MISSILES},
+        'missiles': {str(mid): pick(missiles[mid], MISSILE_FIELDS) for mid in sorted(set(MISSILES) | shots)},
         'monsters': {str(hc): pick(r, MONSTER_FIELDS) for hc, r in monsters.items() if r.get('Level(H)')},
         'monlvl': {r['Level']: pick(r, LEVEL_FIELDS) for r in rows(game, 'monlvl') if r.get('Level', '').isdigit()},
         'areas': {r['Id']: r['MonLvlEx(H)'] for r in levels},

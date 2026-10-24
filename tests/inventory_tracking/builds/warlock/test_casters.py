@@ -4,6 +4,7 @@ import logging
 import math
 from dataclasses import replace
 
+from inventory_tracking.builds.warlock import buffs as plan
 from inventory_tracking.builds.warlock.casters import NEAR_SPOTS, SUMMON_SPOTS, open_spots, renew_consume
 from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
@@ -288,8 +289,10 @@ def test_no_ground_known_or_none_to_stand_on_leaves_the_spots_as_they_were():
     assert open_spots(run, game.world) == list(SUMMON_SPOTS)
 
 
-def test_consume_is_cast_anew_on_a_defiler_summoned_for_it_and_another_summoned():
-    # Not on the standing one: it follows the character, the bound demon beside it (09:58 on 2026-10-12).
+def test_consume_is_cast_anew_on_a_defiler_summoned_for_it_and_another_summoned(monkeypatch):
+    # Not on the standing one: it follows the character, the bound demon beside it (09:58 on 2026-10-12). With
+    # CONSUME_STANDING (2026-10-23) one standing still with nobody in its way is consumed: test_defiler_mana.py.
+    monkeypatch.setattr(plan, 'CONSUME_STANDING', False)
     standing = Monster(900, 744, 1, 5010.0, 5000.0, 0xFFFFFFFF)
     game = Game(world(monsters=(standing,)))
     renew_consume(game.run())

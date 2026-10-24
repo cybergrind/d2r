@@ -7,7 +7,7 @@ import logging
 
 import pytest
 
-from inventory_tracking.macros import zonenav
+from inventory_tracking.macros import tzloop, zonenav
 from inventory_tracking.macros.loop import LEAVE, TZ, TZ_CLEAR, TZ_UP, Loop
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.routes.catalog import ROUTES
@@ -118,7 +118,9 @@ def restarted(walk: ZoneWalk, store) -> None:
     game and the loop's store kept."""
     game = walk.game
     kind, area = game.loop.kind, game.area
+    records = game.loop.records
     game.loop = Loop(on=True, kind=kind, chosen=True, prebuffed=game.play.world.game_name, store=store)
+    game.loop.records = records  # the game's record (macros/midgame.py RECORD), in the tracker's store
     game.loop.start()
     game.progress = Progress(ROUTES, PERFORMED, game.book.killed, wanted=lambda level: level in game.zone)
     game.progress.note(game.play.world.game_name, area)
@@ -126,14 +128,18 @@ def restarted(walk: ZoneWalk, store) -> None:
 
 @pytest.mark.parametrize('resume', [True, False])
 def test_a_service_restart_mid_zone_goes_on_where_it_was_with_the_facts_kept(monkeypatch, tmp_path, caplog, resume):
-    # Stage 3 (zonenav.py RESUME): the zone's facts beside the loop's store, taken back by the first leg after a
-    # restart in the same game; the Bazaar's root, done before the restart, is not played again
+    # Stage 3 (zonenav.py RESUME): the zone's facts in the game's record (macros/midgame.py RECORD, 2026-10-22), taken
+    # back by the first leg after a restart in the same game; the Bazaar's root, done before the restart, is not played
+    # again
+    from inventory_tracking.macros import midgame
+
     caplog.set_level(logging.INFO)
     monkeypatch.setattr(zonenav, 'ROTATION', True)
-    monkeypatch.setattr(zonenav, 'RESUME', resume)
+    monkeypatch.setattr(midgame, 'RECORD', resume)
     store = tmp_path / 'loop-items.json'
     walk = crossing(ZoneWalk(monkeypatch, frozenset(ZONES['Act3-Kurast'].core), TZ))
     walk.game.loop.store = store
+    walk.game.loop.records = walk.game.book
     before = walk.play(legs=60, until=lambda game: game.area == 81)
     assert before.stopped is None
     assert {80, 92, 93, 94, 95} <= set(before.levels)
@@ -144,12 +150,12 @@ def test_a_service_restart_mid_zone_goes_on_where_it_was_with_the_facts_kept(mon
     assert after.stopped is None, (after.stopped, after.where)
     assert after.legs[-1] == LEAVE
     if resume:
-        assert 'Macro: zone: Act3-Kurast resumed after a restart' in caplog.text
+        assert 'taken up after a restart' in caplog.text
         assert not {80, 92, 93, 94, 95} & set(runs)  # done before it
         assert after.waypoints[len(before.waypoints) :] == [79, FORTRESS]
     else:
         assert 80 in runs  # afresh: the Bazaar's root played again
-        assert 'resumed after a restart' not in caplog.text
+        assert 'taken up after a restart' not in caplog.text
 
 
 RIVER = frozenset((106, 107))
@@ -164,6 +170,7 @@ def test_a_shard_games_rotation_in_the_fortresss_act_is_played_before_the_shards
     caplog.set_level(logging.INFO)
     monkeypatch.setattr(zonenav, 'ACTS', frozenset((3,)))
     monkeypatch.setattr(zonenav, 'ROTATION_FIRST', first)
+    monkeypatch.setattr(zonenav, 'ROTATION_ANY_ACT', False)  # the order of before 2026-10-23 (tested below)
     walk = crossing(ActGame(3, monkeypatch, rotation=RIVER)).play()
 
     assert walk.stopped is None, (walk.stopped, walk.where)
@@ -174,6 +181,29 @@ def test_a_shard_games_rotation_in_the_fortresss_act_is_played_before_the_shards
     else:
         assert walk.waypoints[0] == 101
         assert walk.waypoints[-1] == 106  # after every Act 3 root: its Town Portal ends in the Fortress
+
+
+@pytest.mark.parametrize('left', [tzloop.ZONE_TURN / 2, zonenav.ROTATION_LEAST - 1])
+def test_a_shard_games_rotation_of_another_act_comes_right_after_the_act_boss(monkeypatch, caplog, left):
+    # zonenav.py ROTATION_ANY_ACT (2026-10-23; lever 3 of rca/2026-10-22/exp-hour-findings.md): a Shard: Act 1 game
+    # with the Outer Steppes' rotation (act 4) plays Andariel first ("act boss first"), then the rotation while its slot
+    # lasts, then act 1's rest; with the slot nearly gone, the order of before (the Fortress's act first)
+    caplog.set_level(logging.INFO)
+    monkeypatch.setattr(zonenav, 'ACTS', frozenset((1,)))
+    monkeypatch.setattr(tzloop, 'slot_left', lambda: left)
+    walk = crossing(ActGame(1, monkeypatch)).play()
+
+    assert walk.stopped is None, (walk.stopped, walk.where)
+    assert walk.legs[-1] == LEAVE
+    assert {'Andariel', 'Izual'} <= set(walk.kills)
+    if left >= zonenav.ROTATION_LEAST:
+        assert walk.kills[:2] == ['Andariel', 'Izual']
+        assert walk.runs[:5] == [35, 36, 37, 104, 105]  # Andariel's root, then the rotation's
+        assert 'Macro: zone: the rotation from any act' in caplog.text
+    else:
+        assert walk.kills[:2] == ['Izual', 'Andariel']
+        assert 'Macro: zone: the rotation from any act' not in caplog.text
+    assert len(walk.runs) == len(set(walk.runs))  # each level once: the act's all played
 
 
 def test_a_rotation_turned_before_its_roots_come_up_is_dropped_and_the_game_goes_on(monkeypatch):

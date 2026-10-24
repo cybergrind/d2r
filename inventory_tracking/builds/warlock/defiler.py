@@ -37,6 +37,26 @@ DEFILER_HORIZON = 10.0
 # Seconds from the key until it strikes (it shows 0.3-0.6 s after, then walks): a stand-in, not measured.
 DEFILER_ARRIVES = 1.0
 DEFILER_CAST_SECONDS = MARK_CAST_SECONDS  # one key and one pointer move under the strike, as a mark
+# 2026-10-23 (the player: "push exp/hour"; rca/2026-10-23/defiler-idle-findings.md): a key the mana does not pay for
+# casts nothing, and the routines took that for a Defiler that did not come. The character's pool is 745; a fight
+# leaves it at 0-50, and Consume ran out right after one: in the take 20261023T022539Z-76 Summon Defiler was keyed at
+# 05:26:42.2 with mana 16, 28, 40 (no cast mode, no Defiler) and cast at 50 (mana 53 -> 11), then Consume keyed at 14
+# and 34 cast nothing, 10.3 s with no strike; tonight 26 of 36 summon keys and 18 of 19 Consume keys that cast nothing
+# had the mana under these costs (the takes 20261022T2235-20261023T0230). The costs as the drops show them at
+# CybergrindAA's levels (skills.txt 377 mana 70 + 1 a level, manashift 7: 41.5 at level 14; 381 mana 25 + 1 a level,
+# manashift 8): no summon cast with under 45 read, none failed above 45; Consume cast at 43, failed at 36.
+DEFILER_MANA = 42.0
+CONSUME_MANA = 40.0
+# True: the Defiler's row (`defiler_missing`, in the quiet and in the fight) is not due while the mana read is under
+# DEFILER_MANA: the key would cast nothing (no Defiler lost by it: the game would not summon one either), and in the
+# quiet the run travels on instead of standing at five spots, 1.8 s each. False: due whatever the mana, as before.
+DEFILER_PAYS = True
+
+
+def mana_short(facts: BuffFacts, need: float) -> float | None:
+    """The mana read when it is under `need`; None when it pays or is not read (then the row goes as before)."""
+    read = facts.mana() if facts.mana is not None else None
+    return read if read is not None and read < need else None
 
 
 def defilers(world: World) -> list[Monster]:
@@ -47,7 +67,7 @@ def defilers(world: World) -> list[Monster]:
 def defiler_missing(facts: BuffFacts) -> bool:
     """Whether a Defiler is to be summoned now: its skill on a key, the character alive out of town, no panel open,
     no Defiler alive (then a summon ends nothing: the module text), the macro's Consume cast (`BuffFacts.took`), the
-    last try DEFILER_RETRY old and the game's window in front."""
+    last try DEFILER_RETRY old, the mana for it (DEFILER_PAYS) and the game's window in front."""
     world = facts.world
     player = world.player
     if player is None or player.mode in DEAD or player.in_town:
@@ -59,6 +79,8 @@ def defiler_missing(facts: BuffFacts) -> bool:
         return False
     if facts.since(SUMMON_DEFILER) <= DEFILER_RETRY:
         return False
+    if DEFILER_PAYS and mana_short(facts, DEFILER_MANA) is not None:
+        return False  # read last: one stat read a look only while a Defiler is due
     return facts.focused()
 
 

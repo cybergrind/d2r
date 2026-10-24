@@ -822,14 +822,30 @@ def test_in_the_loop_a_chipped_gem_with_no_room_stops_the_press_with_a_room_caus
     assert went_on == [True]
 
 
-def test_in_the_loop_gear_the_filter_shows_or_an_identify_candidate_with_no_room_still_lets_the_press_go_on():
-    # The ruling is the plain class's: filter-shown gear stays as the 2026-10-12 rule has it
+def test_in_the_loop_gear_the_filter_shows_with_no_room_gets_the_cube_step_once_then_the_press_goes_on(monkeypatch):
+    # lootpolicy.py CANDIDATE_CUBE (2026-10-23, the loot verifier: a rare Bone Knife left "no room" at 00:58:16 and the
+    # game ended 1.2 s later): the press asks the loop's cube step once for it (a room cause, no trip: `trip_for`), then
+    # goes on as the 2026-10-12 rule has it
+    from inventory_tracking.macros import lootpolicy
+
+    monkeypatch.setattr(lootpolicy, 'CUBE_ASKED', set())
+    monkeypatch.setattr(lootpolicy, 'CUBE_PENDING', {})
     book = Drop(71, 5008.0, 5003.0, 'Superior Old Book', VALUABLE, (2, 2), prized=False, source='shown')
     play = game(book)
     play.loot = Loot((book,), FULL, 1000, 1000, FULL_ROOM, shown=frozenset((71,)))
+    with pytest.raises(Abort, match=r'no room for Superior Old Book: the cube step first$') as stop:
+        pick_up(play.run(), LEVEL, keys, nothing, looped=True)
+    assert stop.value.cause == 'room'
+    assert lootpolicy.cube_pending(71)
     went_on = []
     assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True), looped=True)
     assert went_on == [True]
+    assert not lootpolicy.cube_pending(71)  # met again: the step was made
+    monkeypatch.setattr(lootpolicy, 'CANDIDATE_CUBE', False)
+    monkeypatch.setattr(lootpolicy, 'CUBE_ASKED', set())
+    went_on.clear()
+    assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True), looped=True)
+    assert went_on == [True]  # the switch off: left at once, as before
 
 
 def test_in_the_loop_a_chipped_gem_is_taken_once_there_is_room():

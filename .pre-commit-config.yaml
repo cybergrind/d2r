@@ -6,6 +6,10 @@
 
 exclude: ".git|.venv"
 default_stages: [pre-commit]
+# The hooks that parse Python (check-ast, debug-statements, check-docstring-first) need the project's syntax:
+# `except A, B:` without parentheses is 3.14+ (PEP 758). A 3.13 hook interpreter failed every such file (2026-10-24).
+default_language_version:
+  python: python3.14
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

@@ -15,8 +15,15 @@ python3 .agents/skills/d2-loop-finds/tools/finds.py [--games 200] [--top 5] [--u
 ```
 
 Take the numbers from the query: "last 500 games" → `--games 500`, "top 10" / "10 most expensive" → `--top 10`,
-"up to 14:00" → `--until`. Otherwise the defaults. It takes about 10 s and only reads (logs, the offline knowledge base);
+"up to 14:00" → `--until`. Otherwise the defaults. It takes about 15 s and only reads (logs, the offline knowledge base);
 it is safe while the loop plays. The window is the last N games found in the last 7 days of logs (`LOOKBACK_DAYS`).
+
+**One run, then the report.** The text output has everything the report needs: dated finds, the unpriced items, the
+rest (materials by name, appraised items by verdict), and each missed item with what explains it (`outside a loop game`
+= a restart or the player's own play, not a loop miss; `LOOP DEFECT, the loop stopped: …` = the stop that named it).
+Do not run it again with `--json` or a large `--top`, and do not grep the logs to explain the ground (the player,
+2026-10-24: "why we're struggling with providing reports fast?"). Open a log only for a miss the output leaves
+unexplained and that the report would call a defect, and then only the lines around its time.
 
 What it reads, in `inventory_tracking/runs/alt-d/*/probe.log` (the docstring has the details):
 
@@ -40,7 +47,8 @@ lines:
   (the appraise skill). Give a knowledge-base bucket only when one plainly fits (for example `wp-h-jewels-charms.json`
   for jewels), and call it asks, not a price;
 - **the rest**: summarise the small finds (low runes, gems, shards) in one line;
-- **the ground**: missed items (a valuable left behind is a loop defect: say so) and the sets and uniques left by design.
+- **the ground**: missed items (a valuable left behind is a loop defect: say so; a Worldstone Shard is always picked
+  since 2026-10-22, so a missed one is a defect too) and the count of sets and uniques left by design.
 
 Rules (AGENTS.md): the repo is the price source, never a web search; date every number and say "asks"; an item's
 "verdict" is the triage's, not a price. The appraisal of a magic or rare item reads only what the log printed (stats);

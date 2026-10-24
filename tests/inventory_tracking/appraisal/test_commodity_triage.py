@@ -15,7 +15,7 @@ def test_commodity_triage_price_does_not_conflict_with_legacy_unavailable_line()
         'extraction': {'item': {'name': "Talic's Anguish"}, 'issues': []},
     }
     document = ItemAssessment.from_record({'request_id': 'material', 'state': 'complete', 'result': result})
-    assert document.to_osd()[0].text.startswith('SELL (slow) — asks 1 Ist')
+    assert document.to_osd()[0].text.startswith('TRADE (slow) — asks 1 Ist')
     assert 'Material: Talic' in document.to_text()
     assert 'Unit price: unavailable' not in document.to_text()
     assert 'Observed stats:' not in document.to_text()
@@ -45,6 +45,6 @@ def test_high_single_seller_ask_is_reference_not_a_conflicting_vendor_price():
     assert 'reference asks 300 Ist' in headline(result)
     assert '2026-10-03' in headline(result)
     band.update(sellers=3, liquidity='thin')
-    assert headline(assess(item, tables)).startswith('SELL (slow) — asks 300 Ist')
+    assert headline(assess(item, tables)).startswith('TRADE (slow) — asks 300 Ist')
     band['q1_ist'] = 0.1
     assert headline(assess(item, tables)).startswith('VENDOR — asks 0.1 Ist')

@@ -12,7 +12,7 @@ import pytest
 
 from inventory_tracking.combat import pack
 from inventory_tracking.combat.sim.monsters import REACH
-from inventory_tracking.combat.threats import manaburn
+from inventory_tracking.combat.threats import drain_escape as _drain_escape, manaburn
 
 
 SKILLS = Path(__file__).parents[3] / 'pricing' / 'raw' / 'game-excel' / 'skills.txt'
@@ -183,7 +183,8 @@ def test_a_rejuvenation_for_mana_only_in_a_scary_moment_and_not_overused(monkeyp
     assert manaburn.rejuvenation_for_mana(mana_look(), now, 4, never, ()) is None
 
 
-def test_the_dangerous_in_reach_are_the_draining_and_the_tier_4_5_heralds_pack() -> None:
+def test_the_dangerous_in_reach_are_the_draining_and_the_tier_4_5_heralds_pack(monkeypatch) -> None:
+    monkeypatch.setattr(_drain_escape, 'MANA_ESCAPE', False)  # the old path, pinned
     here = (0.0, 0.0)
     near = [
         SimpleNamespace(unit=1, at=(5.0, 0.0), txt=GHOST, modifiers=MINION_MODS, flags=MINION, tier=5),
@@ -330,3 +331,37 @@ def test_a_draining_member_with_the_mana_safe_is_kept_only_in_a_herald_pack_or_e
     assert manaburn.threatening(here, fast, burner, priced, 2900.0, mana_safe=True) == burner  # the Ghosts of 15:46
     monkeypatch.setattr(manaburn, 'DRAIN_GATE', False)
     assert manaburn.threatening(here, hostile(), burner, priced, 2900.0, mana_safe=True) == burner
+
+
+# -- BURN_STALL_COMMIT (2026-10-24, rca/2026-10-24/manaburn-cycle-findings.md §1): the Sand Warriors of take
+# 20261024T132953Z-63 (monstats 92 scarab2, Extra Fast and Mana Burn, tier 5) --
+
+SAND_WARRIOR = 92
+EXTRA_FAST_BURN = (20, 27, 6, 25)
+
+
+def test_a_mana_burn_pack_of_no_drainer_type_may_be_fought_in_and_a_ghost_about_forbids_it() -> None:
+    warriors = [
+        hostile(1, (0.0, 20.0), EXTRA_FAST_BURN, 8, SAND_WARRIOR),
+        hostile(2, (3.0, 21.0), EXTRA_FAST_BURN, 16, SAND_WARRIOR),
+    ]
+    burning = manaburn.burners(warriors)
+    assert {b.kind for b in burning} == {manaburn.BURN_SAID}
+    assert manaburn.committable((0.0, 0.0), burning, warriors)
+    ghost = hostile(3, (5.0, 5.0), (), 0, GHOST)  # wraith1: 200-300 mana a blow by its own row
+    assert not manaburn.committable((0.0, 0.0), burning, [*warriors, ghost])
+    assert not manaburn.committable((0.0, 0.0), [], warriors)
+
+
+def test_a_committed_pack_keeps_only_its_landing_only_drainers_and_another_pack_is_kept() -> None:
+    warriors = [
+        hostile(1, (0.0, 20.0), EXTRA_FAST_BURN, 8, SAND_WARRIOR),
+        hostile(2, (3.0, 21.0), EXTRA_FAST_BURN, 16, SAND_WARRIOR),
+    ]
+    burning = manaburn.burners(warriors)
+    plain = manaburn.Burner(9, (30.0, 0.0), 18.0, kind=manaburn.LANDING_ONLY)
+    key = manaburn.key_of(burning)
+    assert key is not None
+    assert manaburn.committed([*burning, plain], key) == [plain]
+    assert manaburn.committed(burning, key + 1) == burning
+    assert manaburn.committed(burning, None) == burning

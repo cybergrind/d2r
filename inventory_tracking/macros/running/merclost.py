@@ -29,6 +29,7 @@ def _merc_poll(self: MacroRunner, now: float) -> bool:
     if not loop.on or not loop.kind.packaged or self.closed:
         return False
     self.merc.looked_at = now
+    self.merc.book = loop.merc_trips  # the loop's, kept in the game's record (a test may give the runner another loop)
     try:
         look = self.merc_read()
     except Exception as exc:

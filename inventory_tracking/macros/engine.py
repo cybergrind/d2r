@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from threading import Event
 from typing import TYPE_CHECKING
 
+from inventory_tracking.common import LOG
 from inventory_tracking.game.records import (
     Carried,
     Loot,
@@ -26,8 +27,9 @@ from inventory_tracking.game.records import (
     World,
 )
 from inventory_tracking.game.stash import Stash
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Cause, Flipped
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.models import PotionType
 
@@ -39,6 +41,7 @@ if TYPE_CHECKING:
 
 
 POLL = 0.03
+MANA_STAT, MOST_MANA_STAT = 8, 9  # itemstatcost.txt mana and maxmana, 8 fraction bits
 
 
 class Reads:
@@ -86,6 +89,26 @@ class Reads:
     def unit_states(self, monster: Monster) -> bytes | None:
         read = self._run.unit_states
         return read(monster) if read is not None else None
+
+    def mana(self, world: World) -> float | None:
+        """The character's mana in whole points from its stat list now (itemstatcost 8, 8 fraction bits; the pool,
+        stat 9, must read above 0), not the world's look; None unread: no reader, no character, a failed read."""
+        read, player = self._run.unit_stats, world.player
+        if read is None or player is None or not player.stats_at:
+            return None
+        try:
+            stats = read(player.stats_at)
+        except (OSError, ValueError) as error:
+            LOG.debug('Macro: the mana unread: %s', error)
+            return None
+        if stats.get(MOST_MANA_STAT, 0) <= 0:
+            return None
+        return stats.get(MANA_STAT, 0) / 256
+
+
+class Strayed(Abort):
+    """The character is out of the place the routine under way is confined to (`Run.confined`): no caller goes on past
+    it (`Run.stops`), and the routine's owner hands it back with its cause (macros/visit.py `in_town`)."""
 
 
 class Run:
@@ -146,6 +169,8 @@ class Run:
         # A monster's state words raw (game/layout.py STATE_RUN; world.GameMemory.states), None unread: whether a
         # cast on it shows (macros/buffs.py `Buffs.settle`; the player, 2026-10-20: "ok, recast")
         self.unit_states: Callable[[Monster], bytes | None] | None = None
+        # A unit's stat list by its address (world.GameMemory.stats): the character's mana now (`Reads.mana`)
+        self.unit_stats: Callable[[int], dict[int, int]] | None = None
         # missiles in flight as (owner unit, class, x, y), priced by combat/threats (world.GameMemory.flights)
         self.flights: Callable[[frozenset[int]], tuple[tuple[int, int, float, float], ...]] | None = None
         # when the healer (`make osd`) last gave the mercenary a potion of a kind (automation/ledger.py `given_at`)
@@ -162,6 +187,9 @@ class Run:
         self.players_item: Callable[[Carried], bool] | None = None
         # Why a carried item is kept whatever the appraisal says (macros/keepers.py); never sold
         self.kept_item: Callable[[Carried], str | None] | None = None
+        # Why a carried item is kept for a use this game still has (macros/actloop.py `spared`: a Worldstone Shard over
+        # the limit, SPARE_USABLE, 2026-10-22); never put down
+        self.spared_item: Callable[[Carried], str | None] | None = None
         self.stock: Callable[[int], tuple[Stocked, ...]] | None = None  # a vendor's stock (GameMemory.stock)
         # The stash's one record (game/stash.py): every read of the stash goes through it; attached to the game's
         # read by the runner (running/execution.py), to a fake's in tests, none: unread
@@ -185,12 +213,19 @@ class Run:
         # on `clock`: the press this run answers is not worth an input after it (runner.EXPIRES)
         self.deadline = math.inf
         self.light = 0  # above 0 the looks at the game leave the monsters and doors out (`lightly`)
+        self.flying = 0  # above 0 a jump's landing is watched: a priced act's bound waits (`in_flight`)
         self.hurry: Callable[[], None] | None = None  # asks the service to read the level now (teleport.card_for)
         # The pad back end in controller mode (macros/pad.py); None: keys and mouse
         self.pad: PadActs | None = None
         # The loot's field routine (loot/api.py `settle`: identify the items picked for it and put down the ones that
         # fail, M4 of loot/design.md), given the site's name; None: no field routine (running/execution.py)
         self.field: Callable[[str], object] | None = None
+        # The places the routine under way is confined to (`confined`): each judges every world read, and a reason from
+        # one raises `Strayed` with its cause (the town visit's town: macros/visit.py `in_town`)
+        self.confines: list[tuple[Callable[[World], str | None], Cause | None]] = []
+        # During a Teleport's flight, once its cast is seen, given the landing aimed at (world units): the hunt's
+        # strike aimed from there before the landing (teleport.py PREAIM_FLIGHT, hunt.py `preaim`); None: no hunt
+        self.flight: Callable[[Point], None] | None = None
 
     def world(self) -> World:
         if self.cancelled.is_set():
@@ -205,12 +240,26 @@ class Run:
             self.quick_shown = world.player is not None and world.player.right_skill == self.quick[0]
         if self.observe is not None:
             self.observe(world)
+        for out, cause in self.confines:
+            if (why := out(world)) is not None:
+                raise Strayed(why, cause=cause)
         return world
 
     def stops(self, stop: BaseException) -> bool:
-        """Whether an act's Abort ends the run regardless of its caller: cancelled, or the input mode flipped
-        (`Flipped`: the runner replays the request)."""
-        return self.cancelled.is_set() or isinstance(stop, Flipped)
+        """Whether an act's Abort ends the run regardless of its caller: cancelled, the input mode flipped (`Flipped`:
+        the runner replays the request), or the character out of the place the routine is confined to (`Strayed`)."""
+        return self.cancelled.is_set() or isinstance(stop, (Flipped, Strayed))
+
+    @contextmanager
+    def confined(self, out: Callable[[World], str | None], cause: Cause | None = None) -> Generator[None]:
+        """Within the block every world read is judged by `out`: a reason from it raises `Strayed` (`cause`), at that
+        read and at every one after it until the block ends, so no act of the routine follows it."""
+        entry = (out, cause)
+        self.confines.append(entry)
+        try:
+            yield
+        finally:
+            self.confines.remove(entry)
 
     @contextmanager
     def lightly(self) -> Generator[None]:
@@ -220,6 +269,16 @@ class Run:
             yield
         finally:
             self.light -= 1
+
+    @contextmanager
+    def in_flight(self) -> Generator[None]:
+        """Within the block a jump keyed is in flight: a priced act's bound (hunting/moves.py `priced_for`) is not
+        enforced on its looks, only at the first look after it (macros/travel.py JUMP_LANDING_UNPRICED)."""
+        self.flying += 1
+        try:
+            yield
+        finally:
+            self.flying -= 1
 
     def in_time(self, what: str) -> None:
         """Stop when `what` would come too long after the press that asked for it."""
@@ -260,4 +319,6 @@ def protected(run: Run, item: Carried) -> str | None:
         return "the player's by its stats"
     if run.kept_item is not None and (why := run.kept_item(item)):
         return f'kept by its stats ({why})'
+    if run.spared_item is not None and (why := run.spared_item(item)):
+        return f'kept for its use ({why})'
     return None

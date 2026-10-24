@@ -73,12 +73,19 @@ def test_large_charms_never_borrow_small_charm_prices_for_identical_stats():
 
 def test_rare_jewels_do_not_inherit_magic_prices_or_a_flat_extra_affix_premium():
     from pricing.triage.engine import prepare_tables
-    from pricing.triage.import_affixed_rules import affixed_rules
 
+    # Review-only pattern rows (the reviewed jewel rows are premium since 2026-10-22; this keeps the price logic).
+    properties = {'441': {'min': 8}, '448': {'min': 10}}
     rules = [
-        rule | {'bucket': 'resistance-damage-jewel', 'band_facets': ['base_modifiers']}
-        for rule in affixed_rules()
-        if rule.get('family') == 'jewl' and set(rule.get('properties', {})) == {'441', '448'}
+        {
+            'family': 'jewl',
+            'category': rarity,
+            'properties': properties,
+            'pattern': {'properties': properties},
+            'bucket': 'resistance-damage-jewel',
+            'band_facets': ['base_modifiers'],
+        }
+        for rarity in ('magic', 'rare')
     ]
     magic, rare = [], []
     for rarity, price, offset, target in [('magic', 50, 0, magic), ('rare', 2, 3, rare)]:

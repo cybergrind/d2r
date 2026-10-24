@@ -3,6 +3,7 @@ had in macros/rotation.py (`Rotation`, the view of the executor's memory the hun
 
 from dataclasses import replace
 
+from inventory_tracking.builds.warlock import buffs as warlock_buffs
 from inventory_tracking.builds.warlock.buffs import (
     BUFFS,
     CONSUME_CLEAR,
@@ -87,7 +88,9 @@ def test_hex_purge_is_due_while_the_state_does_not_show_it_and_distrusted_after_
     assert rotation.purge_due(run, gone)
 
 
-def test_psychic_ward_is_due_while_the_state_does_not_show_it_and_in_a_fight_once_in_five_seconds():
+def test_psychic_ward_is_due_while_the_state_does_not_show_it_and_in_a_fight_once_in_five_seconds(monkeypatch):
+    # WARD_SECONDS in a fight is the WARD_BROKEN_FIRST-off rule (on in live since 2026-10-24; test_ward_broken.py)
+    monkeypatch.setattr(warlock_buffs, 'WARD_BROKEN_FIRST', False)
     play = game()
     rotation, run = rotation_of(), play.run()
     shown = replace(play.world, player=replace(play.character, ward=True))
@@ -118,8 +121,21 @@ def test_the_plan_casts_each_phase_in_the_order_the_hunt_and_the_prebuff_had():
         # Battle Orders from a Call to Arms first, out of town (macros/cta.py, 2026-10-17)
         'upkeep': [BATTLE_ORDERS, HEX_PURGE, PSYCHIC_WARD, CONSUME, SUMMON_DEFILER],
         # Bind Demon again in a tier 4-5 Herald pack fight (builds/warlock/bind.py, 2026-10-21); Engorge first for a pet
-        # in danger or among a dangerous pack (buffs.py `engorge_first`, 2026-10-21), the lazy one last
-        'fight': [ENGORGE, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, DEATH_MARK, BIND_DEMON, SIGIL_LETHARGY, ENGORGE],
+        # in danger or among a dangerous pack (buffs.py `engorge_first`, 2026-10-21), the lazy one last; the sigil's
+        # early row (buffs.py SIGIL_OPENER, 2026-10-23) after Engorge first, the late one as before; a broken Psychic
+        # Ward first of all (buffs.py WARD_BROKEN_FIRST, 2026-10-24)
+        'fight': [
+            PSYCHIC_WARD,
+            ENGORGE,
+            SIGIL_LETHARGY,
+            HEX_PURGE,
+            PSYCHIC_WARD,
+            SUMMON_DEFILER,
+            DEATH_MARK,
+            BIND_DEMON,
+            SIGIL_LETHARGY,
+            ENGORGE,
+        ],
     }
     assert [(row.skill, row.phase, row.caster) for row in BUFFS if row.caster] == [
         (CONSUME, 'prebuff', 'defiler dance'),
@@ -127,10 +143,13 @@ def test_the_plan_casts_each_phase_in_the_order_the_hunt_and_the_prebuff_had():
         (CONSUME, 'upkeep', 'consume'),
         (SUMMON_DEFILER, 'upkeep', 'defiler'),
         (ENGORGE, 'fight', 'engorge'),
+        (SIGIL_LETHARGY, 'fight', 'sigil'),
         (SUMMON_DEFILER, 'fight', 'defiler'),
         (BIND_DEMON, 'fight', 'bind'),
         (SIGIL_LETHARGY, 'fight', 'sigil'),
         (ENGORGE, 'fight', 'engorge'),
+        # The quiet before a Herald's pack: its sigil (buffs.py OMEN_SIGIL, macros/hunt.py `omen_open`, 2026-10-23)
+        (SIGIL_LETHARGY, 'opening', 'sigil'),
     ]
     assert all(row.needs == 'prebuff' for row in BUFFS if row.phase == 'prebuff' or row.skill == CONSUME)
     assert all(row.needs is None for row in BUFFS if row.phase != 'prebuff' and row.skill != CONSUME)
@@ -232,7 +251,7 @@ def test_consume_on_is_renewed_in_the_quiet_only_when_it_would_end_inside_the_bo
 def test_a_sigil_off_the_screen_is_asked_again_in_a_second():
     play = game()
     buffs, run = Buffs(ECHOING_STRIKE_BUILD), play.run()
-    row = next(row for row in BUFFS if row.skill == SIGIL_LETHARGY)
+    row = next(row for row in BUFFS if row.skill == SIGIL_LETHARGY and row.before_strike is None)
     elite = Monster(1, 19, 1, 5200.0, 5000.0, 0xFFFFFFFF, 0x0C)
     play.clock.now = 50.0
     due = buffs.due(run, row, buffs.facts(run, play.world, prey=elite))
@@ -301,3 +320,13 @@ def test_a_consume_that_cannot_be_cast_counts_from_its_start_and_one_a_key_stopp
     tried, at = tried_with(Abort('a key was pressed'))
     assert at == 51.5 - CONSUME_RETRY + CONSUME_SOON
     assert 'Macro: no Consume (a key was pressed); again in 3s' in caplog.messages
+
+
+def test_only_the_instant_casts_in_place_go_through_the_bouts_cast_hold() -> None:
+    # macros/hunt.py INSTANT_THROUGH (2026-10-23, off): Death Mark alone is marked as one cast from where the character
+    # stands; Engorge (hover reads, the strike let go), the Sigil, the Defiler, Bind Demon, Hex Purge and Psychic Ward
+    # stay held while a one-shotter can come in reach (Battle Orders is no fight row: macros/cta.py CAST_REACH)
+    instant = {row.skill for row in BUFFS if row.phase == 'fight' and row.instant}
+    assert instant == {DEATH_MARK}
+    held = {row.skill for row in BUFFS if row.phase == 'fight' and not row.instant}
+    assert {ENGORGE, SIGIL_LETHARGY, SUMMON_DEFILER, BIND_DEMON, HEX_PURGE, PSYCHIC_WARD} <= held

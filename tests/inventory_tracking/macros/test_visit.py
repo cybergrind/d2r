@@ -19,6 +19,17 @@ from inventory_tracking.macros.visit import Hands, Visited, stash_stop, visit
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
 
+@pytest.fixture(autouse=True, params=[True, False], ids=['assessed', 'legacy'])
+def town_assessed(request, monkeypatch):
+    """The town's decision through the entry point (visit.py ASSESS_TOWN, 2026-10-23) and api.py `town_sold` (legacy
+    until ASSESS_TOWN is proven): the same visit both ways."""
+    from inventory_tracking.macros import actloop, visit as visit_module
+
+    monkeypatch.setattr(visit_module, 'ASSESS_TOWN', request.param)
+    monkeypatch.setattr(actloop, '_said_down', set())  # a shard's put-down is said once a game: each run its own
+    return request.param
+
+
 FORTRESS = 103
 FULL_PAGE: tuple[str, ...] = ('#' * 10,) * 10
 OPEN_PAGE: tuple[str, ...] = ('.' * 10,) * 10
@@ -494,6 +505,121 @@ def test_a_visit_cut_by_the_players_hand_is_made_again_with_nothing_done_twice(m
     assert town.sold == [11]
     assert play.page_items[5] == [10]
     assert done.contract.misses == ()
+
+
+# The visit confined to its town (visit.py TOWN_ONLY; rca/2026-10-23/visit-portal-findings.md): at 15:31:35.97 on
+# 2026-10-23 the walk toward Cain took the character back through its own Town Portal to the River of Flame, and the
+# visit went on there: the tome, the cube opened, a stash walk, a Worldstone Shard put down at (7827, 6608)
+
+
+RIVER_OF_FLAME = 107
+
+
+def through_the_portal(monkeypatch) -> tuple[Game, Town]:
+    """A visit whose Cain stop leaves the character in the River of Flame (its walk clicked our Town Portal), with an
+    unidentified ring for Cain, a full stack's essence to put down and a keeper for the stash."""
+    ring = replace(thing(10, 'Ring', 6, 0), quality=4, identified=False)
+    keeper = thing(11, 'Grand Charm', 7, 0)
+    essence = thing(23, 'Twisted Essence of Suffering', 9, 3)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, ring, keeper, essence), keys=1), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    play.stacks = {essence.txt: 99}
+    town = Town(monkeypatch, play)
+
+    def walked_through(items) -> int:
+        town.order.append('cain')
+        player = play.character
+        play.world = replace(play.world, player=replace(player, area=RIVER_OF_FLAME, x=7820.5, y=6600.5))
+        return 0
+
+    town.identify = walked_through
+    return play, town
+
+
+def test_a_visit_out_of_its_town_stops_at_once_and_puts_nothing_down(monkeypatch, caplog):
+    from inventory_tracking.macros.engine import Strayed
+
+    play, town = through_the_portal(monkeypatch)
+
+    with caplog.at_level('INFO'), pytest.raises(Strayed) as stopped:
+        town.visit()
+
+    assert stopped.value.cause == 'town'  # the loop's rule: the leg made again from where it is (stops.py)
+    assert 'the character is in River of Flame, not in The Pandemonium Fortress' in str(stopped.value)
+    # The stash stop's first look raised: no walk to the stash, no Jamella, no walk to the waypoint
+    assert town.order in (['cain'], ['cain', 'stash'])
+    assert play.fallen == []
+    assert play.stash_opened == 0
+    assert {i.unit_id for i in carried(play).items} >= {10, 11, 23}
+    assert play.keys.events == []  # no input at all after the character left the town
+    assert 'nothing more done outside town' in caplog.text
+    assert 'trade session done' not in caplog.text
+
+
+def test_a_step_that_turns_the_stop_into_its_own_abort_still_hands_back_the_town_cause(monkeypatch):
+    # The identify hand's own Abort (legs.py `_identify_loot`: "Deckard Cain is not in sight") with the character
+    # out of town: the visit hands back `Strayed`, not that Abort
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.engine import Strayed
+
+    play, town = through_the_portal(monkeypatch)
+    walked = town.identify
+
+    def not_in_sight(items) -> int:
+        walked(items)
+        raise Abort('Deckard Cain is not in sight')
+
+    town.identify = not_in_sight
+    with pytest.raises(Strayed) as stopped:
+        town.visit()
+
+    assert isinstance(stopped.value.__cause__, Abort)
+    assert play.fallen == []
+    assert play.stash_opened == 0
+    assert play.keys.events == []
+
+
+def test_every_look_out_of_the_town_raises_and_no_wait_swallows_it():
+    from inventory_tracking.macros.engine import Strayed
+    from inventory_tracking.macros.visit import in_town
+
+    play = fortress(Pack((THE_CUBE,)), [OPEN_PAGE] * 6)
+    run = play.run()
+
+    def routine() -> None:
+        with in_town(run, FORTRESS, 'a town routine'):
+            assert run.seen(lambda w: True, 0.1) is not None  # in town: the look as before
+            play.world = replace(play.world, player=replace(play.character, area=RIVER_OF_FLAME))
+            run.seen(lambda w: False, 0.5)  # a wait in a step: `Run.stops`, so no step goes on past it
+            raise AssertionError('the routine went on out of town')
+
+    with pytest.raises(Strayed):
+        routine()
+    assert run.confines == []
+    assert run.world().player is not None  # out of the block: no confine
+
+
+def test_a_visit_begun_out_of_its_town_is_the_town_cause_with_no_input(monkeypatch):
+    from inventory_tracking.macros.engine import Strayed
+
+    play, town = through_the_portal(monkeypatch)
+    play.world = replace(play.world, player=replace(play.character, area=RIVER_OF_FLAME))
+
+    with pytest.raises(Strayed, match='the town visit: the character is in River of Flame'):
+        town.visit()
+
+    assert town.order == []
+    assert play.keys.events == []
+
+
+def test_with_town_only_off_the_visit_goes_on_out_of_town_as_on_2026_10_23(monkeypatch):
+    monkeypatch.setattr('inventory_tracking.macros.visit.TOWN_ONLY', False)
+    play, town = through_the_portal(monkeypatch)
+
+    done = town.visit()
+
+    assert play.character.area == RIVER_OF_FLAME
+    assert play.fallen  # the essence put down in the River of Flame, as the shard was
+    assert isinstance(done, Visited)
 
 
 def test_a_full_stacks_material_is_put_down_not_offered_to_jamella(monkeypatch):
@@ -1433,11 +1559,27 @@ def test_m2_sells_the_cheap_duplicate_keep_decides_gives_up_and_never_the_player
     assert sorted(town2.sold) == [60]
 
 
+def decided_by(monkeypatch, sold) -> None:
+    """The town's decision stubbed whichever way the visit asks it: the entry point (visit.py ASSESS_TOWN,
+    `town_assessed`) or api.py `town_sold` (legacy); `sold(carried, kept)`."""
+    from inventory_tracking.loot import api as loot_api
+    from inventory_tracking.macros import visit as visit_module
+
+    def legacy(carried, spared, book=None, copies=None, kept=None):
+        return sold(carried, {} if kept is None else kept)
+
+    def assessed(carried, kept=None, assessor=None):
+        return sold(carried, {} if kept is None else kept)
+
+    monkeypatch.setattr(loot_api, 'town_sold', legacy)
+    monkeypatch.setattr(visit_module, 'town_assessed', assessed)
+
+
 def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monkeypatch, caplog):
     # The player, 2026-10-20 16:55: "go ahead with the merge agent" (loot/keep.py TOWN_DECIDES): the visit's junk is
     # loot/api.py `town_sold` after the worker's appraisal; junk.py `junk_of` (`Hands.judge`) is not asked, the player's
     # by its stats still never sold; a failure of the rules sells nothing
-    from inventory_tracking.loot import api as loot_api, keep
+    from inventory_tracking.loot import keep
     from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
 
     ring = replace(thing(60, 'Ring', 4, 2), quality=4)
@@ -1452,10 +1594,9 @@ def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monk
 
         return replace(play_hands, judge=judge, appraise=lambda units: asked.append(sorted(units)) or {})
 
-    monkeypatch.setattr(
-        loot_api, 'town_sold',
-        lambda carried, spared, *_: {61: ('magic Ring', 'K8 worthless'), 62: ('magic Ring', 'K8 worthless')},
-    )  # fmt: skip
+    decided_by(
+        monkeypatch, lambda carried, kept: {61: ('magic Ring', 'K8 worthless'), 62: ('magic Ring', 'K8 worthless')}
+    )
     play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
     town = Town(monkeypatch, play, frozenset({60}))
     town.run = play.run()
@@ -1471,7 +1612,7 @@ def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monk
     def broken(*_args):
         raise OSError('the collection is locked')
 
-    monkeypatch.setattr(loot_api, 'town_sold', broken)
+    decided_by(monkeypatch, broken)
     play2 = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
     town2 = Town(monkeypatch, play2, frozenset({60}))
     town2.run = play2.run()
@@ -1484,18 +1625,18 @@ def test_m6_the_keep_rules_decide_every_sale_and_the_old_chain_is_not_asked(monk
 def test_m6_a_give_up_the_towns_guards_keep_is_said(monkeypatch, caplog):
     # 19:57:52 on 2026-10-20 (20261020T164916Z-454aec6d, game 3): Skullder's Ire was given up by K6 and kept by the
     # town's want guard with no line; each such keep is now said
-    from inventory_tracking.loot import api as loot_api, keep
+    from inventory_tracking.loot import keep
     from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
 
     rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
     pack, own = grid(BLOCK_BUT_ONE, rings)
     monkeypatch.setattr(keep, 'TOWN_DECIDES', True)
 
-    def town_sold(carried, spared, book, copies, kept):
+    def town_sold(carried, kept):
         kept[62] = ('magic Ring', 'drop K8 worthless; no price, appraised check (S8)')
         return {61: ('magic Ring', 'K8 worthless')}
 
-    monkeypatch.setattr(loot_api, 'town_sold', town_sold)
+    decided_by(monkeypatch, town_sold)
     play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
     town = Town(monkeypatch, play, frozenset())
     town.run = play.run()
@@ -1594,12 +1735,15 @@ def test_the_switch_off_keeps_jamella_at_every_visit_with_junk(monkeypatch):
     assert done.contract.misses == ()
 
 
-def test_past_down_a_game_items_put_down_in_one_game_jamella_sells_the_junk(monkeypatch, caplog):
-    # 02:04:06 on 2026-10-21: nine items put down by the stash in one game covered its aims (visit.py DOWN_A_GAME)
+@pytest.mark.parametrize(('guarded', 'down'), [(False, 5), (True, 23)])
+def test_past_down_a_game_items_put_down_in_one_game_jamella_sells_the_junk(monkeypatch, caplog, guarded, down):
+    # 02:04:06 on 2026-10-21: nine items put down by the stash in one game covered its aims (visit.py DOWN_A_GAME); with
+    # the stash's and the townsfolk's clicks guarded by the labels hidden, DOWN_GUARDED_MOST (2026-10-23)
     import inventory_tracking.macros.visit as visit_module
 
     play, town, _openings = at_need_town(monkeypatch)
-    monkeypatch.setattr(visit_module, '_down', {'game': play.world.game_name, 'items': 5})
+    monkeypatch.setattr(visit_module, 'DOWN_GUARDED', guarded)
+    monkeypatch.setattr(visit_module, '_down', {'game': play.world.game_name, 'items': down})
 
     with caplog.at_level('INFO'):
         done = town.visit()
@@ -1608,7 +1752,37 @@ def test_past_down_a_game_items_put_down_in_one_game_jamella_sells_the_junk(monk
     assert sorted(town.sold) == [11, 12]
     assert play.fallen == []
     assert done.contract.misses == ()
-    assert 'Jamella needed (5 items put down in this game already, 2 more would cover the stash)' in caplog.text
+    assert f'Jamella needed ({down} items put down in this game already, 2 more would cover the stash)' in caplog.text
+
+
+def test_with_the_clicks_guarded_more_items_are_put_down_than_six(monkeypatch):
+    # Lever 4 of rca/2026-10-22/exp-hour-findings.md: 19 of 25 Jamella stops were the six's (visit.py DOWN_GUARDED)
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    monkeypatch.setattr(visit_module, '_down', {'game': play.world.game_name, 'items': 6})
+
+    town.visit()
+
+    assert town.stops() == ['cain', 'stash']
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert visit_module._down['items'] == 8
+
+
+@pytest.mark.parametrize('off', ['DOWN_GUARDED', 'stash', 'shop'])
+def test_the_guarded_cap_needs_both_clicks_guarded(monkeypatch, off):
+    import inventory_tracking.macros.shop as shop_module
+    import inventory_tracking.macros.stash as stash_module
+    import inventory_tracking.macros.visit as visit_module
+
+    assert visit_module.down_most() == visit_module.DOWN_GUARDED_MOST
+    target, name = {
+        'DOWN_GUARDED': (visit_module, 'DOWN_GUARDED'),
+        'stash': (stash_module, 'LABELS_OFF_AT_THE_STASH'),
+        'shop': (shop_module, 'LABELS_OFF_AT_NPC'),
+    }[off]
+    monkeypatch.setattr(target, name, False)
+    assert visit_module.down_most() == visit_module.DOWN_A_GAME
 
 
 def test_the_items_put_down_are_counted_afresh_in_a_new_game(monkeypatch):
@@ -2058,3 +2232,46 @@ def test_a_full_stacks_gem_waiting_in_the_cube_is_topped_up_and_the_visit_bound_
     assert done.contract.misses == ()
     assert done.contract.cube == 0
     assert done.contract.block_free
+
+
+# Game cyberg65 at 20:08:06-14 on 2026-10-22 ("Shard: Act 1"): two Northern Worldstone Shards put down in the Fortress,
+# their stack full, act 5 never terrorized (the player: "why we don't use northern shards and just ddroppped them").
+# A shard the game can still use is never put down (macros/actloop.py SPARE_USABLE, through engine.py `protected`)
+def shard_town(monkeypatch, acts: tuple[int, ...]):
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros import actloop
+    from inventory_tracking.macros.agenda import Agenda
+    from inventory_tracking.macros.loop import ACT_KINDS
+
+    first, second = thing(40, 'Northern Worldstone Shard', 8, 3), thing(41, 'Northern Worldstone Shard', 9, 3)
+    play = fortress(Pack((THE_CUBE, *OWN_CHARMS, first, second), keys=24, identifies=20), [FULL_PAGE] * 6)
+    play.stacks = {first.txt: 99}
+    town = Town(monkeypatch, play)
+    town.run = play.run()
+    agenda = Agenda(game='cyberg65', shard=actloop.USED, acts=acts)
+    loop = SimpleNamespace(kind=ACT_KINDS['act1'], agenda=agenda, done=None)
+    town.run.spared_item = lambda item: actloop.spared(loop, item, town.run.reads.carried)
+    return play, town
+
+
+def test_the_stash_never_puts_down_a_shard_the_game_can_still_use(monkeypatch, caplog):
+    play, town = shard_town(monkeypatch, (1,))  # act 5 not terrorized: the next town stop's overflow uses one
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.WAYPOINT)
+
+    assert [i.unit_id for i in play.fallen] == [41]  # one a class kept for act 5, the second falls
+    assert 40 in {i.unit_id for i in carried(play).items}
+    assert 'kept for its use (a Northern Worldstone Shard act 5 can still use in this game)' in caplog.text
+    assert 'another Northern Worldstone Shard (unit 40) is kept for act 5' in caplog.text
+
+
+def test_a_shard_of_an_act_terrorized_already_is_put_down_as_before(monkeypatch, caplog):
+    play, town = shard_town(monkeypatch, (1, 5))  # act 5 terrorized: no use left in the game
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.WAYPOINT)
+
+    assert sorted(i.unit_id for i in play.fallen) == [40, 41]
+    assert 'may be put down: act 5 is terrorized in this game already' in caplog.text

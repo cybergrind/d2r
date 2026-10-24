@@ -121,3 +121,7 @@ def test_production_material_capture_does_not_read_an_inventory_grid():
     assert not result['errors']
     assert result['stable']
     assert not any('grid' in r['label'] or 'cells' in r['label'] for r in result['blocks'])
+
+
+# The saved captures here were recorded on the build before the 2026-10-23 patch.
+pytestmark = pytest.mark.usefixtures('old_build_layout')

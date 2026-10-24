@@ -1583,22 +1583,52 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
 
     from inventory_tracking.game.records import VALUABLE, Drop, Loot
 
+    # The game's record (macros/midgame.py RECORD, terror/tracker.py `ZoneTracker.record`) holds them, not the blob
+    from inventory_tracking.terror.tracker import ZoneTracker
+
+    records = ZoneTracker()
     runner = make(lambda cancelled, routine: None, [])
+    runner.attach_records(records)
     runner.loop.kind = LK  # Lower Kurast's levels
     runner.loop.on = True
     topaz = Loot(drops=(Drop(41, 22628.0, 6700.0, 'Flawless Topaz', VALUABLE),), game=('cyber9', 7))
     runner._sighted(cast(GameMemory, _Memory()), topaz)
     runner.sightings.items[41].tries = 2  # its trips back spent (15:53:19 on 2026-10-18: a Ring)
+    runner.sightings.keep()
     state = json.loads(json.dumps(runner.resume_state()))  # as appraisal/service.py `write_resume` keeps it
+    assert 'sightings' not in state
+    assert 'game' not in state
     runner.close()
 
     after = make(lambda cancelled, routine: None, [])
+    after.attach_records(records)
     after.loop.kind = LK  # Lower Kurast's levels
     after.resume(state)
+    after.loop.on = True  # the resume's own turn on (watch.py `poll`)
+    after._sighted(cast(GameMemory, _Memory()), Loot(game=('cyber9', 7)))  # the first read in the game
     assert after.sightings.left() == 'Flawless Topaz at (22628, 6700)'
     assert after.sightings.items[41].tries == 0  # a restart is made for a fix: its trips back begin again
     assert after.sightings.game == ('cyber9', 7)
-    after.resume({'loop': False, 'sightings': {'items': [{'bad': 1}]}})  # a malformed state is none
+    after.close()
+
+
+def test_an_old_restart_blobs_sightings_go_into_the_games_record_once():
+    # midgame.py LEGACY_BLOB: the service that deploys the record is restarted by one that wrote the old blob
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.terror.tracker import ZoneTracker
+
+    old = {'loop': False, 'sightings': {'game': ['cyber9', 7], 'fetching': None, 'items': [
+        {'unit_id': 41, 'label': 'Flawless Topaz', 'x': 22628.0, 'y': 6700.0, 'area': None, 'seen': 1.0, 'read': False,
+         'tries': 2}]}}  # fmt: skip
+    after = make(lambda cancelled, routine: None, [])
+    after.attach_records(ZoneTracker())
+    after.loop.kind = LK
+    after.resume(old)
+    after.resume({'loop': False, 'sightings': {'items': [{'bad': 1}]}})  # a malformed one is none
+    after.loop.on = True
+    after._sighted(cast(GameMemory, _Memory()), Loot(game=('cyber9', 7)))
+    assert after.sightings.left() == 'Flawless Topaz at (22628, 6700)'
+    del Drop, VALUABLE
     after.close()
 
 
@@ -1692,6 +1722,38 @@ def test_a_stop_for_another_cause_than_room_is_no_trip_nor_drop():
     assert not runner.loop.trip_due
     assert not runner.loop.drop_room
     assert not runner.loop.on
+    runner.close()
+
+
+def test_the_pickup_leg_goes_back_for_a_valuable_out_of_the_read_after_another_s_trips(monkeypatch):
+    # 19:05:12 on 2026-10-22 (rca/2026-10-22/kriss-stop-findings.md): a Flail's trips back at 19:02:44, a Kriss seen
+    # at 19:05:02 and out of the read (113 away) when the level run ended; the TZ pickup leg read no drops near and
+    # stopped the loop "after 0 trips back" instead of going to it. Now the leg goes there
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.macros.loop import TZ_PICKUP
+    from inventory_tracking.macros.running import valuables
+
+    clock = [0.0]
+    monkeypatch.setattr(valuables, 'time', SimpleNamespace(monotonic=lambda: clock[0]))
+    gone_to = []
+    patch_runner(monkeypatch, 'approach', lambda run, found, level, keys, hops: gone_to.append(found.label))
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.kind = LK
+    runner.loop.on = True
+    runner.loop.current = TZ_PICKUP
+    game = ('g', 7)
+    runner._sighted(cast(GameMemory, _Memory()), Loot(drops=(Drop(44, 5700.0, 2860.0, 'Flail', VALUABLE),), game=game))
+    assert runner._fetch(cast(Run, _Run(5695.0, 2857.0, 79)), None, KEYS)  # the Flail's trip back
+    runner._sighted(cast(GameMemory, _Memory()), Loot(game=game, carried=frozenset({44})))  # picked up
+    clock[0] = 138.0
+    kriss = Drop(45, 5798.0, 2870.0, 'Kriss', VALUABLE)
+    runner._sighted(cast(GameMemory, _Memory()), Loot(drops=(kriss,), game=game))
+    clock[0] = 142.0
+    runner._sighted(cast(GameMemory, _Memory()), Loot(game=game))  # out of the read, 104 away
+    assert runner.sightings.left() == 'Kriss at (5798, 2870)'
+    clock[0] = 148.0  # the level run over: the pickup leg
+    assert runner._fetch(cast(Run, _Run(5695.0, 2857.0, 79)), None, KEYS)
+    assert gone_to == ['Flail', 'Kriss']
     runner.close()
 
 

@@ -101,6 +101,11 @@ SWAP_WAIT = 0.5  # seconds a swap is given to show before the key is pressed aga
 # 17:10, 2026-10-06: six clicks, no key taken).
 SAVE_AND_EXIT = (0.5, 0.438)
 GAME_NAME_FIELD = (0.8, 0.158)  # right of the text, so the caret lands at its end
+# The lobby's Create Game tab (screenshot of the window, 2026-10-23 15:21: 848, 60 of 1280 x 709). After the player
+# rejoined a game by hand the lobby stood on Join Game, where GAME_NAME_FIELD is the Password box: 'the game name
+# field did not take the keys' twice and the loop stopped. A field try that takes nothing clicks this tab before the
+# next (a click on the tab already shown changes nothing)
+CREATE_GAME_TAB = (0.66, 0.085)
 
 QUICK_SECONDS = 1.0  # at most, for the skill key before to give the right button back (that Sigil: 0.9 s)
 QUICK_UNSEEN = 0.35  # a key tapped with nothing held whose skill never showed on the button: not waited for
@@ -547,6 +552,8 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
         if run.seen(lambda w: w.game_name == last[:-1], 0.6) is not None:
             break
         run.pause('screen')
+        run.actuator.move(*CREATE_GAME_TAB, scatter=(20, 4))  # the lobby may stand on Join Game (CREATE_GAME_TAB)
+        run.actuator.click()
         run.pause('screen')
     else:
         raise Abort('the game name field did not take the keys', cause='lobby')

@@ -4,11 +4,13 @@ bodies block; Bind Demon makes a demon the character's. No macro runs here: the 
 them, and the game is played a tick at a time."""
 
 import math
+import random
 from dataclasses import replace
 
 import pytest
 
 from inventory_tracking.builds.warlock.bind import bound
+from inventory_tracking.combat import revivers
 from inventory_tracking.combat.sim.monsters import STRIKE
 from inventory_tracking.game.view import Viewport
 from tests.inventory_tracking.macros.fakes import KEYS, WINDOW
@@ -20,9 +22,10 @@ from tests.inventory_tracking.scenarios.arena.game import (
     SIGIL_SLOWS,
     Arena,
 )
-from tests.inventory_tracking.scenarios.arena.mobs import SIGIL_SLOW, body_of
+from tests.inventory_tracking.scenarios.arena.mobs import SIGIL_SLOW, Mobs, body_of
 from tests.inventory_tracking.scenarios.arena.scene import Scene
 from tests.inventory_tracking.scenarios.arena.situations.situation import Situation, east, open_field
+from tests.inventory_tracking.scenarios.revivers.table import raised, reviver
 
 
 HULK, URDAR, DEFILER = 128, 189, 744
@@ -221,3 +224,29 @@ def test_bind_demon_takes_no_bramble_hulk():
 def test_the_rules_must_be_known():
     with pytest.raises(AssertionError):
         Arena(bind_scene(), rules=('nonsense',))
+
+
+def test_a_reviver_raises_the_dead_of_its_family_after_its_table_seconds():
+    # The rule REVIVERS_RAISE (game.py, mobs.py `Mobs.raise_dead`, 2026-10-23): a Fallen killed beside a Fallen Shaman
+    # stands up again after the shaman's table seconds (combat/revivers.py), the same unit at full life
+    shaman, fallen = reviver('fallenshaman1')['txt'], raised('FallenShaman')['fallen1']
+    situation = Situation.on(open_field(40), area=3).pack(shaman, 1, at=east(20.0), spread=0.0)
+    situation.pack(fallen, 1, at=east(15.0), spread=0.0)
+    mobs = Mobs(situation.scene, random.Random(1))
+    shaman_unit, fallen_unit = (mob.unit for mob in situation.scene.mobs)
+    assert mobs.hit(fallen_unit, 1e9)
+    frames = round(revivers.revivers()[shaman].seconds * 25)
+    raised_at = None
+    for frame in range(frames + 5):
+        mobs.frame = frame
+        if mobs.raise_dead():
+            raised_at = frame
+            break
+    assert raised_at == frames
+    assert fallen_unit in mobs.live()
+    assert mobs.hostile.count(fallen_unit) == 1
+    assert mobs.mobs[fallen_unit].life == mobs.mobs[fallen_unit].full
+    assert mobs.hit(shaman_unit, 1e9)
+    assert mobs.hit(fallen_unit, 1e9)
+    mobs.frame += frames * 2
+    assert mobs.raise_dead() == []  # the shaman dead: nobody gets up

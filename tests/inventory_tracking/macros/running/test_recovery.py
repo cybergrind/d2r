@@ -140,7 +140,11 @@ def boss_game(area: int = 131) -> MacroRunner:
     return found
 
 
-def test_a_stall_with_a_boss_alive_keeps_the_game_twice_then_stops_the_loop_naming_the_bosses(caplog):
+def test_a_stall_with_a_boss_alive_keeps_the_game_twice_then_stops_the_loop_naming_the_bosses(caplog, monkeypatch):
+    # the old any-boss rule (tzloop.py STOPS_FOR_ACT_BOSSES off; the player, 2026-10-23: act bosses only)
+    from inventory_tracking.macros import tzloop as _tz
+
+    monkeypatch.setattr(_tz, 'STOPS_FOR_ACT_BOSSES', False)
     # "we need to kill all bosses, no exceptions to that"; recoveries: "yes, should try" (the player, 2026-10-22). The
     # audit: every recovery left the game (rca/2026-10-22/boss-audit-findings.md §4 cause 7)
     from inventory_tracking.macros.actuator import Abort
@@ -173,7 +177,11 @@ def test_the_keeps_are_the_books_and_a_restarted_service_counts_on():
     assert recovery.BOSS_KEEPS == 2
 
 
-def test_beset_with_life_low_leaves_at_once_and_says_the_bosses(caplog):
+def test_beset_with_life_low_leaves_at_once_and_says_the_bosses(caplog, monkeypatch):
+    # the old any-boss rule (tzloop.py STOPS_FOR_ACT_BOSSES off; the player, 2026-10-23: act bosses only)
+    from inventory_tracking.macros import tzloop as _tz
+
+    monkeypatch.setattr(_tz, 'STOPS_FOR_ACT_BOSSES', False)
     # "we must not die": survival first, never a fight through the danger; the line names what is left alive
     from inventory_tracking.macros.actuator import Abort
     from inventory_tracking.macros.stops import Beset
@@ -205,16 +213,17 @@ def test_beset_otherwise_gets_clear_by_the_town_portal_with_no_fight_and_comes_b
     assert 'clear of it by the Town Portal, the town visit, back for' in caplog.text
 
 
-def test_the_games_time_cap_with_a_boss_alive_stops_the_loop_at_once(caplog):
+def test_no_progress_with_a_boss_alive_stops_the_loop_at_once(caplog):
+    # 2026-10-22: a game owing a boss is cut by no progress, not by its clock (loop.py NO_PROGRESS_SECONDS)
     from inventory_tracking.macros.actuator import Abort
 
     found = boss_game()
-    found.loop.seen = (GAME, 0.0)  # over its time
+    found.loop.progressed = (GAME, 0.0, ())  # no progress since the start
     with caplog.at_level(logging.INFO):
-        found._loop_stopped(Abort('over 600 s in cyberg4'))
+        found._loop_stopped(Abort('no progress for 300 s in cyberg4'))
     assert not found.loop.on
     assert not found.loop.abandon
-    assert 'the game is over its time' in caplog.text
+    assert 'no progress for 300 s' in caplog.text
 
 
 def test_without_a_boss_alive_or_with_the_switch_off_a_recovery_leaves_as_before(monkeypatch):
@@ -234,3 +243,98 @@ def test_without_a_boss_alive_or_with_the_switch_off_a_recovery_leaves_as_before
     monkeypatch.setattr(recovery, 'BOSS_RECOVERY', True)
     other._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert other.loop.abandon  # the agenda's plan is another game's: as before
+
+
+def shard_game(left: str | None = None) -> MacroRunner:
+    """A zone game a Worldstone Shard terrorized (act 1), taken up after a restart: no plan read yet."""
+    import time
+    from dataclasses import replace
+
+    found = runner(replace(TZ, agenda=True))
+    found.loop.seen = (GAME, time.monotonic())
+    found.valuable_left = lambda: left
+    found.loop.agenda.begin(GAME)
+    found.loop.agenda.acts = (1,)
+    assert found.loop.agenda.plan is None
+    return found
+
+
+def test_a_stall_in_a_shard_game_with_no_plan_read_keeps_it_then_stops_in_place(caplog):
+    # The player, 2026-10-23: "make sure that we don't save/exit and waste the shards" (SHARD_HOLDS)
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.running import recovery
+
+    found = shard_game()
+    stall = Abort('the character has not moved for 45 s', cause='stall')
+    with caplog.at_level(logging.INFO):
+        for _ in range(recovery.BOSS_KEEPS):
+            found._loop_stopped(stall)
+            assert found.loop.on
+            assert not found.loop.abandon
+        found._loop_stopped(stall)
+    assert not found.loop.on
+    assert not found.loop.abandon
+    assert 'the shard acts [1] not planned yet' in caplog.text
+
+
+def test_with_shard_holds_off_the_shard_game_with_no_plan_is_left_as_before(monkeypatch):
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.running import recovery
+
+    monkeypatch.setattr(recovery, 'SHARD_HOLDS', False)
+    found = shard_game()
+    found._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
+    assert found.loop.abandon
+
+
+def test_the_fight_back_lost_with_a_valuable_left_gets_clear_by_the_portal_not_a_leave(caplog):
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.agenda import PORTAL_TO_TOWN
+    from inventory_tracking.macros.stops import Beset
+    from inventory_tracking.macros.tzloop import DANGER_PORTAL
+
+    found = shard_game(left='Unique Grand Charm')
+    found.loop.agenda.acts = ()  # no shard: the valuable alone holds the game
+    found._beset_facts = lambda game: Beset(low=False, again=True)
+    with caplog.at_level(logging.INFO):
+        found._loop_stopped(Abort('the character is hit standing outside a fight (life 2400/2900)', cause='beset'))
+    assert not found.loop.abandon
+    assert found.loop.on
+    top = found.loop.agenda.package()
+    assert top is not None
+    assert (top.kind, top.label) == (PORTAL_TO_TOWN, DANGER_PORTAL)
+    assert 'Unique Grand Charm lies on the ground' in caplog.text
+
+
+def test_beset_with_life_low_in_a_shard_game_still_leaves_at_once():
+    # Survival beats the shards: "we must not die or we lose exp and our gear"
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.stops import Beset
+
+    found = shard_game(left='Unique Grand Charm')
+    found._beset_facts = lambda game: Beset(low=True)
+    found._loop_stopped(Abort('the character is hit standing outside a fight (life 800/2900)', cause='beset'))
+    assert found.loop.abandon
+
+
+def test_an_unplayable_zone_in_a_held_game_stops_the_loop_in_place(caplog):
+    from inventory_tracking.macros.actuator import Abort
+
+    found = shard_game()
+    with caplog.at_level(logging.INFO):
+        found._loop_stopped(Abort('the terror zone Moo Moo Farm is not playable', cause='zone'))
+    assert not found.loop.on
+    assert not found.loop.abandon
+    assert 'the game is not left' in caplog.text
+    free = runner()  # no agenda kind, nothing held: left as before
+    free._loop_stopped(Abort('the terror zone Moo Moo Farm is not playable', cause='zone'))
+    assert free.loop.abandon
+
+
+def test_a_shard_game_is_cut_by_no_progress_not_by_its_clock(monkeypatch):
+    from inventory_tracking.macros.running import watch
+
+    found = shard_game()
+    assert watch.game_owes(found, GAME)
+    monkeypatch.setattr(watch, 'SHARD_NO_CLOCK', False)
+    assert not watch.game_owes(found, GAME)  # no plan: nothing owed read

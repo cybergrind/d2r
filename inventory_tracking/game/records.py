@@ -262,6 +262,9 @@ class Carried:
     identified: bool = True  # the ItemData flag (True when unread, so it is never sent to identify)
     # ItemData +0x34: a unique's uniqueitems.txt row once identified (0 before; 359 Gheed's Fortune)
     unique: int = 0
+    # The ItemData flag IFLAG_RUNEWORD (items/identity.py RUNEWORD_FLAG 0x04000000, MapAssist Types/Items.cs): a
+    # runeword, never a plain base (D12, 2026-10-23)
+    runeword: bool = False
 
 
 @dataclass(frozen=True)
@@ -397,3 +400,4 @@ class Rolls:
     ethereal: bool = False
     damage: int | None = 0
     tabs: tuple[tuple[int, int], ...] = ()
+    runeword: bool = False  # the ItemData flag IFLAG_RUNEWORD (items/identity.py RUNEWORD_FLAG; D12, 2026-10-23)

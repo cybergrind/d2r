@@ -166,3 +166,76 @@ def test_a_stuck_move_far_from_the_door_or_across_an_open_passage_does_not_end_t
     assert not moves.door_stuck(Move(Step(passage.place), passage), here, True, stop)  # walked across (`through`)
     other = Abort('Teleport: the casting delay')
     assert not moves.door_stuck(Move(Step(near.place), near), here, True, other)
+
+
+# The stale rule for a danger act (base.py STALE_DANGER_KEPT, 2026-10-23): checked against the look now, not dropped
+
+
+class StaleRun:
+    """A run for `stale`: its clock, and the look now (the character where `now_at` puts it)."""
+
+    def __init__(self, clock: float, now_at: tuple[float, float]) -> None:
+        self.now, self.at = clock, now_at
+
+    def clock(self) -> float:
+        return self.now
+
+    def world(self):
+        return world_at(*self.at)
+
+
+def world_at(x: float, y: float):
+    from inventory_tracking.game.records import Player, World
+
+    return World(True, (), 'game', (), player=Player(1, 'CybergrindAA', 1, AREA, x, y, None))
+
+
+def staler(decision: dict | None = None, alarmed: bool = False):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(dropped=0, safety=SimpleNamespace(decision=decision or {}, alarmed=alarmed))
+
+
+def retreat() -> Move:
+    goal = Goal('the fight', (5000.0, 5000.0), REACH, 5.0, PRESSED)
+    return Move(Step((5010.0, 5000.0), TELEPORT), goal, reason='retreating: every progress act is vetoed')
+
+
+def advance(reason: str = '', dodge: bool = False) -> Move:
+    goal = Goal('the fight', (5000.0, 5000.0), REACH, 5.0, PRESSED)
+    return Move(Step((5010.0, 5000.0), TELEPORT), goal, reason=reason, dodge=dodge)
+
+
+@pytest.mark.parametrize(
+    ('act', 'decision', 'alarmed', 'moved', 'kept'),
+    [
+        (retreat(), None, False, 0.5, True),  # the safety's own retreat: a danger act
+        (advance(dodge=True), None, False, 0.5, True),  # a dodge of an act under way
+        (advance(), {'looked_at': 10.0, 'budget': 0.0}, False, 0.5, False),  # progress priced with no budget: dropped
+        (advance(), {'looked_at': 10.0, 'budget': 300.0}, True, 0.5, False),  # progress, the safety alarmed: dropped
+        (advance('safe approach'), {'looked_at': 10.0, 'budget': 0.0}, True, 0.5, False),  # the cs_run seed 15 act
+        (advance(), {'looked_at': 10.0, 'budget': 300.0}, False, 0.5, False),  # no danger: dropped as before
+        (retreat(), None, False, 3.0, False),  # the character moved since: dropped
+    ],
+)
+def test_a_danger_act_of_a_slow_look_is_made_when_the_look_now_agrees(monkeypatch, act, decision, alarmed, moved, kept):
+    from inventory_tracking.macros.hunting import base
+
+    monkeypatch.setattr(base, 'STALE_DANGER_KEPT', True)
+    hunter_ = staler(decision, alarmed)
+    run = StaleRun(10.5, (5000.0 + moved, 5000.0))
+
+    dropped = moves.stale(hunter_, run, world_at(5000.0, 5000.0), 10.0, act)  # pyrefly: ignore[bad-argument-type]
+
+    assert dropped is not kept
+    assert hunter_.dropped == (0 if kept else 1)
+
+
+def test_with_the_switch_off_a_danger_act_of_a_slow_look_is_dropped(monkeypatch):
+    from inventory_tracking.macros.hunting import base
+
+    monkeypatch.setattr(base, 'STALE_DANGER_KEPT', False)
+    hunter_ = staler()
+    run = StaleRun(10.5, (5000.0, 5000.0))
+
+    assert moves.stale(hunter_, run, world_at(5000.0, 5000.0), 10.0, retreat())  # pyrefly: ignore[bad-argument-type]

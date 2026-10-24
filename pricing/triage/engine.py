@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from pricing.knowledge.assessment.ethereal_use import market_item
+from pricing.triage import charm_fills
 from pricing.triage.bands import ethereal_bucket, quantity_bucket
 from pricing.triage.commodity_lots import (
     accumulation,
@@ -27,6 +28,10 @@ from pricing.triage.variants import base_bucket, profile_for, scoped_bucket, soc
 
 
 DATA = Path(__file__).resolve().parents[1] / 'data/triage'
+
+# Ordinary and Colossal jewels: every one the loop picks up gets a reviewed verdict, never CHECK (the player,
+# 2026-10-22; rca/2026-10-22/jewel-verify-G1..G6.md).
+JEWEL_FAMILIES = frozenset({'jewl', 'cjwl'})
 
 # 2026-10-04 SC/NL/PC/RotW asks: both Q1 and median are below the 0.25-Ist keep threshold for these set jewelry
 # pieces. Four have fewer than three priced sellers, so the normal sparse-name gate says CHECK even for ordinary
@@ -115,6 +120,8 @@ def assess(item, tables, *, today=None):
     name_bucket = quantity_bucket(item.get('quantity', 1))
     reference = tables['bands'].get((category, name, name_bucket))
     policy = profile_for(item, tables['rules'].get('policies', []))
+    # A reviewed named policy may set its own keep line (Rainbow Facet: vendor only below 0.2 Ist, G5).
+    keep_ist = policy.get('keep_ist', tables['rules']['keep_ist'])
     facets = policy.get('facets', [])
     separate = not facets and (reference or {}).get('separate_ethereal', False)
     separate_sockets = (reference or {}).get('separate_sockets', False)
@@ -159,7 +166,7 @@ def assess(item, tables, *, today=None):
     if category == 'base' and not supported(band):
         from pricing.triage.base_fallback import lookup as base_fallback
 
-        if fallback := base_fallback(item, tables['bands'], keep_ist=tables['rules']['keep_ist']):
+        if fallback := base_fallback(item, tables['bands'], keep_ist=keep_ist):
             band, bucket = fallback, fallback['bucket']
     # Arbitrary affixed names cannot borrow a generic Ring/Amulet market band.
     if category in ('magic', 'rare', 'crafted'):
@@ -191,9 +198,7 @@ def assess(item, tables, *, today=None):
         if (
             band
             and band.get('cohort_depth', 0) == 0
-            and protects_variant(
-                item, band | {'variant_prices': reference['variant_prices']}, tables['rules']['keep_ist']
-            )
+            and protects_variant(item, band | {'variant_prices': reference['variant_prices']}, keep_ist)
         ):
             band = None
         if band is None:
@@ -205,41 +210,47 @@ def assess(item, tables, *, today=None):
         )
         if fallback:
             band, bucket = fallback, fallback['bucket']
+    # Shimmering charms are priced by what they sold for (charm_fills.py, the player 2026-10-24: "definitive valuation
+    # based on real deals (not just ask)"); the asks band stays the reference
+    sold = charm_fills.band(item, tables['charm_fills']) if category == 'magic' and tables.get('charm_fills') else None
+    if sold is not None:
+        reference, band, bucket = band or reference, sold, sold['bucket']
     price = (band or {}).get('q1_ist', (band or {}).get('median_ist'))
+    if sold is not None:
+        price = sold['median_ist']  # a sale is a price: the trades' median decides, their q1 is the lower bound
     if fungible(item) and type(quantity) is int and quantity > 1 and (band or {}).get('quantity') == quantity:
         price = sale_value(item, price)
         sale_mode = 'bulk'
     liquidity = (band or {}).get('liquidity', 'none')
-    if premium and price is not None and not supported(band):
+    jewel = str(captured.get('family', '')).casefold() in JEWEL_FAMILIES
+    if sold is not None:
+        verdict = 'vendor' if price < keep_ist else 'sell' if liquidity == 'liquid' else 'slow'
+        reason = ('below keep price; ' if verdict == 'vendor' else '') + charm_fills.reason(sold)
+    elif premium and price is not None and not supported(band) and jewel:
+        # The player, 2026-10-22: no CHECK for jewels. The reviewed premium row decides the verdict; sparse asks
+        # stay a reference, never the price (rca/2026-10-22/jewel-verify-G3.md §6.3).
+        verdict, reason = 'sell', 'premium jewel pattern; sparse asks are reference only'
+        reference, band, price, liquidity = band, None, None, 'none'
+    elif premium and price is not None and not supported(band):
         verdict, reason = 'check', 'premium pattern with sparse asks; price is reference only'
     elif premium:
         verdict, reason = 'sell', 'premium rule combination'
-    elif price is not None and price >= tables['rules']['keep_ist'] and liquidity in ('liquid', 'thin'):
+    elif price is not None and price >= keep_ist and liquidity in ('liquid', 'thin'):
         verdict, reason = ('sell' if liquidity == 'liquid' else 'slow'), f'asks {price:g} Ist lower quartile'
-    elif (
-        (category in NAMED or category == 'base')
-        and supported(band)
-        and price is not None
-        and price < tables['rules']['keep_ist']
-    ):
+    elif (category in NAMED or category == 'base') and supported(band) and price is not None and price < keep_ist:
         verdict, reason = 'vendor', 'below keep price'
     elif patterns:
         verdict, reason = 'check', cast(str, min((check_reason(captured, r) for r in patterns), key=len))
     elif (
         category in ('magic', 'rare', 'crafted')
         and price is not None
-        and price >= tables['rules']['keep_ist']
+        and price >= keep_ist
         and 0 < (band or {}).get('sellers', 0) < 3
     ):
         verdict, reason = 'check', 'fewer than three sellers for the matched stat pattern; price is reference only'
-    elif price is not None and price >= tables['rules']['keep_ist'] and (band or {}).get('comparison'):
+    elif price is not None and price >= keep_ist and (band or {}).get('comparison'):
         verdict, reason = 'check', 'fewer than three comparable-or-worse sellers'
-    elif (
-        category == 'base'
-        and any(r.get('bucket') for r in rules)
-        and price is not None
-        and price >= tables['rules']['keep_ist']
-    ):
+    elif category == 'base' and any(r.get('bucket') for r in rules) and price is not None and price >= keep_ist:
         verdict, reason = 'check', 'fewer than three sellers for the matched base variant; price is reference only'
     elif any(matches(captured, r) for r in tables['own']['rows']):
         verdict, reason = 'self', 'own-build rule'
@@ -249,7 +260,7 @@ def assess(item, tables, *, today=None):
             'no listings'
             if price is None
             else 'below keep price'
-            if price < tables['rules']['keep_ist']
+            if price < keep_ist
             else 'insufficient price evidence',
         )
     if category == 'base' and verdict == 'vendor' and not supported(band):
@@ -294,9 +305,7 @@ def assess(item, tables, *, today=None):
             if quote.get('quantity', 1) != item.get('quantity', 1):
                 reason = 'only sparse unit asks; stack price unavailable'
             band, price, bucket = quote, quote['q1_ist'], quote['bucket']
-    comparison = cast(
-        dict[str, Any] | None, roll_model(item, tables.get('roll_models', []), keep_ist=tables['rules']['keep_ist'])
-    )
+    comparison = cast(dict[str, Any] | None, roll_model(item, tables.get('roll_models', []), keep_ist=keep_ist))
     if comparison is not None:
         verdict, reason = comparison['verdict'], comparison['reason']
         band, reference = comparison['band'], comparison['reference_band']
@@ -321,7 +330,7 @@ def assess(item, tables, *, today=None):
         else:
             band = placement['band']
             price, bucket, liquidity = band['q1_ist'], band['bucket'], band['liquidity']
-            verdict = 'vendor' if price < tables['rules']['keep_ist'] else 'sell' if liquidity == 'liquid' else 'slow'
+            verdict = 'vendor' if price < keep_ist else 'sell' if liquidity == 'liquid' else 'slow'
     own_use = next((r for r in tables['own']['rows'] if matches(captured, r)), None)
     if own_use and (
         verdict in ('vendor', 'self')
@@ -332,7 +341,9 @@ def assess(item, tables, *, today=None):
 
     demand = demand_for(captured, tables.get('demand', {}))
     market_demand = None
-    if tables.get('market_demand', {}).get('complete') and not fungible(item):
+    if sold is not None:
+        pass  # completed trades are the demand: no turnover qualification
+    elif tables.get('market_demand', {}).get('complete') and not fungible(item):
         from pricing.triage.market_demand import lookup, qualify
 
         market_demand = lookup(item, {'band': band, 'preparation': socket_preparation}, tables)
@@ -343,14 +354,13 @@ def assess(item, tables, *, today=None):
         from pricing.triage.market_demand import qualify
 
         verdict, reason = qualify(verdict, price, bool(demand or own_use), None)
+    if verdict == 'vendor' and premium and jewel:
+        # A reviewed jewel sell is never vendor food: a sub-1-Ist band without measured turnover still stashes.
+        verdict, reason = 'slow', f'reviewed jewel pattern; {reason}'
     if placement and placement['valid']:
         reason = placement['reason']
         if placement['group'] == 'ordinary' and placement['ordinary_floor']:
-            verdict = (
-                'slow'
-                if price >= tables['rules']['keep_ist'] and ordinary_has_demand(placement, market_demand)
-                else 'vendor'
-            )
+            verdict = 'slow' if price >= keep_ist and ordinary_has_demand(placement, market_demand) else 'vendor'
     if own_use and verdict == 'vendor':
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
     if verdict in ('vendor', 'self') and tables.get('learned_index'):
@@ -391,8 +401,7 @@ def assess(item, tables, *, today=None):
         and verdict == 'check'
         and not (patterns or comparison or placement or own_use)
         and all(
-            type((reference or {}).get(field)) in (int, float)
-            and (reference or {})[field] < tables['rules']['keep_ist']
+            type((reference or {}).get(field)) in (int, float) and (reference or {})[field] < keep_ist
             for field in ('q1_ist', 'median_ist')
         )
     ):
@@ -417,7 +426,7 @@ def assess(item, tables, *, today=None):
         'bucket': bucket,
         'stale': stale,
         'liquidity': liquidity,
-        'keep_ist': tables['rules']['keep_ist'],
+        'keep_ist': keep_ist,
         'decision_ist': price,
         'roll_comparison': comparison,
         'roll_placement': placement,
@@ -430,11 +439,20 @@ def assess(item, tables, *, today=None):
     }
 
 
-def revision(directory=DATA):
-    return tuple(
+def revision(directory=DATA, fills=charm_fills.EVIDENCE_FILE):
+    """(mtime, size) of bands, rules and own, then of the charm fills evidence (None when it is missing)."""
+    tables = tuple(
         (p.stat().st_mtime_ns, p.stat().st_size)
         for p in (Path(directory) / f'{name}.json' for name in ('bands', 'rules', 'own'))
     )
+    fills = Path(fills)
+    return (*tables, (fills.stat().st_mtime_ns, fills.stat().st_size) if fills.exists() else None)
+
+
+def read_fills(path=charm_fills.EVIDENCE_FILE):
+    """The charm fills evidence's facets ({} when the file is missing)."""
+    path = Path(path)
+    return json.loads(path.read_text()).get('facets', {}) if path.exists() else {}
 
 
 def prepare_rules(data, rules):
@@ -446,8 +464,9 @@ def prepare_rules(data, rules):
     }
 
 
-def prepare_tables(bands, rules, own):
+def prepare_tables(bands, rules, own, fills=None):
     data = {
+        'charm_fills': fills or {},
         'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands['bands']},
         'own': own,
         'roll_models': bands.get('roll_models', []),
@@ -461,14 +480,15 @@ def prepare_tables(bands, rules, own):
 
 
 class Tables:
-    def __init__(self, directory=DATA):
+    def __init__(self, directory=DATA, fills=charm_fills.EVIDENCE_FILE):
         self.directory = Path(directory)
+        self.fills = Path(fills)
         self.stamp = None
         self.data = None
 
     def load(self):
         paths = [self.directory / f'{name}.json' for name in ('bands', 'rules', 'own')]
-        stamp = revision(self.directory)
+        stamp = revision(self.directory, self.fills)
         if stamp != self.stamp:
             if self.stamp is not None and stamp[0] == self.stamp[0]:
                 # Build a replacement before publishing; failed reads must leave
@@ -478,9 +498,11 @@ class Tables:
                     data = prepare_rules(data, json.loads(paths[1].read_text()))
                 if stamp[2] != self.stamp[2]:
                     data = data | {'own': json.loads(paths[2].read_text())}
+                if stamp[3] != self.stamp[3]:
+                    data = data | {'charm_fills': read_fills(self.fills)}
                 self.data = data
             else:
                 bands, rules, own = [json.loads(p.read_text()) for p in paths]
-                self.data = prepare_tables(bands, rules, own)
+                self.data = prepare_tables(bands, rules, own, read_fills(self.fills))
             self.stamp = stamp
         return cast(dict[str, Any], self.data)

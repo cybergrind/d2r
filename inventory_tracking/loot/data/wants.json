@@ -2194,6 +2194,220 @@
       }
     },
     {
+      "id": "shimmering-small-charm",
+      "class": "G12",
+      "who": "trade",
+      "label": "Shimmering Small Charm (3-5 all res, any suffix)",
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 3,
+          "count": 4
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "39:0",
+          "label": "All Resistances",
+          "low": 3,
+          "high": 5,
+          "good": 5
+        }
+      ],
+      "source": "guides/pricing-primer.html:521",
+      "codes": [
+        "cm1"
+      ],
+      "bases": [
+        "Small Charm"
+      ],
+      "asks": null
+    },
+    {
+      "id": "shimmering-large-charm-top",
+      "class": "G12",
+      "who": "trade",
+      "label": "Shimmering Large Charm, top roll (8 all res, any suffix)",
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 8,
+          "count": 4
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "39:0",
+          "label": "All Resistances",
+          "low": 6,
+          "high": 8,
+          "good": 8
+        }
+      ],
+      "source": "guides/pricing-primer.html:521",
+      "codes": [
+        "cm2"
+      ],
+      "bases": [
+        "Large Charm"
+      ],
+      "asks": null
+    },
+    {
+      "id": "shimmering-grand-charm-top",
+      "class": "G12",
+      "who": "trade",
+      "label": "Shimmering Grand Charm, top roll (15 all res, any suffix)",
+      "qualities": [
+        "magic"
+      ],
+      "must": [
+        {
+          "keys": [
+            "39:0",
+            "41:0",
+            "43:0",
+            "45:0"
+          ],
+          "min": 15,
+          "count": 4
+        }
+      ],
+      "always_keep": true,
+      "matters": [
+        {
+          "key": "39:0",
+          "label": "All Resistances",
+          "low": 13,
+          "high": 15,
+          "good": 15
+        }
+      ],
+      "source": "guides/pricing-primer.html:521",
+      "codes": [
+        "cm3"
+      ],
+      "bases": [
+        "Grand Charm"
+      ],
+      "asks": null
+    },
+    {
+      "id": "rare-merc-polearm-eth-ed",
+      "class": "G12",
+      "who": "trade",
+      "label": "Rare merc polearm: ethereal, 250%+ enhanced damage",
+      "qualities": [
+        "rare"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "17:0",
+          "min": 250
+        }
+      ],
+      "matters": [
+        {
+          "key": "17:0",
+          "label": "Enhanced Damage",
+          "low": 250,
+          "high": 450,
+          "good": 400
+        }
+      ],
+      "source": "guides/warlock.html:250",
+      "codes": [
+        "7br",
+        "7h7",
+        "7pa",
+        "7s8",
+        "7vo",
+        "7wc"
+      ],
+      "bases": [
+        "Thresher",
+        "Giant Thresher",
+        "Cryptic Axe",
+        "Great Poleaxe",
+        "Colossus Voulge",
+        "Mancatcher"
+      ],
+      "asks": null
+    },
+    {
+      "id": "rare-merc-polearm-eth-ias-leech",
+      "class": "G12",
+      "who": "trade",
+      "label": "Rare merc polearm: ethereal, 30+ IAS with life or mana leech",
+      "qualities": [
+        "rare"
+      ],
+      "then": "identify",
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "93:0",
+          "min": 30
+        },
+        {
+          "either": [
+            {
+              "key": "60:0",
+              "min": 1
+            },
+            {
+              "key": "62:0",
+              "min": 1
+            }
+          ]
+        }
+      ],
+      "source": "guides/warlock.html:250",
+      "codes": [
+        "7br",
+        "7h7",
+        "7pa",
+        "7s8",
+        "7vo",
+        "7wc"
+      ],
+      "bases": [
+        "Thresher",
+        "Giant Thresher",
+        "Cryptic Axe",
+        "Great Poleaxe",
+        "Colossus Voulge",
+        "Mancatcher"
+      ],
+      "asks": null
+    },
+    {
       "id": "warlock-skiller-gc",
       "class": "G12",
       "who": "warlock",

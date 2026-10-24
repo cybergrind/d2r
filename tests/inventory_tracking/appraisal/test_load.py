@@ -2,6 +2,7 @@
 
 import threading
 
+from inventory_tracking.appraisal import load as _load_module
 from inventory_tracking.appraisal.load import LoadMeter, main, summary
 from inventory_tracking.game.records import World
 from inventory_tracking.takes.record import Recorder, Sample
@@ -27,7 +28,8 @@ def meter(counters, noted, **extra):
     )
 
 
-def test_a_window_says_cpu_load_switches_passes_by_step_and_the_macros_looks():
+def test_a_window_says_cpu_load_switches_passes_by_step_and_the_macros_looks(monkeypatch):
+    monkeypatch.setattr(_load_module, 'THREAD_CPU', False)  # the old path, pinned
     counters, noted = Counters(), []
     load = meter(counters, noted)
     assert load.poll(10.0, 'working', True) is None  # the first poll opens the window
@@ -131,3 +133,71 @@ def test_the_take_manifest_carries_the_services_switch_interval(tmp_path, monkey
         assert combat.recorder.manifest()['switch_interval'] == sys.getswitchinterval()
     finally:
         combat.close()
+
+
+# Each thread's CPU in the window (load.py THREAD_CPU, 2026-10-23, rca/2026-10-23/realtime-3-findings.md)
+
+
+def test_with_thread_cpu_a_window_says_each_named_threads_share(monkeypatch):
+    from inventory_tracking.appraisal import load as load_module
+
+    monkeypatch.setattr(load_module, 'THREAD_CPU', True)
+    counters, noted, times = Counters(), [], {'python': 1.0, 'macro': 2.0, 'combat-recorder': 0.5}
+    load = meter(counters, noted, threads=lambda: dict(times))
+    load.poll(10.0, 'working', True)
+    times.update({'python': 1.1, 'macro': 2.45, 'combat-recorder': 0.65, 'game-reader': 0.002})
+    counters.cpu = 0.7
+
+    fields = load.poll(11.0, 'working', True)
+
+    assert fields is not None
+    assert fields['threads'] == {'macro': 45.0, 'combat-recorder': 15.0, 'python': 10.0}  # under 0.5 % left out
+    assert list(fields['threads']) == ['macro', 'combat-recorder', 'python']  # busiest first
+
+
+def test_without_thread_cpu_no_thread_is_read(monkeypatch):
+    from inventory_tracking.appraisal import load as load_module
+
+    monkeypatch.setattr(load_module, 'THREAD_CPU', False)
+    counters, noted, read = Counters(), [], []
+    load = meter(counters, noted, threads=lambda: read.append(1) or {})
+    load.poll(10.0, 'working', True)
+
+    fields = load.poll(11.0, 'working', True)
+
+    assert fields is not None
+    assert 'threads' not in fields
+    assert not read
+
+
+def test_the_threads_of_this_process_are_read_by_name():
+    from inventory_tracking.appraisal.load import thread_times
+
+    done = threading.Event()
+    worker = threading.Thread(target=done.wait, name='load-probe')
+    worker.start()
+    try:
+        found = thread_times()
+    finally:
+        done.set()
+        worker.join()
+    assert 'load-probe' in found
+    assert all(seconds >= 0 for seconds in found.values())
+
+
+def test_a_window_with_step_cpu_says_the_main_threads_cpu_by_step(monkeypatch, tmp_path):
+    monkeypatch.setattr(_load_module, 'THREAD_CPU', False)
+    counters, noted = Counters(), []
+    load = meter(counters, noted)
+    load.poll(10.0, 'working', True)
+    load.passed({'level map': 0.3, 'runes': 0.01}, 0.31, cpu={'level map': 0.04, 'runes': 0.0001})
+    load.passed({'level map': 0.2}, 0.2, cpu={'level map': 0.03})
+
+    fields = load.poll(11.0, 'working', True)
+
+    assert fields is not None
+    assert fields['pass_ms'] == {'level map': 500.0, 'runes': 10.0}
+    assert fields['pass_cpu_ms'] == {'level map': 70.0}  # under 0.5 ms left out
+    second = load.poll(12.0, 'working', True)
+    assert second is not None
+    assert 'pass_cpu_ms' not in second  # the next window starts empty

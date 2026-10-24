@@ -213,6 +213,16 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 
 ## Restart
 
+**`make serve` restarts itself on request: never ask the player to restart or start it** (the player, 2026-10-24:
+"we have embedded code in `make serve` that allows sending restart messages / make sure that you put it into
+instructions that we know how to use"). `restart.py` writes `inventory_tracking/runs/alt-d/restart.request`; the
+running service takes it at its next tick, closes, and runs again in the same process on the code on disk, its mode
+carried (appraisal/service.py `Restart`, RESUME_FILE). With the loop off (the player's KP_6 or a stop) it restarts **at
+once**: `restart.py --loop keep --wait 120` (about 5 s; the loop stays off). Whether serve runs: the newest
+`runs/alt-d/*/probe.log` still being written (watch.py's HEALTH line "log fresh"), **not** `serve.pid` (stale after a
+restart's re-run, 13:39 on 2026-10-24). Only when no probe.log line has come for minutes and the player says they
+closed it is `make serve` theirs to start again.
+
 `python3 .agents/skills/d2-loop-watch/tools/restart.py --loop on --kind andariel` (or `--loop keep`), from the repo
 root, with `timeout 600` (TZ games run 4-7 min: pass `--wait 1200` and `timeout 1300`, the default 300 s wait gives up). It waits for the next lobby (`next game` leg) when the loop is on, so the town visit of the
 game before is finished ("reload on the next town visit" means this). The watch follows the new log by itself.
@@ -237,6 +247,17 @@ on), the trips and visit marks, the visit's put-down count, the sightings, the k
 Re-derived: the zone's facts (zone-facts.json), the bosses killed (terror-games.json), the volatile cells, the plan.
 The same game state rides every restart, so a restart with the loop off mid-game (after a stop) no longer loses the
 shard's act either. The character stands ~7 s while the service restarts: `make osd` keeps healing.
+
+**By a portal trip** (the player, 2026-10-24 ~13:35: "go to town and restart -> return back"; `town` waits for the
+loop's own next town visit, 5-15+ min in a terror zone game): `restart.py --loop keep --when trip --wait 1200`, with
+`timeout 1300`. In a town: at once, as `town`. In a field level: at its next safe moment (`safe`'s refusals, and no
+boss the route fights on the level alive, no Herald known on it, a kind with packages: TZ, act, LK; at most
+`midgame.TRIP_TRIES` trips a game) the loop casts Town Portal (`Macro: loop: safe moment for the restart: <level>,
+<game>: Town Portal to town for it ...`; restart.py then waits 60 s more whatever `--wait`), stands in town (`safe
+point: ...`), the service restarts, and the new one goes back through the portal (`back through the portal left for
+the restart`), found by the place the character came to in town (`portal_at` in the record) and the nearest open
+portal; gone, `the portal left for the restart is not taken (...): the loop's own way back from town` and the zone
+goes on from town. No restart in town within PARK_SECONDS: back through the portal, nothing restarted.
 
 ## Speed: analyse and optimise (every hour of play)
 

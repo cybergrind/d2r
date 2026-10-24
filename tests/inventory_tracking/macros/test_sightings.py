@@ -181,3 +181,86 @@ def test_a_sighting_noted_on_the_wrong_level_is_not_planned_and_one_carried_now_
         seen.update(Loot(game=GAME, carried=frozenset({77})), DURANCE_HERE, DURANCE_1, 3.0)
     assert seen.left() is None
     assert 'Macro: remembered Large Charm at (5153, 1496): carried now' in caplog.text
+
+
+def kriss_and_flail(seen: Sightings) -> None:
+    # 19:02:44 on 2026-10-22: a Flail's two trips back, then picked up; at 19:05:02 a Kriss seen, out of the read 4 s
+    # later (113 away), the level run over at 19:05:12, 148 s after the Flail's first trip
+    flail = Drop(44, 5000.0, 3000.0, 'Flail', VALUABLE)
+    seen.update(loot(flail), (5100.0, 3000.0), LK, 0.0)
+    for _ in range(FETCH_TRIES):
+        assert seen.fetch((5100.0, 3000.0), LK, 0.3, lambda found: None)
+    seen.update(Loot(game=GAME, carried=frozenset({44})), (5000.0, 3000.0), LK, 2.6)  # carried now
+    seen.update(loot(Drop(45, 5798.0, 2870.0, 'Kriss', VALUABLE)), (5790.0, 2860.0), LK, 138.0)
+    seen.update(loot(), (5685.0, 2830.0), LK, 142.0)
+    assert seen.left() == 'Kriss at (5798, 2870)'
+
+
+def test_a_valuable_seen_after_another_s_trips_back_gets_its_own_trips():
+    # 19:05:12 on 2026-10-22: "Kriss at (17622, 5140) was not picked up after 0 trips back" (the game's one clock)
+    seen = Sightings()
+    kriss_and_flail(seen)
+    gone_to = []
+    assert seen.fetch((5685.0, 2830.0), LK, 148.0, lambda found: gone_to.append(found.label))
+    assert gone_to == ['Kriss']
+    assert seen.outstanding()[0].tries == 1
+    with pytest.raises(Abort, match=r'Kriss .* after 1 trips back'):  # its own seconds still end its trips
+        seen.fetch((5685.0, 2830.0), LK, 149.0 + FETCH_SECONDS, lambda found: None)
+
+
+def test_with_the_game_s_one_clock_a_later_valuable_got_no_trip(monkeypatch):
+    monkeypatch.setattr(sightings_module, 'FETCH_CLOCK_EACH', False)
+    seen = Sightings()
+    kriss_and_flail(seen)
+    with pytest.raises(Abort, match='Kriss at \\(5798, 2870\\) was not picked up after 0 trips back'):
+        seen.fetch((5685.0, 2830.0), LK, 148.0, lambda found: None)
+
+
+def kriss(x=17622.0, y=5140.0) -> Drop:
+    return Drop(1263930433, x, y, 'Kriss', VALUABLE)
+
+
+def recorded() -> tuple[Sightings, Sightings]:
+    """The service before a restart and the one after, keeping the game's record in one store (terror/tracker.py
+    `ZoneTracker.record`, none on disk here)."""
+    from inventory_tracking.terror.tracker import ZoneTracker
+
+    records = ZoneTracker()
+    before, after = Sightings(), Sightings()
+    before.records = after.records = records
+    return before, after
+
+
+def test_a_restart_in_the_same_level_judges_a_valuable_not_read_beside_it_at_the_first_read():
+    # 19:44:43 on 2026-10-22: a Kriss never drawn, its 2 trips spent, stopped the loop 0.06 s after a restart
+    before, after = recorded()
+    before.update(loot(kriss()), (17500.0, 5100.0), 62, 0.0)
+    for _ in range(FETCH_TRIES):
+        before.fetch((17500.0, 5100.0), 62, 10.0, lambda found: None)
+    after.update(loot(), (17620.0, 5137.0), 62, 900.0)  # the restarted service's first read: no Kriss beside it
+    assert after.left() is None
+    assert not after.fetch((17620.0, 5137.0), 62, 900.1, lambda found: None)
+
+
+def test_the_games_record_brings_the_valuables_back_with_their_trips_begun_again():
+    before, after = recorded()
+    before.update(loot(kriss()), (17500.0, 5100.0), 62, 0.0)
+    before.fetch((17500.0, 5100.0), 62, 10.0, lambda found: None)
+    after.update(loot(), (100.0, 100.0), 63, 900.0)  # elsewhere: still remembered
+    assert after.left() == 'Kriss at (17622, 5140)'
+    assert after.outstanding()[0].tries == 0  # a restart is made for a fix
+    other = Sightings()
+    other.records = after.records
+    other.update(loot(game=('game-2', 7)), (100.0, 100.0), 63, 900.0)  # another game: nothing of this one's
+    assert other.left() is None
+
+
+def test_a_restart_into_another_level_still_waits_for_its_settle():
+    # The Unique Double Bow of 2026-10-21 00:55:22: a fresh arrival is still given its ARRIVAL_SECONDS
+    before, after = recorded()
+    before.update(loot(kriss()), (17500.0, 5100.0), 62, 0.0)
+    before.update(loot(), (100.0, 100.0), 63, 5.0)  # the character went on to the next level
+    after.update(loot(), (17620.0, 5137.0), 62, 900.0)  # back on the Kriss's level: an arrival
+    assert after.left() == 'Kriss at (17622, 5140)'
+    after.update(loot(), (17620.0, 5137.0), 62, 900.0 + ARRIVAL_SECONDS + 0.1)
+    assert after.left() is None

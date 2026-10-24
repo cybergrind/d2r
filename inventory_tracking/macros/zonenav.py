@@ -43,6 +43,7 @@ from inventory_tracking.macros.agenda import (
     PLUS,
     PORTAL_TO_TOWN,
     SIGHTED,
+    SKIPPED,
     TOWN_ROUTINE,
     TOWNS,
     TRANSIT,
@@ -99,6 +100,22 @@ ROTATION_FIRST = True
 # turns all the same keeps its bosses (tzloop.py BOSS_ZONES). The player, 2026-10-22: "we should always kill act
 # bosses". False: the rotation's roots last but the character's act's (ROTATION_FIRST), as before
 ROTATION_BOSSES_FIRST = True
+# A shard game's rotating zone from any act, not only the character's (lever 3 of rca/2026-10-22/exp-hour-findings.md;
+# the player, 2026-10-23: "push xp/hour"): ROTATION_FIRST put a rotation first only where `town_of(root)` was the
+# character's act, so in the shard game of 2026-10-22 the River of Flame (21:30-22:00) and the Arreat Plateau
+# (20:00-20:30) went unplayed while act 1's roots went on, and the rotations played late turned under the run (Far Oasis
+# at 19:03, the tombs at 19:50: plain monsters, 142 exp a kill against ~1,900). True: while its slot has ROTATION_LEAST
+# s left (the zones turn on :00 and :30, tzloop.py ZONE_TURN), every root of the rotation, in any act, is played right
+# after the root holding the boss of the act now played (its first root not finished; the act's boss alive in the
+# game's ledger: "act boss first", 2026-10-20; "we should always kill act bosses", 2026-10-22), before that act's other
+# roots; the shard acts' roots stay in the plan and are owed as before (tzloop.py ACT_OWED: the game is never left with
+# act 1 owed). With less left, the order of ROTATION_FIRST and ROTATION_BOSSES_FIRST. False: as before
+ROTATION_ANY_ACT = True
+# Seconds of the rotation's slot left under which it is not put first: the switch's waypoint there and back (~15 s
+# each, a Town Portal and a waypoint, at the loop's 98.5k a minute ~50k) pays only over ~1.5 min more of its denser
+# levels (176k a minute against the shard act's 139.5k); a root takes 2-8 min (the findings' level table) and the turn
+# leaves the rest of it plain, so five minutes leaves about three of play after the trip
+ROTATION_LEAST = 300.0
 # Floors of stairs climbed back to the nearest level with work left; more and the Town Portal and its waypoint are
 # taken (the player, ~09:35: "Climb 1 floor, TP for deep"). A walk across an open passage is no floor
 CLIMB_FLOORS = 1
@@ -119,7 +136,13 @@ DEEP_AFTER_RUN = True
 # 2026-10-22: "we need to kill all bosses, no exceptions to that". Those runs spent, or the level blocked, the loop
 # stops for the player naming the boss, never the game left (tzloop.py BOSS_STAYS). False: as before
 BOSSES_HOLD = True
-BOSS_RUNS = 2
+# 3 from 2026-10-23 05:35: Icehawk Riftwing left in Sewers Level 1 after 2 runs, the second cut short by a false
+# "blocked" (tzloop.py WAY_TRIED_AT_DOOR); the loop stopped at the shard game's end (05:32:14)
+BOSS_RUNS = 3
+# KEPT_HOLDS_BOSS (2026-10-23 05:35:08: after the restart Sewers Level 1 stayed cleared from the game's record
+# (`Agenda.kept`) with Icehawk Riftwing alive and its BOSS_RUNS not spent, and the loop stopped at once). True: a level
+# kept cleared over a restart is reopened while BOSSES_HOLD owes it runs for a live boss. False: kept wins, as before.
+KEPT_HOLDS_BOSS = True
 # Runs of a level whose map was never read (a run's tour saw no room) before the level is blocked: Durance 1, the
 # Forgotten Reliquary and the Forgotten Temple were "done" 0.2 s after arrival, no map read (09:05-09:09 on 2026-10-21)
 MAP_TRIES = 2
@@ -134,6 +157,9 @@ VISIT = 'visit'
 # The policies that tour the rooms (agenda.py `in_level`): only there is every room seen part of "fully explored"; on
 # the ways on (a corridor to a boss, a stand) the route's stages are the level's work
 TOURING = frozenset((COVER, PLUS, FULL_CLEAR))
+# The policy a level was worked under when the game's record kept none (a record written before tzloop.py POLICY_NOW,
+# macros/midgame.py POLICY_UNKNOWN): not known to have toured its rooms (`rework`)
+EARLIER = 'before the record kept policies'
 # Stage kinds a level's own work is made of (a `use` leading nowhere: a chest, a seal; a fight; a stand; the loot)
 OWN_WORK = frozenset((FIGHT, USE, STAND, LOOT_STAGE))
 # Stage 3 (2026-10-21), off: a root cleared walks into the next root's levels across a border or stairs when one of
@@ -163,10 +189,10 @@ WAY_TRIES = 6
 PORTAL_USES = True
 USE_WAYS = frozenset({(131, 132)})  # (level, child) whose catalogue portal stays a `use` (`way_in`)
 # Stage 3 (2026-10-21), on: the zone's facts this game (levels entered, mapped, explored, runs, cleared, blocked, ways
-# back failed) kept beside the loop's store and taken back by the first leg after a service restart in the same game
-# (`kept`, `resumed`; tzloop.py `zone_resume`), so a restart does not replay the levels done. A new game is never
-# matched: the key is the game's name and the character's unit id (loop.py `GameId`). False: a restart starts the zone
-# afresh, as before
+# back failed) are the agenda's, in the game's one record (macros/midgame.py RECORD, 2026-10-22; before it a file of
+# their own, zone-facts.json) and taken back by the first leg after a service restart in the same game (`kept`,
+# `resumed`), so a restart does not replay the levels done. A new game is never matched: the key is the game's name
+# and the character's unit id (loop.py `GameId`). False: a restart starts the zone afresh, as before
 RESUME = True
 # Facts older than this are not taken back (a game name and unit id come round again only by chance)
 RESUME_SECONDS = 4 * 3600.0
@@ -177,9 +203,31 @@ RESUME_SECONDS = 4 * 3600.0
 # 2026-10-20/21 logs (797 level stays, `Macro: experience: <level>: ... in N s`): LEVEL_SECONDS + HOSTILE_SECONDS a
 # hostile of its population (terror/zones.py `level_population`), plus CHILD_SECONDS for the way in and back up
 TIME_BUDGET = False
+# A valuable remembered on another level of the graph (macros/sightings.py) is fetched (2026-10-23, game cyberg66: a
+# Grand Charm left with no room in Catacombs Level 3 at 23:57:39 on 2026-10-22; the trip for room was cast from
+# Catacombs Level 4 after the portal's fight took the stairs, and nothing went back up for it: `sightings.fetch`
+# crosses only open passages. The player: "make sure that we pick this grand charm"; "we absolutely must preserve top
+# items"). True: `ZoneView.fetch` names its level; in town, on that level's tree, or where the level's own goals would
+# leave it or end the game, the goals are the way to it (`fetch_way`: the waypoint to its root, the stairs down into
+# the child toward it, one floor up, else the Town Portal), each level's script on the way holding that way
+# (`scripts`); on its level the PICKUP goal (`sighted`) as before. False: only the open passages, as before
+FETCH_ELSEWHERE = True
 LEVEL_SECONDS = 27.0
 HOSTILE_SECONDS = 0.32
 CHILD_SECONDS = 10.0
+# The one model of a level's worth playing on (`worth`, 2026-10-23, rca/2026-10-23/exp-hour-levels-findings.md; the
+# player: "your goal is to maximize exp/hour", "run all the time"). A level of the zone is skipped when its expected
+# exp an hour is under the game's going rate; never one of an act boss or on the way to one (`boss_way`). Its expected
+# rate is its live yield: no pre-entry prior predicts one (the same level's rate on two nights r = 0.03 over 46
+# levels, the population r = 0.01; replayed, skipping by either lost 0.1 M/h in levels). STALLED_SKIP: a level with no
+# progress (running/watch.py's mark: no kill, no level finished or cleared) for STALL_SECONDS yields 0 M/h: skipped
+# (blocked with its why, said once, its run ended at the next look by the SKIPPED policy, the levels under it left as
+# `over_budget`'s are). Game cyberg46, 03:24-03:37: 314 s with no kill in Claw Viper Temple Level 1 (monster 74
+# targets dropped one by one), the loop stopped by its 300 s no-progress watchdog and stood 5.7 min to a restart:
+# ~9.4 min saved, nothing lost (5.90 -> ~6.19 M/h); replayed on cyberg65 a 90 s window cut 2 stays, 4.1 min, 0 exp
+# lost. False: a level is played until its verdict, as before
+STALLED_SKIP = True  # 2026-10-23: a level with no kill and no level done for STALL_SECONDS is skipped
+STALL_SECONDS = 90.0
 
 
 def on(plan: object) -> bool:
@@ -210,18 +258,67 @@ def act_levels(plan: Itinerary) -> frozenset[int]:
     return frozenset(level for zone in zones if zone is not None for level in zone.areas)
 
 
-def play_order(graph: ZoneGraph, plan: Itinerary, area: int, bosses: Iterable[int] = ()) -> ZoneGraph:
-    """`graph` with the rotation's roots in the act of `area` (`town_of`: the Fortress's act after the shard) played
-    first (`ROTATION_FIRST`), and the rotation's others holding a level of `bosses` (the levels with a boss alive in the
-    game's ledger) right after the first root holding a shard act's boss level (`ROTATION_BOSSES_FIRST`); `graph`
-    itself with none, no shard's act in the plan, or the switch off."""
+def any_act_order(
+    graph: ZoneGraph, plan: Itinerary, bosses: Iterable[int] | None, finished: Iterable[int], left: float | None
+) -> tuple[int, ...] | None:
+    """ROTATION_ANY_ACT: the roots with every rotation root not `finished` right after the root holding the boss of the
+    act now played (the act of the first shard root not finished; its boss level's boss among `bosses`, the levels
+    with a boss alive in the game's ledger, None not known: every act boss alive until its root is finished), or before
+    that act's first root left when its boss is dead; None with the switch off, no shard's act or no rotation left in
+    the plan, or under ROTATION_LEAST s of the slot `left` (None: unknown)."""
+    if not ROTATION_ANY_ACT or left is None or left < ROTATION_LEAST:
+        return None
+    act = act_levels(plan)
+    if not act:
+        return None
+    done = frozenset(finished)
+    spun = [r for r in graph.roots if r not in done and not any(level in act for level in graph.subtree(r))]
+    if not spun:
+        return None
+    rest = [root for root in graph.roots if root not in spun]
+    now = next((root for root in rest if root not in done), None)
+    if now is None:
+        return (*rest, *spun)
+    town = town_of(now)
+    boss_levels = frozenset(ACT_BOSS_LEVELS.values()) & act
+    if bosses is not None:
+        boss_levels &= frozenset(bosses)
+    boss = next(
+        (
+            root
+            for root in rest
+            if town_of(root) == town and root not in done and set(graph.subtree(root)) & boss_levels
+        ),
+        None,
+    )
+    at = rest.index(boss) + 1 if boss is not None else rest.index(now)
+    return (*rest[:at], *spun, *rest[at:])
+
+
+def play_order(
+    graph: ZoneGraph,
+    plan: Itinerary,
+    area: int,
+    bosses: Iterable[int] | None = (),
+    finished: Iterable[int] = (),
+    left: float | None = None,
+) -> ZoneGraph:
+    """`graph` with the rotation's roots from any act after the boss of the act now played while its slot has
+    ROTATION_LEAST s `left` (`ROTATION_ANY_ACT`, `any_act_order`); else the rotation's roots in the act of `area`
+    (`town_of`: the Fortress's act after the shard) played first (`ROTATION_FIRST`), and the rotation's others holding
+    a level of `bosses` (the levels with a boss alive in the game's ledger) right after the first root holding a shard
+    act's boss level (`ROTATION_BOSSES_FIRST`); `graph` itself with none, no shard's act in the plan, or the switch
+    off."""
     if not ROTATION_FIRST:
         return graph
     act = act_levels(plan)
     if not act:
         return graph
+    spun = any_act_order(graph, plan, bosses, finished, left)
+    if spun is not None:
+        return graph if spun == graph.roots else replace(graph, roots=spun)
     here = town_of(area)
-    alive = frozenset(bosses) if ROTATION_BOSSES_FIRST else frozenset()
+    alive = frozenset(bosses or ()) if ROTATION_BOSSES_FIRST else frozenset()
 
     def rotation(root: int) -> bool:
         return not any(level in act for level in graph.subtree(root))
@@ -309,6 +406,16 @@ def town_way(script: Script | None) -> Stage | None:
     return next((stage for stage in script.stages if stage.to in TOWNS and not stage.pending), None)
 
 
+def rework(then: str, now: str, explored: bool) -> bool:
+    """Whether a level's work under policy `then` does not stand for policy `now` (tzloop.py POLICY_NOW): it toured no
+    rooms (a way on, a crossing, a level only crossed, or not known: EARLIER) and `now` tours them, and no tour of its
+    found every room seen (`explored`). Its verdict under `then` (cleared, its runs, a block for being left unfinished)
+    is no verdict under `now`: it is judged afresh, as a level not entered (Tal Rasha's tombs worked on the way for
+    Duriel, the zone turned, then act 2 terrorized by an overflow shard: game cyberg65, 2026-10-22 21:40,
+    rca/2026-10-22/tombs-policy-findings.md)."""
+    return then != now and then not in TOURING and now in TOURING and not explored
+
+
 def runs_allowed(node: Node) -> int:
     """Self-ended runs a level may take: RUNS_AN_AREA, and one more for each child its run may stop at the door of."""
     return RUNS_AN_AREA + len(node.children)
@@ -324,10 +431,11 @@ def fully_explored(node: Node, state: LevelState, policy: str) -> bool:
         return True  # a town root (the walk out of it): nothing of its own, entered or not
     if not state.entered:
         return False
-    if state.kept:
-        return True  # cleared before a service restart in this game (`RESUME`)
     held = BOSSES_HOLD and state.bosses > 0
-    if held and state.runs < runs_allowed(node) + BOSS_RUNS:
+    owed = held and state.runs < runs_allowed(node) + BOSS_RUNS
+    if state.kept and not (KEPT_HOLDS_BOSS and owed):
+        return True  # cleared before a service restart in this game (`RESUME`)
+    if owed:
         return False  # a boss alive on it: its runs go for it (`BOSSES_HOLD`)
     if policy == TRANSIT or not node.worked:
         return True
@@ -348,6 +456,8 @@ class Judged:
     blocked: Mapping[int, str] = field(hash=False, compare=False)
     exhausted: frozenset[int] = frozenset()
     bosses: frozenset[int] = frozenset()  # the levels with a boss of the ledger alive (`BOSSES_HOLD`)
+    # The policy each level was judged under (`judge`'s `policy`; tzloop.py POLICY_NOW keeps it as `worked_under`)
+    policies: Mapping[int, str] = field(default_factory=dict, hash=False, compare=False)
 
     @property
     def finished(self) -> frozenset[int]:
@@ -369,12 +479,14 @@ def judge(graph: ZoneGraph, states: Mapping[int, LevelState], policy: Callable[[
     cleared: set[int] = set()
     blocked: dict[int, str] = {}
     exhausted: set[int] = set()
+    policies: dict[int, str] = {}  # each level's, a blocked one's too (tzloop.py POLICY_NOW)
 
     def visit(area: int) -> None:
         node = graph.nodes[area]
         for child in node.children:
             visit(child)
         state = states.get(area, LevelState())
+        how = policies[area] = policy(area, frozenset(cleared) | frozenset(blocked))
         if state.blocked:
             blocked[area] = state.blocked
             return
@@ -384,8 +496,6 @@ def judge(graph: ZoneGraph, states: Mapping[int, LevelState], policy: Callable[[
         if state.entered and node.worked and not state.mapped and state.runs >= MAP_TRIES:
             blocked[area] = f'its map was never read in {state.runs} runs'
             return
-        finished = frozenset(cleared) | frozenset(blocked)
-        how = policy(area, finished)
         if not fully_explored(node, state, how):
             return
         explored.add(area)
@@ -397,7 +507,7 @@ def judge(graph: ZoneGraph, states: Mapping[int, LevelState], policy: Callable[[
     for root in graph.roots:
         visit(root)
     bosses = frozenset(area for area, state in states.items() if state.bosses) if BOSSES_HOLD else frozenset()
-    return Judged(frozenset(explored), frozenset(cleared), blocked, frozenset(exhausted), bosses)
+    return Judged(frozenset(explored), frozenset(cleared), blocked, frozenset(exhausted), bosses, policies)
 
 
 def floors_up(graph: ZoneGraph, area: int, to: int) -> int:
@@ -473,12 +583,14 @@ def scripts(
     base: Callable[[int], tuple[str, Script] | None],
     no_back: Iterable[int] = (),
     no_walk: Iterable[tuple[int, int]] = (),
+    fetch: int | None = None,
 ) -> dict[int, tuple[str, Script]]:
     """Each level's (route, script) for this game: its own work (`own_stages`), the way into its next child
     (`next_child`; a tour's hub its tour over the toured children left), and its way back up when the climb is the way
     on (`climbs`); the route's own way to a town only when nothing above it is left (Mephisto's Red portal ends the
     root); else, with `WALK_ROOTS`, the way across into the next root's levels (`walk_to`). `base(area)`: the
-    catalogue's (route, script)."""
+    catalogue's (route, script). `fetch`: the level of a remembered valuable to fetch (FETCH_ELSEWHERE): the levels on
+    the way to it hold the way toward it instead (`fetch_child`, `fetch_up`)."""
     found: dict[int, tuple[str, Script]] = {}
     sides = sides_of(graph)
     for area, node in graph.nodes.items():
@@ -487,8 +599,16 @@ def scripts(
         # A level only crossed (not terrorized) has no work of its own: Travincal's Council on the Durance of Hate
         # zone's way (tzroutine.py `kept_to`, the itinerary's rule; the rotation's harness walk, 2026-10-21)
         stages: list[Stage] = list(own_stages(script, sides)) if script is not None and node.worked else []
+        toward = fetch_child(graph, area, fetch) if fetch is not None else None
+        up = fetch_up(graph, area, fetch, no_back) if fetch is not None and toward is None else None
         child = next_child(graph, area, judged)
-        if child is not None:
+        if toward is not None and (entry := graph.nodes[toward].entry) is not None:
+            # FETCH_ELSEWHERE: the way toward the remembered valuable's level first
+            toured = graph.nodes[toward].toured
+            stages.append(tour(entry.mark, (toward,)) if toured else way_in(area, toward, entry.mark, entry.kind))
+        elif up is not None and node.back is not None:
+            stages.append(back(node.back.mark, up))
+        elif child is not None:
             entry = graph.nodes[child].entry
             if entry is not None and graph.nodes[child].toured:
                 # A tour's hub (the Canyon of the Magi): its marks lead into its levels in an order not known, so the
@@ -583,6 +703,8 @@ class ZoneView:
     no_back: frozenset[int] = frozenset()
     no_walk: frozenset[tuple[int, int]] = frozenset()
     passed: bool = False  # a run on `area` ended since the character came to it (at a child's door, as it passed)
+    # FETCH_ELSEWHERE: (level, label) of a valuable remembered on another level of the graph (`fetch_way`)
+    fetch: tuple[int, str] | None = None
 
 
 def next_root(graph: ZoneGraph, judged: Judged) -> int | None:
@@ -590,8 +712,82 @@ def next_root(graph: ZoneGraph, judged: Judged) -> int | None:
     return next((root for root in graph.roots if root not in judged.finished), None)
 
 
+def fetch_child(graph: ZoneGraph, area: int, to: int | None) -> int | None:
+    """FETCH_ELSEWHERE: the child of `area` whose levels hold level `to` (the stairs down toward it); None when `to`
+    is `area`, not under it, or off the graph."""
+    if not FETCH_ELSEWHERE or to is None or to == area or graph.node(area) is None or graph.node(to) is None:
+        return None
+    return next((child for child in graph.nodes[area].children if to in graph.subtree(child)), None)
+
+
+def fetch_up(graph: ZoneGraph, area: int, to: int | None, no_back: Iterable[int] = ()) -> int | None:
+    """FETCH_ELSEWHERE: the parent of `area` to climb to toward level `to` on the same tree: `to` not under `area`,
+    the level above both within CLIMB_FLOORS stairs, `area`'s way back known and not failed; None otherwise (the Town
+    Portal and the waypoint instead)."""
+    if not FETCH_ELSEWHERE or to is None or to == area or graph.node(area) is None or graph.node(to) is None:
+        return None
+    node = graph.nodes[area]
+    if node.root != graph.nodes[to].root or node.parent is None or node.back is None or area in set(no_back):
+        return None
+    if to in graph.subtree(area):
+        return None
+    common = next((level for level in graph.ancestors(area) if to in graph.subtree(level)), None)
+    if common is None or floors_up(graph, area, common) > CLIMB_FLOORS:
+        return None
+    return node.parent
+
+
+def fetch_way(view: ZoneView) -> list[Objective] | None:
+    """FETCH_ELSEWHERE: the goal toward `view.fetch`'s level from `view.area` (the switch's text); None with none,
+    the switch off, or its level the character's or off the graph."""
+    if not FETCH_ELSEWHERE or view.fetch is None:
+        return None
+    graph, area = view.graph, view.area
+    to, label = view.fetch
+    node = graph.node(to)
+    if node is None or to == area or to in view.judged.blocked:
+        return None  # a level blocked for the game: no way in (the guard keeps the game at its end, as before)
+    what = f'{label} in {display_name(to)}'
+    if view.in_town:
+        root = node.root
+        if root == area:
+            child = fetch_child(graph, root, to)
+            if child is None:
+                return None
+            label = f'out of {display_name(area)} into {display_name(child)} to fetch {what}'
+            return [Objective(WALK_OUT, label, EXCURSION, area, to=child)]
+        tier = ERRAND if root in TOWNS else EXCURSION  # town to town, else to the zone's waypoint
+        return [Objective(WAYPOINT, f'to {display_name(root)} to fetch {what}', tier, to=root)]
+    child = fetch_child(graph, area, to)
+    if child is not None:
+        return [Objective(NEXT_LEVEL, f'on into {display_name(child)} to fetch {what}', ONWARD, area, to=child)]
+    parent = fetch_up(graph, area, to, view.no_back)
+    if parent is not None:
+        return [Objective(UP_LEVEL, f'up into {display_name(parent)} to fetch {what}', ONWARD, area, to=parent)]
+    return [Objective(PORTAL_TO_TOWN, f'Town Portal to fetch {what}', EXCURSION, area)]
+
+
 def produce(view: ZoneView) -> list[Objective]:
-    """The game-level goals wanted now; empty means the game's end next (agenda.py `game_end`)."""
+    """The game-level goals wanted now; empty means the game's end next (agenda.py `game_end`). A valuable remembered
+    on another level (FETCH_ELSEWHERE): the way to it in town, on its tree, or where these goals would leave the level
+    or end the game; never with one on this level (its PICKUP first), the town visit due or a boss's loot here."""
+    goals = _produce(view)
+    if not FETCH_ELSEWHERE or view.fetch is None or view.sighted is not None or view.visit_due:
+        return goals
+    if any(goal.exit == VISIT or goal.kind == LOOT for goal in goals):
+        return goals  # the visit's portal, a boss's drops first
+    node, there = view.graph.node(view.area), view.graph.node(view.fetch[0])
+    on_tree = node is not None and there is not None and node.root == there.root
+    leaving = not any(goal.kind in (LEVEL, LOOT) for goal in goals)
+    if view.in_town or on_tree or leaving:
+        way = fetch_way(view)
+        if way is not None:
+            return way
+    return goals
+
+
+def _produce(view: ZoneView) -> list[Objective]:
+    """`produce`'s goals of the zone itself."""
     graph, judged, area = view.graph, view.judged, view.area
     root = next_root(graph, judged)
     if view.in_town:
@@ -728,6 +924,31 @@ def over_budget(
         gone |= set(under)
         skipped.append(level)
     return tuple(skipped)
+
+
+def boss_way(graph: ZoneGraph, area: int) -> bool:
+    """Whether level `area` holds an act boss (tzroutine.py ACT_BOSS_LEVELS) or is on the way to one: it, a level under
+    it, or a tour side level it leads into (`boss_reach`: Duriel's Lair from each tomb)."""
+    acts = frozenset(ACT_BOSS_LEVELS.values())
+    return area in acts or bool(boss_reach(graph, area) & acts)
+
+
+def worth(graph: ZoneGraph, area: int, stalled: float | None, going: float | None) -> str | None:
+    """Whether level `area` of the zone is worth playing on (STALLED_SKIP): the why of its skip, None to play it. Its
+    expected exp an hour is its live yield: `stalled` seconds with no progress on it (None not known) of STALL_SECONDS
+    and more yield none; `going` the game's exp an hour (None unread). Never a level off the graph or not worked (a
+    town, a level only crossed), nor one of an act boss or on the way to one (`boss_way`)."""
+    node = graph.node(area)
+    if not STALLED_SKIP or node is None or not node.worked or boss_way(graph, area):
+        return None
+    if stalled is None or stalled < STALL_SECONDS:
+        return None
+    expected = 0.0
+    if going is not None and expected >= going:
+        return None  # the game yields no more elsewhere
+    against = f"the game's {going / 1e6:.1f} M/h" if going is not None else "the game's rate unread"
+    stall = f'no kill and no level done for {stalled:.0f} s'
+    return f'{SKIPPED}: {stall}, expected {expected / 1e6:.1f} M/h against {against}'
 
 
 def said(graph: ZoneGraph, judged: Judged, area: int) -> str:

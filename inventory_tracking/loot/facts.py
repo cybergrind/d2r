@@ -11,7 +11,7 @@ when there is one), `from_observation` (an identify or collection read).
 """
 
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 from functools import cache
 from typing import Any
@@ -101,6 +101,10 @@ class ItemFacts:
     base_name: str = ''
     known: frozenset[int] | None = None  # the stat ids a partial read covers; None: the full list
     marked: bool = False  # the loot marks point at it (Drop.prized)
+    # Its runeword's name when the read says it is one (the identify read's item['runeword']; D12, 2026-10-23), or
+    # BY_FLAG when only the game's flag says so (the ground and carried reads, items/identity.py RUNEWORD_FLAG): never
+    # a plain base
+    runeword: str | None = None
     observation: Mapping[str, Any] | None = field(default=None, compare=False, repr=False)
 
     @property
@@ -190,6 +194,10 @@ def _ground_known(drop: Drop) -> frozenset[int] | None:
     return GROUND_STATS - unread
 
 
+# A runeword the game's flag marks whose name no read gave (game/records.py Carried.runeword, Rolls.runeword; D12)
+BY_FLAG = 'by the game flag'
+
+
 def from_drop(drop: Drop) -> ItemFacts:
     """A ground drop's facts: quality, base, and its base rolls when the ground read has them (`Drop.rolls`; only
     the base types game/layout.py ROLLED_TYPES names). Magic and better on the ground are unidentified, and their
@@ -214,6 +222,7 @@ def from_drop(drop: Drop) -> ItemFacts:
         base_name=base['name'] if base else drop.label,
         known=_ground_known(drop),
         marked=drop.prized,
+        runeword=BY_FLAG if drop.rolls is not None and drop.rolls.runeword else None,
     )
 
 
@@ -262,6 +271,7 @@ def from_observation(
         cell=cell,
         txt=txt if txt is not None else (known[0] if known else None),
         base_name=item.get('base_name') or (known[1]['name'] if known else ''),
+        runeword=item.get('runeword') or None,
         observation=observation,
     )
 
@@ -278,9 +288,10 @@ def from_carried(
     with `stats` ({stat id: raw}, layer 0: World.item_stats) as its rolls when read."""
     cell = (item.x, item.y)
     if observation is not None:
-        return from_observation(
+        facts = from_observation(
             observation, where=where, owner=owner, unit_id=item.unit_id, cell=cell, txt=item.txt, size=item.size
         )
+        return replace(facts, runeword=BY_FLAG) if item.runeword and not facts.runeword else facts
     base = item_base(item.txt)
     rolls = {f'{stat}:0': value for stat, value in stats.items()} if stats else None
     return ItemFacts(
@@ -299,4 +310,5 @@ def from_carried(
         cell=cell,
         txt=item.txt,
         base_name=base['name'] if base else f'item {item.txt}',
+        runeword=BY_FLAG if item.runeword else None,
     )

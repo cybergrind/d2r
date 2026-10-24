@@ -13,6 +13,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import replace
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from inventory_tracking.levels.handler import Handler, instances
 from inventory_tracking.levels.model import Ground, Guidance, LevelSnapshot, Poi, Room, Walkable
@@ -26,6 +27,10 @@ from inventory_tracking.levels.presets import (
 )
 from inventory_tracking.levels.spots import WAYS_OUT
 from inventory_tracking.native.layout import TILE_UNITS
+
+
+if TYPE_CHECKING:
+    from inventory_tracking.levels.doors import Door
 
 
 # Town -> the levels worth an arrow from it: the first wilderness level of its act.
@@ -316,11 +321,35 @@ def marks_a_way_out(poi: Poi) -> bool:
     return poi.kind in WAYS_OUT or poi.spot is not None
 
 
+# TARGET_KEEPS_WARPS (2026-10-24, rca/2026-10-24/route-spin-findings.md "The way up"): a level that is one fixed
+# preset (levels/handlers/treasure_levels.py: Pit, Hole and Underground Passage Level 2, Swampy Pit 3, Flayer Dungeon 3,
+# Sewers 2, Frozen River, Drifter Cavern, Icy Cellar; the Durance of Hate 3's complex) has its target mark (a chest,
+# Anya, Mephisto's Red portal) in the same preset instance as its stairs up, and that instance counted as marked, so its
+# warp exit, the way back, never reached the card: the climb's stage (macros/zonenav.py `back`) found no mark ("Anya
+# (Crystalline Passage is not marked yet)"), each "TZ up" leg's run ended "nothing is left to go to" and the climb was
+# the Town Portal and the waypoint (14:09:44-14:09:46 on 2026-10-24; 22 of the 28 "way up … made 6 times" of
+# 2026-10-21..24). True: an instance hides its warp exit to a level only when a way out (stairs, previous, exit) marks
+# it or a mark there leads to that level. False: any mark with a spot hides them, as before. On from the restart after
+# 2026-10-24 14:32 (the coordinator's go; the gate: tests/inventory_tracking/levels/test_exits_one_preset.py 12, and
+# levels, routes, macros/acts, test_tzloop.py, test_zonenav.py 927 passed with the switch on and 927 with it off).
+TARGET_KEEPS_WARPS = True
+
+
 def with_exits(guidance: Guidance, snapshot: LevelSnapshot, pending: Iterable[int] = ()) -> Guidance:
     """`guidance` plus the ways out it does not mark yet; `pending` levels are left to the handler."""
     ways_out = [poi for poi in guidance.pois if marks_a_way_out(poi)]
     marked = {(poi.room.preset, origin(poi.room)) for poi in ways_out}
-    extra = [poi for poi in warp_exits(snapshot) if (poi.room.preset, origin(poi.room)) not in marked]
+    if TARGET_KEEPS_WARPS:
+        doors = {(poi.room.preset, origin(poi.room)) for poi in ways_out if poi.kind in WAYS_OUT}
+        led = {(poi.room.preset, origin(poi.room), poi.area) for poi in ways_out if poi.area is not None}
+        extra = [
+            poi
+            for poi in warp_exits(snapshot)
+            if (poi.room.preset, origin(poi.room)) not in doors
+            and (poi.room.preset, origin(poi.room), poi.area) not in led
+        ]
+    else:
+        extra = [poi for poi in warp_exits(snapshot) if (poi.room.preset, origin(poi.room)) not in marked]
     marked |= {(poi.room.preset, origin(poi.room)) for poi in extra}
     reached = {poi.area for poi in (*ways_out, *extra) if poi.area is not None} | set(pending)
     reached |= {a for room in snapshot.rooms if (room.preset, origin(room)) in marked for a in room.leads_to}
@@ -338,3 +367,40 @@ def guide_level(handler: Handler | None, snapshot: LevelSnapshot) -> Guidance:
         return guidance
     ways_out = tuple(poi for poi in guidance.pois if poi.area in wanted)
     return replace(guidance, pois=(*ways_out, *preset_waypoints(snapshot)))
+
+
+# 17:48:34-17:49:17 on 2026-10-23 (take 20261023T144821Z-27): the Outer Cloister's way into the Monastery Gate marked
+# at (15177.5, 5005.0), where the level's edge is roof; every walk click there "set the character off in none of
+# 0.17s" and the 45 s watchdog stopped the loop with Mephisto, Baal and five shard acts owed. The way through was the
+# closed door (class 24) at (15141, 5002), in the edge's gap 37 units west (games that marked (15137.5, 5005.0) went
+# through it).
+# A door on the edge the passage crosses (within DOOR_ON_EDGE of its place) is the passage: the walk goes to the tile
+# past it, and a closed one is opened on the way (macros/hunting/moves.py `door_across`, macros/route.py `cross`).
+DOOR_ON_EDGE = 60.0  # world units along the edge from the passage's place
+EDGE_DEPTH = 2.0  # tiles: how far past the rooms' edge a door on it may stand
+
+
+def door_passage(
+    doors: Iterable[Door], rooms: tuple[Room, ...], place: tuple[float, float]
+) -> tuple[float, float] | None:
+    """The place past the door nearest `place` that stands on the same level edge (the rooms end on its inner side,
+    within EDGE_DEPTH tiles), within DOOR_ON_EDGE; None: no rooms, no such door, or no edge found at `place`."""
+    if not rooms:
+        return None
+    tile = (place[0] / TILE_UNITS, place[1] / TILE_UNITS)
+    ways = [w for w in ((0, 1), (0, -1), (1, 0), (-1, 0)) if in_rooms(rooms, (tile[0] - 2 * w[0], tile[1] - 2 * w[1]))]
+    if len(ways) != 1 or in_rooms(rooms, tile):
+        return None
+    way = ways[0]
+    found = []
+    for door in doors:
+        at = (door.x / TILE_UNITS, door.y / TILE_UNITS)
+        inner = (at[0] - way[0] * EDGE_DEPTH, at[1] - way[1] * EDGE_DEPTH)
+        outer = (at[0] + way[0] * 1.0, at[1] + way[1] * 1.0)
+        if in_rooms(rooms, inner) and not in_rooms(rooms, outer) and math.dist(place, (door.x, door.y)) <= DOOR_ON_EDGE:
+            found.append(door)
+    if not found:
+        return None
+    door = min(found, key=lambda d: math.dist(place, (d.x, d.y)))
+    past = PASSAGE_PAST * TILE_UNITS
+    return (door.x + way[0] * past, door.y + way[1] * past)

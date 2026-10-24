@@ -892,11 +892,13 @@ def test_the_boss_book_survives_a_restart_by_game_and_level_beside_the_kills(tmp
     andariel_game(first)  # a kill saves at once: the games and the book in the one file
     held = json.loads(store.read_text(encoding='utf-8'))
     assert set(held) == {'games', 'bosses'}
-    assert list(held['bosses']) == ['cyberr13#432287142-102']
+    # BOOK_KILLS: her kill is in the book too
+    assert list(held['bosses']) == ['cyberr13#432287142-102', 'cyberr13#432287142-37']
+    assert held['bosses']['cyberr13#432287142-37']['Andariel']['killed'] is True
     assert not list(tmp_path.glob('*.part'))
     again = ZoneTracker(store, wall=lambda: 6000.0)  # the service restarted
     again.boss_game('cyberr13#432287142')
-    ((area, name, record),) = again.boss_book()
+    ((area, name, record),) = [row for row in again.boss_book() if row[1] != 'Andariel']
     assert (area, name) == (102, 'Maffer Dragonhand')
     assert (record['place'], record['unit'], record['seen'], record['tries'], record['by']) == (
         [603.0, 623.0],
@@ -938,3 +940,26 @@ def test_a_boss_kill_is_saved_at_once(tmp_path):
     again = ZoneTracker(store)
     again.apply([entered(37, 0xAAAA)])
     assert again.killed() == {'Andariel'}
+
+
+def test_a_boss_kill_is_kept_in_the_book_and_outlives_a_lost_game_state(tmp_path, monkeypatch):
+    # BOOK_KILLS (walled-boss-findings.md): Ancient Kaa the Soulless (super unique 19) died at 19:56:19 on 2026-10-22;
+    # the restart at 22:06:05 in a level the stored game did not hold began a fresh state ("Heralds seen []"), and at
+    # 23:09 the ledger had him alive again. The book, by '<game-id>-<level>', keeps the kill
+    from inventory_tracking.terror import tracker as tracker_module
+
+    store = tmp_path / 'terror-games.json'
+    first = ZoneTracker(store, wall=lambda: 5000.0)
+    first.boss_game('cyberg65#3054865448')
+    assert first.boss_note(67, 'Ancient Kaa the Soulless', place=(22685.0, 6891.0), by='rooms')
+    first.apply([elite(1834794757, 22691, 6887, flags=0x0A, txt_id=103, area=67, super_id=19), died(1834794757, 67)])
+    assert first.killed() == {'Ancient Kaa the Soulless'}
+    lost = ZoneTracker(store, wall=lambda: 6000.0)  # restarted: the game state not taken up, the book read back
+    lost.slain = frozenset()
+    lost.boss_game('cyberg65#3054865448')
+    assert lost.killed() == {'Ancient Kaa the Soulless'}
+    lost.boss_game('cyberg65#99')  # another game's book: not its kill
+    assert lost.killed() == frozenset()
+    monkeypatch.setattr(tracker_module, 'BOOK_KILLS', False)
+    lost.boss_game('cyberg65#3054865448')
+    assert lost.killed() == frozenset()  # `slain` alone, as before

@@ -5,6 +5,7 @@ import math
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike import attack as _attack_module
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, EchoingStrike, LinePolicy
 from inventory_tracking.combat.controller import (
     CHAIN_GAP,
@@ -388,7 +389,8 @@ def test_live_aim_is_given_its_reach():
     assert LiveAim(policy=lambda seen: None, reach=10.0)(near) is not None
 
 
-def test_a_held_leader_gives_way_to_the_units_to_kill_first_and_is_struck_again_after():
+def test_a_held_leader_gives_way_to_the_units_to_kill_first_and_is_struck_again_after(monkeypatch):
+    monkeypatch.setattr(_attack_module, 'T5_BEST_LINE', False)  # the old path, pinned
     # The Warlock's hold (attack.py HOLD_LEADER, rca/2026-10-21/herald-aiming-findings.md) comes after `first` (a
     # boss, a bound summoner, what bars the goal, the dolls: macros/hunt.py `choose`), and keeps its leader through it
     attack = EchoingStrike(damage_of=lambda txt: 1000.0, hold=True)

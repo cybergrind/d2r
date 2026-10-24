@@ -2,6 +2,7 @@
 player, 2026-10-21 ~19:00: "also, we have lost merc -> probably better retreat to the town and refill hp potions in the
 belt" (rca/2026-10-21/merc-lost-findings.md)."""
 
+import json
 import logging
 from dataclasses import replace
 
@@ -378,3 +379,106 @@ def test_a_belt_still_low_after_the_visit_ends_the_belts_trips_for_the_game(town
         merc.town_routine(run)  # pyrefly: ignore[bad-argument-type]  # a run's reads only
     assert 'cyber32' in merc.NO_POTIONS
     assert '3 healing potions on the belt after the visit: no belt trip again in this game' in caplog.text
+
+
+# Past TRIPS_A_GAME (merc.py BELT_TRIPS_BY_GAIN, 2026-10-22): cyberg65, a shard game of 4+ hours, made its belt trips at
+# 22:14, 22:58, 23:02 and 23:06; with the 4th made the belt was never refilled again in it
+
+
+def capped(gained: int | None) -> merc.MercWatch:
+    """A watch with TRIPS_A_GAME trips made in cyber32, the last putting `gained` healing potions on the belt."""
+    watch = watch_with_merc()
+    for _ in range(merc.TRIPS_A_GAME):
+        watch.healing = 2
+        watch.tripped()
+    watch.book.back(None if gained is None else 2 + gained)
+    return watch
+
+
+def belt_trip_due(watch: merc.MercWatch) -> str | None:
+    watch.see(look(MERC), LOW_BELT, 100.0)
+    return watch.see(look(MERC), LOW_BELT, 100.0 + merc.BELT_HOLD)
+
+
+def test_past_the_cap_a_belt_trip_comes_while_the_last_trip_refilled_the_belt():
+    assert belt_trip_due(capped(6)) == merc.WHY_BELT  # 23:07:01: 2 -> 6 on the belt
+    assert belt_trip_due(capped(0)) is None  # a trip that put none on: no ping-pong
+    assert belt_trip_due(capped(None)) is None  # the belt unread after it: the cap holds
+
+
+def test_past_the_cap_a_merc_trip_is_still_capped():
+    watch = capped(6)
+    dead = frozenset({MERC.unit_id})
+    watch.see(look(dead=dead), FULL_BELT, 2.0)
+    assert watch.see(look(dead=dead), FULL_BELT, 30.0) is None
+
+
+def test_the_switch_off_caps_the_belts_trips_as_before(monkeypatch):
+    monkeypatch.setattr(merc, 'BELT_TRIPS_BY_GAIN', False)
+    assert belt_trip_due(capped(6)) is None
+
+
+def test_a_trip_pushed_keeps_the_belt_then_and_a_new_game_starts_the_count_afresh():
+    watch = watch_with_merc()
+    watch.see(look(MERC), LOW_BELT, 2.0)
+    watch.tripped()
+    assert (watch.book.game, watch.book.made, watch.book.belt, watch.book.gained) == ('cyber32', 1, 3, None)
+    watch.see(look(MERC, game='cyber33'), FULL_BELT, 4.0)
+    assert (watch.book.game, watch.trips) == ('cyber33', 0)
+
+
+def test_the_trips_routine_tells_the_book_what_the_visit_put_on_the_belt(town, caplog):
+    trips = merc.Trips('cyber32', 5, 2, None)
+    with caplog.at_level(logging.INFO):
+        merc.town_routine(TownRun(coins=300_000, alive=True), trips)  # pyrefly: ignore[bad-argument-type]  # reads only
+    assert trips.gained == 8 - 2
+    assert 'Macro: merc trip 5: 8 healing potions on the belt, 2 before the trip: 6 put on' in caplog.text
+    other = merc.Trips('cyber99', 5, 2, None)  # another game's book: not touched
+    merc.town_routine(TownRun(coins=300_000, alive=True), other)  # pyrefly: ignore[bad-argument-type]  # reads only
+    assert other.gained is None
+
+
+def test_the_trips_state_goes_through_the_record_and_a_malformed_one_is_ignored():
+    trips = merc.Trips('cyber32', 6, 2, 4)
+    kept = json.loads(json.dumps(trips.state()))
+    back = merc.Trips()
+    back.take_up('cyber32', kept)
+    assert back == trips
+    back.take_up('cyber32', {'made': 'x'})
+    back.take_up('cyber32', None)
+    assert back == trips
+
+
+# --- a dead merc revived at any visit's end (merc.py MERC_AT_ANY_VISIT; cyberg46, 04:35:43-04:54 on 2026-10-23) ---
+
+
+def test_a_dead_merc_is_revived_at_any_visits_end_once_its_owner_had_one(town, monkeypatch):
+    run = TownRun(coins=300_000)
+    player = run.world().player
+    assert player is not None
+    name = player.name
+    merc.UNREVIVED.discard(run.world().game_name)
+    monkeypatch.setitem(merc.LEVELS, name, 98)
+    monkeypatch.setattr(merc, 'MERC_AT_ANY_VISIT', False)
+    assert not merc.revive_after_visit(run)  # pyrefly: ignore[bad-argument-type]  # a run's reads only
+    assert town == []
+    monkeypatch.setattr(merc, 'MERC_AT_ANY_VISIT', True)
+    assert merc.revive_after_visit(run)  # pyrefly: ignore[bad-argument-type]  # a run's reads only
+    assert town == ['resurrect']
+    assert not merc.revive_after_visit(TownRun(coins=300_000, alive=True))  # pyrefly: ignore[bad-argument-type]
+    assert town == ['resurrect']  # alive: none
+
+
+def test_a_visit_after_a_restart_revives_too_and_a_game_whose_revive_failed_does_not(town, monkeypatch):
+    run = TownRun(coins=300_000)
+    world = run.world()
+    monkeypatch.setattr(merc, 'MERC_AT_ANY_VISIT', True)
+    monkeypatch.setattr(merc, 'UNREVIVED', set())
+    assert world.player is not None
+    monkeypatch.delitem(merc.LEVELS, world.player.name, raising=False)  # a restart: no merc seen alive yet
+    assert merc.revive_after_visit(run)  # pyrefly: ignore[bad-argument-type]
+    assert town == ['resurrect']
+    town.clear()
+    monkeypatch.setattr(merc, 'UNREVIVED', {world.game_name})
+    assert not merc.revive_after_visit(run)  # pyrefly: ignore[bad-argument-type]
+    assert town == []

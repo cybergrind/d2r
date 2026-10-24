@@ -1,0 +1,77 @@
+{
+ "about": "built by inventory_tracking/combat/stand_ins.py from the takes: seconds the character stood within the AI radius of a live stand-in hostile, by type, and the life lost meanwhile (any hostile's). Do not edit by hand.",
+ "types": {
+  "156": {
+   "seconds": 5927.2,
+   "lost": 14530.0,
+   "biggest": 295,
+   "takes": 1523
+  },
+  "211": {
+   "seconds": 20.4,
+   "lost": 15.0,
+   "biggest": 7,
+   "takes": 2
+  },
+  "229": {
+   "seconds": 145.3,
+   "lost": 56.0,
+   "biggest": 33,
+   "takes": 3
+  },
+  "242": {
+   "seconds": 192.3,
+   "lost": 1811.0,
+   "biggest": 999,
+   "takes": 26
+  },
+  "250": {
+   "seconds": 54.2,
+   "lost": 634.0,
+   "biggest": 92,
+   "takes": 17
+  },
+  "256": {
+   "seconds": 151.2,
+   "lost": 3262.0,
+   "biggest": 1034,
+   "takes": 41
+  },
+  "267": {
+   "seconds": 40.7,
+   "lost": 0.0,
+   "biggest": 0.0,
+   "takes": 7
+  },
+  "365": {
+   "seconds": 63.0,
+   "lost": 617.0,
+   "biggest": 221,
+   "takes": 12
+  },
+  "526": {
+   "seconds": 215.4,
+   "lost": 8117.0,
+   "biggest": 547,
+   "takes": 44
+  },
+  "547": {
+   "seconds": 73.4,
+   "lost": 323.0,
+   "biggest": 288,
+   "takes": 6
+  },
+  "549": {
+   "seconds": 84.3,
+   "lost": 422.0,
+   "biggest": 138,
+   "takes": 5
+  }
+ },
+ "pooled": {
+  "seconds": 6967.4,
+  "lost": 29787.0,
+  "biggest": 1034,
+  "takes": 1680
+ }
+}

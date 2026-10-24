@@ -5,7 +5,7 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.game.records import Carried, Monster, Pack, Stocked, Thing
+from inventory_tracking.game.records import VALUABLE, Carried, Drop, Monster, Pack, Stocked, Thing
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE_CLASS
 from inventory_tracking.macros.portal import FROM_SLING
@@ -523,3 +523,203 @@ def test_a_potion_that_lands_in_a_rejuvenation_column_ends_the_buying(caplog):
 
     assert play.potions_bought == 1
     assert 'bought 1 Super Healing Potion for 450 gold: one landed in belt column 1, not a healing' in caplog.text
+
+
+# The refill that left the belt short (rca/2026-10-22/belt-refill-findings.md): 23:01:10 "belt short 5 -> 1, bought 4"
+# and 23:02:57 "belt short 6 -> 2, bought 4" in the shard game cyberg65; every click after one that bought bought
+# nothing, and the clicks were capped at the shortage + 2 (shop.py POTIONS_FILL)
+EVERY_OTHER = [True, False] * 10
+
+
+@pytest.mark.parametrize(('healing', 'short'), [(3, 5), (2, 6), (0, 8)])
+def test_a_click_that_buys_nothing_after_each_potion_still_fills_the_belt(caplog, healing, short):
+    play = potion_shop(healing=healing)
+    play.potion_takes = list(EVERY_OTHER)
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.loot.belt == belt(8)
+    assert play.potions_bought == short
+    assert dict(play.loot.stats)[14] == 500_000 - short * 450
+    assert f'Macro: shop: potions: belt short {short} -> 0, bought {short} Super Healing Potion' in caplog.text
+
+
+@pytest.mark.parametrize(('healing', 'line'), [(3, 'belt short 5 -> 1, bought 4'), (2, 'belt short 6 -> 2, bought 4')])
+def test_the_switch_off_buys_four_of_a_belt_short_five_or_six_as_on_2026_10_22(monkeypatch, caplog, healing, line):
+    monkeypatch.setattr('inventory_tracking.macros.shop.POTIONS_FILL', False)
+    play = potion_shop(healing=healing)
+    play.potion_takes = list(EVERY_OTHER)
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.potions_bought == 4
+    assert f'Macro: shop: potions: {line} Super Healing Potion' in caplog.text
+
+
+def test_the_next_click_waits_for_the_potions_cost_to_land_and_buys(monkeypatch):
+    # The game's purchase under way until its cost leaves the carried gold: a click before that buys nothing. With
+    # the wait no click is wasted; without it each second click is (the 2026-10-22 pattern)
+    play = potion_shop(healing=2)
+    play.potion_cost_lag = 0.3
+
+    restock(play.run())
+
+    assert play.loot.belt == belt(8)
+    assert len(potion_buys(play)) == 6  # one click a potion
+
+    monkeypatch.setattr('inventory_tracking.macros.shop.POTIONS_FILL', False)
+    play = potion_shop(healing=2)
+    play.potion_cost_lag = 0.3
+
+    restock(play.run())
+
+    assert play.potions_bought == 4  # the old top-up reproduces the log's 6 -> 2
+
+
+def test_the_fill_keeps_the_carried_gold_reserve(caplog):
+    # Carried gold only, POTIONS_RESERVE kept: never the stash's (repair.py GOLDBANK)
+    play = potion_shop(healing=2, gold=103_000)
+    play.potion_takes = list(EVERY_OTHER)
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.potions_bought == 3
+    assert dict(play.loot.stats)[14] == 103_000 - 3 * 450
+    assert ': carried gold 101650, 100000 kept' in caplog.text
+
+
+def test_two_clicks_in_a_row_that_buy_nothing_still_end_the_fill(caplog):
+    play = potion_shop(healing=2)
+    play.potion_takes = [True, False, False, True]
+
+    with caplog.at_level('INFO'):
+        restock(play.run())
+
+    assert play.potions_bought == 1
+    assert 'bought 1 Super Healing Potion for 450 gold: 2 clicks bought nothing (3 clicks, 2 bought nothing)' in (
+        caplog.text
+    )
+
+
+def test_the_clicks_a_top_up_makes_at_most():
+    from inventory_tracking.macros.shop import potion_clicks
+
+    assert [potion_clicks(short) for short in (1, 5, 6, 8)] == [4, 12, 14, 18]
+
+
+# A town walk's click with a way out of town under it (shop.py WALK_OFF_WAYS; rca/2026-10-23/visit-portal-findings.md)
+
+
+def test_a_walk_click_with_a_way_out_under_every_turn_is_refused_unclicked():
+    from inventory_tracking.levels.model import TOWN_PORTAL
+    from inventory_tracking.macros.shop import walk_until
+
+    play = fortress()
+    portal = Thing(2264798530, TOWN_PORTAL, 2, START[0] + 1.0, START[1])  # at the character's feet
+    play.thing = portal
+    run = play.run()
+    run.hovered = lambda: (2, portal.unit_id)  # named under the pointer wherever it is
+
+    with pytest.raises(Abort, match=r'the Town Portal \(2264798530\) under every walk click tried'):
+        walk_until(run, lambda world: (START[0] - 6.0, START[1]), (0.0, 0.0, 0.0, 0.0), 'a place 6 away')
+
+    assert not [e for e in play.keys.events if e[0] == 'click']
+    assert play.character.area == FORTRESS
+
+
+def test_the_walks_own_way_out_is_clicked_as_its_goal():
+    # The walk to the portal (portal.py) or to the waypoint: the object at the walk's place is not turned off
+    from inventory_tracking.macros.shop import ways_out
+
+    play = fortress()
+    run = play.run()
+    assert ways_out(run, (WAYPOINT.x, WAYPOINT.y)) == ()
+    assert ways_out(run, (WAYPOINT.x + 20.0, WAYPOINT.y)) == (WAYPOINT,)
+    assert ways_out(run) == (WAYPOINT,)
+
+
+# A town walk's click with a ground item's label under it (shop.py WALK_OFF_ITEMS; rca/2026-10-24/stash-amulet-
+# findings.md): at 18:54:22.7 on 2026-10-24 the walk to the stash took up the Eagle Necklace the loop had put down there
+
+JUNK = (START[0] - 12.0, START[1])  # where the walk's first straight click toward PLACE goes
+PLACE = (START[0] - 20.0, START[1])
+
+
+def _junk_by_the_walk(play: Game) -> Drop:
+    """The loop's junk put down on the walk's line; its label is under the pointer within 2.5 units of its ground (a
+    label is wider than the fake's half unit), for the record and the click alike."""
+    junk = Drop(2388730699, *JUNK, 'Eagle Necklace', VALUABLE)
+    play.loot = replace(play.loot, drops=(junk,))
+
+    def under() -> Drop | None:
+        gx, gy = play.ground_under_pointer()
+        return junk if junk in play.loot.drops and math.dist((gx, gy), JUNK) < 2.5 else None
+
+    play.drop_under_pointer = under  # type: ignore[method-assign]
+    return junk
+
+
+def _there(world) -> bool:
+    return world.player is not None and math.dist((world.player.x, world.player.y), PLACE) < 1.0
+
+
+def test_a_walk_click_on_a_ground_items_label_takes_it_up_as_before(monkeypatch):
+    from inventory_tracking.macros import shop
+
+    monkeypatch.setattr(shop, 'WALK_OFF_ITEMS', False)
+    play = fortress()
+    _junk_by_the_walk(play)
+
+    shop.walk_until(play.run(), lambda world: PLACE, None, 'the stash', until=_there)
+
+    assert play.picked == ['Eagle Necklace']  # the incident: the walk took the junk up
+
+
+def test_a_walk_click_with_a_ground_item_under_it_is_turned_aside(monkeypatch, caplog):
+    from inventory_tracking.macros import shop
+
+    monkeypatch.setattr(shop, 'WALK_OFF_ITEMS', True)
+    caplog.set_level('INFO')
+    play = fortress()
+    _junk_by_the_walk(play)
+
+    shop.walk_until(play.run(), lambda world: PLACE, None, 'the stash', until=_there)
+
+    assert play.picked == []
+    assert _there(play.world)
+    assert 'Macro: walk: the stash: the ground item (2388730699) under the click at' in caplog.text
+    assert 'turned +30 degrees' in caplog.text
+
+
+def test_a_ground_item_under_every_turn_is_clicked_where_first_aimed(monkeypatch, caplog):
+    from inventory_tracking.macros import shop
+
+    monkeypatch.setattr(shop, 'WALK_OFF_ITEMS', True)
+    caplog.set_level('INFO')
+    play = fortress()
+    run = play.run()
+    run.hovered = lambda: (4, 77)  # labels everywhere: the walk is not stopped for them
+
+    shop.walk_until(run, lambda world: PLACE, None, 'the stash', until=_there)
+
+    assert _there(play.world)
+    assert 'under every turn: clicked where first aimed' in caplog.text
+
+
+def test_a_way_out_under_every_turn_still_refuses_the_click_with_items_looked_for(monkeypatch):
+    from inventory_tracking.levels.model import TOWN_PORTAL
+    from inventory_tracking.macros import shop
+
+    monkeypatch.setattr(shop, 'WALK_OFF_ITEMS', True)
+    play = fortress()
+    portal = Thing(2264798530, TOWN_PORTAL, 2, START[0] + 1.0, START[1])
+    play.thing = portal
+    run = play.run()
+    run.hovered = lambda: (2, portal.unit_id)
+
+    with pytest.raises(Abort, match=r'the Town Portal \(2264798530\) under every walk click tried'):
+        shop.walk_until(run, lambda world: (START[0] - 6.0, START[1]), (0.0, 0.0, 0.0, 0.0), 'a place 6 away')
+    assert not [e for e in play.keys.events if e[0] == 'click']

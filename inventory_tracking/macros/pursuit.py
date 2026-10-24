@@ -19,6 +19,7 @@ from typing import TypeGuard
 
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
 from inventory_tracking.combat.pack import BACK_SAID as PACK_BACK_SAID
+from inventory_tracking.combat.sim.monsters import SHOT_REACH
 from inventory_tracking.combat.threats.dolls import BAIT_SAID
 from inventory_tracking.combat.threats.manaburn import MANA_SAID
 from inventory_tracking.macros.build import Leg, NoWay, Step
@@ -51,6 +52,13 @@ ENTERING_SAID = 'the level is being read: the run goes on once its card is up'
 # took them for done, their hostiles alive (Durance of Hate Level 1, the Forgotten Reliquary and Temple, 09:05-09:09 on
 # 2026-10-21; rca/2026-10-21/small-levels-findings.md). False (before 2026-10-21): such a run ends at once.
 WAIT_FOR_MAP = True
+# 23:30:44-23:31:06 on 2026-10-23 (Halls of the Dead Level 2, take 20261023T202950Z-57): a tier 5 Herald pack spawned
+# on the run's stand, the reviver's goal (hunting/revive.py) had no route stage, and each TZ next level leg handed the
+# press to the route's step or ended ("nothing is left to go to on this level") within 0.5 s: 37 legs in 22 s, no
+# strike, no move, the merc and the Defiler down, no Rejuvenation left: the character died. True: with a hostile in
+# reach and attack mode on, a run with no route stage holds the fight (`Hold`) before it ends or hands the press on, as
+# every other branch of `run_level` does. False: it ends or hands on at once, as before.
+FIGHT_BEFORE_END = True
 MAP_WAIT = 3.0
 MAP_SAID = "the level's map is not read yet: the run goes on once it is"
 # A boss of the game's ledger alive on the level with no place known for it (macros/bossledger.py; `Facts.bosses_left`,
@@ -179,6 +187,9 @@ class Facts:
     clear: float | None = None
     # Bosses of the game's ledger alive on this level with no place known (BOSS_EXPLORE, hunting/judging.py)
     bosses_left: int = 0
+    # Where the hostiles stand whose throws at the character the look read (combat/bolts.py READ_THROWS,
+    # `Hostile.throws`): a retreat from them is a skilled move out of their lines (THROWN_OUT); (): none read
+    throwers: tuple[tuple[float, float], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -243,6 +254,9 @@ class Candidate:
     # Units from the act's way to the look's nearest hostile: a walk's along it, a jump's at its landing
     # (macros/safety.py `clearance`); None: not priced
     clear: float | None = None
+    # Barred by the reach bar alone (macros/safety.py REACH_BAR), its end (and a walk's middle) farther from every
+    # hostile than the character stands: the bar is lifted when every act is vetoed (REACH_LIFT)
+    lift: bool = False
 
 
 RUSH_HARM_SHARE = 0.05  # of life: harm a move or use of the loop's run may be priced at over a hold
@@ -275,6 +289,23 @@ AWAY_UNITS = 10.0
 # (`vetoed_escape`). False: the least lethal of them all, as before.
 VETOED_ESCAPE = True
 VETOED_AWAY = 'safety: every act is vetoed; the jump clearest of the hostiles is this move'
+# REACH_LIFT (2026-10-23, rca/2026-10-23/arena-red.md, the arena's low_life_in_melee: 500 of 1800 life, three Hell
+# Bovines in contact): macros/safety.py REACH_BAR with WALK_REACH barred every walk back of 16 (502 of 500 within 1.1
+# s, though the rollouts priced it worst 360, the least of every act) and the hold, the rollouts vetoed every jump
+# (worst 639-697), so VETOED_ESCAPE took a Blade Warp and the character died in it at 0.48 s, 0 casts (at dc5ce2f it
+# walked 16, drank a Rejuvenation at 0.66 s and cleared at 3.0 s). The player: "we must not die". A bar may rule out a
+# move only while something it does not rule out is left. True: with every act vetoed, a move barred by the reach bar
+# alone whose end (and a walk's middle) lies farther from every hostile than the character stands (`Candidate.lift`)
+# is judged by the rollouts' veto alone, and the arbitration is made again with it. False: the bar stands, as before.
+REACH_LIFT = True
+VETOED_WALK = 'safety: every act is vetoed; the walk away from every hostile is this move'
+# THROWN_OUT (2026-10-23, the death in the Canyon of the Magi, take 20261023T115109Z-46; rca/2026-10-23/
+# death-canyon-findings.md; the player: "we must not die or we lose exp and our gear"): in the arena's re-cut of it a
+# retreat from the tier 5 Slinger pack was a walk of 16 inside their lines (8-12 javelins a second, 600-860 each) and
+# the character died in it at 4.6 s. True: with throws read (`Facts.throwers`) a retreat move is a skilled one (a
+# Teleport) while one is priced, one ending out of every thrower's SHOT_REACH first; a walk only with none priced.
+# False: as before
+THROWN_OUT = True
 # 2026-10-22: Battle Orders due in a fight that is not safe to cast in (macros/cta.py REBUFF, the player: "predict when
 # it runs off, retreat and rebuff"): the safety's Teleport to a spot clear of the hostiles (macros/safety.py
 # `rebuff_back`) is taken first unless vetoed, as the hop back from a Herald's pack is. False: priced as a plain move.
@@ -357,6 +388,20 @@ def away_from(facts: Facts, escapes: list[Candidate]) -> list[Candidate]:
     return others or escapes
 
 
+def out_of_lines(facts: Facts, retreats: list[Candidate]) -> list[Candidate]:
+    """THROWN_OUT: `retreats` with throws read (`Facts.throwers`): the skilled moves ending out of every thrower's
+    SHOT_REACH, else every skilled move, in place of the walks; the other acts kept. As they are with none read or no
+    skilled move priced."""
+    if not THROWN_OUT or not facts.throwers:
+        return retreats
+    skilled = [c for c in retreats if isinstance(c.act, Move) and c.act.step.skill is not None]
+    if not skilled:
+        return retreats
+    out = [c for c in skilled if all(math.dist(c.act.step.spot, at) >= SHOT_REACH for at in facts.throwers)]  # type: ignore[union-attr]
+    others = [c for c in retreats if not isinstance(c.act, Move)]
+    return [*(out or skilled), *others]
+
+
 def vetoed_escape(facts: Facts, lethal: Callable[[Candidate], float]) -> tuple[Candidate | None, list[Candidate]]:
     """With every act vetoed (VETOED_ESCAPE): the jump to make, landing AWAY_UNITS clear of the hostiles, else farther
     from them than the character stands, the least lethal of those (the clearest on a tie); None when none is priced.
@@ -373,10 +418,27 @@ def vetoed_escape(facts: Facts, lethal: Callable[[Candidate], float]) -> tuple[C
     here = facts.clear
     away = [c for c in skilled if c.clear is not None and c.clear >= AWAY_UNITS]
     away = away or [c for c in skilled if c.clear is not None and c.clear > here]
+    # A move away from every hostile the reach bar no longer rules out (REACH_LIFT) is as much an escape: the least
+    # lethal of them all is made
+    away += [c for c in candidates if REACH_LIFT and c.lift and not c.harm.barred and c not in away]
+    away = out_of_lines(facts, away)  # THROWN_OUT
     if away:
         return min(away, key=lambda c: (lethal(c), -(c.clear or 0.0), c.harm.mean, c.seconds)), candidates
     walked = [c for c in candidates if not (isinstance(c.act, Move) and c.act.step.skill is None and nearer(c, facts))]
+    if THROWN_OUT and facts.throwers:
+        # No walk inside read throwers' lines while another act is priced (THROWN_OUT)
+        walked = [c for c in walked if not (isinstance(c.act, Move) and c.act.step.skill is None)] or walked
     return None, walked or candidates
+
+
+def lifted(facts: Facts) -> tuple[Facts, list[Candidate]]:
+    """With every act vetoed (REACH_LIFT): `facts` with the reach bar taken off the moves away from every hostile
+    (`Candidate.lift`), and the acts allowed then; as they were when none is lifted."""
+    if not REACH_LIFT or not any(c.lift for c in facts.candidates):
+        return facts, []
+    freed = tuple(replace(c, harm=replace(c.harm, barred=None)) if c.lift else c for c in facts.candidates)
+    facts = replace(facts, candidates=freed)
+    return facts, [c for c in freed if veto(c.harm, facts.life, facts.safety) is None]
 
 
 def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
@@ -396,6 +458,9 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
                 kept = moving
         facts = replace(facts, candidates=kept)
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
+    if not allowed:
+        # Every act vetoed: the reach bar lifted off the moves away (REACH_LIFT)
+        facts, allowed = lifted(facts)
     # A hop back from a tier 4-5 Herald's pack comes first while it is not vetoed (combat/pack.py, the player,
     # 2026-10-21 ~10:00: "a Teleport back when anything is within 10")
     # So does the way in to dolls a demon holds (combat/threats/dolls.py DOLL_BAIT, off; the player, 2026-10-21 14:58)
@@ -443,12 +508,13 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     # A retreat that keeps the strike on what ends the harm comes first: one out of reach only defers the harm
     # (rca/2026-10-14/baal-sim.md weakness 2). Else the least harm.
     keeping = [c for c in escapes if c.keeps and isinstance(c.act, Move) and c.harm.worst <= facts.budget]
+    keeping = [c for c in out_of_lines(facts, keeping) if isinstance(c.act, Move)]
     if keeping:
         kept = min(keeping, key=lambda c: c.seconds + facts.kappa * c.harm.mean)
         assert isinstance(kept.act, Move)
         return Move(kept.act.step, kept.act.goal, KEEPING)
     # Never toward the pack while no progress act fits the life (RETREAT_AWAY)
-    escapes = away_from(facts, escapes)
+    escapes = out_of_lines(facts, away_from(facts, escapes))  # out of read throwers' lines (THROWN_OUT)
     if escapes:
         chosen = min(escapes, key=lambda c: (c.harm.mean, c.harm.worst, c.seconds))
         if isinstance(chosen.act, Move):
@@ -468,7 +534,8 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     away, candidates = vetoed_escape(facts, lethal)
     if away is not None:
         assert isinstance(away.act, Move)
-        return Move(away.act.step, away.act.goal, f'retreating: {VETOED_AWAY}')
+        said = VETOED_AWAY if away.act.step.skill is not None else VETOED_WALK
+        return Move(away.act.step, away.act.goal, f'retreating: {said}')
     chosen = min(candidates, key=lambda c: (bool(c.harm.barred), lethal(c), c.harm.mean, c.seconds))
     said = 'safety: every act is vetoed; the least lethal is'
     if isinstance(chosen.act, Move):
@@ -562,6 +629,8 @@ def run_level(facts: Facts, pressed: bool, pursuit: Pursuit | None = None) -> Ac
     stage of this level. What is left that is not this loop's ends the run, or is handed on with a fresh press."""
     goal = facts.goal
     if not routed(goal):
+        if FIGHT_BEFORE_END and facts.in_reach and facts.attacking:
+            return Hold()  # attacked where it stands: fought before the run ends or hands the press on
         # No route stage on this level: the key is its own step (a pickup, a chest, the sweep)
         if pressed:
             return Defer(None)

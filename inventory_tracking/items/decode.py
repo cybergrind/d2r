@@ -26,7 +26,7 @@ from inventory_tracking.items.owners import require_mercenary_owner
 from inventory_tracking.items.ranges import annotate_roll_ranges
 from inventory_tracking.items.sockets import annotate_sockets, infer_nonsocketable, infer_unsocketed
 from inventory_tracking.items.staffmods import annotate_staffmods
-from inventory_tracking.native.layout import SUPPORTED_SHA256
+from inventory_tracking.native.layout import DECODED_BUILDS, SUPPORTED_SHA256
 from inventory_tracking.tracking.state import select_player
 
 
@@ -53,7 +53,7 @@ def decode_items(
     container = container_for_page(inventory_page, owner_type=inventory_owner_type)
     if materials and (inventory_page != 4 or inventory_owner_id is not None or inventory_owner_type != 0):
         raise ValueError('Materials stash is page 4 without an owner unit')
-    if report.get('game', {}).get('executable_fingerprint', {}).get('sha256') != SUPPORTED_SHA256:
+    if report.get('game', {}).get('executable_fingerprint', {}).get('sha256') not in DECODED_BUILDS:
         raise ValueError('Unsupported game build')
     if report.get('state') != 'complete' or snapshot.get('status') != 'research':
         raise ValueError('Incomplete or stale capture')

@@ -3,6 +3,12 @@
     uv run --offline python -m inventory_tracking.corpus.score [--all] [--save baseline]
 
 Without labels (or with --all) it prints the verdict distribution of every corpus item.
+
+Each item is judged by the one assessment entry point at CORPUS (loot/assess.py; design.md §10.4 step 2, 2026-10-23):
+the detail engine's result is its price source, the identify verdict (loot/assess.py `identify_verdict`, the one the
+live BOOK holds) the verdict scored, and the outcome the town would give it as the loop's (keep / vendor, `card_score`)
+beside it. The verdicts equal identify/service.py `verdict_for`'s on every corpus item (2026-10-23, the gate:
+rca/2026-10-23/scripts/assess_2b_corpus.py).
 """
 
 import argparse
@@ -14,7 +20,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from inventory_tracking.corpus.build import DATA
-from inventory_tracking.identify.service import verdict_for
+from inventory_tracking.loot.assess import GIVE_UP, Assessment, Assessor, ResultAppraiser, Site
+from inventory_tracking.loot.facts import Owner, Where, from_observation
 
 
 if TYPE_CHECKING:
@@ -40,17 +47,29 @@ def _init(store):
     _LOADED = process_publications(store).get(pointer_generation(store), validate=False)
 
 
+def corpus_assessment(observation, result) -> Assessment:
+    """A recorded read judged at CORPUS by the one entry point: `result` the detail engine's, its verdict the
+    identify worker's (`ResultAppraiser`'s default), no owned copies told (S8), no live state."""
+    facts = from_observation(observation, where=Where.INVENTORY, owner=Owner.LOOP)
+    return Assessor(ResultAppraiser(lambda _: result)).assess(facts, Site.CORPUS)
+
+
 def _assess(row) -> dict[str, Any]:
     from pricing.api import published_snapshot, retrieve_draft
 
+    judged: dict[str, Any] = {}
     try:
         loaded = _LOADED
         if loaded is None:
             raise ValueError('No publication loaded in this worker')
         with published_snapshot(loaded.runtime):
             result = retrieve_draft(row['observation'], loaded.runtime.database, as_of=datetime.now(UTC).date())
-        verdict, reason = verdict_for(result)
+        assessment = corpus_assessment(row['observation'], result)
+        if assessment.value is None or assessment.value.verdict is None:
+            raise ValueError(f'no appraisal: {assessment.why}')
+        verdict, reason = assessment.value.verdict, assessment.value.reason or assessment.why
         estimate = (result.get('price_estimate') or {}).get('estimate_ist')
+        judged = {'outcome': assessment.outcome.value, 'rule': assessment.rule, 'why': assessment.why}
     except Exception as exc:
         verdict, reason, estimate = 'error', str(exc)[:120], None
     item = row['observation']['item']
@@ -61,6 +80,7 @@ def _assess(row) -> dict[str, Any]:
         'verdict': verdict,
         'reason': reason,
         'estimate_ist': estimate,
+        **judged,
     }
 
 
@@ -109,6 +129,25 @@ def score(results, labels, *, legacy=False) -> dict:
     }
 
 
+def card_score(results, labels) -> dict[str, Any]:
+    """The entry point's outcome against the labels: how many trade-value items (WORTH) it would vendor, and the
+    outcome per label (keep / vendor / identify; the words of loot/assess.py `Outcome`)."""
+    labelled = [(labels[r['id']], r) for r in results if r['id'] in labels and 'outcome' in r]
+    worth = [r for label, r in labelled if label in WORTH]
+    given_up = {outcome.value for outcome in GIVE_UP}
+    return {
+        'judged': sum('outcome' in r for r in results),
+        'outcomes': dict(sorted(Counter(r['outcome'] for r in results if 'outcome' in r).items())),
+        'worth_vendored': [
+            f'{r["name"]} ({r["rarity"]}): {r["rule"]} {r["why"]}' for r in worth if r['outcome'] in given_up
+        ],
+        'confusion': {
+            f'{label}→{outcome}': count
+            for (label, outcome), count in sorted(Counter((label, r['outcome']) for label, r in labelled).items())
+        },
+    }
+
+
 def main(argv=None):
     from pricing.api import DEFAULT_STORE
 
@@ -141,6 +180,8 @@ def main(argv=None):
             print(f'{key} ({len(summary[key])}):')
             for line in summary[key]:
                 print('  ' + line)
+    if any('outcome' in r for r in results):
+        print('entry point (CORPUS):', json.dumps(card_score(results, labels), indent=1))
     if args.save:
         output = args.data / f'score-{args.save}.json'
         output.write_text(json.dumps({'summary': summary, 'results': results}, indent=1) + '\n')

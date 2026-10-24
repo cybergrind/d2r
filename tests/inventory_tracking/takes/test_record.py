@@ -8,7 +8,7 @@ from dataclasses import replace
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.records import Drop, Loot, Monster, Teleport, Thing, World
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
-from inventory_tracking.takes import macro_state
+from inventory_tracking.takes import decisions, macro_state
 from inventory_tracking.takes.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
 from inventory_tracking.takes.takes import Take, carried, records, resists_by_frame, timeline
 from tests.inventory_tracking.macros.fakes import player
@@ -462,7 +462,8 @@ def test_the_macros_state_is_an_event_at_the_takes_start_and_at_each_change(tmp_
     assert states == [(1.0, False, 'teleport'), (1.08, True, 'hunt any')]
 
 
-def test_safety_decisions_are_separate_events_only_when_the_decision_changes(tmp_path):
+def test_safety_decisions_are_separate_events_only_when_the_decision_changes(tmp_path, monkeypatch):
+    monkeypatch.setattr(decisions, 'DECISION_EVENTS', False)  # the polled decision (DECISION_EVENTS on 2026-10-24)
     decision = {'goal': 'a stand', 'budget': 100, 'candidates': [{'T': 1, 'H': 20, 'veto': None}]}
     script = Script(
         *(

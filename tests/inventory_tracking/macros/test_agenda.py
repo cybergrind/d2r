@@ -237,6 +237,8 @@ def test_a_herald_out_of_sight_stays_the_first_goal_until_it_is_neither_seen_nor
     assert aimed(agenda, view(leaders=(remembered,), frontier=lambda: room)).kind == EXPLORE  # a plain one now
 
     monkeypatch.setattr(agenda_module, 'HERALD_KEPT', False)  # the switch off: out of the read, after the rooms
+    # (with HELD_GOALS the Herald chosen at the last look is held at twice REMEMBERED_NEAR: that switch off too)
+    monkeypatch.setattr(agenda_module, 'HELD_GOALS', False)
     agenda.begin('g2')
     agenda.in_level(view(leaders=(herald,), frontier=lambda: room))
     assert aimed(agenda, view(leaders=(remembered,), frontier=lambda: room)).kind == EXPLORE
@@ -559,6 +561,30 @@ def test_a_council_member_out_of_the_read_is_gone_for_at_any_distance_on_tz_plus
     assert agenda.in_level(LevelView(102, here, policy=PLUS_WAY)) is None  # dead: the route's own goal
 
 
+def test_on_a_turned_level_the_bosses_alone_are_goals_no_leader(monkeypatch):
+    # agenda.py BOSS_WAY (2026-10-23, hunting/choice.py BOSSES_ONLY): a champion in sight or remembered near is no goal
+    # on a level the zone left (its plain monsters 142 exp a kill); its boss is
+    from inventory_tracking.game.layout import SUPER_FLAG
+    from inventory_tracking.game.records import Monster
+    from inventory_tracking.macros.agenda import BOSS_WAY, ON_THE_WAY
+
+    agenda, tracker = council_agenda()
+    maffer_spot = (ORIGIN + 103.0, ORIGIN + 123.0)
+    maffer = Monster(3110582129, 347, 1, maffer_spot[0] + 5, maffer_spot[1], flags=SUPER_FLAG)
+    agenda.bosses.sight(102, [maffer])
+    tracker.slain = frozenset({'Mephisto', 'Wyand Voidbringer', 'Bremm Sparkfist'})
+    here = (maffer_spot[0] + 84.0, maffer_spot[1])
+    champion = Leader(7, (here[0] + 10.0, here[1]), 'champion')
+    on_way = agenda.in_level(LevelView(102, here, (champion,), policy=ON_THE_WAY))
+    assert on_way is not None
+    assert on_way.unit == 7  # on the way: the champion near first, as before
+    found = agenda.in_level(LevelView(102, here, (champion,), policy=BOSS_WAY))
+    assert found is not None
+    assert (found.kind, found.unit, found.label) == (KILL, 3110582129, 'Maffer Dragonhand')
+    tracker.slain = tracker.slain | {'Maffer Dragonhand'}
+    assert agenda.in_level(LevelView(102, here, (champion,), policy=BOSS_WAY)) is None  # the route's own goal
+
+
 def test_a_boss_never_seen_is_gone_for_at_its_spot_and_a_spot_reached_with_no_one_there_is_no_goal(monkeypatch):
     from inventory_tracking.macros.agenda import BOSS_ARRIVED, PLUS_WAY, TRANSIT
 
@@ -586,3 +612,47 @@ def test_the_ledger_is_begun_with_the_game_and_its_records_are_the_books():
     assert agenda.bosses.alive() == []
     agenda.begin('cyberr13')
     assert len(agenda.bosses.alive_in(102)) == 4  # the book kept them (`tracker.boss_book`)
+
+
+def kaa_agenda():
+    """Game cyberg65's agenda in Tal Rasha's Tomb 67 with Ancient Kaa the Soulless in the ledger, taken for his unit
+    1834794757 at (22685, 6891) at 19:56:13 (rca/2026-10-22/walled-boss-findings.md)."""
+    from inventory_tracking.terror.tracker import ZoneTracker
+
+    agenda = Agenda()
+    agenda.begin('cyberg65')
+    agenda.plan = object()
+    tracker = ZoneTracker()
+    agenda.bosses.attach(tracker.killed)
+    tracker.boss_note(67, 'Ancient Kaa the Soulless', place=(22685.0, 6891.0), unit=1834794757, seen=True, by='rooms')
+    return agenda, tracker
+
+
+def test_a_ledger_boss_whose_unit_is_not_held_at_its_last_place_is_no_goal_and_owed_no_more(monkeypatch):
+    # 23:09:52-23:10:08 on 2026-10-22: Kaa killed at 19:56:19, his kill lost (terror/tracker.py BOOK_KILLS); the
+    # character 15 units from his last place with a clear line to it, no unit of his in the client's read: "in reach
+    # and is not struck (left alone for now)" for 16 s, then the Canyon of the Magi worked for him again
+    from inventory_tracking.macros.agenda import ABSENT_NEAR, PLUS_WAY
+
+    agenda, _ = kaa_agenda()
+    far = LevelView(67, (22685.0, 6891.0 - 200.0), policy=PLUS_WAY)
+    found = agenda.in_level(far)
+    assert found is not None
+    assert (found.kind, found.unit) == (KILL, 1834794757)  # far off: gone for at his last place
+    near = LevelView(67, (22693.5, 6878.5), policy=PLUS_WAY, present=frozenset({103, 3}))
+    assert agenda.in_level(near) is None  # 15 off, not held: the route's own goal
+    assert agenda.bosses.alive_in(67) == []  # the ledger told: the game's obligations owe him no more
+    assert ABSENT_NEAR > 15.1
+    # held in the read (left alone for now, say): still the goal
+    agenda, _ = kaa_agenda()
+    held = LevelView(67, (22693.5, 6878.5), policy=PLUS_WAY, present=frozenset({1834794757}))
+    found = agenda.in_level(held)
+    assert found is not None
+    assert found.unit == 1834794757
+    from inventory_tracking.macros import bossledger
+
+    monkeypatch.setattr(bossledger, 'BOSS_ABSENT', False)
+    agenda, _ = kaa_agenda()
+    found = agenda.in_level(near)
+    assert found is not None
+    assert found.unit == 1834794757  # off: stood at again, as played

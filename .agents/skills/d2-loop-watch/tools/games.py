@@ -160,11 +160,22 @@ def resumes(directory: Path) -> bool:
         return False
 
 
+# The runs dir's session names by (dir, its mtime): `previous` is asked once a session, ~650 sessions to list each time
+_LISTED: dict[tuple[Path, int], list[str]] = {}
+
+
 def previous(directory: Path) -> Path | None:
     """The session dir just before `directory` in its runs dir (names are UTC times), None without one."""
-    older = sorted(d.name for d in directory.parent.iterdir() if d.is_dir() and (d / 'probe.log').exists())
-    before = [name for name in older if name < directory.name]
+    key = (directory.parent, directory.parent.stat().st_mtime_ns)
+    if key not in _LISTED:
+        _LISTED[key] = sorted(d.name for d in directory.parent.iterdir() if d.is_dir() and (d / 'probe.log').exists())
+    before = [name for name in _LISTED[key] if name < directory.name]
     return directory.parent / before[-1] if before else None
+
+
+# `inherited`'s answers by the earlier session and its log's (mtime, size): a closed session's log no longer changes,
+# and a reader of N resumed sessions would read each earlier one again for every later one of the chain
+_INHERITED: dict[tuple[Path, int, int], set[tuple]] = {}
 
 
 def inherited(directory: Path) -> set[tuple]:
@@ -175,12 +186,16 @@ def inherited(directory: Path) -> set[tuple]:
     when the session starts a game of its own."""
     if not resumes(directory) or (before := previous(directory)) is None:
         return set()
-    seed = inherited(before)
-    played, _, _, ground = read(before, None, None, seed)
-    if len(played) > 1:
-        seed = set()  # the earlier session went on to another game
-    last = played[-1].number if played else None
-    return seed | carried_keys(i for i, _ in ground if i.game == last)
+    log = (before / 'probe.log').stat()
+    key = (before, log.st_mtime_ns, log.st_size)
+    if key not in _INHERITED:
+        seed = inherited(before)
+        played, _, _, ground = read(before, None, None, seed)
+        if len(played) > 1:
+            seed = set()  # the earlier session went on to another game
+        last = played[-1].number if played else None
+        _INHERITED[key] = seed | carried_keys(i for i, _ in ground if i.game == last)
+    return set(_INHERITED[key])
 
 
 def full_stacks() -> set[str]:
@@ -198,21 +213,20 @@ def reconcile(seen: list[Seen], picks: list[str], aims: dict[str, set[tuple[int,
     """Mark the census's items of one game that a pickup took: by the place a pickup of that name aimed at first,
     then by the name alone (a pile's later items are taken in the same press, not named with a place)."""
 
-    def names(item: Seen) -> set[str]:
-        return {item.name, item.label, f'{item.quality.capitalize()} {item.name}'}
-
+    names = [{item.name, item.label, f'{item.quality.capitalize()} {item.name}'} for item in seen]
     left = list(picks)
     for label in list(left):
         places = aims.get(label, set())
-        for item in seen:
-            near = any(abs(item.place[0] - x) <= 2 and abs(item.place[1] - y) <= 2 for x, y in places)
-            if not item.picked and near and label in names(item):
+        for item, called in zip(seen, names, strict=True):
+            if item.picked or label not in called:
+                continue
+            if any(abs(item.place[0] - x) <= 2 and abs(item.place[1] - y) <= 2 for x, y in places):
                 item.picked = True
                 left.remove(label)
                 break
     for label in left:
-        for item in seen:
-            if not item.picked and label in names(item):
+        for item, called in zip(seen, names, strict=True):
+            if not item.picked and label in called:
                 item.picked = True
                 break
 

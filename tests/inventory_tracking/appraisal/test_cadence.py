@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from inventory_tracking.appraisal import service
+from inventory_tracking.appraisal import loop_timing, service
 from inventory_tracking.appraisal.cadence import Mode, Schedule, cadences, mode_of
 from inventory_tracking.appraisal.loop_timing import PassTimer
 from inventory_tracking.config import APPRAISAL
@@ -85,7 +85,8 @@ def test_the_table_is_said_in_one_line():
     assert 'level map each poll / each poll / 2 s' in said
 
 
-def test_the_pass_timer_tells_its_sink_every_pass():
+def test_the_pass_timer_tells_its_sink_every_pass(monkeypatch):
+    monkeypatch.setattr(loop_timing, 'STEP_CPU', False)  # the sink as before STEP_CPU (on 2026-10-24)
     now, told = [0.0], []
     timer = PassTimer(0.5, clock=lambda: now[0], passed=lambda steps, total: told.append((dict(steps), total)))
     with timer.step('level map'):

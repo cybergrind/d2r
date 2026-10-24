@@ -1318,3 +1318,17 @@ def test_a_walk_round_is_taken_over_a_cheaper_act_while_it_fits_and_never_past_t
     assert p.decide(replace(facts, candidates=(hold, replace(walk, harm=Harm(40, 600)))), None) == hold.act
     vetoed = replace(walk, harm=Harm(40, 80, barred='lethal'))
     assert p.decide(replace(facts, candidates=(hold, vetoed)), None) == hold.act
+
+
+def test_every_act_vetoed_reads_the_looks_own_decision_only() -> None:
+    # macros/hunting/moves.py REJUV_VETOED (2026-10-23): a rejuvenation before the act when the look found nothing
+    # allowed, not on an older look's word
+    from inventory_tracking.macros.safety import every_act_vetoed
+
+    vetoed = {'looked_at': 5.0, 'candidates': [{'veto': 'lethal exposure in the short rollouts'}, {'veto': 'within'}]}
+    assert every_act_vetoed(vetoed, 5.0)
+    assert not every_act_vetoed(vetoed, 5.1)  # an older look
+    one = {**vetoed, 'candidates': [*vetoed['candidates'], {'veto': None}]}
+    assert not every_act_vetoed(one, 5.0)
+    assert not every_act_vetoed({'looked_at': 5.0, 'candidates': []}, 5.0)
+    assert not every_act_vetoed({}, 0.0)

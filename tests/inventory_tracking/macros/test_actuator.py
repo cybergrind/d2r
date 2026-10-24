@@ -128,6 +128,26 @@ def test_a_held_key_is_the_macros_own_not_the_players():
     assert actuator.key_held() is True
 
 
+def test_a_tapped_key_is_the_macros_own_through_its_hold():
+    # 2026-10-23 14:52:22.763: a potion drunk in the pause of the Engorge tap saw its key 'a' down as the player's
+    # ("no healing potion on 3 now: a key was pressed (key code 38)") and went 0.27 s late
+    keys = FakeKeys()
+    code = keys.keycodes([b'a'])[0]
+    seen: list[bool] = []
+
+    def pause(_seconds: float) -> None:
+        keys.reported = {code}
+        seen.append(actuator.key_held())
+
+    pace = Pace(random.Random(1), pause)
+    actuator = Actuator(keys, lambda: True, pace)
+    pace.look = lambda: None  # the pause looks (the drinker), as attack mode watches its pauses
+    actuator.tap('a')
+    assert seen
+    assert not any(seen)
+    assert actuator.key_held() is True  # still down after the tap: the player's again
+
+
 def test_again_with_the_focus_kept_works_for_a_mouse_button():
     # A skill on a mouse button is pressed and released the same way as a key.
     actuator, keys, _ = make()
@@ -199,3 +219,68 @@ def test_a_pointer_the_macro_left_near_its_aim_is_put_there_in_one_step():
     moves.clear()
     actuator.aim(0.9, 0.9, near=120)
     assert len(moves) >= 3  # further than `near`: the path
+
+
+# The late bind (actuator.py LATE_BIND, 2026-10-23): the aim's target taken again just before the press
+
+
+def test_a_late_bind_puts_the_pointer_where_the_target_is_now(monkeypatch):
+    from inventory_tracking.macros import actuator as actuator_module
+
+    monkeypatch.setattr(actuator_module, 'LATE_BIND', True)
+    play = Game(world())
+    actuator = play.run().actuator
+    moves = []
+    move = play.keys.move_pointer
+
+    def counted(x, y):
+        moves.append((x, y))
+        return move(x, y)
+
+    play.keys.move_pointer = counted
+    actuator.aim(0.5, 0.5, bind=lambda: (0.5, 0.5))  # the target where it was: no move after the aim
+    after = len(moves)
+    assert actuator.bound_moves == 0
+    actuator.aim(0.5, 0.5, bind=lambda: (0.56, 0.5))  # it went on: one jump onto it
+    assert actuator.bound_moves == 1
+    assert actuator.left_at is not None
+    rect = play.keys.focused_window_rect()
+    assert rect is not None
+    assert abs(actuator.left_at[0] - (rect[0] + rect[2] * 0.56)) <= 2  # scatter (1, 1) and the rounding
+    assert len(moves) > after
+    actuator.aim(0.5, 0.5, bind=lambda: None)  # unread now: the aim stays
+    assert actuator.bound_moves == 1
+
+
+def test_in_attack_mode_the_one_unchecked_move_is_bound_too(monkeypatch):
+    from inventory_tracking.macros import actuator as actuator_module
+
+    monkeypatch.setattr(actuator_module, 'LATE_BIND', True)
+    monkeypatch.setattr(actuator_module, 'BIND_UNSTEADY', True)
+    actuator = Game(world()).run().actuator
+    actuator.steady = False  # attack mode: one move, unchecked (the strikes' aim)
+    actuator.aim(0.5, 0.5, bind=lambda: (0.56, 0.5))
+    assert actuator.bound_moves == 1
+    monkeypatch.setattr(actuator_module, 'BIND_UNSTEADY', False)
+    actuator.aim(0.5, 0.5, bind=lambda: (0.62, 0.5))
+    assert actuator.bound_moves == 1  # off: the unchecked move is not bound
+
+
+def test_with_the_switch_off_the_bind_is_not_asked(monkeypatch):
+    from inventory_tracking.macros import actuator as actuator_module
+
+    monkeypatch.setattr(actuator_module, 'LATE_BIND', False)
+    actuator = Game(world()).run().actuator
+    asked = []
+    actuator.aim(0.5, 0.5, bind=lambda: asked.append(1) or (0.9, 0.9))
+    assert asked == []
+    assert actuator.bound_moves == 0
+
+
+def test_the_inputs_sent_are_kept_for_the_act_queue():
+    actuator, _, _ = make()
+    actuator.tap('7')
+    first, down = actuator.sent(0.0)
+    assert first is not None
+    assert down == first  # a key with no aim before it
+    assert actuator.sent(first + 1000.0) == (None, None)

@@ -209,3 +209,13 @@ def test_a_pointer_to_arbitrary_data_is_not_a_mask():
     struct.pack_into('<50H', data, 0, *range(50))  # 50 distinct values: not a flag mask
 
     assert collision_candidates(Probe(memory.read), room1, room2) == []
+
+
+def test_an_act_dump_keeps_the_adjacent_tomb_level_pairs_of_its_act_misc():
+    # rca/2026-10-22/tombs-findings.md: the staff and Kaa tombs' levels side by side (D2MOO D2DrlgStrc), offset unknown
+    from inventory_tracking.levels.research import tomb_pairs
+
+    misc = bytearray(0x878)
+    struct.pack_into('<II', misc, 0x120, 71, 67)  # cyberg65: the Orifice in 71, Ancient Kaa in 67
+    struct.pack_into('<II', misc, 0x200, 70, 70)  # not distinct: no pair
+    assert tomb_pairs(bytes(misc)) == {'0x120': [71, 67]}

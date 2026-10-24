@@ -7,13 +7,15 @@ gold's rules (pickup.py `choose`, macros/supply.py). Pure.
 loop on (`looped`) the press and the sweep hold `NO_ROOM_PLAIN` too; KP_1 by hand moves on from it.
 """
 
+import time
 from dataclasses import dataclass
 
 from inventory_tracking.game.records import VALUABLE, Drop
-from inventory_tracking.macros.pickmode import MOST, SURE, is_candidate, sure
+from inventory_tracking.macros.pickmode import MOST, SURE, good, identify_only
 
 
 __all__ = [
+    'CANDIDATE_CUBE',
     'GUARD',
     'LOOP_HOLDS',
     'NO_ROOM_PLAIN',
@@ -24,6 +26,8 @@ __all__ = [
     'SWEEP',
     'Dispute',
     'Verdict',
+    'ask_cube',
+    'cube_pending',
     'disputed',
     'trip_for',
     'verdict',
@@ -72,14 +76,51 @@ NO_ROOM_PLAIN = Dispute(
 LOOP_HOLDS = 'no room, in the loop: held for its town routine (the ruling of 2026-10-18 17:50)'
 
 
+# CANDIDATE_CUBE (2026-10-23, the loot verifier, rca/2026-10-23/loot-verify-0102.md: a shown rare Bone Knife left "no
+# room" at 00:58:16 and the game ended 1.2 s later; the player: "we absolutely must preserve top items", "we're going
+# to miss a lot of items this way"): an identify candidate the KP_6 press finds no room for gets the loop's cube step
+# once (macros/pickup.py `pick_up` asks it, `ask_cube`): the guard holds it while that step is pending
+# (CUBE_PENDING_SECONDS, or until the press meets it again), and no trip is made for it (`trip_for`). False: such a
+# candidate is left at once, as before
+CANDIDATE_CUBE = True
+CUBE_PENDING_SECONDS = 15.0
+CUBE_PENDING: dict[int, float] = {}  # unit -> when the cube step was asked (time.monotonic)
+CUBE_ASKED: set[int] = set()  # the units it was asked for: once each
+CUBE_ASKED_MOST = 2000
+
+
+def ask_cube(drop: Drop, now: float | None = None) -> bool:
+    """Whether the cube step is asked for the candidate `drop` now (CANDIDATE_CUBE, once per unit); marks it pending."""
+    if not CANDIDATE_CUBE or drop.unit_id in CUBE_ASKED:
+        CUBE_PENDING.pop(drop.unit_id, None)  # met again: the step was made (or never will be)
+        return False
+    if len(CUBE_ASKED) > CUBE_ASKED_MOST:
+        CUBE_ASKED.clear()
+    CUBE_ASKED.add(drop.unit_id)
+    CUBE_PENDING[drop.unit_id] = time.monotonic() if now is None else now  # the guard's clock (`cube_pending`)
+    return True
+
+
+def cube_pending(unit_id: int, now: float | None = None) -> bool:
+    """Whether the cube step asked for `unit_id` is still pending (`ask_cube`)."""
+    asked = CUBE_PENDING.get(unit_id)
+    if asked is None:
+        return False
+    if (time.monotonic() if now is None else now) - asked > CUBE_PENDING_SECONDS:
+        CUBE_PENDING.pop(unit_id, None)
+        return False
+    return True
+
+
 def disputed(drop: Drop, *, room: bool, shown: bool) -> bool:
     """Whether `drop` is of the `NO_ROOM_PLAIN` class."""
-    return drop.kind == VALUABLE and not room and not drop.prized and not shown and not is_candidate(drop)
+    return drop.kind == VALUABLE and not room and not drop.prized and not shown and not identify_only(drop)
 
 
 def kept_by(drop: Drop, mode: str) -> bool:
-    """Whether the pickup mode `mode` keeps `drop` (pickmode.py `kept`, one drop)."""
-    return sure(drop) if mode == SURE else True
+    """Whether the pickup mode `mode` keeps `drop` whatever the field's gate (pickmode.py `good`: the entry point's
+    GROUND verdict, loot/assess.py)."""
+    return good(drop) if mode == SURE else True
 
 
 def _shard_taken(drop: Drop) -> bool:
@@ -120,7 +161,9 @@ def verdict(
     pending = disputed(drop, room=room, shown=shown)
     take = room and not shunned and (site == PRESS or not given_up)  # the press keeps no give-ups
     if site in (GUARD, SIGHTINGS):
-        if is_candidate(drop):
+        if identify_only(drop):
+            if not room and cube_pending(drop.unit_id):
+                return Verdict(take, True, 'an identify candidate: held for the cube step (CANDIDATE_CUBE)', pending)
             return Verdict(take, False, 'an identify candidate: no game is kept for it', pending)
         return Verdict(take, True, 'a valuable on the ground', pending)
     if shunned:
@@ -156,4 +199,6 @@ def trip_for(drop: Drop, *, shown: bool) -> bool:
     """Whether the shared no-room routine (macros/running/room.py) goes to town for `drop` once the cube made no room
     for it: what the guard keeps a game for, in the loop and by hand alike (the player, 2026-10-19: "EVERY loop and
     activity should have the same routines"): every valuable of the pickup level but an identify candidate."""
+    if identify_only(drop):
+        return False  # CANDIDATE_CUBE holds one for the cube step only, never for a trip
     return verdict(drop, GUARD, room=False, shown=shown, looped=True).hold

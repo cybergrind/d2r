@@ -66,6 +66,11 @@ The frozen files are archived in `pricing/archive/2026-10-19/` (player, 2026-10-
 5. Date every number; say "asks" or "fills"; never quote a bucket minimum as "the price".
 6. Edit guides in place (body = settled truth) and log changes as a dated pass in the guide's Review log
    (conventions in `guides/planning-with-html.html`). Do not commit unless asked.
+7. **Restarting `make serve` is the agent's job, never the player's** (2026-10-24): the running service takes a
+   restart request and re-runs itself on the code on disk. Use `.agents/skills/d2-loop-watch/tools/restart.py`
+   (loop off: `--loop keep --wait 120`, at once; loop on: `--when town|safe` mid-game or the next lobby). Serve is
+   up while the newest `inventory_tracking/runs/alt-d/*/probe.log` is being written; `serve.pid` can be stale. The
+   d2-loop-watch skill's Restart section has the details.
 
 ## Binary Ninja (reverse engineering the game client)
 

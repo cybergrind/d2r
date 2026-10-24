@@ -32,6 +32,8 @@ def test_a_run_whose_game_clock_stands_still_is_called_hung_in_seconds(tmp_path,
         runner=SimpleNamespace(lock=threading.Lock(), thread=spinning, working=True),
         arena=SimpleNamespace(clock=SimpleNamespace(now=3.5)),
         end=lambda: ended.append(True),
+        ended=False,
+        seconds=60.0,
     )
     play.hung = lambda why: driver.Play.hung(play, why)
     began = time.monotonic()

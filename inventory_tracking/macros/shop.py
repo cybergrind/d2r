@@ -17,10 +17,20 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import BELT
-from inventory_tracking.game.layout import GOLD_PER_LEVEL, GOLD_STAT, KEY_STACK, LEVEL_STAT, MONSTER_UNIT, TOME_CHARGES
-from inventory_tracking.game.records import Carried, Loot, Monster, Pack, Stocked, World
+from inventory_tracking.game.layout import (
+    GOLD_PER_LEVEL,
+    GOLD_STAT,
+    ITEM_UNIT,
+    KEY_STACK,
+    LEVEL_STAT,
+    MONSTER_UNIT,
+    OBJECT_UNIT,
+    TOME_CHARGES,
+)
+from inventory_tracking.game.records import Carried, Loot, Monster, Pack, Player, Stocked, Thing, World
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
+from inventory_tracking.levels.model import PORTAL, TOWN_PORTAL
 from inventory_tracking.loot.api import reserve_short
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.actuator import Abort
@@ -29,8 +39,8 @@ from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.junk import named
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source
 from inventory_tracking.macros.routines import screen_fraction
-from inventory_tracking.macros.targeting import keep_mid_walk, menu_drift, menu_or_stand
-from inventory_tracking.macros.teleport import ground_fraction
+from inventory_tracking.macros.targeting import keep_mid_walk, labels_hidden, menu_drift, menu_or_stand
+from inventory_tracking.macros.teleport import ground_fraction, in_view
 from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS
@@ -75,6 +85,13 @@ HOVER_SECONDS = 0.25  # for the game's record of what is under the pointer to na
 FOLLOW = 0.5  # units she walks before the pointer is put on her again
 FOLLOW_POLL = 0.04
 MENU_CLICKS = 3  # one may go to a menu that opened mid-walk, closed and opened again standing
+# An item label over her (the game names an item under the pointer at every aim): the click on her body would take the
+# item up, not open her menu. Deckard Cain walks up to the junk put down by the stash (16:05:00 on 2026-10-21: (4, ...)
+# under the pointer at him, the click opened no menu). True: the labels hidden by the Show Items key for the aims and
+# the click (targeting.py `labels_hidden`, as stash.py LABELS_OFF_AT_THE_STASH; the level run's `show_items_on` turns
+# them on again if the key's second press does not take), 2026-10-23 with visit.py DOWN_GUARDED. False: clicked at her
+# body all the same, as before
+LABELS_OFF_AT_NPC = True
 LINE = 0.0226  # window heights between menu lines (the player's clicks, 2026-10-16)
 LIFTS_FILE = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'menu-lifts.json'  # `learned` lifts by vendor
 HITS_KEPT = 40  # the lifts that took kept by vendor (`hits`): their middle is clicked first (`known`)
@@ -88,12 +105,44 @@ SALE_MOST = 35_000  # the most a vendor pays for an item (every best sale of 202
 GOLD_SECONDS = 1.0  # for the gold carried to settle after a purchase, or to change after a sale
 GOLD_SETTLE = 0.25
 WALKING = (2, 3, 6)  # the character's walk, run and town walk: the view moves with it
+# 15:31:35.8 on 2026-10-23 (rca/2026-10-23/visit-portal-findings.md): the visit's first walk click toward Deckard Cain,
+# made from beside the Town Portal the character had come through, went to a ground point 4.3 units past the portal's,
+# 0.079 window heights over its ground point: inside its picture, and the game's record named it under the pointer
+# ((2, 2264798530)). The character walked into it and back to the River of Flame. True: a town walk's click with a way
+# out (WAYS_OUT: a portal, a waypoint) under the pointer that is not the walk's own goal (within GOAL_NEAR of its
+# place) is turned aside (OFF_WAY_TURNS) to an aim with none under it, and refused (`Abort`) when every turn has one;
+# the record is looked at only with a way out within WAY_NEAR of the click's ground. A townsperson's menu click at the
+# body is refused the same way. False: clicked where aimed, as before
+WALK_OFF_WAYS = True
+WAYS_OUT = frozenset((TOWN_PORTAL, PORTAL, *WAYPOINT_CLASSES))
+WAY_NEAR = 8.0  # world units from a click's ground to a way out's within which its picture may be under the pointer
+GOAL_NEAR = 3.0  # world units from the walk's place within which a way out is the walk's own goal (the portal's walk)
+OFF_WAY_TURNS = (30, -30, 60, -60, 90, -90)  # degrees the walk's step is turned to get a way out from under the click
+WAY_HOVER_SECONDS = 0.06  # for the record of what is under the pointer to follow it (teleport.py HOVER_SECONDS)
+# 2026-10-24 (rca/2026-10-24/stash-amulet-findings.md): at 18:54:22.7 the walk to the stash clicked at the label of the
+# Eagle Necklace the loop itself had put down by the stash at 18:50:28 ("Jamella not needed"); the game's record named
+# it under the pointer ((4, 2388730699)) 0.18 s before the click, the character walked to it and took it up into the
+# 2x4 block ("short of the contract: block 2x4 taken, 1 keepers carried (rare Amulet at (3, 3))"). Seven such pickups
+# of the town's junk in the visit snapshots of 2026-10-19..24, three of them walk clicks in the takes; the stash's and
+# the townsfolk's own clicks look under the pointer (teleport.py `use_thing`, LABELS_OFF_AT_NPC), the walk's did not.
+# True: every town walk click reads the record first (WAY_HOVER_SECONDS each) and one with a ground item under it is
+# turned aside as a way out is (OFF_WAY_TURNS); with an item under every turn it is clicked where first aimed, as
+# before. False: only a way out is looked for, as before
+WALK_OFF_ITEMS = True  # on from the restart after 20:05 on 2026-10-24 (main session: town suites 447 passed on and off)
 # Healing potions bought into the belt's healing columns at her trade window (the player, 2026-10-21 ~13:38: "can we
 # also add into town routine ability to buy hp potions"; "empty belt = defect"). Only the best healing grade in her
 # stock, one plain right click a potion, each checked by the belt read; only while the healing columns are short and
 # the carried gold stays over POTIONS_RESERVE (a vendor takes what the carried gold does not cover from the stash's,
 # repair.py GOLDBANK: the reserve keeps that from happening). False: none bought, as before
 BUY_POTIONS = True
+# 2026-10-22 (rca/2026-10-22/belt-refill-findings.md): every visit bought 4 of a belt short 5 or 6 (23:01:10 and
+# 23:02:57, the shard game cyberg65), so the belt was low again a burst of the healer later: every plain right click
+# after one that bought buys nothing (13 refills of 2026-10-21/22 fit it exactly; keys too, history/shop.md), and the
+# clicks were capped at the shortage + BUY_CLICKS. On: the clicks are capped at twice the shortage + BUY_CLICKS (each
+# potion may take a click that buys nothing; BUY_CLICKS misses in a row still end it), and after each potion bought
+# the next click waits for its cost to leave the carried gold (`_cost_landed`: the game's own end of the purchase).
+# False: the shortage + BUY_CLICKS clicks, the next at once, as before
+POTIONS_FILL = True
 # Healing potions by grade, the weakest first: hp1-hp5, d2data misc.json classid (Minor 602 ... Super 606). Jamella
 # and Malah stock hp1-hp4, Ormus hp1-hp3, Lysander and Drognan hp1-hp2, Akara hp1 (misc.json `<Vendor>Min`); in Hell
 # each becomes hp5 (misc.json HellUpgrade), so she sells Super Healing there
@@ -133,10 +182,13 @@ def walk_until(
     *,
     until: Callable[[World], bool] | None = None,
     clicks: int = WALK_CLICKS,
+    to_npc: bool = True,
 ) -> World:
     """Walk toward `place(world)` until it is drawn within `bounds` (window fractions); the world then. `Abort`.
     With `until` the walk ends when `until(world)` holds instead (the walk out of a town, macros/townexit.py), and a
-    panel a click opened on the way (townsfolk, the stash) is closed and the next click turned."""
+    panel a click opened on the way (townsfolk, the stash) is closed and the next click turned. `to_npc` False (the
+    waypoint): an open townsfolk menu is not the walk's end but closed the same way (2026-10-22 20:27, Rogue
+    Encampment: a menu open at the arrival ended each of three waypoint walks at once, and the loop stopped)."""
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')
@@ -149,9 +201,13 @@ def walk_until(
         player, there = world.player, place(world)
         if player is None or there is None:
             raise Abort(f'{what} is not in sight')
-        if until is None and (_inside(_drawn(world, there, aspect), bounds) or 'npc_interact' in world.open_panels):
+        if until is None and (
+            _inside(_drawn(world, there, aspect), bounds) or (to_npc and 'npc_interact' in world.open_panels)
+        ):
             return world  # a click landed on her and opened her menu: a walk click would close it
-        if until is not None and world.open_panels:
+        if not to_npc and 'waypoint' in world.open_panels:
+            return world  # a walk click landed on the waypoint: its panel is the goal
+        if (until is not None or not to_npc) and world.open_panels:
             LOG.info('Macro: walk: %s: %s opened on the way: closed', what, ', '.join(world.open_panels))
             run.actuator.tap('Escape')
             run.seen(lambda w: not w.open_panels, PANEL_SECONDS)
@@ -170,8 +226,8 @@ def walk_until(
                 player.y + dx * math.sin(angle) + dy * math.cos(angle),
             )
         # On the ground point, not lifted onto a body: the lift put Kurast Docks' first clicks into the wall by the
-        # start, and each stood WALK_SECONDS (20:49-20:51 on 2026-10-19, games 9-11)
-        run.actuator.move(*ground_fraction(player, toward[0], toward[1], aspect), scatter=(4, 4))
+        # start, and each stood WALK_SECONDS (20:49-20:51 on 2026-10-19, games 9-11); off a way out (WALK_OFF_WAYS)
+        _aim_walk(run, player, there, toward, aspect, what)
         run.actuator.click()
         began = (player.x, player.y)
         # A short click (a corner, the last steps) is done once 0.6 of its own way is walked, not of STEP's
@@ -189,6 +245,88 @@ def walk_until(
     if until is not None and until(world := run.world()):
         return world
     raise Abort(f'{what} not reached by walking')
+
+
+def ways_out(run: Run, goal: tuple[float, float] | None = None) -> tuple[Thing, ...]:
+    """The ways out of town shown (WAYS_OUT: portals, waypoints) but one at `goal` (within GOAL_NEAR: a walk's own)."""
+    things = run.things() if run.things is not None else ()
+    return tuple(
+        t for t in things if t.txt_id in WAYS_OUT and (goal is None or math.dist((t.x, t.y), goal) > GOAL_NEAR)
+    )
+
+
+def way_under(run: Run, ways: Sequence[Thing]) -> Thing | None:
+    """The one of `ways` the game's record names under the pointer now (after WAY_HOVER_SECONDS); None: none of them,
+    or no record."""
+    if run.hovered is None or not ways:
+        return None
+    run.pace.sleep(WAY_HOVER_SECONDS)
+    over = run.hovered()
+    if over is None or over[0] != OBJECT_UNIT:
+        return None
+    return next((t for t in ways if t.unit_id == over[1]), None)
+
+
+def way_name(thing: Thing) -> str:
+    kind = 'Town Portal' if thing.txt_id == TOWN_PORTAL else 'portal' if thing.txt_id == PORTAL else 'waypoint'
+    return f'the {kind} ({thing.unit_id})'
+
+
+def _aim_walk(
+    run: Run,
+    player: Player,
+    there: tuple[float, float],
+    toward: tuple[float, float],
+    aspect: float,
+    what: str,
+) -> None:
+    """The pointer put on the ground at `toward`, a walk click's on the way to `there`; with WALK_OFF_WAYS, off any way
+    out of town but the walk's own (`ways_out`), and with WALK_OFF_ITEMS off any ground item: at the first turn of the
+    step about the character (OFF_WAY_TURNS) with none under it. `Abort` when every turn has one and the first aim a
+    way out; with an item there (no way out), the first aim is clicked all the same, as before."""
+    ways = ways_out(run, there) if WALK_OFF_WAYS else ()
+
+    def aimed(point: tuple[float, float]) -> tuple[str, bool] | None:
+        """The pointer put at `point`'s ground; (what is under it, whether a way out), None with nothing in the way
+        (or no way out near it and WALK_OFF_ITEMS off)."""
+        run.actuator.move(*ground_fraction(player, point[0], point[1], aspect), scatter=(4, 4))
+        near_way = any(math.dist(point, (t.x, t.y)) <= WAY_NEAR for t in ways)
+        if run.hovered is None or not (near_way or WALK_OFF_ITEMS):
+            return None
+        run.pace.sleep(WAY_HOVER_SECONDS)
+        over = run.hovered()
+        if over is None:
+            return None
+        way = next((t for t in ways if t.unit_id == over[1]), None) if near_way and over[0] == OBJECT_UNIT else None
+        if way is not None:
+            return way_name(way), True
+        if WALK_OFF_ITEMS and over[0] == ITEM_UNIT:
+            return f'the ground item ({over[1]})', False
+        return None
+
+    under = aimed(toward)
+    if under is None:
+        return
+    dx, dy = toward[0] - player.x, toward[1] - player.y
+    tried = [f'{toward[0]:.1f}, {toward[1]:.1f}']
+    for degrees in OFF_WAY_TURNS:
+        angle = math.radians(degrees)
+        turned = (
+            player.x + dx * math.cos(angle) - dy * math.sin(angle),
+            player.y + dx * math.sin(angle) + dy * math.cos(angle),
+        )
+        if not in_view(ground_fraction(player, turned[0], turned[1], aspect)):
+            continue
+        if aimed(turned) is None:
+            LOG.info('Macro: walk: %s: %s under the click at (%s): turned %+d degrees to (%.1f, %.1f)', what,
+                     under[0], tried[0], degrees, *turned)  # fmt: skip
+            return
+        tried.append(f'{turned[0]:.1f}, {turned[1]:.1f}')
+    if under[1]:
+        raise Abort(f'{what}: {under[0]} under every walk click tried ({"; ".join(tried)}): not clicked')
+    run.actuator.move(*ground_fraction(player, toward[0], toward[1], aspect), scatter=(4, 4))
+    LOG.info('Macro: walk: %s: %s under the click at (%s) and a ground item or a way out under every turn: clicked '
+             'where first aimed', what, under[0], tried[0])  # fmt: skip
 
 
 def _along(run: Run, here: tuple[float, float], there: tuple[float, float], straight: tuple[float, float]):
@@ -512,14 +650,16 @@ def _potions(run: Run, rect, stock: dict[int, Stocked]) -> None:
     run.actuator.move(*panel_point(rect, *tab_point(item.tab)), scatter=(15, 5))
     run.actuator.click()  # its tab
     run.pace.sleep(TAB_SETTLE)
-    bought, missed, why = 0, 0, ''
-    for _ in range(before + BUY_CLICKS):
+    bought, missed, clicks, dry, why = 0, 0, 0, 0, ''
+    most = potion_clicks(before)
+    for _ in range(most):
         now = run.reads.loot()
         short = healing_short(now)
         if now is None or not short:
             break
-        if not affordable_potions(_gold(run)):
-            why = f': carried gold {_gold(run)}, {POTIONS_RESERVE} kept'
+        coins = _gold(run)
+        if not affordable_potions(coins):
+            why = f': carried gold {coins}, {POTIONS_RESERVE} kept'
             break
         if missed >= BUY_CLICKS:
             why = f': {missed} clicks bought nothing'
@@ -527,6 +667,7 @@ def _potions(run: Run, rect, stock: dict[int, Stocked]) -> None:
         loose = _loose_potions(run)
         run.actuator.move(*cell_point(rect, VENDOR, (item.x, item.y)), scatter=(5, 5))
         run.actuator.tap('Button3')  # a plain right click buys one (Shift would fill every column the game picks)
+        clicks += 1
 
         def came(_w: World, b=now.belt, held=loose) -> bool:
             after = run.reads.loot()
@@ -534,8 +675,11 @@ def _potions(run: Run, rect, stock: dict[int, Stocked]) -> None:
 
         if run.seen(came, BOUGHT_SECONDS) is None:
             missed += 1
+            dry += 1
             continue
         missed = 0
+        if POTIONS_FILL:
+            _cost_landed(run, coins)
         if _loose_potions(run) - loose:
             bought += 1
             why = ': one landed in the inventory'
@@ -549,9 +693,27 @@ def _potions(run: Run, rect, stock: dict[int, Stocked]) -> None:
         if cells[0] % BELT_COLUMNS not in columns:
             why = f': one landed in belt column {cells[0] % BELT_COLUMNS + 1}, not a healing column'
             break
+    else:
+        if healing_short(run.reads.loot()):
+            why = f': {most} clicks made'
     spent = (first - last) if (last := _settled(run)) is not None and first is not None else None
-    LOG.info('Macro: shop: potions: belt short %d -> %s, bought %d %s for %s gold%s', before,
-             healing_short(run.reads.loot()), bought, name, spent, why)  # fmt: skip
+    LOG.info('Macro: shop: potions: belt short %d -> %s, bought %d %s for %s gold%s (%d clicks, %d bought nothing)',
+             before, healing_short(run.reads.loot()), bought, name, spent, why, clicks, dry)  # fmt: skip
+
+
+def potion_clicks(short: int) -> int:
+    """The plain right clicks one top-up of a belt `short` healing potions makes at most: POTIONS_FILL, room for a click
+    that buys nothing beside each potion (each click after one that bought bought nothing on 2026-10-21/22), else the
+    shortage + BUY_CLICKS as before."""
+    return (2 * short if POTIONS_FILL else short) + BUY_CLICKS
+
+
+def _cost_landed(run: Run, coins: int | None) -> None:
+    """After a potion bought: until its cost has left the carried gold `coins` (read before its click), GOLD_SECONDS at
+    most; at once with the gold unread. The next click is made after it, as the game ends the purchase."""
+    if coins is None:
+        return
+    run.seen(lambda _w: (_gold(run) or coins) != coins, GOLD_SECONDS)
 
 
 def _note(run: Run, aspect: float, what: str) -> None:
@@ -731,6 +893,57 @@ def menu_line(
     raise Abort(f"{name}'s {line} line did not take at any line tried")
 
 
+def _at_her_body(run: Run, aspect: float) -> None:
+    """The pointer put at her body's middle (BODY), where she is drawn now. `Abort` out of sight."""
+    world = run.world()
+    her = _her(world)
+    drawn = _drawn(world, (her.x, her.y), aspect) if her is not None else None
+    if drawn is None:
+        raise Abort(f'{VENDORS.get(SERVING[0], "the vendor")} is not in sight')
+    run.actuator.move(drawn[0], drawn[1] - BODY, scatter=(3, 3))
+
+
+def _labelled(run: Run, aspect: float) -> bool:
+    """The pointer put on her (`_point_at_her`, else at her body); whether an item's label is what the game names under
+    it with the labels shown and a key to hide them (LABELS_OFF_AT_NPC): the click then goes with them hidden."""
+    if _point_at_her(run, aspect):
+        return False
+    under = run.reads.hovered()
+    LOG.info('Macro: shop: the game names %s under the pointer, not %s', under, NAMES.get(SERVING[0], 'the vendor'))
+    labelled = (
+        LABELS_OFF_AT_NPC
+        and under is not None
+        and under[0] == ITEM_UNIT
+        and run.show_items_key is not None
+        and run.world().show_items is True
+    )
+    if not labelled:
+        LOG.info('Macro: shop: clicked at her all the same')
+        _at_her_body(run, aspect)
+        _no_way_under(run)
+    return labelled
+
+
+def _no_way_under(run: Run) -> None:
+    """WALK_OFF_WAYS: `Abort` with a way out of town (`ways_out`) under the pointer put at her body, before a click."""
+    if not WALK_OFF_WAYS:
+        return
+    way = way_under(run, ways_out(run))
+    if way is not None:
+        raise Abort(f'{NAMES.get(SERVING[0], "the vendor")}: {way_name(way)} under the pointer at her: not clicked')
+
+
+def _open_unlabelled(run: Run, aspect: float) -> World | None:
+    """LABELS_OFF_AT_NPC: the aims and the click on her with the item labels hidden; her menu or None
+    (`menu_or_stand`)."""
+    with labels_hidden(run, f'shop: {NAMES.get(SERVING[0], "the vendor")}: an item label in the way'):
+        if not _point_at_her(run, aspect):
+            _at_her_body(run, aspect)
+            _no_way_under(run)
+        run.actuator.click()
+        return menu_or_stand(run, 'npc_interact', MENU_SECONDS, WALKING)
+
+
 def _open_menu(run: Run, aspect: float) -> tuple[float, float]:
     """Open her menu by a click on her; returns where she was drawn as it opened (the menu stays there while the view
     may still move). Vendors walk about ("they are moving", the player, 2026-10-16), so each aim is where she is drawn
@@ -743,18 +956,12 @@ def _open_menu(run: Run, aspect: float) -> tuple[float, float]:
             _close(run)
             run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)
             continue
-        if not _point_at_her(run, aspect):
-            LOG.info('Macro: shop: the game names %s under the pointer, not Jamella: clicked at her all the same',
-                     run.reads.hovered())  # fmt: skip
-            world = run.world()
-            her = _her(world)
-            drawn = _drawn(world, (her.x, her.y), aspect) if her is not None else None
-            if drawn is None:
-                raise Abort(f'{VENDORS.get(SERVING[0], "the vendor")} is not in sight')
-            run.actuator.move(drawn[0], drawn[1] - BODY, scatter=(3, 3))
-        run.actuator.click()
-        # Her menu, or None once the character stands with none (targeting.MENU_STAND: not MENU_SECONDS of waiting)
-        opened = menu_or_stand(run, 'npc_interact', MENU_SECONDS, WALKING)
+        if _labelled(run, aspect):
+            opened = _open_unlabelled(run, aspect)
+        else:
+            run.actuator.click()
+            # Her menu, or None once the character stands with none (targeting.MENU_STAND: not MENU_SECONDS of waiting)
+            opened = menu_or_stand(run, 'npc_interact', MENU_SECONDS, WALKING)
         if opened is not None and opened.player is not None and opened.player.mode in WALKING:
             # Opened as the character still walked up: drawn elsewhere once it stands, by as far as the view moves;
             # kept when that is under half a line (targeting.MENU_KEEP_MID_WALK), else closed and opened again standing

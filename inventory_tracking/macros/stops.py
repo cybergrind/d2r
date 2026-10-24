@@ -8,7 +8,7 @@ from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.macros.actuator import Cause
 
 
-__all__ = ['KEEP_GAME', 'ROOM_CAUSES', 'Beset', 'Remedy', 'Stopped', 'decide', 'first', 'low_life']
+__all__ = ['KEEP_GAME', 'LEFT_TOWN_AGAIN', 'ROOM_CAUSES', 'Beset', 'Remedy', 'Stopped', 'decide', 'first', 'low_life']
 
 # The causes the room rules answer. 'stall' counts as room until ruled otherwise
 # (rca/2026-10-18/arch-loop-orchestration.md §5): a stand by a valuable must still reach the cube (2026-10-17 04:32:26).
@@ -29,6 +29,7 @@ class Remedy(StrEnum):
     PACKAGE = 'package'
     TRIP = 'trip'  # a trip to town for room and back through the portal (macros/loop.py TRIP)
     DROP = 'drop'  # one of the loop's items to identify dropped for it, once a game
+    TRIPPING = 'tripping'  # a valuable with no room while a trip for room is under way: the trip goes on, no stop
     HOLD = 'hold'  # a valuable on the ground and nothing left to try: the loop stops here, never leaves it
     RECOVER = 'recover'  # the game is left and the loop goes on (macros/loop.py `recover`)
     # The game kept: the leg made again; a goal that stops again is dropped by the agenda after its TRIES (agenda.py
@@ -51,6 +52,8 @@ class Stopped:
     trips: bool = False  # the kind trips to town for room and may now (Andariel: `Loop.may_trip`, carrying)
     packaged: bool = False  # a kind tripping by the room package (loop.py `Kind.packaged`) may now, its level known
     terrorized: bool = False  # a Worldstone Shard terrorized an act of this game (agenda.py `Agenda.acts`)
+    # The room package of a zone kind is under way in this game (`Loop.tripping`, loop.py `Kind.packaged`)
+    tripping: bool = False
 
 
 @dataclass(frozen=True)
@@ -74,6 +77,12 @@ PICKUP_KEEPS = True
 # lost pointer) still leave. False: as before
 TERRORIZED_KEEPS = True
 KEEP_GAME: frozenset[Cause] = frozenset({'door', 'pickup'})
+# 15:31:35.97 on 2026-10-23 (rca/2026-10-23/visit-portal-findings.md): a walk click toward Deckard Cain took the
+# character back through its own Town Portal to the River of Flame, and the visit went on there. The visit now stops at
+# the first look out of its town (macros/visit.py TOWN_ONLY, cause 'town'). True: the leg is made again from where the
+# character is (the agenda's portal back to town, then the visit), the game not left (a shard's act kept). False: as
+# 'other' (the game left, the loop on)
+LEFT_TOWN_AGAIN = True
 
 
 def low_life(life: tuple[int, int] | None) -> bool:
@@ -99,6 +108,8 @@ def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None, lob
     if on and cause == 'hand':
         # Leaving the game for a moved mouse cost two games (2026-10-17 01:28:48); REPEATS bounds it
         return Remedy.AGAIN
+    if on and LEFT_TOWN_AGAIN and cause == 'town':
+        return Remedy.AGAIN  # nothing was done outside town: the next leg goes back to town first; REPEATS bounds it
     if on and cause == 'stash':
         # The player, 2026-10-18 16:50: "if stash is full - we need to stop loop"
         return Remedy.STOP
@@ -127,6 +138,10 @@ def decide(stop: Stopped) -> Remedy:
         return Remedy.FETCH
     if left is not None and game is not None and not stop.cubed:
         return Remedy.CUBE
+    if roomy and left is not None and game is not None and stop.tripping:
+        # 2026-10-22 22:34: a trip pushed at 22:33:45, the run stood by the valuable again before its portal, and the
+        # loop stopped: the trip under way is the answer
+        return Remedy.TRIPPING
     if roomy and left is not None and game is not None:
         if stop.packaged:
             return Remedy.PACKAGE

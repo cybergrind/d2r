@@ -12,7 +12,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from typing import NamedTuple
 
-from inventory_tracking.combat import pack as herald_pack, threats
+from inventory_tracking.combat import bolts, harm as harm_module, pack as herald_pack, stand_ins, threats
 from inventory_tracking.combat.harm import (
     GROUND_UNIT,
     Hands,
@@ -30,12 +30,15 @@ from inventory_tracking.combat.harm import (
     most_blow,
     sent_onto,
     stock_share,
+    stood_in,
+    unread,
     veto,
 )
 from inventory_tracking.combat.mechanics.life import monster_level, rank_share, terrorized
 from inventory_tracking.combat.mechanics.tables import area_level
 from inventory_tracking.combat.policy import Observation, Point
-from inventory_tracking.combat.sim.monsters import shoots
+from inventory_tracking.combat.sim import casters as rules
+from inventory_tracking.combat.sim.monsters import SHOT_REACH, shoots
 from inventory_tracking.combat.stance import (
     HORIZON,
     KEEP_AWAY,
@@ -48,12 +51,13 @@ from inventory_tracking.combat.stance import (
     taken,
 )
 from inventory_tracking.combat.survival import Pressure, Supply
-from inventory_tracking.combat.threats import dolls, manaburn
+from inventory_tracking.combat.threats import dolls, drain_escape, manaburn
 from inventory_tracking.common import LOG
 from inventory_tracking.config import with_overrides
 from inventory_tracking.game.layout import NO_OWNER, STRIKING_MODES
 from inventory_tracking.game.records import Loot, Monster, World
 from inventory_tracking.game.view import DEFAULT_ASPECT, Viewport
+from inventory_tracking.macros import pursuit as arbiter
 from inventory_tracking.macros.build import Attack, Draw, DrawPrice, Leg, NoWay, PricedStep, Shield, Step
 from inventory_tracking.macros.cta import ORDERS_CLEAR as CLEAR, OrdersLook, orders_state
 from inventory_tracking.macros.drinking import on_belt
@@ -92,6 +96,38 @@ DUD = 'a Teleport there cast nothing'
 # everything is barred. False: as before.
 BOUNCE_BACK = True
 BOUNCE_WINDOW = 3.0  # seconds
+# 2026-10-23 (the player: "try to push exp/hour more"; rca/2026-10-23/approach-veto-findings.md, keep-range-findings.md)
+# The approach and the keep range's hop undid each other: the fight's place (combat/pack.py PLACES_KEEP_RANGE, on) and
+# the safety's own moves have to land where the hop would not take the character out at once.
+# PACK_RANGE_LANDING: no move that is not a retreat or a dodge lands where a tier 4-5 Herald's pack would bring the
+# hop back (combat/pack.py `breaks_range`, the hop's own `why_back`, with the demons the draw sends), unless it leaves
+# a spot that does so for one farther from the pack (PACK_RANGE_LANDED). Take 20261022T235532Z-51, 02:57:20.8:
+# "Teleport toward full clear: the monster 174" landed 6-7 off three archers right after hop 3 of 3. False: as before
+# (manaburn.py PACK_LANDING, off, alone).
+PACK_RANGE_LANDING = True
+PACK_RANGE_LANDED = "kept at range: a landing the pack's hop would leave at once"
+# RANGE_STALL_LIFT (2026-10-24, rca/2026-10-24/canyon-spin-findings.md; the player: "exp/hour, never die", "the loop
+# must never stand still"): Tal Rasha's Tomb, 15:42:21-15:47:13, take 20261024T124212Z-68. The run's way out (Canyon of
+# the Magi) lay past a room whose south wall an idle tier 5 Herald pack of 15 Steel Weevils (scarab4) walked along,
+# 16-26 off, behind a doorway no missile flies through: every landing toward the way out lay within PACK_BACK +
+# LEAD_UNITS of a member (PACK_RANGE_LANDED), and the retreat and the safe approach undid each other 531 times in
+# 292 s, 0 kills, 0 life lost, until the runner's 300 s watchdog stopped the loop. No budget gives up a route's own goal
+# (hunting/judging.py `kept_goal`, STILL_BUDGET), and the knot had passed the pack already. True: once a goal that is
+# no fight and no clearing goal (the budgets pass those) has had its progress barred by PACK_RANGE_LANDED for
+# RANGE_STALL_SECONDS of retreats and safe approaches, with nothing in reach, no member on the character (the hop's own
+# `why_back`) and no WAIT_LOST of the life lost, that bar alone is lifted for its moves (`Pricing.range_lifted`) until
+# one of those changes; the rollouts' veto, the life budget and the pack's hop stay. False: as before. On from the
+# restart after 16:40 on 2026-10-24 (arena: 410 GLUED pairs identical off/on, 0 new deaths; test_canyon_spin.py).
+RANGE_STALL_LIFT = True
+RANGE_STALL_SECONDS = 5.0  # hunting/judging.py DANCE_SECONDS
+RANGE_STALL_MOVES = ('retreating', 'safe approach')  # pursuit.py `arbitrate`'s retreats, safety.py `approach`
+# BURN_LANDING_MARGIN: a move that is not a retreat or a dodge lands no nearer a draining pack's burner than its keep
+# range and the hop's own clearance beyond it (manaburn.py HOP_CLEAR), capped BURN_SHORT inside the strike's reach so a
+# strike stays possible; manaburn.py `intrudes` bars only a landing inside the keep range. Take 20261022T235916Z-49,
+# 03:00:07-51: 12 of 43 approach steps landed 18-21 off the nearest member of a Mana Burn pack (keep 18), the pack
+# closed 1-2 units by the next look and the hop fired at 16.0-17.9: 24 jumps, 0 kills in 32 s. False: as before.
+BURN_LANDING_MARGIN = True
+BURN_SHORT = 2.0  # units inside the strike's reach the margin's edge stays
 BOUNCE_NEAR = 3.0  # units
 BOUNCED = 'back where the last safety hop left'
 # A Teleport while a read model's act under way is walked out of (combat/threats `Threat.walked`: Diablo's lightning,
@@ -130,11 +166,22 @@ RESISTS = ((36, 'physical'), (39, 'fire'), (41, 'lightning'), (43, 'cold'), (45,
 HELL_PENALTY = 100.0
 SWAP_SECONDS = 0.75
 WAITING = 'safety: waiting here: every way out costs more than standing'
+# WAIT_LIFT (2026-10-23, rca/2026-10-23/death-canyon-findings.md §9): with the companions taken along by each Teleport
+# (as the game does), the Chaos Sanctuary run stood on WAITING from 48 s to its stall at 103 s: an idle Mana Burn pack
+# 23-29 off kept the seal's move barred ("kept at range") and never came ("the loop never stands"). True: after
+# WAIT_HORIZON s standing with nothing in reach, no hostile seen WAIT_MOVED from where it stood and no WAIT_LOST of the
+# life lost, the keep ranges' bars are lifted for the moves on the way (`Pricing.waited`) until one of those changes.
+# False: as before.
+WAIT_LIFT = True  # on 2026-10-23 ~20:30, gated: CS stalls 4/20 -> 1/20, kills 170 -> 190, 0 deaths, 1200 pairs same
+WAIT_HORIZON = 4.0  # combat/threats/dolls.py PATIENCE's
+WAIT_MOVED = 2.0  # units: a hostile that moved so far from its place at the wait's start is coming (or woke)
+WAIT_LOST = 0.02  # of the most life
 BURNING = 'safety: waiting for what burns on the way to go out'  # `burnt_out`
 FIRING = 'firing spot'  # a move to a strike stand (held to pursuit.py's commitment)
 # An escape priced against holding, taken for the life it saves, so not held to the firing stand's commitment.
 STEPPING = 'stepping'
 AWAY = 'away from the threat'  # why a place of the threat's geometry is offered
+BOLT_DODGE = 'out of the lane of bolts in flight'  # why such a side step is offered (combat/bolts.py, BOLTS_IN_FLIGHT)
 # The build's draw (build.py `Draw`), weighed in a fight (`Safety.weigh`) onto the DRAW_TARGETS largest harm shares,
 # the best gain and the DRAW_LEADERS nearest leaders: the mark goes "on the leader / most dangerous monster" (the
 # player, 2026-10-14). Not onto one companions already hold (within DRAW_HELD of their landing distance). A price
@@ -420,6 +467,17 @@ SPEED_SECONDS = 1.0
 REACH_UNITS = 4.0  # a melee swing's reach and the body's (combat/sim/casters.py REACH with a margin)
 REACH_SECONDS = 0.5  # the landing's dwell and the next look's decision: what a walker closes meanwhile
 REACH_SAID = 'within reach of blows that together take the life'
+# FIGHT_CAST_OWN (2026-10-24, the coordinator's LONG_FIGHT of 10:58:54-10:59:33, take 20261024T075622Z-106: a tier 5
+# Pit Lord Herald pack, 39 s, the life -421 in all, "fight casts held: blows of 3909 of 2943 can come within 1.0 s"
+# x47 and no Death Mark or Sigil after the first; rca/2026-10-24/cast-hold-findings.md): macros/hunt.py
+# FIGHT_CAST_REACH held the bout's casts by CAST_REACH's horizon, CAST_SECONDS, the Call to Arms' swap, cast and swap
+# back (1.0 s), where a fight cast is as long as a strike (the take's casts, median: Death Mark 0.32 s, Engorge 0.34,
+# the Sigil 0.52, Echoing Strike 0.40) and the bout strikes on by BOUT_REACH's REACH_SECONDS. At 10:58:55 the 1.0 s
+# ring (4 + 11.7 a second) took in three minions 8.6-14.3 off (890 a blow each) and a Grizzly 8.1 off: 3909; in 0.5
+# s, 1237. True: the fight casts' hold (`fight_cast_threat`) prices what can come within FIGHT_CAST_SECONDS, the bout's
+# own horizon; the swap keeps CAST_SECONDS. False: CAST_SECONDS for both, as before.
+FIGHT_CAST_OWN = False
+FIGHT_CAST_SECONDS = REACH_SECONDS
 # WALK_REACH (2026-10-22, the survival agent's round 6 from the pursuit-mode fane-death-20, drawn, seed 20, on-time
 # looks, the `fast` pace: a walk of 4 to a firing spot posted at 20.79 s with the x5.75 unique Flesh Hunter 14.1 off
 # (2575 a blow against 2527 life); the walk settled the strike's cast and waited out its click (macros/travel.py
@@ -463,6 +521,41 @@ def raised(at: Point, holders: Sequence[tuple[Point, tuple[int, ...]]]) -> float
             if percent and math.dist(at, place) <= reach:
                 best[skill] = max(best.get(skill, 0.0), percent)
     return 1.0 + sum(best.values()) / 100
+
+
+# READ_THROWS (combat/bolts.py): with nothing safe, the retreats leave the read throwers' reach too (`out_of_throws`):
+# CLEAR_RINGS end 14-22 from the character, inside the 30 of a pack of Slingers 20 off, so every way out of the canyon's
+# javelins was priced in their lines and the least lethal act was the fight (2026-10-23, the arena's canyon-death-1452)
+THROWS_CLEAR = 3.0  # units beyond SHOT_REACH from the nearest read thrower an escape lands at
+THROWS_RINGS = (22.0, 30.0, 38.0)  # units from the character the escapes are looked for at
+THROWS_ASKED = 2
+
+
+def out_of_throws(here: Point, look: Look, footed: Callable[[Point], bool] | None = None) -> list[Point]:
+    """THROWS_ASKED places on THROWS_RINGS round `here` out of the reach of every hostile whose throws the look read
+    (`Hostile.throws`, SHOT_REACH + THROWS_CLEAR), the nearest to the character first, each passing `footed`. Empty with
+    none read or none out of reach."""
+    throwers = [h.at for h in look.hostiles if h.throws > 0]
+    if not throwers:
+        return []
+    found: list[Point] = []
+    for reach in THROWS_RINGS:
+        ring = [
+            (
+                here[0] + reach * math.cos(k * math.tau / CLEAR_TURNS),
+                here[1] + reach * math.sin(k * math.tau / CLEAR_TURNS),
+            )
+            for k in range(CLEAR_TURNS)
+        ]
+        scored = sorted(((min(math.dist(point, at) for at in throwers), point) for point in ring), reverse=True)
+        for gap, point in scored:
+            if gap < SHOT_REACH + THROWS_CLEAR or len(found) >= THROWS_ASKED:
+                break
+            if (footed is None or footed(point)) and all(math.dist(point, other) >= ESCAPE_SAME for other in found):
+                found.append(point)
+        if len(found) >= THROWS_ASKED:
+            break
+    return found
 
 
 def clearest(
@@ -592,16 +685,22 @@ def keeping(here: Point, at: Point, reach: float) -> list[Point]:
     return sorted(ring, key=lambda point: math.dist(here, point))[:KEEP_MOST]
 
 
+def shot_kinds(txt: int) -> frozenset[int]:
+    """The bolt classes of an unread shooter type the look reads (combat/harm.py BOLTS_IN_FLIGHT, combat/bolts.py);
+    empty while the switch is off or the type shoots none."""
+    return bolts.classes_of(txt) if harm_module.BOLTS_IN_FLIGHT and threats.of(txt) is None else frozenset()
+
+
 def in_flight(
     hostile: Sequence, flights: Flights | None, read: Sequence[tuple[int, int, float, float]] | None = None
 ) -> tuple[tuple[int, Point, float, int], ...]:
     """The missiles the read models of `hostile` ask for, as (owner, place, heading, class). A missile flies straight
     from its owner, so the heading is owner -> missile (rca/2026-10-13/diablo.md). Empty when no such hostile is about
     or the read fails. `read`: missiles already read, in place of a read of its own."""
-    owners = {m.unit_id: (m.x, m.y) for m in hostile if threats.of(m.txt_id) is not None}
+    owners = {m.unit_id: (m.x, m.y) for m in hostile if threats.of(m.txt_id) is not None or shot_kinds(m.txt_id)}
     if not owners or (flights is None and read is None):
         return ()
-    kinds = threats.missiles({m.txt_id for m in hostile})
+    kinds = threats.missiles({m.txt_id for m in hostile}) | frozenset(k for m in hostile for k in shot_kinds(m.txt_id))
     if read is None:
         assert flights is not None
         try:
@@ -690,6 +789,33 @@ class Held(NamedTuple):
 TOWARD_UNITS = 2.0  # `Pricing.toward_fight`: a move ends this much nearer the nearest hostile to go toward it
 
 
+def burns_close(here: Point, spot: Point, burning: Sequence[manaburn.Burner], reach: float) -> bool:
+    """BURN_LANDING_MARGIN: whether a landing at `spot` ends nearer a burner than its keep range and manaburn.py
+    HOP_CLEAR beyond it (no farther out than BURN_SHORT inside the strike's `reach`), and over manaburn.py
+    INTRUDE_SLACK nearer it than `here`."""
+    if not BURN_LANDING_MARGIN:
+        return False
+    for b in manaburn.triggers(burning):  # not the drain fight's plain drainers (drain_escape.py, 2026-10-23)
+        edge = min(b.keep + manaburn.HOP_CLEAR, max(b.keep, reach - BURN_SHORT))
+        gap = math.dist(spot, b.at)
+        if gap < edge and gap < math.dist(here, b.at) - manaburn.INTRUDE_SLACK:
+            return True
+    return False
+
+
+def lands_in_range(here: Point, spot: Point, hostiles: Sequence, demons: Sequence[Point]) -> bool:
+    """PACK_RANGE_LANDING: whether a landing at `spot` is one a tier 4-5 Herald pack's hop would leave at once
+    (combat/pack.py `breaks_range`, with the demons the draw sends), from a `here` that is not, or no farther from
+    the pack than `here` (manaburn.py INTRUDE_SLACK)."""
+    if not PACK_RANGE_LANDING or herald_pack.breaks_range(spot, hostiles, demons) is None:
+        return False
+    if herald_pack.breaks_range(here, hostiles, demons) is None:
+        return True
+    pack = herald_pack.members(hostiles)
+    nearest = min(math.dist(here, m.at) for m in pack)
+    return min(math.dist(spot, m.at) for m in pack) < nearest + manaburn.INTRUDE_SLACK
+
+
 @dataclass
 class Pricing:
     """One look's candidates (`Safety.price`), what they are priced from and the forecast here."""
@@ -733,6 +859,8 @@ class Pricing:
     landing: list[float] = field(default_factory=list, init=False)  # `landed_here`, once a look
     # DOLL_LAND (combat/threats/dolls.py, F2): the asked move's bar lifted (`Safety.doll_wait` past dolls.PATIENCE)
     patient: bool = False
+    # WAIT_LIFT: the keep ranges' bars lifted after a wait that changed nothing (`Safety.wait_since`)
+    waited: bool = False
     # The candidates (by index) of escapes landing near a live doll with one within dolls.CLOSE_UNITS of the character:
     # barred only when an escape landing clear of the dolls is priced too (`doll_escapes`)
     soft: list[int] = field(default_factory=list, init=False)
@@ -745,6 +873,11 @@ class Pricing:
     reaggro: bool = False
     # The character's strikes are credited with the kills they forecast (FLOOR_NO_CREDIT: not with the life budget 0)
     credit: bool = True
+    # The demons the draw sends (`Safety.sendable`), where they stand, while attacking: the pack's keep range is judged
+    # with them (PACK_RANGE_LANDING); None while not attacking (no keep range then)
+    demons: tuple[Point, ...] | None = None
+    # RANGE_STALL_LIFT: PACK_RANGE_LANDING's bar lifted for the goal's moves after its stall (`Safety.range_stall`)
+    range_lifted: bool = False
 
     def __post_init__(self) -> None:
         seen, here = self.seen, self.seen.origin
@@ -820,6 +953,14 @@ class Pricing:
         gap = min(math.dist(self.here, at) for at in found)
         return min(math.dist(spot, at) for at in found) < gap - TOWARD_UNITS
 
+    def burns_close(self, spot: Point) -> bool:
+        """BURN_LANDING_MARGIN for a landing at `spot` from here (`burns_close`)."""
+        return burns_close(self.here, spot, self.burning, self.attack.reach)
+
+    def breaks_range(self, spot: Point) -> bool:
+        """PACK_RANGE_LANDING for a landing at `spot` from here (`lands_in_range`); never while not attacking."""
+        return self.demons is not None and lands_in_range(self.here, spot, self.look.hostiles, self.demons)
+
     def move_price(
         self,
         step: Step,
@@ -864,13 +1005,16 @@ class Pricing:
         damage = harm_path(look, tuple(path), settings, struck)
         future = harm(look, step.spot, settings.horizon, needs, settings, landed)
         damage = replace(damage, barred=damage.barred or veto(future, look.life, settings))
+        reach: str | None = None  # the reach bar's, put on last with REACH_LIFT (pursuit.py)
         if REACH_BAR and not damage.barred:
             # Its end, and a walk's middle: a walk passes what stands by its way
             ends = (step.spot, *(((here[0] + step.spot[0]) / 2, (here[1] + step.spot[1]) / 2),) * (step.skill is None))
             within = WALK_REACH_SECONDS if WALK_REACH and step.skill is None else REACH_SECONDS
             near = max(self.reach_blows(spot, within) for spot in ends)
             if near >= look.life:
-                damage = replace(damage, barred=f'{REACH_SAID} ({near:.0f} of {look.life:.0f})')
+                reach = f'{REACH_SAID} ({near:.0f} of {look.life:.0f})'
+                if not arbiter.REACH_LIFT:
+                    damage = replace(damage, barred=reach)
         if needs == 'battle' and not self.battle_ready:
             damage = replace(damage, barred='battle weapon swap is unavailable')
         if step.skill == TELEPORT and any(math.dist(step.spot, dud) <= DUD_UNITS for dud in self.duds):
@@ -879,13 +1023,23 @@ class Pricing:
             damage = replace(damage, barred=damage.barred or WALKED)
         if step.skill == TELEPORT and not self.teleport_paid():
             damage = replace(damage, barred=damage.barred or manaburn.NO_TELEPORT)
-        if self.burning and not (retreat or dodge) and manaburn.intrudes(here, step.spot, self.burning) is not None:
+        if drain_escape.unpaid(step.skill, self.mana):  # Blade Warp's mana too (drain_escape.py MANA_ESCAPE)
+            damage = replace(damage, barred=damage.barred or drain_escape.NO_MANA)
+        kept = not (retreat or dodge or self.waited)  # a wait that changed nothing lifts the keep ranges (WAIT_LIFT)
+        if self.burning and kept and manaburn.intrudes(here, step.spot, self.burning) is not None:
             # A draining pack is fought from its keep range (manaburn.BURN_RANGE): no move deeper into it
             damage = replace(damage, barred=damage.barred or manaburn.LANDED)
         omens = herald_pack.omens(self.facts.now)
-        if not (retreat or dodge) and manaburn.pack_landing(here, step.spot, look.hostiles, omens) is not None:
+        if kept and manaburn.pack_landing(here, step.spot, look.hostiles, omens) is not None:
             # A tier 4-5 Herald's pack is fought from range (manaburn.PACK_LANDING): no move into its PACK_BACK
             damage = replace(damage, barred=damage.barred or manaburn.PACK_LANDED)
+        if kept and self.burns_close(step.spot):
+            # Nor to a burner's keep range's edge, where the next look's hop takes it out again (BURN_LANDING_MARGIN)
+            damage = replace(damage, barred=damage.barred or manaburn.LANDED)
+        if kept and not self.range_lifted and self.breaks_range(step.spot):
+            # Nor where a Herald pack's hop would take it out at once (PACK_RANGE_LANDING), unless the stall lifted it
+            # (RANGE_STALL_LIFT)
+            damage = replace(damage, barred=damage.barred or PACK_RANGE_LANDED)
         if self.left is not None and math.dist(step.spot, self.left[0]) <= BOUNCE_NEAR:
             # Two safety moves that undo each other (BOUNCE_BACK)
             damage = replace(damage, barred=damage.barred or BOUNCED)
@@ -912,10 +1066,23 @@ class Pricing:
         )
         unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
         clear = clearance(here, step.spot, [m.at for m in look.hostiles], step.skill is None)
+        lift = False
+        if reach is not None and arbiter.REACH_LIFT:
+            # Barred by the reach bar alone and going away from every hostile: liftable when every act is vetoed
+            lift = not damage.barred and self.away(step)
+            damage = replace(damage, barred=damage.barred or reach)
         self.candidates.append(
-            Candidate(act, duration, damage, retreat, unstruck, self.strikes_from(step.spot), keeps, clear)
+            Candidate(act, duration, damage, retreat, unstruck, self.strikes_from(step.spot), keeps, clear, lift)
         )
         return tuple(path), duration
+
+    def away(self, step: Step) -> bool:
+        """Whether the end of a move to `step` (and a walk's middle) lies farther from every hostile than the character
+        stands (pursuit.py REACH_LIFT)."""
+        here, spot = self.here, step.spot
+        ends = (spot, *(((here[0] + spot[0]) / 2, (here[1] + spot[1]) / 2),) * (step.skill is None))
+        found = [m.at for m in self.look.hostiles]
+        return bool(found) and all(math.dist(end, at) > math.dist(here, at) for end in ends for at in found)
 
     def doll_landing(self, step: Step, transit: float, damage: Harm, *, escape: bool, asked: bool) -> Harm:
         """DOLL_LAND (combat/threats/dolls.py, F2 of rca/2026-10-21/dolls-tz-findings.md): a jump landing within
@@ -952,7 +1119,9 @@ class Pricing:
             return
         for index in soft:
             c = self.candidates[index]
-            self.candidates[index] = replace(c, harm=replace(c.harm, barred=f'{dolls.LANDED} (an escape lands clear)'))
+            self.candidates[index] = replace(
+                c, harm=replace(c.harm, barred=f'{dolls.LANDED} (an escape lands clear)'), lift=False
+            )
 
     def short_of_dolls(self, step: Step) -> None:
         """A move toward the goal whose landing a live doll bars (DOLL_LAND): the place on its way nearest that landing
@@ -1182,6 +1351,13 @@ def chosen_veto(decision: dict) -> str | None:
     return None
 
 
+def every_act_vetoed(decision: dict, since: float) -> bool:
+    """Whether the look of `decision` (`Safety.decision`), made at `since` or after, found every act it priced vetoed
+    (the hold too): standing, moving and jumping all priced lethal (macros/hunting/moves.py REJUV_VETOED)."""
+    found = decision.get('candidates') or ()
+    return decision.get('looked_at', -math.inf) >= since and bool(found) and all(c.get('veto') for c in found)
+
+
 def return_refused(loot: Loot | None, decision: dict) -> str | None:
     """Why the character does not go back for a boss after a beset recovery's town visit (RETURN_GATE), None when it
     may: `loot` the life and belt as read now (None: unread), `decision` the last danger pricing (`Safety.decision`)."""
@@ -1204,6 +1380,47 @@ def return_refused(loot: Loot | None, decision: dict) -> str | None:
     if vetoed is not None:
         return f'the last danger pricing vetoed its act ({vetoed})'
     return None
+
+
+# STAND_IN_EVIDENCE (2026-10-22, Sewers Level 3, 23:15:49-23:20:30, take 20261022T201417Z-49; rca/2026-10-22/
+# walled-boss-findings.md §2; the player: "even if it was dangerous, what is estimated exp/hour if we're jumping around
+# without kills?"): Radament, priced by the harm model's conservative stand-in for a boss with no read AI (harm.py
+# `stood_in`: a shot of three times his table blow a second within its radius), kept every act toward him vetoed
+# ("lethal exposure in the short rollouts", "no progress act fits the life budget"): 98 safe approaches and 96 retreats
+# in 4.5 minutes, life 2943 of 2943 throughout, then two strikes from 21 units and he died in 13 s. The route's boss
+# fight is no goal a budget gives up, so nothing ended it; the takes hold 145 s within his radius and 56 life lost.
+# True: a stand-in hostile whose life has not fallen by STALL_DROP of its full in STALL_SECONDS (the fight with it
+# stalled) is priced by the evidence, not the guess: the takes' seconds within its radius and life lost then
+# (combat/stand_ins.py `prior`, its type's or the pool's) plus this fight's (`Evidence`), EVIDENCE_MARGIN times the
+# life lost plus one table blow (`most_blow`) over those seconds, against the stand-in's own rate at the character
+# (`Hostile.tempered`, combat/harm.py STAND_IN_TEMPER), never under EVIDENCE_FLOOR. Survival first: under
+# EVIDENCE_SECONDS of evidence, or any life lost in the last EVIDENCE_HURT, it is whole, and so after a mana burn seen
+# (its mana counted as lost). The one-blow bars (REACH_BAR, CAST_REACH) are not touched. False: the stand-in whole,
+# as before
+# On 2026-10-23: arena Radament 24/24 killed, 0 deaths; danger fights + Fane cuts unchanged (walled-boss-findings.md §2)
+STAND_IN_EVIDENCE = True
+EVIDENCE_SECONDS = 8.0
+EVIDENCE_HURT = 3.0
+EVIDENCE_MARGIN = 3.0
+EVIDENCE_FLOOR = 0.1
+EVIDENCE_STEP = 0.5  # the most seconds one look counts (a gap between looks is no exposure seen)
+STALL_SECONDS = 10.0
+STALL_DROP = 0.1  # of its full life
+
+# READ_THROWS (combat/bolts.py): a type's throws at the character priced at the rate its last THROWS_HOLD seconds of
+# looks read (`Safety.throws_read`): one look away from the lanes reads none at the new place, the pack throws on
+THROWS_HOLD = 4.0
+THROWS_SAID = 2.0  # a type's rate said again when it moved by this ratio
+THROWS_PLACES = 2.0  # seconds of the character's places a bolt in flight may have been let go at (`throws_read`)
+
+
+@dataclass(frozen=True)
+class Evidence:
+    """What the fight has shown of one stand-in hostile (STAND_IN_EVIDENCE): seconds the character stood within its
+    radius, and the life lost meanwhile (from any hostile: the bound is conservative)."""
+
+    exposed: float = 0.0
+    lost: float = 0.0
 
 
 @dataclass
@@ -1258,10 +1475,24 @@ class Safety:
     # in reach (`dolls_waited`); past dolls.PATIENCE the bar is lifted for it. And the goal its bars were last said for.
     doll_wait: tuple[tuple, float] | None = None
     dolls_said: tuple | None = None
+    # WAIT_LIFT: (the goal, since when the character stood, the hostiles' places then, the life then) of a stand with
+    # nothing in reach; kept while nothing changes, past WAIT_HORIZON the keep ranges' bars are lifted (`waited`)
+    wait_since: tuple[tuple, float, dict[int, Point], float] | None = None
+    wait_said: float | None = None  # the wait whose lift was said
+    # RANGE_STALL_LIFT: (the goal, since when its progress has been barred by PACK_RANGE_LANDING, the life then), kept
+    # while the looks are retreats and safe approaches with nothing changed; and the stall whose lift was said
+    range_stall: tuple[tuple, float, float] | None = None
+    range_said: float | None = None
     bait_hops: dict[int, int] = field(default_factory=dict)  # moves in to a held doll pack, by the pack (BAIT_HOPS)
     # Hops out of a draining pack (combat/threats/manaburn.py BURN_HOPS), by the pack: (hops, the last one's spot, where
     # the character stood when it was chosen): a hop chosen again before it lands is not counted again
     burn_hops: dict[int, tuple[int, Point, Point]] = field(default_factory=dict)
+    # manaburn.BURN_STALL_COMMIT: (the pack's key, since when its keep range has held the fight off, the life then, the
+    # last look its bar held, the members' life then), the pack fought in now (None: none), and the packs a burn or a
+    # hurt took that from for good
+    burn_stall: tuple[int, float, float, float, dict[int, float]] | None = None
+    burn_commit: int | None = None
+    burn_spoiled: set[int] = field(default_factory=set)
     # The character's mana at the recent looks, (clock, points), for the mana floor (manaburn.MANA_FLOOR)
     mana_seen: deque = field(default_factory=lambda: deque(maxlen=32))
     mana_safe: bool = False  # the mana over manaburn.MANA_SAFE with no burn seen at the last look (DRAIN_GATE)
@@ -1271,6 +1502,11 @@ class Safety:
     mana_drunk: dict[int, float] = field(default_factory=dict)
     # The mana's want at the last look a Rejuvenation may answer (manaburn.LEAVE_BURNERS_ONLY `short_of`)
     mana_short: str | None = None
+    # combat/threats/drain_escape.py MANA_ESCAPE (2026-10-23): the last burn seen, why its leave is first at this look,
+    # and the Teleport out a Rejuvenation for the mana makes at once (`RefillEscape`)
+    burn_watch: drain_escape.BurnWatch = field(default_factory=drain_escape.BurnWatch)
+    burn_leaving: str | None = None
+    refill: drain_escape.RefillEscape | None = None
     # Battle Orders at the look (macros/cta.py `orders_look`: ORDERS_PREDICT, REBUFF_RETREAT), set by the hunt before
     # each price; None: not tracked (no Call to Arms, or not read)
     orders: OrdersLook | None = None
@@ -1289,6 +1525,19 @@ class Safety:
     # unit -> [(clock, its damagepercent read)] over the last RAISE_SECONDS (RAISE_KEEP); `raise_clock`: the last look's
     raise_reads: dict[int, list[tuple[float, int]]] = field(default_factory=dict)
     raise_clock: float = 0.0
+    # STAND_IN_EVIDENCE: unit -> what the fight showed of it; the last look's clock and life, the last life lost's
+    # clock; the factors last said, by unit
+    evidence: dict[int, Evidence] = field(default_factory=dict)
+    evidence_at: float | None = None
+    evidence_life: float | None = None
+    evidence_hurt: float = -math.inf
+    evidence_said: dict[int, float] = field(default_factory=dict)
+    evidence_lives: dict[int, tuple[float, float]] = field(default_factory=dict)  # unit -> since, its life then
+    # READ_THROWS: by type, the (clock, throws a second) each look read over the last THROWS_HOLD s; the character's
+    # place at the last look; the rates last said, by type
+    throw_reads: dict[int, deque] = field(default_factory=dict)
+    throw_places: deque = field(default_factory=deque)  # (clock, the character's place) over THROWS_PLACES s
+    throw_said: dict[int, float] = field(default_factory=dict)
 
     def shown(self, here: Point) -> Callable[[Point], bool]:
         """Whether the window shows a spot's ground with the character at `here` (game/view.py `in_view`; the
@@ -1338,6 +1587,8 @@ class Safety:
             self.pack_hops.clear()
             self.doll_wait = None
             self.dolls_said = None
+            self.wait_since = None
+            self.wait_said = None
             self.bait_hops.clear()
             self.burn_hops.clear()
             self.mana_seen.clear()
@@ -1349,6 +1600,14 @@ class Safety:
             self.raise_reads.clear()
             self.rebuff_hops = (0, (math.inf, math.inf))
             self.rebuff_landed = -math.inf
+            self.evidence.clear()
+            self.evidence_at = self.evidence_life = None
+            self.evidence_hurt = -math.inf
+            self.evidence_said.clear()
+            self.evidence_lives.clear()
+            self.throw_reads.clear()
+            self.throw_places.clear()
+            self.throw_said.clear()
         here = (player.x, player.y)
         if not self.trail or math.dist(self.trail[-1], here) >= TRAIL_STEP:
             self.trail.append(here)
@@ -1397,6 +1656,7 @@ class Safety:
         kinds = threats.missiles({m.txt_id for m in hostile}) | frozenset(
             kind for model in lingering for kind in model.missiles
         )
+        kinds |= frozenset(kind for m in hostile for kind in shot_kinds(m.txt_id))  # BOLTS_IN_FLIGHT
         read: Sequence[tuple[int, int, float, float]] | None = None
         if flights is not None and kinds:
             try:
@@ -1407,7 +1667,7 @@ class Safety:
         # The auras: each hostile's own read (stats 350/351) when the look reads them, else round the holders
         per_unit = AURA_FORECAST and any(m.aura is not None or m.damage_percent is not None for m in hostile)
         holders = self.aura_holders(hostile) if AURA_FORECAST and not per_unit else ()
-        return Look(
+        seen = Look(
             tuple(
                 Hostile(
                     m.unit_id,
@@ -1433,7 +1693,142 @@ class Safety:
             blocked,
             missiles=missiles,
             ground=self.lying(lingering, read or (), clock),
+            cover=tuple((m.x, m.y) for m in companions if m.mode not in (0, 12) and m.life > 0),
         )
+        vitals = manaburn.mana_of(loot.stats)
+        burnt = 0.0
+        if now is not None and vitals is not None and manaburn.burnt(tuple(self.mana_seen), now, *vitals):
+            burnt = manaburn.fell(tuple(self.mana_seen), now, *vitals)
+        settings = settings or SafetySettings()
+        seen = self.tempered(seen, here, now, float(loot.life), settings, burnt)
+        return self.throws_read(seen, here, now)
+
+    def tempered(
+        self, seen: Look, here: Point, now: float | None, life: float, settings: SafetySettings, burnt: float = 0.0
+    ) -> Look:
+        """STAND_IN_EVIDENCE: `seen` with each stand-in hostile's `tempered` share from what the fight showed of it
+        (`Evidence`), the ledger brought up to this look first; `burnt`: the mana a burn seen took (manaburn.py
+        `burnt`), a loss as the life's is. Unchanged with the switch off or no clock."""
+        if not STAND_IN_EVIDENCE or now is None:
+            return seen
+        step = 0.0 if self.evidence_at is None else min(max(now - self.evidence_at, 0.0), EVIDENCE_STEP)
+        drop = 0.0
+        if self.evidence_life is not None and life < self.evidence_life:
+            drop, self.evidence_hurt = self.evidence_life - life, now
+        if burnt > 0:
+            drop, self.evidence_hurt = drop + burnt, now
+        self.evidence_at, self.evidence_life = now, life
+        hostiles = list(seen.hostiles)
+        for index, h in enumerate(hostiles):
+            if not stood_in(h.txt):
+                continue
+            known = self.evidence.get(h.unit, Evidence())
+            if rules.ai_distance(h.at, here) < rules.RADIUS:
+                known = self.evidence[h.unit] = Evidence(known.exposed + step, known.lost + drop)
+            stalled = self.stalled(h, now)
+            share = self.evidence_share(seen, h, here, known, now, settings) if stalled else 1.0
+            if share < 1.0:
+                hostiles[index] = replace(h, tempered=share)
+            said = self.evidence_said.get(h.unit, 1.0)
+            if abs(share - said) >= 0.1 or (share >= 1.0) != (said >= 1.0):
+                self.evidence_said[h.unit] = share
+                seconds, lost = stand_ins.prior(h.txt)
+                why = f'no fall of its life in {STALL_SECONDS:.0f} s' if stalled else 'its life falls'
+                LOG.info(
+                    'Macro: safety: the stand-in price of the %d (%d) is x%.2f: %s; %.0f s within its reach here, '
+                    '%.0f life lost there, the takes %.0f s and %.0f%s (STAND_IN_EVIDENCE)',
+                    h.txt, h.unit, share, why, known.exposed, known.lost, seconds, lost,
+                    f', hurt {now - self.evidence_hurt:.1f} s ago' if now - self.evidence_hurt < EVIDENCE_HURT else '',
+                )  # fmt: skip
+        if hostiles == list(seen.hostiles):
+            return seen
+        return replace(seen, hostiles=tuple(hostiles))
+
+    def throws_read(self, seen: Look, here: Point, now: float | None) -> Look:
+        """READ_THROWS (combat/bolts.py): `seen` with each unread type's `Hostile.throws`, its rate at the character
+        over its last THROWS_HOLD s of looks (`bolts.throw_count`: its bolts in flight at the character's places of the
+        last THROWS_PLACES s, over their flight). Unchanged with the switch off or no clock."""
+        if not bolts.READ_THROWS or now is None:
+            return seen
+        # Where the character stood over the last THROWS_PLACES s: a bolt let go at one of them still flies at it after
+        # a hop (one look after a Teleport sees the pack's bolts at the old place, none yet at the new)
+        self.throw_places.append((now, here))
+        while self.throw_places and now - self.throw_places[0][0] > THROWS_PLACES:
+            self.throw_places.popleft()
+        places: list[Point] = []
+        for _, place in reversed(self.throw_places):
+            if all(math.dist(place, other) >= 1.0 for other in places):
+                places.append(place)
+        types: dict[int, list[Hostile]] = {}
+        for h in seen.hostiles:
+            if unread(h.txt) and bolts.classes_of(h.txt):
+                types.setdefault(h.txt, []).append(h)
+        rates: dict[int, float] = {}
+        for txt, members in types.items():
+            kinds = bolts.classes_of(txt)
+            speeds = [speed for kind in kinds if (speed := bolts.speed_of(kind)) is not None]
+            shooters = {h.unit: h.at for h in members}
+            flying = [(m[0], m[1], m[2]) for m in seen.missiles if len(m) > 3 and m[0] in shooters and m[3] in kinds]
+            coming, flight = (
+                bolts.throw_count(flying, min(speeds), shooters, places, SHOT_REACH) if speeds else (0, 0.0)
+            )
+            reads = self.throw_reads.setdefault(txt, deque())
+            reads.append((now, coming, flight))
+            while reads and now - reads[0][0] > THROWS_HOLD:
+                reads.popleft()
+            # Its rate over the last THROWS_HOLD s of looks: the bolts seen coming over the flight seconds looked at
+            seen_flight = sum(row[2] for row in reads)
+            rates[txt] = held = sum(row[1] for row in reads) / seen_flight if seen_flight > 0 else 0.0
+            said = self.throw_said.get(txt, 0.0)
+            if held > 0 and max(held, said) / max(min(held, said), 1e-9) >= THROWS_SAID:
+                self.throw_said[txt] = held
+                LOG.info(
+                    'Macro: safety: the %d throw %.2f a second each at the character, %d of them about '
+                    '(READ_THROWS)', txt, held, len(members),
+                )  # fmt: skip
+        self.throw_reads = {txt: reads for txt, reads in self.throw_reads.items() if txt in types}
+        if not any(rates.values()):
+            return seen
+        return replace(
+            seen,
+            hostiles=tuple(replace(h, throws=rates[h.txt]) if rates.get(h.txt) else h for h in seen.hostiles),
+            memo={},
+        )
+
+    def stalled(self, h: Hostile, now: float) -> bool:
+        """Whether the fight with stand-in hostile `h` has stalled (STAND_IN_EVIDENCE): its life has not fallen by
+        STALL_DROP of its full in STALL_SECONDS, the clock started at its first sight or its last such fall."""
+        since = self.evidence_lives.get(h.unit)
+        if since is None or h.life <= since[1] - STALL_DROP:
+            self.evidence_lives[h.unit] = since = (now, h.life)
+        return now - since[0] >= STALL_SECONDS
+
+    def evidence_share(
+        self, seen: Look, h: Hostile, here: Point, known: Evidence, now: float, settings: SafetySettings
+    ) -> float:
+        """The share of `h`'s stand-in its evidence leaves (STAND_IN_EVIDENCE): 1 before EVIDENCE_SECONDS within its
+        radius, or with life lost in the last EVIDENCE_HURT; else EVIDENCE_MARGIN times (the life lost there plus one
+        table blow) a second, over the stand-in's own rate at the character, within [EVIDENCE_FLOOR, 1]."""
+        seconds, lost = stand_ins.prior(h.txt)
+        exposed, lost = seconds + known.exposed, lost + known.lost
+        if exposed < EVIDENCE_SECONDS or now - self.evidence_hurt < EVIDENCE_HURT:
+            return 1.0
+        # Its rate at the character or, the larger, at the place a third into its radius on the way to the character
+        # (the share prices every place, not the character's alone: one out of its sight or reach is no rate)
+        gap = math.dist(h.at, here)
+        inside = min(1.0, rules.RADIUS / 3 / gap) if gap > 0 else 1.0
+        places = (here, (h.at[0] + (here[0] - h.at[0]) * inside, h.at[1] + (here[1] - h.at[1]) * inside))
+        whole = replace(seen, hostiles=(replace(h, tempered=1.0),))
+        rate = max(harm(whole, place, 1.0, 'battle', settings).mean for place in places)
+        if rate <= 0:
+            return self.evidence_said.get(h.unit, 1.0)  # no rate to scale: the share as it was
+        blow = most_blow(h, seen.battle)[0] or settings.unknown_points
+        bound = EVIDENCE_MARGIN * (lost + blow) / exposed
+        # The share scales the stand-in's rate and its burst over the table blow (combat/harm.py STAND_IN_TEMPER): its
+        # mean goes as share * (1 + (F - 1) * share) / F, F the burst factor; the share whose mean is the bound
+        wanted, burst = min(1.0, bound / rate), settings.unknown_damage_factor
+        share = wanted if burst <= 1 else (math.sqrt(1 + 4 * (burst - 1) * burst * wanted) - 1) / (2 * (burst - 1))
+        return min(1.0, max(EVIDENCE_FLOOR, share))
 
     def unit_raise(self, m: Monster) -> float:
         """The factor the auras on a hostile put on its physical points (AURA_FORECAST): its damagepercent (stat 25,
@@ -1547,6 +1942,13 @@ class Safety:
             and self.doll_wait[0] == doll_key
             and facts.now - self.doll_wait[1] >= dolls.PATIENCE
         )
+        waited = (
+            WAIT_LIFT
+            and not facts.in_reach
+            and self.wait_since is not None
+            and self.wait_since[0] == doll_key
+            and facts.now - self.wait_since[1] >= WAIT_HORIZON
+        )
         fresh = posted is not None and posted.fresh(facts.now)
         # A fresh press asks for the goal; so does a level run at every look (`run_insists`).
         running = posted is not None and posted.runs and settings.run_insists and not posted.spent
@@ -1578,8 +1980,9 @@ class Safety:
             goal, clock, legs, allowance, kappa, shown=self.shown(seen.origin),
             duds=tuple(spot for spot, until in self.duds.items() if facts.now < until), walking=bool(walkers),
             left=self.bounce_from(seen.origin, facts.now),
-            patient=patient, mana=mana, burning=burning, reaggro=reaggro,
-            credit=credit,
+            patient=patient, waited=waited, mana=mana, burning=burning, reaggro=reaggro,
+            credit=credit, demons=self.demons_of(look) if facts.attacking else None,
+            range_lifted=self.range_stalled(goal, key, facts),
         )  # fmt: skip
         clock.lap('the forecast')
         held = self.hold(p)
@@ -1630,6 +2033,7 @@ class Safety:
             kappa=kappa,
             safety=settings,
             clear=min((math.dist(p.here, m.at) for m in look.hostiles), default=None),
+            throwers=tuple(m.at for m in look.hostiles if m.throws > 0),  # READ_THROWS (pursuit.py THROWN_OUT)
         )
         obstructed = p.obstructed()
         if obstructed is not None:
@@ -1658,6 +2062,9 @@ class Safety:
         self.went_round(chosen, look, p.here, walkers)
         self.said_walked(p, walkers, chosen)
         self.dolls_waited(p, doll_key, chosen)
+        self.waits(p, doll_key, chosen, loot.max_life)
+        self.range_stalls(p, key, chosen, loot)
+        self.burn_stalls(p, chosen, loot)  # manaburn.BURN_STALL_COMMIT
         self.decision = p.record(
             chosen, dear=dear, insisting=insisting, spendable=spendable, blocked_by=self.blocked_by, draws=self.draws
         )
@@ -1731,6 +2138,11 @@ class Safety:
         battle = self.profiles.get('battle', Protection())
         return cast_reach(priced, (player.x, player.y), battle, float(life), bout=bout, seconds=seconds)
 
+    def fight_cast_threat(self, world: World, life: float | None) -> str | None:
+        """Why the bout's casts under the strike wait (macros/hunt.py FIGHT_CAST_REACH): `cast_threat` over
+        FIGHT_CAST_SECONDS with FIGHT_CAST_OWN, else over CAST_SECONDS as the Call to Arms' swap."""
+        return self.cast_threat(world, life, seconds=FIGHT_CAST_SECONDS if FIGHT_CAST_OWN else CAST_SECONDS)
+
     def reacts(self, loot: Loot, look: Look) -> bool:
         """REJUV_REACTS: an aura-raised fight (a hostile's `raised` over 1, AURA_FORECAST) with a rejuvenation on a read
         belt and REACH_BAR on: what is lethal only over several blows is answered by the drink, not vetoed."""
@@ -1802,9 +2214,78 @@ class Safety:
             found = [b for b in found if modes.get(b.unit) in STRIKING_MODES and math.dist(here, b.at) < b.keep]
         whole = loot.life / loot.max_life if loot.max_life else 1.0
         spare = max(0.0, mana - manaburn.RESERVE) if mana is not None else 0.0
-        return tuple(
-            manaburn.threatening(here, look.hostiles, found, priced, look.life, whole, felt.lost, self.mana_safe, spare)
+        kept = manaburn.threatening(
+            here, look.hostiles, found, priced, look.life, whole, felt.lost, self.mana_safe, spare
         )
+        # One drain fight (drain_escape.py `widened`)
+        kept = drain_escape.widened(here, found, kept, self.burn_leaving is not None, look.hostiles)
+        return tuple(manaburn.committed(kept, self.commit_of(here, kept, look, felt, whole)))
+
+    def commit_of(
+        self, here: Point, kept: Sequence[manaburn.Burner], look: Look, felt: Pressure, whole: float
+    ) -> int | None:
+        """BURN_STALL_COMMIT: the pack fought in at this look (`burn_commit`) while it is `committable`, the mana safe,
+        no burn remembered and the life unhurt; else None, and a burn or a hurt spoils the pack for good."""
+        key = self.burn_commit
+        if not manaburn.BURN_STALL_COMMIT or key is None:
+            self.burn_commit = None
+            return None
+        hurt = felt.lost >= manaburn.FELT_SHARE or whole < manaburn.UNHURT
+        if self.burn_leaving is not None or not self.mana_safe or hurt:
+            self.burn_spoiled.add(key)
+            self.burn_commit = None
+            LOG.info('Macro: safety: the pack %d is kept at range again: %s', key,
+                     'a burn' if self.burn_leaving is not None or not self.mana_safe else 'life lost')  # fmt: skip
+            return None
+        if manaburn.key_of(kept) != key or not manaburn.committable(here, kept, look.hostiles):
+            return None  # not this pack at this look, or a drainer by type about: kept as found
+        return key
+
+    def burn_stalls(self, p: Pricing, chosen: Act, loot: Loot) -> None:
+        """BURN_STALL_COMMIT's memory over the looks: a look whose progress move is barred by manaburn.LANDED starts
+        the stall of the pack kept at range (`burn_stall`: its key, since when, the life then, the last barred look,
+        the members' life then); the bar not again within STALL_GAP, a member DENTED or gone, another pack, a burn,
+        the mana under MANA_SAFE or WAIT_LOST of the most life lost ends it. Past COMMIT_SECONDS the pack is fought in
+        (`burn_commit`, `commit_of`) unless spoiled."""
+        del chosen  # the stall is the bar's, whatever is chosen meanwhile (retreats, stands, far strikes)
+        if not manaburn.BURN_STALL_COMMIT:
+            self.burn_stall = None
+            return
+        now = p.facts.now
+        key = manaburn.key_of(p.burning)
+        lives = {m.unit: m.life for m in p.look.hostiles}
+        calm = self.mana_safe and self.burn_leaving is None
+        barred = any(
+            isinstance(c.act, Move) and not c.retreat and not c.act.dodge and c.harm.barred == manaburn.LANDED
+            for c in p.candidates
+        )
+        found = self.burn_stall
+        if found is not None:
+            stalled_key, since, life, last, then = found
+            dented = any(lives.get(unit, 0.0) < was - manaburn.DENTED for unit, was in then.items())
+            if (
+                stalled_key != key
+                or not calm
+                or dented
+                or now - last > manaburn.STALL_GAP
+                or loot.life < life - WAIT_LOST * loot.max_life
+            ):
+                found = None
+            elif barred:
+                found = (stalled_key, since, life, now, then)
+        if found is None and key is not None and barred and calm:
+            members = {b.unit for b in manaburn.triggers(p.burning)}
+            found = (key, now, float(loot.life), now, {u: v for u, v in lives.items() if u in members})
+        if (
+            found is not None
+            and found[0] not in self.burn_spoiled
+            and self.burn_commit != found[0]
+            and now - found[1] >= manaburn.COMMIT_SECONDS
+            and manaburn.committable(p.here, p.burning, p.look.hostiles)
+        ):
+            self.burn_commit = found[0]
+            LOG.info('Macro: safety: %s: the pack %d after %.1f s', manaburn.COMMIT_SAID, found[0], now - found[1])
+        self.burn_stall = found
 
     def bounce_from(self, here: Point, now: float) -> tuple[Point, Point] | None:
         """The last safety Teleport's (origin, landing) a move back to the origin is barred after (BOUNCE_BACK): under
@@ -1813,6 +2294,10 @@ class Safety:
         if not BOUNCE_BACK or last is None or not 0.0 <= now - last[2] <= BOUNCE_WINDOW:
             return None
         return (last[0], last[1]) if math.dist(here, last[1]) <= BOUNCE_NEAR else None
+
+    def demons_of(self, look: Look) -> tuple[Point, ...]:
+        """Where the companions the build's draw sends stand (`sendable`): the pack's demons (`pack_back`)."""
+        return tuple(look.companions[i] for i, _ in self.sendable if i < len(look.companions))
 
     def idle_after_hop(self, look: Look, here: Point, now: float) -> bool:
         """The demons idle by the character under REAGGRO_WAIT s after a hop landed (combat/pack.py `idle_by`,
@@ -1832,8 +2317,8 @@ class Safety:
         if not facts.attacking:
             return None
         demons = [look.companions[i] for i, _ in self.sendable if i < len(look.companions)]
-        if p.burning:
-            return self.burn_back(p, demons)
+        if p.burning:  # under a burn remembered the leave is the way out, not the hop (drain_escape.py)
+            return None if self.burn_leaving is not None else self.burn_back(p, demons)
         pack = herald_pack.members(look.hostiles)
         key = herald_pack.key_of(pack)
         if key is None or self.pack_hops.get(key, 0) >= herald_pack.PACK_HOPS:
@@ -1866,8 +2351,11 @@ class Safety:
         the mana pays for one, else a walk. The pack's key while one is priced, else None; not past BURN_HOPS a pack."""
         here, burning = p.here, p.burning
         key = manaburn.key_of(burning)
-        if key is None or self.burn_hops.get(key, (0, here, here))[0] >= manaburn.BURN_HOPS:
+        # A drainer closing in is on the character, a demon by it or not, past the hop budget too (drain_escape.py)
+        coming = self.burn_watch.closing_in(p.facts.now, here, burning, p.look.hostiles)
+        if key is None or (self.burn_hops.get(key, (0, here, here))[0] >= manaburn.BURN_HOPS and not coming):
             return None
+        demons = [] if coming else demons
         why = manaburn.why_back(here, burning, demons) or herald_pack.pulled(p.facts.now)  # a build's pull (pets.py)
         if why is None:
             return None
@@ -1886,6 +2374,9 @@ class Safety:
                     p.move_price(step, why=f'{herald_pack.BACK_SAID}: {why}', dodge=True)
                     priced += 1
                     break
+        if not priced and drain_escape.urgent(burning, coming):  # no landing clear: the clearest (drain_escape.py)
+            said = f'{herald_pack.BACK_SAID}: {why}'
+            priced = drain_escape.price_clearest(p, burning, TELEPORT, said, self.burn_watch)
         return key if priced else None
 
     def burn_hopped(self, key: int, chosen: Move, here: Point) -> None:
@@ -1905,6 +2396,7 @@ class Safety:
         the want a Rejuvenation may answer (`mana_short`), and whether the mana is safe (`mana_safe`, DRAIN_GATE)."""
         self.mana_short = None
         self.mana_safe = False
+        self.burn_leaving = None
         read = manaburn.mana_of(loot.stats)
         if read is None:
             return None, None
@@ -1917,8 +2409,16 @@ class Safety:
         low = manaburn.mana_low(history, facts.now, mana, most, len(near))
         burn = manaburn.burnt(history, facts.now, mana, most)
         self.mana_safe = most > 0 and mana >= manaburn.MANA_SAFE * most and not burn
-        leaving = manaburn.leave_for(low, burn, sum(1 for m in near if manaburn.drains(m.modifiers)))
+        drainers = sum(1 for m in near if drain_escape.drains(m))  # by type too with MANA_ESCAPE
+        leaving = manaburn.leave_for(low, burn, drainers)
         self.mana_short = manaburn.short_of(leaving, low, mana)
+        self.burn_watch.walked(facts.now, here)
+        self.burn_watch.seen(history, facts.now, mana, most, drain_escape.drainers_near(here, look.hostiles))
+        self.burn_leaving = self.burn_watch.leaving(facts.now, mana, most, drainers)
+        if self.burn_leaving is not None:  # the burn remembered (drain_escape.py `BurnWatch`)
+            leaving = leaving or self.burn_leaving
+            self.mana_safe = False
+            self.mana_short = self.mana_short or leaving
         return mana, leaving
 
     @staticmethod
@@ -1943,9 +2443,13 @@ class Safety:
         unless vetoed: the draining pack's hop spots, then the threat's escapes (`offered`); a Teleport while the mana
         pays for one, else a walk. At most ESCAPES_MOST places."""
         here, demons = p.here, [p.look.companions[i] for i, _ in self.sendable if i < len(p.look.companions)]
-        places = manaburn.hop_spots(here, p.burning, demons) if p.burning else []
+        # Under a burn remembered: out of every drainer's reach first (drain_escape.py `far_spots`)
+        watch = self.burn_watch
+        far = drain_escape.far_spots(here, p.burning, p.look.hostiles, p.footed, watch) if self.burn_leaving else []
+        places = far or (manaburn.hop_spots(here, p.burning, demons) if p.burning else [])
         threat = held.harm if held.harm.by else held.ahead
-        places += [point for point, _, _ in self.offered(here, p.look, threat)]
+        places += [] if far else [point for point, _, _ in self.offered(here, p.look, threat)]
+        self.refill = drain_escape.refill_of(p, places[:ESCAPES_MOST], TELEPORT, why)
         asked: list[Point] = []
         for index, point in enumerate(places[:ESCAPES_MOST]):
             if index >= 2 and p.clock.late():
@@ -1957,7 +2461,12 @@ class Safety:
                     and math.dist(here, step.spot) > 2
                     and (step.skill == TELEPORT) == p.teleport_paid()
                     and all(math.dist(step.spot, other) >= ESCAPE_SAME for other in asked)
-                    and (not p.burning or manaburn.clear_of(step.spot, p.burning) or step.skill != TELEPORT)
+                    and (
+                        not p.burning
+                        or manaburn.clear_of(step.spot, p.burning)
+                        or step.skill != TELEPORT
+                        or (far and drain_escape.gains(here, step.spot, p.burning, p.look.hostiles))  # the way out
+                    )
                 ):
                     asked.append(step.spot)
                     p.move_price(step, why=f'{manaburn.MANA_SAID}: {why}', dodge=True)
@@ -2044,6 +2553,81 @@ class Safety:
         else:
             act = f'{type(chosen).__name__} {getattr(chosen, "reason", "")}'.strip()
         LOG.info('Macro: safety: %s: %d Teleport%s left out; %s', WALKED, left, '' if left == 1 else 's', act)
+
+    def waits(self, p: Pricing, key: tuple, chosen: Act, most: float) -> None:
+        """WAIT_LIFT's memory over the looks: a stand with nothing in reach starts the wait (`wait_since`); anything in
+        reach, another goal, a hostile seen WAIT_MOVED from its place then or WAIT_LOST of the `most` life lost ends it.
+        Kept through the moves the lift lets go, which the wait's own end would bar again."""
+        if not WAIT_LIFT:
+            return
+        facts, look = p.facts, p.look
+        places = {m.unit: m.at for m in look.hostiles}
+        found = self.wait_since
+        if found is not None and (
+            facts.in_reach
+            or found[0] != key
+            or look.life < found[3] - WAIT_LOST * most
+            or any(unit in places and math.dist(places[unit], at) >= WAIT_MOVED for unit, at in found[2].items())
+        ):
+            found = None
+        standing = isinstance(chosen, NoWay) and (chosen.reason == WAITING or chosen.reason.endswith('standing here'))
+        if found is None and standing and not facts.in_reach:
+            found = (key, facts.now, places, look.life)
+        if p.waited and found is not None and found[1] != self.wait_said:
+            self.wait_said = found[1]
+            LOG.info('Macro: safety: stood %.1f s with nothing coming: the keep ranges lifted for the way; %s',
+                     facts.now - found[1], getattr(chosen, 'reason', '') or type(chosen).__name__)  # fmt: skip
+        self.wait_since = found
+
+    def range_stalled(self, goal: Goal, key: tuple, facts: Facts) -> bool:
+        """RANGE_STALL_LIFT: whether this look's moves are priced without PACK_RANGE_LANDING's bar: the goal `key` (no
+        fight and no clearing goal: the budgets pass those) stalled on it RANGE_STALL_SECONDS and more, with nothing in
+        reach."""
+        found = self.range_stall
+        return (
+            RANGE_STALL_LIFT
+            and found is not None
+            and found[0] == key
+            and not goal.clearing
+            and goal.do != 'fight'  # nor a fight: the safety's own, a clearing one the budgets'
+            and not facts.in_reach
+            and facts.now - found[1] >= RANGE_STALL_SECONDS
+        )
+
+    def range_stalls(self, p: Pricing, key: tuple, chosen: Act, loot: Loot) -> None:
+        """RANGE_STALL_LIFT's memory over the looks: a retreat chosen while a progress move of the goal `key` is barred
+        by PACK_RANGE_LANDED starts the stall (`range_stall`); another goal, anything in reach, a member of the pack on
+        the character (the hop's own `why_back`), WAIT_LOST of the most life lost or an act that is no retreat or safe
+        approach ends it. Kept through the goal's own moves the lift lets go, which its end would bar again."""
+        if not RANGE_STALL_LIFT:
+            self.range_stall = None
+            return
+        facts, look = p.facts, p.look
+        on = herald_pack.why_back(p.here, herald_pack.members(look.hostiles), p.demons or ()) is not None
+        said = chosen.reason if isinstance(chosen, Move) else None
+        dancing = said is not None and (said.startswith(RANGE_STALL_MOVES) or (p.range_lifted and not said))
+        found = self.range_stall
+        if found is not None and (
+            found[0] != key or facts.in_reach or on or not dancing or loot.life < found[2] - WAIT_LOST * loot.max_life
+        ):
+            found = None
+        barred = any(
+            isinstance(c.act, Move)
+            and not c.retreat
+            and not c.act.dodge
+            and c.act.reason in ('', 'safe approach')
+            and c.harm.barred == PACK_RANGE_LANDED
+            for c in p.candidates
+        )
+        retreat = said is not None and said.startswith('retreating')
+        if found is None and barred and retreat and not facts.in_reach and not on:
+            found = (key, facts.now, float(loot.life))
+        if p.range_lifted and found is not None and found[1] != self.range_said:
+            self.range_said = found[1]
+            LOG.info("Macro: safety: kept at range %.1f s with nothing in reach and nothing coming: the pack's landing "
+                     'bar lifted for the way (RANGE_STALL_LIFT); %s', facts.now - found[1],
+                     said or type(chosen).__name__)  # fmt: skip
+        self.range_stall = found
 
     def dolls_waited(self, p: Pricing, key: tuple, chosen: Act) -> None:
         """DOLL_LAND's memory over the looks: since when the asked move to goal `key` has been barred by dolls with
@@ -2161,6 +2745,10 @@ class Safety:
         if CLEAR_ESCAPES:
             # The ways farthest from every hostile first, late or not: a late look priced none (CLEAR_ESCAPES)
             for point in clearest(here, [m.at for m in look.hostiles], p.footed if CLEAR_FOOTING else None):
+                p.retreat_to(point, asked)
+        if bolts.READ_THROWS:
+            # Out of the read throwers' reach (`out_of_throws`)
+            for point in out_of_throws(here, look, p.footed if CLEAR_FOOTING else None):
                 p.retreat_to(point, asked)
         threat = held.harm if held.harm.by else held.ahead
         if not spread:
@@ -2388,6 +2976,11 @@ class Safety:
                 found.extend((point, why, bool(flying)) for point, why in places)
         for lingering, lying in look.ground:
             found.extend((point, why, False) for point, why in lingering.escapes(lying, here))
+        if harm_module.BOLTS_IN_FLIGHT and look.missiles:
+            # Out of the lane of the bolts coming at the character (combat/bolts.py `dodges`), a dodge
+            kinds = {h.unit: shot_kinds(h.txt) for h in look.hostiles}
+            flying = [(m[1], m[2]) for m in look.missiles if len(m) > 3 and m[3] in kinds.get(m[0], ())]
+            found.extend((point, BOLT_DODGE, True) for point in bolts.dodges(flying, here))
         found.extend((point, AWAY, False) for point in self.escapes(here, look, priced))
         unique: list[tuple[Point, str, bool]] = []
         for point, why, dodge in found:

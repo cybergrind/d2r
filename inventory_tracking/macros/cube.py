@@ -274,6 +274,10 @@ def seen_through(run: Run) -> World | None:
 # Older than LEFT_OPEN_SECONDS they are the player's, as any panel the loop did not open
 OPENED: dict[str, float] = {}
 LEFT_OPEN_SECONDS = 30.0
+# A townsfolk menu is closed by the loop whoever opened it (2026-10-22 20:27 and 20:38, Rogue Encampment: a walk click
+# opened one, the restart lost `OPENED`, and each leg stopped on "npc_interact is open"). The loop's legs run only with
+# the loop on, and the player pauses it with KP_6 before trading by hand
+LOOP_CLOSES = frozenset({'npc_interact'})
 
 
 def opened(panel: str) -> None:
@@ -296,7 +300,7 @@ def left_open(open_panels: Sequence[str], now: float | None = None) -> tuple[str
     if not open_panels:
         OPENED.clear()
         return ()
-    return tuple(open_panels) if all(panel in OPENED for panel in open_panels) else ()
+    return tuple(open_panels) if all(panel in OPENED or panel in LOOP_CLOSES for panel in open_panels) else ()
 
 
 def tidy(run: Run, world: World) -> tuple[str, ...]:

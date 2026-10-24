@@ -64,11 +64,12 @@ from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.skills import ACTIONS, NAMES
 from tests.inventory_tracking.macros.fakes import KEYS, set_runner, warlock
-from tests.inventory_tracking.scenarios.arena.game import EDGE, Arena
+from tests.inventory_tracking.scenarios.arena.game import EDGE, Arena, pure_binds
 from tests.inventory_tracking.scenarios.arena.result import Result
 from tests.inventory_tracking.scenarios.arena.scene import Scene
 
 
+END_GRACE = 5.0  # game seconds past the play's end a routine still working is let go on before it is stopped
 WALL_LIMIT = 120.0  # wall seconds a run's thread is waited for before the play is called hung (an error, no result)
 # The watchdog (2026-10-22, the player: "maybe you could use more targetted approach with tight timeouts?"): a run whose
 # game clock stands still STALL_WALL s of wall time, or whose wall time runs past SLOW_RATIO times the game time it
@@ -105,11 +106,15 @@ class ArenaTime:
 
 
 def fresh() -> None:
-    """The production code's memories of a process's life, emptied: each is stamped with the clock
-    of the play that made it (pickup.py SHUNNED, STOPPED and LOOKED, opening.py SHUNNED, teleport.py FAR_FAILED,
-    LANDED and LANDING, combat/pack.py PULL, hunting/choice.py HELD_SAID, hunting/judging.py HELD_ON_SAID)."""
+    """The production code's memories of a process's life, emptied: each is stamped with the clock of the play that
+    made it (pickup.py SHUNNED, STOPPED, LOOKED and GIVEN_UP, opening.py SHUNNED, teleport.py FAR_FAILED, LANDED and
+    LANDING, combat/pack.py PULL, hunting/choice.py HELD_SAID, hunting/judging.py HELD_ON_SAID)."""
     for memory in (pickup.SHUNNED, pickup.STOPPED, pickup.LOOKED, opening.SHUNNED, teleport.FAR_FAILED):
         memory.clear()
+    # The drops given up for the game (pickup.py GIVEN_UP, by `Loot.game`: None in every play, so one game): left over,
+    # the next play of a scene left its drops alone (2026-10-24, halls_death.py: the 23:31 code's 8/20 deaths in fresh
+    # processes, 2/20 in one)
+    pickup.GIVEN_UP.clear()
     teleport.LANDED.clear()
     teleport.LANDING.clear()
     teleport.MISSED.clear()
@@ -276,6 +281,11 @@ class Play:
             elif not working:
                 return
             wall, game = time.monotonic(), self.arena.clock.now
+            if self.ended and game > self.seconds + END_GRACE:
+                # A routine that began after the end (buff mode's upkeep after attack mode went off) is stopped too:
+                # its loop on the stood-still world never ends by itself (2026-10-24, the halls scene's off plays)
+                with self.runner.lock:
+                    self.runner.cancelled.set()
             if game > moved:
                 moved, moved_at = game, wall
             if wall - moved_at > STALL_WALL:
@@ -305,24 +315,25 @@ class Play:
         arena = self.arena
         restore = set_runner(time=ArenaTime(arena), CARD_SECONDS=0.0)  # the runner and its parts (macros/running/)
         arena.each_tick = self.tick
-        try:
-            while True:
+        with pure_binds(arena):  # game.py PURE_BINDS: a bind's look is a peek, with no look's side effects
+            try:
+                while True:
+                    self.settle()
+                    if not self.ended and (arena.over is not None or arena.clock.now >= self.seconds - EDGE):
+                        self.end()
+                    if self.ended:
+                        break
+                    if self.due():
+                        self.press()  # nothing runs: the press starts its run, waited for above
+                    else:
+                        arena.time.step()
                 self.settle()
-                if not self.ended and (arena.over is not None or arena.clock.now >= self.seconds - EDGE):
+                self.runner.close()
+            finally:
+                if not self.ended:
                     self.end()
-                if self.ended:
-                    break
-                if self.due():
-                    self.press()  # nothing runs: the press starts its run, waited for above
-                else:
-                    arena.time.step()
-            self.settle()
-            self.runner.close()
-        finally:
-            if not self.ended:
-                self.end()
-            restore()
-            arena.each_tick = None
+                restore()
+                arena.each_tick = None
         if self.failed:
             raise self.failed[0]
         return arena.result()

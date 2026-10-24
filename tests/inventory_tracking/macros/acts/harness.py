@@ -233,6 +233,13 @@ class ActGame(ZoneWalk):
             if outcome != 'used':
                 return None
             self.game.play.stacks[shard] -= 1
+            # The act's levels read terrorized from here, as live (349 "is worked tz+" runs on 2026-10-23..24, the
+            # client's list naming the shard acts at 11:00:04 on 2026-10-24): a level read not terrorized is the zone
+            # left (hunting/choice.py ZONE_LEFT, tzloop.py MANUAL_TURNED), its run going to nothing
+            terror = manual_zone(act)
+            if terror is not None:
+                self.game.zone = self.game.zone | frozenset(terror.areas)
+                self.game.progress.wanted = lambda level: level in self.game.zone
             return terrorize.Used(shard, act, shards, shards - 1, gone=True, listed=False)
 
         monkeypatch.setattr(actloop, 'terrorize', used)

@@ -1,6 +1,8 @@
 """Town Portal out of a level (routes/lower-kurast-loop-plan.md phase 3): the tome's key, the portal beside the
 character once it is open, the click, the town."""
 
+import math
+
 import pytest
 
 from inventory_tracking.game.records import Pack, Thing
@@ -338,3 +340,108 @@ def test_with_the_switch_off_a_walk_through_the_portal_still_clicks_as_before(mo
     monkeypatch.setattr(portal_module, 'portals', lambda run: [])
     with pytest.raises(Abort, match='no Town Portal in sight'):
         portal_module.through_portal(play.run(), near=(5048.0, 5049.0))
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_a_key_a_block_drops_after_it_is_cast_again_once_the_character_is_free(monkeypatch, on):
+    # 2026-10-23: 63 pauses by the portal under blows; a key dropped by a block waited RECAST_AFTER (1.6 s) for its
+    # recast (rca/2026-10-23/pause-findings.md)
+    from dataclasses import replace
+
+    import inventory_tracking.macros.portal as portal_module
+    from tests.inventory_tracking.macros.fakes import character_of
+
+    monkeypatch.setattr(portal_module, 'DROP_RECAST', on)
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    act, presses = play.act, []
+
+    def dropped(event) -> None:
+        if event[0] == 'key' and event[1] == 'x':
+            presses.append(play.clock.now)
+            if len(presses) == 1:  # a block begins with the key and drops it, over 0.2 s later
+                play.world = replace(play.world, player=replace(character_of(play.world), mode=9))
+                play.later(
+                    0.2,
+                    lambda: setattr(
+                        play, 'world', replace(play.world, player=replace(character_of(play.world), mode=1))
+                    ),
+                )
+                return
+        act(event)
+
+    play.act = dropped
+    to_town(play.run(), keys)
+
+    assert len(presses) == 2
+    assert (presses[1] - presses[0] < 0.5) if on else (presses[1] - presses[0] >= portal_module.RECAST_AFTER)
+    assert play.character.area == KURAST_DOCKS
+
+
+ROGUE_ENCAMPMENT = 1
+
+
+def _walled_town(monkeypatch, walled: bool):
+    """17:39:42-17:40:54 on 2026-10-23: the character in the Rogue Encampment 20 units from its portal, a low stone wall
+    between; clicks on the portal never moved it. The walks and clicks recorded; `walk_until` with `until` puts the
+    character by the portal."""
+    from dataclasses import replace
+
+    from inventory_tracking.macros import portal as portal_module, shop
+    from inventory_tracking.macros.teleport import Untook
+    from tests.inventory_tracking.macros.fakes import character_of
+
+    play = Game(world(ROGUE_ENCAMPMENT))
+    me = play.character
+    gate = Thing(9, TOWN_PORTAL, 2, me.x - 4.0, me.y + 20.0)
+    walks, clicks = [], []
+
+    def walk_until(run, place, bounds, label, *, until=None, **_):
+        walks.append(until is not None)
+        if until is not None:
+            play.world = replace(play.world, player=replace(character_of(play.world), x=gate.x, y=gate.y - 3.0))
+        return run.world()
+
+    def use_thing(run, mark, here, thing, aspect):
+        clicks.append((here.x, here.y))
+        if math.dist((here.x, here.y), (thing.x, thing.y)) > portal_module.NEAR:
+            raise Untook('no click took the level')
+        play.arrive(LOWER_KURAST)
+
+    monkeypatch.setattr(shop, 'walk_until', walk_until)
+    monkeypatch.setattr(portal_module, 'portals', lambda run: [gate])
+    monkeypatch.setattr(portal_module, 'use_thing', use_thing)
+    monkeypatch.setattr(portal_module, '_walled', lambda run, here, portal: walled)
+    return play, walks, clicks
+
+
+def test_with_a_wall_on_the_line_the_character_walks_up_to_the_portal_before_the_click(monkeypatch):
+    from inventory_tracking.macros import portal as portal_module
+
+    play, walks, clicks = _walled_town(monkeypatch, walled=True)
+    portal_module.through_portal(play.run())
+    assert walks == [False, True]  # until drawn, then up to it
+    assert len(clicks) == 1
+    assert play.character.area == LOWER_KURAST
+
+
+def test_portal_clicks_that_move_nothing_are_followed_by_the_walk_up_and_one_more_try(monkeypatch):
+    from inventory_tracking.macros import portal as portal_module
+
+    play, walks, clicks = _walled_town(monkeypatch, walled=False)  # the ground did not show the wall
+    portal_module.through_portal(play.run())
+    assert walks == [False, True]
+    assert len(clicks) == 2
+    assert play.character.area == LOWER_KURAST
+
+
+def test_with_the_switch_off_the_portal_is_clicked_from_afar_as_before(monkeypatch):
+    from inventory_tracking.macros import portal as portal_module
+    from inventory_tracking.macros.teleport import Untook
+
+    monkeypatch.setattr(portal_module, 'WALK_ROUND', False)
+    play, walks, clicks = _walled_town(monkeypatch, walled=True)
+    with pytest.raises(Untook):
+        portal_module.through_portal(play.run())
+    assert walks == [False]
+    assert len(clicks) == 1

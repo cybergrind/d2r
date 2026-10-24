@@ -19,6 +19,7 @@ from tests.inventory_tracking.scenarios.arena import kp4
 from tests.inventory_tracking.scenarios.arena.situations import vizier
 from tests.inventory_tracking.scenarios.arena.situations.bestiary import TYPES, fidelity
 from tests.inventory_tracking.scenarios.arena.situations.example import example, variants
+from tests.inventory_tracking.scenarios.arena.situations.fane_death import ALL_OFF, switched
 from tests.inventory_tracking.scenarios.arena.situations.situation import (
     FIXTURES,
     Outcome,
@@ -263,9 +264,12 @@ def test_the_example_reads_as_the_player_said_it() -> None:
 
 @pytest.mark.xdist_group('situations: the example to a death')
 def test_the_character_can_die_in_the_example_and_the_story_says_how() -> None:
-    # By today's keys: the pursuit loop lives through all eight seeds (2026-10-19), and the story needs a death.
+    # By today's keys the pursuit loop lives through all eight seeds (2026-10-19), and since the survival switches of
+    # 2026-10-22 so does attack mode (rca/2026-10-23/arena-red.md): the story needs a death, so the example is played
+    # with those switches off (fane_death.py SWITCHES), the death they were made against.
     situation, presses = variants()['attack on']
-    trials = situation.logic('today').trials(range(1, 9), presses)
+    with switched(ALL_OFF):
+        trials = situation.logic('today').trials(range(1, 9), presses)
     dead = [play for play in trials.outcomes if play.dead]
     print(f'\nfour packs at 30% life, attack on: {len(dead)} of {len(trials.outcomes)} seeds die')
     assert dead, 'no seed of eight dies at 30% life'
@@ -345,7 +349,8 @@ def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_pa
         base = example().logic('today')  # the death is today's keys': the pursuit loop lives through it (2026-10-19)
         return [('attack on', base, []), ('attack off', base.variant(attack=False, seconds=4.0), [])]
 
-    row = export_viz.write(Entry('two', 'constructed', 'a test', two), tmp_path, seed=3)
+    with switched(ALL_OFF):  # the death they were made against (the story's, above)
+        row = export_viz.write(Entry('two', 'constructed', 'a test', two), tmp_path, seed=3)
     data = __import__('json').loads((tmp_path / row['file']).read_text())
     assert data['schema'] == 1
     assert [run['name'] for run in data['runs']] == [
@@ -366,7 +371,9 @@ def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_pa
     assert debug['tasks'][0][0] == 0
     # 1.88 until 2026-10-20: the forced mark (no demon out) now waits for the hover record before its key and is cast
     # again when it did not take (macros/buffs.py AIM_CHECK, `Buffs.settle`), so the blast that kills comes later
-    assert first['summary']['died']['at'] == pytest.approx(3.0, abs=0.05)
+    # 3.0 until 2026-10-22; played with the survival switches off (fane_death.py SWITCHES; with them on the forced
+    # mark's play lives, rca/2026-10-23/survival-findings.md §3) the forced mark's blast comes at 1.84 s
+    assert first['summary']['died']['at'] == pytest.approx(1.84, abs=0.05)
     assert off['summary']['died'] is None
     assert debug['tasks'][0][1]['attack'] is True
     assert debug['tasks'][0][1]['what'] == 'attack mode'

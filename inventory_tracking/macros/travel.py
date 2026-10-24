@@ -14,7 +14,7 @@ import statistics
 import threading
 from collections import OrderedDict
 from collections.abc import Callable, Generator, Hashable, Mapping, Sequence
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
 from functools import partial
@@ -28,6 +28,8 @@ from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import SEALS, Ground, Room, Target, Walkable
+from inventory_tracking.levels.reach import hop_lands
+from inventory_tracking.macros import binding
 from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
@@ -36,7 +38,9 @@ from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
     HOVER_SECONDS,
+    KEY_DROP_MODES,
     MOVED,
+    WALKING,
     Covered,
     ground_fraction,
     hop_to,
@@ -53,6 +57,18 @@ STEP_WALK_SECONDS = 0.7  # a walk's click must show the character moving within 
 # it is clicked again, settled (rca/2026-10-14/diablo-handling.md fix 3).
 HURRY_FREE = 0.02
 HURRY_SECONDS = 0.3
+# 2026-10-23: a walk's click the character has not set off on (no walking mode, no move) WALK_START_SECONDS after it
+# was free to is given up then, not after the whole STEP_WALK_SECONDS: of 1426 walk clicks of 2026-10-22/23 the 1104
+# that went set off within 0.058 s (p99; 3 after 0.2 s), 322 never did, each a 0.7-1.0 s stand, 34 of them pauses with
+# a hostile within 3 (34 s, 734 life; rca/2026-10-23/pause-findings.md). A block or a hit restarts the count at its end.
+# Off: the whole wait, as before.
+WALK_NO_START = True
+WALK_START_SECONDS = 0.15
+# Units off the click's place that count as set off though short of MOVED: a walk a body blocks may stop 1.99 units on
+# before the first look (Tower Cellar 5, 3.35-3.43 s of the take, tests/.../battle/tower_cellar5.py); it is waited for
+# as before. The standing character's place flickers by 0.01 in the frames.
+WALK_SET_OFF = 0.5
+WALK_POLL = 0.02
 HOVER_UNITS = 12.0  # a monster named under the pointer counts only this near the aim (the name lingers)
 # Walk clicks kept off item labels (the player, 2026-10-21 ~00:55: "not always clicking correct object (we often can
 # pickup hp/rejuv potion) that we wanted"): with the labels shown, a walk's click on one takes that item instead of a
@@ -73,6 +89,15 @@ WALK_LABEL_SHIFTS = ((-1.5, 0.0), (0.0, 1.5), (0.0, -1.5), (1.5, 0.0), (-3.0, 0.
 JUMP_REACH = 26.0  # units of a jump: in view, and within the blade's range
 JUMP_LEAST = 8.0  # a stride shorter than this is walked
 JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
+# JUMP_LANDING_UNPRICED ((b) of R1, 2026-10-24 ~20:35, rca/2026-10-24/dm-latency-findings.md §10): take
+# 20261024T171736Z-71, the pursuit's Blade Warp of 16 at 20:18:40.608 (key 40.876) was given 0.70 s by its price
+# (hunting/base.py `act_window`: WARP_SECONDS 0.35 + 16 units at WARP_SPEED), so hunting/moves.py `priced_for` raised
+# Expired at 41.312 inside the landing's watch; `Run.seen` takes it for "not seen" and the jump said "Blade Warp: the
+# character did not move" (its spot barred as a dead end, no combat/pack.py `hopped`), while the blade's impact moved
+# the character 15 units at 41.53, the demons with it. True: the landing's watch (JUMP_SECONDS after the key) runs
+# `Run.in_flight`, the priced bound enforced at the first look after it: the move is judged after the warp's own
+# delay, and its landing is `hopped`. False: as before.
+JUMP_LANDING_UNPRICED = False
 # A casting delay shows as state 185 (`Player.cooldown`), set at the action frame and cleared when the delay is over;
 # a key before the clear is refused. Measures: history/travel.md.
 DELAY_SHOWN = ONE_CAST  # a clear state this long after the key is the delay over; before, the cast has not thrown
@@ -269,6 +294,16 @@ def facts_with(
     )
 
 
+def jump_lands(jump: Jump, facts: MoveFacts, spot: Point) -> bool:
+    """Whether `jump` from where the character stands lands at `spot` as far as its line goes: a line jump over a
+    clear shot (the blade flies), a Teleport by the level's own rule (levels/reach.py `hop_lands`: Duriel's Lair
+    refuses one over its walls). Footing and view are the caller's."""
+    here = facts.here
+    if jump.line and not clear_shot(known(facts.ground), here, spot, facts.doors):
+        return False
+    return jump.skill != TELEPORT or hop_lands(facts.area, facts.ground, here, spot, facts.doors)
+
+
 def known(ground: Ground | None) -> Ground:
     """The ground, or an empty one (only closed doors bar)."""
     return ground if ground is not None else Ground(())
@@ -313,8 +348,8 @@ def stride_of(
             spot = at(stride)
             if stride < least or not footed(spot):
                 continue
-            if jump.line and not clear_shot(ground, here, spot, facts.doors):
-                continue  # the blade flies: no wall in its way
+            if not jump_lands(jump, facts, spot):
+                continue  # the blade flies: no wall in its way; nor a Teleport's where the level bars it
             return Step(spot, jump.skill)
     stride = min(away - short, STRIDE)
     spot = at(stride)
@@ -814,7 +849,6 @@ def way_leg(
     if not path or (ends and all(math.dist(here, spot) < AROUND_LEAST for spot, _ in path)):
         # The end is within `short`, or nearer than a move can be made
         return NoWay(THERE, arrived=True)
-    ground = known(facts.ground)
     view = Viewport(facts.aspect)
     barred = field.barred
 
@@ -822,13 +856,12 @@ def way_leg(
         return in_view(view.ground(here, *spot)) and not intent.shuns(spot)
 
     jump = next(iter(jumps), None)
-    line = jump is not None and jump.line
 
     def footed(spot: Point) -> bool:
         return shown(spot) and not any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
 
     def lands(spot: Point) -> bool:
-        return not line or clear_shot(ground, here, spot, facts.doors)
+        return jump is None or jump_lands(jump, facts, spot)
 
     flown = None
     if jump is not None:
@@ -1162,7 +1195,8 @@ class Travel:
             spot = found.spot
             if ahead is not None and run.pad is None:
                 self.aim_ahead(run, keyed, origin, spot, aspect, ahead, cast.note)
-            with run.lightly():  # only the character's place is wanted
+            flight = run.in_flight() if JUMP_LANDING_UNPRICED else nullcontext()
+            with run.lightly(), flight:  # only the character's place is wanted
                 landing = run.seen(
                     lambda w: cast.note(w) and w.player is not None and landed_from(w.player, origin, spot),
                     max(released + JUMP_SECONDS - run.clock(), KEY_POLL),
@@ -1526,6 +1560,16 @@ def attackable(world: World) -> list[Monster]:
     return [m for m in world.monsters if m.owner == NO_OWNER and not m.ally and (m.x or m.y)]
 
 
+def newest_fraction(run: Run, player, spot: Point, aspect: float) -> tuple[float, float] | None:
+    """Where `spot` is in the window from the character where the newest light look sees it (the actuator's late bind,
+    actuator.py LATE_BIND); None unread, or out of the level `player` stood in."""
+    now = binding.newest_world(run, light=True).player
+    if now is None or now.area != player.area:
+        return None
+    where = ground_fraction(now, spot[0], spot[1], aspect)
+    return where if in_view(where) else None
+
+
 def step_walk(
     run: Run,
     goal,
@@ -1557,7 +1601,7 @@ def step_walk(
         if click or player.mode in ACTING or not free(run):
             settle(run, seconds=HURRY_FREE if hurried else SWAP_SETTLE, limit=0.5)
         settled += run.clock() - began
-        run.actuator.aim(*where, scatter=(4, 3))
+        binding.aim(run, where, scatter=(4, 3), bind=lambda: newest_fraction(run, player, goal, aspect))
         if run.hovered is not None:
             run.pace.sleep(HOVER_SECONDS)
             over = run.hovered()
@@ -1571,7 +1615,7 @@ def step_walk(
                 where = off_item_labels(run, player, goal, aspect, where, over, alive, name)
         run.actuator.click()
         within = HURRY_SECONDS if hurried else STEP_WALK_SECONDS
-        if run.seen(lambda w: w.player is not None and moved(w.player, player), within) is not None:
+        if walk_seen(run, player, within, name) is not None:
             return settled
         if hurried:
             LOG.info(
@@ -1579,6 +1623,47 @@ def step_walk(
                 'move in %.2fs: clicked again, settled', name, settled, within,
             )  # fmt: skip
     raise Abort('the character did not move')
+
+
+def walk_seen(run: Run, player, within: float, name: str) -> World | None:
+    """The look that has the character moved off `player`'s place within `within` seconds of a walk's click; None when
+    it is not, or (WALK_NO_START) when it has not set off WALK_START_SECONDS after it was free to: no walking mode
+    seen nor WALK_SET_OFF moved, the character neither casting nor blocking nor hit (a block or a hit starts the count
+    again at its end)."""
+
+    def gone(w: World) -> bool:
+        return w.player is not None and moved(w.player, player)
+
+    if not WALK_NO_START:
+        return run.seen(gone, within)
+    began = run.clock()
+    free_since: float | None = began
+    while True:
+        try:
+            world = run.world()
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+            return None  # as `run.seen`: an unread look ends the wait
+        if gone(world):
+            return world
+        now, there = run.clock(), world.player
+        if there is not None:
+            if there.mode in WALKING or math.dist((there.x, there.y), (player.x, player.y)) >= WALK_SET_OFF:
+                return run.seen(gone, max(began + within - now, 0.0), WALK_POLL)  # set off: its move awaited
+            if there.mode in ACTING or there.mode in KEY_DROP_MODES:
+                free_since = None
+            elif free_since is None:
+                free_since = now
+            if free_since is not None and now - free_since >= WALK_START_SECONDS:
+                LOG.info(
+                    'Macro: walk: the click toward %s set the character off in none of %.2fs free (mode %d): given up',
+                    name, now - free_since, there.mode,
+                )  # fmt: skip
+                return None
+        if now - began >= within:
+            return None
+        run.pace.sleep(WALK_POLL)
 
 
 def closed_seal(run: Run, over: tuple[int, int] | None) -> bool:

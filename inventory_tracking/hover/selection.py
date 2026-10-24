@@ -10,6 +10,7 @@ import struct
 from inventory_tracking.hover.materials import ITEM_POINTER, material_widget, validate_material_item
 from inventory_tracking.items.containers import container_for_page
 from inventory_tracking.items.owners import require_mercenary_owner
+from inventory_tracking.native import layout
 from inventory_tracking.tracking.state import select_player
 
 
@@ -60,17 +61,21 @@ def _resolve(sample, base):
     widget_info = ui['widgets']['mouse']
     if widget_info is None or ui['widgets']['controller'] is not None:
         raise ValueError('Unsupported focus state')
-    equipment = widget_info['vtable'] == base + 0x17129D0 and widget_info['methods']['0xc0'] == base + 0x2178E0
+    equipment = (widget_info['vtable'], widget_info['methods']['0xc0']) == (
+        base + layout.EQUIPMENT_WIDGET[0],
+        base + layout.EQUIPMENT_WIDGET[1],
+    )
     materials = material_widget(widget_info, base)
     if (
         not equipment
         and not materials
-        and (widget_info['vtable'] != base + 0x1712DE8 or widget_info['methods']['0xc0'] != base + 0x21A6D0)
+        and (widget_info['vtable'], widget_info['methods']['0xc0'])
+        != (base + layout.GRID_WIDGET[0], base + layout.GRID_WIDGET[1])
     ):
         raise ValueError('Unsupported inventory widget')
     widget = block(widget_info['address'], 0x700)
-    mouse = block(base + 0x1EC9C4D, 11)
-    if mouse[0] or any(block(base + 0x1EC9F4C, 12)):
+    mouse = block(base + layout.MOUSE_GATE_RVA, 11)
+    if mouse[0] or any(block(base + layout.CARRIED_ITEM_RVA, 12)):
         raise ValueError('Unsupported mouse/carried-item state')
     if materials:
         gx = gy = 0

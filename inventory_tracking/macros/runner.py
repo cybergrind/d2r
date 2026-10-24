@@ -18,6 +18,7 @@ from pathlib import Path
 
 from inventory_tracking.automation.ledger import OSD_LEDGER, PotionLedger
 from inventory_tracking.common import LOG
+from inventory_tracking.game.frames import frame_feed
 from inventory_tracking.game.kept import BeltKept, PutDown
 from inventory_tracking.game.records import Pack
 from inventory_tracking.game.stash import SNAPSHOT as STASH_SNAPSHOT, Stash
@@ -28,6 +29,7 @@ from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.buffmode import WORDS
 from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.charms import Parked
+from inventory_tracking.macros.guard import Guard
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.hunting.base import NO_WAY_TO
 from inventory_tracking.macros.journey import Journey
@@ -40,7 +42,18 @@ from inventory_tracking.macros.pickmode import MODES, next_mode
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import FULL, NOTHING_LEFT, Pursuit
 from inventory_tracking.macros.runmode import DOUBLE, TERROR
-from inventory_tracking.macros.running import buffing, execution, jump, legs, merclost, recovery, room, valuables, watch
+from inventory_tracking.macros.running import (
+    buffing,
+    execution,
+    guarding,
+    jump,
+    legs,
+    merclost,
+    recovery,
+    room,
+    valuables,
+    watch,
+)
 from inventory_tracking.macros.running.base import (
     ATTACK,
     BUFF,
@@ -91,6 +104,16 @@ __all__ = [
     'classify',
 ]
 
+# A run always hands the runner over (rca/2026-10-23/loop-no-legs.md). At 00:41:44 on 2026-10-23 the KP_6 timer's
+# "Loop off" card and the cancelled leg's "Macro stopped: cancelled" card were published 2 ms apart: two writers of
+# the HUD layer's one temporary file (reports.py `publish`), the second's replace raised FileNotFoundError inside
+# `_guarded`'s stop handling, the thread died before `_follow`, and `working` stayed on with no thread. Every KP_6 on
+# after it said "Loop on" and made no leg until the player restarted serve (00:43:36). True: the card is published
+# one writer at a time and a failed write is logged, never raised into a run (`_show`); a run whose own end raises
+# still hands the runner over (`_handed_over`); a request or a KP_6 on that finds `working` with its thread gone says
+# so and takes the runner back (`_reclaim`). False: as before
+HANDOVER = True
+
 
 class MacroRunner:
     def __init__(
@@ -117,6 +140,7 @@ class MacroRunner:
         self.capture_lock = capture_lock
         self.saved_games = saved_games
         self.display = display
+        self.card_lock = threading.Lock()  # one card write at a time (HANDOVER); never held while taking `lock`
         self.execute = execute or self._execute
         self.cancelled = threading.Event()
         self.thread: threading.Thread | None = None
@@ -178,6 +202,9 @@ class MacroRunner:
             stash=Stash(snapshot=loop_items.parent / STASH_SNAPSHOT if loop_items is not None else None),
         )
         self.loop.forget = self._forget_given_up  # GHEED_STASH: the level run tries the charm again
+        # The stand guard (macros/guard.py, 2026-10-22): after a stop of the loop's own, the life and the hostiles
+        # watched in the level, the fight in place when hit or a hostile comes near
+        self.guard = Guard()
         # the game whose stash view was logged, the shared page shown last (macros/visit.py `Remembered`)
         self.stash_memory = Remembered()
         self.stash_polled = -math.inf  # the stash record's last refresh by the poll (running/watch.py `_stash_poll`)
@@ -190,13 +217,20 @@ class MacroRunner:
         # The merc's looks and the belt's, and the town trip they make due (macros/merc.py, running/merclost.py; the
         # player, 2026-10-21 ~19:00: "we have lost merc -> probably better retreat to the town and refill hp potions in
         # the belt"); the look itself (tests give their own)
-        self.merc = MercWatch()
+        self.merc = MercWatch(book=self.loop.merc_trips)  # the trips counted in the loop's (its game's record)
         self.merc_read: Callable[[], merclost.Look | None] = self._merc_read
         # An item unit's stats from the run's memory (GameMemory.item_stats)
         self.item_stats: Callable[[int], dict[int, int]] | None = None
         # Valuables seen this game and still on the ground (sightings.py); the ground census's items (game/memory.py)
         self.sightings = Sightings()
         self.ground_seen: set[tuple[int, int]] = set()
+        # The game memory's replayed read patterns by kind of pass, and their prepared calls, across runs
+        # (game/memory.py `GameMemory.replay`, 2026-10-23); one run reads at a time
+        self.read_patterns: dict[str, list[tuple[int, int]]] = {}
+        self.read_prepared: dict = {}
+        # The frame reader's feed (game/frames.py FRAMES, 2026-10-23): its process started by the first run, ended
+        # with the runner; None: off
+        self.frames = frame_feed(lambda text: LOG.info('Macro: frames (p50/p90/max): %s', text))
         # The identify watcher's appraisals by unit id (identify/service.py `verdicts_now`): the loop's junk
         self.verdicts: Callable[[], dict[int, str]] = dict
         # The verdicts of carried identified items, read now (`IdentifyWorker.appraise`, macros/junk.py `junk_of`)
@@ -255,6 +289,7 @@ class MacroRunner:
         except a step's own key during the step (one more step) and a step during attack mode (the mode pauses; the
         pickup waits for the fight); the macro request ends the mode and runs once it has stopped."""
         with self.lock:
+            self._reclaim()
             during = self.routine if self.working else None
             press = self.trace.press(routine, requested_at, now, during=during, **notes)
             if self.noted is not None:
@@ -279,6 +314,8 @@ class MacroRunner:
                 self.trace.close(press, outcome='judged with the presses around it')
                 return True
             if routine == ATTACK:
+                if not autonomous:
+                    self._guard_disarm("the player's attack mode key")  # the mode is the player's from here
                 self._mode_tap(now)  # one press toggles, a pair cycles the active mode (running/buffing.py)
                 press.mark('accepted')
                 outcome = 'attack mode on' if self.attack_mode else 'buff mode on' if self.buff_mode else 'mode off'
@@ -424,6 +461,7 @@ class MacroRunner:
                 # A terror zone kind's run worked its level (macros/agenda.py `Agenda.ran`), unless it left it
                 area = self.hunter.ended_area if self.hunter is not None else None
                 self.loop.agenda.ran(area if area is not None else self.area_seen)
+                midgame.keep(self.loop)  # the level run in the game's record at once
                 # A level done whose run finds nothing more is no way on either: the Throne of Destruction's next level,
                 # the Worldstone Chamber, opens only after Baal; its leg was made again every 0.3 s until the repeat
                 # guard left the game (04:32:49-04:32:58 on 2026-10-20)
@@ -620,7 +658,10 @@ class MacroRunner:
 
     def _toggle_loop(self) -> None:
         """KP_6: the loop on from where the character is (a run working now is followed by its first leg), or off at
-        once (the run cancelled, the character left where it is). Under the lock."""
+        once (the run cancelled, the character left where it is). Under the lock. The stand guard's watch is over
+        either way (the player's pause wins; on, the loop's own watchdogs), its attack mode ending for the first leg."""
+        guarded = self.guard.armed and self.guard.fighting and self.attack_mode
+        self._guard_disarm('the loop toggled (KP_6, or the resume after a restart)')
         if self.loop.on:
             self.loop.stop()
             self.attack_mode = False
@@ -636,10 +677,27 @@ class MacroRunner:
             # which never had the loop's next game leg (21:42:37 on 2026-10-19, River of Flame)
             self.loop.kind, self.loop.pending, self.loop.chosen = self.loop.pending, None, True
             self._say_kind(self.loop.kind)
+        self._reclaim()  # HANDOVER: an on always leads to a leg, or the log says which run it waits for
         if not self.working:
             self._start(LOOP)
-        elif self.routine == BUFF:
+            return
+        if HANDOVER:
+            LOG.info('Macro: loop on: its first leg follows the %s run working now', self.routine)
+        if self.routine == BUFF:
             self.cancelled.set()  # buff mode yields to the loop, its first leg follows (`_follow`)
+        elif guarded and self.routine == ATTACK:
+            self.cancelled.set()  # the guard's fight (its mode turned off above): the first leg follows (`_follow`)
+
+    def _reclaim(self) -> None:
+        """HANDOVER: `working` on with the run's thread gone (it died without handing over: `_handed_over` is the rule,
+        this the backstop) is taken back, said. A runner whose run never had a thread (a test's own `working`) is left
+        as it is. Under the lock."""
+        thread = self.thread
+        if not HANDOVER or not self.working or thread is None or thread.is_alive():
+            return
+        LOG.warning('Macro: the %s run ended without handing over (its thread gone): the runner is free', self.routine)
+        self.working = False
+        self.queue.drop(self.routine, 'its run ended without handing over')
 
     def _start(self, routine: str) -> None:
         """A run of `routine` on its own thread. Under the lock."""
@@ -656,7 +714,8 @@ class MacroRunner:
         self.thread.start()
 
     def resume_state(self) -> dict:
-        """What a restart of the service carries over (appraisal/service.py `Restart`)."""
+        """What a restart of the service carries over (appraisal/service.py `Restart`): the service's own settings. The
+        game's state is its record's (macros/midgame.py RECORD, `attach_records`), never a copy here."""
         with self.lock:
             return {
                 'loop': self.loop.on,
@@ -665,13 +724,17 @@ class MacroRunner:
                 # on in the kind it was (a lobby restart takes the asked one at its first leg: loop.py `leg`)
                 'loop_kind': self.loop.kind.key,
                 'loop_pending': self.loop.pending.key if self.loop.pending is not None else None,
-                'sightings': self.sightings.state(),
                 # The player's Gheed's Fortune on a shared page mid-swap (macros/charms.py): fetched back after it
                 'gheeds': self.loop.parked.state() if self.loop.parked is not None else None,
-                # The game the character is in (macros/midgame.py `snapshot`): the next service goes on in it when it
-                # is the same game (a restart at a safe point mid-game, or with the loop off: no second shard)
-                'game': midgame.snapshot(self.loop, self.progress),
             }
+
+    def attach_records(self, records) -> None:
+        """The games' records (terror/tracker.py `ZoneTracker.record`; None: none) the loop and the sightings keep the
+        game's state in and take it up from (macros/midgame.py RECORD); an old restart blob's game written into them
+        (`resume`, midgame.py LEGACY_BLOB). Before `resume`."""
+        with self.lock:
+            self.loop.records = records
+            self.sightings.records = records
 
     def resume(self, state: dict) -> None:
         """Take up what the service before a restart left (`resume_state`): the pickup mode at once, the loop at the
@@ -688,12 +751,8 @@ class MacroRunner:
                 self.resume_pending = pending  # after the resume's own turn on (watch.py `poll`): from the next game
             else:
                 self.loop.pending = pending  # the player's next KP_6 on takes it (`_toggle_loop`)
-            if isinstance(state.get('sightings'), dict):
-                self.sightings.restore(state['sightings'])
-                # A restart is made for a fix: the trips back start over, or a valuable out of trips stops it at once
-                self.sightings.again()
-            if isinstance(state.get('game'), dict):
-                self.loop.carried = state['game']  # taken up at the first leg in that game (loop.py `Loop.leg`)
+            # A service before the game's record (midgame.py LEGACY_BLOB): its game into the record, once
+            midgame.migrate(self.loop.records, state)
             parked = Parked.restore(state.get('gheeds'))
             if parked is not None:
                 self.loop.parked = parked
@@ -757,6 +816,8 @@ class MacroRunner:
             thread.join(timeout=3)  # outside the lock: the run's end takes it
         if self.focus is not None:
             self.focus.close()
+        if self.frames is not None:
+            self.frames.close()
 
     def _show(self, lines: list[str]) -> None:
         """The card: the warning that stands, if any, above `lines`. A card with only the warning stays
@@ -765,7 +826,17 @@ class MacroRunner:
         if warning is not None and time.monotonic() - warning[1] > WARNING_SECONDS:
             warning = self.warning = None
             self.standing = False
-        self.display(([f'Macro: {warning[0]}'] if warning is not None else []) + lines)
+        card = ([f'Macro: {warning[0]}'] if warning is not None else []) + lines
+        if not HANDOVER:
+            self.display(card)
+            return
+        # The run's thread and the KP_6 timer's both write the card: one at a time (the layer's one temporary file),
+        # and a write that fails is the card's loss, never the caller's (rca/2026-10-23/loop-no-legs.md)
+        with self.card_lock:
+            try:
+                self.display(card)
+            except OSError as error:
+                LOG.warning('Macro: the card %s not shown: %s', card, error)
 
     def _warn(self, text: str | None) -> None:
         """A warning that stays on the card until taken back with None (user, 2026-10-12: "we should give an active
@@ -797,6 +868,38 @@ class MacroRunner:
         self._show([f'Macro: {text}'])
 
     def _guarded(
+        self,
+        cancelled: threading.Event,
+        routine: str,
+        generation: int,
+        until: float = math.inf,
+        press: Press | None = None,
+    ) -> None:
+        """The run's thread: `_guarded_run`, and (HANDOVER) whatever its own stop handling raised, the runner handed
+        over all the same (`_handed_over`)."""
+        if not HANDOVER:
+            self._guarded_run(cancelled, routine, generation, until, press)
+            return
+        try:
+            self._guarded_run(cancelled, routine, generation, until, press)
+        except Exception as exc:
+            LOG.exception('Macro: the %s run failed at its own end', routine)
+            self._handed_over(routine, generation, exc)
+
+    def _handed_over(self, routine: str, generation: int, exc: Exception) -> None:
+        """The run of `routine` raised `exc` past its stop handling: unless a successor owns the runner or it was
+        handed over before the raise, `working` goes off and what follows starts (`_follow`). A loop's leg stops the
+        loop, said: a raise that repeats must not make leg after leg."""
+        with self.lock:
+            if self.generation != generation or not self.working:
+                return
+            self.queue.drop(routine, 'the step before it failed')
+            if routine == LOOP and self.loop.on:
+                self._stop_loop(f'the leg failed at its own end ({exc})')
+            if not self._follow(routine):
+                LOG.info('Macro: the %s run failed at its own end; nothing follows it', routine)
+
+    def _guarded_run(
         self,
         cancelled: threading.Event,
         routine: str,
@@ -1016,6 +1119,13 @@ class MacroRunner:
     # merclost.py
     _merc_poll = merclost._merc_poll
     _merc_read = merclost._merc_read
+
+    # guarding.py
+    _guard_arm = guarding._guard_arm
+    _guard_disarm = guarding._guard_disarm
+    _guard_poll = guarding._guard_poll
+    guard_look_of = guarding.guard_look_of
+    guard_watch = guarding.guard_watch
 
     # watch.py
     poll = watch.poll

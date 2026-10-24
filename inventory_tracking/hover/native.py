@@ -4,6 +4,7 @@ import struct
 from typing import Any
 
 from inventory_tracking.hover.materials import material_widget
+from inventory_tracking.native import layout
 
 
 def collect_native(read, base, ui, snapshot, *, all_grids=False) -> dict[str, Any]:
@@ -21,8 +22,8 @@ def collect_native(read, base, ui, snapshot, *, all_grids=False) -> dict[str, An
         return struct.unpack_from('<Q', raw, offset)[0]
 
     try:
-        capture(base + 0x1EC9C4D, 11, 'mouse_gate_and_position')
-        capture(base + 0x1EC9F4C, 12, 'carried_item_state')
+        capture(base + layout.MOUSE_GATE_RVA, 11, 'mouse_gate_and_position')
+        capture(base + layout.CARRIED_ITEM_RVA, 12, 'carried_item_state')
         for label, widget in ui['widgets'].items():
             if not widget or 'raw_hex' not in widget:
                 continue
@@ -58,7 +59,7 @@ def collect_native(read, base, ui, snapshot, *, all_grids=False) -> dict[str, An
             # Native getter may use +98 via a reference object at +a0, otherwise +90.
             # Preserve both candidates; never choose based on a plausible-looking grid.
             page = 4 if material_widget(widget, base) else raw[0x630]
-            if page > 15 and not all_grids and widget.get('vtable') != base + 0x17129D0:
+            if page > 15 and not all_grids and widget.get('vtable') != base + layout.EQUIPMENT_WIDGET[0]:
                 raise ValueError('UI page exceeds research bound')
             for offset in (0x90, 0x98):
                 address = qword(header, offset)
@@ -74,7 +75,7 @@ def collect_native(read, base, ui, snapshot, *, all_grids=False) -> dict[str, An
                     raise ValueError('Inventory grid count exceeds bound')
                 if not grid_array:
                     continue
-                equipment = widget.get('vtable') == base + 0x17129D0
+                equipment = widget.get('vtable') == base + layout.EQUIPMENT_WIDGET[0]
                 indices = range(count) if all_grids else [0 if equipment else page + 2]
                 for index in indices:
                     if index >= count:

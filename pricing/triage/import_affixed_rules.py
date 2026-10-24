@@ -1,7 +1,6 @@
 """Guide and cached-ask affixed patterns, without invented numerical prices."""
 
 import json
-from itertools import combinations
 
 from pricing.knowledge.refresh import atomic_json
 from pricing.triage.build import ROOT
@@ -159,31 +158,7 @@ def magic_patterns(add):
                 'independent_sellers': sellers,
             },
         )
-    # Explicit single-affix trade patterns in primer §3.2. These establish
-    # review thresholds only; compound jewel asks must not price a plain copy.
-    for prop, minimum, label in (
-        ('510', 30, 'enhanced damage'),
-        ('457', 15, 'increased attack speed'),
-        ('441', 10, 'all resistances'),
-    ):
-        add(
-            'jewl',
-            'magic',
-            f'Magic jewel: {label}',
-            stats(**{prop: minimum}),
-            source='guides/pricing-primer.html#s3-2 (JW-ed / JW-ias / JW-res)',
-        )
-    # An all-resistance prefix + Carnage suffix is a legal magic-jewel pair.
-    # Guide §2 blue / primer D-3 specify both modifiers; no scoped price is implied.
-    add(
-        'jewl',
-        'magic',
-        'Magic jewel: all resistances + maximum damage',
-        stats(**{'441': 8, '448': 10}),
-        low_rolls={'441': {'min': 1}, '448': {'min': 1}},
-        labels={'441': 'all resistances', '448': 'maximum damage'},
-        source='guides/pricing.html#s2-blue; guides/pricing-primer.html#d3',
-    )
+    # Magic and rare jewels: jewel_patterns (the 2026-10-22 audit), never review-only rows here.
     # At least 31 MF requires both the prefix and suffix on a magic ring.
     add('ring', 'magic', 'Fortuitous ring of Fortune: 31+ magic find', stats(**{'461': 31}))
     for family, bases, sockets in (
@@ -716,28 +691,6 @@ def remaining_type_patterns(add):
             source=market_source(sellers, lowest, '0 of 69'),
         )
     add('circ', 'magic', 'Magic circlet: 30 FRW', stats(**{'480': 30}), source=market_source(7, 11.4, '0 of 15'))
-    # Rare jewels: two useful rolls. None of 13 stored rare jewels has two.
-    jewel = [
-        stats(**{'510': 20}),
-        stats(**{'448': 8}),
-        stats(**{'416': 8}),
-        stats(**{'437': 6}),
-        stats(**{'429': 7}),
-        stats(**{'441': 8}),
-        *(stats(**{prop: 22}) for prop in RESISTS),
-        stats(**{'430': 7}),
-        stats(**{'457': 15}),
-        stats(**{'418': 15}),
-    ]
-    add(
-        'jewl',
-        'rare',
-        'Rare jewel: two of enhanced damage, flat damage, strength, dexterity, resistance, FHR, IAS or life',
-        {},
-        counted(2, *jewel),
-        relax_support=False,
-        source=market_source(28, 5.9, '0 of 13'),
-    )
     # Crafted items: the recipe supplies part of the roll, so gates are looser
     # than the rare ones and every craft is looked at once anyway.
     add('belt', 'crafted', 'Crafted belt: 24 FHR', stats(**{'430': 24}), source=market_source(20, 5.9, '0 of 1'))
@@ -862,11 +815,350 @@ def market_equipment_patterns(add):
         )
 
 
+def jewel_source(group, evidence):
+    return {
+        'review': f'rca/2026-10-22/jewel-verify-{group}.md',
+        'scope': 'SC/NL/PC/RotW',
+        'reviewed_at': '2026-10-22',
+        'evidence': evidence,
+    }
+
+
+def rolls(bounds):
+    """{'510': (35, 40)} -> rule properties; a None upper bound is open."""
+    return {
+        'properties': {
+            prop: {'min': low} | ({'max': high} if high is not None else {}) for prop, (low, high) in bounds.items()
+        }
+    }
+
+
+def jewel_patterns(add):
+    """Every magic and rare jewel region of the 2026-10-22 audit (rca/2026-10-22/jewel-verify-G1..G6.md).
+
+    The player, 2026-10-22: no CHECK for jewels, and never sell one by mistake. Each row is therefore premium
+    and its pattern is the whole rule: a full match is a reviewed `sell`, a near miss matches no pattern and is
+    vendor. A row with a bucket also compiles a pattern band, which reports a price; a sparse band never turns
+    the row into CHECK (engine.assess). Native ranges: third-parties/d2data/json/magicprefix.json and
+    magicsuffix.json. A magic jewel has one prefix and one suffix; ED, all res, one res, AR, mana, defense and
+    the Emerald MF are prefixes. Fervor (15 IAS), Ruby ED 31-40, Scintillating 11-15, Hope 9-20, Carnage and
+    Vermillion are magic-only, so a rare jewel never has IAS, life 9+, ED above 30 or all res above 10.
+    """
+
+    def jewel(rarity, label, required, support=None, *, group, evidence):
+        add(
+            'jewl',
+            rarity,
+            label,
+            required,
+            support,
+            relax_support=False,
+            premium=True,
+            source=jewel_source(group, evidence),
+        )
+
+    # G2: Fervor is the only IAS jewel affix (15-15, magic-only). The floor row prices a plain or low-prefix
+    # copy from the asks no other bucketed jewel row claims (bands.build_bands); thin compound bands fall back
+    # to it (family_bands.lookup).
+    jewel(
+        'magic',
+        'Jewel of Fervor: 15% IAS with any prefix',
+        {**rolls({'457': (15, None)}), 'bucket': 'fervor-floor', 'band_role': 'floor'},
+        group='G2',
+        evidence='floor asks q1 1.0 Ist, 13 scoped sellers (2026-10-22); d2io WTB Pul per 15 IAS (2026-09-18); '
+        'every Fervor row has VMI demand (2024-03-06); no fills',
+    )
+    for bucket, bounds, evidence in (
+        ('rusty-fervor', {'510': (10, 19)}, 'VMI Rusty Jewel of Fervor, Medium'),
+        ('shimmering-fervor', dict.fromkeys(RESISTS, (5, 10)), 'VMI Shimmering Jewel of Fervor, Medium'),
+        ('ambergris-fervor', {'428': (20, 30)}, 'VMI Resistance Jewel of Fervor; 14 scoped sellers 2026-10-22'),
+        ('sapphire-fervor', {'426': (20, 30)}, 'VMI Resistance Jewel of Fervor; 11 scoped sellers 2026-10-22'),
+        ('jade-fervor', {'401': (20, 30)}, 'VMI Resistance Jewel of Fervor; 5 scoped sellers 2026-10-22'),
+        ('vermillion-fervor', {'448': (11, 15)}, '9 scoped sellers 2026-10-22'),
+        ('argent-fervor', {'423': (61, 100)}, 'd2io WTB Pul (60-69 AR) to Gul (100) 2026-09-18; 7 sellers 2026-10-22'),
+    ):
+        # No fire 15-19 row: a single-resist row cannot exclude all res, so it would price Scintillating copies.
+        add(
+            'jewl',
+            'magic',
+            f'Jewel of Fervor with a priced prefix ({bucket})',
+            {**rolls(bounds | {'457': (15, 15)}), 'bucket': bucket},
+            source=jewel_source('G2', evidence + ' (asks)'),
+        )
+
+    # G3: ED and all-resistance prefixes without IAS or flat damage.
+    def ed(low, high=40):
+        return {'510': (low, high)}
+
+    def allres(low, high):
+        return dict.fromkeys(RESISTS, (low, high))
+
+    freedom = {'420': (-15, -15)}  # a drop carries -15; adapters.from_listing negates Traderie's +15
+    attribute = counted(1, stats(**{'437': 5}), stats(**{'429': 5}))
+    for label, bounds, bucket, support, evidence in (
+        ('Ruby jewel: 35-40 ED', ed(35), None, None, 'E4: d2io asks Um-Mal, 5 sellers 2026-10-22; VMI 35-40'),
+        (
+            'Ruby jewel of Virility: 31-40 ED + 5-9 strength',
+            ed(31) | {'437': (5, None)},
+            'ruby-virility',
+            None,
+            'R1: 17 sellers, asks q1 2.58; bids 2 Jah 2026-10-21',
+        ),
+        (
+            'Ruby jewel of Daring: 31-40 ED + 5-9 dexterity',
+            ed(31) | {'429': (5, None)},
+            'ruby-daring',
+            None,
+            'R2: 18 sellers, asks q1 1.0; VMI Medium',
+        ),
+        (
+            'Ruby jewel of Hope: 31-40 ED + 15-20 life',
+            ed(31) | {'418': (15, None)},
+            'ruby-hope',
+            None,
+            'R3: 16 sellers, asks q1 11.42',
+        ),
+        (
+            'Ruby jewel of Hope: 31-40 ED + 9-14 life',
+            ed(31) | {'418': (9, 14)},
+            'ruby-hope-low',
+            None,
+            'R4: 3 sellers, asks q1 0.78',
+        ),
+        (
+            'Ruby jewel of Freedom: 25-40 ED + -15% requirements',
+            ed(25) | freedom,
+            'ruby-freedom',
+            None,
+            'R5: 22 sellers, asks q1 5.37 (after the 420 sign fix); VMI 25-40 ED Medium',
+        ),
+        (
+            'Ruby jewel of Truth: 30-40 ED + 7 FHR',
+            ed(30) | {'430': (7, None)},
+            'ruby-truth',
+            None,
+            'R6: 12 sellers, asks q1 10.04; VMI Medium',
+        ),
+        (
+            'Realgar jewel: 30 ED + 5-9 strength or dexterity',
+            ed(30, 30),
+            None,
+            attribute,
+            'R6b: VMI quotes Virility/Daring at 30-40 ED',
+        ),
+        (
+            'Ruby jewel of Prosperity: 31-40 ED + 5-10 magic find',
+            ed(31) | {'461': (5, None)},
+            'ruby-prosperity',
+            None,
+            'R7: 13 sellers, asks q1 1.0; bids Vex-Lo 2026-10-22',
+        ),
+        (
+            'Realgar jewel of Hope: 21-30 ED + 15-20 life',
+            ed(21, 30) | {'418': (15, None)},
+            None,
+            None,
+            'G1 region: 5 listing sellers, one priced at 1.43 (2026-10-22)',
+        ),
+        ('Scintillating jewel: 11-15 all resistances', allres(11, 15), None, None, 'A4: 8 sellers, asks q1 2.58'),
+        (
+            'Scintillating jewel: 11-15 all resistances + 9-20 life',
+            allres(11, 15) | {'418': (9, None)},
+            'scintillating-life',
+            None,
+            'A5/A6: 18 sellers, asks q1 14.28; bids Sur 2026-10-21',
+        ),
+        (
+            'Scintillating jewel of Truth: 11-15 all resistances + 7 FHR',
+            allres(11, 15) | {'430': (7, None)},
+            'scintillating-truth',
+            None,
+            'A11: 22 sellers, asks q1 3.41',
+        ),
+        (
+            'Scintillating jewel of Prosperity: 11-15 all resistances + 5-10 magic find',
+            allres(11, 15) | {'461': (5, None)},
+            'scintillating-prosperity',
+            None,
+            'A12: 7 sellers, asks q1 34.26 (wish asks)',
+        ),
+        (
+            'Shimmering jewel: 8-10 all resistances + 5-9 strength or dexterity',
+            allres(8, 10),
+            None,
+            attribute,
+            'A13: fill 20 pgems (~0.5 Ist) for 10@/6 str, d2io sold 2026-09-17; 1 seller ask 5.88',
+        ),
+        (
+            'Shimmering jewel of Hope: 5-10 all resistances + 9-20 life',
+            allres(5, 10) | {'418': (9, None)},
+            None,
+            None,
+            'A14: 4 sellers, asks 0.79+ (2026-10-22)',
+        ),
+    ):
+        jewel(
+            'magic',
+            label,
+            {**rolls(bounds), **({'bucket': bucket} if bucket else {})},
+            support,
+            group='G3',
+            evidence=evidence + ' (asks unless a fill or bid is named)',
+        )
+
+    # G6: suffixes that sell with any prefix, or with a top prefix.
+    jewel(
+        'magic',
+        'Magic jewel of Hope: life 15-20 with any prefix',
+        rolls({'418': (15, None)}),
+        group='G6',
+        evidence='40 priced + 15 offer-only scoped sellers, asks q1 5.71 Ist (2026-10-22); no fills',
+    )
+    jewel(
+        'magic',
+        'Magic jewel of Truth: 7 FHR with a top prefix',
+        rolls({'430': (7, None)}),
+        counted(
+            1,
+            stats(**{'400': 16}),
+            *(stats(**{prop: 20}) for prop in RESISTS),
+            stats(**{'423': 61}),
+            stats(**{'399': 41}),
+            stats(**{'461': 5}),
+        ),
+        group='G6',
+        evidence='6 priced scoped sellers, asks q1 3.41 Ist (2026-10-21..22); planners socket 7 FHR jewels; weak',
+    )
+
+    # G1: flat damage (drops project native 21-24/159/160 onto 416/448, adapters.from_drop). Max 10+ at any
+    # equip level is one paid bucket (Carnage, Vermillion, Carbuncle/Carmine of Wrath); it also covers G1 P2
+    # (16+ max, two max affixes), P4 (all res + max) and Ruby of Carnage (P9), which sell the same way.
+    for rarity in ('magic', 'rare'):
+        jewel(
+            rarity,
+            'Damage jewel: 10+ maximum damage at any equip level',
+            rolls({'448': (10, None)}),
+            group='G1',
+            evidence='Traderie asks 0.674 and 9.32 Ist (2 sellers, 2026-09-18); d2io NA 2-3 Ist, EU Ist / Mal; '
+            'primer JW-lowreq Um-3 Ist; VMI Carnage rows; no fills',
+        )
+    jewel(
+        'magic',
+        'Ruby jewel of Bliss: 30-40 ED + 5-10 minimum damage',
+        rolls({'510': (30, None), '416': (5, None)}),
+        group='G1',
+        evidence='VMI Medium; d2io 34/6 Vex or Ohm (2026-09-18); Traderie 40/10 22.8, 37/9 1.0 (asks)',
+    )
+    jewel(
+        'rare',
+        'Rare jewel: 8+ maximum and 8+ minimum damage',
+        rolls({'448': (8, None), '416': (8, None)}),
+        group='G1',
+        evidence='the two strongest flat-damage rolls; 8 min / 5 max / 1 str asked at Lo (2026-09-18); weak',
+    )
+
+    # G4: rare jewels. Ten good rolls near the top of each rare range; three of them, or a named pair, sell.
+    # Rare asks are a 1-Jah floor whatever the rolls; buyer offers separate the regions (16/85 with three good
+    # rolls, 0/36 with two, 2026-09-18), so these rows carry no bucket and list at "offer".
+    requirements = rolls({'420': (-15, -15)})
+    good = [
+        stats(**{'510': 20}),
+        stats(**{'448': 8}),
+        stats(**{'416': 8}),
+        stats(**{'423': 41}),
+        stats(**{'441': 8}),
+        counted(1, *(stats(**{prop: 22}) for prop in RESISTS)),
+        stats(**{'437': 6}),
+        stats(**{'429': 7}),
+        stats(**{'430': 7}),
+        requirements,
+    ]
+    offers = 'buyer offers 16/85 listings with three good rolls vs 0/36 with two (2026-09-18); no fills'
+    jewel(
+        'rare',
+        'Rare jewel: three of ED, flat damage, AR, all res, one resist, str, dex, FHR or -15% requirements',
+        {},
+        counted(3, *good),
+        group='G4',
+        evidence=offers,
+    )
+    jewel(
+        'rare',
+        'Rare jewel: two of ED, maximum damage, all resistances',
+        {},
+        counted(2, stats(**{'510': 20}), stats(**{'448': 8}), stats(**{'441': 8})),
+        group='G4',
+        evidence='primer JW-rare pairs; VMI Medium for the magic Carnage twin; ' + offers,
+    )
+    jewel(
+        'rare',
+        'Rare jewel: ED + minimum damage',
+        stats(**{'510': 20, '416': 8}),
+        group='G4',
+        evidence='VMI Medium for the magic Ruby of Bliss twin',
+    )
+    jewel(
+        'rare',
+        'Rare jewel: all resistances + one resistance 30',
+        stats(**{'441': 8}),
+        counted(1, *(stats(**{prop: 30}) for prop in RESISTS)),
+        group='G4',
+        evidence='a rare-only resist stack; 0 of 55 own rare jewels carry all res',
+    )
+    jewel(
+        'rare',
+        'Rare jewel: ED 25+ and -15% requirements',
+        rolls({'510': (25, None), '420': (-15, -15)}),
+        group='G4',
+        evidence='dominates the magic Ruby of Freedom 25-40 ED (VMI Medium)',
+    )
+    jewel(
+        'rare',
+        'Rare jewel: 30 ED with FHR or an attribute',
+        stats(**{'510': 30}),
+        counted(1, stats(**{'430': 7}), stats(**{'437': 5}), stats(**{'429': 5})),
+        group='G4',
+        evidence='the magic Ruby of Truth / Virility / Daring twins at their 30 ED floor (VMI Medium)',
+    )
+    # Main session, 2026-10-22: the rare twin of the magic Shimmering of Virility / Daring sells too (G3 A13 vs
+    # G4 B; the one realised price, 20 pgems ~0.5 Ist, is twice the keep line).
+    jewel(
+        'rare',
+        'Rare jewel: 8-10 all resistances + 5-9 strength or dexterity',
+        rolls(allres(8, 10)),
+        attribute,
+        group='G4',
+        evidence='G3 A13 fill 20 pgems for 10@/6 str (d2io sold 2026-09-17); stash cost one cell',
+    )
+
+    # G5 6: no treasure class, gamble list or cube recipe makes a non-unique Colossal Jewel, and none of the
+    # 1,526 cached cjw listings is one (2026-10-22). A sighting is an anomaly to stash, never vendor food.
+    for rarity in ('magic', 'rare'):
+        add(
+            'cjwl',
+            rarity,
+            'Non-unique Colossal Jewel: no drop source and no market; stash for review',
+            {},
+            relax_support=False,
+            premium=True,
+            source=jewel_source('G5', 'treasureclassex/gamble/cubemain name no cjw; 0 of 1,526 cached cjw rows'),
+        )
+
+
 def affixed_rules():
     rows = []
 
     def add(
-        family, rarity, label, required, support=None, source=SOURCE, low_rolls=None, labels=None, relax_support=True
+        family,
+        rarity,
+        label,
+        required,
+        support=None,
+        source=SOURCE,
+        low_rolls=None,
+        labels=None,
+        relax_support=True,
+        premium=False,
     ):
         rows.append(
             {
@@ -874,6 +1166,8 @@ def affixed_rules():
                 'category': rarity,
                 **required,
                 **(support or {}),
+                # A reviewed sell: a full match is `sell`, never a review-only CHECK (engine.assess).
+                **({'premium': True} if premium else {}),
                 'pattern': {
                     **(support_pattern(support or {}) if relax_support else support or {}),
                     'properties': required.get('properties', {}) | (low_rolls or {}),
@@ -1144,25 +1438,7 @@ def affixed_rules():
         stats(**{'1862': 2, '463': 7, '418': 30, '441': 10, '526': 1}),
         source='guides/pricing-primer.html#s6-1 (RR-pc-warlock-tele-amulet)',
     )
-    jewel_stats = {'510': (20, 'enhanced damage'), '441': (8, 'all resistances'), '448': (10, 'maximum damage')}
-    for pair in combinations(jewel_stats, 2):
-        add(
-            'jewl',
-            'rare',
-            'Rare jewel: ' + ' + '.join(jewel_stats[p][1] for p in pair),
-            stats(**{p: jewel_stats[p][0] for p in pair}),
-            low_rolls={p: {'min': 1} for p in pair},
-            labels={p: jewel_stats[p][1] for p in pair},
-            source='guides/pricing-primer.html#d3 (JW-rare / pairs of paid jewel stats)',
-        )
-    for rarity in ('magic', 'rare'):
-        add(
-            'jewl',
-            rarity,
-            'Low-level damage jewel: 11+ maximum damage, equip level <=40',
-            {'properties': {'448': {'min': 11}, '796': {'min': 1, 'max': 40}}},
-            source='guides/pricing-primer.html#s3-2 JW-lowreq; Carnage and documented 11/12/15-max examples',
-        )
+    jewel_patterns(add)
     market_equipment_patterns(add)
     magic_patterns(add)
     physical_weapon_patterns(add)
@@ -1174,11 +1450,32 @@ def affixed_rules():
     return rows
 
 
+# Non-unique Colossal Jewels route to triage, whose reviewed row stashes them, never to the legacy engine's
+# "no build rules" vendor (rca/2026-10-22/jewel-verify-G6.md §2 Q4).
+JEWEL_TYPES = ('magic/cjwl', 'rare/cjwl')
+# Rainbow Facet: vendor only below 0.2 Ist, the primer's own vendor line; the 3-roll region's q1 (0.27, 16 sellers,
+# asks 2026-09-18..10-04) sits too near the 0.25 keep line for a refresh to be trusted with it.
+JEWEL_POLICIES = (
+    {
+        'category': 'uniques',
+        'name': 'Rainbow Facet',
+        'keep_ist': 0.2,
+        'source': 'guides/pricing-primer.html §0 verdicts (vendor = below 0.2 Ist); rca/2026-10-22/jewel-verify-G5.md',
+        'imported_jewel_policy': True,
+    },
+)
+
+
 def main():
     path = ROOT / 'pricing/data/triage/rules.json'
     document = json.loads(path.read_text())
     rows = affixed_rules()
     document['rows'] = [r for r in document['rows'] if not r.get('imported_affixed_rule')] + rows
+    enabled = document.get('enabled_types', [])
+    document['enabled_types'] = [*enabled, *(t for t in JEWEL_TYPES if t not in enabled)]
+    document['policies'] = [p for p in document['policies'] if not p.get('imported_jewel_policy')] + [
+        dict(p) for p in JEWEL_POLICIES
+    ]
     atomic_json(path, document)
     print(
         json.dumps(

@@ -112,6 +112,7 @@ unidentified"); where the room must be made and nothing else makes it, the Tome 
     Macro: loot: field: room: no room otherwise: 1 magic rings and amulets identified with the Tome
 """
 
+import logging
 import math
 import threading
 import time
@@ -119,16 +120,18 @@ from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Protocol
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import APPRAISAL
 from inventory_tracking.game.records import VALUABLE, Carried, Drop, Pack
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
-from inventory_tracking.loot import ground_judge
+from inventory_tracking.loot import base_floor, ground_judge
 from inventory_tracking.loot.facts import MAGIC, RARE, SET, UNIQUE, ItemFacts, Owner, from_carried, from_drop
 from inventory_tracking.loot.ground_judge import Then
 from inventory_tracking.loot.keep import (
+    BASE_RULE,
     CHARMS,
     GEMS,
     JEWELS,
@@ -144,23 +147,27 @@ from inventory_tracking.loot.keep import (
     gheeds_low,
     junk_magic,
     junk_unwanted,
+    shimmering_below_top,
     unusable_best,
     unusable_first,
 )
 from inventory_tracking.loot.shadow import Appraised
-from inventory_tracking.loot.storage import RESOURCES, SURE_BLOCK, is_potion, roomed
-from inventory_tracking.loot.value import DUPLICATE_IST, Value, appraise_result, better_than, comparable
+from inventory_tracking.loot.storage import BIG_BLOCK, RESOURCES, SURE_BLOCK, is_potion, roomed
+from inventory_tracking.loot.value import DUPLICATE_IST, Value, appraise_result, assess, better_than, comparable
 
 
 __all__ = [
     'AT_ONCE',
     'BIG_CELLS',
+    'BLOCKS',
+    'BLOCK_FREE',
     'CLASSES',
     'CUBE_AT_PICKUP',
     'FIELD',
     'FIELD_AT_ONCE',
     'FIELD_BIG',
     'FIELD_IDENTIFY',
+    'FIELD_IDENTIFY_RINGS',
     'FIELD_OVERSIZE',
     'IDENTIFY_RESERVE',
     'IMPLEMENTED',
@@ -174,7 +181,9 @@ __all__ = [
     'Settled',
     'TownVerdict',
     'at_once',
+    'bench',
     'droppable',
+    'landing',
     'leaves_room',
     'oversize',
     'reserve_short',
@@ -251,6 +260,35 @@ ONE_OPENING = True
 # with the Tome as before, said so (`_cain_rings_for_room`). Rare and unique ones are unchanged. False: identified with
 # the Tome in the field as before
 RINGS_TO_CAIN = True
+# The player, 2026-10-23 ~11:25: "allow field identify for rings" (asked against RINGS_TO_CAIN: the rings fill the
+# inventory between visits, rca/2026-10-23/exp-town-findings.md). True: a magic ring is identified with the Tome in the
+# field like the other G11 items and its junk dropped there; the magic amulets still go to Cain (RINGS_TO_CAIN).
+# False: the rings go to Cain too
+FIELD_IDENTIFY_RINGS = True
+# The field routine's decisions through the one entry point (loot/assess.py FIELD, design.md §10; the player,
+# 2026-10-23: "go ahead. I want to have one place that decides pickups/value"): `Field._judge` asks the entry point,
+# which composes keep.py `decide_all`, `droppable` and `to_cain`, and the routine's Cain routing asks it too. Offline
+# before the switch: tests/inventory_tracking/loot/test_assess_replay.py (39 real reads), the field cases of test_api.py
+# and test_hands.py with the switch on and off, 0 differ. The old decision is logged beside the new one where they
+# differ ("Macro: loot: assess: field: ..."). False: `_judge` calls them directly as before (legacy until ASSESS_FIELD
+# is proven)
+ASSESS_FIELD = True
+# The free block kept free (rca/2026-10-23/room-blocks-findings.md; the player, 2026-10-23: "make sure that you
+# cleared inventory for the extended run without dropping valuable items, and actually have space", "we absolutely
+# must preserve top items"). The game, not the loop, picks the cell a ground pickup lands in (items/grid.py
+# `pickup_spot`): after a visit the first ring, charm or gem lands at (4, 3), inside the 2 x 4 block, and two more end
+# the 2 x 3. On 2026-10-22/23 the 2 x 4 broke in 58 of 60 cycles at the first small pickup, and 94 of 123 replayed
+# "left: no room for its 2x2/2x3/2x4" came with the cells free in the inventory and the cube together. True: every
+# small item of the loop's the pickup takes is remembered like a stash-bound one (`park`), and at the first quiet look
+# after it the loop's settled small items standing in the largest block that can be free (BLOCKS: the 2 x 4, else the
+# 2 x 3, else the 2 x 2) go into the cube in the park's one batch (`bench`): the magic rings and amulets Cain's
+# (RINGS_TO_CAIN; Cain identifies the cube's too, macros/visit.py), charms, jewels, gems and runes; never an item
+# waiting for the field Tome, a potion, the player's or a KEPT tool; only when the cube takes all of them, so the
+# block is really free after. A small one in a spare cell stays. Where the game puts the big one next is its own rule
+# too (`landing`). False: only the stash-bound go (CUBE_AT_PICKUP), and the first free spot row by row is taken as the
+# game's, as before
+BLOCK_FREE = True
+BLOCKS = (BIG_BLOCK, (2, 3), (2, 2))  # the blocks kept free, the largest first (2 x 4: an armour, a polearm)
 AT_ONCE = 'at once'  # the site's name in the routine's lines
 ROOM_SITE = 'room'  # the site where room is made for a valuable waiting (running/execution.py): the reserve holds there
 AT_ONCE_EVERY = 1.0  # seconds between two looks of the level run for a big item to identify (`Field.due`)
@@ -426,7 +464,8 @@ def town_kept(
     low Gheed's Fortune, keep.py GHEEDS_BY_ROLL: sold whatever its appraisal); a set or unique item only as a surplus
     copy (`surplus_copy` with `owned`, the owned copies and the ones kept this visit: never the first or the best
     copy); no want row, under DUPLICATE_IST; and appraised `vendor`, or given up by a
-    TOWN_RULED rule over a K6_SELLS_OVER verdict, or by keep.py K8's kinds with a price (S8: no price is kept); never
+    TOWN_RULED rule over a K6_SELLS_OVER verdict, or by keep.py K8's kinds or K7's lower Shimmering Large and Grand
+    Charms with a price (S8: no price is kept); never
     one appraised `self` but as `vendor`. Pure."""
     if decision is None or value is None:
         return 'no appraisal (S8)'
@@ -450,12 +489,16 @@ def town_kept(
         return f'wanted: {wanted[0].label}'
     if value.worth_ist is not None and value.worth_ist >= DUPLICATE_IST:
         return f'expensive ({value.worth_ist:.3g} Ist)'
-    if value.verdict == VENDOR:
-        return None
+    if value.verdict == VENDOR or decision.rule == BASE_RULE:
+        return None  # BASE_RULE: a plain base the KB prices clearly under the floor (loot/base_floor.py BASE_FLOOR)
     verdict = value.verdict or 'without a verdict'
     if value.verdict == OWN_USE:
         return f'appraised {verdict} (own use), not vendor'
-    by_kind = _junk_by_kind(facts) and decision.rule == 'K8'
+    # keep.py K8's kinds with a price, or a Shimmering Large or Grand Charm under its top roll (K7, the player
+    # 2026-10-24: "keep only top rolls for large/grand shimmering"): sold over any verdict
+    by_kind = (_junk_by_kind(facts) and decision.rule == 'K8') or (
+        decision.rule == 'K7' and shimmering_below_top(facts) is not None
+    )
     if value.worth_ist is None and not by_kind and not named:
         return f'no price, appraised {verdict} (S8)'
     if decision.rule in TOWN_RULED and value.verdict in K6_SELLS_OVER:
@@ -527,6 +570,10 @@ def town_sold(
         entry = book.get(item.unit_id)
         owner = Owner.PLAYER if item.unit_id in spared else Owner.LOOP
         facts = from_carried(item, owner=owner, observation=entry.observation if entry is not None else None)
+        if entry is None and base_floor.is_plain(facts.code, facts.quality):
+            # a plain base needs no appraisal: on the allowlist or not (keep.py K9, loot/base_floor.py `town_junk`)
+            items.append((facts, assess(facts, worth=None)))
+            continue
         items.append((facts, appraise_result(facts, entry.result, entry.verdict) if entry is not None else None))
     verdicts = town_verdicts(items, copies.copies)
     if kept is not None:
@@ -574,14 +621,48 @@ def oversize(drop: Drop) -> bool:
     return cells(drop) > APPRAISAL.pickup_shown_cells
 
 
+def landing(grid: Grid, size: tuple[int, int]) -> tuple[int, int] | None:
+    """The cell a picked-up item of `size` lands in: the game's (`Grid.pickup_spot`) with BLOCK_FREE, else the first
+    free spot row by row as before; None with no room."""
+    return grid.pickup_spot(size) if BLOCK_FREE else grid.first_spot(size)
+
+
 def leaves_room(room: tuple[str, ...] | None, size: tuple[int, int]) -> bool:
     """Whether an item of `size` fits the inventory's `room` (rows, '.' free) and a SURE_BLOCK (the tallest sure
-    valuable, a Grand Charm) still fits after it, where the game puts it (the first free spot). Unread: True."""
+    valuable, a Grand Charm) still fits after it, where the game puts it (`landing`). Unread: True."""
     if room is None:
         return True
     grid = Grid(room)
-    spot = grid.first_spot(size)
+    spot = landing(grid, size)
     return spot is not None and grid.take(spot, size).has_room(SURE_BLOCK)
+
+
+def bench(pack: Pack, settled: Sequence[Carried]) -> list[Carried]:
+    """The `settled` items (the loop's small ones that may go into the cube) to move into it so that the largest of
+    BLOCKS that moving them can free is free in the inventory (BLOCK_FREE): the block's place overlapping the fewest of
+    them whose items the cube takes all of (`cube_fits`); [] when that block is free already, or none can be freed.
+    Every other item stays where it is (the player's, one waiting for the Tome, a big one). Pure."""
+    grid = pack.inventory
+    loose = {item.unit_id for item in settled}
+    fixed = Grid.from_items([item for item in pack.items if item.unit_id not in loose], INVENTORY_SIZE)
+    for size in BLOCKS:
+        if grid.has_room(size):
+            return []  # free already: a larger one could not be freed by the small items
+        best: list[Carried] | None = None
+        for spot in fixed.spots(size):
+            inside = [item for item in settled if _overlaps(item, spot, size)]
+            if (best is None or len(inside) < len(best)) and len(cube_fits(pack, inside)) == len(inside):
+                best = inside
+        if best:
+            return best
+    return []
+
+
+def _overlaps(item: Carried, at: tuple[int, int], size: tuple[int, int]) -> bool:
+    return (
+        item.x < at[0] + size[0] and at[0] < item.x + item.size[0]
+        and item.y < at[1] + size[1] and at[1] < item.y + item.size[1]
+    )  # fmt: skip
 
 
 def reserve_short(identifies: int | None) -> bool:
@@ -642,6 +723,8 @@ def to_cain(item: Carried) -> bool:
     from inventory_tracking.items.metadata import item_base
 
     base = item_base(item.txt)
+    if base is not None and FIELD_IDENTIFY_RINGS and base['type'] == 'ring':
+        return False  # identified with the Tome in the field (FIELD_IDENTIFY_RINGS)
     return base is not None and base['type'] in NAMED_SMALL
 
 
@@ -684,6 +767,14 @@ class Field:
 
     # -- the pickup ------------------------------------------------------------------------------
 
+    def gate(self, drop: Drop) -> bool:
+        """Whether the field identify may take `drop` now, whatever its class: the switch and the KP_6 loop on, a magic
+        or rare valuable the filter shows or the look reads as a material, not the marks' (R4: the caller's gate of the
+        entry point's field class, loot/assess.py `Assessment.field`). Pure but for `looping`."""
+        if not FIELD_IDENTIFY or drop.kind != VALUABLE or drop.quality not in (MAGIC, RARE) or drop.prized:
+            return False
+        return drop.source in ('shown', 'material') and self.looping()
+
     def takes(self, drop: Drop, classes: frozenset[str] | None = None) -> str | None:
         """The class (CLASSES, or `classes`) that picks `drop` for the field identify, None when none: the switch and
         the loop on, a magic or rare valuable the filter shows, unidentified, an identify by its ground verdict, else
@@ -715,12 +806,17 @@ class Field:
         carried: frozenset[int] = frozenset(),
         waiting: Callable[[], Sequence[Drop]] | None = None,
         tome: Callable[[], int | None] | None = None,
+        klass: str | None = None,
     ) -> bool:
-        """Whether the pickup takes `drop` for the field identify (`takes`), with `room` (the inventory's rows, None
-        unread) left for a valuable after it (`leaves_room`), or, a big one, taken into the free block all the same
+        """Whether the pickup takes `drop` for the field identify (`takes`; `klass`: the class the entry point named,
+        loot/assess.py `Assessment.field`, behind the field's `gate`), with `room` (the inventory's rows, None unread)
+        left for a valuable after it (`leaves_room`), or, a big one, taken into the free block all the same
         (`_squeeze`: `carried` the units in the character's grids, `waiting()` the look's sure valuables, `tome()` the
         Tome's charges); remembered for `game` when it does, a big one for the identify at once (`at_once`)."""
-        klass = self.takes(drop)
+        if klass is None:
+            klass = self.takes(drop)
+        elif not self.gate(drop):
+            klass = None
         if klass is None:
             return False
         big = cells(drop) >= BIG_CELLS
@@ -752,7 +848,7 @@ class Field:
         if not FIELD_AT_ONCE or room is None:
             return f'no room for a {SURE_BLOCK[0]}x{SURE_BLOCK[1]} valuable after it'
         grid = Grid(room)
-        spot = grid.first_spot(drop.size)
+        spot = landing(grid, drop.size)
         if spot is None:
             return f'no room for its {drop.size[0]}x{drop.size[1]}'
         other = self._unjudged(_name(game), carried, drop.unit_id)
@@ -830,8 +926,12 @@ class Field:
 
     def park(self, drop: Drop, game: tuple[str, int] | str | None) -> bool:
         """CUBE_AT_PICKUP: remember a stash-bound drop the pickup takes (`stash_bound`) for the cube at the next quiet
-        look (`_park`); whether it was. With the loop on and the switches on."""
-        if not (FIELD_AT_ONCE and CUBE_AT_PICKUP) or drop.kind != VALUABLE or not stash_bound(drop.txt):
+        look (`_park`), and with BLOCK_FREE any small one (under BIG_CELLS, no potion: it may land in the free block);
+        whether it was. With the loop on and the switches on."""
+        if not (FIELD_AT_ONCE and CUBE_AT_PICKUP) or drop.kind != VALUABLE:
+            return False
+        small = BLOCK_FREE and cells(drop) < BIG_CELLS and not (drop.txt is not None and is_potion(drop.txt))
+        if not (stash_bound(drop.txt) or small):
             return False
         if not self.looping():
             return False
@@ -890,9 +990,9 @@ class Field:
         self.tome_seen = (self.clock(), pack.identifies)  # the pickup's squeeze reads it (`_charges`)
         pending = self._pending(hands.loops(pack), game)
         boxed = [item for item in self._pending(self._cubed(hands, pack, game), game)
-                 if (item.identified or self.tries[item.unit_id] < MOST_TRIES) and not to_cain(item)]  # fmt: skip
+                 if (item.identified or self.tries[item.unit_id] < MOST_TRIES) and not self._cains(item)]  # fmt: skip
         active = [item for item in pending if item.identified or self.tries[item.unit_id] < MOST_TRIES]
-        rings = [item for item in active if to_cain(item)]  # RINGS_TO_CAIN: Cain's, but where room must be made
+        rings = [item for item in active if self._cains(item)]  # RINGS_TO_CAIN: Cain's, but where room must be made
         if not boxed and len(rings) == len(active) and (not rings or when != ROOM_SITE):
             if rings:
                 self._carried_to_cain(game, when, rings)
@@ -910,8 +1010,8 @@ class Field:
             pack = hands.carried() or pack
             pending = self._pending(hands.loops(pack), game)
         unknown = [item for item in pending if not item.identified and self.tries[item.unit_id] < MOST_TRIES]
-        rings = [item for item in unknown if to_cain(item)]
-        unknown = [item for item in unknown if not to_cain(item)]
+        rings = [item for item in unknown if self._cains(item)]
+        unknown = [item for item in unknown if not self._cains(item)]
         known = [item for item in pending if item.identified]
         done = self._identify(hands, pack, game, when, unknown)
         units = [item.unit_id for item in (*known, *done)]
@@ -948,7 +1048,7 @@ class Field:
         if pack.inventory.has_room(SURE_BLOCK):
             return True
         movable = [item for item in hands.loops(pack) if self.class_of(item.unit_id, game) is None
-                   or item.unit_id in self.judged or to_cain(item)]  # fmt: skip
+                   or item.unit_id in self.judged or self._cains(item)]  # fmt: skip
         return bool(room_moves(pack, movable, SURE_BLOCK))
 
     def _cain_rings_for_room(
@@ -1078,7 +1178,85 @@ class Field:
                          _label(item), item.unit_id, MOST_TRIES)  # fmt: skip
         return list(done)
 
+    def _cains(self, item: Carried) -> bool:
+        """Whether the loop's unidentified `item` waits for Cain (RINGS_TO_CAIN): the entry point's FIELD rule
+        (ASSESS_FIELD: loot/assess.py CAIN), else `to_cain` (legacy until ASSESS_FIELD is proven)."""
+        if not ASSESS_FIELD:
+            return to_cain(item)
+        from inventory_tracking.loot.assess import CAIN, NO_PRICES, Assessor, Site  # assess.py imports this module
+
+        return Assessor(NO_PRICES).assess(from_carried(item, owner=Owner.LOOP), Site.FIELD).rule == CAIN
+
     def _judge(self, hands: FieldHands, units: list[int], game: str) -> list[Judged]:
+        """The decision on each identified item, the bad ones put down at the feet: the entry point's (ASSESS_FIELD),
+        else the layers called directly (`_judge_legacy`)."""
+        if ASSESS_FIELD:
+            return self._judge_assessed(hands, units)
+        return self._judge_legacy(hands, units)
+
+    def _judge_assessed(self, hands: FieldHands, units: list[int]) -> list[Judged]:
+        """`_judge` through loot/assess.py FIELD (keep.py `decide_all`, `droppable`, the last guard), with the old
+        decision logged beside it where they differ (`_shadow`)."""
+        from inventory_tracking.loot.assess import Assessor, BookAppraiser, CalledCopies, Outcome, Site
+
+        found = hands.appraise(units)
+        pack = hands.carried()
+        carried = {item.unit_id: item for item in hands.loops(pack)} if pack is not None else {}
+        assessor = Assessor(BookAppraiser(found), CalledCopies(hands.copies))
+        judged: list[Judged] = []
+        for unit in units:
+            item = carried.get(unit)
+            if item is None:
+                continue  # gone from the inventory meanwhile: nothing to decide
+            entry = found.get(unit)
+            facts = from_carried(item, owner=Owner.LOOP, observation=entry.observation if entry is not None else None)
+            assessment = assessor.assess(facts, Site.FIELD)
+            decision = assessment.decision
+            self._shadow(hands, facts, entry, assessment)
+            if decision is None:
+                self.judged[unit] = 'kept: no identified read'
+                self.log('%s %s (unit %d): no identified read or appraisal: kept (S8), Cain and the town decide',
+                         PREFIX, _label(item), unit)  # fmt: skip
+                judged.append(Judged(unit, _label(item), None))
+                continue
+            self.log('%s %s (unit %d): %s', PREFIX, facts.title(), unit, decision.said())
+            dropped = False
+            if decision.action == Action.DROP:
+                _audit(self.log, facts, unit, entry, decision)
+                if assessment.outcome == Outcome.DROP:
+                    dropped = self._drop(hands, item, assessment.why)
+                else:
+                    self.log('%s %s (unit %d): not dropped: %s', PREFIX, facts.title(), unit, assessment.guard)
+            self.judged[unit] = decision.action.value
+            judged.append(Judged(unit, facts.title(), decision, dropped))
+        return judged
+
+    def _shadow(self, hands: FieldHands, facts: ItemFacts, entry: Any, assessment: Any) -> None:
+        """The old field decision (`_judge_legacy`'s rules) beside the entry point's, one line where they differ
+        (loot/assess.py `shadow`). Never raises."""
+        try:
+            from inventory_tracking.loot.assess import Site, shadow
+
+            read = entry.observation.get('item') if entry is not None else None
+            if entry is None or not isinstance(read, Mapping) or read.get('identified') is not True:
+                old = 'keep'
+            else:
+                value = appraise_result(facts, entry.result, entry.verdict)
+                [(_, _, decision)] = decide_all([(facts, value)], hands.copies)
+                named = facts.quality in (SET, UNIQUE)
+                refused = (
+                    droppable(facts, value, hands.copies(facts) if named else None)
+                    if decision.action == Action.DROP
+                    else 'kept'
+                )
+                old = 'drop' if refused is None else 'keep'
+            new = 'drop' if assessment.outcome.value == 'drop' else 'keep'
+            shadow((self.game, facts.unit_id), Site.FIELD, facts.title(), new, old, new_decides=True)
+        except Exception as error:  # the shadow never stops the routine
+            LOG.debug('%s the shadow of unit %d failed (%s)', PREFIX, facts.unit_id, error)
+
+    def _judge_legacy(self, hands: FieldHands, units: list[int]) -> list[Judged]:
+        """`_judge` with the layers called directly (legacy until ASSESS_FIELD is proven)."""
         found = hands.appraise(units)
         pack = hands.carried()
         carried = {item.unit_id: item for item in hands.loops(pack)} if pack is not None else {}
@@ -1101,6 +1279,7 @@ class Field:
             self.log('%s %s (unit %d): %s', PREFIX, facts.title(), unit, decision.said())
             dropped = False
             if decision.action == Action.DROP:
+                _audit(self.log, facts, unit, entry, decision)
                 named = facts.quality in (SET, UNIQUE)
                 refused = droppable(facts, value, hands.copies(facts) if named else None)
                 if refused is not None:
@@ -1198,22 +1377,57 @@ class Field:
         with self.lock:
             for unit in due:
                 self.parking.pop(unit, None)  # one try a pickup
-        bound = [item for item in hands.loops(pack) if stash_bound(item.txt)]
+        loops = hands.loops(pack)
+        bound = [item for item in loops if stash_bound(item.txt)]
         going = cube_fits(pack, bound)
-        if not going:
+        if bound and not going:
             self.log("Macro: loot: cube: %d of the loop's stash-bound items stay in the inventory: no room in the cube",
                      len(bound))  # fmt: skip
+        freeing = self._freeing(pack, loops, going, game)
+        if not going and not freeing:
             return False
         try:
-            moved = hands.put_back([item.unit_id for item in going])
+            moved = hands.put_back([item.unit_id for item in (*going, *freeing)])
         except Exception as stop:
             if _cut(stop):
                 raise
             self.log("Macro: loot: cube: the loop's stash-bound items not moved in (%s)", stop)
             return False
-        self.log("Macro: loot: cube: %d of the loop's stash-bound items moved in (%s)", moved,
-                 ', '.join(_base_name(item.txt) for item in going))  # fmt: skip
+        if going:
+            self.log("Macro: loot: cube: %d of the loop's stash-bound items moved in (%s)", min(moved, len(going)),
+                     ', '.join(_base_name(item.txt) for item in going))  # fmt: skip
+        if freeing:
+            free = next((size for size in BLOCKS if (hands.carried() or pack).inventory.has_room(size)), None)
+            self.log("Macro: loot: cube: %d of the loop's small items moved in, out of the free block (%s): %s",
+                     max(moved - len(going), 0), ', '.join(_base_name(item.txt) for item in freeing),
+                     f'{free[0]}x{free[1]} free' if free else 'no block free')  # fmt: skip
         return moved > 0
+
+    def _freeing(self, pack: Pack, loops: Sequence[Carried], going: Sequence[Carried], game: str) -> list[Carried]:
+        """BLOCK_FREE: the loop's settled small items to move into the cube with the stash-bound `going`, so the
+        largest block that can be is free (`bench`): under BIG_CELLS, no potion, not stash-bound (those go anyway), not
+        waiting for the field Tome (none picked for it but a decided one or a magic ring or amulet Cain identifies)."""
+        if not BLOCK_FREE:
+            return []
+        moving = {item.unit_id for item in going}
+        settled = [
+            item for item in loops
+            if item.unit_id not in moving and item.size[0] * item.size[1] < BIG_CELLS and not is_potion(item.txt)
+            and not stash_bound(item.txt)
+            and (self.class_of(item.unit_id, game) is None or item.unit_id in self.judged or self._cains(item))
+        ]  # fmt: skip
+        if not settled:
+            return []
+        staying = tuple(item for item in pack.items if item.unit_id not in moving)
+        cube = roomed(pack).cube
+        if cube is not None:
+            grid = Grid(cube)
+            for item in sorted(going, key=lambda i: (-i.size[0] * i.size[1], -i.size[1], i.y, i.x)):
+                spot = grid.first_spot(item.size)
+                if spot is not None:
+                    grid = grid.take(spot, item.size)
+            cube = tuple(grid)
+        return bench(Pack(staying, cube=cube), settled)
 
     def _big_at_once(self, hands: FieldHands, game: str) -> bool:
         """`settle` at the site AT_ONCE (it waits with a hostile within SIGHT, a panel open or a valuable to pick up)
@@ -1277,7 +1491,7 @@ class Field:
         movable = [item for item in hands.loops(pack) if self.class_of(item.unit_id, game) is None
                    or item.unit_id in self.judged]  # fmt: skip
         moves = room_moves(pack, movable, size)
-        rings = [item for item in self._pending(hands.loops(pack), game) if to_cain(item)]
+        rings = [item for item in self._pending(hands.loops(pack), game) if self._cains(item)]
         if not moves and rings:
             # RINGS_TO_CAIN: the rings into the cube unidentified after the others (Cain identifies the cube's too),
             # and only when the cube takes none of them, the Tome on them as before (`_cain_rings_for_room`)
@@ -1350,6 +1564,44 @@ class Field:
             self.log('%s %s: %s (unit %d) kept: %s', PREFIX, AT_ONCE, title, item.unit_id, where)
         if moved < len(going):
             self.log('%s %s: %d of %d kept put into the cube', PREFIX, AT_ONCE, moved, len(going))
+
+
+# The field's drops audited (the loot verifier, 2026-10-23, rca/2026-10-23/loot-verify-0102.md: "dropped as worthless"
+# after the Tome's identify said no stats and kept no record): before a drop, its stat lines and verdict are logged and
+# its identified read kept in the session's identified/ (corpus/store.py `persist`, as the identify worker's). False:
+# the decision line alone
+FIELD_AUDIT = True
+FIELD_RECORDS: Path | None = None  # the identified/ records' session directory; None: the log file's (`_records`)
+
+
+def _records() -> Path | None:
+    """The session directory: FIELD_RECORDS, else the directory of the log's file (serve's run, probe.log)."""
+    if FIELD_RECORDS is not None:
+        return FIELD_RECORDS
+    for logger in (LOG, logging.getLogger()):
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                return Path(handler.baseFilename).parent
+    return None
+
+
+def _audit(log: Callable[..., None], facts: ItemFacts, unit: int, entry: Any, decision: Decision) -> None:
+    """FIELD_AUDIT: the stat lines and the verdict of an item the field drops, logged; its read kept. Never raises."""
+    if not FIELD_AUDIT:
+        return
+    try:
+        observation = entry.observation
+        lines = [row['text'] for row in observation.get('decoded_stats', ()) if row.get('text')]
+        log('%s %s (unit %d) before the drop: verdict %s; %s', PREFIX, facts.title(), unit, entry.verdict,
+            '; '.join(lines) or 'no stat lines')  # fmt: skip
+        directory = _records()
+        if directory is not None:
+            from inventory_tracking.corpus.store import persist
+
+            path = persist(directory, dict(observation) | {'field_drop': decision.said()})
+            log('%s %s (unit %d): its read kept in %s', PREFIX, facts.title(), unit, path)
+    except Exception as error:  # the audit never stops the drop
+        LOG.info('%s the drop audit of unit %d failed (%s)', PREFIX, unit, error)
 
 
 def stash_bound(txt: int | None) -> bool:

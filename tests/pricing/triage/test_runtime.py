@@ -46,7 +46,7 @@ def test_alt_d_card_starts_with_same_dated_triage_band():
         'band': {'median_ist': 0.25, 'sellers': 10, 'observed_at': '2026-10-03'},
     }
     first = ItemAssessment.from_record(record).to_osd()[0]
-    assert first.text == 'SELL — asks 0.25 Ist median · 10 sellers · 2026-10-03'
+    assert first.text == 'TRADE — asks 0.25 Ist median · 10 sellers · 2026-10-03'
     assert first.tone == Tone.TIER_HIGH
 
 

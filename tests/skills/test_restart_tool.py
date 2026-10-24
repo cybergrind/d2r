@@ -100,3 +100,36 @@ def test_with_the_loop_off_the_restart_is_at_once_whatever_when(tmp_path):
     assert restart.main(['--runs', str(tmp_path), '--when', 'safe', '--kind', 'act4']) == 0
     worker.join(5)
     assert seen == [{'loop_kind': 'act4'}]  # no hold: the lobby request as before
+
+
+TRIP = (
+    '2026-10-24 13:50:01,000 INFO Macro: loop: safe moment for the restart: Catacombs Level 3, cyber41 (player unit '
+    '7): Town Portal to town for it, back through it after\n'
+)
+TOWN = (
+    '2026-10-24 13:50:04,000 INFO Macro: loop: safe point: Rogue Encampment, cyber41 (player unit 7): the loop stands '
+    'for the restart\n'
+)
+
+
+def test_a_trip_restart_is_followed_past_the_wait_once_the_portal_is_cast(tmp_path, capsys):
+    # --when trip (macros/midgame.py TRIP, 2026-10-24): the portal begun just before --wait ends is no cancel
+    log = session(tmp_path, '20261024T104000Z-a', ON)
+    seen: list[dict] = []
+
+    def answer(request: dict) -> None:
+        append(log, HELD.replace('(safe)', '(trip)'))
+        time.sleep(0.5)
+        append(log, TRIP)
+        time.sleep(1.5)  # past --wait 1
+        append(log, TOWN)
+        session(tmp_path, '20261024T105010Z-b', RESUMED)
+
+    worker = service(tmp_path, log, answer, seen)
+    assert restart.main(['--runs', str(tmp_path), '--when', 'trip', '--loop', 'keep', '--wait', '1']) == 0
+    worker.join(5)
+    assert seen == [{'when': 'trip'}]  # never a cancel
+    out = capsys.readouterr().out
+    assert 'portal trip for the restart from Catacombs Level 3' in out
+    assert 'at a safe point:' in out
+    assert 'resumed after a restart: loop on' in out

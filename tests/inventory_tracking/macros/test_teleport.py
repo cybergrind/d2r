@@ -836,6 +836,7 @@ def test_the_key_waits_out_a_block_that_would_drop_it(monkeypatch, on):
     # the right button back on the strike, no cast; the act ran out 1.4 s later. 25 of 25 keys in mode 9 the same.
     monkeypatch.setattr(teleport, 'KEY_DROP_WAIT', on)
     monkeypatch.setattr(teleport, 'OWN_REPRESS', False)
+    monkeypatch.setattr(teleport, 'DROP_REPRESS', False)  # its own test below: a dropped key pressed again
     play = game(None)
     play.world = replace(play.world, player=replace(play.character, mode=9))
     play.later(0.2, lambda: setattr(play, 'world', replace(play.world, player=replace(play.character, mode=5))))
@@ -1423,3 +1424,66 @@ def test_the_thrones_portal_with_the_hall_not_clear_is_left_to_the_fight_untook(
     with pytest.raises(teleport.Untook, match='the throne hall is not clear'):
         step_toward(play.run(), mark, keys)
     assert [event for event in play.keys.events if event[0] == 'click'] == []
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_a_key_a_block_dropped_is_pressed_again_once_the_character_is_free(monkeypatch, on):
+    # 2026-10-23: 99 pauses of 0.6-2.2 s under attack were the hop's REPRESS_SECONDS wait after a key a block or a hit
+    # dropped (rca/2026-10-23/pause-findings.md): the key goes again on the first free look
+    monkeypatch.setattr(teleport, 'DROP_REPRESS', on)
+    monkeypatch.setattr(teleport, 'OWN_REPRESS', True)
+    play = game(None)
+    react, dropped = play.keys.on_event, [1]
+
+    def blocked(event):
+        if event == ('key', 't') and dropped:
+            dropped.pop()
+            play.world = replace(play.world, player=replace(play.character, mode=9))  # a block, the key lost
+            play.later(
+                0.15, lambda: setattr(play, 'world', replace(play.world, player=replace(play.character, mode=1)))
+            )
+            return None
+        return react(event)
+
+    play.keys.on_event = blocked
+    began = play.clock.now
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert play.pressed() == ['t', 't']
+    assert play.character.x > 5000.0
+    assert (play.clock.now - began < 0.5) if on else (play.clock.now - began >= 0.6)
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_the_strike_is_aimed_during_the_flight_once_its_cast_shows(monkeypatch, on):
+    # 2026-10-23: the strike's aim came after the landing (92 ms p50, rca/2026-10-23/lag-findings.md §1); once the
+    # hop's cast shows, `Run.flight` is given the landing aimed at, a frame on, before the character lands
+    monkeypatch.setattr(teleport, 'PREAIM_FLIGHT', on)
+    play = game()
+    react = play.keys.on_event
+
+    def flying(event):
+        if event == ('key', 't'):
+            play.world = replace(play.world, player=replace(play.character, mode=10))  # the cast, then the landing
+
+            def land():
+                react(event)
+                play.world = replace(play.world, player=replace(play.character, mode=1))
+
+            play.later(0.3, land)
+            return None
+        return react(event)
+
+    play.keys.on_event = flying
+    run = play.run()
+    began, given = play.clock.now, []
+    run.flight = lambda landing: given.append((play.clock.now - began, landing, play.character.x))
+    step_toward(run, target((1003.0, 1000.0)), keys)
+    assert math.dist((play.character.x, play.character.y), (5015.0, 5000.0)) < 0.5
+    if on:
+        assert len(given) == 1
+        at, landing, x = given[0]
+        assert teleport.PREAIM_AFTER <= at < 0.3  # in the flight
+        assert x == 5000.0  # not landed yet
+        assert math.dist(landing, (5015.0, 5000.0)) < 1.0
+    else:
+        assert given == []

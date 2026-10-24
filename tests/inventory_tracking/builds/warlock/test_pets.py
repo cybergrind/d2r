@@ -435,6 +435,9 @@ def test_in_the_hunt_a_hurt_demon_unhealed_gets_engorge_often_then_slower(monkey
     from tests.inventory_tracking.macros.test_hunt import engorging, foe, game, hunter
 
     demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=38, max_life=230)  # 30%, and the fakes never heal it
+    # The cadence on one corpse that never heals: with pets.py ENGORGE_LEARNS that corpse is refused after its first
+    # key (test_engorge_learns.py), so the old cadence is measured without it
+    monkeypatch.setattr(pets, 'ENGORGE_LEARNS', False)
 
     def engorges():
         play = game(foe(10, 5008.0, 5000.0), foe(11, 5009.0, 5001.0), foe(12, 5009.0, 4999.0), demon)

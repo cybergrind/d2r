@@ -107,7 +107,7 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
         LOG.info(
             'Macro: waypoint: none in sight: walking to the mark at (%.0f, %.0f)', *(c * TILE_UNITS for c in marked[0])
         )
-        world = walk_until(run, place, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
+        world = walk_until(run, place, (0.15, 0.85, 0.15, 0.8), 'the waypoint', to_npc=False)
         player = world.player or player
         shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
     if not shown:
@@ -126,7 +126,7 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
             return (seen[0].x, seen[0].y) if seen else None
 
         for attempt in range(3):
-            world = walk_until(run, near, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
+            world = walk_until(run, near, (0.15, 0.85, 0.15, 0.8), 'the waypoint', to_npc=False)
             world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or world
             player = world.player or player
             shown = [

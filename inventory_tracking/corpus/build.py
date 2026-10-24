@@ -4,6 +4,12 @@
 
 Writes data/items.jsonl (one observation per distinct item) and data/label.html, a page for
 labelling a stratified sample; save its export as data/labels.json.
+
+    uv run --offline python -m inventory_tracking.corpus.build --pin <fingerprint>... --why "<reason>"
+
+pins real captures from the mule collection (inventory_tracking/runs/collection/collection.sqlite, by fingerprint or
+its prefix) into data/pinned.json, which every merge keeps: the shimmering charms of 2026-10-24 (the player: "add
+shimmering charms into corpus").
 """
 
 import argparse
@@ -17,6 +23,7 @@ from tempfile import NamedTemporaryFile
 
 DATA = Path(__file__).parent / 'data'
 RUNS = Path('inventory_tracking/runs/alt-d')
+COLLECTION = Path('inventory_tracking/runs/collection/collection.sqlite')
 # Items of each rarity offered for labelling; named items first because rolls decide them.
 SAMPLE = {'unique': 45, 'set': 25, 'rare': 35, 'magic': 35, 'crafted': 5, 'normal': 10, 'superior': 5}
 LABELS = ('sell', 'slow', 'self', 'vendor', 'check')
@@ -55,6 +62,36 @@ def disagreements(data):
     return json.loads(path.read_text()) if path.exists() else {}
 
 
+def pinned(data) -> dict[str, dict]:
+    """data/pinned.json: {id: {observation, source, why}}, real captures kept in the corpus whatever the runs hold."""
+    path = data / 'pinned.json'
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def pin(fingerprints, data: Path, why: str, collection: Path = COLLECTION) -> list[str]:
+    """Copy the collection's captures of `fingerprints` (or their prefixes) into data/pinned.json; their corpus ids."""
+    import sqlite3
+
+    found = pinned(data)
+    ids = []
+    with sqlite3.connect(f'file:{collection}?mode=ro', uri=True) as db:
+        for fingerprint in fingerprints:
+            rows = db.execute(
+                'SELECT fingerprint, observation, last_seen FROM items WHERE fingerprint LIKE ?', (f'{fingerprint}%',)
+            ).fetchall()
+            if len(rows) != 1:
+                raise ValueError(f'{fingerprint}: {len(rows)} collection items match')
+            [(full, text, seen)] = rows
+            observation = json.loads(text)
+            identifier = item_id(observation)
+            found[identifier] = {'observation': observation, 'source': f'{collection} fingerprint {full}, seen {seen}',
+                                 'why': why}  # fmt: skip
+            ids.append(identifier)
+    data.mkdir(parents=True, exist_ok=True)
+    (data / 'pinned.json').write_text(json.dumps(found, indent=1, sort_keys=True) + '\n')
+    return ids
+
+
 def review_order(ids, feedback):
     pending = [identifier for identifier, row in feedback.items() if row.get('status') == 'pending']
     return list(dict.fromkeys([*pending, *ids]))
@@ -68,6 +105,8 @@ def merge(runs: Path, data: Path) -> dict[str, dict]:
     items = {row['id']: row['observation'] for row in records}
     items.update(collect(runs))
     items.update({identifier: row['observation'] for identifier, row in disagreements(data).items()})
+    for identifier, row in pinned(data).items():
+        items.setdefault(identifier, row['observation'])  # a pin adds a missing item, never replaces a capture
     contents = ''.join(
         json.dumps({'id': key, 'observation': items[key]}, separators=(',', ':')) + '\n' for key in sorted(items)
     )
@@ -189,7 +228,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--runs', type=Path, default=RUNS)
     parser.add_argument('--data', type=Path, default=DATA)
+    parser.add_argument('--pin', nargs='+', metavar='FINGERPRINT', help='pin mule-collection captures (see above)')
+    parser.add_argument('--why', default='', help='why the pinned captures are in the corpus')
     args = parser.parse_args(argv)
+    if args.pin:
+        print('pinned:', ' '.join(pin(args.pin, args.data, args.why)))
     items = merge(args.runs, args.data)
     args.data.mkdir(parents=True, exist_ok=True)
     ids = sample(items)

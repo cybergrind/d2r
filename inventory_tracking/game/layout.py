@@ -4,11 +4,11 @@ from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.native.layout import PANEL_FLAGS, SHOW_ITEMS_RVA, UI_PANELS_RVA, WEAPON_SLOTS
 
 
-SKILL_SLOTS_RVA = 0x1E011B0
+SKILL_SLOTS_RVA = 0x1E031B0  # +0x2000 at the 2026-10-23 patch (native/layout.py)
 SKILL_SLOTS = 16
 SKILL_SLOT_SIZE = 28
 EMPTY_SLOT = 0xFFFFFFFF
-GAME_NAME_RVA = 0x1E9A0B8
+GAME_NAME_RVA = 0x1E9C0B8
 GAME_NAME_SIZE = 32
 # Research: bytes that moved around the loading screen. None is relied on (0x2122131 and 0x20D7DA0 read wrong
 # on the host, 2026-10-06); their changes are logged against the first working summon (routines.LoadTrace).
@@ -19,10 +19,10 @@ TRACE_RVAS = (
 )  # fmt: skip
 # 255 in a game, 0 while a new game loads, back (254, then 255) when its view comes up and keys are accepted
 # (host traces, 2026-10-06). 0x1EB118D moves with it.
-VIEW_RVA = 0x1EB3465
+VIEW_RVA = 0x1EB5465
 # (unit type, unit id) of the unit under the pointer (whole-data search, host 2026-10-10). Unknown with nothing
 # under the pointer.
-HOVER_RVA = 0x1E010A4
+HOVER_RVA = 0x1E030A4
 IN_GAME = 0x00  # byte of the panel array: 1 in a game, 0 from Save and Exit to the next game
 MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/mercenary.py)
 MONSTER_DATA = 0x58  # monster data bytes read per live monster: the type flags and the owner lie within
@@ -67,7 +67,7 @@ PATH_RECORD = 0x240
 MISSILE_DATA = 0x80  # bytes of its data record (pUnitData) dumped on first sight: skill, velocity, target?
 # A missile unit record's owner: unit type, then unit id (tests/.../arena/evidence/blows.py OWNER).
 MISSILE_OWNER = 0xE8
-DATA_RVA, DATA_SIZE = 0x197A000, 0xC98000  # the image's writable data (record probe)
+DATA_RVA, DATA_SIZE = 0x197C000, 0xC98000  # the image's writable data (record probe)
 ITEM_UNIT = 4
 TILE_UNIT = 5  # doors: warp tiles, with a static path like an object's
 FULL_STATS = 0xE8  # the unit's full stat list (native/units.py describe_player)

@@ -54,26 +54,28 @@ def test_act_5_kills_baal_nihlathak_then_pindleskin_and_takes_fewer_waypoints(mo
     assert walk.kills == ZONE_KILLS
     # was 12 with the itinerary's trips (the Halls of Pain twice, the Keep 2 three times); 32: tzroutine.py
     # SKIPPED_TRIPS
-    assert walk.waypoints == [129, 129, 35, 32, 123, 111, 113, 115, 118, 112, 117]
+    # The rotation's Catacombs right after Baal, before the Keep's levels left (zonenav.py ROTATION_ANY_ACT, 2026-10-23:
+    # the act's boss dead, the rotation while its slot lasts); as many waypoints as before
+    assert walk.waypoints == [129, 35, 32, 129, 123, 111, 113, 115, 118, 112, 117]
     assert walk.moves[:24] == [
         ('waypoint', 129),
         ('door', 130),  # the Keep 3 crossed to the boss
         ('door', 131),
         ('door', 132),  # Baal
         ('portal', HARROGATH),  # the Chamber three floors down: the Town Portal
+        ('waypoint', 35),  # the rotation's Catacombs: Andariel, after Baal (ROTATION_ANY_ACT)
+        ('door', 36),
+        ('door', 37),
+        ('portal', 1),
+        ('waypoint', 32),  # the rest of the Catacombs from act 1: the Cathedral (SKIPPED_TRIPS)
+        ('door', 33),
+        ('door', 34),
+        ('portal', 1),
         ('waypoint', 129),
         ('door', 130),  # the Keep 3's own run after Baal
         ('door', 129),  # climbed back to the Keep 2
         ('door', 128),  # the Keep 1, the Keep 2's last child
         ('portal', HARROGATH),
-        ('waypoint', 35),  # the rotation's Catacombs: Andariel, after Baal (ROTATION_BOSSES_FIRST)
-        ('door', 36),
-        ('door', 37),
-        ('portal', 1),
-        ('waypoint', 32),  # the rest of the Catacombs from act 1 (ROTATION_FIRST): the Cathedral (SKIPPED_TRIPS)
-        ('door', 33),
-        ('door', 34),
-        ('portal', 1),
         ('waypoint', 123),
         ('door', 124),  # Nihlathak
         ('door', 123),  # climbed back to the Halls of Pain
@@ -84,8 +86,8 @@ def test_act_5_kills_baal_nihlathak_then_pindleskin_and_takes_fewer_waypoints(mo
     assert walk.legs.count(TZ_UP) == 2  # out of 130 and 124
     said = caplog.text
     assert (
-        'Macro: zone: graph Act5-Manual + Act1-Catacombs: 129 (130 (131 (132)), 128); 35 (36 (37)); 123 (124, 122'
-        in said
+        'Macro: zone: graph Act5-Manual + Act1-Catacombs: 129 (130 (131 (132)), 128); 35 (36 (37)); 32 (33 (34)); '
+        '123 (124, 122' in said
     )
     assert 'Macro: zone: Halls of Pain (123) cleared' in said
     assert "Macro: zone: Nihlathak's Temple (121) cleared" in said
@@ -174,8 +176,9 @@ def test_without_boss_stays_a_chamber_portal_that_never_opens_blocks_the_chamber
     assert walk.moves.count(('untook', 132)) == tzloop.USE_TRIES
     assert ('door', 132) not in walk.moves
     assert 'Baal' not in walk.kills
-    # Nihlathak, Pindleskin, the rest: all played (the switch off: no boss ledger asked, the rotation last as before)
-    assert [kill for kill in KILLS if kill != 'Baal'] == walk.kills
+    # Nihlathak, Pindleskin, the rest: all played (the switch off: no boss ledger asked); the rotation's Andariel once
+    # Baal's root is done, the Chamber blocked (zonenav.py ROTATION_ANY_ACT: the act's boss counted alive until then)
+    assert walk.kills == ['Lister the Tormentor', 'Andariel', *(kill for kill in KILLS[2:] if kill != 'Andariel')]
     assert ('door', 124) in walk.moves
     assert ('door', 121) in walk.moves
     assert 'Macro: zone: The Worldstone Chamber (132) blocked: no click took its way in in 3 tries' in caplog.text

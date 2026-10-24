@@ -1,13 +1,15 @@
-"""Death Mark again after a Battle Orders rebuff retreat (builds/warlock/mark.py REMARK_AFTER_REBUFF; the coordinator,
-2026-10-22, from the player's rulings "Teleporting drops minion aggro: re-aggro with Death Mark" and "retreat and
-rebuff", then re-aggro with Death Mark). Only the hop the safety chose to rebuff (macros/safety.py REBUFF_RETREAT, its
-landing `Safety.landed`, `BuffFacts.rebuff_landed`), after the cast at the landing; REMARK_AFTER_HOP stays off."""
+"""Death Mark again after a Battle Orders rebuff retreat (the coordinator, 2026-10-22, from the player's rulings
+"Teleporting drops minion aggro: re-aggro with Death Mark" and "retreat and rebuff", then re-aggro with Death Mark).
+Since the one designation (builds/warlock/mark.py DESIGNATED_MARK, 2026-10-22) the rebuff hop is a hop like any other
+(`aggro_lost`), its mark after the rebuff's Battle Orders (`rebuff_waits`); `rebuff_target` is the mark before the model
+(REMARK_AFTER_REBUFF, retired), kept for the off-and-on measure."""
 
 import math
 
 from inventory_tracking.builds.warlock import mark
 from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.skills import DEATH_MARK
+from inventory_tracking.combat import pack
 from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.build import BuffFacts
 from inventory_tracking.macros.safety import REBUFF_LANDS, Safety
@@ -53,6 +55,7 @@ def facts(
     *foes: Monster,
     orders: float | None = CAST,
     marked: float | None = None,
+    on: Monster | None = None,
     landed: float = LANDED,
     shown=(),
     demons=AT_HAND,
@@ -63,6 +66,8 @@ def facts(
     for skill, at in ((BATTLE_ORDERS_SKILL, orders), (DEATH_MARK, marked)):
         if at is not None:
             cast[skill, None] = at
+    if on is not None and marked is not None:
+        cast[DEATH_MARK, on.unit_id] = marked  # the mark keyed on that one
     return BuffFacts(
         seen, NOW, tuple(foes), tuple(foes), cast_at=cast, rebuffed=CHOSEN, rebuff_landed=landed,
         states=lambda m: words(mark.MARK_STATE) if m.unit_id in shown else words(),
@@ -85,19 +90,33 @@ def test_the_safety_keeps_the_rebuff_retreats_landing_only() -> None:
     assert later.rebuff_landed == -math.inf
 
 
-def test_after_the_rebuff_hop_and_the_cast_the_nearest_leader_is_marked() -> None:
-    assert not mark.REMARK_AFTER_HOP  # the wide rule stays off: this one is the rebuff hop's only
-    asked = facts(FAR_LEADER, NEAR_LEADER, TRASH)
-    assert mark.rebuff_target(asked) == NEAR_LEADER
-    assert mark.target(asked) == NEAR_LEADER
+def test_after_the_rebuff_hop_and_the_cast_the_designated_leader_is_marked_again() -> None:
+    before = NOW - 3.0  # the mark on the near leader, keyed before the rebuff retreat
+    pack.hopped(LANDED, 14.0)  # the rebuff's Teleport landed, the demons came along (AT_HAND)
+    asked = facts(FAR_LEADER, NEAR_LEADER, TRASH, marked=before, on=NEAR_LEADER)
+    assert mark.target(asked) == NEAR_LEADER  # its mark lasts by the clock, but the jump took the demons off it
     assert mark.worth_a_mark(asked, NEAR_LEADER)
-    keyed = facts(FAR_LEADER, NEAR_LEADER, TRASH, marked=NOW)  # the line is said after the key
+    pack.hopped(before - 1.0, 14.0)  # only a hop before the mark: the demons hold it, its state words show it
+    assert mark.target(facts(FAR_LEADER, NEAR_LEADER, TRASH, marked=before, on=NEAR_LEADER, shown=(1,))) is None
+    assert mark.target(asked) == NEAR_LEADER  # the words show no mark on it: run out, due again
+    pack.hopped(LANDED, 14.0)
+    keyed = facts(FAR_LEADER, NEAR_LEADER, TRASH, marked=NOW, on=NEAR_LEADER)  # the line is said after the key
+    assert mark.target(keyed) is None  # marked again after the landing: once
     said = mark.mark_said(keyed, NEAR_LEADER)
     assert said is not None
-    assert 're-aggro after the Battle Orders rebuff retreat' in said
+    assert 'designated: a pack leader' in said
     other = mark.mark_said(keyed, FAR_LEADER)
     assert other is not None
-    assert 're-aggro' not in other
+    assert 'designated' not in other
+
+
+def test_the_mark_at_a_rebuff_landing_waits_for_the_battle_orders_cast_there() -> None:
+    pack.hopped(LANDED, 14.0)
+    lasting = {'marked': NOW - 3.0, 'on': NEAR_LEADER}
+    assert mark.target(facts(NEAR_LEADER, orders=None, **lasting)) is None  # 1.2 s: the cast is still to come
+    waited = NOW - mark.REBUFF_CAST_WAIT - 0.1
+    pack.hopped(waited, 14.0)
+    assert mark.target(facts(NEAR_LEADER, orders=None, landed=waited, **lasting)) == NEAR_LEADER
 
 
 def test_the_leader_the_strike_holds_comes_first(monkeypatch) -> None:
@@ -124,5 +143,5 @@ def test_once_only_and_only_after_a_rebuff_landing(monkeypatch) -> None:
     assert mark.rebuff_target(facts(NEAR_LEADER, landed=NOW - mark.REBUFF_REMARK_WITHIN - 0.1)) is None
     assert mark.rebuff_target(facts(NEAR_LEADER, demons=())) is None  # no demon to send
     assert mark.rebuff_target(facts(TRASH)) is None  # no leader in reach
-    monkeypatch.setattr(mark, 'REMARK_AFTER_REBUFF', False)
-    assert mark.rebuff_target(facts(NEAR_LEADER)) is None
+    monkeypatch.setattr(mark, 'DESIGNATED_MARK', False)  # before the model: the rebuff hop's rule
+    assert mark.target(facts(FAR_LEADER, NEAR_LEADER, TRASH, marked=NOW - 3.0, on=NEAR_LEADER)) == NEAR_LEADER

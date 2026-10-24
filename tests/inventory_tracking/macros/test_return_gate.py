@@ -73,7 +73,16 @@ def test_the_recovery_s_gate_says_go_back_or_the_stop_line_naming_the_bosses(mon
     assert 'Ismail Vilehand' in line
     assert line.endswith('the loop stops here for the player')
     monkeypatch.setattr(recovery, 'tz_bosses_alive', lambda agenda: [])
+    monkeypatch.setattr(recovery, 'SHARD_HOLDS', False)
     assert recovery.back_for_bosses(runner(allowed), loot(900)) is None  # type: ignore[arg-type]
+    # SHARD_HOLDS (2026-10-23): a danger trip made for the shard acts' levels asks the same gate
+    monkeypatch.setattr(recovery, 'SHARD_HOLDS', True)
+    monkeypatch.setattr(recovery, 'tz_owed', lambda agenda: 'the shard act 1 owed: Cold Plains (3) not done')
+    owed = recovery.back_for_bosses(runner(allowed), loot(900))  # type: ignore[arg-type]
+    assert owed is not None
+    assert 'the shard act 1 owed' in owed
+    assert 'not back through the portal' in owed
+    assert recovery.back_for_bosses(runner(allowed), loot()) is None  # type: ignore[arg-type]
     monkeypatch.setattr(recovery, 'BOSS_RECOVERY', False)
     monkeypatch.setattr(recovery, 'tz_bosses_alive', lambda agenda: [ismail])
     assert recovery.back_for_bosses(runner(allowed), loot(900)) is None  # type: ignore[arg-type]

@@ -37,7 +37,7 @@ from inventory_tracking.levels.model import Level
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 from inventory_tracking.native.memory import one_unit_table
 from inventory_tracking.native.units import walk_units
-from inventory_tracking.takes import hurts, retain
+from inventory_tracking.takes import decisions, hurts, retain
 
 
 SCHEMA = 4  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
@@ -199,6 +199,10 @@ class Take:
         self.paths = (directory / 'paths.jsonl').open('w', encoding='utf-8')
         self.records = (directory / 'records.jsonl').open('w', encoding='utf-8')
         self.recorded: dict[int, tuple[int, float]] = {}  # unit id -> (mode, clock) of its record written last
+        # unit id -> the skill id in use as its record was written last: a cast chained in another with no change
+        # of mode (a Death Mark queued under the strike) is written in its first frame too
+        # (rca/2026-10-24/dm-truth-findings.md)
+        self.recorded_skill: dict[int, bytes] = {}
         self.macro_state: dict[str, Any] | None = None  # the macro's state as the last `state` event has it
         self.path_rest: dict[int, bytes] = {}  # unit id -> its path record past the position, as last written
         self.count, self.late = 0, 0
@@ -349,7 +353,9 @@ class Take:
         if sample.macro_state is not None:
             state = dict(sample.macro_state)
             decision = state.pop('decision', None)
-            if decision is not None and decision != self.decision:
+            # Told at each look instead (takes/decisions.py DECISION_EVENTS, `Recorder.decided`): the polled copy is not
+            # written
+            if decision is not None and decision != self.decision and not decisions.DECISION_EVENTS:
                 self.decision = decision
                 self.event(clock, 'decision', **decision)
             if state != self.macro_state:
@@ -428,8 +434,16 @@ class Take:
         rows = []
         for unit, mode, record, states, skill in units:
             before = self.recorded.get(unit)
-            if before is None or before[0] != mode or unit in changed or clock - before[1] >= RECORD_SECONDS:
+            used = skill[:2]  # the skill id (game/decode.py `skill_in_use`); empty out of a striking mode
+            if (
+                before is None
+                or before[0] != mode
+                or unit in changed
+                or clock - before[1] >= RECORD_SECONDS
+                or (used and used != self.recorded_skill.get(unit))
+            ):
                 self.recorded[unit] = (mode, clock)
+                self.recorded_skill[unit] = used
                 rows.append([unit, record.hex(), states.hex(), skill.hex()])
         if rows:
             line = {'t': round(clock, 3), 'n': self.count, 'u': rows}
@@ -585,6 +599,13 @@ class Recorder:
         with self.noting:
             self.noted.append((self.clock(), kind, fields))
 
+    def decided(self, decision: dict[str, Any]) -> None:
+        """takes/decisions.py's listener, on the deciding thread: a `decision` event at the time it was told, written
+        with the next frame of a take (as `note`). Its keys are the event's fields ('t', 'event' and 'kind' are the
+        event's own: a decision never carries them)."""
+        with self.noting:
+            self.noted.append((self.clock(), 'decision', decision))
+
     def sent(self, kind: str, what: tuple[int, ...]) -> None:
         """input/sent.py's listener, on the sending thread: a lock-free deque append (an input never waits for a
         frame being written) with the clock, the thread and its routine; `step` writes it."""
@@ -701,8 +722,8 @@ class LiveSampler:
         clock: Callable[[], float] = time.monotonic,
         *,
         paths: bool = False,
-        loot: Callable[[GameMemory], Loot] | None = None,
-        macro_state: Callable[[], dict[str, Any]] | None = None,
+        loot: Callable[[GameMemory], Loot | None] | None = None,
+        macro_state: Callable[[], dict[str, Any] | None] | None = None,
     ) -> None:
         self.paths = paths  # also read each monster's whole path record (movement research)
         # the pickup step's own read of the ground, the belt and the inventory, with its settings
@@ -877,6 +898,7 @@ class CombatRecorder:
         self.listener = MacroLines(self.recorder.note)
         LOG.addHandler(self.listener)
         sent.listen(self.recorder.sent)  # every input this process sends: a `sent` event (input/sent.py)
+        decisions.listen(self.recorder.decided)  # each look's decision (takes/decisions.py DECISION_EVENTS)
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='combat-recorder', daemon=True)
         self.last_poll = -math.inf
@@ -912,6 +934,8 @@ class CombatRecorder:
         LOG.removeHandler(self.listener)
         if sent.listener == self.recorder.sent:
             sent.listen(None)
+        if decisions.listener == self.recorder.decided:
+            decisions.listen(None)
         self.stop.set()
         self.thread.join(timeout=3)
         self.sampler.detach()

@@ -15,7 +15,7 @@ from functools import lru_cache
 from itertools import pairwise
 from typing import Literal
 
-from inventory_tracking.combat import threats
+from inventory_tracking.combat import bolts, threats
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import Point, clear_line
 from inventory_tracking.combat.sim import casters as rules
@@ -130,6 +130,12 @@ class Hostile:
     # Units a second it was seen to move at (macros/safety.py OBSERVED_SPEED); 0: not seen moving, its table
     # walk (`kind_of`) alone. Its walk is the larger
     speed: float = 0.0
+    # The share of the conservative stand-in's blows (an unread boss's, `stood_in`) the fight's evidence leaves
+    # (macros/safety.py STAND_IN_EVIDENCE: seconds within its radius and the life lost there); 1: the stand-in whole
+    tempered: float = 1.0
+    # Throws a second it makes at the character as the look read them (combat/bolts.py READ_THROWS, macros/safety.py
+    # `Safety.throws_read`): an unread type is priced by them, not by the pooled fit; 0: none read
+    throws: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -154,6 +160,9 @@ class Look:
     # What lies on the ground and harms where it lies, by its read model (combat/threats `Lingering`): priced over a
     # way whether or not its caster is still about (Diablo's fire wall after his death).
     ground: tuple[tuple[threats.Lingering, tuple[threats.Lying, ...]], ...] = ()
+    # The live companions' places (not dying, not dead): a throw at the character meets the first one on its line
+    # (combat/bolts.py READ_THROWS, `bolts.covered`)
+    cover: tuple[Point, ...] = ()
 
 
 # The player, 2026-10-21 ~20:34, on the second tier 5 Herald of the Arachnid Lair (20:31:17-24, take
@@ -179,7 +188,38 @@ AURA_SWINGERS = False
 # before.
 NEAR_WAKES = True
 WAKE_SECONDS = 1.0
+# CURSED_PRICED (2026-10-24, the mana-burn agent's find on the Halls of the Dead death of 2026-10-23, take
+# 20261023T202950Z-57: Amplify Damage, state 9, came on the whole party at 23:30:27.4, the physical resistance 18 to
+# -82, from the unique Hollow One 1316109150 and its Returned, monumod 7 'curse' ("Cursed"; minions inherit it), 5.8 to
+# 12.7 off; rca/2026-10-24/cast-hold-findings.md §4): a Cursed hostile curses the party from afar, and only a curse
+# already on the character was priced (its resistances as read), so a Cursed pack's coming blows were priced at the
+# uncursed physical share, under half the cursed one. The takes of 2026-10-23..24 (21 onsets of state 9 on the
+# character, 13 with a Cursed hostile about): its nearest Cursed 3.5-18.7 off (median 12), 0.4-6.8 s (median 1.1) after
+# it came within 20. True: each Cursed hostile within CURSED_REACH of a priced place puts Amplify Damage on a rollout
+# at a rate of one in CURSED_SECONDS of the dwell there (`rollouts`: the physical blows at Amplify Damage's share, as
+# OBLIVION_KNIGHT's curse); with it already read on the character the share is floored at -100 (an extra curse adds at
+# most 1.82 -> 2.0). False: as before. On 2026-10-24 ~14:40 as a speed change, not a survival fix: 800 GLUED pairs
+# with 0 new deaths, fane Heralds killed 18 -> 24, pursuit 28 -> 31; the halls_curse cut does not die with it off.
+CURSED_PRICED = True
+CURSED = 7  # monumod.txt 'curse' ("Cursed"), as hostiles' `modifiers` hold it
+CURSED_REACH = 15.0
+CURSED_SECONDS = 1.0
 GLUED = 3.0  # units: combat/pack.py DEMON_APART, the demon that "stands with" the character
+# STAND_IN_TEMPER (2026-10-22, Sewers Level 3, 23:15:49-23:20:30, take 20261022T201417Z-49; rca/2026-10-22/
+# walled-boss-findings.md §2): Radament (monstats 229, a boss with no read AI) priced by the conservative stand-in, a
+# shot of three times his table blow every second anywhere within RADIUS, about 1977 life in 1.5 s from 5 or from 30
+# units, so every act toward him was vetoed for 4.5 minutes in which the character lost no life at all; struck from 21
+# units at last, he died in 13 s. True: the stand-in's rate and its burst over the table blow are scaled by
+# `Hostile.tempered`, what the fight has shown of the hostile (macros/safety.py STAND_IN_EVIDENCE): at the floor a blow
+# a little over the table's, seldom; the one-blow bars (`most_blow`) are not. False: whole, as before
+STAND_IN_TEMPER = True
+# BOLTS_IN_FLIGHT (2026-10-23, Icy Cellar 04:35:48, take 20261023T013533Z-119; rca/2026-10-23/dominus-burst-findings):
+# a tier 5 Herald pack of Dominus (succubus witches, no read AI) shot volleys of 3 bolts at a character standing 3.1 s;
+# the hold was priced at 4 points while 7 bolts flew at it, and 4 took 1701 of 2943 in 0.17 s. True: the bolts of the
+# families combat/bolts.py names, read in flight (macros/safety.py `Safety.look`), are each one blow where they reach
+# the way (`bolt_exposure`); False: an unread shooter is its fitted rate alone, as before.
+# On 2026-10-23 ~05:10: arena dominus-0535 lowest share min 0.06 -> 0.71, 660 danger/Fane/threat pairs unchanged
+BOLTS_IN_FLIGHT = True
 
 
 def bodies(seen: Look, m: Hostile) -> tuple[Point, ...]:
@@ -337,7 +377,7 @@ def hostile_exposure(
     # Reach during the dwell. A monster spends the approach time walking, not striking.
     melee_time = max(0.0, t - max(0.0, d - rules.REACH) / max(speed, 0.1))
 
-    def swing(chance=1.0):
+    def swing(chance=1.0, burst: float | None = None):
         frames = rules.MODE_FRAMES.get((ai, 'A1'), 12) if ai else 12
         period = (frames + delay) / 25 if ai else settings.unknown_period
         hit = hit_of(m.txt, model.level, protection.defence, protection.level) if row else 0.95
@@ -347,9 +387,8 @@ def hostile_exposure(
         parts = [(k, lo * raised, hi * raised) if k == 'physical' else (k, lo, hi) for k, lo, hi in parts]
         parts += [(k, model.damage[0] * lo, model.damage[1] * hi) for k, lo, hi in model.elements]
         if not ai:
-            parts = [
-                (k, lo * settings.unknown_damage_factor, hi * settings.unknown_damage_factor) for k, lo, hi in parts
-            ]
+            factor = settings.unknown_damage_factor if burst is None else burst
+            parts = [(k, lo * factor, hi * factor) for k, lo, hi in parts]
         stun = stuns = 0.0
         guard = protection.guard
         if guard is not None and guard.stun > 0 and m.txt not in BOSSES and speed > 0:
@@ -415,20 +454,27 @@ def hostile_exposure(
         # not a claim to know it.
         unknown.append(m.txt)
         threat = threat_table().monsters.get(m.txt)
+        temper = m.tempered if STAND_IN_TEMPER else 1.0  # what the fight has shown of it (STAND_IN_TEMPER)
+        # Its rate and its burst over the table blow both by the share the evidence leaves: at none, one table blow
+        burst = 1.0 + (settings.unknown_damage_factor - 1.0) * temper
         if shoots(m.txt) or (threat is not None and threat.ranged):
-            points = max(model.damage[1], 100.0) * settings.unknown_damage_factor
+            points = max(model.damage[1], 100.0) * burst
             kind = min(KINDS, key=lambda k: dict(protection.resists).get(k, 0.0))
             shot = ((kind, points / 2, points),)
-            found.append(Exposure(m.unit, t / settings.unknown_period, share, shot, False, dwell - t, dwell))
+            found.append(Exposure(m.unit, t / settings.unknown_period * temper, share, shot, False, dwell - t, dwell))
         else:
-            swing()
+            swing(temper, burst)
     else:
         # An ordinary type whose AI is not read: the simulator's fit on the takes (what the arena plays for it),
         # times `fitted_margin`. The fit's chance to take life has the ward and the resistances in it already.
         unknown.append(m.txt)
         threat = threat_table().monsters.get(m.txt)
         margin = settings.fitted_margin
-        if shoots(m.txt) or (threat is not None and threat.ranged):
+        # Its throws as read (READ_THROWS) are priced over the whole path at once (`throw_exposure`), not the fit
+        thrower = bolts.READ_THROWS and m.throws > 0
+        if thrower and (shoots(m.txt) or (threat is not None and threat.ranged)):
+            pass  # a shooter's read throws are its shots
+        elif shoots(m.txt) or (threat is not None and threat.ranged):
             fit = shooter_of(m.txt)
             points = max(model.damage[1], fit['takes_life'].get('mean_hit', 0.0), 1.0)
             kind = min(KINDS, key=lambda k: dict(protection.resists).get(k, 0.0))
@@ -453,6 +499,25 @@ def hostile_exposure(
                 )
             )  # fmt: skip
     return tuple(found), curses, tuple(unknown)
+
+
+def unread(txt: int) -> bool:
+    """Whether `hostile_exposure` prices type `txt` by a guess, not a reading of its acts: the simulator's fit of an
+    ordinary type or the conservative stand-in of a boss (no read AI branch, no read model, combat/threats). Such a
+    type's throws are read (combat/bolts.py READ_THROWS, macros/safety.py `Safety.throws_read`)."""
+    if rules.mind_of(txt) in (rules.FINGER_MAGE, rules.DOOM_KNIGHT, rules.OBLIVION_KNIGHT, rules.MEGADEMON):
+        return False
+    return threats.of(txt) is None
+
+
+def stood_in(txt: int) -> bool:
+    """Whether `hostile_exposure` prices type `txt` by the conservative stand-in of a boss whose AI is not read (or a
+    type with no monstats row): no read AI branch, no read model (STAND_IN_TEMPER)."""
+    if rules.mind_of(txt) in (rules.FINGER_MAGE, rules.DOOM_KNIGHT, rules.OBLIVION_KNIGHT, rules.MEGADEMON):
+        return False
+    if threats.of(txt) is not None:
+        return False
+    return txt in BOSSES or str(txt) not in tables()['monsters']
 
 
 def most_blow(m: Hostile, protection: Protection) -> tuple[float, float]:
@@ -539,6 +604,81 @@ def ground_exposure(
     return tuple(e for e in found if e.blows > 0 and e.chance > 0)
 
 
+def bolt_exposure(
+    seen: Look, path: tuple[tuple[Point, float, Hands], ...], settings: SafetySettings
+) -> tuple[Exposure, ...]:
+    """The bolts in flight of the shooters combat/bolts.py names (BOLTS_IN_FLIGHT), over the whole path at once: each
+    that reaches the way where the way is then is one blow at that time (`bolts.hit_time`), landing with `bolts.LANDS`.
+    A read model's own missiles are its own (`threat_exposure`). A bolt flies on after its shooter's death: the blow's
+    `begins` is its `ends`, so no forecast death cuts it (`rollouts`)."""
+    if not BOLTS_IN_FLIGHT or not seen.missiles:
+        return ()
+    owners = {m.unit: m for m in seen.hostiles if threats.of(m.txt) is None}
+    legs = spanned(path, settings)
+    found: list[Exposure] = []
+    for missile in seen.missiles:
+        if len(missile) < 4:
+            continue
+        owner, at, heading, kind = missile  # pyrefly: ignore[bad-unpacking]
+        m = owners.get(owner)
+        speed = bolts.speed_of(kind)
+        if m is None or speed is None or kind not in bolts.classes_of(m.txt):
+            continue
+        key = ('bolt', at, heading, kind, legs)
+        when = seen.memo.get(key, ())
+        if when == ():
+            when = seen.memo[key] = bolts.hit_time(at, heading, speed, legs)
+        if when is None:
+            continue
+        parts = bolts.points(m.txt, m.level, m.flags, m.modifiers, m.tier, m.raised)
+        lands = bolts.LANDS
+        if bolts.READ_THROWS:
+            # A companion on its way to where the way is then takes it first (READ_THROWS, `bolts.covered`)
+            place = bolts.place_at(legs, when)
+            lands *= bolts.covered(bolts.cover_at(seen.cover, legs[0][0], place), at, place)
+        found.append(Exposure(m.unit, 1.0, lands, parts, False, when, when))
+    return tuple(found)
+
+
+def throw_exposure(seen: Look, path: tuple[tuple[Point, float, Hands], ...], protection: Protection) -> tuple:
+    """The throws of the unread types whose rate at the character the look read (combat/bolts.py READ_THROWS,
+    `Hostile.throws`), over the whole path at once: from when a throw let go now lands (its flight to the path's first
+    place; the bolts in flight before it are `bolt_exposure`'s) and, out of SHOT_REACH, an awake one has walked into
+    it, `throws` a second at each leg's place, each hitting by the game's rule (its A1 rating against the defence, then
+    the block: 0.68 for the Hell Slingers of take 20261023T115109Z-46, which landed 0.6) unless a companion on its line
+    takes it (`bolts.covered`), for its table blow raised by rank, tier and auras (`bolts.points`)."""
+    if not bolts.READ_THROWS:
+        return ()
+    legs = tuple((place, max(0.0, dwell)) for place, dwell, _ in path)
+    found: list[Exposure] = []
+    for m in seen.hostiles:
+        if m.throws <= 0 or not unread(m.txt):
+            continue
+        speeds = [speed for kind in bolts.classes_of(m.txt) if (speed := bolts.speed_of(kind)) is not None]
+        parts = bolts.points(m.txt, m.level, m.flags, m.modifiers, m.tier, m.raised)
+        if not speeds or not parts or rules.ai_distance(m.at, legs[0][0]) >= rules.RADIUS:
+            continue
+        walk = max(kind_of(m.txt, m.level, m.flags, m.modifiers, m.tier)[3], m.speed, 0.1)
+        table = tables()['monsters'].get(str(m.txt))
+        level = m.level or int(rules.number(table or {}, 'Level(H)', 1))
+        hit = rules.hit_chance(table, level, protection.defence, protection.level) if table else rules.MOST_HIT / 100
+        began = 0.0
+        for place, dwell in legs:
+            gap = math.dist(m.at, place)
+            out = max(0.0, gap - SHOT_REACH)
+            if out > 0 and not m.active:
+                began += dwell
+                continue
+            first = m.stunned + out / walk + min(gap, SHOT_REACH) / min(speeds)
+            begins, ends = max(began, first), began + dwell
+            if ends > begins:
+                cover = bolts.cover_at(seen.cover, legs[0][0], place)
+                chance = hit * (1 - protection.block) * bolts.covered(cover, m.at, place)
+                found.append(Exposure(m.unit, (ends - begins) * m.throws, chance, parts, False, begins, ends))
+            began += dwell
+    return tuple(found)
+
+
 def life_factor(seen: Look, place: Point, settings: SafetySettings) -> float:
     """The factor on the price of life while the fight has a hostile of a dear class (`SafetySettings.dear`)
     within the AI's awareness of `place` (the dearest of them); 1 otherwise."""
@@ -607,6 +747,15 @@ def harm(
     return harm_path(seen, ((place, dwell, hands),), settings, deaths)
 
 
+def amplify_rate(seen: Look, place: Point, dwell: float) -> float:
+    """CURSED_PRICED: the rate of Amplify Damage the Cursed hostiles within CURSED_REACH of `place` put on a dwell of
+    `dwell` s there (the curses expected)."""
+    if not CURSED_PRICED or dwell <= 0:
+        return 0.0
+    near = sum(1 for m in seen.hostiles if CURSED in m.modifiers and math.dist(m.at, place) <= CURSED_REACH)
+    return near * dwell / CURSED_SECONDS
+
+
 def harm_path(
     seen: Look,
     path: tuple[tuple[Point, float, Hands], ...],
@@ -628,9 +777,11 @@ def harm_path(
     phases = []
     unknown = set()
     uncursed = 1.0
+    amplifying = 0.0  # CURSED_PRICED: the Cursed hostiles' Amplify Damage expected over the path (`amplify_rate`)
     elapsed = 0.0
     last = seen.battle if path[-1][2] == 'battle' else seen.travel
     acting = threat_exposure(seen, path, last, settings) + ground_exposure(seen, path, settings)
+    acting += bolt_exposure(seen, path, settings) + throw_exposure(seen, path, last)
     if acting:
         phases.append((acting, last, 0.0))
     for index, (place, dwell, hands) in enumerate(path):
@@ -638,6 +789,7 @@ def harm_path(
         events, cursed, stand_ins = exposure(seen, place, max(0.0, dwell), protection, settings)
         phases.append((events, protection, elapsed))
         uncursed *= 1 - cursed
+        amplifying += amplify_rate(seen, place, max(0.0, dwell))
         unknown.update(stand_ins)
         elapsed += max(0.0, dwell)
         if index + 1 < len(path):
@@ -648,7 +800,7 @@ def harm_path(
         barred = 'an exploding corpse can reach this place'
     if not any(events for events, _, _ in phases):
         return Harm(barred=barred, stand_ins=tuple(sorted(unknown)))
-    losses, totals = rollouts(phases, uncursed, settings, deaths)
+    losses, totals = rollouts(phases, uncursed, settings, deaths, 1 - math.exp(-amplifying))
     mean = sum(losses) / len(losses)
     worst = max(mean, sorted(losses)[min(len(losses) - 1, math.ceil(0.95 * len(losses)) - 1)])
     return Harm(
@@ -679,7 +831,11 @@ def resisted(kind: str, resistances: tuple[tuple[str, float], ...]) -> tuple[flo
 
 
 def rollouts(
-    phases: list, uncursed: float, settings: SafetySettings, deaths: Mapping[int, float] | None
+    phases: list,
+    uncursed: float,
+    settings: SafetySettings,
+    deaths: Mapping[int, float] | None,
+    amplified: float = 0.0,
 ) -> tuple[list[float], dict[int, float]]:
     """The seeded rollouts of `harm_path`: each one's loss and the points by contributor over all of them.
 
@@ -722,6 +878,8 @@ def rollouts(
     first_pool = phases[0][1].pool
     for _ in range(settings.trials):
         curse = rng.randrange(3) if draw() < cursing else -1
+        if amplified and curse < 0 and draw() < amplified:
+            curse = 0  # a Cursed hostile's Amplify Damage (CURSED_PRICED); no draw with none: bit-identical
         index = curse + 1
         late = math.inf
         if deaths:

@@ -1,20 +1,21 @@
 """What a look does with its goal: the judge, the safety pricing, the escort and the guard. A part of
 macros/hunt.py `Hunter`, its methods bound there."""
 
+import itertools
 import math
-from collections.abc import Sequence
-from dataclasses import replace
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
-from inventory_tracking.combat import threats
+from inventory_tracking.combat import pack as herald_pack, threats
 from inventory_tracking.combat.escort import around, escorts, in_danger, kept_alive
-from inventory_tracking.combat.harm import harm
+from inventory_tracking.combat.harm import harm, veto
 from inventory_tracking.combat.policy import STRIKE_REACH, observe
 from inventory_tracking.combat.stance import no_footing
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
-from inventory_tracking.game.records import Monster, World
+from inventory_tracking.game.records import HEALING, Monster, World
 from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import pursuit as pursuit_rules, route, zonenav
@@ -23,7 +24,7 @@ from inventory_tracking.macros.bossledger import Boss, said as bosses_said
 from inventory_tracking.macros.build import NoWay, PricedStep
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, WAIT, Goal, rest_of_level
-from inventory_tracking.macros.hunting import choice, shrines
+from inventory_tracking.macros.hunting import choice, revive, shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     COMES_TO_ITS_MARK,
@@ -48,6 +49,7 @@ from inventory_tracking.macros.hunting.base import (
     paired,
 )
 from inventory_tracking.macros.pursuit import (
+    FIRING_SPOT,
     Candidate,
     Defer,
     Ended,
@@ -60,6 +62,7 @@ from inventory_tracking.macros.pursuit import (
     decide,
     ends_run,
     heading,
+    the_runs_boss,
 )
 from inventory_tracking.macros.safety import AWAY, STEPPING
 from inventory_tracking.macros.sight import RING_STEP, firing_spots, in_reach as in_reach_of
@@ -115,7 +118,137 @@ HELD_STRIKES_ON = True
 DANCE_BUDGET = True
 DANCE_SECONDS = 5.0
 DANCING = ('retreating', 'pack: keeping range', 'safe approach')  # pursuit.py, combat/pack.py BACK_SAID, jump.py
+# STILL_BUDGET (2026-10-22, Tower Cellar Level 1, 20:04:15-20:04:26, take 20261022T170322Z-21; rca/2026-10-22/
+# flipflop-findings.md): DANCE_BUDGET counts the DANCING moves of one goal and takes a change of goal for progress, so
+# the 26 Teleports between a group of 10 and the Next level mark (the goal changed at every look) never added up. True:
+# any moves since the last progress (a kill seen, damage dealt, the goal reached; a drop, a wait, a boss stage's fight,
+# the loot or the way out keep the clock at zero) that went round in a knot - over the last DANCE_SECONDS a way of
+# STILL_TRAVEL and more, STILL_LOOPS times the width of the ground it covered, in STILL_MOVES moves and more - give up
+# the look's goal as DANCE_BUDGET does (a clearing goal passed, the loop's chest done with), whatever goals they were
+# for; a route's own goal is not, and the clock stays armed for the next clearing look. A way that goes somewhere (a
+# walk, hops round a wall, there and back once) is no knot. The game's own watchdog is loop.py `no_progress`. False:
+# DANCE_BUDGET only, as before.
+STILL_BUDGET = True
+# NET_PROGRESS (2026-10-22, Sewers Level 1 21:05:14-21:05:53, take 20261022T180453Z-92; rca/2026-10-22/
+# potion-flipflop-findings.md): a Horror (skeleton5) died four times and a Horadrim Ancient (unraveler4, Resurrect2)
+# raised it three times, the Ancient growing back 41 -> 81 of 128 meanwhile; each death and each blade on what came
+# back or grew back restarted the budgets' clock ("progress"). True: progress is what lasts: a death of one never seen
+# dead before on the level (`Hunter.slain`), or a life under what it was when the clock began (the clock's snapshot,
+# not the last look's: what grew back and is struck again is no progress), never the life of one raised. The potion
+# side goal is no goal the budgets keep (choice.py POTION_HELD): its pickup and its guards' fight are given up by a
+# knot like a clearing goal, the potion then left (`Hunter.side_left`). False: any death or blow, as before.
+NET_PROGRESS = True
+# KNOT_PASSES_PLACE (2026-10-23, Claw Viper Temple Level 1, 03:26-03:31, cyberg46 shard game: the loop stopped itself,
+# "no progress for 300 s"): a knot passed one Claw Viper of a row of 15 out of reach (no damage), the next look took
+# the next one of the same row, 20 passes in 5 min. True: a knot passes every monster within KNOT_RADIUS of the passed
+# goal's place with it; a unit passed by a knot again is passed for KNOT_AGAIN_SECONDS (the level's other ways first,
+# the level run ends when nothing else is left). False: the goal's unit alone, PASS_SECONDS, as before.
+KNOT_PASSES_PLACE = True
+# DANCE_PASSES_PACK (2026-10-23, the same stop; rca/2026-10-23/approach-veto-findings.md): the 15 Claw Vipers of a
+# tier 5 Mana Burn Herald pack stood in a row 22 wide behind a closed door, 2.5 units past it: no strike spot on the
+# character's side, the door inside the burners' keep range (every progress act vetoed, "kept at range: a move into
+# the pack's reach"). DANCE_BUDGET passed one viper a dance and STILL_BUDGET's knot those within KNOT_RADIUS, the next
+# look took the next one. True: a knot, or a dance whose goal is of a tier 4-5 Herald pack, passes that whole pack
+# (combat/pack.py `members` within PACK_SEEN of the goal's place) as a knot passes its radius (`pass_the_knot`).
+# False: the goal's unit alone for a dance, the knot's radius for a knot, as before.
+DANCE_PASSES_PACK = True
+KNOT_RADIUS = 14.0
+KNOT_AGAIN_SECONDS = 600.0
+STILL_LOOPS = 3.0
+STILL_TRAVEL = 60.0  # units: two Teleport hops and more
+STILL_MOVES = 4
 HELD_ON_SAID: set[int] = set()  # the held leaders the stay was said for
+# PACK_FIGHT_FIRST (2026-10-23, the player: "your goal is to maximize exp/hour"; rca/2026-10-23/fight-yield-findings.md)
+# Mausoleum, a tier 5 Herald pack of Hungry Dead, 09:37:41-46: with 4 of the pack in reach the agenda had no target
+# ("the route's own goal") and the fight let go after one cast each time for "agenda: a super chest spot" 96 away and
+# "agenda: Super chest" 74 away; the members followed, two more one-cast bouts on the way. Tonight's 1-cast yields to a
+# goal that is no fight: 560 to an unexplored room (852 s to the next strike), 74 to a chest (90 s), pickups on the way.
+# True: while a live member of a tier 4-5 Herald pack is in the strike's reach with a clear shot, the fight does not
+# let go for a move or a use that goes for no fight (`pack_holds_fight`, `key_asks`); the safety's moves (a hop, a
+# retreat, a dodge, a walk round, a firing spot), a fight goal's moves and the loop's end still do. False: as before.
+PACK_FIGHT_FIRST = True
+PACK_FIRST_SAID: set[int] = set()  # the packs the stay was said for (combat/pack.py `key_of`)
+# DANCE_BY_UNIT (2026-10-23, fix B of rca/2026-10-23/jumps-findings.md; the player: "your goal is to maximize
+# exp/hour"): DANCE_BUDGET's clock was keyed on the goal's label and place. At the Halls of the Dead door (14:40:07-48,
+# take 20261023T113952Z-57) the label went "Amethyst, on the way: the fight first (1 in the way)" <-> "full clear: the
+# elite 101 (1877455282)" at every look, one Herald for both, and a fight goal's place moves with its monster: the
+# clock began again at every look, no DANCE_BUDGET in 41 s of dance. True: a goal with a unit is keyed on the unit (and
+# what is done to it), whatever its label or place. False: the label and place, as before.
+DANCE_BY_UNIT = False
+# HELD_OFF (2026-10-23, rca/2026-10-23/fight-efficiency-findings.md shape a): after the keep range's hop the next look
+# went back in. Take 20261023T123721Z-106, 15:39:58-15:40:11: a "pack: keeping range: mana burn" hop, a "safe
+# approach" 3-5 units back toward the pack, the members came on, the next hop: 9 hops and 6 approaches in 13 s.
+# True: once the safety hops out of a pack (combat/pack.py BACK_SAID), the moves toward it (the goal's own, a safe
+# approach, a firing spot; never a retreat or a dodge) are not made while it comes on by itself and its threat is the
+# same: the same hostiles alive and read, one of them COMING_UNITS nearer than at the last look, within
+# HELD_OFF_SECONDS of the hop (`hold_off`). What is in reach is still struck; hops and retreats still go; a fresh
+# advance press goes. False: as before.
+HELD_OFF = False
+HELD_OFF_SECONDS = 3.0
+HELD_RADIUS = 24.0  # units: the hostiles the hop leaves (manaburn FAST_KEEP 18, pack LEAD_UNITS 4, a margin)
+COMING_UNITS = 1.0  # a hostile this much nearer the character than at the last look comes on
+HELD_OFF_SAID = 'held off'
+SAFE_APPROACH = 'safe approach'  # macros/safety.py `approach`
+# YIELD_KEEPS_KILLING (2026-10-23, the findings' shape b): the fight let go for the pursuit's own move while the strike
+# still killed. 15:00-17:31: 709 yields to such a move (the next group 51 away, an unexplored room, the hostile by the
+# Herald coming), 362 of them after a kill, 409 s of strike gap. True: the fight does not let go for the pursuit's own
+# move (no reason: not a hop, retreat, dodge, walk round or firing spot) while the look's price lets the hold stand
+# (not vetoed, within the life budget) and the fight here still kills (a kill or damage within the strike's reach in
+# KEEPS_SECONDS, NET_PROGRESS's rules: `fight_kills`) or a live tier 4-5 Herald pack's member is in reach with a clear
+# shot. Never on the KP_6 loop's rushed run, toward the level run's own boss, for the loot or the way out, or for a
+# fresh advance press. False: as before.
+YIELD_KEEPS_KILLING = True  # on 2026-10-23 ~19:50 (the player: "Turn both on"), gated: 0 new deaths over 1860 pairs
+KEEPS_SECONDS = 2.0
+KEEPS_SAID: set[str] = set()  # the goals the stay was said for
+# REFUSED_PASS (2026-10-23, the death agent's canyon trace, rca/2026-10-23/death-canyon-findings.md §6, READ_THROWS
+# on): the tier 5 Hell Slinger pack; land by the elite, 1-2 casts, "retreating: no progress act fits the life budget",
+# and the full clear's next look goes back to the same elite: 37 hops, the first kill at 14 s (the arena: 43 Teleports
+# and 2.2 kills a 32 s play). DANCE_BUDGET's clock starts again at every blow (damage is progress) and the approach
+# between is no dance. True: the safety's retreats from one fight's place (within REFUSED_RADIUS of the first one's
+# goal), REFUSED_TIMES of them with no kill there (NET_PROGRESS: none raised), whatever bouts and blows came between,
+# give the goal up as a dance does, the hostiles round it with it (`pass_the_knot`: KNOT_RADIUS, a Herald pack whole).
+# No refusal for REFUSED_LAPSE starts the count again. Never a kept goal. False: as before.
+REFUSED_PASS = False
+REFUSED_TIMES = 4
+REFUSED_RADIUS = herald_pack.PACK_SEEN
+REFUSED_LAPSE = 10.0  # seconds
+REFUSED_SAID = 'retreating'  # pursuit.py `arbitrate`'s retreats (KEEPING too)
+# T5_SKIP (2026-10-23, the player ~20:35 of a tier 5 Herald pack the safety refuses every spot near: "Skip it
+# (Recommended)"; rca/2026-10-23/death-canyon-findings.md §10): the canyon's Slingers, land, a cast, "retreating: no
+# progress act fits the life budget", back to the same Herald, 43 Teleports and 2.2 kills a 32 s play. True: a safety
+# retreat with no spot kept in strike reach (pursuit.py "retreating: ...", not KEEPING) from a goal of a tier 5 Herald's
+# pack (T5_TIER) gives the goal up at once, the whole pack passed for KNOT_AGAIN_SECONDS and its places no tour stop
+# (`note_refused`): no wait, no dance; not while the fight kills (a hostile by it dead within T5_QUIET, none raised:
+# the day's takes, 39 such packs: a skip at the first refusal loses 358 of their members' kills and 28 Heralds, one
+# with no kill in 5 s 151 and 10, for 844 of the 1373 s). Never a kept goal. False: as before.
+T5_SKIP = False
+T5_TIER = 5
+T5_QUIET = 5.0  # seconds
+T5_SAID = 'retreating: '  # pursuit.py `arbitrate`: no progress act made; KEEPING ('retreating within ...') keeps a spot
+# SLOW_FIGHT (2026-10-23, the coordinator: session 20261023T152949Z-3e645905, take 20261023T154020Z-94, Ruined Temple
+# 18:40:56-18:41:41): a tier 5 Herald pack of Wailing Beasts, each immune to magic ("the demons are its answer"),
+# "the Herald 3249094580 held until it dies" for 45 s: 11 strikes, the Herald 127 -> 119/128, then the zone skipped
+# ("no kill and no level done for 90 s"). The fight holds (HELD_STRIKES_ON, PACK_FIGHT_FIRST) whatever it takes off.
+# True: once the character has been in the strike's reach of a clearing goal's fight for SLOW_WATCH, the life the
+# hostiles round it (SLOW_RADIUS) lost since (kills in full, none raised: NET_PROGRESS) is its rate; when what is left
+# would take over SLOW_SECONDS more at that rate, the goal is given up as a dance's, the hostiles round it and its
+# Herald pack with it, and the held leader no longer keeps the fight (`held_strikes_on`). Never a kept goal (a boss
+# stage's fight). False: as before.
+SLOW_FIGHT = False
+SLOW_WATCH = 10.0  # seconds
+SLOW_SECONDS = 60.0
+SLOW_RADIUS = herald_pack.PACK_SEEN
+
+
+@dataclass(frozen=True)
+class HeldOff:
+    """HELD_OFF: a keep-range hop's look: its clock, the level, the hostiles it left and where the last look saw them,
+    and whether the hold was said."""
+
+    at: float
+    area: int
+    seen: dict[int, Point]
+    said: bool = False
 
 
 def wall_checked(posted: Pursuit | None, goal: Goal) -> bool:
@@ -161,6 +294,7 @@ def judge(
         goal = shrines.side_goal(self, run, world, goal, posted)  # an Experience Shrine on the way (2026-10-20)
         if choice.NEARER_CLEARING:
             goal = choice.from_nearer(self.missed, goal, now)  # the mode's own goal whose act missed: from nearer
+    goal = revive.reviver_goal(self, world, foes, goal)  # a reviver raising its pack first (REVIVER_STAND)
     bosses = unfound_bosses(self, player.area) if posted is not None and posted.runs else []
     if bosses and ends_run(goal, pressed):
         goal = boss_explore(self, run, world, player, goal, bosses, now)  # pursuit.py BOSS_EXPLORE
@@ -251,7 +385,10 @@ def judge(
     if facts.candidates:
         # A spot a move just failed to reach is not priced again for a while (`barred`)
         facts = replace(facts, candidates=tuple(c for c in facts.candidates if not self.barred(c.act, now)))
-    act = decide(facts, posted, self.pursuing)
+    facts, waits = hold_off(self, world, foes, facts, pressed and posted is not None and posted.advance, now)
+    self.look_facts = facts  # the look's priced acts (YIELD_KEEPS_KILLING's hold)
+    act = NoWay(waits) if waits is not None else decide(facts, posted, self.pursuing)
+    note_hold_off(self, world, foes, act, now)
     unshot(self, goal, act, foes, now)
     if (
         isinstance(act, Hold)
@@ -267,7 +404,7 @@ def judge(
     if isinstance(act, Advance) and self.barred(act, now):
         act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
     self.empty_mark(world, goal, act, now)
-    no_progress(self, run, world, goal, act, now, posted)
+    no_progress(self, run, world, goal, act, now, posted, there=there)
     if isinstance(act, Advance) and act.reason:
         place = act.step.spot
     if (
@@ -324,48 +461,394 @@ def dancing(act: object) -> bool:
     return isinstance(act, Advance) and act.reason.startswith(DANCING)
 
 
-def no_progress(
-    self: Hunter, run: Run, world: World, goal: Goal | None, act: object, now: float, posted: Pursuit | None
-) -> bool:
-    """DANCE_BUDGET: the goal given up after DANCE_SECONDS of DANCING acts since the last progress (a hostile seen
-    dead that was not, one's life down: damage dealt, the goal changed). True when given up now."""
-    if not DANCE_BUDGET or goal is None:
-        self.dance = None
-        return False
-    key = (goal.label, goal.do, goal.unit, round(goal.place[0]), round(goal.place[1]))
+def fallen(world: World) -> tuple[frozenset[int], dict[int, int]]:
+    """The hostiles seen dead, and the live ones' life: what a kill or damage dealt is told by (`no_progress`)."""
     dead = frozenset(m.unit_id for m in world.monsters if m.mode in (0, LYING_DEAD) and not m.ally)
     lives = {
         m.unit_id: m.life
         for m in world.monsters
         if not m.ally and m.mode not in (0, LYING_DEAD) and getattr(m, 'life', 0) > 0
     }
+    return dead, lives
+
+
+def progressed(
+    dead: frozenset[int],
+    lives: dict[int, int],
+    was_dead: frozenset[int],
+    was: dict[int, int],
+    raised: frozenset[int] = frozenset(),
+) -> bool:
+    """A hostile seen dead that was not, or one's life down (damage dealt), since `was_dead` and `was` (`fallen`);
+    none of `raised` (NET_PROGRESS: seen dead before on the level) counts."""
+    if not (dead - was_dead) <= raised:
+        return True
+    return any(life < was.get(unit, -1) for unit, life in lives.items() if unit not in raised)
+
+
+def slain_before(self: Hunter, world: World, dead: frozenset[int]) -> frozenset[int]:
+    """NET_PROGRESS: the hostiles seen dead on this level before this look (`Hunter.slain`, then this look's added);
+    none with the switch off."""
+    player = world.player
+    if not NET_PROGRESS or player is None:
+        return frozenset()
+    area, slain = getattr(self, 'slain', (None, frozenset()))
+    before = slain if area == player.area else frozenset()
+    self.slain = (player.area, before | dead)
+    return before
+
+
+def side_potion(self: Hunter, goal: Goal) -> int | None:
+    """POTION_HELD: the healing potion a side goal is for: its pickup, or its guards' fight (`first_fight` of the
+    look's own goal, `Hunter.base`); None for any other goal or with the switch off."""
+    potions = getattr(self, 'potions', None)
+    if not choice.POTION_HELD or potions is None:
+        return None
+    base = goal if goal.do == PICK_UP else getattr(self, 'base', None) if goal.guarded and goal.do == FIGHT else None
+    if base is None or base.do != PICK_UP or base.unit is None:
+        return None
+    return base.unit if potions.kinds.get(base.unit) == HEALING else None
+
+
+def kept_goal(goal: Goal, self: Hunter | None = None) -> bool:
+    """A goal no budget gives up: a drop, a wait, the boss's loot, the way out, a boss stage's fight; with `self`,
+    not a healing potion's side goal (POTION_HELD, `side_potion`)."""
+    if self is not None and side_potion(self, goal) is not None:
+        return False
+    return goal.do in (PICK_UP, WAIT, LOOT, LEAVE) or (goal.stage is not None and goal.stage.kind == FIGHT)
+
+
+def dance_key(goal: Goal) -> tuple:
+    """DANCE_BUDGET's clock key: the goal's unit and what is done to it (DANCE_BY_UNIT), else its label and place."""
+    if DANCE_BY_UNIT and goal.unit is not None:
+        return (goal.do, goal.unit)
+    return (goal.label, goal.do, goal.unit, round(goal.place[0]), round(goal.place[1]))
+
+
+def hops_back(act: object) -> bool:
+    """Whether `act` is the safety's keep-range hop (combat/pack.py BACK_SAID, a Herald's or a draining pack's)."""
+    return isinstance(act, Advance) and act.reason.startswith(herald_pack.BACK_SAID)
+
+
+def note_hold_off(self: Hunter, world: World, foes: Sequence[Monster], act: object, now: float) -> None:
+    """HELD_OFF: a keep-range hop chosen: the hostiles within HELD_RADIUS it leaves are held off from now."""
+    player = world.player
+    if not HELD_OFF or player is None or not hops_back(act):
+        return
+    here = (player.x, player.y)
+    left = {m.unit_id: (m.x, m.y) for m in foes if math.dist(here, (m.x, m.y)) <= HELD_RADIUS}
+    self.held_off = HeldOff(now, player.area, left) if left else None
+
+
+def approaching(c: Candidate, here: Point, held: Iterable[Point]) -> bool:
+    """Whether a priced act is a move toward the held-off hostiles (HELD_OFF): the goal's own move, a safe approach or
+    a firing spot, never a retreat, a dodge or a walk round, landing nearer the nearest of them than here."""
+    act = c.act
+    if not isinstance(act, Advance) or c.retreat or act.dodge or act.onward:
+        return False
+    if act.reason not in ('', SAFE_APPROACH, FIRING_SPOT):
+        return False
+    places = list(held)
+    nearest = min(math.dist(here, p) for p in places)
+    return min(math.dist(act.step.spot, p) for p in places) < nearest - 0.5
+
+
+def hold_off(
+    self: Hunter, world: World, foes: Sequence[Monster], facts: Facts, advanced: bool, now: float
+) -> tuple[Facts, str | None]:
+    """HELD_OFF: the look's priced acts without the moves toward the hostiles a hop just left (`approaching`) while
+    they come on and their threat is the same; and the reason to wait when that leaves no act. The hold ends with a
+    fresh advance press (`advanced`), another level, HELD_OFF_SECONDS, one of them dead or out of the read, or none
+    coming on."""
+    held = getattr(self, 'held_off', None)
+    player = world.player
+    if not HELD_OFF or held is None or player is None or not facts.candidates:
+        return facts, None
+    here = (player.x, player.y)
+    live = {m.unit_id: (m.x, m.y) for m in foes if m.unit_id in held.seen}
+    coming = [u for u, p in live.items() if math.dist(here, p) < math.dist(here, held.seen[u]) - COMING_UNITS]
+    if advanced or player.area != held.area or now - held.at > HELD_OFF_SECONDS or live.keys() != held.seen.keys():
+        self.held_off = None  # the threat changed, or the press goes
+        return facts, None
+    if not coming:
+        self.held_off = None  # they do not come on: gone to as before
+        return facts, None
+    kept = tuple(c for c in facts.candidates if not approaching(c, here, live.values()))
+    dropped = len(facts.candidates) - len(kept)
+    self.held_off = replace(held, seen=live, said=held.said or dropped > 0)
+    if not dropped:
+        return facts, None
+    nearest = min(math.dist(here, p) for p in live.values())
+    why = (
+        f'{HELD_OFF_SAID}: {len(coming)} of the {len(live)} the hop left come on (the nearest at {nearest:.1f}): '
+        'no move toward them (HELD_OFF)'
+    )
+    if not held.said:
+        LOG.info('Macro: pursuit: %s; %d moves dropped', why, dropped)
+    return replace(facts, candidates=kept), (why if not kept else None)
+
+
+def danced(self: Hunter, world: World, goal: Goal | None, act: object, now: float) -> str | None:
+    """DANCE_BUDGET: why the goal is given up after DANCE_SECONDS of DANCING acts since the last progress (a kill,
+    damage dealt, the goal changed); None else."""
+    if not DANCE_BUDGET or goal is None:
+        self.dance = None
+        return None
+    key = dance_key(goal)
+    dead, lives = fallen(world)
+    raised = getattr(self, 'slain', (None, frozenset()))[1] if NET_PROGRESS else frozenset()  # `knotted` keeps it
     begun = self.dance
+    if begun is None or begun[0] != key or progressed(dead, lives, begun[2], begun[3], raised):
+        self.dance = (key, now, dead, lives) if dancing(act) else None  # progress: the clock starts at the next dance
+        return None
+    if not isinstance(act, Advance) or not dancing(act) or now - begun[1] < DANCE_SECONDS or kept_goal(goal, self):
+        return None  # a drop, a wait, a boss stage: never given up so
+    return f'{now - begun[1]:.0f} s of {act.reason.split(":")[0]} with no kill and no progress (DANCE_BUDGET)'
+
+
+def refused(self: Hunter, world: World, goal: Goal | None, act: object, now: float) -> str | None:
+    """REFUSED_PASS: why the goal is given up after REFUSED_TIMES safety retreats from its fight's place with no kill
+    there; None else."""
+    if not REFUSED_PASS or goal is None or kept_goal(goal, self):
+        self.refusals = None
+        return None
+    dead, _ = fallen(world)
+    begun = getattr(self, 'refusals', None)
+    if begun is not None:
+        place, count, last, was_dead = begun
+        raised = getattr(self, 'slain', (None, frozenset()))[1] if NET_PROGRESS else frozenset()
+        at = {m.unit_id: (m.x, m.y) for m in world.monsters}
+        killed = any(math.dist(place, at[u]) <= REFUSED_RADIUS for u in dead - was_dead - raised if u in at)
+        if killed or now - last > REFUSED_LAPSE:
+            begun = self.refusals = None  # a kill there, or the fight went elsewhere: counted again
+    if not isinstance(act, Advance) or act.dodge or not act.reason.startswith(REFUSED_SAID):
+        return None
+    if begun is None or math.dist(begun[0], goal.place) > REFUSED_RADIUS:
+        self.refusals = (goal.place, 1, now, dead)
+        return None
+    place, count, _, was_dead = begun
+    self.refusals = (place, count + 1, now, was_dead)
+    if count + 1 < REFUSED_TIMES:
+        return None
+    return f'{count + 1} retreats from the fight at ({place[0]:.0f}, {place[1]:.0f}) with no kill there (REFUSED_PASS)'
+
+
+def t5_pack(world: World, goal: Goal) -> list[int]:
+    """T5_SKIP: the live members of a tier 5 Herald's pack the goal is of (its unit one, or its place within
+    PACK_SEEN of one), every member within PACK_SEEN of the goal's place; none else."""
+    hostile = [
+        m for m in world.monsters
+        if not getattr(m, 'ally', False) and getattr(m, 'owner', NO_OWNER) == NO_OWNER and m.mode not in (0, 12)
+        and getattr(m, 'tier', 0) >= T5_TIER
+    ]  # fmt: skip
+    near = [m.unit_id for m in hostile if math.dist(goal.place, (m.x, m.y)) <= herald_pack.PACK_SEEN]
+    if not near or (goal.unit is not None and goal.unit not in near and not goal.clearing):
+        return []
+    return near
+
+
+def t5_killing(self: Hunter, world: World, goal: Goal, now: float) -> float:
+    """T5_SKIP: the clock a hostile within PACK_SEEN of the goal's place was last seen dead that was not (none raised:
+    NET_PROGRESS), against the look before; -inf before any. Kept over the looks (`Hunter.t5_dead`)."""
+    dead = frozenset(
+        m.unit_id for m in world.monsters
+        if not getattr(m, 'ally', False) and getattr(m, 'owner', NO_OWNER) == NO_OWNER and m.mode in (0, LYING_DEAD)
+        and math.dist(goal.place, (m.x, m.y)) <= herald_pack.PACK_SEEN
+    )  # fmt: skip
+    at, was = getattr(self, 't5_dead', (-math.inf, None))
+    raised = getattr(self, 'slain', (None, frozenset()))[1] if NET_PROGRESS else frozenset()
+    if was is not None and dead - was - raised:
+        at = now
+    setattr(self, 't5_dead', (at, dead))  # ruff: ignore[set-attr-with-constant] - a Hunter field once hunting/base.py is free to edit
+    return at
+
+
+def t5_refused(self: Hunter, world: World, goal: Goal | None, act: object, now: float) -> str | None:
+    """T5_SKIP: why the goal is given up: the safety refused every spot by a tier 5 Herald's pack; None else."""
+    if not T5_SKIP or goal is None or kept_goal(goal, self):
+        return None
+    killed = t5_killing(self, world, goal, now)
+    if not isinstance(act, Advance) or act.dodge or not act.reason.startswith(T5_SAID):
+        return None
+    pack = t5_pack(world, goal)
+    if not pack or now - killed < T5_QUIET:
+        return None
+    return f'the safety refused every spot by the tier 5 Herald pack of {len(pack)} (T5_SKIP)'
+
+
+def slow_fight(self: Hunter, world: World, goal: Goal | None, now: float) -> str | None:
+    """SLOW_FIGHT: why the goal is given up when its fight, SLOW_WATCH in the strike's reach, would take SLOW_SECONDS
+    more at the rate it has taken life off the hostiles round it; None else."""
+    player = world.player
+    if not SLOW_FIGHT or player is None or goal is None or not goal.clearing or kept_goal(goal, self):
+        self.slow = None
+        return None
+    here = (player.x, player.y)
+    dead, lives = fallen(world)
+    at = {m.unit_id: (m.x, m.y) for m in world.monsters if not m.ally and m.owner == NO_OWNER}
+    near = {u for u, p in at.items() if math.dist(p, goal.place) <= SLOW_RADIUS}
+    begun = getattr(self, 'slow', None)
+    if begun is None or math.dist(begun[0], goal.place) > SLOW_RADIUS:
+        engaged = any(u in lives and math.dist(here, at[u]) <= self.reach for u in near)
+        self.slow = (goal.place, now, {u: lives[u] for u in near if u in lives}, dead) if engaged else None
+        return None
+    _, since, was, was_dead = begun
+    raised = getattr(self, 'slain', (None, frozenset()))[1] if NET_PROGRESS else frozenset()
+    known = {**{u: lives[u] for u in near if u in lives}, **was}  # one seen first counts from its life then
+    self.slow = (goal.place, since, known, was_dead)
+    elapsed = now - since
+    if elapsed < SLOW_WATCH:
+        return None
+    dealt = sum(max(0, was[u] - lives[u]) for u in was if u in lives)
+    dealt += sum(was[u] for u in was if u in dead and u not in was_dead and u not in raised)
+    left = sum(lives[u] for u in near if u in lives)
+    more = math.inf if dealt <= 0 else left / (dealt / elapsed)
+    if more <= SLOW_SECONDS:
+        return None
+    return (
+        f'{elapsed:.0f} s on the fight at ({goal.place[0]:.0f}, {goal.place[1]:.0f}): {dealt} of life taken, {left} '
+        f'left, {more:.0f} s more at that rate (SLOW_FIGHT)'
+    )
+
+
+def knotted(self: Hunter, world: World, goal: Goal | None, act: object, now: float, there: bool) -> str | None:
+    """STILL_BUDGET: why the moves since the last progress, whatever goals they were for, are a knot the look's goal
+    is given up for; None else."""
+    player = world.player
+    if not STILL_BUDGET or player is None:
+        self.still = None
+        return None
+    here = (player.x, player.y)
+    dead, lives = fallen(world)
+    moved = isinstance(act, Advance)
+    raised = slain_before(self, world, dead)  # NET_PROGRESS: what dies again was raised
+    begun = self.still
     if (
         begun is None
-        or begun[0] != key
-        or not dead <= begun[2]
-        or any(life < begun[3].get(unit, -1) for unit, life in lives.items())
+        or there
+        or goal is None
+        or kept_goal(goal, self)
+        or progressed(dead, lives, begun[1], begun[2], raised)
     ):
-        self.dance = (key, now, dead, lives) if dancing(act) else None  # progress: the clock starts at the next dance
+        self.still = (now, dead, lives, [(now, here, moved)])  # progress: the clock starts again
+        return None
+    spots = [spot for spot in begun[3] if spot[0] >= now - DANCE_SECONDS] + [(now, here, moved)]
+    # NET_PROGRESS: the clock's snapshot of each life stays (a life grown back is no bar raised); one seen first added
+    known = {**lives, **begun[2]} if NET_PROGRESS else {**begun[2], **lives}
+    self.still = (begun[0], begun[1], known, spots)
+    if not moved or now - begun[0] < DANCE_SECONDS or sum(1 for spot in spots if spot[2]) < STILL_MOVES:
+        return None
+    places = [spot[1] for spot in spots]
+    way = sum(math.dist(a, b) for a, b in itertools.pairwise(places))
+    width = max(math.dist(a, b) for a in places for b in places)
+    if way < STILL_TRAVEL or way < STILL_LOOPS * width:
+        return None
+    return (
+        f'{now - begun[0]:.0f} s of moves, {way:.0f} units round a knot {width:.0f} wide, with no kill, no damage '
+        'and no goal reached (STILL_BUDGET)'
+    )
+
+
+def no_progress(
+    self: Hunter,
+    run: Run,
+    world: World,
+    goal: Goal | None,
+    act: object,
+    now: float,
+    posted: Pursuit | None,
+    *,
+    there: bool = False,
+) -> bool:
+    """The goal given up for moves with no progress: DANCE_BUDGET's dance (`danced`), else STILL_BUDGET's knot
+    (`knotted`; `there`: the look's goal reached). True when given up now."""
+    why = danced(self, world, goal, act, now)
+    skipped = t5_refused(self, world, goal, act, now)
+    refusal = skipped or refused(self, world, goal, act, now) or slow_fight(self, world, goal, now)
+    knot = knotted(self, world, goal, act, now, there)
+    why = why or refusal or knot
+    if why is None or goal is None:
         return False
-    if not isinstance(act, Advance) or not dancing(act) or now - begun[1] < DANCE_SECONDS:
-        return False
-    if goal.do in (PICK_UP, WAIT, LOOT, LEAVE) or (goal.stage is not None and goal.stage.kind == FIGHT):
-        return False  # a drop, a wait, a boss stage: never given up so
-    why = f'{now - begun[1]:.0f} s of {act.reason.split(":")[0]} with no kill and no progress (DANCE_BUDGET)'
     player = world.player
     level = self.known_level(player) if player is not None else None
     rooms = level.rooms if level is not None else ()
-    if posted is not None and posted.rush and goal.do == USE and goal.mark is not None:
+    potion = side_potion(self, goal)
+    if potion is not None:
+        # POTION_HELD: the healing potion's detour went nowhere: the potion is left (choice.py `side_drop`'s ledger)
+        if len(self.side_left) > 200:
+            self.side_left.clear()
+        self.side_left[potion] = f'left: {why}'
+        self.potions.refuse(potion, why)
+        LOG.info('Macro: pursuit: passing %s: the potion %d is left: %s', goal.label, potion, why)
+        given = True
+    elif posted is not None and posted.rush and goal.do == USE and goal.mark is not None:
         given = route.note_empty(run, goal.mark, self.bearings.progress, self.bearings.marks, f'skipped: {why}')
     elif goal.clearing:
         self.pass_by(goal, why, now, rooms)
+        if (knot is not None and why == knot) or (refusal is not None and why == refusal) or pack_of(world, goal):
+            # a knot, a refused place (REFUSED_PASS), or a dance on a Herald pack (DANCE_PASSES_PACK)
+            pass_the_knot(self, world, goal, now)
+        if refusal is not None and why == refusal:
+            note_refused(self, world, goal, now)
+        if skipped is not None and why == skipped:
+            skip_pack(self, world, goal, now)
         given = True
     else:
         return False
     if given:
-        self.dance = None
+        self.dance = self.still = self.refusals = self.slow = None
     return given
+
+
+def skip_pack(self: Hunter, world: World, goal: Goal, now: float) -> None:
+    """T5_SKIP: the refused tier 5 Herald's pack passed whole for KNOT_AGAIN_SECONDS, said."""
+    units = t5_pack(world, goal)
+    until = now + KNOT_AGAIN_SECONDS
+    for unit in units:
+        self.passed[unit] = max(self.passed.get(unit, 0.0), until)
+    LOG.info('Macro: run: skipping the tier 5 Herald pack of %d by (%.0f, %.0f) for %.0f s (T5_SKIP)',
+             len(units), *goal.place, KNOT_AGAIN_SECONDS)  # fmt: skip
+
+
+def pack_of(world: World, goal: Goal) -> list[int]:
+    """DANCE_PASSES_PACK: the tier 4-5 Herald pack the goal's unit is of (its members within PACK_SEEN of the goal's
+    place), or none."""
+    if not DANCE_PASSES_PACK or goal.unit is None:
+        return []
+    hostile = [m for m in world.monsters if not getattr(m, 'ally', False) and getattr(m, 'owner', NO_OWNER) == NO_OWNER]
+    if not any(m.unit_id == goal.unit and herald_pack.in_pack(getattr(m, 'tier', 0)) for m in hostile):
+        return []
+    return [m.unit for m in herald_pack.members(hostile) if math.dist(goal.place, m.at) <= herald_pack.PACK_SEEN]
+
+
+def note_refused(self: Hunter, world: World, goal: Goal, now: float) -> None:
+    """REFUSED_PASS: the refused fight's places (the goal's, the hostiles round it, its Herald pack's) are no tour
+    stop for PASS_SECONDS (choice.py `refused_near`): the way on goes elsewhere, not back through it."""
+    near = [(m.x, m.y) for m in world.monsters if math.dist(goal.place, (m.x, m.y)) <= KNOT_RADIUS]
+    units = set(pack_of(world, goal))
+    places = [goal.place, *near, *((m.x, m.y) for m in world.monsters if m.unit_id in units)]
+    kept = [(at, until) for at, until in self.refused_places if until > now][-40:]
+    self.refused_places = kept + [(at, now + choice.PASS_SECONDS) for at in places]
+
+
+def pass_the_knot(self: Hunter, world: World, goal: Goal, now: float) -> None:
+    """KNOT_PASSES_PLACE: the monsters round a goal passed by a knot are passed with it (longer when again), said."""
+    if not KNOT_PASSES_PLACE:
+        return
+    if len(self.knots) > 400:
+        self.knots.clear()
+    near = [m.unit_id for m in world.monsters if math.dist(goal.place, (m.x, m.y)) <= KNOT_RADIUS]
+    units = {*near, *(() if goal.unit is None else (goal.unit,)), *pack_of(world, goal)}
+    again = 0
+    for unit in units:
+        self.knots[unit] = self.knots.get(unit, 0) + 1
+        again += self.knots[unit] > 1
+        until = now + (KNOT_AGAIN_SECONDS if self.knots[unit] > 1 else choice.PASS_SECONDS)
+        self.passed[unit] = max(self.passed.get(unit, 0.0), until)
+    LOG.info(
+        'Macro: run: the knot passes %d monsters within %.0f of (%.0f, %.0f) with %s (%d again, for %.0f s)',
+        len(units), KNOT_RADIUS, *goal.place, goal.label, again, KNOT_AGAIN_SECONDS,
+    )  # fmt: skip
 
 
 def empty_mark(self: Hunter, world: World, goal: Goal | None, act, now: float) -> None:
@@ -568,6 +1051,8 @@ def key_asks(
     now = run.clock()
     if not self.pursuing:
         return False
+    if YIELD_KEEPS_KILLING and world.player is not None:
+        fight_kills(self, world, (world.player.x, world.player.y), now)  # every look of the fight, judged or not
     current = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
     stamp, at, asks = self.judged
     if stamp != current or (now - at >= DECIDE_SECONDS and not unstruck):
@@ -578,7 +1063,11 @@ def key_asks(
             or (isinstance(act, NoWay) and act.reason.startswith('safety:'))
             or (isinstance(act, Ended) and found.posted is not None and found.posted.looped)  # the loop's run over
         )
-        if asks and isinstance(act, Advance) and held_strikes_on(self, world, foes, ground, act):
+        if asks and isinstance(act, Advance) and held_strikes_on(self, world, foes, ground, act, now):
+            asks = False
+        if asks and isinstance(act, Advance | Operate) and pack_holds_fight(self, world, foes, ground, act, now):
+            asks = False
+        if asks and isinstance(act, Advance) and keeps_killing(self, world, foes, ground, found, now):
             asks = False
         if isinstance(act, Hold) and found.pressed:
             # A fresh press answered by the strike says so (I6)
@@ -595,7 +1084,9 @@ def key_asks(
     return asks
 
 
-def held_strikes_on(self: Hunter, world: World, foes: list[Monster], ground: Ground, act: Advance) -> bool:
+def held_strikes_on(
+    self: Hunter, world: World, foes: list[Monster], ground: Ground, act: Advance, now: float | None = None
+) -> bool:
     """Whether the fight stays for the leader its strike holds (HELD_STRIKES_ON): `act` is the pursuit's own move
     toward a fight goal (no reason: not the safety's, not a firing spot; no dodge or walk round) and the held leader
     is a foe in the strike's reach with a clear shot, not left alone as untouchable or neared. Said once a leader."""
@@ -609,6 +1100,8 @@ def held_strikes_on(self: Hunter, world: World, foes: list[Monster], ground: Gro
     leader = next((m for m in foes if m.unit_id == unit), None)
     if leader is None or unit in self.untouchable or unit in self.nearing:
         return False
+    if SLOW_FIGHT and now is not None and self.passed.get(unit, -math.inf) > now:
+        return False  # given up (SLOW_FIGHT): the held leader keeps no fight
     here = (player.x, player.y)
     if not in_reach_of(ground, here, (leader.x, leader.y), self.attack.reach, world.doors):
         return False
@@ -621,6 +1114,121 @@ def held_strikes_on(self: Hunter, world: World, foes: list[Monster], ground: Gro
             act.goal.label, unit, math.dist(here, (leader.x, leader.y)),
         )  # fmt: skip
     return True
+
+
+def pack_holds_fight(
+    self: Hunter, world: World, foes: list[Monster], ground: Ground, act: Advance | Operate, now: float
+) -> bool:
+    """Whether the fight stays for a tier 4-5 Herald pack in reach (PACK_FIGHT_FIRST): `act` goes for no fight (a
+    chest, a room to explore, a pickup on the way, the way out) and is no safety move (no reason, no dodge or walk
+    round), and a live member of the pack is a foe in the strike's reach with a clear shot, not left alone as
+    untouchable, neared or passed. Said once a pack."""
+    player = world.player
+    if not PACK_FIGHT_FIRST or player is None or act.goal.do == FIGHT:
+        return False
+    if isinstance(act, Advance) and (act.reason or act.dodge or act.onward):
+        return False
+    here = (player.x, player.y)
+    held = [
+        m
+        for m in foes
+        if herald_pack.in_pack(m.tier)
+        and m.unit_id not in self.untouchable
+        and m.unit_id not in self.nearing
+        and self.passed.get(m.unit_id, -math.inf) <= now
+        and in_reach_of(ground, here, (m.x, m.y), self.attack.reach, world.doors)
+    ]
+    if not held:
+        return False
+    key = herald_pack.key_of(herald_pack.members(held))
+    if key is not None and key not in PACK_FIRST_SAID:
+        if len(PACK_FIRST_SAID) > 200:
+            PACK_FIRST_SAID.clear()
+        PACK_FIRST_SAID.add(key)
+        LOG.info(
+            'Macro: pursuit: %s waits: %d of a tier %d Herald pack in reach, the fight first (PACK_FIRST)',
+            act.goal.label, len(held), max(m.tier for m in held),
+        )  # fmt: skip
+    return True
+
+
+def fight_kills(self: Hunter, world: World, here: Point, now: float) -> float:
+    """YIELD_KEEPS_KILLING: the clock the strike's reach last saw progress (a hostile in it seen dead that was not, or
+    one's life down; none of those raised: NET_PROGRESS), against the look before; -inf before any."""
+    reach = self.reach
+    near = [
+        m
+        for m in world.monsters
+        if not getattr(m, 'ally', False)
+        and getattr(m, 'owner', NO_OWNER) == NO_OWNER
+        and math.dist(here, (m.x, m.y)) <= reach
+    ]
+    dead = frozenset(m.unit_id for m in near if m.mode in (0, LYING_DEAD))
+    lives = {m.unit_id: m.life for m in near if m.mode not in (0, LYING_DEAD) and getattr(m, 'life', 0) > 0}
+    at, was_dead, was = getattr(self, 'killing', (-math.inf, None, {}))
+    raised = getattr(self, 'slain', (None, frozenset()))[1] if NET_PROGRESS else frozenset()
+    if was_dead is not None and progressed(dead, lives, was_dead, was, raised):
+        at = now
+    self.killing = (at, dead, lives)
+    return at
+
+
+def hold_stands(facts: Facts | None) -> bool:
+    """Whether the look's priced hold is allowed: not vetoed and within the life budget (YIELD_KEEPS_KILLING)."""
+    if facts is None or not facts.priced:
+        return False
+    return any(
+        isinstance(c.act, Hold) and veto(c.harm, facts.life, facts.safety) is None and c.harm.worst <= facts.budget
+        for c in facts.candidates
+    )
+
+
+def keeps_killing(self: Hunter, world: World, foes: list[Monster], ground: Ground, found: Judged, now: float) -> bool:
+    """Whether the fight stays for its strikes (YIELD_KEEPS_KILLING): `found`'s act is the pursuit's own move (no
+    reason, no dodge or walk round), not the rushed run's, toward the run's boss, the loot or the way out, nor a fresh
+    advance press's; the look's hold stands (`hold_stands`); and the fight here still kills (`fight_kills` within
+    KEEPS_SECONDS) or a tier 4-5 Herald pack's member is in reach (`pack_in_reach`). Said once a goal."""
+    act, posted, player = found.act, found.posted, world.player
+    if not YIELD_KEEPS_KILLING or player is None or not isinstance(act, Advance):
+        return False
+    if act.reason or act.dodge or act.onward:
+        return False
+    goal = act.goal
+    if goal.do in (LOOT, LEAVE) or the_runs_boss(goal, posted) or (posted is not None and posted.rush):
+        return False
+    if found.pressed and posted is not None and posted.advance:
+        return False
+    if not hold_stands(getattr(self, 'look_facts', None)):
+        return False
+    since = now - getattr(self, 'killing', (-math.inf, None, {}))[0]
+    pack = pack_in_reach(self, world, foes, ground, now) if since > KEEPS_SECONDS else []
+    if since > KEEPS_SECONDS and not pack:
+        return False
+    if goal.label not in KEEPS_SAID:
+        if len(KEEPS_SAID) > 200:
+            KEEPS_SAID.clear()
+        KEEPS_SAID.add(goal.label)
+        why = f'the kill {since:.1f} s ago' if since <= KEEPS_SECONDS else f'{len(pack)} of a Herald pack in reach'
+        LOG.info('Macro: pursuit: %s waits: the fight here still kills (%s) (YIELD_KEEPS)', goal.label, why)
+    return True
+
+
+def pack_in_reach(self: Hunter, world: World, foes: Sequence[Monster], ground: Ground, now: float) -> list[Monster]:
+    """The live tier 4-5 Herald pack's members in the strike's reach with a clear shot, not left alone as untouchable,
+    neared or passed."""
+    player = world.player
+    if player is None:
+        return []
+    here = (player.x, player.y)
+    return [
+        m
+        for m in foes
+        if herald_pack.in_pack(m.tier)
+        and m.unit_id not in self.untouchable
+        and m.unit_id not in self.nearing
+        and self.passed.get(m.unit_id, -math.inf) <= now
+        and in_reach_of(ground, here, (m.x, m.y), self.attack.reach, world.doors)
+    ]
 
 
 def yielded_act(self: Hunter, run: Run, world: World) -> tuple[Judged, float] | None:

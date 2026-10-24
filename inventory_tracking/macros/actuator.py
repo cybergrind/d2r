@@ -5,6 +5,8 @@ player who touches keyboard or mouse stops the macro (`Hand`) before the next ev
 the game window.
 """
 
+import time
+from collections import deque
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from threading import Event
@@ -29,11 +31,24 @@ AIM_TRIES = 3
 # Why a macro stopped, for the KP_6 loop's stop rules (runner.py `classify`): the player's hand, a Gheed's Fortune
 # carry-one refusal, no inventory room, the watchdog's stand, a keeper no stash page takes, hit outside a fight
 # (fought back or left: stops.py `first`), nothing to play (a terror zone with no excursion, games with no level run:
-# macros/tzloop.py `choose`, 2026-10-19), a drop no click took (pickup.py `Missed`, 2026-10-21), anything else
+# macros/tzloop.py `choose`, 2026-10-19), a drop no click took (pickup.py `Missed`, 2026-10-21), a town routine that
+# found the character out of its town (macros/visit.py `in_town`, 2026-10-23), anything else
 # (rca/2026-10-18/arch-loop-orchestration.md Option A)
 Cause = Literal[
-    'hand', 'refused', 'room', 'stall', 'stash', 'beset', 'idle', 'zone', 'lobby', 'door', 'pickup', 'other'
+    'hand', 'refused', 'room', 'stall', 'stash', 'beset', 'idle', 'zone', 'lobby', 'door', 'pickup', 'town', 'other'
 ]
+
+
+# 2026-10-23 (rca/2026-10-23/realtime-2-findings.md §2): an aim given a `bind` (the caller's target, as a window
+# fraction, from the newest look) takes it again after the aim's own pause, just before the caller's key or button:
+# a target BIND_PIXELS or more off where the aim was put is jumped to (one step, no pause). The aim's point was the
+# look's, 0.2-0.3 s before the input at p50 (realtime-reads-findings.md §1); the bind's is the newest frame's.
+# False: no bind.
+LATE_BIND = True  # on 2026-10-23 ~22:00: realtime-2 gate no worse (2440 plays + slow host k 1 and 1.5)
+# 2026-10-23 (realtime-3-findings.md §3): the late bind also on attack mode's one unchecked move (`steady` off: the
+# strikes' aims, a walk's click in a fight); before it a bind was asked only of a checked aim. False: as before.
+BIND_UNSTEADY = True  # on 2026-10-24 ~13:25: gates 4+5 (1688 pairs) passed; the goldens' move was the harness's look
+BIND_PIXELS = 6
 
 
 class Abort(Exception):
@@ -96,6 +111,9 @@ class Actuator:
         self.keyboard_run = False  # a keyboard-mode run (runner.py `play_by`): the game leaving that mode stops it
         # The combat take's note (record.py `Recorder.note`): the pointer check's abort as a `pointer_check` event
         self.noted: Callable[..., None] | None = None
+        # (monotonic s, a key or button down) of the last inputs sent: the act queue (hunting/laps.py, 2026-10-23)
+        self.inputs: deque[tuple[float, bool]] = deque(maxlen=64)
+        self.bound_moves = 0  # aims a late bind moved (`bound`)
 
     def allow(self, *names: str) -> None:
         """Keys another service presses by itself are not the player's (the OSD's Show Items `z`)."""
@@ -154,6 +172,13 @@ class Actuator:
             self.pace.sleep(step)
             waited += step
 
+    def sent(self, since: float) -> tuple[float | None, float | None]:
+        """(the first input sent at or after `since`, the first key or button down at or after that), monotonic s;
+        None where none is kept."""
+        first = next((at for at, _ in self.inputs if at >= since), None)
+        down = next((at for at, pressed in self.inputs if pressed and at >= first), None) if first is not None else None
+        return first, down
+
     def _inputs(self, names: tuple[str, ...]) -> list[tuple[bool, int]]:
         """(is a mouse button, X11 button or key code) per name, in order."""
         buttons = [button_number(name) for name in names]
@@ -174,6 +199,7 @@ class Actuator:
                 raise Abort('a key press failed')
         self.keys.sync()
         self.mark('first_key')
+        self.inputs.append((time.monotonic(), True))
         return pressed
 
     def _release(self, pressed: list[tuple[bool, int]]) -> None:
@@ -188,15 +214,21 @@ class Actuator:
         """Press the named keys in order, hold, release in reverse; `Button<n>` presses that mouse button."""
         inputs = self._inputs(names)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
+        # The tap's own keys are not the player's while it holds them (`key_held`): the hold's pause looks, and a
+        # potion drunk in it saw the Engorge key 'a' down as "a key was pressed (key code 38)" and went 0.27 s late
+        # (2026-10-23 14:52:22.763, rca/2026-10-23/death-canyon-findings.md §3). Only those not held already
+        own = frozenset(code for is_button, code in inputs if not is_button) - self.holding
         self.guard()
         self.mouse_guard(inputs)
         pressed = self._press(inputs)
         self.holding_buttons |= own_buttons  # the macro's own click is not the player's (`button_held`)
+        self.holding |= own
         try:
             self.pace.hold()
         finally:
             self._release(pressed)
             self.holding_buttons -= own_buttons
+            self.holding -= own
 
     @contextmanager
     def hold(self, *names: str) -> Generator[Callable[[], None]]:
@@ -292,6 +324,7 @@ class Actuator:
         distance = max(abs(goal[0] - start[0]), abs(goal[1] - start[1]))
         steps = max(3, min(6, distance // 150)) if quick else max(4, min(18, distance // 45))
         self.mark('first_move')
+        self.inputs.append((time.monotonic(), False))
         for point in eased_path(start, goal, steps, rng):
             if not self.keys.move_pointer(*point):
                 raise Abort('a pointer move failed')
@@ -300,7 +333,15 @@ class Actuator:
         self.left_at = goal
         self.pace.pause('flick' if quick else 'aim')
 
-    def aim(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0) -> None:
+    def aim(
+        self,
+        x: float,
+        y: float,
+        *,
+        scatter: tuple[int, int] = (4, 3),
+        near: int = 0,
+        bind: Callable[[], tuple[float, float] | None] | None = None,
+    ) -> None:
         """A quick move to (x, y) that holds: retried up to AIM_TRIES while the pointer is over AIM_TOLERANCE off, the
         last try a `jump` (a sweeping hand cannot carry it off in a jump). `steady` off (attack mode): one move,
         unchecked. `near`: a pointer the macro already put within that many pixels is `snap`ped (travel.py pre-aims)."""
@@ -315,6 +356,7 @@ class Actuator:
                 goal = (rect[0] + rect[2] * x, rect[1] + rect[3] * y)
                 if max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= near:
                     self.snap(x, y, scatter=scatter)
+                    self.bound(bind)
                     return
         for attempt in range(AIM_TRIES):
             if attempt == AIM_TRIES - 1 and self.steady:
@@ -322,12 +364,31 @@ class Actuator:
             else:
                 self.move(x, y, scatter=scatter, quick=True)
             if not self.steady:
+                if BIND_UNSTEADY:
+                    self.bound(bind)  # attack mode's one move (the strikes') taken again at its end too
                 return
             now, goal = self.keys.pointer(), self.left_at
             if now is None or goal is None or max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= AIM_TOLERANCE:
+                self.bound(bind)
                 return
             LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
         raise Hand('the mouse is being moved')
+
+    def bound(self, bind: Callable[[], tuple[float, float] | None] | None) -> bool:
+        """The aim's target taken again from `bind` (LATE_BIND) and jumped to when BIND_PIXELS or more off where the
+        aim put the pointer. Whether it was moved."""
+        if not LATE_BIND or bind is None:
+            return False
+        fresh = bind()
+        rect, put = self.keys.focused_window_rect(), self.left_at
+        if fresh is None or rect is None or put is None:
+            return False
+        goal = (rect[0] + rect[2] * fresh[0], rect[1] + rect[3] * fresh[1])
+        if max(abs(goal[0] - put[0]), abs(goal[1] - put[1])) < BIND_PIXELS:
+            return False
+        self.jump(*fresh, scatter=(1, 1))
+        self.bound_moves += 1
+        return True
 
     def snap(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
         """The pointer put at (x, y) in one step and held, re-put when a hand carries it off, for a key the player
@@ -357,6 +418,7 @@ class Actuator:
             rect[1] + round(rect[3] * y) + rng.randint(-scatter[1], scatter[1]),
         )
         self.mark('first_move')
+        self.inputs.append((time.monotonic(), False))
         if not self.keys.move_pointer(*goal):
             raise Abort('a pointer move failed')
         self.keys.sync()

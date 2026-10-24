@@ -94,6 +94,43 @@ class Grid(tuple[str, ...]):
     def has_room(self, size: Size) -> bool:
         return self.first_spot(size) is not None
 
+    def pickup_spot(self, size: Size) -> Cell | None:
+        """Where the game puts an item of `size` a click picks up from the ground (the player's grid): the free block
+        whose sides touch the most taken cells or grid edges, the first such in the game's scan; one row high
+        (rings, gems, runes, belts) scanned from the bottom right column by column, a taller one from the top left row
+        by row. D2MOO D2Inventory.cpp `INVENTORY_GetFreePosition` with `INVENTORY_GetPlacementWeight`
+        (third-parties/D2MOO); the live visits agree (rca/2026-10-23/room-blocks-findings.md: a ring picked after
+        a visit lands at (4, 3), inside the 2 x 4 block, not in the spare cells). None with no room."""
+        across, down = size
+        if down == 1:
+            order = ((x, y) for x in range(self.width - 1, -1, -1) for y in range(len(self) - 1, -1, -1))
+        else:
+            order = ((x, y) for y in range(len(self)) for x in range(self.width))
+        best, found = 0, None
+        for x, y in order:
+            if not self.fits((x, y), size):
+                continue
+            weight = self._touching((x, y), size)
+            if weight > best:
+                best, found = weight, (x, y)
+                if weight >= 2 * (across + down):
+                    break
+        return found
+
+    def _touching(self, at: Cell, size: Size) -> int:
+        """The taken cells and grid edges along the four sides of the block of `size` at `at` (the game's weight)."""
+        x, y = at
+        across, down = size
+
+        def taken(col: int, row: int) -> bool:
+            return self[row][col] != '.'
+
+        left = sum(taken(x - 1, y + i) for i in range(down)) if x > 0 else down
+        right = sum(taken(x + across, y + i) for i in range(down)) if x + across < self.width else down
+        top = sum(taken(x + i, y - 1) for i in range(across)) if y > 0 else across
+        bottom = sum(taken(x + i, y + down) for i in range(across)) if y + down < len(self) else across
+        return left + right + top + bottom
+
     def take(self, at: Cell, size: Size) -> Grid:
         """The grid with the block of `size` at `at` taken (the part of it inside the grid)."""
         x, y = at

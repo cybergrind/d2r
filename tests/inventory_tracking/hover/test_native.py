@@ -1,5 +1,7 @@
 import struct
 
+import pytest
+
 from inventory_tracking.hover.native import collect_native
 
 
@@ -78,3 +80,7 @@ def test_production_capture_targets_equipment_grid_without_panel_probe_mode():
     addresses = {b['address'] for b in result['blocks']}
     assert 0x5800 in addresses
     assert 0x5000 not in addresses
+
+
+# The saved captures here were recorded on the build before the 2026-10-23 patch.
+pytestmark = pytest.mark.usefixtures('old_build_layout')

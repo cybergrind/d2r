@@ -21,7 +21,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.loop import TZ_PICKUP, UNREAD
 from inventory_tracking.macros.lootpolicy import GUARD, verdict
-from inventory_tracking.macros.pickmode import kept
+from inventory_tracking.macros.pickmode import taken
 from inventory_tracking.macros.pickup import FETCH_HOPS, SHUNNED, approach, moved_in_hand, waived, wanted
 from inventory_tracking.macros.running.base import AT_DROP_UNITS
 from inventory_tracking.macros.shop import walk_until
@@ -36,11 +36,12 @@ if TYPE_CHECKING:
 
 
 def _picked(self: MacroRunner, loot: Loot, tome: Callable[[], int | None] | None = None) -> Loot:
-    """The drops the pickup goes for: those of the pickup level (macros/pickmode.py, KP_5), in every activity.
+    """The drops the pickup goes for: those of the pickup level (macros/pickmode.py `taken`: the entry point's GROUND
+    verdict, loot/assess.py; KP_5), in every activity.
     `tome()`: the Tome of Identify's charges (`tome_charges`), for a big field item into the free block. A drop the
     pickup waived for the game (pickup.py `waive`: its label never under the pointer) is out of it, so neither the
     guard (`_valuable_left`) nor the sightings hold the game for it."""
-    loot = kept(waived(loot), self.pickup_mode, tome)
+    loot = taken(waived(loot), self.pickup_mode, tome)
     if not self.loop.on:
         return loot
     # A full stash stack's rune or material is not picked up (macros/loop.py `sold_full`, from the stash's one record:
@@ -126,8 +127,38 @@ def _fetch(self: MacroRunner, run: Run, level, key_names) -> bool:
         def across(to: int) -> bool:
             return crossing(level, to, self.marks, here) is not None
 
-    return self.sightings.fetch(
-        here, player.area, time.monotonic(), lambda found: self._go_back(run, found, level, key_names), across
+    try:
+        return self.sightings.fetch(
+            here, player.area, time.monotonic(), lambda found: self._go_back(run, found, level, key_names), across
+        )
+    except Abort as stop:
+        if stop.cause is None and remembered_without_room(self):
+            # A remembered valuable the inventory has no room for: the room rules' stop (stops.py ROOM_CAUSES: the
+            # cube, then a trip to town, then taken), not a hold (2026-10-22 20:48: a Superior Flail with no room
+            # was gone back for twice and the loop stopped)
+            raise Abort(f'{stop}: no room for it', cause='room') from stop
+        raise
+
+
+def remembered_without_room(self: MacroRunner) -> bool:
+    """Whether a valuable the sightings remember lies in sight and the inventory has no room for its size; False
+    when the ground cannot be read."""
+    try:
+        table = one_unit_table(self.source.capture)
+        if table is None:
+            return False
+        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
+        try:
+            loot = memory.loot(**wanted())
+        finally:
+            memory.close()
+    except Exception as exc:
+        LOG.info('Macro: the ground could not be read (%s)', exc)
+        return False
+    remembered = self.sightings.items
+    return any(
+        drop.kind == VALUABLE and drop.unit_id in remembered and not has_room(loot.room, drop.size)
+        for drop in loot.drops
     )
 
 

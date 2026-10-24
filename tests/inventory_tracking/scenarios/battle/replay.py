@@ -36,12 +36,14 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.builds import pursuing
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Loot, Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Level, Room, Walkable
+from inventory_tracking.macros import binding
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter, threat
@@ -226,6 +228,11 @@ class Replay:
         # 30 ms runs out sooner than it did: the walk of 2.93 s was given up 12 ms before the key
         # that, in the game, came first.
         self.clock.now += self.script.read_seconds
+        return self.peek()
+
+    def peek(self) -> World:
+        """The world as a look sees it now, the look's own time not taken (`world` takes it): the strike bind's look
+        (macros/binding.py `strike_world`, 2026-10-24), which in the game changes nothing."""
         frame = self.frame()
         row = character(frame)
         rows = monsters_of(frame)
@@ -370,7 +377,9 @@ class Replay:
         LOG.setLevel(logging.INFO)
         restore = set_runner(CARD_SECONDS=0, TRAVEL_QUIET=0)  # the runner and its parts (macros/running/)
         LOOKED.clear()  # the pickup's aims of a play before (pickup.py): each replay as the first
-        patched = []
+        # The strike bind's look is a peek (`peek`; macros/binding.py `strike_world`, 2026-10-24)
+        patched: list[tuple[Any, str, Any]] = [(binding, 'strike_world', binding.strike_world)]
+        binding.strike_world = lambda run: self.peek()
         for path, value in self.script.patches.items():
             module, name = path.rsplit('.', 1)
             try:

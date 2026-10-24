@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
+from inventory_tracking.game.frames import look_at
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.records import Player, World
 from inventory_tracking.input.compositor import STEP_KEYS
@@ -22,7 +23,7 @@ from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.loot import keep as loot_keep
 from inventory_tracking.loot.api import FIELD, at_once, settle
 from inventory_tracking.loot.hands import GameHands
-from inventory_tracking.macros import route
+from inventory_tracking.macros import actloop, route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cta import cast_in_hand
@@ -92,6 +93,13 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
     focus = self.focus
     memory = GameMemory(pid, images['candidate_base'], table)
     memory.ground_seen = self.ground_seen  # one census across runs (game/memory.py `_census`)
+    # The replayed batches' patterns kept across runs, and their once-a-minute line (native/memory.py REPLAY)
+    if memory.replay is not None:
+        memory.replay.share(self.read_patterns, self.read_prepared)
+        memory.replay.said = lambda text: LOG.info('Macro: memory reads (p50/p90/max): %s', text)
+    frames = self.frames  # the frame reader's feed (game/frames.py FRAMES, 2026-10-23); None: off
+    if frames is not None:
+        frames.attach(pid, images['candidate_base'], table)
     reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
 
     looked = self.looked
@@ -99,7 +107,7 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
     def look():
         began = time.perf_counter()
         try:
-            return memory.world(light=run.light > 0)
+            return look_at(memory, frames, light=run.light > 0)
         finally:
             took = time.perf_counter() - began
             reads[0] += 1
@@ -191,9 +199,11 @@ def _execute(self: MacroRunner, cancelled: threading.Event, routine: str) -> Non
             self.item_stats = memory.item_stats
             run.players_item = lambda item: self.loop.players_item(item, memory.item_stats(item.unit_id))
             run.kept_item = lambda item: amulet_keeper(item, memory.item_stats(item.unit_id))
+            run.spared_item = lambda item: actloop.spared(self.loop, item, memory.carried)  # SPARE_USABLE
             run.objects = memory.objects
             run.corpses = memory.corpses
             run.unit_states = lambda monster: memory.states(monster.stats_at)  # a cast took (buffs.py `settle`)
+            run.unit_stats = memory.stats  # the character's mana now (engine.py `Reads.mana`)
             run.flights = memory.flights
             if self.healer is not None:
                 run.given = lambda kind, ledger=self.healer: ledger.given_at(Actor.MERC, kind)

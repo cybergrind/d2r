@@ -129,6 +129,17 @@ GIVEN_UP: dict[int, object] = {}  # unit id -> the game it was given up in (`Loo
 # valuable, and the press goes on. False: a `Missed` as before
 WAIVE_UNLABELLED = True
 UNLABELLED_AIMS = 6
+# 2026-10-24 (rca/2026-10-24/pickup-pack-findings.md; game 5 of 2026-10-23, take 20261023T202950Z-57): a level run
+# ended on a clear spot by a tier 5 Herald pack and handed the press on; the pickup Blade Warped 16 back into the pack
+# for 5648 gold, then clicked 6210 gold 8.7 s with 2-3 hostiles within 3: 2 Rejuvenations, the merc left in the pack,
+# the death 10 s on. True: a press's gold (a guarded site's, `threat` given, the press's own choice: no goal's `unit`)
+# waits as a potion does while a tier 4-5 Herald pack's member (combat/pack.py `in_pack`), or GOLD_CROWD hostiles,
+# stand within hunting/base.py GATHER_CLEAR of the character or the pile (`pack_guard`): the press goes to `otherwise`
+# (the fight), the pile stays on the ground for the next press. A goal's gold is the hunt's, held while its fight is
+# live (hunting/choice.py POTION_HELD). Valuables are never held (the player's rule). False (until its gate): gold taken
+# as before. On 2026-10-24 ~11:40, gated: halls 8/20 dead -> 0/20, 280 gold-scene pairs the same, 4 presses in 32 h.
+PACK_GOLD_WAIT = True
+GOLD_CROWD = 6  # the replay of 2026-10-21..24: 18 gold presses with 3-6 hostiles near (no pack) lost 72 life in all
 UNLABELLED_TRIES = 2
 UNLABELLED: dict[int, tuple[object, int]] = {}  # unit id -> (the game, its unlabelled presses in it)
 WAIVED: dict[int, object] = {}  # unit id -> the game it was waived in (`waive`)
@@ -866,6 +877,20 @@ def drink(run: Run, key: str, loot: Loot) -> None:
 Threat = Callable[[tuple[float, float], tuple[float, float]], int]
 
 
+def pack_guard(run: Run, here: tuple[float, float], spot: tuple[float, float]) -> tuple[int, int]:
+    """(the hostiles within GATHER_CLEAR of the character or `spot`, those of them in a tier 4-5 Herald's pack):
+    PACK_GOLD_WAIT's guard."""
+    from inventory_tracking.combat.pack import in_pack  # late: the hunt's modules build on the pickup
+    from inventory_tracking.macros.hunting.base import GATHER_CLEAR, hostiles
+
+    near = [
+        m
+        for m in hostiles(run.world())
+        if min(math.dist((m.x, m.y), here), math.dist((m.x, m.y), spot)) <= GATHER_CLEAR
+    ]
+    return len(near), sum(1 for m in near if in_pack(m.tier))
+
+
 def pick_up(
     run: Run,
     level: Level | None,
@@ -877,7 +902,8 @@ def pick_up(
     trips: bool = False,
 ) -> bool:
     """One press of the pickup action; whether there was something to pick up. `otherwise`: the press with
-    nothing to pick up. `threat`: a potion with monsters near is left (valuables and gold are not). `unit`: the
+    nothing to pick up. `threat`: a potion with monsters near is left, gold under a pack too (PACK_GOLD_WAIT;
+    valuables are not). `unit`: the
     drop a goal names, in place of `choose`'s. `looped`: the KP_6 loop's press, where a valuable with no room stops
     it whenever `lootpolicy.verdict` holds it. `trips`: a press by hand that a trip for room may follow
     (running/room.py): what a trip is made for stops it too (lootpolicy.py `trip_for`)."""
@@ -892,6 +918,17 @@ def pick_up(
             return False
         plan = Plan(named)
     close = threat(here, (plan.drop.x, plan.drop.y)) if threat and plan and plan.drop.kind in KINDS else 0
+    if threat and plan is not None and unit is None and plan.drop.kind == GOLD and PACK_GOLD_WAIT:
+        near, packed = pack_guard(run, here, (plan.drop.x, plan.drop.y))
+        if packed or near >= GOLD_CROWD:
+            # The watch tools may read it (d2-loop-watch logwords.py)
+            LOG.info(
+                'Macro: pickup: %s waits: %d hostiles near it or the character, %d of a tier 4-5 pack (PACK_GOLD_WAIT)',
+                plan.drop.label, near, packed,
+            )  # fmt: skip
+            run.say(f'{plan.drop.label} waits: the fight first')
+            otherwise()
+            return False
     if plan is not None and close:
         LOG.info(
             'Macro: pickup: %s at (%.0f, %.0f) left for later: %d hostiles near it or the character',
@@ -932,6 +969,12 @@ def pick_up(
             or (trips and lootpolicy.trip_for(drop, shown=drop.unit_id in loot.shown))
         ]
         dear = ', '.join(sorted({drop.label for drop in held}))
+        if plan is None and not dear and looped:
+            # lootpolicy.py CANDIDATE_CUBE: an identify candidate gets the loop's cube step once before it is left
+            cubed = [drop for drop in left if lootpolicy.ask_cube(drop)]
+            if cubed:
+                names = ', '.join(sorted({drop.label for drop in cubed}))
+                raise Abort(f'inventory full: no room for {names}: the cube step first', cause='room')
         if plan is None and dear:
             # Stop rather than seek away from the drop (user, 2026-10-10). Plain shown gear lets the press go on
             # (user, 2026-10-12: "allow moving when the item isn't very valuable"); shown uniques/sets are prized

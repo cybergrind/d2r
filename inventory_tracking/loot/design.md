@@ -1314,3 +1314,200 @@ is not done. Neither is the M5 switch of the live pickup to `ground_judge`.
   second, third copy), `test_ground_judge.py` (W1-W3 picks off a ground read, six leaves including the 20:39:33 +3
   Cloak of Shadows, O1 picked under the cap and left at it, LS still W2's over the cap, other bases left),
   `test_wants.py` (the rows, W2's ranking), `test_valuables.py` (the town xfail).
+
+---
+
+## 10. One assessment entry point (2026-10-23)
+
+The player, 2026-10-23: "analyze and provide a short overview all the places where we have items assessments. - we
+need to have one dedicated place where all assessments are happening - reuse it everywhere - single entry point - easy
+to test", then "ok, let's unify everything into a single way to do assessments and this will be our starting point".
+The study of every site is `rca/2026-10-23/assess-sites-findings.md` (D1-D11 kept today / R1-R6 the reverse). Phase 1
+(this section) builds the entry point. Phase 2 moves one caller per switch; GROUND, FIELD and TOWN moved on 2026-10-23 (§10.7).
+
+### 10.1 The API (`loot/assess.py`)
+
+```python
+class Site(StrEnum): GROUND, FIELD, TOWN, GAMBLE, SHOP, CARD, CORPUS
+class Outcome(StrEnum): PICK, LEAVE, KEEP, IDENTIFY, NEVER_TOUCH, DROP, VENDOR, BUY, PASS   # GIVE_UP = LEAVE, DROP, VENDOR
+
+@dataclass(frozen=True)
+class Assessment:
+    facts: ItemFacts; site: Site; outcome: Outcome
+    rule: str          # 'K6', 'G8', 'allowlist', 'S8', 'guard' (a site guard kept a give-up), 'never-trash', 'shop'
+    why: str           # one sentence, for the log and the card
+    value: Value | None; decision: Decision | None; ground: GroundVerdict | None; guard: str | None
+    gives_up: bool     # property
+    def said(self) -> str
+
+@dataclass(frozen=True)
+class Look: had: frozenset[int] = frozenset(); shown: frozenset[int] = frozenset()   # the ground's context
+
+@dataclass(frozen=True)
+class Assessor:
+    appraiser: Appraiser                  # loot/value.py; appraise(facts) -> Value | None (None: S8)
+    copies: OwnedCopies = NO_COPIES       # None from copies(): cannot be told (S8)
+    counted: OwnedCount | None = None     # the ground's owned-bases count (keep_up_to)
+    def assess(self, facts: ItemFacts, site: Site, look: Look = NO_LOOK) -> Assessment
+    def assess_all(self, items: Sequence[ItemFacts], site: Site, look: Look = NO_LOOK) -> list[Assessment]
+
+def live() -> Assessor   # BookAppraiser(BOOK), CollectionCopies(), owned_bases
+def never_trash(assessment: Assessment) -> str | None
+def shop_priced(value: Value | None) -> str | None
+def carried_facts(item: Carried, owner: Owner, book: Book = BOOK) -> ItemFacts
+# price sources: BookAppraiser(book), ResultAppraiser(retrieve, verdict=identify_verdict), FakeAppraiser(table, default)
+# owned copies: NO_COPIES, TableCopies(table, default)
+```
+
+It composes the layers and forks none of their rules:
+
+- GROUND: a white or grey weapon or armor the marks do not point at is judged by the 2026-10-23 allowlist
+  (`base_floor.allowed`, as pickmode.py PLAIN_BY_RULES `plain_base`; a must-have row's base is a must-have only when
+  allowlisted, as `_allowlisted`). Anything else goes to `ground_judge.judge(facts, owned=counted, had=look.had)`.
+  Then come the size classes G14 / G15 (`Field.takes`' tail) for a drop in `look.shown`.
+- FIELD: `keep.decide_all`, then `api.droppable` (`Field._judge`). No identified read or no value: KEEP S8.
+- TOWN, GAMBLE: `api.town_verdicts` over the identified items (`town_sold`). The unidentified wait for Cain (IDENTIFY).
+- CARD, CORPUS: TOWN on each item alone, judged as the loop's (`Owner.LOOP`): what the loop would do with it.
+- SHOP: `shop_priced` (shop/service.py `priced`) plus shop/rules.py `match_item`.
+- Last, at every site, `never_trash`. It never gives up the player's items, an unidentified one, runes, gems, potions,
+  the Sunder, organs, the loop's tools, Wirt's Leg, or a set/unique charm. A low Gheed's sold in town is the
+  exception (GHEEDS_BY_ROLL). It also never gives up an always-kept want row or anything worth DUPLICATE_IST, and on
+  the ground never leaves G1/G2 or a material. It never fires on the composed rules (tests below). When it does, the
+  item is kept (rule `never-trash`) and a warning is logged.
+- Words (R3): VENDOR means "sold to a vendor". It is not the triage's `sell`, which means "trade it".
+- D4: `ResultAppraiser`'s default verdict is identify/service.py `verdict_for` (`identify_verdict`). That is the
+  verdict BOOK holds, its leveling override included (vendor/slow → check). Use `triage_verdict` for the triage's own
+  verdict (the shop).
+
+### 10.2 What stays with the callers (not decided by assess.py)
+
+| # | Rule | Where | Why it stays |
+|---|---|---|---|
+| D3 | engine.py `protected`: the player's by its print, an amulet whose stats are unread (keepers.py `amulet_keeper`), a Worldstone Shard the game can use (actloop `spared`) | every action: visit.py sale and put-down, cube.py `drop_item`, gamble.py `_sell` | the last guard below any decision; an Assessment never licenses an action alone |
+| D8 | the Gheed's swap's magic-find compare | charms.py `choose` | compares the new charm with the player's; keep K1 judges one charm |
+| D9 | the pickup level MOST | pickmode.py `_taken` | the player's switch; GROUND is the GOOD level |
+| D10 | identify candidates / must-have for the guard | pickmode.py `is_candidate`, lootpolicy.py | "pick and not must-have" would let an allowlisted base (the 119.9 Ist War Pike) hold no game |
+| R2 | stock rules: surplus flawless gems sold, full-stack materials put down, spare potions put down | storage.py `surplus`, visit.py `_material`, town.py `sold_full`, visit.py `_potions_down` | storage rules; `never_trash` would refuse them as judgements |
+| R4 | the loop-off identify picks | api.py `Field.takes` (`looping()`, FIELD_IDENTIFY, CLASSES, room, the Tome) | GROUND names the class; taking it now is the field identify's |
+| R5 | full-stack runes and materials not picked with the loop on | running/valuables.py `_picked` | a storage rule |
+| — | supplies, where an item goes, Jamella or a put-down, the walk | pickup.py, storage.py, visit.py | site behaviour |
+
+R1 (the allowlist leaves 27 wants rows: eth 4os Dusk Shroud, plain 4os Monarch, +3 Apocalypse Void daggers, ...) is
+left as it is live. The entry point follows the allowlist. **The player needs to rule on it.**
+
+### 10.3 The sites: each live caller and the call that replaces it
+
+| Live caller | Today | Phase 2 call |
+|---|---|---|
+| shop/service.py `assess` (Win+D, stock watcher) | `priced(triage)` + `match_item` | `Assessor(ResultAppraiser(shop_triage, triage_verdict)).assess(facts, Site.SHOP)` |
+| corpus/score.py `_assess` | `verdict_for(result)` | `Assessor(ResultAppraiser(retrieve_draft...)).assess(facts, Site.CORPUS)`, beside the verdict score |
+| .agents/skills/mules/snapshot.py | `runtime.retrieve` per stash item | CARD with `CollectionCopies` (the M7 surplus report) |
+| macros/gamble.py `keep_rules` | BOOK + `appraise_result` + `town_verdicts` | `live().assess_all([carried_facts(r, Owner.LOOP) ...], Site.GAMBLE)`; `_sell`'s guards stay |
+| identify/service.py `item_summary` card, appraisal/presentation.py Alt+D | `verdict_for` headline | a CARD line beside the verdict (BOOK's `row['verdict']` stays `verdict_for`) |
+| macros/visit.py `_town_decided` → `api.town_sold` | `town_verdicts` + `town_kept` | `live().assess_all(..., Site.TOWN)`; `protected`, the stock rules, Jamella stay |
+| loot/api.py `Field._judge` | `decide_all` + `droppable` | `assess(facts, Site.FIELD)` |
+| macros/pickmode.py `_taken` (GOOD) | `plain_base`, `ground_base`, `sure`, `_field_pick` | `assess(from_drop(d), Site.GROUND, Look(had, shown))`; MOST, the loop gate, is_candidate, room stay |
+
+### 10.4 Phase 2 order (one switch per caller, a shadow compare first, then the switch)
+
+Each step adds its module switch (as `tzloop.ENABLED`), logs a shadow line for 30+ clean cycles beside today's
+decision (0 differ is required), then switches. `never_trash` stays on throughout. A give-up that the guard refuses is
+a bug in a rule, never a reason to weaken the guard. Order (the findings §3.1):
+
+1. SHOP (OSD only, nothing lost);
+2. CORPUS beside `verdict_for` (offline);
+3. GAMBLE (it already calls `town_verdicts`);
+4. CARD, display only (the R3 word: VENDOR);
+5. TOWN (0 differ on 1118 reads);
+6. FIELD (a wrong drop cannot be undone, hence after the town);
+7. GROUND (the widest).
+
+Before step 7, change the ground shadow to compare the entry point with `_taken` (today it compares with `MOST or
+sure`). Then retire `junk_of`/`junk`, copies.py, `cube.droppable`/`drop_for`, `api.sold_copies`, pickmode's dead white
+rules, `owned_verdict`/`trade_reason`, `loot/today.py`; each is pinned by the architecture test until it goes.
+
+### 10.5 Duplicates found (a rule outside the loot layers that assess.py had to write again or call)
+
+- pickmode.py `plain_base` / PLAIN_BY_RULES / `_allowlisted` and assess.py `_plain`: the same rule over
+  `base_floor.allowed`. The switch is pickmode's; phase 2 moves it into base_floor.py. `test_assess.py` holds the two
+  equal on every fixture item (the live GOOD pickup, loop on).
+- api.py `Field.takes`' size tail (G14 / G15) and assess.py `_by_size`. On the ground the facts have no "the filter
+  shows it": `Look.shown` carries it.
+- shop/service.py `priced` and assess.py `shop_priced`. They differ only on a band whose `q1_ist` key is present with
+  None: `priced` reads no price there, `shop_priced` reads the median. Phase 2 moves `priced` into the loot layer.
+- charms.py `low_rolls` and keep.py `gheeds_low`: the same thresholds (imported from keep.py).
+- pickmode.py `sure`'s rare/set/unique ring and amulet rule and ground_judge G2/G11 (`jewelry-identify`).
+- identify/service.py `verdict_for` is called by assess.py `identify_verdict` (D4), a price-source input. It moves
+  into the loot layers with the CARD step.
+- keepers.py `amulet_keeper` and the bar's amulet rows. With KEEP_BAR it spares only unread stats (D3, `protected`).
+- G12 (Jeweler's Archon of the Whale) is a ground class that is not in api.py CLASSES. The live pickup takes a real
+  Archon Plate by G14 instead (the one live difference on the fixture items).
+
+Conflicts for the player, not decided here: R1 (above); R2 (selling surplus flawless gems vs "never sell gems");
+D11 (small class items with bar rows are never picked in GOOD); the acceptance table's 22 plain-base ground rows that
+predate the allowlist (`test_assess.py` ALLOWLIST_OVER_THE_TABLE names each). Phase 2 updates the table with the
+player's R1 ruling.
+
+### 10.6 Tests (2026-10-23)
+
+- `tests/inventory_tracking/loot/test_assess.py` (FakeAppraiser, no KB):
+  - the site table: runes, gems, set/unique charms, the player's, an expensive duplicate, a wanted rare amulet, the 4os
+    eth merc base, the Monarch of Deflecting, unidentified, junk, S8;
+  - every fixtures/valuables.json aspect through the entry point, equal to keep.decide / town_verdicts / droppable /
+    ground_judge (ground: the allowlist, 22 named);
+  - the live GOOD pickup with the loop on equal on every fixture item (1 named);
+  - `never_trash` on 13 refusals, and 0 firings over every item × site × 5 prices × 6 verdicts;
+  - the price sources (D4 included), the shop's `priced` equality and patterns, R3.
+- `tests/inventory_tracking/loot/test_assess_replay.py`: 39 real reads of 2026-10-21..23 (fixtures/assess_replay.json,
+  164 KiB). They are frozen by `rca/2026-10-23/scripts/assess_replay_freeze.py` from the study's replay (1118 reads,
+  0 differ). The test checks the callers decide as at the freeze, and the entry point decides as the callers at FIELD,
+  TOWN, CARD and GAMBLE.
+- `tests/inventory_tracking/test_assessment_architecture.py` covers three things:
+  - the engines are reached only by the price sources (violators: shop/service.py, corpus/score.py, the mules
+    snapshot);
+  - the decisions are called only by the loot layers (violators: pickmode.py, visit.py, gamble.py, and the shadow as
+    scaffolding);
+  - the legacy verdicts are where listed and called only where listed, and no new verdict is named outside the loot
+    layers.
+
+  Each list may only shrink.
+
+### 10.7 Phase 2A done: GROUND, FIELD, TOWN on the entry point (2026-10-23)
+
+The player: "go ahead. I want to have one place that decides pickups/value". Each site has a dated switch, on; the old
+decision is logged beside the new one where they differ ("Macro: loot: assess: <site>: <item>: new X / old Y").
+
+| Site | Switch | Caller now | Gate (0 differ) |
+|---|---|---|---|
+| GROUND | `macros/pickmode.py` ASSESS_GROUND | `taken` (the level filter; running/valuables.py `_picked`), `good` (lootpolicy `kept_by`), `identify_only` (D10, lootpolicy) | `tests/.../macros/test_pickmode_assess.py`: the assess_ground.py cases, the acceptance table, test_pickmode's bases, every KB key, every item type at its qualities; GOOD/MOST x loop on/off (5983 cases); test_pickmode, test_lootpolicy, test_field_hooks both ways |
+| FIELD | `loot/api.py` ASSESS_FIELD | `Field._judge` (decide_all + droppable composed), `Field._cains` (to_cain composed: rule CAIN) | test_assess_replay.py `_judge` both ways on 39 reads; test_api.py, test_hands.py both ways; the study's replay, 1220 reads |
+| TOWN | `macros/visit.py` ASSESS_TOWN | `town_assessed` from `_town_decided`; `protected`, stock rules, Jamella unchanged | test_assess_replay.py: each read and all 39 as one visit (both orders) vs `town_sold`; test_visit.py both ways; the study's replay, 1220 reads |
+
+What GROUND gained (assess.py): `Assessment.field` (the field class, api.py `Field.takes` without its gate),
+`for_field` (the pick is only the field's: the caller takes it through `Field.gate` / `Field.pick(klass=)`, R4),
+`plain` (the allowlist's, every level), `sure`; D7 (every marked drop picked); a magic or rare pick of no field class
+is left (the GOOD level's answer; G12 by size as G14). PLAIN_BY_RULES moved to base_floor.py; the ground reads bases
+only through base_floor (`allowed`, `facts_junk`) and ground_judge (`base_verdict`, the wants), so the base-price
+change is one rebuild of base-pickups.json / wants.json.
+
+Kept as today's on purpose (legacy until each switch is proven): pickmode's `kept`, `sure`, `is_candidate` and their
+base rules; a promoted must-have base is not remembered by the allowlist record (as `_taken`).
+
+The squeeze (pickmode.py `_field_pick` `waiting`, the look's other sure valuables a big field item must leave room
+for; the coordinator's ruling, 2026-10-23, on the player's "one place that decides pickups/value"): before, today's
+`sure`, so an allowlisted base the entry point picks held no room (a superior 0os Monarch with 5% ED: `shield_base`
+wants 15 ED, no G5 row) and a magic Monarch took the last 2x3 block; a base `sure` took but the allowlist leaves held
+room it never used. After, the entry point's `good` (`sure` with ASSESS_GROUND off): the magic Monarch is left ("would
+lose its room") and the allowlisted base is picked. Test: test_pickmode_assess.py `test_squeeze_keeps_an_allowlisted_base_room`. D11 (magic/rare wands, orbs, claws, scepters with bar rows never picked in GOOD) is
+no wiring gap: no wants row names them as an identify class, so it needs a new class row, a field class and the
+player's ruling.
+
+D12 (2026-10-23, the 2B agent's corpus run: 17 of 20 runewords VENDOR as plain bases, Insight and Authority by K9):
+`ItemFacts.runeword` from the identify read (`item['runeword']`); keep.py K1 keeps a runeword at every site;
+base_floor.py `facts_junk` / `town_junk` and the GROUND allowlist never take one for a plain base; `never_trash` refuses
+one. Test: every corpus runeword at FIELD, TOWN, GAMBLE, CARD, CORPUS x 3 prices (test_assess.py). The game's flag
+(items/identity.py RUNEWORD_FLAG 0x04000000, MapAssist Types/Items.cs:2460 IFLAG_RUNEWORD, the ItemData flags at
+FLAGS_OFFSET): game/decode.py reads it into `Carried.runeword` (inventory, cube, stash pages via game/memory.py) and
+`Rolls.runeword` (the ground's rolled bases: white and superior weapons and armor); facts.py `from_carried` /
+`from_drop` set `ItemFacts.runeword = BY_FLAG` when no read named it; GROUND picks one (G1, must-have). Not read: a
+low-quality runeword on the ground (quality 1 has no ground rolls). Tests: test_decode.py, test_assess.py.

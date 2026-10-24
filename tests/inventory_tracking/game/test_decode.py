@@ -12,7 +12,7 @@ from inventory_tracking.game import decode
 from inventory_tracking.game.decode import BASE_ROLLS_SEEN, base_rolls, rolled, rolls
 from inventory_tracking.game.layout import FULL_STATS
 from inventory_tracking.game.records import VALUABLE, Drop, Rolls
-from inventory_tracking.items.identity import ETHEREAL_FLAG, FLAGS_OFFSET, ITEM_DATA_SIZE
+from inventory_tracking.items.identity import ETHEREAL_FLAG, FLAGS_OFFSET, ITEM_DATA_SIZE, RUNEWORD_FLAG
 from inventory_tracking.macros.pickmode import shield_base
 from tests.inventory_tracking.fake_memory import Memory
 
@@ -87,6 +87,19 @@ def test_a_chain_without_an_enhanced_defense_reads_0_and_no_chain_reads_0():
     other = Item([(0, 194, 0), (402, 107, 3)], flags=ETHEREAL_FLAG)
     other.chain(((ITEM, UNIT), [(0, 20, 20), (0, 102, 30)]))  # block and faster block: not ED
     assert base_rolls(other.memory.read, other.unit()) == Rolls(0, ((402, 3),), 0, 0, True)
+
+
+def test_the_runeword_flag_is_read_into_the_rolls():
+    """D12 (2026-10-23): the ItemData flag IFLAG_RUNEWORD (MapAssist Types/Items.cs:2460, 0x04000000) on a ground
+    base: a runeword, never a plain base (loot/facts.py `from_drop`)."""
+    BASE_ROLLS_SEEN.clear()
+    item = Item([(0, 194, 4)], flags=RUNEWORD_FLAG | ETHEREAL_FLAG)
+    item.chain()
+    assert base_rolls(item.memory.read, item.unit()) == Rolls(4, ethereal=True, runeword=True)
+    BASE_ROLLS_SEEN.clear()
+    plain = Item([(0, 194, 4)], flags=ETHEREAL_FLAG)
+    plain.chain()
+    assert base_rolls(plain.memory.read, plain.unit()) == Rolls(4, ethereal=True)
 
 
 def test_a_chain_not_read_whole_leaves_the_ed_unread_and_is_read_again():

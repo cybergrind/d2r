@@ -376,3 +376,7 @@ def test_recent_focus_reuses_an_answer_briefly_and_per_game():
     now[0] = 0.2
     focus({'identity': {'pid': 2}})
     assert len(probes) == 3
+
+
+# The saved captures here were recorded on the build before the 2026-10-23 patch.
+pytestmark = pytest.mark.usefixtures('old_build_layout')

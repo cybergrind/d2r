@@ -16,8 +16,17 @@ from inventory_tracking.macros import loop as loop_module, portal
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.loop import Loop
 from inventory_tracking.macros.lootpolicy import trip_for
-from inventory_tracking.macros.pickmode import MONARCH, MOST, SURE, is_candidate, kept
+from inventory_tracking.macros.pickmode import MONARCH, MOST, SURE, identify_only as is_candidate, taken as kept
 from inventory_tracking.macros.town import Needs, contract
+
+
+@pytest.fixture(autouse=True, params=[True, False], ids=['assessed', 'legacy'])
+def assessed(request, monkeypatch):
+    """Through the entry point (pickmode.py ASSESS_GROUND, 2026-10-23) and today's rules (legacy): the same answers."""
+    from inventory_tracking.macros import pickmode
+
+    monkeypatch.setattr(pickmode, 'ASSESS_GROUND', request.param)
+    return request.param
 
 
 GAME = ('game-1', 7)

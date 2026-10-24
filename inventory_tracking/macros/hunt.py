@@ -15,6 +15,7 @@ import time
 from collections.abc import Callable, Sequence
 from contextlib import ExitStack
 from dataclasses import replace
+from functools import partial
 
 from inventory_tracking.combat import pack as herald_pack, threats
 from inventory_tracking.combat.controller import (
@@ -23,6 +24,7 @@ from inventory_tracking.combat.controller import (
     MOVE_CLICKS,
     NO_CAST,
     PENDING,
+    REAIM_UNITS,
     RETAP,
     Aim,
     CastWatch,
@@ -36,12 +38,12 @@ from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.combat.threats import dolls
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
-from inventory_tracking.game.records import Drop, Loot, Monster, World
+from inventory_tracking.game.records import Drop, Loot, Monster, Player, World
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Target, unpack_cells
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
-from inventory_tracking.macros import cta, safety as safety_module
+from inventory_tracking.macros import binding, cta, safety as safety_module
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.buffs import Buffs, worn_cta
@@ -99,10 +101,11 @@ from inventory_tracking.macros.hunting.base import (
     strike_input,
     threat,
 )
+from inventory_tracking.macros.hunting.labels import LABEL_CLEAR_AIM, LabelLook
 from inventory_tracking.macros.hunting.shrines import ShrineWatch
 from inventory_tracking.macros.hunting.throne import Waves
 from inventory_tracking.macros.pickup import Refused
-from inventory_tracking.macros.pursuit import LEVEL_LEFT, NONE, SETTLE, Move as Advance, Pursuit, Told, settled
+from inventory_tracking.macros.pursuit import LEVEL_LEFT, NONE, SETTLE, Facts, Move as Advance, Pursuit, Told, settled
 from inventory_tracking.macros.routines import ACTING, DEAD, Dead, take_battle_weapons
 from inventory_tracking.macros.runmode import Mode, Taps, tapped
 from inventory_tracking.macros.safety import Safety
@@ -115,6 +118,7 @@ from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import LOOPED, Point, Step, Tally, Travel, label, life, step_line
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS, TOWN_IDS
+from inventory_tracking.takes import decisions
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
 
@@ -157,12 +161,11 @@ BOUT_ORDERS = True
 BOUT_ALARM = True
 # The player, 2026-10-22, of danger-durance-1956 (seed 9: a tier 1 Herald's unique doll, one melee blow of 2982 against
 # 2907 life, while the macro stood for Battle Orders and then blade-warped for its rebuff beside it): "you just aggro
-# doll herald with death mark and then kill him VERY fast, because it has relatively low life even T5"
-# True: with such a doll in reach, the build's fight casts (its Death Mark first: builds/warlock/mark.py
-# `unmarked_herald`) are asked before the bout's first strike, so the demons take its aggro, and the strike holds it
-# (echoing_strike/attack.py HOLD_LEADER); Battle Orders waits for the kill (macros/cta.py DOLL_HERALD_FIRST). False: the
-# first strike flies unmarked, as before.
-DOLL_HERALD_MARK = True
+# doll herald with death mark and then kill him VERY fast, because it has relatively low life even T5". The build's
+# fight casts are asked before the bout's first strike while one of its rows says so (`Buff.before_strike`: Death Mark
+# on the designated monster, the doll Herald among them, builds/warlock/mark.py DESIGNATED_MARK `mark_ahead`), so the
+# demons take the aggro first; Battle Orders waits for a doll Herald's kill (macros/cta.py DOLL_HERALD_FIRST).
+# DOLL_HERALD_MARK (on since 2026-10-22 ~13:00) retired into it 2026-10-22. Else the first strike flies unmarked.
 # FIGHT_CAST_REACH (2026-10-22, the survival agent's round 6 from the pursuit-mode fane-death-20, seed 4, windowed
 # speeds: the bout's last bout_reach was at 5.24 s with the elite Night Lord (x3.85, 3581 a blow under Amplify Damage
 # against 2393 life) 9.3 off and closing at ~6.7 a second; Death Mark and the Sigil were cast under the strike,
@@ -176,8 +179,105 @@ DOLL_HERALD_MARK = True
 # Herald dead in 12 of 20 (15 with this off); 0 and 16 of 20 (11 rejuvenations) with the pace bound to 2 s. False:
 # they are cast as their rows ask, back to back, blind for the casts.
 FIGHT_CAST_REACH = True
+# INSTANT_THROUGH (2026-10-23, rca/2026-10-23/arena-red.md: test_mark_recast's Vizier-seal stage, life 1818 under a
+# Venom Lord pack, logged `fight casts held` at every look and never cast Death Mark while Echoing Strike struck on
+# from the same spot, so the fight was slower, the mark's demon aggro lost with it; so were test_replay's second seal
+# and test_herald): Death Mark is an instant cast (~0.37 s, `Buff.instant`) that neither moves nor roots the
+# character, as the strike. True: FIGHT_CAST_REACH's hold lets such rows through while the bout strikes on from the
+# same spot (the bout yields at BOUT_REACH first), one a look while paced; the other casts (Engorge, the Defiler, Bind
+# Demon, the self buffs) stay held. False: every fight cast held. OFF (2026-10-23, measured, rca/2026-10-23/
+# survival-findings.md §2): with it on, the pursuit-mode Fane plays (160, 20 seeds) died once (fane-death-20 drawn,
+# late looks, `fast`, seed 8: Death Mark on the Herald at 11.46-11.67 s under the strike, the bout's yield at 11.84 s
+# with blows of 5928 against 2943 life 2 off, dead at 12.52) where off none die, the Fane cuts' least life fell 64% ->
+# 36% and their kills dropped; the mark's own time (its hover check, macros/buffs.py AIM_CHECK) is a blind cast, not
+# the strike's. Survival first: off until the mark has its own reach check over its real cast time.
+INSTANT_THROUGH = False
+# The before-strike rows (`Buff.before_strike`: the designated Death Mark, the sigil opener) asked at the bout's first
+# look too, before the strike is pressed (2026-10-23, rca/2026-10-23/sigil-opener-findings.md §7 A): asked from the
+# second look, the strike already down, their cast came after its first. False: from the second look, as before.
+AHEAD_BEFORE_PRESS = False
+# The player, 2026-10-23 ~20:45: "in herald fight we can put it on pack spawn point BEFORE actual pack spawns, so when
+# it spawns - it already debuffed / 2. we can start striking with echoing strike before actual pack spawns => when it
+# gets spawned mobs lose a lot of hit recovery" (rca/2026-10-23/omen-opening-findings.md). The takes of 2026-10-21..23,
+# 350 omens: the pack shows OMEN_SPAWN s after the omen's first frame (p05 4.95, p95 5.04), all of it in one frame, a
+# median 3.6 off the spot; blades in the air there hit members in their first frame (0.04 s) and put some in their
+# get-hit mode; a strike with nothing under the pointer flies its whole way (10,760 blades, a median 38 frames).
+# `omen_open`: in the quiet before a pack (nothing in reach, an omen pending within OMEN_OPEN_REACH) the build's
+# 'opening' rows are asked (the Warlock's sigil, buffs.py OMEN_SIGIL). OMEN_STRIKE True: from OMEN_LEAD s before the
+# spawn the strike is held on the line to the spot (`omen_strike`), and a fight going on aims its line through the spot
+# in that window (`omen_focal`), so the blades are there as the pack shows (a cast's blades are ~0.9 s from its press
+# to 20 units: POINTER_LAG 6 frames, 1.12 units a frame). False: the strike waits for the pack, as before.
+OMEN_STRIKE = True  # on 2026-10-24 ~09:50 with OMEN_SIGIL, MANA_ESCAPE (the player's ask)
+OMEN_SPAWN = 5.0  # s from the omen's first read to its pack (the takes' median; the read lags the first frame <0.3 s)
+OMEN_LEAD = 1.2  # s before the expected spawn the strike goes on the spot
+OMEN_GRACE = 0.6  # s past the expected spawn the hold waits for the pack before it lets go
+OMEN_OPEN_REACH = 28.0  # units: the omen stand (combat/pack.py PACK_OMEN_STAND 24) and its slack (OMEN_SLACK 4)
+# Attack mode with no level run reads the omens in its quiet too (`omens_now`; a level run's agenda reads them). The
+# arena's attack-mode Herald scenes set it (situations/herald_omen.py). False: attack mode alone reads none, as before.
+OMEN_READ_ALONE = False
 FIGHT_PACE_SECONDS = 2.0  # one cast a look while blows that take the life can come in reach in this time
 ALARM_SECONDS = 2.0
+# 2026-10-23: the strike aimed during a Teleport's flight from the landing aimed at (teleport.py PREAIM_FLIGHT calls
+# `preaim`); the fight's first aim is left out when the pointer is within PREAIM_PIXELS of the aim it would make from
+# where the character landed, PREAIM_SECONDS after the pre-aim at most. The player, 2026-10-23: "human will react in
+# under 200ms"; the strike's aim (92 ms p50) came after the landing (rca/2026-10-23/lag-findings.md §1). Off: no hook.
+# OFF (2026-10-23, arena, rca/2026-10-23/pause-findings.md §4.4): 0 deaths either way, but the pursuit Fane plays' least
+# life fell in 8 of 8 variants (fane-death-20 55% -> 39%, fane-death-24 64% -> 53%), medians unchanged; off until why.
+PREAIM = False
+PREAIM_PIXELS = 12
+PREAIM_SECONDS = 1.0
+# CAST_TAIL (2026-10-24, rca/2026-10-24/realtime-4-findings.md §7; the player: "improve our reaction speed"): a
+# Teleport's landing is read ~77 ms before its cast ends, and the cast's Quick Cast keeps Teleport on the right button
+# to the end, so the strike's input was "unready": a FRAME nap, then the whole loop and a second pursue look before the
+# fight (cast end -> the fight's first look 89/177 ms p50/p90 live, 560 landings). On: the cast's tail is looked at
+# every SLICE and the fight starts from the look that sees the strike back. False: the nap as before.
+CAST_TAIL = False
+# CAST_TAIL_AGAIN (2026-10-24, the arena's 20 seeds: Herald time +2.7 ± 2.0 s, manaburn's least life -0.06 ± 0.05 with
+# CAST_TAIL): the look that sees the cast's end starts the loop's next pass at once (the pursuit's fresh look first),
+# not the fight. False: the fight from that look.
+CAST_TAIL_AGAIN = False
+CAST_TAIL_MOST = 0.25  # seconds of a cast's tail so waited (a Teleport's cast ~0.32 s, its landing read ~0.08 s early)
+# MARK_WITH_PRESS (2026-10-24, rca/2026-10-24/dm-latency-findings.md; the player, ~17:38: "the delay between teleport
+# and DM (when we have a clear target, like herald) is still quite significant. we need to find out why"): live, 1224
+# fight landings marked again within 3 s (the takes of 2026-10-24), the strike first in all; its press, a FRAME nap,
+# then a whole second look (81 ms p50) decided the mark, 122 ms (p50) after the strike's down, and the mark's key went
+# down 9 ms (p50) after the strike's first cast ended (57 % after it, 127 ms on average): the mark's cast waited on the
+# key. True: the look that presses the strike also asks the build's FIRST skills (combat/pack.py FIRST: Death Mark)
+# whose rows are due before the strike (`Buff.before_strike`: the designated one's mark), and once the strike's cast
+# shows (PRESS_CAST_WAIT at most) casts the mark at once, its key queued under the strike's cast; the strike's first
+# press is not moved. Not under the fight casts' hold (FIGHT_CAST_REACH). False: from the next look, as before.
+MARK_WITH_PRESS = False
+PRESS_CAST_WAIT = 0.08  # seconds for the strike's cast to show after its press (live: 29 ms p50, 46 p90)
+# LANDING_MARK (2026-10-24 ~19:40, rca/2026-10-24/dm-latency-findings.md §7; the player's ruling ~17:39: "when we're
+# repositioning for re-aggro against T5 heralds, the first things we need to do - drop off aggro from us == DM"): take
+# 20261024T161813Z-108, 19:20:30.723, a landing with the tier 5 Herald's pack 22.6-29.2 off and only the monster 312 at
+# 21.4 within the strike's reach: no member in `reachable`, so neither combat/pack.py HERALD_MARK_FIRST nor the mark's
+# rules had one; Psychic Ward (upkeep, 30.824), the strike at 312 (31.353), a hop of 8 in (landed 31.983), and the mark
+# at 32.393. Death Mark has no range of its own (skills.txt row 375: range "none"; builds/warlock/mark.py MARK_REACH):
+# whatever the pointer can hover. True: after the pursuit's look made no move, at a jump's landing (LANDING_AHEAD, the
+# HERALD_MARK_FIRST tests: a T5 Herald's member, the Herald in the read, the burn) with members drawn on the screen
+# (game/view.py `on_screen`), the build's FIRST rows are asked with those members as the ones in reach and the first
+# due one cast before the upkeep and the fight, once a landing. Not under the fight casts' hold. False: as before.
+LANDING_MARK = False
+# LANDING_UPKEEP_WAITS (2026-10-24 ~19:40, the same take: Psychic Ward's upkeep cast at 30.824 put the fight's first
+# look 0.53 s after the landing): True, at such a landing (`landing_members`) the upkeep waits until the strike is
+# pressed after the jump (LANDING_AHEAD at most); the fight's own rows (a broken ward before the strike) are not held.
+# False: as before.
+LANDING_UPKEEP_WAITS = False
+# HERALD_MARK_SHOWN (2026-10-24 ~20:10, dm-latency-findings.md §8): of the 10 Herald marks after a landing that went
+# after the strike (18:49-19:31), at 18:53:20.743, 19:02:32.564, 19:07:32.976 and 19:30:51.185 the member designated
+# was within the strike's reach but drawn past the aim's limits ("no Death Mark on the elite 82 (3241908774): its body
+# is off the screen at (0.93, 0.39)"; game/view.py AIM_LIMITS), so the mark's key was refused and the strike went
+# first. True: at combat/pack.py HERALD_MARK_FIRST's look the FIRST rows are asked with the hostiles in reach whose body
+# is drawn inside the aim's limits alone (builds/warlock/mark.py PACK_HOP_FREES then frees the pack's order for one of
+# them). False: with all in reach, as before.
+HERALD_MARK_SHOWN = False
+# SETTLE_BEFORE_FIRST (2026-10-24 ~20:10, the same cases at 18:52:58.418 and 19:19:16.169): a mark keyed on a member
+# that went onto a neighbour is found out ("did not take ... cast again") only when the row's `Buffs.due` settles it
+# (macros/buffs.py `settle`), at the look after the strike's press; HERALD_MARK_FIRST's look asked the stale state, the
+# mark counted as lasting and none was designated. True: that look settles the FIRST rows' last casts first. False: as
+# before.
+SETTLE_BEFORE_FIRST = False
 
 
 def holding(attack: object) -> int | None:
@@ -239,6 +339,9 @@ class Hunter:
         self.tested: dict[int, tuple[int, int]] = {}  # unit -> (casts with the line through it, its life then)
         # boss unit -> until when the run gets back in reach of it (`untouched`)
         self.nearing: dict[int, float] = {}
+        self.raisers: frozenset[int] = (
+            frozenset()
+        )  # the revivers raising their pack at the last look (hunting/revive.py)
         self.restock_said: set[int] = set()  # the potions a restock went for, said once each (`restock`)
         # unit -> (clock judged, Teleport brings it within LOOP_PICK_SECONDS): the loop's far valuables (`on_the_way`)
         self.far_judged: dict[int, tuple[float, bool]] = {}
@@ -256,11 +359,32 @@ class Hunter:
         self.expired_motion = False  # an expired macro click still moving: safety owns the next act
         self.reach_decision: dict | None = None  # the decision a BOUT_REACH yield was made under (`bout_reach`)
         self.struck_at = -math.inf  # clock time the fight last saw the character cast under the held strike
+        # (clock, landing, focal) of the strike aimed during a Teleport's flight (PREAIM, `preaim`); the fight's first
+        # aim takes it or drops it
+        self.preaimed: tuple[float, Point, Point] | None = None
         self.life_seen: int | None = None  # the character's life at the last priced look (`safety_priced`)
         self.hurt_at = -math.inf  # clock time a priced look last saw the character's life go down
         # (the goal's key, since when, the dead seen then, the hostiles' life then) of the run's moves with no progress
         # (judging.py DANCE_BUDGET)
         self.dance: tuple[object, float, frozenset[int], dict[int, int]] | None = None
+        # (since when, the dead seen then, the hostiles' life, (when, where, moved) of each look since) of the moves
+        # with no progress whatever their goals (judging.py STILL_BUDGET)
+        self.still: tuple[float, frozenset[int], dict[int, int], list[tuple[float, Point, bool]]] | None = None
+        # NET_PROGRESS (hunting/judging.py): (area, the hostiles seen dead on it): what dies again was raised
+        self.slain: tuple[int | None, frozenset[int]] = (None, frozenset())
+        # 2026-10-23, judging.py: the hostiles a keep-range hop left (HELD_OFF); the last look's priced facts and the
+        # strike reach's progress (clock, dead, lives: YIELD_KEEPS_KILLING)
+        self.held_off: judging.HeldOff | None = None
+        self.look_facts: Facts | None = None
+        self.killing: tuple[float, frozenset[int] | None, dict[int, int]] = (-math.inf, None, {})
+        # 2026-10-23, choice.py GUARD_STALL: (drop, since, last look, the dead and lives then); drops freed until when
+        self.guard_watch: tuple[int, float, float, frozenset[int], dict[int, int]] | None = None
+        self.guards_freed: dict[int, float] = {}
+        # 2026-10-23, judging.py REFUSED_PASS: (the fight's place, retreats from it, the last's clock, the dead then)
+        self.refusals: tuple[Point, int, float, frozenset[int]] | None = None
+        self.refused_places: list[tuple[Point, float]] = []  # (where, until): no tour stop near (choice.py)
+        # judging.py SLOW_FIGHT: (the fight's place, since when in reach, the hostiles' life then, the dead then)
+        self.slow: tuple[Point, float, dict[int, int], frozenset[int]] | None = None
         self.own_read: tuple[bool, float] | None = None  # (Teleport the character's own, read at) (`own_teleport`)
         self.unmoved_since: float | None = None  # since when the loop's run made no move with a hostile in reach
         self.stands: Point | None = None  # where attack mode last saw the character
@@ -268,6 +392,8 @@ class Hunter:
         self.ran: tuple[Point, float, bool] | None = None
         self.fresh_press = False  # a press seen since `nap` last began
         self.casting = False  # a cast runs or the strike input is held: a click now may be swallowed
+        self.pressed_at = -math.inf  # the clock of the fight's last strike press (LANDING_UPKEEP_WAITS)
+        self.landing_marked = -math.inf  # the jump (combat/pack.py HOP.at) LANDING_MARK last tried at
         # The pickup step during attack mode: the mode pauses itself once nothing is left in reach.
         self.after_fight = threading.Event()
         # The same request also asks for a step to a better stand.
@@ -344,6 +470,7 @@ class Hunter:
         self.potions = Potions()  # the potions of the level, why one was left, the belt's healing (supply.py)
         self.guarded_since: dict[int, float] = {}  # potion -> clock time its guards were first the fight first
         self.fetching: tuple[float, Drop | None] = (-math.inf, None)  # (when judged, a scarce potion worth a detour)
+        self.side_left: dict[int, str] = {}  # potion -> why a knot of moves gave it up (choice.py POTION_HELD)
         self.area: int | None = None  # the level attack mode last saw the character on (not in town)
         # The run mode (macros/runmode.py): the pickup key's presses, the player's switch (level, full clear), the
         # level's mode (the HUD's) and the (level, line) last said
@@ -355,6 +482,7 @@ class Hunter:
         # Clearing goals passed (key -> until), each one's judging (`Judging`), the key last gone for, goals left
         # for another (key -> (until, other key): TAKE_BACK), the full clear's last rest-of-level look
         self.passed: dict[object, float] = {}
+        self.knots: dict[int, int] = {}  # times a unit was passed in a knot's place (judging.py KNOT_PASSES_PLACE)
         self.judging: dict[object, Judging] = {}
         self.went: object | None = None
         self.left_for: dict[object, tuple[float, object]] = {}
@@ -428,6 +556,8 @@ class Hunter:
         out, for a pickup's "fight first" monster that no shot reaches: hunting/judging.py `kept`)."""
         if monster.tier and monster.leader:
             return True  # a Terror Zone's Herald (stat 367, a unique): fought to its end (HERALD_OMEN)
+        if monster.unit_id in self.raisers:
+            return True  # a reviver raising its pack: never left alone (hunting/revive.py REVIVER_STAND)
         if monster.txt_id in BOSSES or any(monster.txt_id == txt for txt, _ in self.build.settings.safety.dear):
             return True
         goal = self.pursued
@@ -459,6 +589,117 @@ class Hunter:
         self.omens = {spot: until for spot, until in self.omens.items() if until > now}
         herald_pack.saw_omens(self.omens.items())
         return list(self.omens)
+
+    def coming(self, here: Point, now: float) -> tuple[Point, float] | None:
+        """The pending omen within OMEN_OPEN_REACH whose pack shows first, and the clock it is expected at (its first
+        read and OMEN_SPAWN); None with none."""
+        found = [
+            (spot, until - OMEN_SECONDS + OMEN_SPAWN)
+            for spot, until in self.omens.items()
+            if until > now and math.dist(here, spot) <= OMEN_OPEN_REACH
+        ]
+        return min(found, key=lambda one: one[1]) if found else None
+
+    def omen_focal(self, here: Point, now: float, reachable: Sequence[Monster]) -> Point | None:
+        """OMEN_STRIKE: the spot a fight's line goes through instead of its choice's focal, from OMEN_LEAD s before
+        the expected spawn until the pack shows (a member of a tier 4-5 pack in reach) or OMEN_GRACE after it."""
+        if not OMEN_STRIKE or any(herald_pack.in_pack(m.tier) for m in reachable):
+            return None
+        found = self.coming(here, now)
+        if found is None or not found[1] - OMEN_LEAD <= now <= found[1] + OMEN_GRACE:
+            return None
+        return found[0]
+
+    def omen_open(self, run: Run, world: World, foes: Sequence[Monster], ground: Ground, key_names) -> bool:
+        """The quiet before a Herald's pack (OMEN_STRIKE's text): the build's first due 'opening' row is cast, else
+        with OMEN_STRIKE in the last OMEN_LEAD s the strike is held on the spot (`omen_strike`). Whether it acted."""
+        player = world.player
+        if player is None:
+            return False
+        now = run.clock()
+        if OMEN_READ_ALONE and not self.running:
+            self.omens_now(run, player.area, now)  # a level run's agenda reads them (hunting/choice.py)
+        here = (player.x, player.y)
+        found = self.coming(here, now)
+        if found is None:
+            return False
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None:
+            return False
+        aspect = rect[2] / rect[3]
+        facts = self.buffs.facts(run, world, foes)
+        due = self.buffs.first(run, 'opening', facts)
+        if due is not None:
+            if due.row.caster is not None:
+                self.step_aside()
+            try:
+                self.buffs.cast(run, due, key_names, aspect)
+            except Abort as stop:
+                if run.stops(stop):
+                    raise
+                LOG.info('Macro: no %s (%s)', skill_name(due.row.skill), stop)
+                self.buffs.remember(due.row, now)
+            return True
+        spot, spawn = found
+        if not OMEN_STRIKE or not spawn - OMEN_LEAD <= now <= spawn + OMEN_GRACE:
+            return False
+        return self.omen_strike(run, ground, aspect, key_names, spot, spawn)
+
+    def omen_strike(self, run: Run, ground: Ground, aspect: float, key_names, spot: Point, spawn: float) -> bool:
+        """The strike held on the line to a Herald's coming at `spot` until its pack is in reach, the player or the
+        safety moves, or OMEN_GRACE past `spawn` (OMEN_STRIKE). Whether it was held."""
+        if run.pad is not None:
+            return False  # controller mode: the client strikes its own target, and there is none yet
+        attack = self.attack
+        try:
+            held, how = strike_input(run, run.world(), key_names, attack.skill)
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+            return False
+        view = Viewport(aspect)
+        began, ended = run.clock(), 'the pack did not show'
+        with ExitStack() as stack:
+            pressed = False
+            while True:
+                now = run.clock()
+                world = run.world()
+                player = world.player
+                if player is None:
+                    raise Abort('not in a game')
+                if player.mode in DEAD:
+                    raise Dead('the character is dead')
+                self.sense(run)
+                why = 'a move was asked for' if self.move is not None else self.moving(run, world, keys=not pressed)
+                if why is not None:
+                    ended = why
+                    break
+                here = (player.x, player.y)
+                foes = self.foes(world, now)
+                if any(in_reach(ground, here, (m.x, m.y), attack.reach, world.doors) for m in foes):
+                    ended = 'the pack shows'
+                    break
+                if now > spawn + OMEN_GRACE:
+                    break
+                if not pressed:
+                    where = view.aim(here, spot)
+                    if where is None:
+                        ended = 'no point of its line on the screen'
+                        break
+                    run.actuator.aim(*where, scatter=(3, 3))
+                    LOG.info(
+                        'Macro: omen: %s (%s) held on the line to the Herald coming at (%.1f, %.1f), %.1f away, '
+                        '%.2f s before its pack is due',
+                        skill_name(attack.skill), how, *spot, math.dist(here, spot), spawn - now,
+                    )  # fmt: skip
+                    stack.enter_context(run.actuator.hold(*held))
+                    pressed = True
+                self.casting = True
+                if self.nap(run, FRAME):
+                    ended = 'a move was asked for'
+                    break
+        LOG.info('Macro: omen: the strike let go after %.2f s: %s', run.clock() - began, ended)
+        return pressed
 
     def nearing_only(self, world: World, foes: Sequence[Monster], ground: Ground, here: Point, now: float) -> bool:
         """Whether everything in reach is a boss being neared (`untouched`) beyond the engage ring: the move first."""
@@ -710,6 +951,73 @@ class Hunter:
             self._attack_mode(run, key_names)
 
     def _attack_mode(self, run: Run, key_names) -> None:
+        if PREAIM:
+            run.flight = lambda landing: self.preaim(run, landing)  # teleport.py PREAIM_FLIGHT
+        try:
+            self._attack_looks(run, key_names)
+        finally:
+            run.flight = None
+
+    def preaim(self, run: Run, landing: Point) -> None:
+        """During a Teleport's flight onto `landing` (world units): the pointer onto the strike's aim from there, when
+        something is in reach of it (PREAIM). The attack's held leader is left as it was; a stop the run does not honour
+        leaves the pointer where it is."""
+        self.preaimed = None
+        try:
+            world = run.world()
+            player, rect = world.player, run.actuator.keys.focused_window_rect()
+            if player is None or rect is None or player.mode in DEAD or player.in_town:
+                return
+            attack = self.attack
+            level = self.known_level(player)
+            ground = Ground(level.ground if level is not None else ())
+            there = replace(world, player=replace(player, x=landing[0], y=landing[1]))
+            foes = self.foes(there, run.clock())
+            reachable = [m for m in foes if in_reach(ground, landing, (m.x, m.y), attack.reach, world.doors)]
+            if not reachable:
+                return
+            view = Viewport(rect[2] / rect[3])
+            held = getattr(attack, 'held', None)
+            unit = getattr(held, 'unit', None)
+            try:
+                found = self.choose(there, foes, reachable, ground, view)
+            finally:
+                if held is not None:
+                    held.unit = unit  # the fight's own choice holds a leader, not this guess
+            where = view.aim(landing, found.focal)
+            if where is None:
+                return
+            run.actuator.aim(*where, scatter=(3, 3))
+            self.preaimed = (run.clock(), landing, found.focal)
+            LOG.info(
+                'Macro: strike aimed during the flight: from the landing (%.1f, %.1f) at (%.1f, %.1f), %d in reach',
+                *landing, *found.focal, len(reachable),
+            )  # fmt: skip
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+
+    def preaim_kept(self, run: Run, here: Point, focal: Point, view: Viewport) -> bool:
+        """Whether the pointer the flight put (`preaim`) stands for the aim at `focal` from `here`: within PREAIM_PIXELS
+        of it, the pre-aim PREAIM_SECONDS old at most, its focal within REAIM_UNITS. Used once: dropped either way."""
+        pre, self.preaimed = self.preaimed, None
+        if pre is None or run.clock() - pre[0] > PREAIM_SECONDS or math.dist(pre[2], focal) > REAIM_UNITS:
+            return False
+        where, rect = view.aim(here, focal), run.actuator.keys.focused_window_rect()
+        pointer = run.actuator.keys.pointer()
+        if where is None or rect is None or pointer is None or pointer != run.actuator.left_at:
+            return False
+        goal = (rect[0] + rect[2] * where[0], rect[1] + rect[3] * where[1])
+        off = math.dist(goal, pointer)
+        if off > PREAIM_PIXELS:
+            return False
+        LOG.info(
+            'Macro: strike: the aim made during the flight is kept, %.0f px off, landed %.1f from (%.1f, %.1f)',
+            off, math.dist(here, pre[1]), *pre[1],
+        )  # fmt: skip
+        return True
+
+    def _attack_looks(self, run: Run, key_names) -> None:
         misses, logged_at, waited_at = 0, -math.inf, run.clock()
         self.after_fight.clear()  # a wait left over from a run that ended another way
         self.step_asked.clear()
@@ -791,6 +1099,8 @@ class Hunter:
                     if run.clock() - self.unmoved_since < RUSH_UNMOVED:
                         self.nap(run, FRAME)
                         continue
+            if (LANDING_MARK or herald_pack.DM_AFTER_EVERY_MOVE) and self.landing_mark(run, world, foes, key_names):
+                continue  # the mark first at a T5 Herald landing, the pack beyond the strike's reach
             if self.upkeep(run, world, foes, key_names):
                 continue
             level = self.known_level(player)
@@ -803,6 +1113,8 @@ class Hunter:
                 if self.pursuing and self.pursue(run, world, foes, ground, key_names, in_reach=False):
                     entered = run.clock()
                     continue
+                if self.omen_open(run, world, foes, ground, key_names):
+                    continue  # a Herald's pack coming: its opening (OMEN_STRIKE, the build's 'opening' rows)
                 running = self.running  # a level run's moves are its own: not the sweep's toward the nearest
                 if self.sweep.steps and foes and not running and self.follow_on(run, world, foes, ground, key_names):
                     continue
@@ -833,10 +1145,20 @@ class Hunter:
                 # Right after a hop or a mark the right button holds that skill for a moment: wait. Only an input
                 # that stays away is a stopped fight, unless `strike_back` puts it back.
                 unready_since = run.clock() if unready_since is None else unready_since
-                if run.clock() - unready_since < INPUT_SECONDS:
+                tail = self.cast_tail(run, world, key_names, attack.skill) if CAST_TAIL else None
+                if tail is not None and CAST_TAIL_AGAIN:
+                    unready_since = None
+                    continue  # the cast's end seen: the loop's look (the pursuit's too) at once, with no FRAME nap
+                if tail is not None:
+                    # The cast's end seen with the strike back (CAST_TAIL): the fight from that look, not the next loop
+                    world, player = tail
+                    foes = self.foes(world, run.clock())
+                    here = (player.x, player.y)
+                    unready_since = None
+                elif run.clock() - unready_since < INPUT_SECONDS:
                     self.nap(run, FRAME)
                     continue
-                if self.strike_back(run, world, attack.skill):
+                elif self.strike_back(run, world, attack.skill):
                     unready_since = None
                     continue
             try:
@@ -868,6 +1190,193 @@ class Hunter:
                 if misses >= MISSES_IN_A_ROW:
                     raise Abort(f'attack mode off: {misses} fights stopped in a row, the last on "{stop}"') from stop
                 self.nap(run, POLL)
+
+    def burning(self, world: World, foes: Sequence[Monster]) -> bool:
+        """Whether the fight is a mana-burn one for combat/pack.py HERALD_MARK_NO_BURN, by the safety's own tests
+        (combat/threats/drain_escape.py `drains` and `drainers_near`, read only, on the read's Monsters): a draining
+        hostile (Mana Burn, or with MANA_ESCAPE its type's own) within PACK_SEEN of the character, or the safety's burn
+        leave standing (`Safety.burn_leaving`)."""
+        from inventory_tracking.combat.threats import drain_escape, manaburn  # late: they build on combat/pack.py
+
+        if self.safety.burn_leaving is not None:
+            return True
+        player = world.player
+        if player is None:
+            return False
+        here = (player.x, player.y)
+        return any(
+            (manaburn.drains(m.modifiers) or (drain_escape.MANA_ESCAPE and drain_escape.threat(m.txt_id)))
+            and math.dist(here, (m.x, m.y)) <= herald_pack.PACK_SEEN
+            for m in foes
+        )
+
+    def first_facts(
+        self,
+        run: Run,
+        world: World,
+        foes: Sequence[Monster],
+        reachable: Sequence[Monster],
+        prey: Monster,
+        aspect: float,
+    ) -> BuffFacts:
+        """The facts HERALD_MARK_FIRST's look asks the FIRST rows with: SETTLE_BEFORE_FIRST, their last casts settled
+        first (`Buffs.settle`); HERALD_MARK_SHOWN, only the hostiles in reach drawn inside the aim's limits."""
+        player = world.player
+        if HERALD_MARK_SHOWN and player is not None:
+            view, here = Viewport(aspect), (player.x, player.y)
+            reachable = [m for m in reachable if view.on_screen(view.body(here, m.x, m.y))]
+        asked = self.fight_facts(run, world, foes, reachable, prey)
+        if not SETTLE_BEFORE_FIRST:
+            return asked
+        rows = [row for row in self.buffs.rows('fight') if row.skill in herald_pack.FIRST and row.shows is not None]
+        for row in rows:
+            self.buffs.settle(run, row, replace(asked, now=run.clock()))
+        return self.fight_facts(run, world, foes, reachable, prey) if rows else asked
+
+    def landing_members(self, run: Run, world: World, foes: Sequence[Monster]) -> list[Monster]:
+        """The tier HERALD_MARK_TIER Herald pack's members drawn on the screen (game/view.py `on_screen`, the window's
+        aspect) at a jump's landing where combat/pack.py `herald_mark_first` holds for them (LANDING_MARK); with
+        combat/pack.py DM_AFTER_EVERY_MOVE in a hard fight (`hard_fight`), every hostile drawn there; none otherwise."""
+        player = world.player
+        if player is None or herald_pack.since_hop(run.clock()) > herald_pack.LANDING_AHEAD:
+            return []
+        rect = run.actuator.keys.focused_window_rect()
+        view = Viewport(rect[2] / rect[3]) if rect is not None and rect[3] else Viewport()
+        here = (player.x, player.y)
+        if herald_pack.DM_AFTER_EVERY_MOVE and herald_pack.hard_fight(here, foes) is not None:
+            # A hard fight's mark after every move (R1): any hostile drawn on the screen is in the mark's reach
+            return [m for m in foes if view.on_screen(view.body(here, m.x, m.y))]
+        if not LANDING_MARK:
+            return []
+        shown = [
+            m for m in foes if m.tier >= herald_pack.HERALD_MARK_TIER and view.on_screen(view.body(here, m.x, m.y))
+        ]
+        burning = herald_pack.HERALD_MARK_NO_BURN and self.burning(world, foes)
+        return shown if herald_pack.herald_mark_first(run.clock(), shown, foes, burning) else []
+
+    def landing_mark(self, run: Run, world: World, foes: Sequence[Monster], key_names) -> bool:
+        """LANDING_MARK: at a T5 Herald landing (`landing_members`), once a jump, the build's FIRST rows (combat/pack.py
+        FIRST: Death Mark) asked with the members on the screen as those in reach, the first due one cast; whether a
+        key or the pointer was touched. Not under the fight casts' hold (FIGHT_CAST_REACH)."""
+        if herald_pack.HOP.at <= self.landing_marked:
+            return False
+        shown = self.landing_members(run, world, foes)
+        if not shown or world.player is None:
+            return False
+        self.landing_marked = herald_pack.HOP.at
+        said = (
+            'a hard fight (DM_AFTER_EVERY_MOVE)'
+            if herald_pack.DM_AFTER_EVERY_MOVE
+            else 'the pack beyond the strike (LANDING_MARK)'
+        )
+        return self.first_rows(run, world, foes, shown, key_names, f'at the landing, %.2fs after it, {said}')
+
+    def first_rows(
+        self, run: Run, world: World, foes: Sequence[Monster], shown: Sequence[Monster], key_names, said: str
+    ) -> bool:
+        """The build's FIRST rows asked with `shown` as those in reach, the first due one cast before anything else
+        (`said`: the log line's tail, its %.2f the seconds since the last landing); whether a key or the pointer was
+        touched. Not under the fight casts' hold (FIGHT_CAST_REACH)."""
+        player = world.player
+        rect = run.actuator.keys.focused_window_rect()
+        if not shown or player is None or rect is None or not rect[3]:
+            return False
+        here = (player.x, player.y)
+        prey = min(shown, key=lambda m: math.dist(here, (m.x, m.y)))
+        asked = self.fight_facts(run, world, foes, shown, prey)
+        if FIGHT_CAST_REACH and asked.cast_barred is not None:
+            return False
+        for row in self.buffs.rows('fight'):
+            if row.skill not in herald_pack.FIRST or row.before_strike is None or not row.before_strike(asked):
+                continue
+            due = self.buffs.due(run, row, asked)
+            if due is None:
+                continue
+            tried = self.buffs.cast(run, due, key_names, rect[2] / rect[3])
+            if tried.cast:
+                LOG.info(f'Macro: mark: first {said}', herald_pack.since_hop(run.clock()))
+            return tried.touched
+        return False
+
+    def mark_from_here(self, run: Run, world: World, foes: Sequence[Monster], key_names) -> bool:
+        """MARK_THEN_WALK: the mark from where the character stands before the walk in (combat/pack.py `ask_mark`), the
+        FIRST rows asked with the hostiles drawn on the screen; whether a key or the pointer was touched."""
+        player = world.player
+        if player is None:
+            return False
+        rect = run.actuator.keys.focused_window_rect()
+        view = Viewport(rect[2] / rect[3]) if rect is not None and rect[3] else Viewport()
+        here = (player.x, player.y)
+        shown = [m for m in foes if view.on_screen(view.body(here, m.x, m.y))]
+        herald_pack.ask_mark(run.clock())
+        said = 'from here before the walk in (MARK_THEN_WALK), %.2fs after a landing'
+        return self.first_rows(run, world, foes, shown, key_names, said)
+
+    def mark_with_press(
+        self,
+        run: Run,
+        world: World,
+        foes: Sequence[Monster],
+        reachable: Sequence[Monster],
+        prey: Monster,
+        key_names,
+        aspect: float,
+        again: Callable[[], None],
+        cast: CastWatch,
+    ) -> bool:
+        """MARK_WITH_PRESS: right after the strike's press, the build's FIRST skills (combat/pack.py FIRST) whose rows
+        are due before the strike, by this look's facts, cast once the strike's cast shows (PRESS_CAST_WAIT), the held
+        strike pressed again under the cast (`Buffs.resume`). Whether the pointer or a key was touched."""
+        asked = self.fight_facts(run, world, foes, reachable, prey)
+        if FIGHT_CAST_REACH and asked.cast_barred is not None:
+            return False  # the fight casts' hold: from the next look, as before
+        rows = [
+            row
+            for row in self.buffs.rows('fight')
+            if row.skill in herald_pack.FIRST and row.before_strike is not None and row.before_strike(asked)
+        ]
+        if not rows:
+            return False
+        if run.seen(lambda w: w.player is not None and w.player.mode in ACTING, PRESS_CAST_WAIT, SLICE) is None:
+            return False  # the strike's cast not seen yet: the mark from the next look, as before
+        for row in rows:
+            due = self.buffs.due(run, row, asked)
+            if due is None:
+                continue
+            self.casting = True
+            tried = self.buffs.cast(run, due, key_names, aspect)
+            if tried.touched:
+                cast.excuse(run.clock())
+                self.buffs.resume(run, again)
+            return tried.touched
+        return False
+
+    def cast_tail(self, run: Run, world: World, key_names, skill: int) -> tuple[World, Player] | None:
+        """CAST_TAIL: the character casting with the strike off its input (a Quick Cast keeps the cast's skill on the
+        right button to its end): the game looked at every SLICE through the cast's tail; (the world, the character)
+        of the look that sees the strike's input back, or None when it does not come in CAST_TAIL_MOST, the player's
+        hand moves, a move is asked for, the character dies or the level changes."""
+        player = world.player
+        if player is None or player.mode not in ACTING:
+            return None
+        until = run.clock() + CAST_TAIL_MOST
+        while run.clock() < until:
+            if self.nap(run, SLICE) or self.move is not None:
+                return None
+            seen = run.world()
+            now = seen.player
+            if now is None or now.mode in DEAD or now.area != player.area or not seen.in_game or seen.open_panels:
+                return None
+            if self.moving(run, seen) is not None:
+                return None
+            try:
+                strike_input(run, seen, key_names, skill)
+            except Abort as stop:
+                if run.stops(stop):
+                    raise
+                continue
+            return seen, now
+        return None
 
     def strike_back(self, run: Run, world: World, skill: int) -> bool:
         """Keyboard mode, the strike on no input for INPUT_SECONDS (rca/2026-10-14/run-1904-findings.md §3.7):
@@ -1136,6 +1645,8 @@ class Hunter:
         counts as made; a row with a caster answers for itself (build.py `Tried`) and lets a waiting step go
         first. `renewing`: only a buff that would end inside the coming boss fight (`ahead`)."""
         player = world.player
+        if LANDING_UPKEEP_WAITS and herald_pack.HOP.at > self.pressed_at and self.landing_members(run, world, foes):
+            return False  # a T5 Herald landing: the mark and the strike before the upkeep
         facts = self.buffs.facts(run, world, foes, ahead=self.ahead(player.area if player is not None else None))
         facts = self.rebuff_facts(facts)  # a rebuff retreat's landing (cta.py REBUFF_GRACE)
         due = self.buffs.first(run, 'upkeep', facts, renewing=renewing)
@@ -1175,9 +1686,16 @@ class Hunter:
         safety.orders = looked
         return looked
 
+    def fight_facts(
+        self, run: Run, world: World, foes: Sequence[Monster], reachable: Sequence[Monster], prey: Monster
+    ) -> BuffFacts:
+        """The facts the bout's casts are asked with: the safety's last prices of the build's draw (build.py `Draw`)
+        while fresh, and its last rebuff retreat (`rebuff_facts`)."""
+        return self.rebuff_facts(self.buffs.facts(run, world, foes, reachable, prey, self.safety.priced(run.clock())))
+
     def rebuff_facts(self, facts: BuffFacts) -> BuffFacts:
         """`facts` with the safety's last rebuff retreat: chosen (cta.py REBUFF_GRACE) and landed (mark.py
-        REMARK_AFTER_REBUFF)."""
+        `rebuff_waits`)."""
         safety = self.safety
         return replace(
             facts, rebuffed=safety.rebuffed_at, rebuff_landed=safety.rebuff_landed,
@@ -1453,16 +1971,19 @@ class Hunter:
         watched: set[int] = set()  # the hostiles seen in reach while the input was held
         lined: int | None = None  # the monster the line last logged went through
         labels_due = math.inf  # clock time of the next look for an item's label under the standing pointer
+        labels = LabelLook()  # the shifts tried off an item's label, one a look (LABEL_CLEAR_AIM)
         counted = 0  # the casts seen up to the last look
         harmed_at = started  # clock time something in reach last lost life or died (`unharmed`)
         lives: dict[int, int] = {}  # unit -> its life at the look before, what is in reach with a life read
         guarded_at = -math.inf  # clock time of the last safety look of the mode alone (`guard`)
         alarmed = self.safety.alarmed  # a rejuvenation was drunk just now at the last look (BOUT_ALARM)
         held_back: str | None = None  # why the bout's casts were last held (FIGHT_CAST_REACH), said once
+        omen_said: Point | None = None  # the Herald's coming the line last went through (OMEN_STRIKE), said once
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
             stack.callback(setattr, self.buffs, 'let_go', None)
             while run.clock() - started < FIGHT_SECONDS:
+                fight_looked = run.clock()  # the fight's look, for its decision event (takes/decisions.py)
                 world = run.world()
                 player = world.player
                 if player is None:
@@ -1581,6 +2102,7 @@ class Hunter:
                 if choice is None or prey is None or run.clock() - decided_at >= DECIDE_SECONDS:
                     choice, decided_at = self.choose(world, foes, reachable, ground, view), run.clock()
                     prey = next(m for m in foes if m.unit_id == choice.unit)
+                    decisions.fight(fight_looked, decided_at, prey.unit_id, choice.focal)  # DECISION_EVENTS
                 made = cast.chained if GUARD_COUNTS_HELD else cast.casts
                 if self.untouched(run, prey, made - counted):
                     choice = None  # left alone: the next look chooses among the rest
@@ -1602,60 +2124,120 @@ class Hunter:
                 # The strike first, the mark and sigil under it once a cast is out: before it they held the first
                 # strike back on half the fight starts (2026-10-10). The first cast flies unmarked.
                 struck = again is not None and (cast.casts > 0 or run.clock() - cast.began >= FIRST_STRIKE_SECONDS)
-                if again is not None and DOLL_HERALD_MARK and any(dolls.herald_doll(m) for m in reachable):
-                    struck = True  # the doll Herald's mark before the first strike (DOLL_HERALD_MARK)
+                asked, ahead = None, False
+                # A tier 5 Herald fight's landing, no mana burn: the build's FIRST skills before the press
+                # (combat/pack.py HERALD_MARK_FIRST, the player's ruling of 2026-10-24 ~17:39; HERALD_MARK_NO_BURN)
+                first = again is None and herald_pack.herald_mark_first(
+                    run.clock(), reachable, foes, herald_pack.HERALD_MARK_NO_BURN and self.burning(world, foes)
+                )
+                if first and not AHEAD_BEFORE_PRESS:
+                    asked = self.first_facts(run, world, foes, reachable, prey, aspect)
+                    struck = ahead = any(
+                        row.skill in herald_pack.FIRST and row.before_strike is not None and row.before_strike(asked)
+                        for row in self.buffs.rows('fight')
+                    )
+                    first = ahead
+                elif (again is not None or AHEAD_BEFORE_PRESS) and not struck:
+                    # The demons' aggro before the first strike (`Buff.before_strike`: the designated one's mark), the
+                    # rows that say so alone
+                    asked = self.fight_facts(run, world, foes, reachable, prey)
+                    struck = ahead = self.buffs.before_strike(asked)
+                    first = False
+                marked_first = False  # a FIRST skill cast before the press (HERALD_MARK_FIRST): the press at once after
                 if struck:
                     # The build's casts under the strike in plan order; one that moved the pointer has the aim put
                     # back. With the safety's last prices of the build's draw (build.py `Draw`), while fresh
-                    draws = self.safety.priced(run.clock())
-                    asked = self.buffs.facts(run, world, foes, reachable, prey, draws)
-                    asked = self.rebuff_facts(asked)  # the mark after a rebuff retreat (mark.py REMARK_AFTER_REBUFF)
+                    if asked is None:
+                        asked = self.fight_facts(run, world, foes, reachable, prey)
+                    rows = self.buffs.rows('fight')
                     if FIGHT_CAST_REACH and asked.cast_barred is not None:
                         if held_back != asked.cast_barred:
-                            LOG.info('Macro: fight casts held: %s', asked.cast_barred)
+                            through = ' (instant casts in place go on)' if INSTANT_THROUGH else ''
+                            LOG.info('Macro: fight casts held%s: %s', through, asked.cast_barred)
                         held_back = asked.cast_barred
-                    for row in () if FIGHT_CAST_REACH and asked.cast_barred is not None else self.buffs.rows('fight'):
+                        # The instant casts in place go on with the strike (INSTANT_THROUGH)
+                        rows = tuple(row for row in rows if INSTANT_THROUGH and row.instant)
+                    for row in rows:
+                        if ahead and not (row.before_strike is not None and row.before_strike(asked)):
+                            continue
+                        if first and row.skill not in herald_pack.FIRST:
+                            continue  # HERALD_MARK_FIRST: the FIRST skills alone before the press
                         due = self.buffs.due(run, row, asked)
                         if due is None:
                             continue
                         self.casting = True
-                        if self.buffs.cast(run, due, key_names, aspect).touched:
+                        tried = self.buffs.cast(run, due, key_names, aspect)
+                        if tried.touched:
                             if row.on != 'self':
                                 aim.forget()
                             cast.excuse(run.clock())
                             self.buffs.resume(run, again)
-                        if FIGHT_CAST_REACH and self.paced(world):
+                        marked_first = first and tried.cast  # none made (off the screen, died): the press goes on
+                        if (FIGHT_CAST_REACH and self.paced(world)) or marked_first:
                             break  # one cast a look: the bout looks again (BOUT_REACH) before the next
+                if marked_first:
+                    # The mark's cast under way (HERALD_MARK_FIRST): the next look (the bout's reach asked) presses the
+                    # strike under it at once; the game starts the held strike at the cast's end. No nap: the cast's
+                    # key and its confirmation took a frame and more.
+                    LOG.info(
+                        'Macro: mark: first at the landing, %.2fs after it, before the strike (HERALD_MARK_FIRST)',
+                        herald_pack.since_hop(run.clock()),
+                    )
+                    continue
+                # A Herald's pack due in OMEN_LEAD s: the line goes through its spot (OMEN_STRIKE, `omen_focal`)
+                omen = self.omen_focal(here, run.clock(), reachable)
+                focal = choice.focal if omen is None else omen
+                if omen is not None and omen != omen_said:
+                    omen_said = omen
+                    LOG.info('Macro: omen: the line through the Herald coming at (%.1f, %.1f), %.1f away', *omen,
+                             math.dist(here, omen))  # fmt: skip
+                if again is None and self.preaimed is not None and self.preaim_kept(run, here, focal, view):
+                    aim.put(focal, here, run.actuator.keys.pointer())  # aimed during the flight (PREAIM)
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
                 if run.pad is not None:
                     # Controller mode: the client strikes its own target, turned toward the prey (macros/pad.py).
                     run.pad.steer(MONSTER_UNIT, prey.unit_id, here, (prey.x, prey.y), label(prey))
-                elif aim.due(run.clock(), pointer, left_at, choice.focal, here):
-                    where = view.aim(here, choice.focal)
+                elif aim.due(run.clock(), pointer, left_at, focal, here):
+                    where = view.aim(here, focal)
                     if where is None:
                         ended = f'Nothing in view to aim at ({label(prey)} is off the screen)'
                         break
-                    run.actuator.aim(*where, scatter=(3, 3))
-                    aim.put(choice.focal, here, run.actuator.keys.pointer())
+                    # The strike's place in the window taken again at the input (actuator.py LATE_BIND, binding.py)
+                    binding.aim(run, where, scatter=(3, 3), bind=partial(binding.newest_strike, run, prey, focal, view))
+                    aim.put(focal, here, run.actuator.keys.pointer())
                     labels_due = run.clock() + HOVER_SECONDS  # once the game has noted what is under it
                 elif pointer == left_at and run.hovered is not None and run.clock() >= labels_due:
                     # The pointer stands where the macro left it: an item's label may be under it now.
                     held_prey = HELD_ON_BODY and holding(attack) == prey.unit_id
                     labels_due = run.clock() + (HELD_LOOK_SECONDS if held_prey else LABEL_SECONDS)
                     over = run.hovered()
-                    if over is not None and over[0] == ITEM_UNIT:
-                        self.off_labels(run, view, here, choice.focal)
-                        aim.put(choice.focal, here, run.actuator.keys.pointer())
+                    if LABEL_CLEAR_AIM and labels.look(run, view, here, focal, choice.unit, over):
+                        # One shift a look (hunting/labels.py): the bout goes on between two
+                        aim.put(focal, here, run.actuator.keys.pointer())
+                        labels_due = run.clock() + HOVER_SECONDS
+                    elif over is not None and over[0] == ITEM_UNIT:
+                        if not LABEL_CLEAR_AIM:
+                            self.off_labels(run, view, here, focal)
+                            aim.put(focal, here, run.actuator.keys.pointer())
                     elif held_prey and over is not None and over[0] == MONSTER_UNIT and over[1] != prey.unit_id:
-                        self.onto_held(run, view, here, prey, world, choice.focal, over[1])
-                        aim.put(choice.focal, here, run.actuator.keys.pointer())
+                        self.onto_held(run, view, here, prey, world, focal, over[1])
+                        aim.put(focal, here, run.actuator.keys.pointer())
+                pressed = again is None
                 if again is None:
                     run.say(f'{skill_name(attack.skill)} ({how}) at {label(prey)}, {life(prey)}')
                     hold = run.pad.hold(attack.skill) if run.pad is not None else run.actuator.hold(*held)
                     again = stack.enter_context(hold)
                     self.buffs.let_go = getattr(again, 'release', None)  # for a key under the strike
-                    cast.began = run.clock()
+                    cast.began = self.pressed_at = run.clock()
                     self.casting = True  # the strike is held from here to the end of the fight
+                # The mark decided in the look that pressed the strike, cast once its cast shows (MARK_WITH_PRESS)
+                if (
+                    MARK_WITH_PRESS
+                    and pressed
+                    and run.pad is None
+                    and self.mark_with_press(run, world, foes, reachable, prey, key_names, aspect, again, cast)
+                ):
+                    aim.forget()
                 if prey.unit_id != lined:
                     lined = prey.unit_id
                     LOG.info(

@@ -8,7 +8,7 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.macros import loop as loop_module, tzloop, tzroutine
+from inventory_tracking.macros import loop as loop_module, tzloop, tzroutine, zonenav
 from inventory_tracking.macros.actuator import Abort, Cause
 from inventory_tracking.macros.agenda import (
     KILL,
@@ -33,6 +33,7 @@ from inventory_tracking.macros.loop import (
     TZ_PICKUP,
     TZ_PORTAL,
     TZ_SHARD,
+    TZ_UP,
     TZ_WAYPOINT,
     LegHands,
     Loop,
@@ -77,6 +78,7 @@ class Script:
     """A terror zone game: the fakes' game read, the leg routines recorded and moving the character."""
 
     def __init__(self, area: int, monkeypatch: pytest.MonkeyPatch, zone: frozenset[int] = CATACOMBS):
+        self.monkeypatch = monkeypatch
         self.play = Game(at(area))
         self.killed: set[str] = set()
         self.book = Book(self.killed)
@@ -175,6 +177,7 @@ class Script:
             visit=visit,
             way_on=self.door,
             sighted=self.sighted,
+            remembered=lambda: tuple(self.sightings.items()),
             terrorized=lambda area: area in self.zone,
             walk_out=lambda to: self.go('walk out', to),
             inventory_key=lambda: 'i',
@@ -1608,6 +1611,10 @@ BONEBREAKER_LEFT = 'no goals left, but Bonebreaker (Crypt) alive: the loop stops
 
 
 def test_a_door_no_click_takes_skips_its_trip_and_the_zone_goes_on(monkeypatch, caplog):
+    # the old any-boss stop (tzloop.py STOPS_FOR_ACT_BOSSES off; the player, 2026-10-23: act bosses only)
+    from inventory_tracking.macros import tzloop as _tz
+
+    monkeypatch.setattr(_tz, 'STOPS_FOR_ACT_BOSSES', False)
     game, hands = door_game(monkeypatch)
     stops: list[str] = []
     with caplog.at_level('INFO'):
@@ -1631,6 +1638,10 @@ def test_a_door_no_click_takes_skips_its_trip_and_the_zone_goes_on(monkeypatch, 
 
 
 def test_the_last_trips_door_failing_ends_the_game_by_the_agenda(monkeypatch, caplog):
+    # the old any-boss stop (tzloop.py STOPS_FOR_ACT_BOSSES off; the player, 2026-10-23: act bosses only)
+    from inventory_tracking.macros import tzloop as _tz
+
+    monkeypatch.setattr(_tz, 'STOPS_FOR_ACT_BOSSES', False)
     game, hands = door_game(monkeypatch, refused=(18, 19))
     stops: list[str] = []
     with caplog.at_level('INFO'):
@@ -1797,6 +1808,10 @@ def test_the_way_to_act_3s_last_town_is_not_taken_with_a_council_member_alive(mo
 
 
 def test_a_door_to_a_boss_alive_is_tried_its_tries_then_the_loop_stops_for_the_player(monkeypatch, caplog):
+    # the old any-boss stop (tzloop.py STOPS_FOR_ACT_BOSSES off; the player, 2026-10-23: act bosses only)
+    from inventory_tracking.macros import tzloop as _tz
+
+    monkeypatch.setattr(_tz, 'STOPS_FOR_ACT_BOSSES', False)
     # SKIP_DOOR blocked a door at once (Bonebreaker's Crypt, 10-21 07:56-08:06); with its boss alive it is tried
     # USE_TRIES times, the game kept, then the loop stops naming him (`boss_stays`), the game never left
     from inventory_tracking.macros import zonenav
@@ -1811,3 +1826,321 @@ def test_a_door_to_a_boss_alive_is_tried_its_tries_then_the_loop_stops_for_the_p
     assert caplog.text.count('a boss alive there: the game is not left') == tzloop.USE_TRIES - 1
     assert LEAVE not in legs
     assert 18 not in game.loop.agenda.blocked
+
+
+def shard_record(game: Script, *, kept: frozenset[int] = frozenset(), blocked: dict[int, str] | None = None) -> None:
+    """The game's record (macros/midgame.py RECORD) of an act 1 shard game played before a service restart, in the
+    Script's boss book's store; the Script's loop the restarted service's, reading it."""
+    from inventory_tracking.macros import midgame, zonenav
+    from inventory_tracking.macros.loop import GameId
+
+    game.monkeypatch.setattr(zonenav, 'ACTS', frozenset({1, 2, 3, 4, 5}))  # as served: every act by the zone's graph
+    before = Loop(on=True, kind=TZ, chosen=True, prebuffed=GAME)
+    before.start()
+    before.records = game.book
+    before.game_id = GameId(GAME, 1)
+    before.agenda.begin(before.game_id)
+    before.agenda.shard, before.agenda.acts = 'used', (1,)
+    before.agenda.finished = set(kept)
+    before.agenda.kept = set(kept)
+    before.agenda.blocked = dict(blocked or {})
+    midgame.keep(before, game.progress)
+    game.loop.records = game.book
+
+
+def test_a_restart_in_a_rotated_zone_plans_the_kept_zones_at_once(monkeypatch, caplog):
+    # Game cyberg65 taken up after a restart (19:49:43 on 2026-10-22) in Maggot Lair Level 1, the zone rotated from
+    # Act 1 into Act2-FarOasis and Act2-TalRashas with Coldworm and Duriel alive: the first plan was the kind's
+    # zones only (the ledger had no book before `zone_of`) and the agenda said "Town Portal: off the zone"
+    # (tzloop.py BOOK_FIRST)
+    game = Script(62, monkeypatch, zone=frozenset())  # nothing of Act 1 read terrorized now: the zone rotated
+    game.book.boss_game(f'{GAME}#1')
+    game.book.boss_note(64, 'Coldworm the Burrower', by='route')
+    game.book.boss_note(73, 'Duriel', by='route')
+    shard_record(game, kept=frozenset((35, 36, 37)))
+    with caplog.at_level('INFO'):
+        leg = game.leg()
+    plan = game.loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    assert plan.zone == 'Act1-Manual + Act2-FarOasis + Act2-TalRashas'  # the first plan after the restart
+    assert 'off the zone' not in caplog.text
+    assert leg != TZ_PORTAL
+    assert game.loop.agenda.acts == (1,)  # the shard's act from the record: no second shard
+    assert game.loop.agenda.kept >= {35, 36, 37}
+
+
+def test_without_the_book_first_the_restart_went_to_town_off_the_zone(monkeypatch, caplog):
+    monkeypatch.setattr(tzloop, 'BOOK_FIRST', False)
+    game = Script(62, monkeypatch, zone=frozenset())
+    game.book.boss_game(f'{GAME}#1')
+    game.book.boss_note(64, 'Coldworm the Burrower', by='route')
+    shard_record(game, kept=frozenset((35, 36, 37)))
+    with caplog.at_level('INFO'):
+        assert game.leg() == TZ_PORTAL
+    assert 'Town Portal: off the zone' in caplog.text
+
+
+ACT1_TRISTRAM = 38
+
+
+def rotated_shard_game(monkeypatch, cleared: frozenset[int]) -> Script:
+    """An act 1 shard game whose zone rotated away (nothing of Act 1 read terrorized now) with `cleared` judged so,
+    its plan the one `zone_of` reads (the shard's act always in it), zone navigation on as served."""
+    from inventory_tracking.macros import zonenav
+    from inventory_tracking.macros.loop import GameId
+
+    monkeypatch.setattr(zonenav, 'ACTS', frozenset({1, 2, 3, 4, 5}))
+    monkeypatch.setattr(tzloop, 'BOSS_STAYS', False)  # the bosses aside here: their own tests
+    game = Script(ROGUE_ENCAMPMENT, monkeypatch, zone=frozenset())
+    agenda = game.loop.agenda
+    agenda.begin(GameId(GAME, 1))
+    game.loop.game_id = GameId(GAME, 1)
+    agenda.shard, agenda.acts = 'used', (1,)
+    agenda.plan = tzloop.zone_of(game.hands(), agenda.acts, agenda.bosses)
+    assert agenda.plan is not None
+    assert agenda.plan.zone == 'Act1-Manual'  # the rotation dropped none of the act
+    agenda.cleared, agenda.finished = set(cleared), set(cleared)  # the zone's verdict (tzloop.py `zone_choose`)
+    return game
+
+
+def leave(game: Script) -> None:
+    tzloop.perform(game.loop, game.play.run(), keys, game.progress, LEAVING,
+                   game.hands())  # fmt: skip
+
+
+def test_a_rotated_shard_games_plan_still_routes_to_the_acts_levels_left(monkeypatch):
+    # The player, 2026-10-22: "make sure that we don't leave the game if TZ is rotated but we still have act1 to run":
+    # nothing of Act 1 read terrorized now, its shard spent this game, Tristram not run: the next leg is on the way to
+    # it, never the game's end (tzloop.py ACT_OWED; `zone_of` always plans the shard acts)
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act1 = manual_zone(1)
+    assert act1 is not None
+    assert ACT1_TRISTRAM in act1.areas
+    game = rotated_shard_game(monkeypatch, frozenset(act1.areas) - {ACT1_TRISTRAM})
+    game.loop.agenda.kept = set(act1.areas) - {ACT1_TRISTRAM}  # cleared before (the record's)
+    assert tzloop.levels_owed(game.loop.agenda) == [ACT1_TRISTRAM]
+    assert game.leg() == TZ_WAYPOINT
+    assert game.calls[-1][0] == 'waypoint'  # into Act 1's levels: the game is not ended
+    plan = game.loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    assert plan.zone == 'Act1-Manual'
+
+
+def test_an_owed_level_no_goal_reaches_is_blocked_with_its_why_and_the_game_ends(monkeypatch, caplog):
+    # The coordinator, 20:42 on 2026-10-22: an owed level with no goal left to reach it is the plan's gap, blocked with
+    # its why as a door no click takes is; the loop never stands stopped
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act1 = manual_zone(1)
+    assert act1 is not None
+    game = rotated_shard_game(monkeypatch, frozenset(act1.areas) - {ACT1_TRISTRAM})
+    with caplog.at_level('INFO'):
+        leave(game)
+    assert f'Macro: zone: Tristram (38) blocked: {tzloop.UNROUTED} (no goals left)' in caplog.text
+    assert 'Macro: zone: the game ends with the shard acts [1]: Tristram (38) blocked' in caplog.text
+    assert game.loop.agenda.blocked[ACT1_TRISTRAM].startswith(tzloop.UNROUTED)  # in the game's record
+    assert 'Save and Exit' in game.play.said
+
+
+def test_a_shard_acts_level_blocked_after_its_tries_is_said_and_the_game_ends(monkeypatch, caplog):
+    # A level blocked after its bounded tries is no obligation the loop can meet (the coordinator, 20:26 on
+    # 2026-10-22: the loop never stands stopped for it): said, kept in the record, the game ends (tzloop.py ACT_OWED)
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act1 = manual_zone(1)
+    assert act1 is not None
+    game = rotated_shard_game(monkeypatch, frozenset(act1.areas))  # blocked is finished by the zone's verdict
+    why = 'no click took its door (no click took Tristram)'
+    game.loop.agenda.blocked[ACT1_TRISTRAM] = why
+    assert tzloop.levels_owed(game.loop.agenda) == []
+    with caplog.at_level('INFO'):
+        leave(game)
+    assert f'Macro: zone: the game ends with the shard acts [1]: Tristram (38) blocked ({why})' in caplog.text
+    assert 'Save and Exit' in game.play.said
+
+
+def test_without_act_owed_the_rotated_shard_game_was_left_with_a_level_owed_unsaid(monkeypatch, caplog):
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    monkeypatch.setattr(tzloop, 'ACT_OWED', False)
+    act1 = manual_zone(1)
+    assert act1 is not None
+    game = rotated_shard_game(monkeypatch, frozenset(act1.areas) - {ACT1_TRISTRAM})
+    with caplog.at_level('INFO'):
+        leave(game)
+    assert 'Save and Exit' in game.play.said
+    assert 'Tristram (38) blocked' not in caplog.text
+
+
+def fetched(game: Script, area: int) -> None:
+    """The fake's pickup leg takes the valuable remembered on `area` (sightings.py: off the ground once picked)."""
+
+    def take_one() -> bool:
+        return game.sightings.pop(game.area, None) is not None and game.area == area
+
+    game.take_one = take_one  # pyrefly: ignore[bad-assignment]  # the fake's pickup replaced on purpose
+
+
+def test_a_valuable_left_on_the_level_above_is_fetched_up_the_stairs_before_the_game_ends(monkeypatch):
+    # cyberg66, 2026-10-22 23:57: a Grand Charm with no room in Catacombs Level 3, the trip for room cast from Level 4;
+    # nothing went back up for it (zonenav.py FETCH_ELSEWHERE, 2026-10-23)
+    monkeypatch.setattr(tzloop.zonenav, 'ROTATION', True)  # the live loop's zone navigation
+    game = Script(ROGUE_ENCAMPMENT, monkeypatch)
+
+    def run_of(area: int) -> None:
+        if area == 37:
+            game.killed.add('Andariel')
+            game.sightings[36] = 'Grand Charm at (22664, 8082)'  # remembered on Level 3, the character on Level 4
+
+    game.on_run = run_of
+    fetched(game, 36)
+    legs = [game.leg() for _ in range(12) if game.play.world.in_game]
+    at = legs.index(TZ_LOOT)  # Andariel's loot on Level 4
+    assert legs[at + 1 : at + 3] == [TZ_UP, TZ_PICKUP]  # up the stairs to Level 3, the charm picked up
+    assert ('door', 36) in game.calls
+    assert not game.sightings
+    assert legs[at + 3] == TZ_PORTAL  # then the game goes on as before
+
+
+def test_after_a_restart_in_town_a_remembered_valuable_is_gone_for_first_by_the_waypoint_and_the_stairs(monkeypatch):
+    # The game's record holds the sighting (sightings.py `take_up`); the zone's levels are run after it
+    monkeypatch.setattr(tzloop.zonenav, 'ROTATION', True)  # the live loop's zone navigation
+    game = Script(ROGUE_ENCAMPMENT, monkeypatch)
+    game.sightings[36] = 'Grand Charm at (22664, 8082)'
+    fetched(game, 36)
+    legs = [game.leg() for _ in range(3)]
+    assert legs == [TZ_WAYPOINT, TZ_NEXT_LEVEL, TZ_PICKUP]  # Catacombs 2's waypoint, down into Level 3, picked up
+    assert game.calls[:2] == [('waypoint', 35), ('door', 36)]
+    assert game.runs == []  # no level run before it
+    assert not game.sightings
+
+
+# --- a try of the way counted at the way on only (tzloop.py WAY_TRIED_AT_DOOR; Swampy Pit 3, 05:23, 2026-10-23) ---
+
+
+def test_level_runs_cut_short_before_the_stairs_are_no_tries_of_the_way_but_stay_bounded(monkeypatch):
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros import tzloop as tzloop_module
+    from inventory_tracking.macros.agenda import Agenda
+
+    monkeypatch.setattr(tzloop_module, 'WAY_TRIED_AT_DOOR', True)
+    agenda = Agenda()
+    away = SimpleNamespace(at_way=lambda: False)
+    counts = [tzloop_module.way_tried(agenda, 87, 90, counted=tzloop_module.tried_here(away)) for _ in range(6)]
+    assert counts == [0, 0, 0, 0, 1, 1]  # six cut-short runs make one try, not six
+    at = SimpleNamespace(at_way=lambda: True)
+    assert tzloop_module.way_tried(agenda, 87, 90, counted=tzloop_module.tried_here(at)) == 2  # a press: one try
+    assert tzloop_module.way_tried(agenda, 90, 91) == 1  # another level: counted afresh
+    monkeypatch.setattr(tzloop_module, 'WAY_TRIED_AT_DOOR', False)
+    assert tzloop_module.tried_here(away)  # off: every leg counts, as before
+
+
+CITY = 106  # the City of the Damned: a root of act 4's graph, not on Diablo's way (the River's waypoint)
+
+
+def test_a_level_with_no_progress_is_skipped_once_said_and_judged_finished(monkeypatch, caplog):
+    # zonenav.py STALLED_SKIP (rca/2026-10-23/exp-hour-levels-findings.md): the watchdog's mark unchanged STALL_SECONDS
+    monkeypatch.setattr(zonenav, 'ACTS', frozenset({1, 2, 3, 4, 5}))  # as served: every act by the zone's graph
+    game = Script(FORTRESS, monkeypatch, zone=ACT4)
+    assert game.leg() == TZ_WAYPOINT
+    loop, now = game.loop, time.monotonic()
+    plan = loop.agenda.plan
+    assert isinstance(plan, Itinerary)
+    loop.progressed = (GAME, now - 120.0, (0, 0, 0, CITY))
+    monkeypatch.setattr(zonenav, 'STALLED_SKIP', False)
+    assert not tzloop.worth_skip(loop, CITY, now)  # off: played until its verdict
+    assert CITY not in loop.agenda.blocked
+    monkeypatch.setattr(zonenav, 'STALLED_SKIP', True)
+    assert not tzloop.worth_skip(loop, 107, now)  # the watchdog's clock is the City's
+    loop.progressed = (GAME, now - 120.0, (0, 0, 0, 107))
+    assert not tzloop.worth_skip(loop, 107, now)  # on Diablo's way: never skipped
+    loop.progressed = (GAME, now - 30.0, (0, 0, 0, CITY))
+    assert not tzloop.worth_skip(loop, CITY, now)  # a kill 30 s ago
+    loop.progressed = (GAME, now - 120.0, (0, 0, 0, CITY))
+    assert not tzloop.worth_skip(loop, CITY, now, lambda: 'Grand Charm')  # a valuable in sight: stood by, kept
+    assert CITY not in loop.agenda.blocked
+    with caplog.at_level('INFO'):
+        assert tzloop.worth_skip(loop, CITY, now)
+        assert tzloop.worth_skip(loop, CITY, now + 1.0)  # the run's next look: still skipped, said once
+    said = [message for message in caplog.messages if 'skipped' in message]
+    assert said == [
+        'Macro: zone: City of the Damned (106) skipped: no kill and no level done for 120 s, expected 0.0 M/h '
+        "against the game's rate unread"
+    ]
+    _, judged = tzloop.zone_judged(game.progress, loop, plan)
+    assert CITY in judged.finished  # the zone goes on without it
+    monkeypatch.setattr(loop.agenda.bosses, 'alive_in', lambda area: ['Shenk'] if area == 104 else [])
+    loop.progressed = (GAME, now - 120.0, (0, 0, 0, 104))
+    assert not tzloop.worth_skip(loop, 104, now)  # a boss of the ledger alive on it: a long fight is no stall
+    loop.agenda.blocked[105] = 'its way in was made 6 times with no arrival'
+    loop.progressed = (GAME, now - 120.0, (0, 0, 0, 105))
+    assert not tzloop.worth_skip(loop, 105, now)  # blocked otherwise: not this model's
+
+
+def fold_game(monkeypatch):
+    """The Catacombs game up to its root change's Town Portal (Andariel dead, the levels before her next), the room
+    low with the loop's items new since any visit (loop.py FOLD_AT_ROOT); the visit makes room."""
+    game = Script(ROGUE_ENCAMPMENT, monkeypatch)
+    game.on_run = lambda area: game.killed.add('Andariel') if area == 37 else None
+    assert [game.leg() for _ in range(8)][-1] == TZ_PORTAL
+    assert game.area == ROGUE_ENCAMPMENT
+    exits: list[Exit] = []
+
+    def visit(exit: Exit) -> None:
+        exits.append(exit)
+        game.loop.free, game.loop.gainable = 22, 0
+
+    game.loop.free, game.loop.carrying, game.loop.gainable = 5, True, 12
+    game.loop.visited = GAME  # a visit made in this game: `visit_due` says no more (its once a game)
+    return game, exits, visit
+
+
+def test_a_root_change_with_the_room_low_makes_the_town_visit_on_its_way(monkeypatch, caplog):
+    # rca/2026-10-23/exp-town-findings.md: the visit in the root change's town, not a Town Portal for room later
+    game, exits, visit = fold_game(monkeypatch)
+    with caplog.at_level('INFO'):
+        legs = [game.leg(visit=visit) for _ in range(3)]
+    assert legs == [TZ_WAYPOINT, TOWN, TZ_WAYPOINT]
+    assert [call for call in game.calls if call[0] == 'waypoint'][-2:] == [('waypoint', FORTRESS), ('waypoint', 32)]
+    assert exits == [Exit.WAYPOINT]
+    said = [message for message in caplog.messages if 'on the way to the next root' in message]
+    assert said == ['Macro: zone: the town visit on the way to the next root: 5 cells free (under 10), 12 cells to '
+                    'take away']  # fmt: skip
+
+
+@pytest.mark.parametrize(
+    ('free', 'gainable', 'switch'),
+    [(10, 12, True), (5, 5, True), (5, 12, False)],
+    ids=['room enough', 'a visit made the room low: nothing new to take away', 'off'],
+)
+def test_a_root_change_with_room_or_nothing_new_goes_straight_on(monkeypatch, free, gainable, switch):
+    game, exits, visit = fold_game(monkeypatch)
+    monkeypatch.setattr(loop_module, 'FOLD_AT_ROOT', switch)
+    game.loop.free, game.loop.gainable = free, gainable
+    assert game.leg(visit=visit) == TZ_WAYPOINT
+    assert game.calls[-1] == ('waypoint', 32)
+    assert exits == []
+
+
+def test_no_fold_out_of_town_nor_during_a_trip_for_room():
+    loop = Loop(on=True, kind=TZ, chosen=True, prebuffed=GAME)
+    loop.free, loop.carrying, loop.gainable = 5, True, 12
+    assert loop.fold_due(at(ROGUE_ENCAMPMENT))
+    assert not loop.fold_due(at(35))  # in a level: the room rules' trip, as before
+    loop.begin_trip(GAME)
+    loop.free = 5
+    assert not loop.fold_due(at(ROGUE_ENCAMPMENT))  # the trip's package has its own visit
+    lk = Loop(on=True, kind=loop_module.LK, chosen=True, prebuffed=GAME)
+    lk.free, lk.carrying, lk.gainable = 5, True, 12
+    assert not lk.fold_due(at(ROGUE_ENCAMPMENT))  # a kind with legs of its own (Lower Kurast): never
+
+
+def test_new_cells_are_the_carried_items_the_last_visit_did_not_leave():
+    from inventory_tracking.game.records import Carried
+
+    rune, charm = Carried(1, 625, 0, 0, (1, 1)), Carried(2, 620, 1, 0, (1, 3))
+    assert loop_module.new_cells([rune, charm], None, GAME) == 4
+    assert loop_module.new_cells([rune, charm], (GAME, frozenset({2})), GAME) == 1
+    assert loop_module.new_cells([rune, charm], ('another', frozenset({1, 2})), GAME) == 4  # another game's visit

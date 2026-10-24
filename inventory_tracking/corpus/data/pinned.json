@@ -1,0 +1,908 @@
+{
+ "122437e53ad5": {
+  "observation": {
+   "appraisal_ready": false,
+   "decoded_stats": [
+    {
+     "label": "+{{value}} to Dexterity",
+     "memory_stat": {
+      "id": 2,
+      "layer": 0,
+      "raw": 3
+     },
+     "name": "dexterity",
+     "roll_quality": "normal",
+     "roll_quality_range": {
+      "max": 5,
+      "min": 2,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "of Dexterity",
+      "affix_id": 256,
+      "better": "higher",
+      "max": 3,
+      "min": 2,
+      "property": "dex",
+      "quality_range": {
+       "max": 5,
+       "min": 2
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicsuffix.json",
+       "record_key": "256",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 2,
+      "tiers": [
+       {
+        "max": 5,
+        "min": 4
+       },
+       {
+        "max": 3,
+        "min": 2
+       }
+      ]
+     },
+     "roll_tier": 2,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "+3 (2-5) to Dexterity [T2; T1: 4-5]",
+     "value": 3
+    },
+    {
+     "label": "Fire Resist +{{value}}%",
+     "memory_stat": {
+      "id": 39,
+      "layer": 0,
+      "raw": 8
+     },
+     "name": "fireresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 8,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1106,
+      "better": "higher",
+      "max": 8,
+      "min": 6,
+      "property": "res-all",
+      "quality_range": {
+       "max": 8,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "321",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 39,
+      "tiers": [
+       {
+        "max": 8,
+        "min": 6
+       },
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "Fire Resist +8% (3-8%) [T1; T1: 6-8%]",
+     "value": 8
+    },
+    {
+     "label": "Lightning Resist +{{value}}%",
+     "memory_stat": {
+      "id": 41,
+      "layer": 0,
+      "raw": 8
+     },
+     "name": "lightresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 8,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1106,
+      "better": "higher",
+      "max": 8,
+      "min": 6,
+      "property": "res-all",
+      "quality_range": {
+       "max": 8,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "321",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 41,
+      "tiers": [
+       {
+        "max": 8,
+        "min": 6
+       },
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "Lightning Resist +8% (3-8%) [T1; T1: 6-8%]",
+     "value": 8
+    },
+    {
+     "label": "Cold Resist +{{value}}%",
+     "memory_stat": {
+      "id": 43,
+      "layer": 0,
+      "raw": 8
+     },
+     "name": "coldresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 8,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1106,
+      "better": "higher",
+      "max": 8,
+      "min": 6,
+      "property": "res-all",
+      "quality_range": {
+       "max": 8,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "321",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 43,
+      "tiers": [
+       {
+        "max": 8,
+        "min": 6
+       },
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "Cold Resist +8% (3-8%) [T1; T1: 6-8%]",
+     "value": 8
+    },
+    {
+     "label": "Poison Resist +{{value}}%",
+     "memory_stat": {
+      "id": 45,
+      "layer": 0,
+      "raw": 8
+     },
+     "name": "poisonresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 8,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1106,
+      "better": "higher",
+      "max": 8,
+      "min": 6,
+      "property": "res-all",
+      "quality_range": {
+       "max": 8,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "321",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 45,
+      "tiers": [
+       {
+        "max": 8,
+        "min": 6
+       },
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "Poison Resist +8% (3-8%) [T1; T1: 6-8%]",
+     "value": 8
+    }
+   ],
+   "issues": [],
+   "item": {
+    "affixes": [
+     {
+      "descriptor_offset": 232,
+      "label": "+{{value}} to Dexterity",
+      "memory_stat": {
+       "id": 2,
+       "layer": 0,
+       "raw": 3
+      },
+      "property_id": "429",
+      "value": 3
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Fire Resist +{{value}}%",
+      "memory_stat": {
+       "id": 39,
+       "layer": 0,
+       "raw": 8
+      },
+      "property_id": "427",
+      "value": 8
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Lightning Resist +{{value}}%",
+      "memory_stat": {
+       "id": 41,
+       "layer": 0,
+       "raw": 8
+      },
+      "property_id": "428",
+      "value": 8
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Cold Resist +{{value}}%",
+      "memory_stat": {
+       "id": 43,
+       "layer": 0,
+       "raw": 8
+      },
+      "property_id": "426",
+      "value": 8
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Poison Resist +{{value}}%",
+      "memory_stat": {
+       "id": 45,
+       "layer": 0,
+       "raw": 8
+      },
+      "property_id": "401",
+      "value": 8
+     }
+    ],
+    "base_code": "cm2",
+    "base_name": "Large Charm",
+    "category": "misc",
+    "empty_sockets": 0,
+    "ethereal": false,
+    "filled_sockets": 0,
+    "identified": true,
+    "item_type": "mcha",
+    "name": "Large Charm",
+    "rarity": "magic",
+    "requirements": {},
+    "socket_contents": "empty",
+    "socket_items": [],
+    "sockets": 0
+   },
+   "offline": true,
+   "review": [
+    "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+    "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+    "Values are from the captured total stat array; socket/set contributions are not separated.",
+    "Snapshot evidence is historical; it does not establish current inventory state."
+   ],
+   "source": {
+    "build_sha256": "5efc64b7b3d5e6642227930af536d158cadff859e4986b5fc297632e087e0e22",
+    "captured_at": "2026-10-24T14:04:58.900625+00:00",
+    "container": {
+     "name": "Main inventory",
+     "page": 0
+    },
+    "engine": "memory_snapshot",
+    "item_owner_id": 621522740,
+    "native_affixes": {
+     "auto": [],
+     "prefix": [
+      1106
+     ],
+     "suffix": [
+      256
+     ]
+    },
+    "owner_id": 621522740,
+    "owner_type": 0,
+    "player_id": 621522740,
+    "position": [
+     9,
+     2
+    ],
+    "run_id": "20261024T140458Z-5f697c17",
+    "snapshot_only": true,
+    "socket_mechanics": "item_type_cannot_socket",
+    "stat_capture_complete": true,
+    "unit_id": 3335750946,
+    "viewer_context": {
+     "level": 96,
+     "player_id": 621522740
+    }
+   },
+   "status": "needs_review",
+   "unresolved_stats": []
+  },
+  "source": "inventory_tracking/runs/collection/collection.sqlite fingerprint cac012936f375a46f23bf0477401927c3e59d1a997ef7de560ad5cd43167c9d3, seen 2026-10-24T14:04:58.590306+00:00",
+  "why": "shimmering charm: 2026-10-24, the player: add shimmering charms into corpus, tests + valuation from real deals"
+ },
+ "c1122216c534": {
+  "observation": {
+   "appraisal_ready": false,
+   "decoded_stats": [
+    {
+     "label": "Fire Resist +{{value}}%",
+     "memory_stat": {
+      "id": 39,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "fireresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 5,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1107,
+      "better": "higher",
+      "max": 5,
+      "min": 3,
+      "property": "res-all",
+      "quality_range": {
+       "max": 5,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "322",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 39,
+      "tiers": [
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 1,
+     "status": "decoded",
+     "text": "Fire Resist +5% (3-5%) [T1; T1: 3-5%]",
+     "value": 5
+    },
+    {
+     "label": "Lightning Resist +{{value}}%",
+     "memory_stat": {
+      "id": 41,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "lightresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 5,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1107,
+      "better": "higher",
+      "max": 5,
+      "min": 3,
+      "property": "res-all",
+      "quality_range": {
+       "max": 5,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "322",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 41,
+      "tiers": [
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 1,
+     "status": "decoded",
+     "text": "Lightning Resist +5% (3-5%) [T1; T1: 3-5%]",
+     "value": 5
+    },
+    {
+     "label": "Cold Resist +{{value}}%",
+     "memory_stat": {
+      "id": 43,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "coldresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 5,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1107,
+      "better": "higher",
+      "max": 5,
+      "min": 3,
+      "property": "res-all",
+      "quality_range": {
+       "max": 5,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "322",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 43,
+      "tiers": [
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 1,
+     "status": "decoded",
+     "text": "Cold Resist +5% (3-5%) [T1; T1: 3-5%]",
+     "value": 5
+    },
+    {
+     "label": "Poison Resist +{{value}}%",
+     "memory_stat": {
+      "id": 45,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "poisonresist",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 5,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "Shimmering",
+      "affix_id": 1107,
+      "better": "higher",
+      "max": 5,
+      "min": 3,
+      "property": "res-all",
+      "quality_range": {
+       "max": 5,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicprefix.json",
+       "record_key": "322",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 45,
+      "tiers": [
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 1,
+     "status": "decoded",
+     "text": "Poison Resist +5% (3-5%) [T1; T1: 3-5%]",
+     "value": 5
+    },
+    {
+     "label": "{{value}}% Better Chance of Getting Magic Items",
+     "memory_stat": {
+      "id": 80,
+      "layer": 0,
+      "raw": 7
+     },
+     "name": "item_magicbonus",
+     "roll_quality": "perfect",
+     "roll_quality_range": {
+      "max": 7,
+      "min": 3,
+      "scope": "all spawnable tiers for this charm size"
+     },
+     "roll_range": {
+      "affix": "of Good Luck",
+      "affix_id": 291,
+      "better": "higher",
+      "max": 7,
+      "min": 6,
+      "property": "mag%",
+      "quality_range": {
+       "max": 7,
+       "min": 3
+      },
+      "scope": "captured affix tier",
+      "source": {
+       "path": "third-parties/d2data/json/magicsuffix.json",
+       "record_key": "291",
+       "source_date": "2026-09-23"
+      },
+      "stat_id": 80,
+      "tiers": [
+       {
+        "max": 7,
+        "min": 6
+       },
+       {
+        "max": 5,
+        "min": 3
+       }
+      ]
+     },
+     "roll_tier": 1,
+     "roll_tier_count": 2,
+     "status": "decoded",
+     "text": "7% (3-7%) Better Chance of Getting Magic Items [T1; T1: 6-7%]",
+     "value": 7
+    }
+   ],
+   "issues": [],
+   "item": {
+    "affixes": [
+     {
+      "descriptor_offset": 232,
+      "label": "Fire Resist +{{value}}%",
+      "memory_stat": {
+       "id": 39,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "427",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Lightning Resist +{{value}}%",
+      "memory_stat": {
+       "id": 41,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "428",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Cold Resist +{{value}}%",
+      "memory_stat": {
+       "id": 43,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "426",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Poison Resist +{{value}}%",
+      "memory_stat": {
+       "id": 45,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "401",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "{{value}}% Better Chance of Getting Magic Items",
+      "memory_stat": {
+       "id": 80,
+       "layer": 0,
+       "raw": 7
+      },
+      "property_id": "461",
+      "value": 7
+     }
+    ],
+    "base_code": "cm1",
+    "base_name": "Small Charm",
+    "category": "misc",
+    "empty_sockets": 0,
+    "ethereal": false,
+    "filled_sockets": 0,
+    "identified": true,
+    "item_type": "scha",
+    "name": "Small Charm",
+    "rarity": "magic",
+    "requirements": {},
+    "socket_contents": "empty",
+    "socket_items": [],
+    "sockets": 0
+   },
+   "offline": true,
+   "review": [
+    "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+    "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+    "Values are from the captured total stat array; socket/set contributions are not separated.",
+    "Snapshot evidence is historical; it does not establish current inventory state."
+   ],
+   "source": {
+    "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+    "captured_at": "2026-10-14T16:25:05.135766+00:00",
+    "container": {
+     "name": "Main inventory",
+     "page": 0
+    },
+    "engine": "memory_snapshot",
+    "item_owner_id": 1,
+    "native_affixes": {
+     "auto": [],
+     "prefix": [
+      1107
+     ],
+     "suffix": [
+      291
+     ]
+    },
+    "owner_id": 1,
+    "owner_type": 0,
+    "player_id": 1,
+    "position": [
+     4,
+     0
+    ],
+    "run_id": "20261014T162504Z-3264bce0",
+    "snapshot_only": true,
+    "socket_mechanics": "item_type_cannot_socket",
+    "stat_capture_complete": true,
+    "unit_id": 127,
+    "viewer_context": {
+     "level": 99,
+     "player_id": 1
+    }
+   },
+   "status": "needs_review",
+   "unresolved_stats": []
+  },
+  "source": "inventory_tracking/runs/collection/collection.sqlite fingerprint 25f27dc494a639ad8819fc4a2209575dab343fe055105a14e545e309f80bc985, seen 2026-10-14T16:25:04.974065+00:00",
+  "why": "shimmering charm: 2026-10-24, the player: add shimmering charms into corpus, tests + valuation from real deals"
+ },
+ "dca066508114": {
+  "observation": {
+   "appraisal_ready": false,
+   "decoded_stats": [
+    {
+     "label": "+{{value}} to Life",
+     "memory_stat": {
+      "id": 7,
+      "layer": 0,
+      "raw": 5120
+     },
+     "name": "maxhp",
+     "status": "decoded",
+     "text": "+20 to Life",
+     "value": 20
+    },
+    {
+     "label": "Fire Resist +{{value}}%",
+     "memory_stat": {
+      "id": 39,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "fireresist",
+     "status": "decoded",
+     "text": "Fire Resist +5%",
+     "value": 5
+    },
+    {
+     "label": "Lightning Resist +{{value}}%",
+     "memory_stat": {
+      "id": 41,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "lightresist",
+     "status": "decoded",
+     "text": "Lightning Resist +5%",
+     "value": 5
+    },
+    {
+     "label": "Cold Resist +{{value}}%",
+     "memory_stat": {
+      "id": 43,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "coldresist",
+     "status": "decoded",
+     "text": "Cold Resist +5%",
+     "value": 5
+    },
+    {
+     "label": "Poison Resist +{{value}}%",
+     "memory_stat": {
+      "id": 45,
+      "layer": 0,
+      "raw": 5
+     },
+     "name": "poisonresist",
+     "status": "decoded",
+     "text": "Poison Resist +5%",
+     "value": 5
+    }
+   ],
+   "issues": [],
+   "item": {
+    "affixes": [
+     {
+      "descriptor_offset": 232,
+      "label": "+{{value}} to Life",
+      "memory_stat": {
+       "id": 7,
+       "layer": 0,
+       "raw": 5120
+      },
+      "property_id": "418",
+      "value": 20
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Fire Resist +{{value}}%",
+      "memory_stat": {
+       "id": 39,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "427",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Lightning Resist +{{value}}%",
+      "memory_stat": {
+       "id": 41,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "428",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Cold Resist +{{value}}%",
+      "memory_stat": {
+       "id": 43,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "426",
+      "value": 5
+     },
+     {
+      "descriptor_offset": 232,
+      "label": "Poison Resist +{{value}}%",
+      "memory_stat": {
+       "id": 45,
+       "layer": 0,
+       "raw": 5
+      },
+      "property_id": "401",
+      "value": 5
+     }
+    ],
+    "base_code": "cm1",
+    "base_name": "Small Charm",
+    "category": "misc",
+    "empty_sockets": 0,
+    "ethereal": false,
+    "filled_sockets": 0,
+    "identified": true,
+    "item_type": "scha",
+    "name": "Small Charm",
+    "rarity": "magic",
+    "requirements": {},
+    "socket_contents": "empty",
+    "socket_items": [],
+    "sockets": 0
+   },
+   "offline": true,
+   "review": [
+    "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+    "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+    "Values are from the captured total stat array; socket/set contributions are not separated.",
+    "Snapshot evidence is historical; it does not establish current inventory state."
+   ],
+   "source": {
+    "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+    "captured_at": "2026-10-13T09:23:01.740463+00:00",
+    "container": {
+     "name": "Personal stash",
+     "page": 4
+    },
+    "engine": "memory_snapshot",
+    "item_owner_id": 1,
+    "owner_id": 1,
+    "owner_type": 0,
+    "player_id": 1,
+    "position": [
+     7,
+     6
+    ],
+    "run_id": "20261013T092301Z-13897317",
+    "snapshot_only": true,
+    "socket_mechanics": "item_type_cannot_socket",
+    "stat_capture_complete": true,
+    "unit_id": 92,
+    "viewer_context": {
+     "level": 99,
+     "player_id": 1
+    }
+   },
+   "status": "needs_review",
+   "unresolved_stats": []
+  },
+  "source": "inventory_tracking/runs/collection/collection.sqlite fingerprint 17faa4a0cde888648905a77b483092dae6a0c5f9ec93e70d40831e58a5e637a2, seen 2026-10-13T09:23:01.638302+00:00",
+  "why": "shimmering charm: 2026-10-24, the player: add shimmering charms into corpus, tests + valuation from real deals"
+ }
+}

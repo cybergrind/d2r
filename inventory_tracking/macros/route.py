@@ -13,7 +13,7 @@ from functools import partial
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Player, World
-from inventory_tracking.levels.exits import outward
+from inventory_tracking.levels.exits import door_passage, in_rooms, outward
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.levels.presets import has_warps
 from inventory_tracking.macros.actuator import Abort
@@ -30,6 +30,7 @@ from inventory_tracking.macros.teleport import (
     ground_fraction,
     marked_thing,
     scaled,
+    use_thing,
 )
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Stage
@@ -44,6 +45,12 @@ STAGES = 3  # stages one press may pass (empty loots)
 CROSS_CLICKS = 3  # ground clicks one press makes toward a level across a border
 CROSS_UNITS = 16.0  # world units each click aims ahead
 CROSS_SECONDS = 2.0  # one click's walk
+# 17:57:19-34 on 2026-10-23 (Outer Cloister into the Monastery Gate): six presses of "3 clicks toward Monastery Gate
+# (+0, +1) and still on level 27" from the roof edge, and the zone was given up from that side. True: a door on the
+# edge the walk crosses (levels/exits.py `door_passage`) is walked to, opened within CROSS_DOOR_NEAR, and gone through.
+# False: straight out from where the character stands, as before.
+CROSS_DOOR = True
+CROSS_DOOR_NEAR = 15.0  # world units: as hunting/moves.py DOOR_NEAR
 
 
 def card(
@@ -160,6 +167,16 @@ def left_level(area: int, world: World) -> bool:
     return world.player is None or world.player.area != area
 
 
+def past_edge(target: Target, player: Player, way: tuple[int, int]) -> tuple[float, float]:
+    """The first point (world units) straight out from the character, `way`, that lies in none of the level's rooms."""
+    x, y = player.x / TILE_UNITS, player.y / TILE_UNITS
+    for _ in range(400):  # 0.25 tiles a step: 100 tiles at most
+        if not in_rooms(target.rooms, (x, y)):
+            break
+        x, y = x + way[0] * 0.25, y + way[1] * 0.25
+    return (x * TILE_UNITS, y * TILE_UNITS)
+
+
 def cross(run: Run, name: str, target: Target, to: int) -> None:
     """Walk on into level `to` with ground clicks: Teleport lands only on the level's own rooms.
     Not seen in the game yet (levels/routes.md, Phase 6)."""
@@ -170,10 +187,28 @@ def cross(run: Run, name: str, target: Target, to: int) -> None:
     aspect = rect[2] / rect[3]
     run.say(f'{name}: walking across to {target.label}')
     for _ in range(CROSS_CLICKS):
-        player = run.world().player
+        world = run.world()
+        player = world.player
         if player is None or player.area != target.area:
             break
         goal = (player.x + way[0] * CROSS_UNITS, player.y + way[1] * CROSS_UNITS)
+        via = door_passage(world.doors, target.rooms, past_edge(target, player, way)) if CROSS_DOOR else None
+        if via is not None:
+            door = min(world.doors, key=lambda d: math.dist((d.x, d.y), via))
+            here = (player.x, player.y)
+            if door.closed and math.dist(here, (door.x, door.y)) <= CROSS_DOOR_NEAR:
+                thing = next(
+                    (t for t in (run.things() if run.things is not None else ()) if t.unit_id == door.unit_id), None
+                )
+                if thing is not None:
+                    LOG.info('Macro: route %s: the door on the edge at (%.1f, %.1f) opened first', name, door.x, door.y)
+                    mark = Target(player.area, (), (door.x / TILE_UNITS, door.y / TILE_UNITS), target.label, 'target',
+                                  use=door.txt_id)  # fmt: skip
+                    use_thing(run, mark, player, thing, aspect)
+                    continue
+            away = math.dist(here, via)
+            ratio = min(1.0, CROSS_UNITS / away) if away else 1.0
+            goal = (here[0] + (via[0] - here[0]) * ratio, here[1] + (via[1] - here[1]) * ratio)
         if run.pad is not None:  # controller mode: the stick held that way (macros/pad.py)
             run.pad.walk(goal, near=MOVED, limit=CROSS_SECONDS, done=partial(left_level, target.area))
             continue

@@ -163,18 +163,21 @@ def no_pending_omens():
     from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 
     ECHOING_STRIKE_ATTACK.held.unit = None  # the leader the build's one attack holds (builds/warlock/mark.py reads it)
+    from inventory_tracking.builds.warlock import mark
+
+    mark.DESIGNATION.unit, mark.DESIGNATION.reason, mark.DESIGNATION.said = None, '', -math.inf  # the one designation
 
 
 @pytest.fixture
 def herald2_on(monkeypatch):
     """The Arachnid Herald 2 switches on, as their own tests prove them (rca/2026-10-21/arachnid-herald-2-findings.md;
     off in the tree until the wide suite and the arena pass with them)."""
-    from inventory_tracking.builds.warlock import buffs, mark
+    from inventory_tracking.builds.warlock import buffs
     from inventory_tracking.combat import pack
     from inventory_tracking.combat.threats import manaburn
 
     for module, name in (
-        (mark, 'REMARK_AFTER_HOP'), (mark, 'MARK_HELD_LEADER'), (pack, 'REAGGRO_BY_MARK'),
+        (pack, 'REAGGRO_BY_MARK'),
         (manaburn, 'PACK_LANDING'), (buffs, 'OMEN_SIGIL'),
     ):  # fmt: skip
         monkeypatch.setattr(module, name, True)
@@ -194,3 +197,44 @@ def repo_loot_filter(monkeypatch):
     if pickup is not None:
         monkeypatch.setattr(pickup, 'UNLABELLED', {})
         monkeypatch.setattr(pickup, 'WAIVED', {})
+
+
+@pytest.fixture(autouse=True)
+def _base_pickups_record(tmp_path, monkeypatch):
+    """The allowlisted bases the pickup took (loot/base_floor.py `remember`) go to the test's own file, never the
+    live runs/alt-d/base-pickups-taken.json (the loot verifier, 2026-10-23: test unit ids were written there)."""
+    from inventory_tracking.loot import base_floor
+
+    monkeypatch.setattr(base_floor, 'TAKEN_FILE', tmp_path / 'base-pickups-taken.json')
+    monkeypatch.setattr(base_floor, 'TAKEN', {})
+    monkeypatch.setattr(base_floor, 'GAME', [None])
+
+
+@pytest.fixture(autouse=True)
+def _field_drop_records(tmp_path, monkeypatch):
+    """The field drops' audit records (loot/api.py FIELD_AUDIT) go to the test's own directory."""
+    from inventory_tracking.loot import api
+
+    monkeypatch.setattr(api, 'FIELD_RECORDS', tmp_path)
+
+
+# Hover addresses of build 1e2ac459 (before the 2026-10-23 patch, native/layout.py): the saved host captures in
+# tests/inventory_tracking/fixtures were recorded on it and replay with them.
+OLD_BUILD_HOVER = {
+    'MOUSE_GATE_RVA': 0x1EC9C4D,
+    'CARRIED_ITEM_RVA': 0x1EC9F4C,
+    'EQUIPMENT_WIDGET': (0x17129D0, 0x2178E0),
+    'GRID_WIDGET': (0x1712DE8, 0x21A6D0),
+    'MATERIALS_WIDGET': (0x1712F88, 0x220B60),
+}
+
+
+@pytest.fixture
+def old_build_layout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The hover layout of the build the saved captures were recorded on."""
+    from inventory_tracking.hover import ui
+    from inventory_tracking.native import layout
+
+    for name, value in OLD_BUILD_HOVER.items():
+        monkeypatch.setattr(layout, name, value)
+    monkeypatch.setattr(ui, 'UI_MANAGER_RVA', 0x1EE5790)

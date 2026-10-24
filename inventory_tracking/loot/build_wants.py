@@ -740,6 +740,80 @@ ROWS: list[dict[str, Any]] = [
         'source': f'{PINDLE}:296',
         'quote': "Keep any Jeweler's (4os)",
     },
+    # The player, 2026-10-24: "I want to make sure that we keep them". Every Shimmering Small Charm (the all-res prefix,
+    # magicprefix.json row 322: 3-5 on scha) with any suffix: completed trades price them from Lem to multi-Jah
+    # (pricing/data/charm-evidence.json); the four resistances at 3+ are the prefix (no other Small Charm affix gives
+    # all four)
+    {
+        'id': 'shimmering-small-charm',
+        'class': 'G12',
+        'who': 'trade',
+        'label': 'Shimmering Small Charm (3-5 all res, any suffix)',
+        'bases': ['Small Charm'],
+        'qualities': ['magic'],
+        'must': [at_least(RESISTS, 3, count=4)],
+        'always_keep': True,
+        'matters': [spec('39:0', 'All Resistances', 3, 5, good=5)],
+        'source': f'{PRIMER}:521',
+        'quote': 'Shimmering Small Charm (3–5 all res, any suffix): always kept',  # ruff: ignore[ambiguous-unicode-character-string] (the guide's dash)
+    },
+    # The top roll of the Large and Grand Charms' top Shimmering tier (the player, 2026-10-24: "keep only top rolls for
+    # large/grand shimmering"; items/data/item_metadata.json prefixes 1106 mcha 6-8, 1104 lcha 13-15). A lower roll is
+    # kept only at 1 Ist or more by its trades (loot/keep.py SHIMMERING_TOP, K7)
+    {
+        'id': 'shimmering-large-charm-top',
+        'class': 'G12',
+        'who': 'trade',
+        'label': 'Shimmering Large Charm, top roll (8 all res, any suffix)',
+        'bases': ['Large Charm'],
+        'qualities': ['magic'],
+        'must': [at_least(RESISTS, 8, count=4)],
+        'always_keep': True,
+        'matters': [spec('39:0', 'All Resistances', 6, 8, good=8)],
+        'source': f'{PRIMER}:521',
+        'quote': 'only the top roll is always kept',
+    },
+    {
+        'id': 'shimmering-grand-charm-top',
+        'class': 'G12',
+        'who': 'trade',
+        'label': 'Shimmering Grand Charm, top roll (15 all res, any suffix)',
+        'bases': ['Grand Charm'],
+        'qualities': ['magic'],
+        'must': [at_least(RESISTS, 15, count=4)],
+        'always_keep': True,
+        'matters': [spec('39:0', 'All Resistances', 13, 15, good=15)],
+        'source': f'{PRIMER}:521',
+        'quote': 'only the top roll is always kept',
+    },
+    # Rare merc polearms by their sales (the player, 2026-10-24: "refine it with actual traderie sales"): Traderie's
+    # Recent Trades hold 10 genuine rares of these bases, every one ethereal, 281%+ ED or 30-40 IAS with leech (6-15
+    # Jah). The ground leaves the non-ethereal ones (loot/assess.py ETHEREAL_ONLY_RARE)
+    {
+        'id': 'rare-merc-polearm-eth-ed',
+        'class': 'G12',
+        'who': 'trade',
+        'label': 'Rare merc polearm: ethereal, 250%+ enhanced damage',
+        'bases': POLEARMS,
+        'qualities': ['rare'],
+        'then': 'identify',
+        'must': [eth(), at_least('17:0', 250)],
+        'matters': [spec('17:0', 'Enhanced Damage', 250, 450, good=400)],
+        'source': f'{WARLOCK}:250',
+        'quote': 'kept with 250%+ ED or 30+ IAS with life or mana leech',
+    },
+    {
+        'id': 'rare-merc-polearm-eth-ias-leech',
+        'class': 'G12',
+        'who': 'trade',
+        'label': 'Rare merc polearm: ethereal, 30+ IAS with life or mana leech',
+        'bases': POLEARMS,
+        'qualities': ['rare'],
+        'then': 'identify',
+        'must': [eth(), at_least('93:0', 30), {'either': [at_least('60:0', 1), at_least('62:0', 1)]}],
+        'source': f'{WARLOCK}:250',
+        'quote': 'kept with 250%+ ED or 30+ IAS with life or mana leech',
+    },
     {
         'id': 'warlock-skiller-gc',
         'class': 'G12',

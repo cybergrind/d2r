@@ -93,7 +93,8 @@ class Value:
 
 
 class Appraiser(Protocol):
-    def appraise(self, facts: ItemFacts) -> Value: ...
+    # None: no appraisal (S8: kept); loot/assess.py's price sources (2026-10-23, one assessment entry point)
+    def appraise(self, facts: ItemFacts) -> Value | None: ...
 
 
 class OwnedCopies(Protocol):

@@ -113,11 +113,12 @@ def test_with_the_gate_off_the_defiler_goes_by_its_price(monkeypatch) -> None:
     assert not defiler_module.pack_gate(facts(HERALD, BEHIND, FAR, demons=(demon(71, 189, 5000.0, 5000.0),)))
 
 
-# -- the mark again after a hop (mark.py REMARK_AFTER_HOP; the player, 2026-10-21 ~21:05: "when we're teleporting -
-# our minions are teleporting with us and stop attacking ... if you reposition - re-aggro again") --
+# -- the mark again after a hop (the player, 2026-10-21 ~21:05: "when we're teleporting - our minions are teleporting
+# with us and stop attacking ... if you reposition - re-aggro again"; since 2026-10-22 the one designation's rule,
+# mark.py DESIGNATED_MARK `aggro_lost`, which retired REMARK_AFTER_HOP and MARK_HELD_LEADER) --
 
 
-def test_after_a_hop_the_held_member_is_marked_again_at_once_whatever_its_time_left(herald2_on, monkeypatch) -> None:
+def test_after_a_hop_the_held_member_is_marked_again_at_once_whatever_its_time_left(monkeypatch) -> None:
     marked_at = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, BEHIND.unit_id): NOW - 3.0}
     asked = facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)
     assert mark.target(asked) is None  # a mark lasts on BEHIND, the pack not pressing: kept, as before
@@ -126,40 +127,45 @@ def test_after_a_hop_the_held_member_is_marked_again_at_once_whatever_its_time_l
     assert mark.worth_a_mark(asked, BEHIND)
     pack.hopped(NOW - 0.4, 2.0)  # a side step takes no demon along
     assert mark.target(asked) is None
-    pack.hopped(NOW - mark.REMARK_WITHIN - 0.1, 14.0)  # too long ago
+    pack.hopped(NOW - 3.5, 14.0)  # a hop before the mark's key
     assert mark.target(asked) is None
-    pack.hopped(NOW - 0.4, 14.0)
-    monkeypatch.setattr(mark, 'REMARK_AFTER_HOP', False)
+    pack.hopped(
+        NOW - 2.5, 14.0
+    )  # long ago but after the key, nothing keyed since: the demons still idle by the character
+    assert mark.target(asked) == BEHIND
+    monkeypatch.setattr(mark, 'DESIGNATED_MARK', False)  # before the model (REMARK_AFTER_HOP was off)
     assert mark.target(asked) is None
 
 
-def test_after_a_hop_marked_once_more_and_not_again_and_with_no_held_one_the_packs_first_member(herald2_on) -> None:
+def test_after_a_hop_marked_once_more_and_not_again_and_with_no_held_one_the_packs_first_member() -> None:
     pack.hopped(NOW - 0.4, 14.0)
     after = {(DEATH_MARK, None): NOW - 0.2, (DEATH_MARK, BEHIND.unit_id): NOW - 0.2}  # the re-mark keyed after landing
-    assert mark.remark_target(facts(HERALD, BEHIND, cast_at=after)) is None
+    assert mark.target(facts(HERALD, BEHIND, cast_at=after)) is None
     long_ago = {(DEATH_MARK, None): NOW - 30.0, (DEATH_MARK, BEHIND.unit_id): NOW - 30.0}  # run out
-    assert mark.remark_target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=long_ago)) == BEHIND  # pack_target's order
-    assert mark.remark_target(facts(HERALD, BEHIND, demons=())) is None  # no demon to send
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=long_ago)) == BEHIND  # pack_target's order
+    assert not mark.worth_a_mark(facts(HERALD, BEHIND, demons=()), BEHIND)  # no demon to send
 
 
-def test_the_leader_the_strike_holds_takes_the_mark_and_keeps_it_while_it_lasts(herald2_on, monkeypatch) -> None:
+def test_in_a_herald_pack_the_packs_order_goes_before_the_leader_the_strike_holds(monkeypatch) -> None:
     from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 
+    # MARK_HELD_LEADER (off, retired 2026-10-22): the pack's own order holds in a tier 4-5 pack; with True the pack
+    # spread off the demons in the arena's seed 3 of the T5 hulks (rca/2026-10-21/arachnid-herald-2-findings.md §13)
     monkeypatch.setattr(ECHOING_STRIKE_ATTACK.held, 'unit', IN_FRONT.unit_id)  # held: a minion drawn in front
-    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR)) == IN_FRONT  # not the Herald, not BEHIND
-    lasting = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, IN_FRONT.unit_id): NOW - 3.0}
-    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=lasting)) is None  # no minion takes it meanwhile
-    failed = facts(HERALD, BEHIND, IN_FRONT, FAR, missed={(DEATH_MARK, IN_FRONT.unit_id): mark.MARK_RECASTS})
-    assert mark.target(failed) != IN_FRONT  # keys that took nowhere: the pack's own order
-    monkeypatch.setattr(mark, 'MARK_HELD_LEADER', False)
-    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR)) == BEHIND  # as before
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR)) == BEHIND
+    lasting = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, BEHIND.unit_id): NOW - 3.0}
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=lasting)) is None  # its mark lasts: kept
 
 
-def test_after_a_hop_no_mark_again_when_no_demon_came_along(herald2_on) -> None:
+def test_after_a_hop_no_mark_again_when_no_demon_came_along() -> None:
     # The arena's T5 hulks, seed 3: the approach hops took no demon along; a mark again after each cost the sigil's
     # cover (held share 0.844 against 0.85; rca/2026-10-21/arachnid-herald-2-findings.md §13)
     pack.hopped(NOW - 0.4, 14.0)
     marked_at = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, BEHIND.unit_id): NOW - 3.0}
     away = (demon(70, 744, 5030.0, 5000.0), demon(71, 189, 5031.0, 5001.0))  # 30 off, on the far side
-    assert mark.remark_target(facts(HERALD, BEHIND, IN_FRONT, demons=away, cast_at=marked_at)) is None
-    assert mark.remark_target(facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)) == BEHIND  # AT_HAND: came along
+    assert not mark.aggro_lost(facts(HERALD, BEHIND, IN_FRONT, demons=away, cast_at=marked_at), BEHIND)
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, demons=away, cast_at=marked_at)) is None
+    assert mark.aggro_lost(facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at), BEHIND)  # AT_HAND: came along
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)) == BEHIND
+    by_it = (demon(70, 744, 5011.0, 4995.0), demon(71, 189, 5009.0, 4994.0))  # within 10 of the character, on it
+    assert not mark.aggro_lost(facts(HERALD, BEHIND, IN_FRONT, demons=by_it, cast_at=marked_at), BEHIND)

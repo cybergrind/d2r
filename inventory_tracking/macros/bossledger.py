@@ -43,6 +43,23 @@ from inventory_tracking.levels.presets import display_name
 # running/recovery.py BOSS_RECOVERY). False: every consumer as before
 LEDGER = True
 BIND_NEAR = 40.0  # world units from a boss's spot within which a super unique in the read is taken for it
+# BOSS_ABSENT (2026-10-22, game cyberg65, 23:09:52-23:10:08, Tal Rasha's Tomb; rca/2026-10-22/walled-boss-findings.md):
+# the ledger held Ancient Kaa the Soulless alive, his kill lost with the terror tracker's game state (tracker.py
+# BOOK_KILLS), so the agenda sent the run to his last place, the pursuit arrived 15 units off it with a clear line to it
+# and nothing there to strike ("in reach and is not struck"), stood 16 s, passed it, and the Canyon of the Magi was
+# still worked for him. True: a boss whose place is looked at with no unit of it there (agenda.py `Agenda.boss_goal`:
+# the unit taken for it not in the client's read within ABSENT_NEAR of where it was last seen, or a spot reached with
+# no super unique taken there) is `absent`: written in the book as gone with its why, owed no more (`alive`), and
+# owed again the moment its unit is seen (`sight`). False: looked for at its place again and again, as before
+BOSS_ABSENT = True
+# BOSS_UNSEEN (2026-10-22, rca/2026-10-22/boss-alive-findings.md; the coordinator: "a boss whose level was fully cleared
+# and who was never seen is resolved as 'not present', with its why, not left alive forever"): a boss of the book never
+# seen in this game (no sighting by the probe, terror/tracker.py BOOK_SIGHT, no unit taken for it) on a level every
+# room of which was seen (a run's tour found none left: agenda.py `Agenda.explored`) is not there: gone with that why
+# (`absent`), owed again the moment it is seen. Never so judged: a boss a script brings ('script': the seal bosses, the
+# Throne's waves, there only once the script runs) and the levels the caller keeps (tzloop.py: the act bosses', whose
+# kill alone settles them, "we should always kill act bosses"). False: owed until killed, as before
+BOSS_UNSEEN = True
 
 
 class Book(Protocol):
@@ -52,7 +69,7 @@ class Book(Protocol):
 
     def boss_note(
         self, area: int, name: str, *, place: tuple[float, float] | None = None, unit: int | None = None,
-        seen: bool = False, by: str = '', tried: bool = False,
+        seen: bool = False, by: str = '', tried: bool = False, killed: bool = False, gone: str | None = None,
     ) -> bool: ...  # fmt: skip
 
     def boss_book(self) -> list[tuple[int, str, dict]]: ...
@@ -64,7 +81,9 @@ class Book(Protocol):
 class Boss:
     """A boss of the book: `name` (superuniques.txt, or the route's fight), its level, where it lives (its preset's
     spot, then where it was last seen; None: the route's mark is the way to it), the unit taken for it, seen, how
-    known ('route', 'script' or 'rooms'), the recoveries kept for it (`BossLedger.tried`)."""
+    known ('route', 'script' or 'rooms'), the recoveries kept for it (`BossLedger.tried`), why it is not to be found
+    where it was looked for ('': it is; BOSS_ABSENT, `BossLedger.absent`), killed (its record's: terror/tracker.py
+    BOOK_KILLS)."""
 
     name: str
     area: int
@@ -73,6 +92,8 @@ class Boss:
     seen: bool = False
     known_by: str = ''
     tries: int = 0
+    gone: str = ''
+    killed: bool = False
 
 
 class BossLedger:
@@ -127,12 +148,12 @@ class BossLedger:
         if not LEDGER or self.book is None:
             return
         units = {m.unit_id: m for m in foes}
-        bosses = [boss for boss in self.alive() if boss.area == area]
+        bosses = [boss for boss in self.standing() if boss.area == area]  # a gone one too: seen, owed again
         taken = {boss.unit for boss in self.bosses() if boss.unit is not None}
         for boss in bosses:
             if boss.unit is not None and boss.unit in units:
                 found = units[boss.unit]
-                self.book.boss_note(area, boss.name, place=(found.x, found.y), seen=True)
+                self.book.boss_note(area, boss.name, place=(found.x, found.y), seen=True, gone=self.back(boss))
                 continue
             if boss.place is None or boss.unit is not None:
                 continue
@@ -144,8 +165,36 @@ class BossLedger:
             ]
             if near:
                 found = min(near, key=lambda m: math.dist(spot, (m.x, m.y)))
-                self.book.boss_note(area, boss.name, place=(found.x, found.y), unit=found.unit_id, seen=True)
+                self.book.boss_note(
+                    area, boss.name, place=(found.x, found.y), unit=found.unit_id, seen=True, gone=self.back(boss)
+                )
                 taken.add(found.unit_id)
+
+    def back(self, boss: Boss) -> str | None:
+        """'' for a gone boss seen again (its gone cleared, said), None for one not gone (`sight`)."""
+        if not boss.gone:
+            return None
+        LOG.info('Macro: bosses: %s is seen again in %s: owed again', boss.name, display_name(boss.area))
+        return ''
+
+    def absent(self, boss: Boss, why: str) -> None:
+        """BOSS_ABSENT: `boss` looked for at its place and not there: gone with `why`, owed no more until seen (said
+        once)."""
+        if not BOSS_ABSENT or self.book is None:
+            return
+        if self.book.boss_note(boss.area, boss.name, gone=why):
+            LOG.info('Macro: bosses: %s is not where it was looked for in %s: %s; owed no more unless seen again',
+                     boss.name, display_name(boss.area), why)  # fmt: skip
+
+    def unseen(self, toured: Iterable[int], keep: Iterable[int] = ()) -> None:
+        """BOSS_UNSEEN: each boss owed on a level of `toured` (every room seen) but those of `keep`, never seen in this
+        game and not brought by a script: not there (`absent`, said once)."""
+        if not BOSS_UNSEEN or not BOSS_ABSENT:
+            return
+        for boss in self.alive(frozenset(toured) - frozenset(keep)):
+            if boss.seen or boss.unit is not None or boss.known_by == 'script':
+                continue
+            self.absent(boss, f'every room of {display_name(boss.area)} seen and {boss.name} never seen in this game')
 
     def bosses(self) -> list[Boss]:
         """Every boss of this game's book, killed or not."""
@@ -153,17 +202,29 @@ class BossLedger:
             return []
         return [
             Boss(name, area, place_of(record.get('place')), unit_of(record.get('unit')), bool(record.get('seen')),
-                 str(record.get('by', '')), unit_of(record.get('tries')) or 0)
+                 str(record.get('by', '')), unit_of(record.get('tries')) or 0, str(record.get('gone') or ''),
+                 record.get('killed') is True)
             for area, name, record in self.book.boss_book()
         ]  # fmt: skip
 
-    def alive(self, levels: Iterable[int] | None = None) -> list[Boss]:
-        """The bosses of `levels` (all: None) the tracker has not killed; none without a book or the switch off."""
+    def standing(self, levels: Iterable[int] | None = None) -> list[Boss]:
+        """The bosses of `levels` (all: None) the tracker has not killed (its kills, and the record's own: a kill read
+        back from the probe's logs, terror/tracker.py BOOK_RECALL, is this game's whatever the tracker's state), a gone
+        one too (`absent`); none without a book or the switch off."""
         if not LEDGER or self.book is None:
             return []
         dead = self.book.killed()
         wanted = None if levels is None else frozenset(levels)
-        return [boss for boss in self.bosses() if boss.name not in dead and (wanted is None or boss.area in wanted)]
+        return [
+            boss
+            for boss in self.bosses()
+            if not boss.killed and boss.name not in dead and (wanted is None or boss.area in wanted)
+        ]
+
+    def alive(self, levels: Iterable[int] | None = None) -> list[Boss]:
+        """The bosses of `levels` (all: None) the game still owes: not killed, and not gone where they were looked for
+        (BOSS_ABSENT); none without a book or the switch off."""
+        return [boss for boss in self.standing(levels) if not (BOSS_ABSENT and boss.gone)]
 
     def alive_in(self, area: int) -> list[Boss]:
         return self.alive((area,))
@@ -220,6 +281,7 @@ def expected(area: int) -> tuple[tuple[str, str], ...]:
     return tuple(found.items())
 
 
-def stop_line(bosses: Sequence[Boss], why: str) -> str:
-    """The loop's stop line naming the bosses alive (the last resort: the loop stops where it is for the player)."""
-    return f'{why}: {said(bosses)} alive: the loop stops here for the player'
+def stop_line(bosses: Sequence[Boss], why: str, held: str | None = None) -> str:
+    """The loop's stop line naming the bosses alive, or `held` (what holds the game: macros/tzloop.py `owed`) when
+    given (the last resort: the loop stops where it is for the player)."""
+    return f'{why}: {held if held is not None else f"{said(bosses)} alive"}: the loop stops here for the player'

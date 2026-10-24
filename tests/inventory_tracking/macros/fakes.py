@@ -265,6 +265,7 @@ class Game:
             False
         )  # window fractions where a summon cannot stand
         self.deaf_clicks = 0  # clicks the lobby ignores while it is still coming up
+        self.join_tab = False  # the lobby stands on Join Game: the name field's spot is the Password box
         self.staff: Teleport | None = None  # the worn Teleport staff; None: Teleport as a skill, if in a slot
         self.worn: frozenset[int] | None = None  # the worn items' own skills (`Run.worn_skills`); None: unread
         self.door: tuple[float, float] | None = None  # a warp, in tiles: a click near it walks the character in
@@ -343,6 +344,11 @@ class Game:
         self.transmutes: list[tuple[int, ...]] = []  # what the cube held at each Transmute click
         self.buys_take: list[bool] = []  # whether each Shift + right click at a vendor buys (empty: each does)
         self.potion_price = 450  # gold a potion bought costs (`buy_potion`)
+        self.potion_takes: list[bool] = []  # whether each plain right click on a potion buys (empty: each does)
+        # Seconds after a potion bought that its cost leaves the carried gold; a plain right click while a cost has not
+        # landed buys nothing (the game's purchase under way: shop.py POTIONS_FILL, 2026-10-22). 0: at once
+        self.potion_cost_lag = 0.0
+        self.potion_costs_due = 0  # potions bought whose cost has not landed yet
         self.potions_bought = 0
         self.potion_unit = 9000  # the unit id of the last potion bought into the inventory
         # Where a bought or Shift + clicked potion lands (belt, class) -> cell or None; None: `belt_cell`'s rule
@@ -402,6 +408,10 @@ class Game:
         # An item's label drawn over the object's picture while Show Items is on (its unit id); `SHOW_ITEMS_KEY` toggles
         # the game's Show Items (stash.py LABELS_OFF_AT_THE_STASH, 2026-10-21 04:10:36)
         self.labels_over_thing: int | None = None
+        # An item's label over the vendor's body with the labels shown (Deckard Cain beside the stash's junk, 16:05:00
+        # on 2026-10-21): the record names the item there, and a click on her takes it up (`labelled_takes`), no menu
+        self.labels_over_vendor: int | None = None
+        self.labelled_takes: list[int] = []
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
         self.label_above: dict[
             int, float
@@ -550,7 +560,8 @@ class Game:
                         self.pack = replace(self.pack, portals=full)
             elif self.pack is not None:  # a plain right click buys one (shop.py `_potions`): a potion into the belt
                 bought = next((s for s in self.stock if self.stock_cell(*event[2]) == (s.x, s.y)), None)
-                if bought is not None and potion_kind(bought.txt) is not None:
+                took = self.potion_takes.pop(0) if self.potion_takes else True  # a click that buys nothing
+                if bought is not None and potion_kind(bought.txt) is not None and took and not self.potion_costs_due:
                     self.buy_potion(bought.txt)
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:
             item = self.pack_item_at(*event[2])
@@ -574,8 +585,12 @@ class Game:
             x, y = event[1]
             if w.quit_menu and abs(x - 0.5) < 0.08 and abs(y - 0.438) < 0.02:
                 self.world = World(False, (), w.game_name, w.slots)
+            elif not w.in_game and abs(x - 0.66) < 0.05 and abs(y - 0.085) < 0.02:
+                self.join_tab = False  # the Create Game tab (routines.py CREATE_GAME_TAB)
             elif not w.in_game and 0.67 < x < 0.85 and abs(y - 0.158) < 0.011:
-                if self.deaf_clicks:
+                if self.join_tab:
+                    pass  # the Password box of Join Game
+                elif self.deaf_clicks:
                     self.deaf_clicks -= 1
                 else:
                     self.field_focused = True
@@ -587,6 +602,14 @@ class Game:
                 self.vendor_click(x, y)
             elif w.in_game and 'inventory' in w.open_panels and self.pack is not None:
                 self.pack_click(x, y)
+            elif (
+                w.in_game
+                and self.vendor is not None
+                and self.labels_over_vendor is not None
+                and w.show_items is not False
+                and self.vendor_under(x, y)
+            ):
+                self.labelled_takes.append(self.labels_over_vendor)
             elif w.in_game and self.vendor is not None and self.vendor_under(x, y):
                 me = replace(character_of(w), x=self.vendor.x - 3.0, y=self.vendor.y)  # the game walks to her
                 self.world = replace(w, player=me, open_panels=('npc_interact',))
@@ -666,8 +689,12 @@ class Game:
         stats = dict(self.loot.stats)
         if stats.get(14, 0) < self.potion_price:
             return
-        stats[14] -= self.potion_price
-        self.loot = replace(self.loot, stats=tuple(stats.items()))
+        if self.potion_cost_lag:
+            self.potion_costs_due += 1
+            self.later(self.potion_cost_lag, self.potion_cost_lands)
+        else:
+            stats[14] -= self.potion_price
+            self.loot = replace(self.loot, stats=tuple(stats.items()))
         self.potions_bought += 1
         cell = self.belt_cell(txt)
         if cell is not None:
@@ -680,6 +707,13 @@ class Game:
             return
         self.potion_unit += 1
         self.pack = replace(self.pack, items=(*self.pack.items, Carried(self.potion_unit, txt, *spot, (1, 1))))
+
+    def potion_cost_lands(self) -> None:
+        """A bought potion's cost leaves the carried gold (`potion_cost_lag`)."""
+        stats = dict(self.loot.stats)
+        stats[14] = stats.get(14, 0) - self.potion_price
+        self.loot = replace(self.loot, stats=tuple(stats.items()))
+        self.potion_costs_due -= 1
 
     def potion_to_belt(self, item: Carried) -> None:
         """An inventory potion Shift + left clicked: into the belt where `belt_cell` has room, else it stays."""
@@ -785,6 +819,9 @@ class Game:
             if self.labels_over_thing is not None and self.world.show_items is not False:
                 return (4, self.labels_over_thing)
             return (2, self.thing.unit_id)
+        labelled = self.labels_over_vendor is not None and self.world.show_items is not False
+        if self.vendor is not None and labelled and self.vendor_under(*self.keys.fraction()):
+            return (4, self.labels_over_vendor or 0)
         if self.vendor is not None and self.vendor_named and self.vendor_under(*self.keys.fraction()):
             return (1, self.vendor.unit_id)
         drop = self.drop_under_pointer()
@@ -1239,6 +1276,11 @@ class Game:
             for i, rows in enumerate(self.stash_pages)
         )
         return StashView(pages, tuple(sorted(self.stacks.items())))
+
+    def peek(self) -> World:
+        """The world as the last read left it, with none of `read`'s side effects (no clock, arrival, cast or pickup):
+        the strike bind's look in the scenario harnesses (macros/binding.py `strike_world`, 2026-10-24)."""
+        return self.world
 
     def read(self) -> World:
         if self.vendor is not None and self.vendor_drift:

@@ -215,7 +215,7 @@ def test_a_look_at_the_world_reads_no_research_bytes():
     counted = CountedMemory()
     image = counted.block(BASE, 0x2600000)
     image[UI_PANELS_RVA] = 1  # in a game
-    image[0x1E011B0 : 0x1E011B0 + len(skill_table(SLOTS))] = skill_table(SLOTS)
+    image[0x1E031B0 : 0x1E031B0 + len(skill_table(SLOTS))] = skill_table(SLOTS)
     memory = memory_of(counted)
     memory._player = lambda: None  # type: ignore[method-assign]
     world = memory.world()

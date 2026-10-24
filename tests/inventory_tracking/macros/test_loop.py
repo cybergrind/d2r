@@ -116,6 +116,26 @@ def test_a_game_the_loop_stays_in_too_long_is_overdue_once():
     assert not loop.overdue(None, GAME_SECONDS + 3)  # the lobby: a fresh count
 
 
+def test_a_game_that_owes_levels_is_cut_by_no_progress_not_by_its_clock():
+    # cyberg65, 2026-10-22 20:09: a shard game past its 3900 s cap, mid full clear, was stopped by the clock
+    from inventory_tracking.macros.loop import NO_PROGRESS_SECONDS
+
+    loop = Loop()
+    loop.start()
+    now, kills = 0.0, 0
+    loop.progress_seen(GAME, now, (kills,))
+    assert not loop.over_time(GAME, now, owing=True)
+    while now < 10 * GAME_SECONDS:  # far past the clock, a kill every minute
+        now += 60.0
+        kills += 1
+        loop.progress_seen(GAME, now, (kills,))
+        assert not loop.over_time(GAME, now, owing=True)
+    assert loop.over_time(GAME, now, owing=False)  # a game that owes nothing: its clock as before
+    loop.progress_seen(GAME, now + NO_PROGRESS_SECONDS, (kills,))  # no kill since
+    assert not loop.over_time(GAME, now + NO_PROGRESS_SECONDS, owing=True)
+    assert loop.over_time(GAME, now + NO_PROGRESS_SECONDS + 1, owing=True)
+
+
 def test_each_trip_for_room_gives_the_game_more_seconds():
     from inventory_tracking.macros.loop import TRIP_SECONDS
 
@@ -838,7 +858,9 @@ def test_a_terror_zone_game_trips_for_room_more_than_an_andariel_game():
     loop = Loop(on=True, kind=TZ, trip=GAME, trips=TRIPS_A_GAME, returned=GAME, trip_gained=4)
     assert loop.may_trip(GAME)
     loop.trips = TRIPS_A_ZONE_GAME
-    assert not loop.may_trip(GAME)
+    assert loop.may_trip(GAME)  # TRIPS_BY_GAIN: the last made room (21:32 on 2026-10-22, trip 8: 4 cells free -> 22)
+    loop.trip_gained = None
+    assert not loop.may_trip(GAME)  # the gain unread: the cap holds
     loop.trips, loop.trip_gained = TRIPS_A_GAME, 0  # the last made no room: another cannot help
     assert not loop.may_trip(GAME)
 
@@ -852,6 +874,30 @@ def test_the_zone_legs_bounds_count_the_merc_trips():
     assert merc.MERC_TRIP == MERC_TRIP
     assert REPEATS[MERC_TRIP] == MERC_TRIPS
     assert REPEATS[TZ_BACK] >= 1 + TRIPS_A_ZONE_GAME + MERC_TRIPS + 2
+
+
+def test_belt_trips_past_the_cap_raise_the_bounds_of_the_legs_a_trip_makes():
+    # merc.py BELT_TRIPS_BY_GAIN (2026-10-22): a belt trip past TRIPS_A_GAME while the last refilled the belt; its legs
+    # (the merc trip, the portal, the waypoints, the visit, back through the portal) are bounded one trip more each
+    from inventory_tracking.macros import merc
+    from inventory_tracking.macros.loop import MERC_TRIP, MERC_TRIP_LEGS, MERC_TRIPS, REPEATS, TZ
+
+    assert set(MERC_TRIP_LEGS) <= set(REPEATS)
+    here = world(103, game_name=GAME)
+    loop = Loop(on=True, kind=TZ)
+    loop.merc_trips.begin(GAME)
+    loop.merc_trips.made = merc.TRIPS_A_GAME
+    for _ in range(MERC_TRIPS):
+        loop.count(here, MERC_TRIP)
+    with pytest.raises(Abort, match='merc trip again and again'):
+        loop.count(here, MERC_TRIP)  # at the cap: the bound as before
+    for _ in range(MERC_TRIPS):
+        loop.count(here, MERC_TRIP)
+    loop.merc_trips.made = merc.TRIPS_A_GAME + 2  # two belt trips past it, each after one that refilled the belt
+    loop.count(here, MERC_TRIP)
+    loop.count(here, MERC_TRIP)
+    with pytest.raises(Abort, match='merc trip again and again'):
+        loop.count(here, MERC_TRIP)
 
 
 def test_a_game_with_its_own_visit_every_trips_visit_and_a_cut_one_is_not_given_up():
@@ -1198,6 +1244,7 @@ def test_her_drops_are_waited_for_from_her_kill_not_from_the_loot_leg(monkeypatc
     # included; from the kill the service saw (terror/bosses.py KILLED_AT) a long fight waits nothing
     import time
 
+    from inventory_tracking.macros import loop as loop_module
     from inventory_tracking.macros.loop import ANDARIEL, DROPS_AFTER_KILL
     from inventory_tracking.terror import bosses
 
@@ -1207,19 +1254,21 @@ def test_her_drops_are_waited_for_from_her_kill_not_from_the_loot_leg(monkeypatc
     run = play.run()
     waits = []
     monkeypatch.setattr(run.pace, 'sleep', waits.append)
+    watched = []  # the drops' wait is a watched one (macros/threat.py): the seconds it is asked for
+    monkeypatch.setattr(loop_module, 'watched_sleep', lambda run, seconds, what: watched.append(seconds))
     loop = Loop(kind=ANDARIEL, prebuffed=GAME, chosen=True)
     loop.start()
 
     monkeypatch.setitem(bosses.KILLED_AT, 'Andariel', time.monotonic() - 10.0)  # her pack fought 10 s on
     assert loop.leg(run, keys, found, LegHands(lambda: None, lambda: False)) == PICK_UP
-    assert not [w for w in waits if w > 0.2]
+    assert not [w for w in waits + watched if w > 0.2]
     assert next_leg(at(CATACOMBS_4), found, loop) == LEAVE
 
     found = Progress(ROUTES, PERFORMED, lambda: frozenset({'Andariel'}))
     found.note(GAME, CATACOMBS_4)
     monkeypatch.setitem(bosses.KILLED_AT, 'Andariel', time.monotonic() - 0.5)  # just died
     loop.leg(run, keys, found, LegHands(lambda: None, lambda: False))
-    assert any(DROPS_AFTER_KILL - 0.6 < w <= DROPS_AFTER_KILL - 0.5 for w in waits)
+    assert any(DROPS_AFTER_KILL - 0.6 < w <= DROPS_AFTER_KILL - 0.5 for w in watched)
 
 
 def carried(play: Game):

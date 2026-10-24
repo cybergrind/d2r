@@ -116,3 +116,7 @@ def test_host_equipment_and_shop_getters_resolve_distinct_items():
     assert resolve_selection(samples[0], 0x140000000)['reason'] == 'Equipment slot mismatch'
     samples[2]['snapshot']['groups']['items']['units'][0]['details']['owner_id'] = 284532388
     assert resolve_selection(samples[2], 0x140000000)['reason'] == 'Item ownership/location mismatch'
+
+
+# The saved captures here were recorded on the build before the 2026-10-23 patch.
+pytestmark = pytest.mark.usefixtures('old_build_layout')

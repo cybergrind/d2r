@@ -11,6 +11,7 @@ import math
 
 import pytest
 
+from inventory_tracking.builds.warlock import mark
 from inventory_tracking.macros.routines import press_skill
 from inventory_tracking.takes.takes import monsters_of
 from tests.inventory_tracking.scenarios.battle import evidence, tower_cellar5 as battle
@@ -18,6 +19,12 @@ from tests.inventory_tracking.scenarios.battle.replay import Replay, character
 
 
 HERALD = 2960229440
+
+
+@pytest.fixture(autouse=True)
+def _reaggro_as_recorded(monkeypatch):
+    """The recorded fight's marks: mark.REAGGRO_PACK (on 2026-10-24) designates plain packs the recording did not."""
+    monkeypatch.setattr(mark, 'REAGGRO_PACK', False)
 
 
 def key_as_it_was(rotation, run, skill):

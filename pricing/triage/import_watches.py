@@ -60,7 +60,9 @@ def compile_watches(rows):
             'imported_watch': details['watch_id'],
         }
         if len(components) + resistance > 1:
-            rule['pattern'] = {'properties': required}
+            # A jewel near miss (Shimmering 7 @ + 9 str against Scintillating strength) is vendor, not CHECK:
+            # the player, 2026-10-22, wants no CHECK for jewels (rca/2026-10-22/jewel-verify-G3.md §6.2).
+            rule['pattern'] = {'properties': properties if row['name'] == 'Jewel' else required}
         elif not rule['premium']:
             # A documented single-affix watch still warrants review at its
             # stated roll, but neither its priority nor weaker rolls prove a sale.

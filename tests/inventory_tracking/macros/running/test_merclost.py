@@ -116,7 +116,7 @@ def test_the_switch_off_makes_no_trip(monkeypatch, switch):
 def test_the_trip_back_resumes_the_level_and_its_remembered_valuable(monkeypatch, remembered):
     game = Script(36, monkeypatch)
     routines: list[int] = []
-    monkeypatch.setattr(merc, 'town_routine', lambda run: routines.append(game.area))
+    monkeypatch.setattr(merc, 'town_routine', lambda run, trips=None: routines.append(game.area))
     if remembered:
         game.sightings[36] = 'Ist Rune at (5010, 5010)'  # seen before the trip: the runner's sightings survive it
         game.picks = [True]

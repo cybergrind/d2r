@@ -18,6 +18,7 @@ from inventory_tracking.builds import pursuing
 from inventory_tracking.game.records import Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable
+from inventory_tracking.macros import binding
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.hunt import Hunter, hostiles
 from inventory_tracking.takes.takes import Take, monsters_of, player_of
@@ -115,8 +116,12 @@ def attack_mode(play, hunt, *, until=30.0, events=()):
         play.arrivals.append((at, event))
     play.arrivals.append((until, run.cancelled.set))
     play.arrivals.sort(key=lambda pair: pair[0])
-    with pytest.raises(Abort, match='cancelled'):
-        hunt.attack_mode(run, keys)
+    # The strike bind's look is a peek (macros/binding.py `strike_world`): in the game a look changes nothing, and
+    # these scenarios freeze their reads (golden/test_loop_counts.py; 2026-10-24, rca/2026-10-24/realtime-4-findings.md)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(binding, 'strike_world', lambda run: play.peek())
+        with pytest.raises(Abort, match='cancelled'):
+            hunt.attack_mode(run, keys)
     return run
 
 

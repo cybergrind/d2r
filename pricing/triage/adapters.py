@@ -152,6 +152,19 @@ def expanded_properties(properties):
     return properties
 
 
+# No jewel or charm affix raises requirements: Traderie's "Requirements +{{value}}%" (property 420) holds the
+# magnitude of a "-15% requirements" roll, which drops carry as -15 (G3 / G4 / G6, rca/2026-10-22).
+REQUIREMENT_SIGNED = frozenset({'Jewel', 'Small Charm', 'Large Charm', 'Grand Charm'})
+
+
+def listing_properties(row):
+    properties = expanded_properties(row.get('properties', {}))
+    value = properties.get('420')
+    if row.get('name') in REQUIREMENT_SIGNED and isinstance(value, int | float) and value > 0:
+        properties['420'] = -value
+    return properties
+
+
 def from_drop(observation):
     from pricing.knowledge.assessment.adapters.capture import bases_by_code, normalize
     from pricing.knowledge.assessment.policies.quest_materials import NAMES
@@ -173,6 +186,13 @@ def from_drop(observation):
         # A verified zero-capacity base supplies mechanics, not a guess about capture flags.
         facets.update(sockets=0, socket_contents='empty')
     properties = expanded_properties(facts.properties)
+    if facts.rarity in AFFIXED:
+        from pricing.knowledge.assessment.mechanics import affix_effects
+
+        # The detail engine's projection of context-dependent affix effects (flat damage on jewels,
+        # charms and jewelry -> 416/448, charges, procs, per-level rates); captured properties win.
+        for key, value in affix_effects.affix_effect_properties(facts)[0].items():
+            properties.setdefault(key, value)
     if (poison := poison_total(facts)) is not None:
         properties.setdefault('518', poison)
     if facts.rarity in AFFIXED and type(properties.get('446')) is int:
@@ -187,12 +207,12 @@ def from_drop(observation):
     if (level := required_level(facts)) is not None:
         properties['796'] = level
     defense = facts.stats.get('31:0', {})
-    if (
-        bases_by_code().get(facts.base_code, {}).get('category') == 'armor'
-        and defense.get('status') == 'decoded'
-        and type(defense.get('value')) in (int, float)
-    ):
-        properties['1855'] = defense['value']
+    if defense.get('status') == 'decoded' and type(defense.get('value')) in (int, float):
+        if bases_by_code().get(facts.base_code, {}).get('category') == 'armor':
+            properties['1855'] = defense['value']
+        elif facts.rarity in AFFIXED and facts.item_type in ('jewl', 'cjwl'):
+            # A jewel's defense is its prefix roll (Blanched..Ivory), which sellers list as "+x Defense" (399).
+            properties.setdefault('399', defense['value'])
     category = {'unique': 'uniques', 'set': 'sets'}.get(facts.rarity or '', facts.rarity)
     name = facts.base_name if facts.rarity in AFFIXED else facts.name
     if facts.runeword:
@@ -269,8 +289,8 @@ def from_listing(row):
             or base_families(metadata_generation()).get(str(base_name).casefold())
             or crafted_family(row)
         ),
-        'properties': expanded_properties(row.get('properties', {})),
-        'charm_suffix': suffix(base_name, expanded_properties(row.get('properties', {}))),
+        'properties': listing_properties(row),
+        'charm_suffix': suffix(base_name, listing_properties(row)),
         'ethereal': row.get('ethereal'),
         'sockets': row.get('sockets'),
         'base_name': base_name if known_base else None,

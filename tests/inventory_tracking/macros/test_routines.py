@@ -212,6 +212,16 @@ def test_a_lobby_that_is_not_ready_yet_gets_another_click_not_blind_typing():
     assert game.world.in_game
 
 
+def test_a_lobby_left_on_join_game_gets_the_create_game_tab_then_the_name():
+    # 2026-10-23 15:21: the player rejoined a game by hand, the lobby stood on Join Game and the loop stopped
+    game = Game(world(121))
+    game.join_tab = True
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert not game.join_tab
+    assert game.world.game_name == 'cyber33'
+    assert game.world.in_game
+
+
 def test_a_field_that_never_takes_keys_stops_the_macro_before_enter():
     game = Game(world(121))
     game.deaf_clicks = 99

@@ -146,17 +146,20 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
         for row in members:
             item = from_listing(row)
             if amount == 1 and item['category'] in ('magic', 'rare', 'crafted'):
-                for family_rule in affixed_rules:
-                    if matches(item, family_rule):
-                        if not family_rule.get('compare_property'):
-                            pattern = patterns.setdefault(pattern_bucket(family_rule), (family_rule, []))
-                            pattern[1].append(row)
-                            continue
-                        key = family_name(family_rule), roll_bucket(family_rule, item)
-                        if key[1] is not None:
-                            families[key].append(row)
-                            families[key[0], family_rule['bucket']].append(row)
-                            family_specs[key] = sorted(family_rule['properties'])
+                matched = [rule for rule in affixed_rules if matches(item, rule)]
+                compound = any(rule.get('band_role') != 'floor' for rule in matched)
+                for family_rule in matched:
+                    if family_rule.get('band_role') == 'floor' and compound:
+                        continue  # A floor band holds the residual asks only: compound rolls must not raise it.
+                    if not family_rule.get('compare_property'):
+                        pattern = patterns.setdefault(pattern_bucket(family_rule), (family_rule, []))
+                        pattern[1].append(row)
+                        continue
+                    key = family_name(family_rule), roll_bucket(family_rule, item)
+                    if key[1] is not None:
+                        families[key].append(row)
+                        families[key[0], family_rule['bucket']].append(row)
+                        family_specs[key] = sorted(family_rule['properties'])
             # Lower rolls belong to the comparison pool even when they do not
             # meet the guide's sell bucket. Facets/skill sets remain partitioned
             # by compile_modifiers; runtime eligibility still uses the full rule.

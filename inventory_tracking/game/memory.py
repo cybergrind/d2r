@@ -5,6 +5,7 @@ table, the game name and the in-game byte. The unit table is the one the service
 it stays at the same address through the lobby and into the next game.
 """
 
+import functools
 import struct
 import time
 from contextlib import suppress
@@ -109,9 +110,10 @@ from inventory_tracking.items.identity import (
     IDENTITY_OFFSET,
     ITEM_DATA_SIZE,
     QUALITY_OFFSET,
+    RUNEWORD_FLAG,
 )
 from inventory_tracking.items.metadata import item_base
-from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.doors import PASSED, Door, PassedDoors
 from inventory_tracking.loot.ground import (
     GROUND_MODES,
     GroundItem,
@@ -139,7 +141,7 @@ from inventory_tracking.native.layout import (
     UI_PANELS_SIZE,
     WEAPON_SLOTS,
 )
-from inventory_tracking.native.memory import ProcessMemory
+from inventory_tracking.native.memory import ProcessMemory, Replay, vm_call
 from inventory_tracking.native.stack_items import read_stack_count
 from inventory_tracking.native.units import read_stats, walk_units
 
@@ -152,6 +154,24 @@ CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`Game
 UNPLACED_GOLD: set[int] = set()  # gold piles `loot` said it left out for an unread place: said once a pile
 CAPPED_GOLD: set[int] = set()  # gold piles `loot` said it left out for the gold cap: said once a pile
 HAD_ONE: set[int] = set()  # carry-one drops `loot` said it left out for the one had: said once a drop
+VM_CALL = vm_call()  # libc's process_vm_readv for the replayed batches (native/memory.py `Replay`); None: preads
+
+
+def batched(kind: str):
+    """The method's reads are one pass of `kind` (native/memory.py `Replay`, 2026-10-23): the spans its last call read
+    are asked in one batch at its start."""
+
+    def wrap(method):
+        @functools.wraps(method)
+        def inner(self, *args, **kwargs):
+            if self.replay is None:
+                return method(self, *args, **kwargs)
+            with self.replay.pass_of(kind):
+                return method(self, *args, **kwargs)
+
+        return inner
+
+    return wrap
 
 
 def had_already(items, classes: frozenset[int]) -> frozenset[int]:
@@ -197,9 +217,14 @@ def _unit_of(walk: dict, player: Player) -> dict | None:
 class GameMemory:
     """Keeps /proc/<pid>/mem open for one macro run."""
 
+    replay: Replay | None = None  # set by `__init__`; a memory built without it reads one pread a field
+
     def __init__(self, pid: int, base: int, table: int) -> None:
         self.base, self.table = base, table
         self.memory = ProcessMemory(pid)
+        # Each kind of pass (a look, the loot's walk, the worn items) asks the kernel at its start for the spans its
+        # last pass read, in one batch (native/memory.py REPLAY, 2026-10-23); `report` gives the tallies
+        self.replay = Replay(pid, self.memory.read, call=VM_CALL)
         self.hover_raw: tuple[int, int, int, int] | None = None  # the last record read whole (`hovered`)
         self.stock_note: dict | None = None  # what the last vendor's stock read found (`stock`), logged when it changes
         self.where: tuple[float, float] | None = None  # where the character was at the last `place` or `loot`
@@ -214,12 +239,15 @@ class GameMemory:
         self.worn_skills_of: frozenset[int] = frozenset()
         self.orders_of: dict[int, bool] = {}  # item unit id -> whether it gives Battle Orders (`_orders`)
         self.cta_seen: tuple[float, bool] | None = None  # (monotonic time, a Call to Arms worn) at `cta`
+        # The doors read closed that something stood inside this level (levels/doors.py PASSED_OPEN): the process's one
+        # memory, shared by every GameMemory, so a run begun later in the level knows them
+        self.passed: PassedDoors = PASSED
 
     def close(self) -> None:
         self.memory.close()
 
     def read(self, address: int, size: int) -> bytes:
-        return self.memory.read(address, size)
+        return self.memory.read(address, size) if self.replay is None else self.replay.read(address, size)
 
     def _player(self) -> Player | None:
         return self._players()[0]
@@ -237,32 +265,41 @@ class GameMemory:
 
     def all_monsters(self, *, paths: bool = False, records: bool = False) -> tuple[Monster, ...]:
         """Live and dead monsters with a position (the recorder tells a death from an unload)."""
-        return monsters(self.read, self.table, dead=True, paths=paths, records=records)
+        if self.replay is None:
+            return monsters(self.read, self.table, dead=True, paths=paths, records=records)
+        with self.replay.pass_of(f'monsters {paths:d}{records:d}'):
+            return monsters(self.read, self.table, dead=True, paths=paths, records=records)
 
+    @batched('missiles')
     def missiles(self) -> list[dict]:
         return missiles(self.read, self.table)
 
+    @batched('flights')
     def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
         return flights(self.read, self.table, kinds)
 
+    @batched('corpses')
     def corpses(self) -> tuple[tuple[int, float, float], ...]:
         try:
             return corpses(self.read, self.table)
         except OSError, ValueError, struct.error:
             return ()
 
+    @batched('warps')
     def warps(self) -> tuple[Warp, ...]:
         try:
             return warps(self.read, self.table)
         except OSError, ValueError, struct.error:
             return ()
 
+    @batched('things')
     def things(self) -> tuple[Thing, ...]:
         try:
             return things(self.read, self.table)
         except OSError, ValueError, struct.error:
             return ()
 
+    @batched('operated')
     def operated(self) -> tuple[Thing, ...]:
         """Everything a mark may name for a click and every container, opened or not: what the combat
         recorder writes as the level's objects (a seal's mode says when it was opened)."""
@@ -288,6 +325,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
 
+    @batched('belt')
     def belt(self) -> tuple[int | None, ...] | None:
         """The item class in each belt cell of the character's (None: empty); None when unread."""
         try:
@@ -331,6 +369,7 @@ class GameMemory:
             LOG.info('Macro: stock of %d: grid index -> (items, resolved): %s', vendor, note)
         return stock_of(grids, by_address)
 
+    @batched('carried')
     def carried(self) -> Pack | None:
         """The carried inventory's items and the cube's rows (`carried_items`); None when unread."""
         try:
@@ -381,6 +420,7 @@ class GameMemory:
                         'quality': struct.unpack_from('<I', data, QUALITY_OFFSET)[0],
                         'identified': bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG),
                         'unique': struct.unpack_from('<I', data, IDENTITY_OFFSET)[0],
+                        'runeword': bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & RUNEWORD_FLAG),  # D12
                     }
                     if entry['owner'] == NO_OWNER and entry['page'] == STASH_ITEM_PAGE:
                         entry['count'] = read_stack_count(read, unit)
@@ -405,6 +445,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return {}
 
+    @batched('containers')
     def containers(self) -> tuple[Thing, ...]:
         """The chests and the like the game shows now, opened or not (the pickup step opens them)."""
         try:
@@ -429,12 +470,14 @@ class GameMemory:
                 found.append(row)
         return found
 
+    @batched('census')
     def census(self) -> list[dict]:
         return unit_census(self.read, self.table)
 
     def stats(self, stats_at: int) -> dict[int, int]:
         return unit_stats(self.read, stats_at)
 
+    @batched('loot')
     def loot(
         self,
         *,
@@ -625,6 +668,7 @@ class GameMemory:
             if struct.unpack_from('<I', data, ITEM_OWNER)[0] == player.unit_id:
                 yield unit, data
 
+    @batched('hands')
     def hands(self) -> tuple[str, ...]:
         """Base codes of what the character holds in the weapon set in hand, a Call to Arms as CTA_CODE; () when
         unreadable."""
@@ -638,6 +682,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return ()
 
+    @batched('cta')
     def cta(self) -> bool | None:
         """Whether a Call to Arms (`gives_orders`) is worn in either weapon set, read again every CTA_SECONDS; None when
         unreadable. Its skills are on keys only while it is in hand (the player, 23:40 on 2026-10-17: "swap weapon and
@@ -662,6 +707,7 @@ class GameMemory:
             found = self.orders_of[unit['unit_id']] = gives_orders(stats)
         return found
 
+    @batched('teleport')
     def teleport(self) -> Teleport | None:
         """The worn staff with Teleport charges, in either weapon set; None without one, when unreadable, and when
         Teleport is a skill of the character's own (`own_teleport`): a staff in the other set is not swapped in for it
@@ -683,6 +729,7 @@ class GameMemory:
             return None
         return None
 
+    @batched('own teleport')
     def own_teleport(self) -> bool | None:
         """Whether Teleport is a skill of the character's own: a worn item outside the other weapon set gives it
         (Enigma's "+1 to Teleport"), not charges; None when unreadable."""
@@ -693,6 +740,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
 
+    @batched('worn skills')
     def worn_skills(self) -> frozenset[int] | None:
         """The skills of the character's own the worn items outside the other weapon set give (`given_skills`): Teleport
         (54) from Enigma, Town Portal (411) from the Sling (macros/portal.py `portal_source`). An unreadable look gives
@@ -705,6 +753,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return self.worn_skills_of if self.worn_held is not None else None
 
+    @batched('wear')
     def wear(self) -> Wear | None:
         """The worn item with the least of its durability left (`least_worn`); None with none, or when unreadable."""
         if TELEPORT_STATS is None:
@@ -781,6 +830,7 @@ class GameMemory:
             found.append(hex(DATA_RVA + at))
         return found
 
+    @batched('place')
     def place(self) -> tuple[str | None, int | None]:
         """(game name, level) for the journey: no name out of a game, no level when unreadable."""
         if self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)[IN_GAME] != 1:
@@ -800,7 +850,27 @@ class GameMemory:
         """The game as it is now. `light`: without the monsters and the doors, for a step that only
         asks where the character is and what it does. A teleport step looked at the game about six
         times before its key, 54 to 96 ms in all with nothing else in the way (22:11 on 2026-10-11),
-        and every look walked all the monsters."""
+        and every look walked all the monsters. Each kind of look is one replayed batch (`batched`)."""
+        return self.passed_doors(self.raw_world(light))
+
+    def raw_world(self, light: bool = False) -> World:
+        """`world` before the doors passed are marked (`passed_doors`): what the frame reader's process publishes, the
+        doors marked by the run that takes it (game/frames.py, 2026-10-23)."""
+        if self.replay is None:
+            return self._world(light)
+        with self.replay.pass_of('light look' if light else 'look'):
+            return self._world(light)
+
+    def tick_ms(self) -> tuple[int, int] | None:
+        """(the last whole tick's time, the client's time now), ms of the game's clock (`tick`: +0x0C and +0x08 of the
+        clock object; seen to hold in the takes of 2026-10-23: +0x0C steps by 40); None unread."""
+        raw = self.tick()
+        if raw is None or len(raw) < 0x10:
+            return None
+        now, tick = struct.unpack_from('<II', raw, 0x08)
+        return tick, now
+
+    def _world(self, light: bool) -> World:
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)
         in_game = panels[IN_GAME] == 1
         player, monsters, doors, dead = None, (), (), frozenset()
@@ -812,7 +882,7 @@ class GameMemory:
                     doors = self._doors() if player is not None else ()
             except OSError, ValueError, struct.error:
                 player, monsters, doors, dead = None, (), (), frozenset()
-        return World(
+        world = World(
             in_game=in_game,
             open_panels=tuple(name for name, offset in OPEN_PANELS.items() if panels[offset] == 1),
             game_name=decode_name(self.read(self.base + GAME_NAME_RVA, GAME_NAME_SIZE)),
@@ -825,3 +895,16 @@ class GameMemory:
             dead=dead,
             show_items=panels[SHOW_ITEMS] == 1,
         )
+        return world
+
+    def passed_doors(self, world: World) -> World:
+        """The world with the doors read closed that a live hostile or the character stood inside this level marked
+        passed (levels/doors.py `PassedDoors`). Every look with the character tells the memory its level, a light one
+        too, so a level left and come back to starts afresh."""
+        player = world.player
+        if player is None:
+            return world
+        standing = [(player.x, player.y)]
+        standing += [(m.x, m.y) for m in world.monsters if not m.ally and m.owner == NO_OWNER]
+        doors = self.passed.seen((world.game_name, player.unit_id, player.area), world.doors, standing)
+        return world if doors == world.doors else replace(world, doors=doors)

@@ -15,14 +15,16 @@ Rulings and evidence: history/visit.md.
 """
 
 from collections import Counter
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
+from typing import Any
 
 from inventory_tracking.common import LOG
-from inventory_tracking.game.records import Carried, Pack, StashView
+from inventory_tracking.game.records import Carried, Pack, StashView, World
 from inventory_tracking.game.stash import full_of
 from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.levels.presets import display_name
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros import visitlog
 from inventory_tracking.macros.act import until
@@ -47,10 +49,12 @@ from inventory_tracking.macros.cube import (
     opened,
     perfect_of,
     rune_slot,
+    stash_only,
     stash_transmute,
+    tidy,
     unpack,
 )
-from inventory_tracking.macros.engine import Run, protected
+from inventory_tracking.macros.engine import Run, Strayed, protected
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.repair import (
     HALBU,
@@ -98,6 +102,7 @@ from inventory_tracking.macros.stash import (
     tab_point,
     unload,
 )
+from inventory_tracking.macros.terrorize import SHARDS
 from inventory_tracking.macros.town import (
     BER,
     GEM_TRANSMUTES,
@@ -128,7 +133,18 @@ from inventory_tracking.macros.visitlog import Recorder, Snapshot
 from inventory_tracking.macros.waypoint import panel_point
 
 
-__all__ = ['FORTRESS_MAP', 'Hands', 'Remembered', 'TownMap', 'Visited', 'note_view', 'stash_stop', 'visit']
+__all__ = [
+    'FORTRESS_MAP',
+    'TOWN_ONLY',
+    'Hands',
+    'Remembered',
+    'TownMap',
+    'Visited',
+    'in_town',
+    'note_view',
+    'stash_stop',
+    'visit',
+]
 
 Rect = tuple[int, int, int, int]
 
@@ -587,6 +603,58 @@ def _decided(carried: Sequence[Carried], junk: frozenset[int]) -> frozenset[int]
     return frozenset(found)
 
 
+# The town's decision through the one entry point (loot/assess.py TOWN, design.md §10.4 step 5; the player, 2026-10-23:
+# "go ahead. I want to have one place that decides pickups/value"): the carried items judged together, as api.py
+# `town_sold` judges them (`town_verdicts` under `town_kept`), and the last guard over them. Offline before the switch:
+# tests/inventory_tracking/loot/test_assess_replay.py (39 real reads, one by one and as one visit) and test_visit.py
+# both ways, 0 differ; `protected`, the stock rules and Jamella stay here. The old decision is logged beside the new
+# one where they differ ("Macro: loot: assess: town: ..."). False: api.py `town_sold` (legacy until ASSESS_TOWN is
+# proven)
+ASSESS_TOWN = True
+
+
+def town_assessed(
+    carried: Sequence[Carried], kept: dict[int, tuple[str, str]] | None = None, assessor: Any = None
+) -> dict[int, tuple[str, str]]:
+    """The carried items (inventory and cube) the town visit sells, unit -> (title, the rule and why), by the entry
+    point at TOWN (`assessor`: loot/assess.py `live()` by default, the identify worker's reads and the collection's
+    copies), each judged as the loop's (the player's are `protected`'s, after). `kept`, when given, gets the give-ups
+    a town guard keeps, unit -> (title, the decision and the guard), for the visit's log; as api.py `town_sold`."""
+    from inventory_tracking.loot.assess import GUARD, NEVER_TRASH, Outcome, Site, carried_facts, live
+    from inventory_tracking.loot.facts import Owner
+
+    found = assessor if assessor is not None else live()
+    book = getattr(found.appraiser, 'book', None)
+    facts = [carried_facts(item, Owner.LOOP, book) if book is not None else carried_facts(item, Owner.LOOP)
+             for item in carried]  # fmt: skip
+    sold: dict[int, tuple[str, str]] = {}
+    for assessment in found.assess_all(facts, Site.TOWN):
+        unit, title = assessment.facts.unit_id, assessment.facts.title()
+        if assessment.outcome == Outcome.VENDOR:
+            sold[unit] = (title, f'{assessment.rule} {assessment.why}')
+        elif kept is not None and assessment.rule in (GUARD, NEVER_TRASH) and assessment.decision is not None:
+            kept[unit] = (title, f'{assessment.decision.said()}; {assessment.guard}')
+    return sold
+
+
+def _town_shadow(carried: Sequence[Carried], sold: Mapping[int, tuple[str, str]]) -> None:
+    """The old town decision (api.py `town_sold`) beside the entry point's, one line per item where they differ
+    (loot/assess.py `shadow`). Never raises into the visit."""
+    try:
+        from inventory_tracking.loot import api as loot_api
+        from inventory_tracking.loot.assess import Site, shadow
+
+        old = loot_api.town_sold(carried, frozenset())
+        for item in carried:
+            new_sold, old_sold = item.unit_id in sold, item.unit_id in old
+            title = (sold.get(item.unit_id) or old.get(item.unit_id) or (_name(item), ''))[0]
+            word = {True: 'sell', False: 'keep'}
+            shadow((visitlog.session_directory(), item.unit_id, new_sold), Site.TOWN, title, word[new_sold],
+                   word[old_sold], new_decides=True)  # fmt: skip
+    except Exception as error:  # never into the visit
+        LOG.debug('Macro: loot: assess: town not compared: %s', error)
+
+
 def _town_decided(hands: Hands, carried: Sequence[Carried]) -> frozenset[int]:
     """M6 (loot/keep.py TOWN_DECIDES; the player, 2026-10-20 16:55: "go ahead with the merge agent"): the loop's items
     the keep rules give up under the town's guards (loot/api.py `town_sold`), each said, after the identify worker
@@ -600,7 +668,11 @@ def _town_decided(hands: Hands, carried: Sequence[Carried]) -> frozenset[int]:
         if units and hands.appraise is not None:
             hands.appraise(units)
         kept: dict[int, tuple[str, str]] = {}
-        found = loot_api.town_sold(carried, frozenset(), None, None, kept)
+        if ASSESS_TOWN:
+            found = town_assessed(carried, kept)
+            _town_shadow(carried, found)
+        else:
+            found = loot_api.town_sold(carried, frozenset(), None, None, kept)
     except Exception as error:  # the reads, the KB or the collection failing: nothing sold
         LOG.info('Macro: town visit: the keep rules failed (%s: %s): nothing sold', type(error).__name__, error)
         return frozenset()
@@ -856,6 +928,17 @@ JAMELLA_AT_NEED = True
 # gems stayed in the cube (short of the contract). Six in a game (01:26, game 1) left it clickable. Past DOWN_A_GAME
 # items put down in one game Jamella sells the junk instead (as before JAMELLA_AT_NEED). None: no cap
 DOWN_A_GAME: int | None = 6
+# Jamella only when needed, not at a count (lever 4 of rca/2026-10-22/exp-hour-findings.md: 19 of 25 Jamella stops of
+# the 10-22 shard game, 13.1 s each, were DOWN_A_GAME's). The six were set at 01:26/02:04 on 2026-10-21, before the
+# stash's click got its labels-off fallback (stash.py LABELS_OFF_AT_THE_STASH, 04:10 that day; live since, e.g. three
+# times in one service at 22:07-22:21 on 2026-10-22, each opening the stash ~1.1 s later); the townsfolk's click has one
+# now too (shop.py LABELS_OFF_AT_NPC, 2026-10-23: Deckard Cain walks up to the stash's pile, (4, ...) under the pointer
+# at 16:05:00 on 2026-10-21). With both clicks guarded the cap is DOWN_GUARDED_MOST: a pile lays its labels out in one
+# stack up from its ground, ~10-13 classic pixels each (pile.py `sweep_path`), and the character stands at the middle of
+# the 600-high view, so about 24 of them reach the view's top; past that the stack spreads sideways, where the visit's
+# unguarded walk clicks land (a label clicked picks its junk up again). False: DOWN_A_GAME as before
+DOWN_GUARDED = True
+DOWN_GUARDED_MOST = 24
 _down = {'game': '', 'items': 0}  # the game the count is of (World.game_name) and the items put down in it
 JAMELLA_IDENTIFIES = 10  # "under about 10": a visit-to-visit use is about 7 scrolls (the findings, act 4 tome reads)
 # Low gold: under what a durability-only repair wants carried (repair.py WEAR_CARRIED, 200k). The staff's repairs cost
@@ -868,6 +951,19 @@ JAMELLA_GOLD_LOW = WEAR_CARRIED
 # leaves unsold is put down at Jamella's (DROP_CAPPED_JUNK), so the session has its free cells. False: the session
 # first, her sales then made under the cap
 GAMBLE_LAST = True
+# SHARD_TO_CUBE (2026-10-23, 03:56:25, cyberg46: "trade session done (short of the contract: block 2x4 taken)"): the
+# Western Worldstone Shard kept for the next game's act 1 (actloop.py OWN_CARRIED; its stash stack full) lay at (3, 3),
+# in the 2 x 4 block the player asked free ("we should have 2x4 inventory space", 2026-10-18). True: with the block
+# taken, the loop's carried shards go into the cube at the visit's end and wait there for their act, named, no miss.
+# False: left in the inventory, as before.
+SHARD_TO_CUBE = True
+
+
+def _shards(items) -> list[Carried]:
+    """The Worldstone Shards among `items` (terrorize.py SHARDS)."""
+    return [item for item in items if item.txt in SHARDS]
+
+
 STOPS = ('cain', 'stash', 'gamble', 'jamella', 'halbu', 'walk')  # the report's order (logwords.py VISIT_STOPS)
 # The loop's potions in the inventory (the belt full, or a walk's click on a label) and in the cube are put down in
 # town at the visit's start, not stashed as K1 keepers (the player, 2026-10-21 ~00:55: "we store these potions in
@@ -885,6 +981,17 @@ POTIONS_WALK = 1
 # picked up again by the walk back to it and held the 2x4 block ("1 keepers carried (normal Super Healing Potion at
 # (4, 3))", 13:45:01). False: put down as before
 POTIONS_TO_BELT = True
+
+
+def down_most() -> int | None:
+    """The items put down in town a game before Jamella sells the junk instead: DOWN_GUARDED_MOST while the stash's and
+    the townsfolk's clicks hide the labels they find in the way (DOWN_GUARDED), else DOWN_A_GAME; None: no cap."""
+    from inventory_tracking.macros.shop import LABELS_OFF_AT_NPC
+    from inventory_tracking.macros.stash import LABELS_OFF_AT_THE_STASH
+
+    if DOWN_GUARDED and DOWN_A_GAME is not None and LABELS_OFF_AT_THE_STASH and LABELS_OFF_AT_NPC:
+        return max(DOWN_A_GAME, DOWN_GUARDED_MOST)
+    return DOWN_A_GAME
 
 
 def never_down(item: Carried) -> bool:
@@ -1283,6 +1390,71 @@ def _note(
 # Jamella before the stash for a cube keeper stranded by junk: off until the player rules (asked 2026-10-18 15:06)
 JAMELLA_FIRST = False
 
+# 15:31:35.97 on 2026-10-23 (rca/2026-10-23/visit-portal-findings.md): the walk click toward Deckard Cain took the
+# character back through its own Town Portal to the River of Flame; the visit went on there for 5 s among five hostiles
+# 23-30 away (the tome, the cube opened, a stash walk, a Worldstone Shard put down at (7827, 6608)). The visit's start
+# alone checked the town. True: the whole visit is confined to its town (engine.py `Run.confined`): the first look
+# out of it raises `Strayed` (cause 'town') through every stop, so nothing more is identified, stashed, sold, put down
+# or gambled; the loop's own panels are closed and the loop makes its leg again from where the character is (stops.py
+# LEFT_TOWN_AGAIN). False: as before
+TOWN_ONLY = True
+LEFT_TOWN_LOOK = 1.0  # seconds a look after an Abort out of the visit waits for the character to be read (a load)
+
+
+def _out_of(area: int, what: str) -> Callable[[World], str | None]:
+    """The confine of a town routine `what` to `area`: why a look shows the character out of it; None in it, or not
+    read (a load: the next look tells)."""
+
+    def out(world: World) -> str | None:
+        player = world.player
+        if not world.in_game or player is None or player.area == area:
+            return None
+        return f'{what}: the character is in {display_name(player.area)}, not in {display_name(area)}'
+
+    return out
+
+
+def _strayed(run: Run, out: Callable[[World], str | None]) -> Strayed | None:
+    """A look (the confine lifted) for whether the character is out of the town; `Strayed` if so, else None. A look
+    with no character waits LEFT_TOWN_LOOK for one."""
+    try:
+        world = run.world()
+        if world.player is None:
+            world = run.seen(lambda w: w.player is not None, LEFT_TOWN_LOOK) or world
+    except Abort:
+        return None
+    why = out(world)
+    return Strayed(why, cause='town') if why is not None else None
+
+
+@contextmanager
+def in_town(run: Run, area: int, what: str) -> Iterator[None]:
+    """TOWN_ONLY: the town routine `what` within is confined to `area`: `Strayed` (cause 'town') at the first look out
+    of it, before any act of the routine, and for any Abort out of the block with the character out of it (a step that
+    turned the stop into its own Abort); the loop's own panels are closed before it is raised. A look at the start
+    raises it at once."""
+    if not TOWN_ONLY:
+        yield
+        return
+    out = _out_of(area, what)
+    try:
+        if (why := out(run.world())) is not None:
+            raise Strayed(why, cause='town')
+        with run.confined(out, 'town'):
+            yield
+    except Abort as stop:
+        strayed = stop if isinstance(stop, Strayed) else _strayed(run, out)
+        if strayed is None:
+            raise
+        try:
+            tidy(run, run.world())  # the inventory, cube or stash the routine had open
+        except Abort as again:
+            LOG.info('Macro: town: the panels not closed: %s', again)
+        LOG.info('Macro: town: %s: stopped, nothing more done outside town', strayed)
+        if strayed is stop:
+            raise
+        raise strayed from stop
+
 
 def _stranded(run: Run, hands: Hands, own: frozenset[Cell], junk: frozenset[int], needs: Needs) -> tuple[Carried, ...]:
     """The cube keepers the planned stop leaves in that selling the junk first would let out; none with the stash
@@ -1309,9 +1481,26 @@ def visit(
 ) -> Visited:
     """One town visit: Cain, the stash, Jamella, Halbu, the exit, each once and only with something to do. `full`: the
     full stacks last known, for an unread stash; `waited`: a repair may be tried. Mouse mode only. `Abort` from a stop
-    that cannot go on."""
+    that cannot go on; `Strayed` (cause 'town') once the character is out of the town (`in_town`)."""
     if run.pad is not None:
         raise Abort('the town visit needs mouse mode')
+    with in_town(run, town.area, 'the town visit'):
+        return _visit(run, hands, needs, own, exit, town, full=full, waited=waited, memory=memory)
+
+
+def _visit(
+    run: Run,
+    hands: Hands,
+    needs: Needs,
+    own: frozenset[Cell],
+    exit: Exit,
+    town: TownMap,
+    *,
+    full: frozenset[int],
+    waited: bool,
+    memory: Remembered | None,
+) -> Visited:
+    """`visit`'s stops, in its town (`in_town`)."""
     world = run.world()
     if world.player is None or world.player.area != town.area:
         raise Abort('the town visit is not in its town')
@@ -1434,7 +1623,8 @@ def visit(
         game = run.world().game_name or ''
         if _down['game'] != game:
             _down['game'], _down['items'] = game, 0
-        if DOWN_A_GAME is not None and _down['items'] + len(junked) + len(stacked_down) > DOWN_A_GAME:
+        most = down_most()
+        if most is not None and _down['items'] + len(junked) + len(stacked_down) > most:
             LOG.info('Macro: town visit: Jamella needed (%d items put down in this game already, %d more would cover '
                      'the stash): the junk sold', _down['items'], len(junked) + len(stacked_down))  # fmt: skip
             return False
@@ -1506,6 +1696,17 @@ def visit(
             if cut(run, stop):
                 raise
             LOG.info('Macro: inventory: the keys not arranged: %s', stop)
+    if SHARD_TO_CUBE and key is not None and not pack.inventory.has_room(needs.block) and _shards(loot(pack, own)):
+        # A shard kept for the next game's act (actloop.py OWN_CARRIED) out of the free block, into the cube: the
+        # act takes it out again (actloop.py `carried_own`, terrorize.py `use_carried`)
+        try:
+            moved = stash_only(run, key, own, lambda item: item.txt in SHARDS)
+            LOG.info('Macro: inventory: %d kept shard(s) put in the cube, out of the %dx%d block', moved, *needs.block)
+        except Abort as stop:
+            if cut(run, stop):
+                raise
+            LOG.info('Macro: inventory: the kept shards not put in the cube: %s', stop)
+        pack = _pack(run)
     # 4. The exit: the waypoint walked to from Jamella's or Halbu's (out of its sight there); none when the game is left
     if exit != Exit.LEAVE and (late or repaired or gambled):
         with _timed(run, took, 'walk'):
@@ -1529,6 +1730,8 @@ def visit(
     homeless_units = {i.unit_id for planned in plans for i in planned.full}
     waits = {i.unit_id for planned in plans for i in planned.waits} - homeless_units
     deferred = [i for i in pack.in_cube if i.unit_id in waits] if KEEPER_IN_CUBE else []
+    if SHARD_TO_CUBE:
+        deferred += [i for i in _shards(pack.in_cube) if i not in deferred]  # waits for its act (OWN_CARRIED)
     for name in named(deferred):
         LOG.info('Macro: town visit: %s waits in the cube for the next visit', name)
     done = contract(pack, own, needs, junk=junk, full=stacks, restocked=shop, parked_left=parked_left,

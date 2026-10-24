@@ -17,11 +17,12 @@ from typing import Self
 from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Jump
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Target
+from inventory_tracking.macros import hopway, teleport
 from inventory_tracking.macros.build import PAD_SLACK, Intent, JumpSource, Leg, MoveFacts, NoWay, Point, Step
 from inventory_tracking.macros.pad import TELEPORT_REACH
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT
-from inventory_tracking.macros.teleport import FAR_DISTRUST, MOVED, Way, landing, scaled, way_for
+from inventory_tracking.macros.teleport import FAR_DISTRUST, MOVED, Way, scaled
 from inventory_tracking.macros.travel import (
     JUMP_LEAST,
     JUMP_REACH,
@@ -65,6 +66,11 @@ WALKS = 'walk'
 
 NO_LANDING = 'no footing in view brings the character nearer by hops'
 NO_HOP_WAY = 'no way of hops leads over the rooms to the goal'
+# 2026-10-23 (rca/2026-10-23/realtime-2-findings.md): the hop's potential grown lazily, only as far as the character's
+# own way (macros/hopway.py `LazyWay`: the same Dijkstra paused, the same landing; 55 -> 7 ms per new goal on a
+# 32-80 room level). A goal that follows a monster is a new Target nearly every look, and the whole potential was
+# rebuilt each time ("the act asked for", "the goal's way": 90 of 97 over-budget looks). False: teleport.py `Way`.
+LAZY_HOPS = True  # on 2026-10-23 ~22:00: realtime-2 gate no worse (2440 plays + slow host k 1 and 1.5)
 FAR_WAY = 'far way'  # `NoWay.distrust` key of a hop's far potential, with the goal's tile
 
 
@@ -90,7 +96,7 @@ def hops(facts: MoveFacts, goal: Point, intent: Intent) -> bool:
     return staff is None or (staff.charges >= max(intent.reserve, 1) and (staff.in_hand or intent.may_swap))
 
 
-def hop_way(facts: MoveFacts, goal: Point) -> tuple[Target, Way, object]:
+def hop_way(facts: MoveFacts, goal: Point) -> tuple[Target, Way | hopway.LazyWay, object]:
     """The hop potential to `goal` over the rooms (teleport.py `Way`) and its distrust key: the far one
     unless it gave no landing within FAR_DISTRUST (`MoveFacts.distrusted`), then the near one (key None)."""
     tile = (goal[0] / TILE_UNITS, goal[1] / TILE_UNITS)
@@ -98,7 +104,8 @@ def hop_way(facts: MoveFacts, goal: Point) -> tuple[Target, Way, object]:
     target = Target(facts.area, facts.rooms, tile, 'the goal', 'hunt', False, grids)
     key = (FAR_WAY, facts.area, math.floor(tile[0]), math.floor(tile[1]))
     far = facts.now - facts.distrusted.get(key, -math.inf) >= FAR_DISTRUST
-    return target, way_for(target, Viewport(facts.aspect), far), key if far else None
+    found = (hopway.way_for if LAZY_HOPS else teleport.way_for)(target, Viewport(facts.aspect), far)
+    return target, found, key if far else None
 
 
 def hops_left(facts: MoveFacts, goal: Point) -> float:
@@ -125,7 +132,8 @@ def hop_leg(facts: MoveFacts, goal: Point, intent: Intent, spare: tuple[Jump, ..
     start = (here[0] / TILE_UNITS, here[1] / TILE_UNITS)
     now = way.from_here(start)
     ring = TELEPORT_RING if facts.pad else None
-    found = landing(target, Stand(*here), way, facts.aspect, ring) if now < math.inf else None  # type: ignore[arg-type]
+    land = hopway.landing if isinstance(way, hopway.LazyWay) else teleport.landing
+    found = land(target, Stand(*here), way, facts.aspect, ring) if now < math.inf else None  # type: ignore[arg-type]
     if found is None:
         if far is not None:
             return NoWay(f'{NO_LANDING} (the far way)', distrust=far)

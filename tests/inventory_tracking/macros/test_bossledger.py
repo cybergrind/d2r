@@ -140,3 +140,49 @@ def test_nothing_else_keeps_boss_state():
     for path in MACROS.rglob('*.py'):
         found = names.findall(path.read_text(encoding='utf-8'))
         assert not found, (path, found)
+
+
+# --- BOSS_ABSENT (2026-10-22, game cyberg65, Tal Rasha's Tomb 67; rca/2026-10-22/walled-boss-findings.md) ---
+
+TOMB = 67
+KAA = 'Ancient Kaa the Soulless'
+KAA_UNIT = 1834794757
+
+
+def kaa_ledger() -> tuple[BossLedger, ZoneTracker]:
+    """Kaa read from the tomb's rooms at (22685, 6891) and taken for his unit at 19:56:13."""
+    found, tracker = ledger()
+    tracker.boss_note(TOMB, KAA, place=(22685.0, 6891.0), unit=KAA_UNIT, seen=True, by='rooms')
+    return found, tracker
+
+
+def test_a_boss_looked_for_and_not_there_is_owed_no_more_until_its_unit_is_seen_again():
+    found, _ = kaa_ledger()
+    (kaa,) = found.alive_in(TOMB)
+    found.absent(kaa, 'not at its last place (22685, 6891), 15 away: the client holds no unit 1834794757')
+    assert found.alive_in(TOMB) == []  # the game's obligations: Kaa is no more owed
+    (gone,) = found.standing((TOMB,))
+    assert gone.gone.startswith('not at its last place')
+    found.sight(TOMB, [Monster(KAA_UNIT, 103, 1, 22660.0, 6900.0, flags=SUPER_FLAG)])  # seen again: owed again
+    (back,) = found.alive_in(TOMB)
+    assert (back.gone, back.unit) == ('', KAA_UNIT)
+
+
+def test_a_gone_spot_boss_is_taken_again_by_a_super_unique_near_its_spot():
+    found, tracker = ledger()
+    tracker.boss_note(TOMB, KAA, place=(22685.0, 6891.0), by='rooms')
+    (kaa,) = found.alive_in(TOMB)
+    found.absent(kaa, 'its spot reached')
+    found.sight(TOMB, [Monster(42, 103, 1, 22690.0, 6880.0, flags=SUPER_FLAG)])
+    (back,) = found.alive_in(TOMB)
+    assert (back.unit, back.gone) == (42, '')
+
+
+def test_with_boss_absent_off_a_gone_boss_is_still_owed(monkeypatch):
+    from inventory_tracking.macros import bossledger
+
+    found, _ = kaa_ledger()
+    monkeypatch.setattr(bossledger, 'BOSS_ABSENT', False)
+    (kaa,) = found.alive_in(TOMB)
+    found.absent(kaa, 'gone')
+    assert [boss.name for boss in found.alive_in(TOMB)] == [KAA]

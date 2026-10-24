@@ -20,6 +20,13 @@ _EXPORTS = {
     'warm_triage': ('pricing.triage.runtime', 'warm'),
     'triage_enabled': ('pricing.triage.runtime', 'enabled'),
     'triage_revision': ('pricing.triage.engine', 'revision'),
+    # The triage engine on one item and its tables, and a plain base's facets (the offline base-table builders)
+    'triage_assess': ('pricing.triage.engine', 'assess'),
+    'triage_tables': ('pricing.triage.runtime', 'TABLES'),
+    'base_facets': ('pricing.triage.adapters', 'base_facets'),
+    # Plain-base price evidence per facet (fills, asks, bids; the allowlist builder) and a plain base's triage item
+    'base_evidence': ('pricing.knowledge.base_evidence', 'base_evidence'),
+    'plain_base_item': ('pricing.knowledge.base_evidence', 'plain_item'),
     # Detail engine over one published (or in-memory) KB generation
     'retrieve_draft': ('pricing.knowledge.pipeline', 'retrieve_draft'),
     'DEFAULT_STORE': ('pricing.knowledge.publication', 'DEFAULT_STORE'),
@@ -94,6 +101,7 @@ if TYPE_CHECKING:
         evaluate as evaluate_predicate,
         validate as validate_predicate,
     )
+    from pricing.knowledge.base_evidence import base_evidence, plain_item as plain_base_item
     from pricing.knowledge.definition_store import catalog, fingerprint as definitions_fingerprint
     from pricing.knowledge.definitions import build_definitions
     from pricing.knowledge.localization import merge_game_strings
@@ -105,10 +113,12 @@ if TYPE_CHECKING:
     from pricing.knowledge.published_runtime import LoadedRuntime, load_runtime, published_snapshot
     from pricing.knowledge.refresh import atomic_json
     from pricing.knowledge.seasonal_variants import select_scalar_candidates
-    from pricing.triage.engine import revision as triage_revision
+    from pricing.triage.adapters import base_facets
+    from pricing.triage.engine import assess as triage_assess, revision as triage_revision
     from pricing.triage.guide_cases import report as guide_report
     from pricing.triage.replay import report as triage_report
     from pricing.triage.runtime import (
+        TABLES as triage_tables,
         enabled as triage_enabled,
         fast_retrieve as fast_triage,
         retrieve as triage,
@@ -124,6 +134,8 @@ __all__ = [
     'LoadedRuntime',
     'Truth',
     'atomic_json',
+    'base_evidence',
+    'base_facets',
     'base_tier',
     'build_definitions',
     'capture_bounds',
@@ -145,6 +157,7 @@ __all__ = [
     'named_upgrade_variants',
     'native_socket_roll',
     'normalize',
+    'plain_base_item',
     'pointer_generation',
     'published_generation',
     'published_snapshot',
@@ -159,9 +172,11 @@ __all__ = [
     'socket_state',
     'softcore_watches',
     'triage',
+    'triage_assess',
     'triage_enabled',
     'triage_report',
     'triage_revision',
+    'triage_tables',
     'validate_predicate',
     'warm_triage',
 ]

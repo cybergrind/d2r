@@ -287,6 +287,23 @@ def unit_record(probe, unit, *, dynamic):
     return record
 
 
+# Tal Rasha's Tombs (66-72). D2MOO D2DrlgStrc (D2R's ActMisc) holds the staff (true) tomb's level and the boss (Kaa)
+# tomb's, two distinct rolls of 66 + n % 7 side by side (DrlgDrlg.cpp DRLG_AllocDrlg, D2DrlgDrlg.h 0x3F8/0x3FC in
+# 1.10); their D2R offset is not known. An act 2 dump keeps every adjacent pair of distinct tomb levels in ActMisc, to
+# be matched with the tomb the Orifice was seen in (rca/2026-10-22/tombs-findings.md)
+TOMB_LEVELS = range(66, 73)
+
+
+def tomb_pairs(misc: bytes) -> dict[str, list[int]]:
+    """Each 4-aligned offset (hex) of `misc` holding two adjacent distinct tomb levels (`TOMB_LEVELS`)."""
+    pairs = {}
+    for offset in range(0, len(misc) - 7, 4):
+        first, second = struct.unpack_from('<II', misc, offset)
+        if first in TOMB_LEVELS and second in TOMB_LEVELS and first != second:
+            pairs[f'{offset:#x}'] = [first, second]
+    return pairs
+
+
 def act_record(probe, act):
     data = probe.get(act, 0x80)
     if data is None:
@@ -305,6 +322,7 @@ def act_record(probe, act):
             end_seed_hash=u32(misc, 0x868),
             misc_act_matches=u64(misc, 0x860) == act,
             first_level=u64(misc, 0x870),
+            tomb_pairs=tomb_pairs(misc),
         )
     return result
 

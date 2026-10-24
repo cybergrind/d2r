@@ -68,3 +68,7 @@ def test_other_or_unverified_monsters_cannot_be_merc_owners(failure):
     else:
         group['units'].append(dict(merc))
     assert resolve_selection(sample, BASE)['status'] == 'unavailable'
+
+
+# The saved captures here were recorded on the build before the 2026-10-23 patch.
+pytestmark = pytest.mark.usefixtures('old_build_layout')

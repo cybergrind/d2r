@@ -636,3 +636,77 @@ def test_with_no_free_aim_or_the_switch_off_the_walk_is_clicked_where_aimed(monk
     step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, [])
 
     assert play.picked == ['a super healing potion']
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_a_walk_click_the_character_never_sets_off_on_is_given_up_once_it_stood_free(monkeypatch, on):
+    # 2026-10-23: walks that set off do so within 0.058 s of the click (p99 of 1104); the 322 that never did each stood
+    # out the whole STEP_WALK_SECONDS, 34 of them with a hostile within 3 (rca/2026-10-23/pause-findings.md)
+    monkeypatch.setattr(travel_module, 'WALK_NO_START', on)
+    play = Game(world())
+    run = play.run()
+    play.swallowed_clicks = 1
+    react, clicked = play.keys.on_event, []
+
+    def click(event):
+        if event[0] == 'click':
+            clicked.append(play.clock.now)
+        return react(event)
+
+    play.keys.on_event = click
+    with pytest.raises(Abort, match='the character did not move'):
+        step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, [])
+    waited = play.clock.now - clicked[0]
+    if on:
+        assert travel_module.WALK_START_SECONDS <= waited < travel_module.WALK_START_SECONDS + 0.1
+    else:
+        assert waited >= travel_module.STEP_WALK_SECONDS
+
+
+def test_a_block_after_a_walk_click_starts_the_count_again_at_its_end(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_NO_START', True)
+    play = Game(world())
+    run = play.run()
+    play.swallowed_clicks = 1
+    play.world = replace(play.world, player=replace(play.character, mode=9))  # blocking until 0.3 s on
+    play.later(0.3, lambda: setattr(play, 'world', replace(play.world, player=replace(play.character, mode=1))))
+    began = play.clock.now
+    with pytest.raises(Abort, match='the character did not move'):
+        step_walk(run, (5010.0, 5000.0), replace(play.character, mode=1), ASPECT, [])
+    assert 0.3 + travel_module.WALK_START_SECONDS <= play.clock.now - began < travel_module.STEP_WALK_SECONDS
+
+
+def test_a_walk_set_off_is_waited_for_its_move(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_NO_START', True)
+    play = Game(world())
+    run = play.run()
+    play.swallowed_clicks = 1
+    play.world = replace(play.world, player=replace(play.character, mode=3))  # running, its move 0.4 s on
+
+    def arrive():
+        play.world = replace(play.world, player=replace(play.character, x=5010.0, mode=1))
+
+    play.later(0.4, arrive)
+    assert step_walk(run, (5010.0, 5000.0), replace(play.character, mode=1), ASPECT, []) == 0.0
+
+
+def test_a_walk_a_body_stopped_short_before_the_first_look_is_waited_for_as_before(monkeypatch):
+    # Tower Cellar 5 (2026-10-11, the take's 3.35-3.43 s): the click set the character off and a body stopped it 1.99
+    # units on, short of MOVED, before the macro's first look; that walk is not a click the game ignored
+    monkeypatch.setattr(travel_module, 'WALK_NO_START', True)
+    play = Game(world())
+    run = play.run()
+    play.swallowed_clicks = 1
+    start = play.character
+    play.world = replace(play.world, player=replace(start, x=start.x + 1.99))  # set off and stopped already
+    react, clicked = play.keys.on_event, []
+
+    def click(event):
+        if event[0] == 'click':
+            clicked.append(play.clock.now)
+        return react(event)
+
+    play.keys.on_event = click
+    with pytest.raises(Abort, match='the character did not move'):
+        step_walk(run, (5010.0, 5000.0), start, ASPECT, [])
+    assert play.clock.now - clicked[0] >= travel_module.STEP_WALK_SECONDS  # the whole wait, as before

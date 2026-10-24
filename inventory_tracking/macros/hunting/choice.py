@@ -7,11 +7,12 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from inventory_tracking.automation.priority import reserve
+from inventory_tracking.combat import revivers
 from inventory_tracking.combat.pack import PACK_SEEN
 from inventory_tracking.combat.threats import manaburn
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
-from inventory_tracking.game.layout import STRIKING_MODES
+from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER, STRIKING_MODES
 from inventory_tracking.game.records import (
     GOLD,
     HEALING,
@@ -24,12 +25,14 @@ from inventory_tracking.game.records import (
     World,
     has_room,
 )
+from inventory_tracking.levels.exits import door_passage
 from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import agenda as goal_agenda, lootpolicy, route, supply, zonenav
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import (
+    BOSS_WAY,
     COVER,
     FULL_CLEAR,
     GROUPS_TAKEN,
@@ -39,6 +42,7 @@ from inventory_tracking.macros.agenda import (
     PICKUP as SIDE,
     PLUS,
     PLUS_WAY,
+    SKIPPED,
     TRANSIT,
     ZONE_LEFT,
     Leader,
@@ -52,6 +56,7 @@ from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
+    GUARD_NEAR,
     PICK_NEAR,
     PICK_REACH,
     PICK_UP,
@@ -177,7 +182,34 @@ HELD_STAYS = True
 # no exceptions to that"; Andariel seen 64 units off when Catacombs Level 4 was no longer terrorized (10-21 06:00:00,
 # rca/2026-10-22/boss-audit-findings.md §4 cause 6). False: the run ends at once, as before
 BOSS_ROTATION = True
-HELD_SAID: set[tuple[int, int]] = set()  # (drop, leader) the wait was said for
+# Such a level worked for its bosses alone (agenda.py BOSS_WAY; 2026-10-23, lever 2 of
+# rca/2026-10-22/exp-hour-findings.md: 20.2 min of the 10-22 shard game on plain monsters at 11k exp a minute against
+# 128k on terrorized ones, the tombs at 19:50-19:59 157 kills for 10k): no leader gone for, none fought on the way but
+# what strikes at the party (as a level only crossed, TRANSIT), the bosses of the game's ledger and the route's fight
+# still gone to and killed ("Kill every boss", the player, 2026-10-23). False: ON_THE_WAY, its leaders near too, as
+# before
+BOSSES_ONLY = True
+HELD_SAID: set[tuple[int, int]] = set()  # (drop, leader) the wait was said for; (drop, FIGHT_SAID) the fight's
+# POTION_HELD (2026-10-22, Sewers Level 1 21:05:10-21:05:53, take 20261022T180453Z-92, and the Disused Fane's tier 5
+# Herald 21:04:00-21:04:44, take 20261022T180330Z-95; rca/2026-10-22/potion-flipflop-findings.md): the belt's healing
+# potions gone to the mercenary's healer (8 rejuvenations kept, the life full), the run went from the fight to a super
+# healing potion and back at every look: 34 "worth its detour", 30 Teleports toward it, 9 Death Marks cast again after
+# the hops, while a Horadrim Ancient grew back 41 -> 81 of 128 and raised its Horror three times. From 21:05:33 the
+# detour went by turns to two potions 54 apart that were both left ("left: guarded 15 s"): 14 Teleports, no lasting
+# kill. Three paths chose a potion, each by its own rules: the near pick (the given-up ones left out), the far detour
+# (`scarce`: every potion remembered, left or waiting or not) and the held leader's wait (`wait_for_held`, which
+# `scarce` did not hear). True, one choice of the potion side goal:
+# - one ledger: a potion left (its tries spent, guarded past BLOCK_SECONDS, or given up by a knot of moves:
+#   judging.py STILL_BUDGET, `Hunter.side_left`) or waiting is out of the near pick and of the far detour alike;
+# - the fight first: while the fight is live (`fight_live`: a strike within FIGHT_LIVE s, a hostile within the strike's
+#   reach) gold and healing potions wait as for a held leader (HELD_STAYS), unless the life is under the safety's floor
+#   or the belt keeps no more than manaburn.KEPT_REJUVENATIONS rejuvenations (survival first, as HELD_STAYS);
+# - held: the far detour judged is kept at its next judging (4 * DECIDE_SECONDS) while it lies, is not left and the
+#   belt wants it; another takes it over only when more than agenda.HELD_REACH times nearer (HELD_GOALS' hysteresis).
+# False: the three paths as before.
+POTION_HELD = True
+FIGHT_LIVE = 3.0  # seconds since the fight's last strike that it is still on (its look-to-look gaps are 1-2 s)
+FIGHT_SAID = -1  # HELD_SAID's leader for the live fight's wait
 
 
 def held_in_reach(self: Hunter, here: Point, foes: Sequence[Monster]) -> int | None:
@@ -190,24 +222,64 @@ def held_in_reach(self: Hunter, here: Point, foes: Sequence[Monster]) -> int | N
     return unit if found is not None and math.dist(here, (found.x, found.y)) <= self.reach else None
 
 
-def wait_for_held(self: Hunter, loot: Loot, here: Point, foes: Sequence[Monster]) -> Loot:
-    """`loot` without the side goals that wait while a held leader lives in reach (HELD_STAYS), each said once."""
+def fight_live(self: Hunter, here: Point, foes: Sequence[Monster], now: float) -> int:
+    """POTION_HELD: the hostiles within the strike's reach while the fight is on (its last strike within FIGHT_LIVE
+    s); 0 else."""
+    if not POTION_HELD or now - self.struck_at > FIGHT_LIVE:
+        return 0
+    return sum(1 for m in foes if math.dist(here, (m.x, m.y)) <= self.reach)
+
+
+def survival_needs(self: Hunter, loot: Loot) -> bool:
+    """Whether a healing potion is the fight's life: the belt read with no more than manaburn.KEPT_REJUVENATIONS
+    rejuvenations, or (POTION_HELD) the life under the safety's floor. An unread belt waits for nothing."""
+    if not loot.belt_read:
+        return True
+    if on_belt(loot)[PotionType.REJUVENATION] <= manaburn.KEPT_REJUVENATIONS:
+        return True
+    floor = self.build.settings.safety.floor
+    return POTION_HELD and bool(loot.max_life) and 100.0 * loot.life < floor * loot.max_life
+
+
+def waiting_kinds(
+    self: Hunter, loot: Loot, here: Point, foes: Sequence[Monster], now: float | None = None
+) -> tuple[frozenset[str], int | None, int]:
+    """(the side goals' kinds that wait now, the held leader they wait for, the hostiles of the live fight in reach):
+    gold and (unless `survival_needs`) healing potions, while a held leader lives in reach (HELD_STAYS) or, with
+    `now`, while the fight is live (POTION_HELD, `fight_live`)."""
     leader = held_in_reach(self, here, foes) if HELD_STAYS else None
-    if leader is None:
+    fighting = fight_live(self, here, foes, now) if leader is None and now is not None else 0
+    if leader is None and not fighting:
+        return frozenset(), None, 0
+    kinds = {GOLD} if survival_needs(self, loot) else {GOLD, HEALING}
+    return frozenset(kinds), leader, fighting
+
+
+def wait_for_held(self: Hunter, loot: Loot, here: Point, foes: Sequence[Monster], now: float | None = None) -> Loot:
+    """`loot` without the side goals that wait while a held leader lives in reach (HELD_STAYS) or the fight is live
+    (POTION_HELD, with `now`), each said once."""
+    kinds, leader, fighting = waiting_kinds(self, loot, here, foes, now)
+    if not kinds:
         return loot
-    kinds = {GOLD}
-    if loot.belt_read and on_belt(loot)[PotionType.REJUVENATION] > manaburn.KEPT_REJUVENATIONS:
-        kinds.add(HEALING)
     waiting = [found for found in loot.drops if found.kind in kinds]
     for found in waiting:
-        if (found.unit_id, leader) not in HELD_SAID:
+        key = (found.unit_id, leader if leader is not None else FIGHT_SAID)
+        if key not in HELD_SAID:
             if len(HELD_SAID) > 200:
                 HELD_SAID.clear()
-            HELD_SAID.add((found.unit_id, leader))
-            LOG.info(
-                'Macro: pursuit: %s at (%.0f, %.0f), %.0f away, waits: the leader %d held is in reach',
-                found.label, found.x, found.y, math.dist(here, (found.x, found.y)), leader,
-            )  # fmt: skip
+            HELD_SAID.add(key)
+            away = math.dist(here, (found.x, found.y))
+            if leader is not None:
+                LOG.info(
+                    'Macro: pursuit: %s at (%.0f, %.0f), %.0f away, waits: the leader %d held is in reach',
+                    found.label, found.x, found.y, away, leader,
+                )  # fmt: skip
+            else:
+                LOG.info(
+                    'Macro: pursuit: %s at (%.0f, %.0f), %.0f away, waits: the fight first (%d in reach, struck '
+                    '%.1f s ago; POTION_HELD)',
+                    found.label, found.x, found.y, away, fighting, (now or 0.0) - self.struck_at,
+                )  # fmt: skip
     return replace(loot, drops=tuple(found for found in loot.drops if found.kind not in kinds)) if waiting else loot
 
 
@@ -236,6 +308,8 @@ def side_drop(
         for unit, since in self.guarded_since.items()
         if now - since > BLOCK_SECONDS
     }
+    if POTION_HELD:
+        given_up |= self.side_left  # given up by a knot of moves (judging.py STILL_BUDGET)
     for found in loot.drops:
         if found.unit_id in given_up:
             self.refused_potion(found, here, given_up[found.unit_id])
@@ -249,7 +323,10 @@ def side_drop(
         # Only potions while the run's boss is in reach: her death first (QUIET_BY_THE_BOSS,
         # rca/2026-10-18/andariel-cadence-findings.md §5 F3).
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.kind in (HEALING, REJUVENATION)))
-    loot = wait_for_held(self, loot, here, foes)
+    waits, _, _ = waiting_kinds(self, loot, here, foes, now if POTION_HELD else None)
+    loot = wait_for_held(self, loot, here, foes, now if POTION_HELD else None)
+    # POTION_HELD's one ledger: what is left or waits now is out of the far detour too (`scarce`)
+    out = frozenset(given_up) if POTION_HELD else frozenset()
     plan = choose(loot, here)
     drop = plan.drop if plan is not None else None
     looped = self.pursuit is not None and self.pursuit.looped
@@ -282,7 +359,9 @@ def side_drop(
         return drop
     if drop is not None:
         return drop
-    return self.restock(run, loot, here, foes, world) or self.scarce(run, loot, here, world)
+    return self.restock(run, loot, here, foes, world) or self.scarce(
+        run, loot, here, world, out=out, waiting=POTION_HELD and HEALING in waits
+    )
 
 
 def restock(
@@ -388,12 +467,26 @@ def refused_potion(self: Hunter, drop: Drop, here: Point, why: str) -> None:
         )  # fmt: skip
 
 
-def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Drop | None:
+def scarce(
+    self: Hunter,
+    run: Run,
+    loot,
+    here: Point,
+    world: World | None,
+    *,
+    out: frozenset[int] = frozenset(),
+    waiting: bool = False,
+) -> Drop | None:
     """A healing potion beyond POTION_UNITS worth its detour (supply.py `worth`, `detour`) while the belt is below
     the reserve: the potions short at harm's price against the eta there and back. Judged once in 4 *
-    DECIDE_SECONDS over the nearest two; the one found stays the goal until then."""
+    DECIDE_SECONDS over the nearest two; the one found stays the goal until then. POTION_HELD: none of `out` (the
+    potions left: `side_drop`'s ledger), none while healing potions wait for the fight (`waiting`; the one judged
+    kept for after it), and the one judged last is kept at the next judging unless another is more than
+    agenda.HELD_REACH times nearer (`held_first`)."""
     if not loot.belt_read:
         return None  # unknown, not low: the next look reads it again
+    if POTION_HELD and waiting:
+        return None  # the fight first (`waiting_kinds`); `fetching` is kept for after it
     now = run.clock()
     rejuvenations = on_belt(loot)[PotionType.REJUVENATION]
     fighting = manaburn.herald_fight(here, world.monsters, rejuvenations) if world is not None else 0
@@ -405,6 +498,8 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
                 self.refused_potion(Drop(potion.unit, potion.x, potion.y, potion.label, potion.kind), here, why)
         return None
     judged, found = self.fetching
+    if found is not None and POTION_HELD and found.unit_id in out:
+        found = None  # left since it was judged: no longer the goal, nor the one held
     if now - judged < 4 * DECIDE_SECONDS:
         return found if found is not None and found.unit_id in self.potions.seen else None
     self.fetching = (now, None)
@@ -419,8 +514,12 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
     if rect is None or level is None:
         return None
     ground = Ground(level.ground)
-    far = [p for p in self.potions.lying(HEALING, here) if math.dist(here, (p.x, p.y)) > POTION_UNITS]
-    for potion in far[:2]:
+    far = [
+        p
+        for p in self.potions.lying(HEALING, here)
+        if math.dist(here, (p.x, p.y)) > POTION_UNITS and not (POTION_HELD and p.unit in out)
+    ]
+    for potion in held_first(far, found, here) if POTION_HELD else far[:2]:
         if self.drops.spent(potion.unit):
             continue
         there = self.travel.eta(run, world, ground, rect[2] / rect[3], (potion.x, potion.y), PRESSED, level.rooms)
@@ -440,6 +539,19 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
         self.fetching = (now, drop)
         return drop
     return None
+
+
+def held_first(far: Sequence[supply.Seen], held: Drop | None, here: Point) -> list[supply.Seen]:
+    """POTION_HELD: the far detour's candidates in order: the nearest two, the one `held` (judged last) first unless
+    another is more than agenda.HELD_REACH times nearer; `held` comes in even if not among the nearest two."""
+    nearest = list(far[:2])
+    kept = next((p for p in far if held is not None and p.unit == held.unit_id), None)
+    if kept is None:
+        return nearest
+    others = [p for p in nearest if p.unit != kept.unit]
+    away = math.dist(here, (kept.x, kept.y))
+    nearer = [p for p in others if math.dist(here, (p.x, p.y)) * goal_agenda.HELD_REACH < away]
+    return [*nearer, kept, *[p for p in others if p not in nearer]]
 
 
 def stay_by(
@@ -621,6 +733,13 @@ def seal_of(bearings: Bearings, area: int, here: Point, stage: Stage) -> tuple[P
     return min(places, key=lambda place: math.dist(here, place)), before.mark
 
 
+# 17:48:34-17:49:17 on 2026-10-23 (take 20261023T144821Z-27): the Outer Cloister's way into the Monastery Gate marked
+# on roof at (15177.5, 5005.0), the door (class 24) in the edge's gap at (15141, 5002); the 45 s watchdog stopped the
+# loop. True: a door on the edge an open passage crosses is the passage (levels/exits.py `door_passage`): the card's
+# passage moves past it, and the walk opens it (moves.py `door_across`). False: the computed passage only.
+PASSAGE_DOOR = True
+
+
 def goal(
     self: Hunter, run: Run, world: World, foes: list[Monster], pressed: bool, posted: Pursuit | None
 ) -> Goal | None:
@@ -635,6 +754,13 @@ def goal(
     card = bearings.card() if bearings.card is not None else None
     if card is not None and card.area != area:
         card = None  # the card is still the level just left
+    if card is not None and card.passage is not None and PASSAGE_DOOR:
+        # A door on the level edge is the open passage (levels/exits.py `door_passage`): the goal itself goes there,
+        # so the decision and the move agree (18:20:06-21:33 on 2026-10-23, the Outer Cloister: a move-only redirect
+        # hopped door, mark, door for 90 s and the zone was skipped)
+        mark = (card.passage[0] * TILE_UNITS, card.passage[1] * TILE_UNITS)
+        if (via := door_passage(world.doors, card.rooms, mark)) is not None:
+            card = replace(card, passage=(via[0] / TILE_UNITS, via[1] / TILE_UNITS))
     if (
         card is not None
         and staged is None
@@ -881,6 +1007,108 @@ def _clear_through(
     return chosen
 
 
+# ROUTE_BOSS_FIRST (2026-10-22, Sewers Level 3, 23:15:49-23:20:30, take 20261022T201417Z-49; rca/2026-10-22/
+# walled-boss-findings.md §2): with Radament (unit 881231773) in the read the run's goal went round the route's own
+# "Radament" fight, the agenda's "full clear: the elite 229 (881231773)" (the same unit, a leader to it) and "agenda:
+# Super chest": the agenda's was passed five times by STILL_BUDGET, the route's fight took over (a boss stage: no
+# budget), the pass ran out and the agenda's came back, the chest between. True: the route's boss fight with its boss
+# in the read is the run's goal; the agenda's targets wait for it (`cleared` keeps a route fight so off a zone kind).
+# False: the agenda first, as before
+ROUTE_BOSS_FIRST = True
+
+
+# GUARD_AT_DROP (2026-10-23, rca/2026-10-23/fight-efficiency-findings.md shape d; the player: "your goal is to maximize
+# exp/hour"): the agenda's target for a drop's look was taken as the drop's guard whatever it was. Its order puts a
+# Herald before the drop (agenda.py `in_level`), so at 16:11:13-39 (take 20261023T130907Z-67) the character 0.7 units
+# from a Flawless Topaz went for "Flawless Topaz: the fight first", a Herald 80 away, and back: 46 jumps, 0 kills; of
+# 268 such moves 15:00-17:31, 175 went for a "guard" more than 12 from both the drop and the character. True: the
+# agenda's kill target is the drop's guard only by the agenda's own guard rule (within GUARD_NEAR of the drop or of the
+# character, agenda.py DROP_GUARD); another goes after the drop. False: any kill target, as before.
+GUARD_AT_DROP = True  # on 2026-10-23 ~19:50 (the player: "Turn both on"), gated: 0 new deaths over 1860 pairs
+GUARD_AT_DROP_SAID = 'GUARD_AT_DROP'
+# GUARD_STALL (2026-10-23, the same): a drop's guard fight that makes no progress kept the drop waiting: 145 s of
+# deferrals 15:00-17:31 past 5 s with no kill (15:17:27, Rare Battle Gauntlets: 31 s, 0 kills, the guard behind the
+# mana burn keep range). True: a guard fight with no kill or damage (NET_PROGRESS's rules) among the hostiles in the
+# strike's reach or by the drop for GUARD_STALL_SECONDS frees the drop of its guards for PASS_SECONDS: the pickup is
+# the goal, priced by the safety as any unguarded drop. False: the fight first however long, as before.
+GUARD_STALL = False
+GUARD_STALL_SECONDS = 5.0
+GUARD_STALL_GAP = 2.0  # seconds between the drop's looks after which its watch begins again
+GUARD_SAID: set[tuple[int | None, int]] = set()  # (drop, guard) said
+
+
+def at_the_drop(guard: Monster, drop: Goal, here: Point) -> bool:
+    """Whether `guard` guards `drop` by the agenda's rule: within GUARD_NEAR of the drop or of the character."""
+    at = (guard.x, guard.y)
+    return min(math.dist(at, drop.place), math.dist(at, here)) <= GUARD_NEAR
+
+
+def said_guard(drop: Goal, guard: Monster, here: Point, why: str) -> None:
+    """Says once a drop and guard why the drop goes before its guard fight."""
+    key = (drop.unit, guard.unit_id)
+    if key in GUARD_SAID:
+        return
+    if len(GUARD_SAID) > 200:
+        GUARD_SAID.clear()
+    GUARD_SAID.add(key)
+    LOG.info(
+        "Macro: run: %s at (%.0f, %.0f): %s %.0f from it, %.0f from the character: %s",
+        drop.label, *drop.place, label(guard), math.dist((guard.x, guard.y), drop.place),
+        math.dist((guard.x, guard.y), here), why,
+    )  # fmt: skip
+
+
+def guard_stalled(self: Hunter, world: World, drop: Goal, here: Point, now: float) -> bool:
+    """GUARD_STALL: whether the drop is freed of its guards: freed before and still, or now, after GUARD_STALL_SECONDS
+    with no progress among the hostiles in the strike's reach or within GUARD_NEAR of the drop."""
+    if not GUARD_STALL or drop.unit is None:
+        return False
+    if now < self.guards_freed.get(drop.unit, -math.inf):
+        return True
+    from inventory_tracking.macros.hunting import judging  # judging imports this module
+
+    near = [
+        m
+        for m in world.monsters
+        if not m.ally
+        and m.owner == NO_OWNER
+        and (math.dist(here, (m.x, m.y)) <= self.reach or math.dist(drop.place, (m.x, m.y)) <= GUARD_NEAR)
+    ]
+    dead = frozenset(m.unit_id for m in near if m.mode in (0, LYING_DEAD))
+    lives = {m.unit_id: m.life for m in near if m.mode not in (0, LYING_DEAD) and m.life > 0}
+    raised = self.slain[1] if judging.NET_PROGRESS else frozenset()
+    watch = self.guard_watch
+    if (
+        watch is None
+        or watch[0] != drop.unit
+        or now - watch[2] > GUARD_STALL_GAP
+        or judging.progressed(dead, lives, watch[3], watch[4], raised)
+    ):
+        self.guard_watch = (drop.unit, now, now, dead, lives)  # the clock starts at the last progress
+        return False
+    # The clock's snapshot of each life stays (NET_PROGRESS: what grew back is no bar raised); new ones added
+    self.guard_watch = (drop.unit, watch[1], now, watch[3] | dead, {**lives, **watch[4]})
+    if now - watch[1] < GUARD_STALL_SECONDS:
+        return False
+    if len(self.guards_freed) > 200:
+        self.guards_freed.clear()
+    self.guards_freed[drop.unit] = now + PASS_SECONDS
+    self.guard_watch = None
+    LOG.info(
+        'Macro: run: %s at (%.0f, %.0f): its guard fight made no progress in %.0f s: the drop first for %.0f s '
+        '(GUARD_STALL)',
+        drop.label, *drop.place, now - watch[1], PASS_SECONDS,
+    )  # fmt: skip
+    return True
+
+
+def boss_in_sight(found: Goal | None, foes: Sequence[Monster]) -> bool:
+    """Whether `found` is the route's boss fight (a FIGHT stage's) with its boss in `foes` (ROUTE_BOSS_FIRST)."""
+    if found is None or found.do != FIGHT or found.unit is None or found.stage is None or found.stage.kind != FIGHT:
+        return False
+    return any(m.unit_id == found.unit for m in foes)
+
+
 def agenda_cleared(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, found: Goal | None
 ) -> Goal | None:
@@ -895,11 +1123,18 @@ def agenda_cleared(
     self._forget_passed(now)
     if found is not None and (found.do == WAIT or found.guarded):
         return found
+    if ROUTE_BOSS_FIRST and boss_in_sight(found, foes):
+        return found
     if found is not None and found.do == PICK_UP:
         side = Objective(SIDE, found.label, 3, area, found.place, found.unit)
         target = self.agenda_target(run, world, foes, here, frozenset(), rooms, side)
         guard = next((m for m in foes if target is not None and target.kind == KILL and m.unit_id == target.unit), None)
         if guard is None:
+            return found
+        if GUARD_AT_DROP and not at_the_drop(guard, found, here):
+            said_guard(found, guard, here, f'no guard of it: the drop first ({GUARD_AT_DROP_SAID})')
+            return found
+        if guard_stalled(self, world, found, here, now):
             return found
         # `clearing`: on a level with no route a plain fight goal ended the run (Great Marsh, 2026-10-19 09:01:51)
         return replace(first_fight(found, here, [guard], self.reach), clearing=True)
@@ -910,7 +1145,10 @@ def agenda_cleared(
             self.zone_left = (world.game_name, area)
             LOG.info('Macro: run: %s is no longer terrorized: the level run ends', display_name(area))
         return None
+    if policy == SKIPPED:
+        return None  # not worth playing on (macros/zonenav.py `worth`, said by tzloop.py `worth_skip`): the run ends
     everyone, crossed = policy == FULL_CLEAR, policy == TRANSIT
+    bosses_only = policy == BOSS_WAY  # BOSSES_ONLY: what strikes at the party alone fought on the way
     things = run.things() if run.things is not None else ()  # read once a look
 
     # The route's next object on this level (a seal, a chest; not a portal): beside the character it goes before a
@@ -951,8 +1189,8 @@ def agenda_cleared(
         def leading(m: Monster) -> bool:
             return bool(everyone or m.leader or m.tier) and m.unit_id not in left
 
-        near = [] if crossed else self._on_the_way(world, ground, foes, here, skip, leading)
-        if not near and (ENGAGE_STRIKERS or crossed):
+        near = [] if crossed or bosses_only else self._on_the_way(world, ground, foes, here, skip, leading)
+        if not near and (ENGAGE_STRIKERS or crossed or bosses_only):
             # What strikes at the party is met, not waited for (ENGAGE_STRIKERS)
             near = self._on_the_way(
                 world, ground, foes, here, skip, lambda m: m.mode in STRIKING_MODES and m.unit_id not in left
@@ -978,7 +1216,7 @@ def level_policy(self: Hunter, world: World, area: int) -> str:
         # The watch tools may read it (d2-loop-watch logwords.py)
         LOG.info('Macro: run: %s is no longer terrorized, %s alive: the level run goes on for them', display_name(area),
                  ', '.join(boss.name for boss in alive))  # fmt: skip
-    return ON_THE_WAY
+    return BOSS_WAY if BOSSES_ONLY else ON_THE_WAY
 
 
 def boss_held(agenda: goal_agenda.Agenda, area: int) -> list[Boss]:
@@ -1004,6 +1242,11 @@ def remnants_of(foes: Sequence[Monster], policy: str, mine: Callable[[Monster], 
     return goal_agenda.remnants([(m.unit_id, (m.x, m.y)) for m in level], {m.unit_id for m in level if m.leader})
 
 
+# AGENDA_SAID_ONCE (2026-10-22, walled-boss-findings.md): only the look's own ask says the agenda's target. False: every
+# ask, `taken_back`'s too, as before
+AGENDA_SAID_ONCE = True
+
+
 def agenda_target(
     self: Hunter,
     run: Run,
@@ -1024,9 +1267,9 @@ def agenda_target(
     assert player is not None
     area, now = player.area, run.clock()
     policy = level_policy(self, world, area) if self.agenda_policy is not None else FULL_CLEAR
-    if policy in (ON_THE_WAY, PLUS_WAY) and (world.game_name, area) in self.wayless:
+    if policy in (ON_THE_WAY, PLUS_WAY, BOSS_WAY) and (world.game_name, area) in self.wayless:
         # no way to the route's goal: the rooms are explored for it (`judge`)
-        policy = COVER if policy == ON_THE_WAY else PLUS
+        policy = PLUS if policy == PLUS_WAY else COVER
     everyone = policy == FULL_CLEAR
     population = level_population(area, len(rooms) or None)
     agenda.worked_as(area, policy, population)
@@ -1048,7 +1291,10 @@ def agenda_target(
         # if it is just travel through")
         agenda.bosses.rooms(area, rooms)
         agenda.bosses.sight(area, [m for m in foes if here_on(m.x, m.y)])
-    leaders = [Leader(m.unit_id, (m.x, m.y), label(m), bool(m.tier and m.leader)) for m in live]
+    raising = revivers.raising((m.unit_id, m.txt_id, (m.x, m.y), m.flags) for m in foes)
+    leaders = [
+        Leader(m.unit_id, (m.x, m.y), label(m), bool(m.tier and m.leader), reviver=m.unit_id in raising) for m in live
+    ]
     seen = {m.unit_id for m in foes}
     gone = seen | self.vanished | set(self.untouchable)
     known = self.remembered(area) if self.remembered is not None else []
@@ -1081,10 +1327,18 @@ def agenda_target(
         if policy in GROUPS_TAKEN
         else (),
         population=population,
+        # agenda.py HELD_GOALS: the level's hostiles remembered alive out of the read (the tracker forgets one not where
+        # it was seen), at their last places: the held group's members on its way round
+        unseen=tuple((unit, (x, y)) for unit, x, y, _ in known if unit not in gone and here_on(x, y))
+        if policy in GROUPS_TAKEN and goal_agenda.HELD_GOALS
+        else (),
+        present=frozenset(m.unit_id for m in hostiles(world)),  # bossledger.py BOSS_ABSENT: untouchable ones too
     )
     target = agenda.in_level(view)
     said = (target.kind, target.unit, target.label) if target is not None else None
-    if said != self.agenda_said:
+    # The look's own target only: `taken_back`'s second ask (a goal left for another skipped) is no change of target;
+    # said, it flipped the log 20 times in 13 s at 23:09:55 on 2026-10-22 with one goal held (walled-boss-findings.md)
+    if said != self.agenda_said and not (AGENDA_SAID_ONCE and skip):
         self.agenda_said = said
         if target is None:
             LOG.info("Macro: agenda: no target here: the route's own goal")
@@ -1341,6 +1595,15 @@ def rest_of(
     return None
 
 
+REFUSED_ROOM = 30.0  # units round a refused fight's places no tour stop is taken within (judging.py REFUSED_PASS)
+
+
+def refused_near(self: Hunter, place: Point, now: float) -> bool:
+    """REFUSED_PASS (judging.py): whether `place` is within REFUSED_ROOM of a fight the safety kept refusing, while it
+    is passed (`Hunter.refused_places`; empty with the switch off)."""
+    return any(now < until and math.dist(place, at) <= REFUSED_ROOM for at, until in self.refused_places)
+
+
 def next_room(self: Hunter, run: Run, player, area: int, now: float) -> tuple[Point, str, int | None] | None:
     """The first stop of the tour of the rooms not explored yet (`frontier`) that is not passed, looked for once in
     REST_SECONDS (a pass looks again, `pass_by`)."""
@@ -1352,7 +1615,7 @@ def next_room(self: Hunter, run: Run, player, area: int, now: float) -> tuple[Po
         rooms = level.rooms if level is not None else ()
 
         def passed(place: Point) -> bool:
-            return passing_key(place, None, rooms) in self.passed
+            return passing_key(place, None, rooms) in self.passed or refused_near(self, place, now)
 
         kept = self.stop_kept[1] if self.stop_kept is not None and self.stop_kept[0] == area else None
         stop = self.frontier(level, player, rect, passed, kept) if level is not None and rect is not None else None

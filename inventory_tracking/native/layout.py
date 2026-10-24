@@ -5,33 +5,47 @@ d2data dump, controlled probes or memory dumps and never change at runtime. Evid
 """
 
 # Only this D2R.exe is read; `LiveReader.connect` refuses anything else.
-SUPPORTED_SHA256 = '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7'
+# The 2026-10-23 19:03 patch (PE timestamp 0x6ad63d5e; was 1e2ac459..., 0x6a68bd78): .data moved +0x2000 and every
+# RVA below with it (ported by code signatures from the old image dump, CTL_STATE_RVA +0x1ff0: two exact `lea`s).
+SUPPORTED_SHA256 = '5efc64b7b3d5e6642227930af536d158cadff859e4986b5fc297632e087e0e22'
+# Builds whose saved captures (reports, test fixtures) decode with the record layouts here: the 2026-10-23 patch
+# moved globals only, not the unit and item records. A live attach still needs SUPPORTED_SHA256.
+DECODED_BUILDS = frozenset((SUPPORTED_SHA256, '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7'))
+
+# Hover inputs (hover/): the mouse gate and position, the carried-item state, and the inventory widgets as (vtable,
+# its +0xC0 method) RVAs. 2026-10-23 patch: the grid widget read live (Alt+D panel diagnostics: 0x1714EA8, +0xC0
+# 0x21A8C0); the vtables all moved +0x20C0 (code-signature match of their methods), the methods +0x1F0.
+MOUSE_GATE_RVA = 0x1ECBC4D
+CARRIED_ITEM_RVA = 0x1ECBF4C
+EQUIPMENT_WIDGET = (0x1714A90, 0x217AD0)
+GRID_WIDGET = (0x1714EA8, 0x21A8C0)
+MATERIALS_WIDGET = (0x1715048, 0x220D50)
 
 # A byte in the loaded image (controlled OFF/ON captures, 2026-09-21).
-SHOW_ITEMS_RVA = 0x1EBD164
+SHOW_ITEMS_RVA = 0x1EBF164
 
 # Open-panel byte flags (0/1) from this RVA, d2go's OpenMenus layout, anchored by 129 captures of this build
 # (2026-09-27, inventory_tracking/history/layout_notes.md). Show Items is +0x0C of the same array.
-UI_PANELS_RVA = 0x1EBD158
+UI_PANELS_RVA = 0x1EBF158
 # ClientTerrorZoneService: a pointer to an object holding the terrorized levels, 16-byte entries (level id
 # first) at +0x80, their count at +0x88. From the automap name code (0x140ca6dd9, 2026-10-12); not yet seen live.
-TERROR_SERVICE_RVA = 0x1E00508
+TERROR_SERVICE_RVA = 0x1E02508
 TERROR_LEVELS, TERROR_LEVEL_COUNT, TERROR_LEVEL_ENTRY = 0x80, 0x88, 0x10
 UI_PANELS_SIZE = 0x20
 # Input method byte, 1 in controller mode (`ai_d2_g_controller_mode`; rca/2026-10-13/controller-mode.md; not yet
 # seen live). `ai_d2_request_input_mode` (0x14064d4e0) sets panel manager +0xDB = 1 and the wanted mode at +0xDC;
 # its reload (0x140682f20) sets the byte and clears the flag.
-CONTROLLER_MODE_RVA = 0x1EAD337
-PANEL_MANAGER_RVA = 0x1EE5790
+CONTROLLER_MODE_RVA = 0x1EAF337
+PANEL_MANAGER_RVA = 0x1EE7790
 PANEL_PENDING, PANEL_WANTED = 0xDB, 0xDC
 # Controller bindings loaded at game entry: 32 records of 0x1C, skill first (-1: none); the `.ctlo`/`.ctl` body
 # (loot-to-cube-mouse.md §2).
-CTL_BINDINGS_RVA = 0x1E01370
+CTL_BINDINGS_RVA = 0x1E03370
 CTL_RECORD, CTL_RECORDS = 0x1C, 32
 # Controller per-player state (`ai_d2_g_controller_state`), a 0xB8 record per player slot (dword at PLAYER_SLOT_RVA):
 # +0xD10 the client's target (unit pointer), +0xD44 the pressed button's record, +0xD4C its skill (-1: none).
-CTL_STATE_RVA = 0x1F6A030
-PLAYER_SLOT_RVA = 0x1EAD46C
+CTL_STATE_RVA = 0x1F6C020
+PLAYER_SLOT_RVA = 0x1EAF46C
 CTL_STATE_STRIDE = 0xB8
 CTL_TARGET, CTL_PRESSED_RECORD, CTL_PRESSED_SKILL = 0xD10, 0xD44, 0xD4C
 PANEL_FLAGS = {

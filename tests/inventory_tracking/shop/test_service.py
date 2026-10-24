@@ -160,7 +160,7 @@ def test_unresolved_stat_issue_identifies_vendor_item_and_native_payload(monkeyp
         'unresolved_stats': [{'id': 999, 'layer': 12, 'raw': 34}],
     }
     monkeypatch.setattr(service, 'decode_stock', lambda _: ([observation], []))
-    monkeypatch.setattr(service, 'match_item', lambda _: [])
+    monkeypatch.setattr(service.rules, 'match_item', lambda _: [])
     result = service.assess({'stock_count': 1, 'timing': {}})
     assert result['state'] == 'partial'
     assert result['issues'] == ['Larzuk Amulet item 3372686176: unresolved stats 999:12 raw=34']
@@ -408,7 +408,7 @@ def test_triage_shop_shows_a_sale_at_the_priced_floor_and_the_reviewed_patterns_
         for name in cases
     ]
     monkeypatch.setattr(service, 'decode_stock', lambda _: (observations, []))
-    monkeypatch.setattr(service, 'match_item', lambda o: ['+6 Tornado'] if cases[o['item']['name']][2] else [])
+    monkeypatch.setattr(service.rules, 'match_item', lambda o: ['+6 Tornado'] if cases[o['item']['name']][2] else [])
 
     def retrieve(observation):
         verdict, price, _ = cases[observation['item']['name']]

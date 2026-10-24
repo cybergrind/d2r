@@ -178,3 +178,42 @@ def test_the_sizes_are_the_grid_tables():
     assert Grid.empty(CUBE_SIZE) == ('...',) * 4
     assert Grid.empty(STASH_SIZE) == ('.' * 10,) * 10
     assert {g: size for g, (_, *size) in GRID_CONTAINERS.items()} == {2: [10, 4], 5: [3, 4], 6: [10, 10]}
+
+
+# Where the game puts a picked-up item (D2MOO `INVENTORY_GetFreePosition`; rca/2026-10-23/room-blocks-findings.md).
+# The visit's free cells (the player's charms on the rest, visits/092652.json `end`): the 2 x 4 block in columns 3-4
+# and the two spare cells (2, 2), (2, 3)
+VISIT_FREE = ('###..#####', '###..#####', '##...#####', '##...#####')
+
+
+def test_a_small_pickup_lands_inside_the_free_block_not_in_the_spare_cells():
+    grid = Grid(VISIT_FREE)
+    assert grid.pickup_spot((1, 1)) == (4, 3)  # the 2 x 4 block broken by the first ring
+    assert not grid.take((4, 3), (1, 1)).has_room((2, 4))
+    landed = []
+    for _ in range(3):
+        spot = grid.pickup_spot((1, 1))
+        assert spot is not None
+        landed.append(spot)
+        grid = grid.take(spot, (1, 1))
+    assert landed == [(4, 3), (4, 2), (4, 1)]  # the column filled bottom up: no 2 x 3 after the second
+    assert Grid(VISIT_FREE).pickup_spot((2, 2)) == (3, 0)  # a big one in the block's top
+
+
+def test_the_landings_seen_live_are_the_games():
+    # 09:27-09:30 on 2026-10-23 (session 20261023T062407Z-429f3d2d): an amulet and a small charm stayed at (4, 3) and
+    # (4, 0); the Rare Battle Belt (2 x 1) was dropped from (2, 3), the Magic Leather Gloves (2 x 2) from (3, 1)
+    grid = Grid(VISIT_FREE).take((4, 3), (1, 1)).take((4, 0), (1, 1))
+    assert grid.pickup_spot((2, 1)) == (2, 3)
+    assert grid.take((2, 3), (2, 1)).pickup_spot((2, 2)) == (3, 1)
+    assert grid.first_spot((2, 1)) == (3, 1)  # the row-by-row first spot is not where the belt went
+
+
+def test_the_pickup_spot_is_a_free_block_and_none_without_one():
+    for rows, _, size, _ in CASES:
+        grid = Grid(rows)
+        spot = grid.pickup_spot(size)
+        assert (spot is None) is (not grid.has_room(size))
+        assert spot is None or grid.fits(spot, size)
+    assert Grid(('#.', '##')).pickup_spot((1, 1)) == (1, 0)
+    assert Grid(()).pickup_spot((1, 1)) is None

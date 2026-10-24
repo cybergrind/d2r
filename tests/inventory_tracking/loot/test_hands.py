@@ -5,6 +5,8 @@ import json
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
+
 from inventory_tracking.game.kept import PutDown
 from inventory_tracking.game.layout import IDENTIFY_TOME
 from inventory_tracking.game.records import VALUABLE, Carried, Drop, Loot, Monster, Pack
@@ -15,6 +17,16 @@ from inventory_tracking.loot.shadow import Appraised, Book
 from inventory_tracking.macros.cube import own_of
 from inventory_tracking.macros.pickmode import MONARCH
 from tests.inventory_tracking.macros.fakes import Game, player, world
+
+
+@pytest.fixture(autouse=True, params=[True, False], ids=['assessed', 'legacy'])
+def field_assessed(request, monkeypatch):
+    """The field routine through the entry point (api.py ASSESS_FIELD, 2026-10-23) and with the layers called directly
+    (legacy until ASSESS_FIELD is proven): the same answers both ways."""
+    from inventory_tracking.loot import api
+
+    monkeypatch.setattr(api, 'ASSESS_FIELD', request.param)
+    return request.param
 
 
 BLOCKING = json.loads((Path(__file__).parent / 'fixtures' / 'field' / 'monarch-of-blocking.json').read_text())

@@ -93,7 +93,7 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
 - RIGHT_SKILL, the potion a picked-up one lands on (`stow`), the staff's full charges and the sizes
   of drops are assumptions, said where they are set.
 
-Three rules a play may turn on (`rules`, 2026-10-21: what a tier 4-5 Herald pack fight needs, rca/2026-10-21/
+Five rules a play may turn on (`rules`, 2026-10-21 and 22: what a tier 4-5 Herald pack fight needs, rca/2026-10-21/
 herald-fight-findings.md §3.4 "what the arena lacks"). Each is off unless asked, so every scene fitted and pinned
 before plays as it did:
 
@@ -108,13 +108,22 @@ before plays as it did:
   PET_STOP from it, else keeps up as `follow` has it (which runs in every scene with this rule). Their life shows in
   128ths of the most, as the client's monster life does;
 - BODIES_BLOCK: a monster's stride does not end in another body (mobs.py `Horde.bodies`), and the character's walk
-  does not go through a live hostile: blocked, it stands (the 09:30:52 "the character did not move").
+  does not go through a live hostile: blocked, it stands (the 09:30:52 "the character did not move");
+- MANA_SHOWN (2026-10-22, rca/2026-10-22/walled-boss-findings.md §2): the character's mana and most mana (stats 8
+  and 9) are shown to the macro as the scene's hero has them, as the live loot read shows them (combat/threats/
+  manaburn.py `mana_of`): never spent nor burnt, mana is not counted. Off: no mana is shown, and the safety reads the
+  mana as unknown (a draining hostile kept at range whatever it does, DRAIN_GATE).
+
+- REVIVERS_RAISE (2026-10-23, combat/revivers.py REVIVERS_FIRST): a live reviver of the production table raises the
+  nearest corpse of its family within its raise range back at full life, one every its table seconds (mobs.py
+  `Mobs.raise_dead`); a unit killed again is a kill again (`kills` holds it twice).
 
 Bind Demon's key (whatever the rules) on a live hostile under the pointer that builds/warlock/bind.py `bindable`
 calls a demon, with no bound demon out, makes it the character's BIND_TAKES after the key (`binds`): the capture's
 chance and the cast's sequence are not played.
 """
 
+import itertools
 import json
 import math
 import random
@@ -140,6 +149,8 @@ from inventory_tracking.builds.warlock.mark import (
     MARK_POINTS,
     MARK_SECONDS,
     MARK_STATE,
+    REMARK_HOP,
+    TAKEN_ALONG,
     demon_rate,
     sends,
 )
@@ -194,7 +205,7 @@ from inventory_tracking.models import (
     SessionIdentity,
     State,
 )
-from inventory_tracking.native.layout import BELT_COLUMNS, BELT_SIZE, CORPSE_MODE, DEAD_MODES
+from inventory_tracking.native.layout import BELT_COLUMNS, BELT_SIZE, CORPSE_MODE, DEAD_MODES, HIRELING_CLASS_ID
 from inventory_tracking.takes.timeline import GAME_RATE
 from inventory_tracking.tracking.belt import potion_kind
 from tests.inventory_tracking.macros.fakes import KEYS, Clock, Game, player
@@ -272,10 +283,49 @@ BODY_HALF = 1.5  # units: how far from that line a monster's feet may be
 FOLLOW: dict[int, tuple[float, float]] = {744: (4.4, 0.41), 338: (5.1, 0.32), 361: (2.7, 0.97)}
 FOLLOW_DEFAULT = (5.0, 0.4)
 JUMP = 18.0
+# A jump takes the demons near the character along and off the marked monster (`Game.drag`, the measure of
+# builds/warlock/mark.py DESIGNATED_MARK, 2026-10-22). False (the default): the demons stay on it, as before.
+HOP_DRAG = False
+# ALLIES_ALONG (2026-10-23, rca/2026-10-23/death-canyon-findings.md): a Teleport takes every companion within
+# TAKEN_ALONG of where it began along, the mercenary too (rca/2026-10-21/herald-gloam-findings.md §3, verified over
+# 312 Teleports: an ally within 10 lands within 3 of the character on 95-100 % of them), each ALONG_GAP off the landing
+# (the take: the merc within 3 for 42.9 of 46.5 s). Blade Warp is not a Teleport: not taken (not measured). False: the
+# demons by HOP_DRAG alone and the merc by `follow`, as before
+ALLIES_ALONG = False
+ALONG_GAP = 1.0
+ALONG_SIDES = 3
+# MERC_HURT (2026-10-23, same findings): the mercenary takes the blows that land on it off its own life (its most from
+# the scene, its share the row's 128ths), as the pets do (PETS_FIGHT), and is gone at 0 (the canyon's fell at 69.9 s
+# of take 20261023T115109Z-46). False: it takes no life, as before
+MERC_HURT = False
+# PURE_BINDS (2026-10-24, rca/2026-10-23/realtime-3-findings.md §3): `read` is a look with the game's time in it (it
+# holds the character in a hop's cast, ends a walk when a cast began, casts the keys kept during a cast), so a look a
+# change adds changes the arena's fight by itself, never the game's (one extra look per strike aim: manaburn deaths 5
+# -> 2 over seeds 1-8, no strike moved). True: a bind's look (macros/binding.py `newest_world`, every bind's one way
+# to the newest world) is `peek`, the world as it stands with no look's side effects, for the play (`pure_binds`).
+# False: a bind looks by `read`, as before.
+PURE_BINDS = False
+# HOP_IDLE (2026-10-24, rca/2026-10-24/aggro-findings.md §9; the player, ~11:30: "daemon/merc are staying not active
+# for some time after teleport"): the demons a Teleport of REMARK_HOP or more took along (ALLIES_ALONG, HOP_DRAG) go for
+# no hostile and strike none (`idling`) until a Death Mark's jump sends them or a time drawn from HOP_IDLE_LEFT. The
+# live T4-5 Herald fights of 2026-10-24 (145 takes, 246 hops, scratchpad aggro/baseline.py): the share of hops with
+# no demon striking yet and no mark keyed, by the seconds after the landing (Kaplan-Meier, censored at the next hop or
+# mark); past the last knot the demons stay idle until a mark. False: they go for the hostiles at once, as before.
+HOP_IDLE = False
+HOP_IDLE_LEFT = ((0.0, 1.0), (0.25, 0.93), (0.5, 0.90), (1.0, 0.84), (1.5, 0.72), (2.0, 0.61), (3.0, 0.57))
+# PETS_MARK_ONLY (2026-10-24, same findings; the player, 2026-10-14: "death mark is skill that forces daemons to
+# attack"): a demon no Death Mark sends goes for no hostile (it keeps up with the character, `follow`) and strikes one
+# in its reach on PET_OWN_STRIKE of the ticks only. The same live fights: some demon strikes on 66 % of the fight time
+# 0.5-1 s after a mark's key, 26-28 % 2-8 s after, 10 % 12 s and more after; while none strikes the nearest demon stands
+# a median 5.4 units from a hostile (a quarter within 2.8), so a hostile in reach is no reason by itself. False: a demon
+# goes for any hostile within PET_ENGAGE and strikes every tick, as before.
+PETS_MARK_ONLY = False
+PET_OWN_STRIKE = 0.15
 BESIDE = 0.6
 # The rules a play may turn on (the module text).
-SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK = 'sigil slows', 'pets fight', 'bodies block'
-RULES = frozenset((SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK))
+SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK, MANA_SHOWN = 'sigil slows', 'pets fight', 'bodies block', 'mana shown'
+REVIVERS_RAISE = 'revivers raise'
+RULES = frozenset((SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK, MANA_SHOWN, REVIVERS_RAISE))
 # A Defiler the macro summons, in points: monstats warputriddefiler (744) MinHP(H) 300% of monlvl HP(H) 4205 at level
 # 80 (pricing/raw/game-excel, 2026-10-21); the summon's own life bonus (skills.txt 377 calc1: 35% a level) is not
 # counted. An assumption of this file.
@@ -326,6 +376,7 @@ class Landing:
 
     tick: int  # the game tick it stands there at
     spot: Point
+    teleport: bool = False  # a Teleport's, which takes the allies near along (ALLIES_ALONG)
 
 
 @dataclass
@@ -418,6 +469,26 @@ class Healer:
         )
         outcome = str(self.controller.step(state).outcome)
         self.outcomes[outcome] = self.outcomes.get(outcome, 0) + 1
+
+
+@contextmanager
+def pure_binds(arena: Arena) -> Generator[None]:
+    """Within the block a bind's look (macros/binding.py `newest_world`) is `arena.peek()` when PURE_BINDS is on."""
+    if not PURE_BINDS:
+        yield
+        return
+    from inventory_tracking.macros import binding
+
+    looked = binding.newest_world
+
+    def peeked(run: Run, *, light: bool = False) -> World:  # a light look leaves out what the game's look holds
+        return arena.peek()
+
+    binding.newest_world = peeked
+    try:
+        yield
+    finally:
+        binding.newest_world = looked
 
 
 class Arena(Game):
@@ -534,6 +605,9 @@ class Arena(Game):
         self.mark_misses = 0.0
         self.mark_rolls = random.Random(seed + 7)
         self.mark_keys: list[tuple[float, int | None]] = []
+        self.idle_until = -math.inf  # HOP_IDLE: the clock until which the demons taken along stand off the fight
+        self.idle_rolls = random.Random(seed + 11)
+        self.own_rolls = random.Random(seed + 13)  # PETS_MARK_ONLY: an unsent demon's strikes of its own
         self.sigil: tuple[Point, float] | None = None  # the character's last sigil: (where, the clock its cast began)
         # PETS_FIGHT: each pet's (life, most life) in points; the deaths (clock, unit, type); the points they dealt.
         self.pets: dict[int, tuple[float, float]] = {}
@@ -616,6 +690,9 @@ class Arena(Game):
             (12, 94),
             (20, 10),
         )
+        if MANA_SHOWN in self.rules:
+            hero = self.scene.hero
+            stats = (*stats, (8, round(hero.mana * 256)), (9, round(hero.max_mana * 256)))  # 8 fraction bits
         self.loot = replace(self.loot, life=life, max_life=round(self.max_life), stats=stats)
 
     def read(self) -> World:
@@ -637,6 +714,17 @@ class Arena(Game):
         else:
             self.set_out()
         return self.world
+
+    def peek(self) -> World:
+        """The world a look sees now, with none of `read`'s side effects (PURE_BINDS): the casting delay shown as
+        `read` shows it, nothing held, halted, set out or cast, nothing stored."""
+        world, stand = self.world, self.world.player
+        if self.over is None and stand is not None and not self.instant_moves:
+            since = math.inf if self.warped_at is None else self.clock.now - self.warped_at
+            cooling = WARP_DELAY_SHOWN - EDGE <= since < WARP_DELAY_OVER - EDGE
+            if stand.cooldown != cooling:
+                world = replace(world, player=replace(stand, cooldown=cooling))
+        return world
 
     def run(self, seed: int = 1) -> Run:
         run = super().run(seed)
@@ -728,6 +816,8 @@ class Arena(Game):
         if BODIES_BLOCK in self.rules:
             self.mobs.pack.bodies = [(self.here, HERO_BODY), *(((m.x, m.y), body_of(m.txt_id)) for m in mates)]
         blows = min(self.mobs.tick(self.here, companions, self.resists[self.hand]), self.life)
+        if REVIVERS_RAISE in self.rules:
+            self.mobs.raise_dead()
         if PETS_FIGHT in self.rules:
             self.pets_hurt(now, mates)
             self.pets_strike()
@@ -776,7 +866,10 @@ class Arena(Game):
                 continue
             gap = math.dist(here, (monster.x, monster.y))
             heel, pace = FOLLOW.get(monster.txt_id, FOLLOW_DEFAULT)
-            foe = self.engaged(monster) if PETS_FIGHT in self.rules and sends(self.world, monster) else None
+            fights = (
+                PETS_FIGHT in self.rules and sends(self.world, monster) and not self.idling() and not PETS_MARK_ONLY
+            )
+            foe = self.engaged(monster) if fights else None
             if foe is not None and gap <= JUMP:
                 away = math.dist(foe, (monster.x, monster.y))
                 share = min(pace, away - PET_STOP) / away if away > PET_STOP else 0.0
@@ -794,12 +887,75 @@ class Arena(Game):
             moved.append(replace(monster, x=spot[0], y=spot[1]))
         self.world = replace(self.world, monsters=tuple(moved))
 
+    def along(self, start: Point, far: bool) -> None:
+        """ALLIES_ALONG: a Teleport took every companion within TAKEN_ALONG of `start` along, each put ALONG_GAP off
+        the landing on a side of its own; a demon of the mark off its monster when the jump was `far` (REMARK_HOP)."""
+        here, moved, took = self.here, [], False
+        index = 0
+        for monster in self.world.monsters:
+            if (monster.ally or monster.owner != NO_OWNER) and math.dist(start, (monster.x, monster.y)) <= TAKEN_ALONG:
+                turn = index * math.tau / ALONG_SIDES
+                index += 1
+                took = took or (far and sends(self.world, monster))
+                monster = replace(
+                    monster, x=here[0] + ALONG_GAP * math.cos(turn), y=here[1] + ALONG_GAP * math.sin(turn)
+                )
+            moved.append(monster)
+        self.world = replace(self.world, monsters=tuple(moved))
+        if took:
+            self.marked = None
+            self.idle_after_hop()
+
+    def drag(self, start: Point) -> None:
+        """A jump of REMARK_HOP or more took the demons within TAKEN_ALONG of `start` along (HOP_DRAG): beside the
+        landing, the mark's hold on its monster gone (the takes of 2026-10-21/22: 2.8 units off the marked one before a
+        hop, 21 one second after; rca/2026-10-22/immune-mark-findings.md)."""
+        here, moved, took = self.here, [], False
+        for monster in self.world.monsters:
+            if sends(self.world, monster) and math.dist(start, (monster.x, monster.y)) <= TAKEN_ALONG:
+                monster, took = replace(monster, x=here[0] + BESIDE, y=here[1]), True
+            moved.append(monster)
+        self.world = replace(self.world, monsters=tuple(moved))
+        if took:
+            self.marked = None
+            self.idle_after_hop()
+
+    def idle_after_hop(self) -> None:
+        """HOP_IDLE: the demons just taken along stand off the fight for a time drawn from HOP_IDLE_LEFT (the share
+        still idle by the seconds after the landing, linear between knots; past its last, until a mark)."""
+        if not HOP_IDLE:
+            return
+        roll = self.idle_rolls.random()
+        seconds = math.inf
+        for (early, more), (late, less) in itertools.pairwise(HOP_IDLE_LEFT):
+            if less <= roll <= more:
+                seconds = early + (late - early) * (more - roll) / (more - less) if more > less else late
+                break
+        self.idle_until = self.clock.now + seconds
+
+    def idling(self) -> bool:
+        """HOP_IDLE: whether the demons stand off the fight after a hop: the drawn time not over and no Death Mark's
+        jump sent them since (`held`)."""
+        if self.idle_until <= self.clock.now:
+            return False
+        if self.held() is not None:
+            self.idle_until = -math.inf
+            return False
+        return True
+
     def engaged(self, pet: Monster) -> Point | None:
         """Where the hostile a pet goes for stands (PETS_FIGHT): the nearest live one within PET_ENGAGE of it."""
         at = (pet.x, pet.y)
         near = [self.mobs.mobs[unit].at for unit in self.mobs.live()]
         near = [spot for spot in near if math.dist(spot, at) <= PET_ENGAGE]
         return min(near, key=lambda spot: math.dist(spot, at)) if near else None
+
+    def hurts(self, mate: Monster) -> bool:
+        """Whether the blows on companion `mate` come off its life: a pet's (PETS_FIGHT), the mercenary's too with
+        MERC_HURT."""
+        if sends(self.world, mate):
+            return True
+        return MERC_HURT and mate.txt_id == HIRELING_CLASS_ID and (mate.ally or mate.owner != NO_OWNER)
 
     def pet_life(self, pet: Monster) -> tuple[float, float]:
         """A pet's (life, most life) in points: kept since its first tick; a scene's companion its own, one the macro
@@ -808,6 +964,8 @@ class Arena(Game):
         if found is None:
             mob = self.mobs.mobs.get(pet.unit_id)
             found = (mob.life, mob.full) if mob is not None and mob.full > 0 else (PET_POINTS, PET_POINTS)
+            if mob is not None and pet.txt_id == HIRELING_CLASS_ID and found[0] <= 128 < found[1]:
+                found = (found[1] * found[0] / 128, found[1])  # the scene's mercenary row: its life in 128ths
             self.pets[pet.unit_id] = found
         return found
 
@@ -815,11 +973,11 @@ class Arena(Game):
         """The blows of this tick on the pets (PETS_FIGHT): off their life, shown in 128ths; one at 0 is gone."""
         hurt: dict[int, float] = {}
         for index, points in self.mobs.mate_blows:
-            if 0 <= index < len(mates) and sends(self.world, mates[index]):
+            if 0 <= index < len(mates) and self.hurts(mates[index]):
                 hurt[mates[index].unit_id] = hurt.get(mates[index].unit_id, 0.0) + points
         kept = []
         for monster in self.world.monsters:
-            if not sends(self.world, monster):
+            if not self.hurts(monster):
                 kept.append(monster)
                 continue
             life, full = self.pet_life(monster)
@@ -834,8 +992,13 @@ class Arena(Game):
     def pets_strike(self) -> None:
         """Each pet strikes the nearest live hostile within its reach at its points a frame (PETS_FIGHT)."""
         rates = companion_table()
+        if self.idling():
+            return
+        unsent = PETS_MARK_ONLY and self.held() is None
         for pet in self.world.monsters:
             if not sends(self.world, pet):
+                continue
+            if unsent and self.own_rolls.random() >= PET_OWN_STRIKE:
                 continue
             reach = rates.get(pet.txt_id, (PET_REACH, 0.0))[0]
             rate = demon_rate(pet.txt_id)
@@ -844,7 +1007,7 @@ class Arena(Game):
                 continue
             unit = min(live, key=lambda found: math.dist(self.mobs.mobs[found].at, (pet.x, pet.y)))
             self.pet_dealt += rate
-            if self.mobs.hit(unit, rate):
+            if self.mobs.hit(unit, rate, by_pet=True):
                 self.kills.append(unit)
 
     def bind(self, begun: float) -> None:
@@ -1168,12 +1331,12 @@ class Arena(Game):
         if landing is not None and (self.acting_until is None or self.acting_until < landing.tick / GAME_RATE):
             self.acting_until = landing.tick / GAME_RATE
 
-    def cast_to(self, spot: Point, seconds: float) -> None:
+    def cast_to(self, spot: Point, seconds: float, teleport: bool = False) -> None:
         """The cast of a skill that puts the character at `spot` in `seconds` from now: it stands and
         casts until the first tick at or after that time, which has it there (`move`)."""
         self.halt()
         due = math.ceil((self.clock.now + seconds) * GAME_RATE - 1e-6)
-        self.landing = Landing(max(due, self.time.ticks + 1), spot)
+        self.landing = Landing(max(due, self.time.ticks + 1), spot, teleport)
         self.acting_until = self.landing.tick / GAME_RATE
         self.mode(CASTING)
 
@@ -1197,7 +1360,7 @@ class Arena(Game):
             self.staff = replace(staff, charges=staff.charges - 1)
             self.charges += 1
         spot = (int(aim[0]) + 0.5, int(aim[1]) + 0.5)
-        self.cast_to(spot, TELEPORT_JUMP.takes(math.dist(self.here, spot)))
+        self.cast_to(spot, TELEPORT_JUMP.takes(math.dist(self.here, spot)), teleport=True)
 
     def warp(self) -> None:
         """Blade Warp, cast now: the cast, then the blade's flight to the ground under the pointer
@@ -1221,8 +1384,13 @@ class Arena(Game):
         walk's points; at the last of them it stands and takes the drop it was sent for."""
         landing = self.landing
         if landing is not None and self.time.ticks >= landing.tick:
+            start = self.here
             self.put(landing.spot)
             self.landing = None
+            if ALLIES_ALONG and landing.teleport:
+                self.along(start, math.dist(start, landing.spot) >= REMARK_HOP)
+            elif HOP_DRAG and math.dist(start, landing.spot) >= REMARK_HOP:
+                self.drag(start)
         stand = self.world.player
         assert stand is not None
         if not self.route or stand.mode != RUNNING:

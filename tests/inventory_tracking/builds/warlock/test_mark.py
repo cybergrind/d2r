@@ -274,7 +274,7 @@ def test_the_safety_stops_an_immune_ones_mark_only_while_the_cast_costs_life_ove
 
 
 def test_mark_immune_off_marks_as_before(monkeypatch):
-    monkeypatch.setattr(mark, 'MARK_IMMUNE', False)
+    monkeypatch.setattr(mark, 'IMMUNE_TO', ())  # no element sends the demons (MARK_IMMUNE off, retired 2026-10-22)
     calm = facts(IMMUNE, draws={7: price(7, life=400.0)})
     assert not worth_a_mark(calm, IMMUNE)
     assert target(facts(SEAL_BOSS, IMMUNE, draws={1: price(1, life=300.0), 7: price(7, life=400.0)})) is SEAL_BOSS

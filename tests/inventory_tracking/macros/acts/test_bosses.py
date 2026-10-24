@@ -44,6 +44,7 @@ def test_an_act_3_game_with_the_tal_rasha_rotation_kills_duriel_right_after_meph
     assert walk.kills[:2] == ['Mephisto', 'Duriel']  # the act's boss, then the rotation's
     assert walk.kills.count('Duriel') == 1
     monkeypatch.setattr(zonenav, 'ROTATION_BOSSES_FIRST', False)
+    monkeypatch.setattr(zonenav, 'ROTATION_ANY_ACT', False)  # it too puts the rotation after the act's boss
     act = ActGame(3, monkeypatch, rotation=TAL_RASHAS)
     tomb_entrances(act)
     before = act.play()
@@ -93,7 +94,8 @@ def test_without_boss_zones_the_turned_zones_boss_is_left_as_before(monkeypatch)
 @pytest.mark.parametrize(('rotation', 'policy'), [(True, ON_THE_WAY), (False, ZONE_LEFT)])
 def test_a_level_the_zone_left_with_a_boss_alive_under_it_is_worked_on_the_way(monkeypatch, rotation, policy):
     # hunting/choice.py BOSS_ROTATION: the run on Catacombs Level 3 goes on for Andariel under it (zone navigation);
-    # off the graph the level's own bosses only (none on Level 3)
+    # off the graph the level's own bosses only (none on Level 3). BOSSES_ONLY off: on the way, as before
+    monkeypatch.setattr(choice, 'BOSSES_ONLY', False)
     monkeypatch.setattr(zonenav, 'ROTATION', rotation)
     agenda = Agenda()
     agenda.begin('cyberr29')
@@ -109,3 +111,32 @@ def test_a_level_the_zone_left_with_a_boss_alive_under_it_is_worked_on_the_way(m
     assert choice.level_policy(hunter, world, 37) == ON_THE_WAY
     tracker.slain = frozenset({'Andariel'})
     assert choice.level_policy(hunter, world, 37) == ZONE_LEFT
+
+
+def test_a_level_the_zone_left_is_worked_for_its_bosses_alone(monkeypatch):
+    # hunting/choice.py BOSSES_ONLY (2026-10-23, lever 2 of rca/2026-10-22/exp-hour-findings.md): its plain monsters
+    # no goal, its bosses still killed ("Kill every boss")
+    from inventory_tracking.macros.agenda import BOSS_WAY
+
+    monkeypatch.setattr(zonenav, 'ROTATION', True)  # zone navigation: Andariel under Level 3 holds it
+    agenda = Agenda()
+    agenda.begin('cyberr29')
+    plan = itinerary(CATACOMBS)
+    assert plan is not None
+    agenda.plan = plan
+    tracker = ZoneTracker()
+    tzloop.bosses_planned(agenda, Progress(ROUTES, PERFORMED, tracker.killed), plan)
+    hunter = cast(Any, SimpleNamespace(agenda_policy=lambda area: ZONE_LEFT, agenda=agenda, zone_left=None))
+    world = cast(Any, SimpleNamespace(game_name='cyberr29'))
+    assert choice.BOSSES_ONLY
+    assert choice.level_policy(hunter, world, 36) == BOSS_WAY
+    assert choice.level_policy(hunter, world, 37) == BOSS_WAY
+    tracker.slain = frozenset({'Andariel'})
+    assert choice.level_policy(hunter, world, 37) == ZONE_LEFT  # dead: the run ends at once
+
+
+def test_a_zone_turned_under_the_game_still_kills_its_boss_with_bosses_only(monkeypatch):
+    # The turned Catacombs' Andariel killed on its levels worked for her alone (hunting/choice.py BOSSES_ONLY)
+    walk = turning_game(monkeypatch).play()
+    assert walk.stopped is None, (walk.stopped, walk.where)
+    assert walk.kills.index('Andariel') < walk.kills.index('The Countess')

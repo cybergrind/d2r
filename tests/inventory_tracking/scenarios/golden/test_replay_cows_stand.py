@@ -11,11 +11,20 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
+from inventory_tracking.builds.warlock import mark
 from tests.inventory_tracking.scenarios.battle import cows_stand as battle, evidence
 from tests.inventory_tracking.scenarios.battle.replay import Replay
 
 
 GOLDEN = Path(__file__).parent / 'cows_stand.log.json'
+
+
+@pytest.fixture(autouse=True)
+def _reaggro_as_recorded(monkeypatch):
+    """The recorded fight's marks: mark.REAGGRO_PACK (on 2026-10-24) designates plain packs the recording did not."""
+    monkeypatch.setattr(mark, 'REAGGRO_PACK', False)
 
 
 @functools.cache

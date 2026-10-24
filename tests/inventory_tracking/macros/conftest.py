@@ -1,7 +1,14 @@
 import pytest
 
 from inventory_tracking.game import view
-from inventory_tracking.macros import pickup, repair, runner, shop, stash, teleport
+from inventory_tracking.macros import pickup, repair, runner, shop, stash, teleport, tzloop
+
+
+@pytest.fixture(autouse=True)
+def mid_slot(monkeypatch):
+    """The terror zones' slot half gone in every game played here (tzloop.py `slot_left`; zonenav.py ROTATION_ANY_ACT
+    reads it): the plays do not hang on the wall clock. A test of the clock sets its own."""
+    monkeypatch.setattr(tzloop, 'slot_left', lambda: tzloop.ZONE_TURN / 2)
 
 
 @pytest.fixture(autouse=True)

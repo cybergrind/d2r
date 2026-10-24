@@ -297,12 +297,15 @@ class BuffFacts:
     # macros/safety.py `Safety.rebuffed_at`): its landing casts it though the character was just hurt
     rebuffed: float = -math.inf
     # Clock that rebuff retreat landed (macros/safety.py `Safety.landed`): the Death Mark again after it
-    # (builds/warlock/mark.py REMARK_AFTER_REBUFF)
+    # (builds/warlock/mark.py `rebuff_waits`: the rebuff's Battle Orders first)
     rebuff_landed: float = -math.inf
     # Why the safety's last look bars Battle Orders cast in place (macros/safety.py CAST_REACH); None: not barred
     cast_barred: str | None = None
     # A monster's state words read raw (`Run.reads.unit_states`), asked lazily; None: not read
     states: Callable[[Monster], bytes | None] | None = None
+    # The character's mana now in whole points (`Run.reads.mana`), asked lazily; None: no reader (the rows go on
+    # as if it paid, as before the mana was read)
+    mana: Callable[[], float | None] | None = None
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when never."""
@@ -367,6 +370,18 @@ class Buff:
     shows: Callable[[bytes], bool] | None = None
     shows_within: float = 0.0
     recasts: int = 0
+    # A fight row whose cast goes before the bout's first strike when this holds (macros/buffs.py `Buffs.before_strike`,
+    # macros/hunt.py): Death Mark on the designated monster, the demons' aggro first (builds/warlock/mark.py
+    # `mark_ahead`, 2026-10-22). None: under the strike only.
+    before_strike: Callable[[BuffFacts], bool] | None = None
+    # An instant cast from where the character stands that neither moves nor roots it, as the strike (Death Mark, ~0.37
+    # s): macros/hunt.py FIGHT_CAST_REACH does not hold it while the bout's strike goes on from the same spot
+    # (INSTANT_THROUGH, 2026-10-23). False: held with the rest.
+    instant: bool = False
+    # A caster that waits seconds for its own outcome (a summon to show, a Defiler to stand clear: 1.5-3.5 s): an
+    # upkeep or prebuff row of it is not due with a hostile on the character (macros/buffs.py ROUTINES_AWAY,
+    # 2026-10-23). False: due whatever is near.
+    waits: bool = False
 
 
 @dataclass(frozen=True)

@@ -17,7 +17,7 @@ from pathlib import Path
 
 GROWN = Path('/mnt/extra/1000/games/d2r/pricing/raw/re/D2R-decrypted.exe')
 BASE = 0x140000000
-TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CB800, 0x1000  # as native/grow.py has them
+TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CD200, 0x1000  # as native/grow.py has them
 PAGE = 0x1000
 DONE = 'ai_d2_grown_pages'  # the database's own note of the pages analysed again
 

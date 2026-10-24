@@ -75,6 +75,9 @@ class Ledger:
     level_start: Reading | None = None
     level_since: float = 0.0
     games: int = 0  # games ended (`game_over`) with a reading
+    game_since: float = 0.0  # the clock of the game's first reading
+    last: Reading | None = None  # the last reading, and its clock
+    last_clock: float = 0.0
 
     def look(self, game: str, area: int | None, now: Reading | None, clock: float) -> list[str]:
         """A leg's look in `game` on level `area`: the last level's line when it was left. Nothing unread."""
@@ -84,11 +87,23 @@ class Ledger:
             self.first, self.since = now, clock
         if game != self.game:
             self.game, self.game_start, self.area, self.level_start = game, now, None, None
+            self.game_since = clock
+        self.last, self.last_clock = now, clock
         lines = []
         if area != self.area:
             lines += self._level(now, clock)
             self.area, self.level_start, self.level_since = area, now, clock
         return lines
+
+    def game_rate(self) -> float | None:
+        """The game's going rate (zonenav.py `worth`): exp an hour from its first reading to the last, every leg's
+        time counted (the town's too); None unread or under RATE_HOURS."""
+        if self.game_start is None or self.last is None:
+            return None
+        hours = (self.last_clock - self.game_since) / 3600
+        if hours < RATE_HOURS:
+            return None
+        return (self.last.experience - self.game_start.experience) / hours
 
     def game_over(self, number: int, now: Reading | None, clock: float) -> list[str]:
         """At Save and Exit of game `number`: the level left by it, then the game's line."""

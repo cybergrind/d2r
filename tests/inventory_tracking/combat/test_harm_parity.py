@@ -14,10 +14,19 @@ import sys
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
+
+from inventory_tracking.combat import harm
 from inventory_tracking.combat.harm import harm_path
 
 
 FIXTURE = Path(__file__).parent / 'fixtures' / 'harm_parity.pkl.gz'
+
+
+@pytest.fixture(autouse=True)
+def _as_captured(monkeypatch):
+    """The digests were pinned before CURSED_PRICED (on since 2026-10-24 ~14:40; test_cursed_priced.py covers it)."""
+    monkeypatch.setattr(harm, 'CURSED_PRICED', False)
 
 
 def load() -> list[tuple]:

@@ -20,7 +20,7 @@ from inventory_tracking.macros.buffs import Buffs
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, world
 
 
-ROW = next(row for row in BUFFS if row.skill == SIGIL_LETHARGY)
+ROW = next(row for row in BUFFS if row.skill == SIGIL_LETHARGY and row.before_strike is None)  # the late row
 NOBODY = 0xFFFFFFFF
 UNIQUE, MINION = 0x08, 0x10
 GREAT_MARSH = 77

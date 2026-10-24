@@ -14,6 +14,7 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.builds.generic import GENERIC
+from inventory_tracking.builds.warlock import buffs as warlock_buffs
 from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS, Rotation
 from inventory_tracking.builds.warlock.casters import SUMMON_SPOTS
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
@@ -1448,7 +1449,9 @@ def test_no_psychic_ward_when_it_is_on_or_cannot_be_read(state):
     assert play.wards == []
 
 
-def test_a_psychic_ward_broken_again_and_again_in_a_fight_is_cast_once_in_five_seconds():
+def test_a_psychic_ward_broken_again_and_again_in_a_fight_is_cast_once_in_five_seconds(monkeypatch):
+    # WARD_SECONDS in a fight is the WARD_BROKEN_FIRST-off rule (on in live since 2026-10-24; test_ward_broken.py)
+    monkeypatch.setattr(warlock_buffs, 'WARD_BROKEN_FIRST', False)
     play = warded(game(foe(10, 5008.0, 5000.0)), True)
     play.toughness[10] = 1000
     breaks = [(at, lambda: warded(play, False)) for at in (2.0, 3.5, 5.0, 8.5)]
@@ -3018,3 +3021,64 @@ def test_the_fight_puts_the_pointer_on_a_covered_held_leaders_body_only_with_the
         hunt.attack_mode(run, keys)
     assert 'held until it dies' in caplog.text  # the attack holds the leader
     assert ('the pointer on its body after' in caplog.text) is on
+
+
+# --- the strike aimed during a Teleport's flight (PREAIM, 2026-10-23) ---
+
+
+def test_the_strike_is_aimed_from_the_landing_during_the_flight_and_kept_by_the_fight_only_from_there():
+    # rca/2026-10-23/pause-findings.md: the strike's aim (92 ms p50) came after the landing; teleport.py calls `preaim`
+    # once the hop's cast shows, and the fight's first aim is left out when the pointer stands for it
+    play = game(foe(10, 5030.0, 5000.0))  # out of reach from the start, in reach from the landing
+    hunt, run = hunter(play), play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    view = Viewport(ASPECT)
+    hunt.preaim(run, (5020.0, 5000.0))
+    assert hunt.preaimed is not None
+    focal = hunt.preaimed[2]
+    assert math.dist(focal, (5030.0, 5000.0)) < 3.0
+    assert hunt.preaim_kept(run, (5020.0, 5000.0), focal, view)
+    assert hunt.preaimed is None  # used once
+
+    hunt.preaim(run, (5020.0, 5000.0))
+    assert not hunt.preaim_kept(run, (5014.0, 5005.0), focal, view)  # landed elsewhere: aimed again
+    hunt.preaim(run, (5020.0, 5000.0))
+    assert not hunt.preaim_kept(run, (5020.0, 5000.0), (5030.0, 5006.0), view)  # another line chosen
+    hunt.preaim(run, (5020.0, 5000.0))
+    play.clock.now += 2.0
+    assert not hunt.preaim_kept(run, (5020.0, 5000.0), focal, view)  # an old one
+
+
+def test_nothing_in_reach_of_the_landing_leaves_the_pointer_alone():
+    play = game(foe(10, 5090.0, 5000.0))
+    hunt, run = hunter(play), play.run()
+    before = run.actuator.keys.pointer()
+    hunt.preaim(run, (5020.0, 5000.0))
+    assert hunt.preaimed is None
+    assert run.actuator.keys.pointer() == before
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_a_fight_after_the_flight_strikes_with_no_aim_of_its_own(monkeypatch, on):
+    from inventory_tracking.macros import hunt as hunt_module
+
+    monkeypatch.setattr(hunt_module, 'PREAIM', on)
+    play = game(foe(10, 5030.0, 5000.0, life=100, max_life=100))
+    play.toughness[10] = 1000
+    hunt, run = hunter(play, pursuit=False), play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    if on:
+        hunt.preaim(run, (5020.0, 5000.0))
+    play.world = replace(play.world, player=replace(play.character, x=5020.0, y=5000.0))  # landed
+    aimed, aim = [], run.actuator.aim
+
+    def aims(*args, **kwargs):
+        aimed.append(play.clock.now)
+        return aim(*args, **kwargs)
+
+    run.actuator.aim = aims
+    play.arrivals.append((play.clock.now + 1.0, run.cancelled.set))
+    with pytest.raises(Abort, match='cancelled'):
+        hunt.attack_mode(run, keys)
+    assert play.strikes  # struck
+    assert (aimed == []) if on else bool(aimed)

@@ -77,6 +77,33 @@ DECIDE_SECONDS = 0.12  # between two askings of the policy while its monster liv
 # look in a row for its act still to be made.
 STALE_LOOK = 0.3
 STALE_MOVED = 2.0
+# 2026-10-23 (rca/2026-10-23/realtime-2-findings.md §2): the safety's escape (a retreat or a dodge, moves.py
+# `danger_act`) older than STALE_LOOK is made, not dropped, when the newest look still has the character within
+# STALE_MOVED of where the act's look saw it: a danger look prices up to DANGER_SECONDS (0.2 s, macros/safety.py), so
+# with the reads after it the first escape was dropped by construction (the death of 18:57:43: the retreat dropped
+# 0.30 s old, the next look's made 0.36 s old, 0.41 s later under hits). Progress acts are still dropped. False: as
+# before.
+STALE_DANGER_KEPT = False
+# 2026-10-23: one read of the worn staff for a whole judge (hunting/laps.py `staff_once`): each candidate the safety
+# prices read it again (travel.py `move_facts`: 10-35 walks of the item table in a heavy look, 2-4 ms each before any
+# GIL wait). It changes only by an act, and a judge makes none. False: read at each ask.
+STAFF_ONCE = True  # on 2026-10-23 ~22:00: realtime-2 gate no worse (2440 plays + slow host k 1 and 1.5)
+# 2026-10-23 (rca/2026-10-23/realtime-3-findings.md): one loot read for a whole judge (hunting/laps.py `loot_once`): the
+# goal's drops (choice.py, sweep.py, shrines.py) and the safety's life and belt (judging.py `safety_priced`) read it
+# apart, 4.9/9.7 ms each live (FRAMES on), ~15 a second. One judge prices from one read, the nearest to its look; the
+# pursue's own read after the judge stays fresh. False: read at each ask.
+LOOT_ONCE = True  # on 2026-10-24 ~09:50: realtime-3 gate passes (one loot read a judge)
+# 2026-10-23: the act queue's parts (hunting/laps.py `LapBook`): an act whose first input came ACT_LAPS_OVER or more
+# after its look is said with its parts, at most once a ACT_LAPS_SAID seconds, and every ACT_LAPS_EVERY seconds the
+# parts' p50/p90 over the acts since. Measurement only: no decision changes. False: nothing timed.
+ACT_LAPS = True  # on 2026-10-23 ~22:00: realtime-2 gate no worse (2440 plays + slow host k 1 and 1.5)
+ACT_LAPS_OVER = 0.15
+ACT_LAPS_SAID = 1.0
+ACT_LAPS_EVERY = 60.0
+# 2026-10-24 (rca/2026-10-24/realtime-4-findings.md): the judge's own thread CPU beside its wall time in the act
+# queue's lines ('judge 374 (cpu 40; priced ...'): a judge whose wall is far over its CPU waited for the GIL (another
+# thread of the service ran), one near it computed. Measurement only. False: wall time only, as before. On 10-24 12:30.
+ACT_CPU = True
 # A fight let go for the key's act (`key_asks`) makes that act at the mode's next look, not a fresh judgement of it:
 # the two looks disagreed near the arbiter's commitment line, so the strike was let go and pressed again (game 30,
 # 2026-10-19: 14 of 228 yields struck again; rca/2026-10-19/game30-run-findings.md S4). Taken within YIELD_FRESH of

@@ -133,6 +133,9 @@ BURN_HOPS = 10
 BURN_SAID = 'mana burn'  # the hop's reason after combat/pack.py BACK_SAID, for a draining pack
 FAST_SAID = 'extra fast'  # the same for an Extra Fast pack that does not drain (FAST_RANGE)
 CASTER_SAID = 'casters'  # the same for a tier 4-5 pack of ranged elemental casters (CASTER_RANGE)
+# A plain drainer by type in a drain fight (combat/threats/drain_escape.py `typed_burners`, 2026-10-23): the hops'
+# and the leave's landings keep clear of it; it makes no hop, bars no approach and names no pack (`triggers`)
+LANDING_ONLY = 'kept clear'
 LANDED = "kept at range: a move into the pack's reach"  # the bar on a move that goes deeper into a keep range
 INTRUDE_SLACK = 1.0  # units nearer a burner inside its keep range a move may end before it is barred
 # The keep range only against a pack whose threat warrants it (the coordinator, 2026-10-21 ~21:20, from the herald-left
@@ -174,6 +177,26 @@ MANA_SAFE = 0.6  # of the mana pool
 # (MANA_REJUVENATION, "don't overuse it"). A Herald's pack and a burn seen (`mana_safe` False) are kept as before.
 # False: every Extra Fast drainer is kept at range, as from 2026-10-21 23:30.
 MANA_BUDGET = True
+# BURN_STALL_COMMIT (2026-10-24, rca/2026-10-24/manaburn-cycle-findings.md §1; the player: "exp/hour, never die"): take
+# 20261024T132953Z-63, Maggot Lair Level 2, 16:31:13-33: a tier 5 Herald pack of 6 Sand Warriors (monstats 92, scarab2:
+# Extra Fast, Mana Burn) in a walled side cave. The keep range (FAST_KEEP 18) against the strike's 22 left a band
+# that walls shut: of 30 looks after the first hop 27 had no member with a clear shot within 22, every move with one
+# ended inside 18 (LANDED), the arbiter retreated (pursuit.py: every progress act vetoed) 4 looks in a row out to
+# 34-55 off, the safe approach came back and a member ran in at 17-25 units a second (the take) within one look: 24
+# Teleports, 0 kills, life 2943 of 2943 and mana 725-745 throughout (no burn), until the run gave the pack up for 600 s
+# (STILL_BUDGET). True: a pack whose triggers all drain by Mana Burn alone (no drainer by type within PACK_SEEN:
+# their blows take 200-300 each, combat/threats/drain_escape.py MANA_ELEMENT) that has held the fight's progress off
+# by LANDED for COMMIT_SECONDS (the bar again within STALL_GAP, no member DENTED or killed meanwhile: the arena's
+# cut stood between the retreats, "waiting here: every way out costs more"), with the mana safe (DRAIN_GATE's
+# `mana_safe`), no burn remembered and the life unhurt (UNHURT, nothing felt), is no longer kept at range
+# (macros/safety.py `Safety.burn_stalls`, `kept_at_range`): it is fought as any tier 4-5 Herald pack (combat/pack.py
+# PACK_BACK). The first burn seen, life felt or the mana under MANA_SAFE ends it for that pack for good. False: as
+# before.
+BURN_STALL_COMMIT = False
+COMMIT_SECONDS = 5.0  # hunting/judging.py DANCE_SECONDS, macros/safety.py RANGE_STALL_SECONDS
+STALL_GAP = 2.0  # seconds a stall lasts past the last look whose progress LANDED barred (the stands between them)
+DENTED = 0.15  # of a member's life lost since the stall began: the fight goes on, no stall (a kill likewise)
+COMMIT_SAID = 'kept at range with no progress: the mana burn keep range let go (BURN_STALL_COMMIT)'
 
 # skills.txt row 54 Teleport (the installed game's, pricing/raw/game-excel/skills.txt, read 2026-10-21): mana 24,
 # lvlmana -1, minmana 1, manashift 8. Cost at skill level L: max(mana + lvlmana * (L - 1), minmana) * 2^manashift / 256.
@@ -219,6 +242,13 @@ FRESH_LOOK = 0.5  # seconds a safety's look stands for the mana's state (hunting
 def drains(mods: Iterable[int]) -> bool:
     """Whether a hostile with these modifiers drains mana by its hits (DRAINING)."""
     return any(mod in DRAINING for mod in mods)
+
+
+def typed(txt: int) -> bool:
+    """Whether a type drains mana by its own row (combat/threats/drain_escape.py MANA_ESCAPE, 2026-10-23)."""
+    from inventory_tracking.combat.threats import drain_escape  # late: it builds on this module
+
+    return drain_escape.MANA_ESCAPE and drain_escape.threat(txt)
 
 
 @lru_cache(maxsize=1024)
@@ -307,8 +337,14 @@ def said(burning: Sequence[Burner]) -> str:
     return FAST_SAID if any(b.kind == FAST_SAID for b in burning) else CASTER_SAID
 
 
+def triggers(burning: Sequence[Burner]) -> list[Burner]:
+    """The burners that make a hop and bar an approach: all but the LANDING_ONLY ones."""
+    return [b for b in burning if b.kind != LANDING_ONLY]
+
+
 def key_of(burning: Sequence[Burner]) -> int | None:
     """The draining pack's name for the hop count: its leader's unit, else its lowest unit."""
+    burning = triggers(burning)
     if not burning:
         return None
     leaders = [b.unit for b in burning if b.herald]
@@ -325,6 +361,7 @@ def pressing(here: Point, burning: Sequence[Burner], demons: Iterable[Point]) ->
 def why_back(here: Point, burning: Sequence[Burner], demons: Iterable[Point]) -> str | None:
     """Why the character hops back from a draining pack now, or None: surrounded (combat/pack.py SURROUND_COUNT within
     SURROUND_RADIUS, on a demon or not), else a burner on it within its keep range."""
+    burning = triggers(burning)
     close = [b for b in burning if math.dist(here, b.at) <= SURROUND_RADIUS]
     if len(close) >= SURROUND_COUNT:
         return f'{said(close)}: surrounded: {len(close)} of the pack within {SURROUND_RADIUS:.0f}'
@@ -430,13 +467,33 @@ def fast_drainer(m) -> bool:
     return EXTRA_FAST in tuple(getattr(m, 'modifiers', ())) and not in_pack(getattr(m, 'tier', 0))
 
 
+def committable(here: Point, burning: Sequence[Burner], hostiles: Iterable) -> bool:
+    """BURN_STALL_COMMIT: whether the pack kept at range may be fought in: its triggers (`triggers`) all drain by the
+    Mana Burn modifier (BURN_SAID) and no drainer by type (combat/threats/drain_escape.py `threat`) is within PACK_SEEN
+    of the character."""
+    found = triggers(burning)
+    if not found or any(b.kind != BURN_SAID for b in found):
+        return False
+    from inventory_tracking.combat.threats import drain_escape  # late: it builds on this module
+
+    return not any(drain_escape.threat(m.txt) and math.dist(here, m.at) <= PACK_SEEN for m in hostiles)
+
+
+def committed(burning: Sequence[Burner], key: int | None) -> list[Burner]:
+    """The burners kept at range once the pack `key` is fought in (BURN_STALL_COMMIT): all but its Mana Burn triggers
+    (the landings still keep clear of the LANDING_ONLY ones); `burning` as it is when `key` names no pack of it."""
+    if key is None or key_of(burning) != key:
+        return list(burning)
+    return [b for b in burning if b.kind != BURN_SAID]
+
+
 def intrudes(here: Point, spot: Point, burning: Sequence[Burner]) -> Burner | None:
     """The burner a move from `here` to `spot` goes deeper into the keep range of (ends inside it, over INTRUDE_SLACK
     nearer than here), or None."""
     return next(
         (
             b
-            for b in burning
+            for b in triggers(burning)
             if math.dist(spot, b.at) < b.keep and math.dist(spot, b.at) < math.dist(here, b.at) - INTRUDE_SLACK
         ),
         None,
@@ -471,7 +528,7 @@ def threatened(here: Point, hostiles: Iterable) -> list:
     found = []
     for m in hostiles:
         mods = tuple(m.modifiers)
-        reach = keep_of(m.txt, mods) if drains(mods) or EXTRA_FAST in mods else reach_of(m.txt, mods)
+        reach = keep_of(m.txt, mods) if drains(mods) or typed(m.txt) or EXTRA_FAST in mods else reach_of(m.txt, mods)
         if math.dist(here, m.at) < reach:
             found.append(m)
     return found
@@ -550,7 +607,7 @@ class ManaLook:
 def dangerous(here: Point, hostiles: Iterable) -> tuple[int, int | None]:
     """The dangerous hostiles whose reach covers the character (`threatened`): draining ones and a tier 4-5 Herald's
     pack (combat/pack.py `in_pack`); how many, and their pack's name (a leader's unit, else the lowest unit)."""
-    found = [m for m in threatened(here, hostiles) if drains(m.modifiers) or in_pack(m.tier)]
+    found = [m for m in threatened(here, hostiles) if drains(m.modifiers) or typed(m.txt) or in_pack(m.tier)]
     if not found:
         return 0, None
     leaders = [m.unit for m in found if leader(m.flags)]

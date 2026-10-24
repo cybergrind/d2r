@@ -8,12 +8,11 @@ Offered by three presses of KP_6 and restart.py `--kind tz` / `--kind tzclear` w
 """
 
 import functools
-import json
 import math
 import time
-from collections.abc import Callable
-from dataclasses import replace
-from pathlib import Path
+from collections import Counter
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
@@ -30,6 +29,8 @@ from inventory_tracking.macros.agenda import (
     PANDEMONIUM_FORTRESS,
     PICKUP,
     PORTAL_TO_TOWN,
+    RESUME,
+    SKIPPED,
     STACK,
     SWAP_AWAY,
     SWAP_CHOOSE,
@@ -56,6 +57,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.loop import (
     CHOOSE,
     DROPS_AFTER_KILL,
+    FOLD_ROOM,
     GHEED_CHOOSE,
     GHEED_PICK,
     GHEED_STASH,
@@ -78,7 +80,6 @@ from inventory_tracking.macros.loop import (
     TZ_UP,
     TZ_WAYPOINT,
     Dead,
-    GameId,
     LegHands,
     Loop,
     teleports,
@@ -89,7 +90,9 @@ from inventory_tracking.macros.repair import gold
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.shop import gold_cap
 from inventory_tracking.macros.teleport import Untook
+from inventory_tracking.macros.threat import watched_sleep
 from inventory_tracking.macros.town import Exit
+from inventory_tracking.macros.travel import cut
 from inventory_tracking.macros.tzroutine import (
     ACT_BOSS_LEVELS,
     ON_THE_WAY,
@@ -157,6 +160,12 @@ BOSS_STAYS = True
 # The act bosses' levels (tzroutine.py ACT_BOSS_LEVELS): in the game's scope whenever its plan reaches them, worked or
 # only crossed (`boss_scope`); a level only crossed is no other boss's (Hephasto in the River of Flame)
 ACT_BOSSES = frozenset(ACT_BOSS_LEVELS.values())
+# STOPS_FOR_ACT_BOSSES (the player, 2026-10-23 ~08:50, the loop stood 05:32-08:50 for Icehawk Riftwing in Sewers
+# Level 1, its runs spent: "follow your goals. Icehawk isn't act boss"; the goals: "run all the time, without dying and
+# good exp/hour"). True: BOSS_STAYS stops the loop only for an act boss (ACT_BOSSES' levels) alive; another boss is
+# still hunted with its level's BOSS_RUNS (zonenav.py BOSSES_HOLD), then left alive, said, and the game goes on.
+# False: any boss of the ledger stops it, as before.
+STOPS_FOR_ACT_BOSSES = True
 # A rotating zone that turned in this game with a boss of the ledger alive on a level of its own (and no zone of the new
 # plan holding that level) is kept in the plan (`zone_of`): its levels holding a live boss are worked on the way
 # (hunting/choice.py BOSS_ROTATION), the others blocked (TURNED, `turned_levels`), until those bosses are dead or their
@@ -165,6 +174,91 @@ ACT_BOSSES = frozenset(ACT_BOSS_LEVELS.values())
 # only, so the zone is the ledger's, read back after a restart. False: the plan is the zones read now, as before
 BOSS_ZONES = True
 TURNED = 'the zone turned: no boss of the game is left there'
+# MANUAL_TURNED (2026-10-24, rca/2026-10-24/route-spin-findings.md): a level of a shard act's zone (Act<N>-Manual, kept
+# in the plan all game: ACT_OWED, `zone_of`) read not terrorized has a level run that ends at once and goes to nothing
+# (hunting/choice.py ZONE_LEFT) unless a ledger boss holds it (BOSS_ROTATION), so travelling to it gives nothing: the
+# waypoint back to Black Marsh at 12:06:11 on 2026-10-24 (the Countess killed 12:05:07, the rotating zone turned at
+# 12:00) cost 43 s for 724 exp, The Worldstone Keep Level 2's at 04:04:53 on 2026-10-23 14 s for 0. True: such a level
+# of the trip's own zone is blocked as TURNED is (judged each leg, not kept), so the zone navigation never goes there;
+# the act's levels still read terrorized stay owed. False: owed and gone to, as before (ZONE_LEFT_NO_WAY then blocks
+# each child at its first leg). On since 2026-10-24 (the player's ruling, relayed by the coordinator:
+# "maybe we need to mark them internaly as finished? why do we think that we have to do something there if there is
+# clearly nothing left?"; again at 12:45: the Forgotten Tower and Hole Level 1 blocked after their spin): such a level
+# is in the zone's `finished` (Judged: cleared or blocked), so ACT_OWED owes it no more (`levels_owed`, `blocked_said`,
+# running/recovery.py), the rotation's order passes it (zonenav.py `play_order`) and the game's end is not held for it;
+# it is no `Agenda.blocked` of the game's record.
+MANUAL_TURNED = True
+MANUAL_TURNED_SAID = 'nothing left there: read not terrorized, no boss of the game held (finished)'
+# WAYLESS_BLOCKS (2026-10-24, rca/2026-10-24/no-goals-stop-findings.md; game cybergg10, 19:32:37): a level whose run
+# ended with no way on (agenda.py `no_way_on`: "no way to Plains of Despair: the fight first") has its NEXT_LEVEL goals
+# dropped for the game (`Agenda.refresh`), but the zone's judge still took its child for work left, so zonenav.py
+# `_produce` gave only "on into Plains of Despair", the refresh dropped it, and the empty queue was "no goals left" with
+# Andariel, Duriel and Mephisto alive in the plan: the loop stopped (BOSS_STAYS). True: a child of such a level is
+# blocked (judged each leg from `Agenda.wayless`, the game's record's, never kept in `Agenda.blocked`), so the zone
+# goes on to its next root. False: as before
+WAYLESS_BLOCKS = True
+WAYLESS_SAID = 'no way on from {} in this game: its way in is dropped'
+# UNROUTED_AFTER_BOSSES (2026-10-24, the same stop): `unrouted` blocked every shard act's level still owed "at the
+# game's end" (60 levels, Andariel's, Duriel's and Mephisto's among them), then the act bosses alive stopped the loop
+# (BOSS_STAYS) and the game did not end; those blocks stayed (the game's record) and the loop turned on again judged
+# every root finished: "no goals left" at once (19:34:01). True: no level is blocked as unrouted while an act boss of
+# the plan is alive (the game cannot end then), and such blocks already made (an old service's, a record's) are dropped
+# at the next leg (`reroute`), so the zone routes to the bosses and the owed levels again. False: as before
+UNROUTED_AFTER_BOSSES = True
+
+
+def unrun_levels(
+    plan: Itinerary, wanted: Callable[[int], bool | None] | None, finished: frozenset[int]
+) -> frozenset[int]:
+    """MANUAL_TURNED: the levels of `plan`'s shard acts (its `Act<N>-Manual` zones) whose run ends at once, the zone
+    left (running/legs.py `_agenda_policy`): in their trip's zone and read not terrorized (`wanted`, the tracker's
+    `terrorized`); no town. A rotating zone's are `turned_levels`'."""
+    if not MANUAL_TURNED or wanted is None:
+        return frozenset()
+    names = set(plan.zone.split(' + '))
+    acts = [zone for act in range(1, 6) if f'Act{act}-Manual' in names and (zone := manual_zone(act)) is not None]
+    found = set()
+    for level in {area for zone in acts for area in zone.areas} & plan.areas:
+        if level in TOWNS or wanted(level) is not False:
+            continue
+        trip = plan.trip_of(level, finished)
+        if trip is not None and level in trip.zone:
+            found.add(level)
+    return frozenset(found)
+
+
+# The ledger's book attached before the zone is read (`book_first`, 2026-10-22,
+# rca/2026-10-22/restart-zone-findings.md): after a service restart the agenda's ledger had no book until
+# `bosses_planned`, after `zone_of`, so the first plan lacked the zones kept for their bosses (Act2-FarOasis,
+# Act2-TalRashas in game cyberg65, 19:49:43): "Town Portal: off the zone" from Maggot Lair, the kept zones read back
+# only in town. False: attached after the plan, as before
+BOOK_FIRST = True
+# A shard's act owed (2026-10-22; the player: "make sure that we don't leave the game if TZ is rotated but we still have
+# act1 to run"; "no save/exits on games with worldstone shards spent! you must finish the game correctly => all levels +
+# use all overflow shards => maybe more acts + rotating TZ"): the levels the plan works of each act a shard terrorized
+# this game (`Agenda.acts`: the kind's own and the overflow acts, the game's record's) are owed until run
+# (`levels_owed`), as its live bosses are (BOSS_STAYS). A rotation adds zones (`zone_of`'s `known`: the acts' zones
+# always planned, first) and never drops these, so the plan routes to them. A recovery's leave (running/recovery.py
+# BOSS_RECOVERY) keeps the game for them BOSS_KEEPS times. At the game's end (LEAVE_GAME, the way to the act's last
+# town) a level still owed has no goal of the plan to reach it: the plan's gap, blocked with its why (`unrouted`), as
+# one blocked after its bounded tries (a door no click takes, a portal that never opens) and those behind it are; all
+# said at the end (`blocked_said`), kept in the game's record (`Agenda.blocked`), and the game ends: the loop never
+# stands stopped for what it cannot do (off for the 20:26 and 20:42 restarts, when such a level held the game). False:
+# only the bosses hold the game
+ACT_OWED = True
+# A level's verdict is the policy's it is worked under now (2026-10-22, rca/2026-10-22/tombs-policy-findings.md; the
+# player: "make correct architectural fix, no ad-hoc solutions"). Game cyberg65: Tal Rasha's tombs worked on the way
+# for Duriel as the rotation turned (19:53-19:59), then act 2 terrorized by an overflow Eastern shard (21:40:32) and
+# owed under the act's policy, which tours the rooms; the tombs' state from the way on (entered, one run, never toured,
+# five blocks "entered and left unfinished" by the hub's rule of before the 20:04 fix) read as the verdict under the
+# new policy, so ACT_OWED dropped them and the act's tombs would go unplayed. True: each leg keeps the policy each
+# entered level is judged under (`Agenda.worked_under`); a level whose work under the policy before does not stand for
+# the one now (zonenav.py `rework`: no room toured, now a touring policy) is judged afresh, as a level not entered
+# (`rework_levels`): its runs counted from here (`Agenda.reopened`), its clear and its block for being left unfinished
+# dropped, entered again (a tour's marks gone through again: which leads into it is not known), its map read and the
+# tracker's explored rooms kept. A block by the hub's rule under the policy it was set under stays. False: the state
+# read as it is under any policy, as before
+POLICY_NOW = True
 # No Town Portal cast in a fight (2026-10-22, rca/2026-10-22/portal-cast-findings.md): the Sling's cast was dropped in a
 # block with 5 hostiles within 30 after the terror zone turned (09:30:05, The Worldstone Keep Level 3) and cut by a
 # block with Fetishes striking at 3 units in a zone read as cleared (22:26:32 on 2026-10-21, Spider Forest); the rule
@@ -176,12 +270,56 @@ TURNED = 'the zone turned: no boss of the game is left there'
 PORTAL_FIGHT_FIRST = True
 PORTAL_FIGHTS = 3
 _portal_fights: dict[tuple, int] = {}  # (game, area, goal key) -> fights posted; only this game's kept
+# The held fight bounded (2026-10-24, rca/2026-10-24/route-spin-findings.md "Portal hold"): the belt-low trip at
+# 15:26:21 (8 hostiles within 30, none within 12) posted the agenda's level run, which is the level's whole run: the
+# portal waited 358 s, through the level's clear and a tier 5 Herald pack, life down to 2097/2943 on ground potions;
+# 14 holds of 91 lasted over 20 s on 10-21..24 (9 over 60 s). True: the held run (`fight_back`) is the fight for at
+# most PORTAL_FIGHT_SECONDS: then its looks read SKIPPED (`worth_skip`, running/legs.py `_agenda_policy`), so the run
+# fights only what attacks in reach (pursuit.py FIGHT_BEFORE_END) and ends, and the portal is asked again: none within
+# SIGHT, it is cast; else the next fight, PORTAL_FIGHTS at most as before. The held fight is no run of its level: its
+# count is taken back (`Agenda.worked`, `ended_empty`, `wayless`). A level no longer terrorized keeps the plain run
+# (`LegHands.fight`, no agenda policy to end it): PORTAL_FIGHT_PLAIN's. False: the level run, as before. On from the
+# restart after 16:05 on 2026-10-24 (12 replay tests; macros+skills 10172 passed with the switches on).
+PORTAL_FIGHT_NEAR = True
+PORTAL_FIGHT_SECONDS = 8.0
+PORTAL_FIGHT_OVER = 'Macro: tz: %s: the held fight is over after %.0f s: the portal is asked again'
+# The held plain run bounded too (2026-10-24, the coordinator's go): on a level no longer terrorized the held fight is
+# the plain run (`LegHands.fight`), which has no agenda policy to end it (52 s at 22:01:10 on 2026-10-23). True: its
+# hold is kept as the agenda run's (`PortalHold.plain`), and the runner ends the attack mode after
+# PORTAL_FIGHT_SECONDS when the same run is still on (running/legs.py `_plain_over`, as merclost.py ends a run for its
+# trip), then the portal is asked again. A run cut so fights nothing more in reach: the next ask holds again while a
+# hostile is within SIGHT, PORTAL_FIGHTS at most. False: the plain run as long as it lasts, as before
+PORTAL_FIGHT_PLAIN = False
+
+
+@dataclass
+class PortalHold:
+    """A fight held for a Town Portal (PORTAL_FIGHT_NEAR): its game, goal and start (time.monotonic), the agenda's
+    run counts then (taken back after it), whether its seconds are up."""
+
+    game: object  # the agenda's (`Agenda.game`)
+    key: tuple
+    label: str
+    started: float
+    worked: Counter
+    ended_empty: Counter
+    wayless: frozenset[int]
+    plain: bool = False  # the plain run's (PORTAL_FIGHT_PLAIN): ended by the runner, not by a policy
+    over: bool = False
+
+
+_portal_hold: PortalHold | None = None
+# A trip's packages folded into one (2026-10-24, the same session): the belt-low package held its Town Portal at
+# 15:26:21; the room package pushed over it at 15:32:19 went to town and back, and then the belt package's own portal
+# made a second trip at 15:32:56 (22 s, 0 items: the belt was refilled by the first visit); the same at 22:00:21 on
+# 2026-10-22 (37 s). True: as a package's Town Portal is cast, the trip packages under it whose own portal is not made
+# yet (their first goal on the stack, of TRIP_KINDS only) are folded in: their town goals this trip lacks (the merc's
+# revive) put after its town visit, the rest dropped, said. False: each package its own trip, as before
+# On from the restart after 16:05 on 2026-10-24, with PORTAL_FIGHT_NEAR.
+PORTAL_TRIPS_FOLD = True
+TRIP_KINDS = frozenset({PORTAL_TO_TOWN, WAYPOINT, TOWN_ROUTINE, merc.MERC_ROUTINE, THROUGH_PORTAL, RESUME})
 # A recovery's game end (`next_goal`): a stop already ruled on (stops.py), left as before
 GIVEN_UP = 'the game given up (a recovery)'
-# The file beside the loop's store (loop.py `Loop.store`) the zone's facts are kept in for a service restart
-# (zonenav.py RESUME, 2026-10-21); the games kept, the latest last
-ZONE_FILE = 'zone-facts.json'
-ZONE_GAMES = 8
 
 # The leg each goal is made as (the HUD's and the log's `Loop: game N, <leg>`; the watch tools' phases)
 LEGS = {
@@ -218,6 +356,11 @@ def zone_levels() -> frozenset[int]:
 def zone_wait(now: float) -> float:
     """Seconds from `now` (time.time()) to ZONE_SETTLE after the next terror zone turn."""
     return ZONE_TURN - now % ZONE_TURN + ZONE_SETTLE
+
+
+def slot_left() -> float:
+    """Seconds left in the terror zones' slot now (they turn every ZONE_TURN s, on :00 and :30)."""
+    return ZONE_TURN - time.time() % ZONE_TURN
 
 
 def leg_of(goal: Objective) -> str:
@@ -273,6 +416,13 @@ def boss_scope(plan: Itinerary) -> frozenset[int]:
     return frozenset(area for trip in plan.excursions for area in trip.areas if area in trip.zone or area in ACT_BOSSES)
 
 
+def book_first(agenda: Agenda, progress: Progress | None) -> None:
+    """BOOK_FIRST: the game's ledger on the tracker's book (its file-backed records, read back after a restart)
+    before the zone is read (`zone_of`), so the zones kept for their bosses are in the first plan."""
+    if BOOK_FIRST and agenda.bosses.book is None and progress is not None:
+        agenda.bosses.attach(progress.dead)
+
+
 def bosses_planned(agenda: Agenda, progress: Progress | None, plan: Itinerary) -> None:
     """The game's ledger on the tracker's book (routes/progress.py `Progress.dead` is its `killed`) with the bosses
     of `plan`'s scope (`boss_scope`) known before their levels are read."""
@@ -287,6 +437,9 @@ def bosses_alive(agenda: Agenda, levels: frozenset[int] | None = None) -> list[B
     if not BOSS_STAYS or not isinstance(plan, Itinerary):
         return []
     scope = boss_scope(plan)
+    # A boss never seen on a level every room of which was seen is not there (bossledger.py BOSS_UNSEEN); an act boss
+    # is settled by its kill alone (terror/tracker.py BOOK_KILLS, BOOK_RECALL)
+    agenda.bosses.unseen(agenda.explored & scope, ACT_BOSSES)
     return agenda.bosses.alive(scope if levels is None else scope & levels)
 
 
@@ -341,6 +494,7 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         return top
     if (shard := actloop.shard_goal(world, loop)) is not None:
         return shard  # the act kind's Worldstone Shard first in a game (macros/actloop.py)
+    book_first(agenda, progress)
     plan = zone_of(tz, agenda.acts, agenda.bosses)
     if plan is None and not player.in_town and (left := tz.sighted(None)) is not None:
         # The zone turned under the game with a valuable still on the ground: it is picked up first, then the game's
@@ -366,6 +520,7 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         )
     agenda.plan = plan
     bosses_planned(agenda, progress, plan)
+    reroute(agenda)  # UNROUTED_AFTER_BOSSES: no game's-end verdict while an act boss is alive
     if zonenav.on(plan):
         return zone_choose(world, progress, loop, tz, plan)  # macros/zonenav.py: the zone as a graph
     game, area = world.game_name, player.area
@@ -387,7 +542,7 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         worked=tuple((level, runs - agenda.reopened.get(level, 0)) for level, runs in agenda.worked.items()),
         finished=frozenset(agenda.finished),
         sighted=tz.sighted(area),
-        visit_due=loop.visit_due(game),
+        visit_due=visit_wanted(world, loop, plan.next_excursion(frozenset(agenda.finished)) is not None),
     )
     agenda.refresh(produce(view))
     zone_note(progress, loop, plan)
@@ -409,11 +564,18 @@ def zone_judged(
     agenda = loop.agenda
     graph = zonenav.graph_of(plan)
     if area is not None:
-        ordered = zonenav.play_order(graph, plan, area, {boss.area for boss in bosses_alive(agenda)})
+        # The bosses alive, None not known (BOSS_STAYS off: no ledger read); the rotation's slot (ROTATION_ANY_ACT)
+        living = {boss.area for boss in bosses_alive(agenda)} if BOSS_STAYS else None
+        left = slot_left()
+        ordered = zonenav.play_order(graph, plan, area, living, agenda.finished, left)
         said_order = f'{plan.zone}: {list(ordered.roots)}'
         if ordered is not graph and agenda.zone_said.get(0) != said_order:
             agenda.zone_said[0] = said_order
-            if ordered.roots[0] != graph.roots[0]:
+            if zonenav.any_act_order(graph, plan, living, agenda.finished, left) is not None:
+                # zonenav.py ROTATION_ANY_ACT (2026-10-23); the watch tools may read it
+                LOG.info("Macro: zone: the rotation from any act: %s after the act's boss, %.0f s left in its slot, "
+                         'from %s', list(ordered.roots), left, display_name(area))  # fmt: skip
+            elif ordered.roots[0] != graph.roots[0]:
                 LOG.info("Macro: zone: the rotation first: %s before the act's roots, from %s",
                          list(ordered.roots[:1]), display_name(area))  # fmt: skip
             else:
@@ -427,12 +589,6 @@ def zone_judged(
                  ', '.join(graph.unconfirmed()) or 'none')  # fmt: skip
     facts = progress.facts if progress is not None else Facts()
     agenda.entered |= {level for level in facts.entered if level in graph.nodes}
-    hub = graph.node(area)
-    for child in hub.children if hub is not None else ():
-        node = graph.nodes[child]
-        left = child not in agenda.explored and agenda.worked[child] < zonenav.runs_allowed(node)
-        if node.toured and child in agenda.entered and child not in agenda.blocked and left:
-            agenda.blocked[child] = "entered and left unfinished: which of its tour's marks leads back is not known"
     dead = progress.dead() if progress is not None and progress.dead is not None else None
 
     sides = zonenav.sides_of(graph)
@@ -445,34 +601,123 @@ def zone_judged(
     # zone kept for its bosses (BOSS_ZONES): those holding none blocked, the others worked on the way
     alive = bosses_alive(agenda)
     turned = turned_levels(plan, progress.wanted if progress is not None else None)
+    unrun = unrun_levels(plan, progress.wanted if progress is not None else None, frozenset(agenda.finished))
+    unrun -= agenda.cleared  # a level cleared before the zone left it keeps its verdict (the last leg's judge)
 
     def held(level: int) -> bool:
         reach = zonenav.boss_reach(graph, level)
         return any(boss.area in reach for boss in alive)
 
     def blocked(level: int) -> str:
-        return agenda.blocked.get(level, '') or (TURNED if level in turned and not held(level) else '')
+        if (found := agenda.blocked.get(level, '')) or (level in turned and not held(level)):
+            return found or TURNED
+        parent = graph.nodes[level].parent
+        if WAYLESS_BLOCKS and parent is not None and parent in agenda.wayless:
+            return WAYLESS_SAID.format(display_name(parent))
+        return MANUAL_TURNED_SAID if level in unrun and not held(level) else ''
 
-    states = {
-        level: zonenav.LevelState(
-            entered=level in agenda.entered,
-            mapped=level in agenda.mapped,
-            explored=level in agenda.explored,
-            runs=agenda.worked[level],
-            work=own(level),
-            blocked=blocked(level),
-            kept=level in agenda.kept,
-            bosses=sum(1 for boss in alive if boss.area == level),
-        )
-        for level in graph.nodes
-    }
+    def states() -> dict[int, zonenav.LevelState]:
+        return {
+            level: zonenav.LevelState(
+                entered=level in agenda.entered,
+                mapped=level in agenda.mapped,
+                explored=level in agenda.explored,
+                runs=agenda.worked[level] - (agenda.reopened.get(level, 0) if POLICY_NOW else 0),
+                work=own(level),
+                blocked=blocked(level),
+                kept=level in agenda.kept,
+                bosses=sum(1 for boss in alive if boss.area == level),
+            )
+            for level in graph.nodes
+        }
 
     def how(level: int, finished: frozenset[int]) -> str:
         if level in turned:
             return ON_THE_WAY  # no longer terrorized: its bosses only (hunting/choice.py BOSS_ROTATION)
         return policy_of(level, plan.trip_of(level, finished), full_clear(loop))
 
-    return graph, zonenav.judge(graph, states, how)
+    found = states()
+    judged = zonenav.judge(graph, found, how)
+    if area is not None and rework_levels(agenda, progress, graph, judged, area):
+        found = states()
+        judged = zonenav.judge(graph, found, how)
+    # In a tour's hub, a toured level entered and left with the zone's own verdict unfinished (not fully explored by
+    # its policy) is blocked: its mark was gone through and which mark leads back is not known. Judged first: the
+    # agenda's tour flag alone (`explored`) is never set on a way on, so the Canyon's tombs turned under the game and
+    # worked on the way for Duriel, each "cleared", were all said blocked (cyberg65 2026-10-22 19:54-19:58,
+    # rca/2026-10-22/tombs-findings.md). A level entered under another policy is judged afresh before it
+    # (`rework_levels`): entered again under this one, then left unfinished, it is blocked
+    hub = graph.node(area)
+    left = [
+        child
+        for child in (hub.children if hub is not None else ())
+        if graph.nodes[child].toured
+        and child in agenda.entered
+        and child not in agenda.blocked
+        and child not in judged.explored
+        and child not in judged.finished
+    ]
+    if not left:
+        return graph, judged
+    for child in left:
+        agenda.blocked[child] = LEFT_UNFINISHED
+        found[child] = replace(found[child], blocked=agenda.blocked[child])
+    return graph, zonenav.judge(graph, found, how)
+
+
+LEFT_UNFINISHED = "entered and left unfinished: which of its tour's marks leads back is not known"
+
+
+def rework_levels(
+    agenda: Agenda, progress: Progress | None, graph: ZoneGraph, judged: zonenav.Judged, here: int
+) -> bool:
+    """POLICY_NOW: each level of the zone entered in this game noted with the policy `judged` judged it under
+    (`Agenda.worked_under`); one whose work under the policy noted before does not stand for it (zonenav.py `rework`)
+    judged afresh, as a level not entered: its runs counted from here (`Agenda.reopened`), its clear dropped (`kept`,
+    `cleared`) and its block for being left unfinished (`LEFT_UNFINISHED`, the rule's under the policy before), entered
+    again (out of `Agenda.entered` and the route facts', but the level `here`, the character's) and, a toured level, its
+    hub's tour marks gone through again (which of them leads into it is not known: one into a level done is a way in and
+    straight back up). Its map read (`mapped`) and the tracker's explored rooms (hunt.py's tour, `visited_rooms`) are
+    kept: its hostiles seen and left are remembered, and a touring policy goes for them (hunting/choice.py). Whether
+    any was; said."""
+    if not POLICY_NOW:
+        return False
+    reworked: list[int] = []
+    for level in sorted(agenda.entered & graph.nodes.keys()):
+        now = judged.policies.get(level)
+        if now is None:
+            continue
+        then = agenda.worked_under.get(level)
+        agenda.worked_under[level] = now
+        if then is None or not zonenav.rework(then, now, level in agenda.explored):
+            continue
+        reworked.append(level)
+        agenda.reopened[level] = agenda.worked[level]
+        agenda.kept.discard(level)
+        agenda.cleared.discard(level)
+        agenda.finished.discard(level)
+        if agenda.blocked.get(level) == LEFT_UNFINISHED:
+            del agenda.blocked[level]
+        if level != here:
+            agenda.entered.discard(level)
+        # The watch tools may read it (d2-loop-watch logwords.py)
+        LOG.info('Macro: zone: %s (%d) was worked %s, now %s: judged afresh (%d run(s) before, not counted)',
+                 display_name(level), level, then, now, agenda.worked[level])  # fmt: skip
+    if not reworked or progress is None:
+        return bool(reworked)
+    hubs = {
+        (parent, entry.mark)
+        for level in reworked
+        if (node := graph.nodes[level]).toured and (parent := node.parent) is not None and (entry := node.entry)
+    }
+    facts = progress.facts
+    progress.facts = replace(
+        facts,
+        entered=facts.entered - (frozenset(reworked) - {here}),
+        used=frozenset(fact for fact in facts.used if (fact[0], fact[1]) not in hubs),
+        finished=facts.finished - hubs,
+    )
+    return True
 
 
 def zone_script(progress: Progress, plan: Itinerary, level: int) -> tuple[str, Script] | None:
@@ -512,9 +757,6 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
     agenda, player = loop.agenda, world.player
     assert player is not None
     area = player.area
-    if zonenav.RESUME and not agenda.zone_resumed:
-        agenda.zone_resumed = True
-        zone_resume(loop, plan, world.game_name)
     if agenda.zone_at != area:
         agenda.zone_at, agenda.arrival_runs = area, agenda.worked[area]
     graph, judged = zone_judged(progress, loop, plan, area)
@@ -522,7 +764,7 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
         graph, judged = zone_judged(progress, loop, plan, area)  # judged again with the children skipped blocked
     agenda.finished = set(judged.finished)
     if zonenav.RESUME:
-        zone_keep(loop, plan, world.game_name, judged)
+        agenda.cleared = set(judged.cleared)  # in the game's record (macros/midgame.py RECORD) as 'kept'
     for level in sorted(agenda.entered):
         if level not in graph.nodes or not (level in judged.explored or level in judged.finished):
             continue
@@ -530,6 +772,7 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
         if agenda.zone_said.get(level) != text:
             agenda.zone_said[level] = text
             LOG.info('Macro: zone: %s', text)
+    fetch = fetch_of(graph, area, tz.remembered()) if zonenav.FETCH_ELSEWHERE else None
     step = None
     if progress is not None:
         found = progress
@@ -537,7 +780,9 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
         def base(level: int) -> tuple[str, Script] | None:
             return zone_script(found, plan, level)
 
-        progress.selected.update(zonenav.scripts(graph, judged, base, agenda.no_back, agenda.no_walk))
+        progress.selected.update(
+            zonenav.scripts(graph, judged, base, agenda.no_back, agenda.no_walk, fetch[0] if fetch else None)
+        )
         child = zonenav.next_child(graph, area, judged) if graph.node(area) is not None else None
         if child is not None and child in progress.facts.entered:
             # Its way in done by the facts (entered before, left unfinished): made again
@@ -551,10 +796,11 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
         stage=step.stage.kind if step is not None else None,
         stage_to=step.stage.to if step is not None else 0,
         sighted=tz.sighted(area),
-        visit_due=loop.visit_due(world.game_name),
+        visit_due=visit_wanted(world, loop, zonenav.next_root(graph, judged) is not None),
         no_back=frozenset(agenda.no_back),
         no_walk=frozenset(agenda.no_walk),
         passed=agenda.worked[area] > agenda.arrival_runs,
+        fetch=fetch,
     )
     goals = zonenav.produce(view)
     if any(goal.exit == zonenav.VISIT for goal in goals):
@@ -567,6 +813,45 @@ def zone_choose(world: World, progress: Progress | None, loop: Loop, tz: LegHand
     dead = progress.dead() if progress is not None and progress.dead is not None else frozenset()
     dead = dead if area not in agenda.finished else frozenset()
     return agenda.next((player.x, player.y), valuable=tz.sighted(None), area=area, dead=dead)
+
+
+def visit_wanted(world: World, loop: Loop, going_on: bool) -> bool:
+    """The town visit wanted where the character stands: due (`Loop.visit_due`), or, in a town with the zone going on
+    (`going_on`: a root or an excursion left), folded into the root change (loop.py FOLD_AT_ROOT, `Loop.fold_due`):
+    the visit there, not a trip for room later. Said once a fold."""
+    game = world.game_name
+    if loop.visit_due(game):
+        return True
+    if not going_on or not loop.fold_due(world):
+        return False
+    said = (game, loop.free, loop.gainable)  # the act's town and the Fortress after it: one line
+    if _folds_said.get(game) != said:
+        _folds_said.clear()
+        _folds_said[game] = said
+        LOG.info('Macro: zone: the town visit on the way to the next root: %s cells free (under %d), %d cells to take '
+                 'away', loop.free, FOLD_ROOM, loop.gainable)  # fmt: skip
+    return True
+
+
+_folds_said: dict[str | None, tuple] = {}  # `visit_wanted`'s line, once a fold (the game's last said)
+
+
+def fetch_of(graph: ZoneGraph, area: int, remembered: Iterable[tuple[int | None, str]]) -> tuple[int, str] | None:
+    """zonenav.py FETCH_ELSEWHERE: (level, label) of the valuable remembered on another level of `graph` to fetch
+    next: one on the tree of `area` first, then in the graph's order; None with none (one on `area` is its PICKUP)."""
+    here = graph.node(area)
+    order = {level: index for index, level in enumerate(level for root in graph.roots for level in graph.subtree(root))}
+    found = [
+        (level, label)
+        for level, label in remembered
+        if level is not None and level != area and graph.node(level) is not None
+    ]
+    if not found:
+        return None
+    return min(
+        found,
+        key=lambda each: (here is None or graph.nodes[each[0]].root != here.root, order.get(each[0], len(order))),
+    )
 
 
 def time_left(loop: Loop, game: str) -> float | None:
@@ -601,78 +886,39 @@ def zone_budget(loop: Loop, plan: Itinerary, progress: Progress, world: World, g
     return skipped
 
 
-def zone_store(loop: Loop) -> Path | None:
-    """The file the zone's facts are kept in (ZONE_FILE beside the loop's store), None with no store (tests)."""
-    return loop.store.parent / ZONE_FILE if loop.store is not None else None
-
-
-def zone_key(loop: Loop, game: str) -> str | None:
-    """The kept facts' key: the game's name and the character's unit id (loop.py `GameId`); None unread."""
-    seen = loop.game_id
-    if not isinstance(seen, GameId) or seen.name != game:
-        return None
-    return f'{seen.name}#{seen.player}'
-
-
-def zone_keep(loop: Loop, plan: Itinerary, game: str, judged: zonenav.Judged) -> None:
-    """The zone's facts this game written to ZONE_FILE when they changed (zonenav.py RESUME)."""
-    path, key = zone_store(loop), zone_key(loop, game)
-    if path is None or key is None:
-        return
+def worth_skip(loop: Loop, area: int, now: float, valuable: Callable[[], str | None] = lambda: None) -> bool:
+    """zonenav.py STALLED_SKIP: whether the level run on `area` ends as the level is not worth playing on
+    (`zonenav.worth`): skipped once, the agenda's block with its why (said: `Macro: zone: <level> (<id>) skipped:
+    ...`), the zone's next goal then leaving it. The stall's seconds are the watchdog's (loop.py `progress_seen`: the
+    kills, the levels finished and cleared, the level; running/watch.py), the loop's own wait (`cooling`) not counted;
+    the going rate is the game's (experience.py `Ledger.game_rate`). A level blocked otherwise is not this one's, nor
+    one with a boss of the ledger alive on it, nor while `valuable` (asked only then: a read of the ground) names one
+    lying in sight: a stand by it is no stall. A fight held for a Town Portal whose seconds are up ends so too
+    (PORTAL_FIGHT_NEAR, `portal_hold_over`), with no block."""
     agenda = loop.agenda
-    facts = {
-        'zone': plan.zone,
-        'entered': sorted(agenda.entered),
-        'mapped': sorted(agenda.mapped),
-        'explored': sorted(agenda.explored),
-        'runs': {str(level): runs for level, runs in sorted(agenda.worked.items())},
-        'cleared': sorted(judged.cleared | agenda.kept),
-        'blocked': {str(level): why for level, why in sorted(agenda.blocked.items())},
-        'no_back': sorted(agenda.no_back),
-    }
-    text = json.dumps(facts, sort_keys=True)
-    if text == agenda.zone_written:
-        return
-    agenda.zone_written = text
-    try:
-        kept = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
-        games = [entry for entry in kept.get('games', []) if entry.get('key') != key]
-        games = [*games, {'key': key, 'at': time.time(), 'facts': facts}][-ZONE_GAMES:]
-        path.write_text(json.dumps({'games': games}, separators=(',', ':')), encoding='utf-8')
-    except (OSError, ValueError, AttributeError, TypeError) as error:
-        LOG.info('Macro: zone: the facts are not kept in %s: %s', path, error)
-
-
-def zone_resume(loop: Loop, plan: Itinerary, game: str) -> None:
-    """The zone's facts kept for this game (`zone_keep`) taken back once a game: a service restart mid-game goes
-    on where it was, the levels cleared before it not played again (zonenav.py RESUME)."""
-    path, key = zone_store(loop), zone_key(loop, game)
-    if path is None or key is None or not path.exists():
-        return
-    try:
-        kept = json.loads(path.read_text(encoding='utf-8'))
-        entry = next((each for each in reversed(kept.get('games', [])) if each.get('key') == key), None)
-        if entry is None or time.time() - float(entry['at']) > zonenav.RESUME_SECONDS:
-            return
-        facts = entry['facts']
-        if facts['zone'] != plan.zone:
-            return
-        agenda = loop.agenda
-        agenda.entered |= {int(level) for level in facts['entered']}
-        agenda.mapped |= {int(level) for level in facts['mapped']}
-        agenda.explored |= {int(level) for level in facts['explored']}
-        for level, runs in facts['runs'].items():
-            agenda.worked[int(level)] = max(agenda.worked[int(level)], int(runs))
-        agenda.kept |= {int(level) for level in facts['cleared']}
-        for level, why in facts['blocked'].items():
-            agenda.blocked.setdefault(int(level), str(why))
-        agenda.no_back |= {int(level) for level in facts['no_back']}
-    except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
-        LOG.info('Macro: zone: the kept facts in %s are not read: %s', path, error)
-        return
-    # The watch tools read it (d2-loop-watch logwords.py NOW)
-    LOG.info('Macro: zone: %s resumed after a restart: %d levels entered, %d cleared, %d not to be done', plan.zone,
-             len(facts['entered']), len(facts['cleared']), len(facts['blocked']))  # fmt: skip
+    if portal_hold_over(agenda, now):
+        return True
+    blocked = agenda.blocked.get(area)
+    if blocked is not None:
+        return blocked.startswith(SKIPPED)
+    plan = agenda.plan
+    if not zonenav.STALLED_SKIP or not loop.on or not isinstance(plan, Itinerary) or not zonenav.on(plan):
+        return False
+    seen = loop.progressed
+    if seen is None or seen[0] is None or now < loop.cooling or loop.abandon:
+        return False
+    mark = seen[2]
+    if not mark or mark[-1] != area:
+        return False  # the watchdog's clock is another level's
+    why = zonenav.worth(zonenav.graph_of(plan), area, now - seen[1], loop.experience.game_rate())
+    if why is None or agenda.bosses.alive_in(area):
+        return False  # a boss of the ledger on it: a long fight with it is no stall (zonenav.py BOSSES_HOLD's runs)
+    if valuable() is not None:
+        return False  # never left with a valuable on the ground (the player: "we absolutely must preserve top items")
+    agenda.blocked[area] = why
+    # The watch tools may read it (d2-loop-watch logwords.py)
+    LOG.info('Macro: zone: %s (%d) %s', display_name(area), area, why)
+    return True
 
 
 def tour_back(agenda: Agenda, plan: Itinerary, progress: Progress | None, area: int) -> None:
@@ -872,15 +1118,19 @@ def perform(
     `item_stats`, `shown`: the Gheed's swap's (loop.py `Loop.leg`)."""
     agenda = agenda if agenda is not None else loop.agenda
     packaged = bool(agenda.stack) and agenda.stack[-1] == goal
+    portal_hold_done(agenda)  # PORTAL_FIGHT_NEAR: the next leg after a held fight, whatever its goal
     try:
         world = run.world()
         game = world.game_name if world.in_game else ''
         player = world.player
-        if goal.ends and game and (alive := boss_alive(agenda)) is not None:
+        if goal.ends and game:
+            unrouted(agenda, goal.label)
+        if goal.ends and game and (held := owed(agenda)) is not None:
             # The way to the act's last town ends the game (agenda.py `game_end`): not with a boss alive (BOSS_STAYS)
-            LOG.info('Macro: zone: %s, but %s alive: the loop stops for the player, the game is not left', goal.label,
-                     alive)  # fmt: skip
-            raise Abort(f'{goal.label}, but {alive} alive: the loop stops here for the player', cause='idle')
+            # nor a shard act's level owed (ACT_OWED)
+            LOG.info('Macro: zone: %s, but %s: the loop stops for the player, the game is not left', goal.label,
+                     held)  # fmt: skip
+            raise Abort(f'{goal.label}, but {held}: the loop stops here for the player', cause='idle')
         if goal.ends and game:
             loop.done = game  # the game's end under way, as Lower Kurast's Town Portal leg (loop.py `PORTAL`)
         if goal.kind == NEW_GAME:
@@ -891,12 +1141,20 @@ def perform(
             left = loop.last_look(run, tz) if tz is not None else None
             if left is not None:
                 raise Abort(f'no goals left, but {left} lies on the ground', cause='room')
-            alive = boss_alive(agenda) if goal.label != GIVEN_UP else None
-            if alive is not None:
-                # The player, 2026-10-22: "we need to kill all bosses, no exceptions" (BOSS_STAYS)
-                LOG.info('Macro: zone: %s, but %s alive: the loop stops for the player, the game is not left',
-                         goal.label, alive)  # fmt: skip
-                raise Abort(f'{goal.label}, but {alive} alive: the loop stops here for the player', cause='idle')
+            if goal.label != GIVEN_UP and tz is not None and player is not None and end_use(loop, run, key_names, tz):
+                return  # a carried shard over the limit used: the game goes on with its act (actloop.py END_USE)
+            if goal.label != GIVEN_UP:
+                unrouted(agenda, goal.label)
+            held = owed(agenda) if goal.label != GIVEN_UP else None
+            if held is not None:
+                # The player, 2026-10-22: "we need to kill all bosses, no exceptions" (BOSS_STAYS); a shard's act is
+                # finished, every level (ACT_OWED)
+                LOG.info('Macro: zone: %s, but %s: the loop stops for the player, the game is not left',
+                         goal.label, held)  # fmt: skip
+                raise Abort(f'{goal.label}, but {held}: the loop stops here for the player', cause='idle')
+            if (blocked := blocked_said(agenda)) is not None:
+                # The watch tools may read it (d2-loop-watch logwords.py EVENT)
+                LOG.info('Macro: zone: the game ends with the shard acts %s: %s', list(agenda.acts), blocked)
             agenda.finish(player.area if player is not None else None)
             loop.leave(run, game)
         elif tz is None or player is None:
@@ -955,18 +1213,27 @@ def perform(
             actloop.use_shard(loop, run, tz.terrorized, tz.inventory_key())  # once a game: the outcome on the agenda
         elif goal.kind == TOWN_ROUTINE:
             # A shard over the limit (actloop.py OVERFLOW) used before the visit, once the game's own shard step is
-            # made (the visit would put a carried one down, its stack full); never at the game's end
+            # made (the visit would put a carried one down, its stack full); at the game's end a carried one, the game
+            # then going on (actloop.py END_USE)
+            on = False
             if loop.done != game:
                 actloop.overflow(loop, run, tz.terrorized, tz.inventory_key())
+            else:
+                on = actloop.use_at_end(loop, run, tz.terrorized, tz.inventory_key())
             exit = Exit(goal.exit or 'waypoint')
+            if on and exit == Exit.LEAVE:
+                exit = Exit.WAYPOINT  # the game goes on: its new act's levels
             if exit == Exit.WAYPOINT and loop.done == game:
                 exit = Exit.LEAVE  # the game ends here: no walk to the waypoint (loop.py `exit_of`)
             loop.town(run, tz.visit, game, exit)
+            if not agenda.holds(frozenset({merc.MERC_ROUTINE})):
+                merc.revive_after_visit(run)  # a dead merc revived on the way (merc.py MERC_AT_ANY_VISIT)
         elif goal.kind == merc.MERC_ROUTINE:
-            merc.town_routine(run)  # the belt refilled, the merc revived with the carried gold (macros/merc.py)
+            merc.town_routine(run, loop.merc_trips)  # the belt refilled, the merc revived (macros/merc.py)
         elif goal.kind == PORTAL_TO_TOWN:
-            if portal_fight(run, tz, game, goal):
+            if portal_fight(run, tz, game, goal, agenda):
                 return  # the goal kept: the fight's run is posted, the portal comes after it
+            fold_trips(agenda, goal)  # PORTAL_TRIPS_FOLD: the trips under it made by this one
             if goal.ends and (left := loop.last_look(run, tz)) is not None:
                 raise Abort(f'the game ends, but {left} lies on the ground', cause='room')  # as LEAVE_GAME's
             if not packaged:
@@ -1007,7 +1274,7 @@ def perform(
                 )
                 if landing > 0:
                     LOG.info("Macro: tz: the boss's drops may still be landing: %.1fs more", landing)
-                    run.pace.sleep(landing)
+                    watched_sleep(run, landing, "the boss drops' wait")  # a hostile hitting the character ends it
                 else:
                     progress.looted(player.area)
         elif goal.kind == PICKUP:
@@ -1026,9 +1293,13 @@ def perform(
             if tz.way_on is None:
                 raise Abort(f'{goal.label}: no way on')
             walk = zone and goal.exit == zonenav.WALK and goal.to is not None
+            if zone and goal.to is not None and (why := way_unrun(agenda, plan, player.area, goal.to, tz)):
+                left_unrun(agenda, player.area, goal.to, why, walk)
+                agenda.done(goal)
+                return
             tried = 0
             if zone and goal.to is not None:
-                tried = way_tried(agenda, player.area, goal.to)
+                tried = way_tried(agenda, player.area, goal.to, counted=tried_here(tz))
                 if walk and tried >= zonenav.WALK_TRIES:
                     agenda.no_walk.add((player.area, goal.to))  # this try is the last
                 elif not walk and way_spent(agenda, player.area, goal.to, tried):
@@ -1085,6 +1356,34 @@ def perform(
     agenda.done(goal)
 
 
+def end_use(loop: Loop, run: Run, key_names, tz: LegHands) -> bool:
+    """Save and Exit's leg with a carried shard over the limit (actloop.py END_USE, `end_due`): from a field level the
+    Town Portal home first (a cast that fails is said, and the game is left as before), then the shard used in town;
+    whether one was (the game goes on with its act)."""
+    world = run.world()
+    player = world.player
+    if player is None:
+        return False
+    if not player.in_town:
+        due = actloop.end_due(loop, run)
+        if not due:
+            return False
+        LOG.info('Macro: act: the game ends with a carried shard over the limit (%s): Town Portal home to use it',
+                 actloop.played_said(due))  # fmt: skip
+        try:
+            to_town(run, key_names, None)
+        except Abort as stop:
+            if cut(run, stop):
+                raise
+            LOG.info('Macro: act: no Town Portal home for the shard (%s): the game is left, the shard carried', stop)
+            return False
+        loop.note_portal(run)
+        player = run.world().player
+        if player is None or not player.in_town:
+            return False
+    return actloop.use_at_end(loop, run, tz.terrorized, tz.inventory_key())
+
+
 def skip_door(agenda: Agenda, plan: object, area: int, goal: Objective, stop: Abort) -> bool:
     """Whether the way on's stop `stop` from `area` is a door no click takes (`SKIP_DOOR`) on the trip it leads on
     (`goal.to` its next level, no tour): that trip is over (`Excursion.over`), said, and the zone goes on."""
@@ -1100,13 +1399,83 @@ def skip_door(agenda: Agenda, plan: object, area: int, goal: Objective, stop: Ab
     return True
 
 
-def way_tried(agenda: Agenda, area: int, to: int) -> int:
+# WAY_TRIED_AT_DOOR (2026-10-23, cyberg46: Swampy Pit Level 3 "blocked: its way in from Swampy Pit Level 2 was made
+# 6 times with no arrival" within 2 s at 05:23:17-19, as Sewers Level 2, Worldstone Keep 1 and 3 before it: each "TZ
+# next level" leg's level run toward the stairs ended at once (a potion's pickup, the sweep, 13 hostiles near) and was
+# counted a failed way in). True: a leg is a try of the way when it starts at the way on, where the press is made
+# (legs.py `_way_on`, LegHands.at_way); WAY_RUNS_A_TRY level runs toward it make one more (the bound on a way never
+# reached: "TZ next level again and again", 13:48:00 on 2026-10-21). False: every leg counts, as before.
+WAY_TRIED_AT_DOOR = True
+WAY_RUNS_A_TRY = 5
+_way_runs: Counter[tuple[int, int]] = Counter()  # the level runs toward a way on this level (`way_tried`)
+
+
+# ZONE_LEFT_NO_WAY (2026-10-24, rca/2026-10-24/route-spin-findings.md): a level the zone left with no boss of the ledger
+# held under it (hunting/choice.py ZONE_LEFT, BOSS_ROTATION) has a level run that ends at once and goes to nothing, its
+# way on included, so a "TZ next level" leg into a child also not terrorized, made away from the way on, never moves:
+# the route's step took the press, the pickup started the sweep, the run ended "nothing is left to go to" and the next
+# leg cut the sweep's jump. Black Marsh at 12:06:14-12:06:47 on 2026-10-24: 70 legs in 33 s, the character still, then
+# the Forgotten Tower and Hole Level 1 blocked "made 6 times with no arrival" (WAY_RUNS_A_TRY level runs a try);
+# The Worldstone Keep Level 2 (04:04:55 on 2026-10-23) and Swampy Pit Level 2 (05:23:17) the same. True: such a child is
+# blocked (a walk into the next root: no walk, the Town Portal) at the first leg, said, no level run posted. False:
+# the legs are made until WAY_TRIES, as before. On since 2026-10-24 with MANUAL_TURNED (the coordinator; the spin
+# again at 12:45 after the restart): a rotating zone's level the zone left, or a shard act's with MANUAL_TURNED off.
+ZONE_LEFT_NO_WAY = True
+ZONE_LEFT_SAID = 'the zone left {parent}: its level run goes to nothing, its way in included'
+
+
+def way_unrun(agenda: Agenda, plan: object, area: int, child: int, tz) -> str:
+    """ZONE_LEFT_NO_WAY: why the way from `area` into `child` is never gone to by a level run ('' when it is, or at
+    the way on, where the leg presses through itself): `area` worked as the zone left (running/legs.py
+    `_agenda_policy`: in its trip's zone, read not terrorized) with no ledger boss held (hunting/choice.py
+    `boss_held`), and `child` not read terrorized."""
+    if not ZONE_LEFT_NO_WAY or not isinstance(plan, Itinerary) or tz.terrorized is None:
+        return ''
+    if tz.at_way is not None and tz.at_way():
+        return ''
+    from inventory_tracking.macros.hunting import choice  # the level run's own rules (an import cycle at load)
+
+    trip = plan.trip_of(area, frozenset(agenda.finished))
+    if trip is None or area not in trip.zone or tz.terrorized(area) is not False or tz.terrorized(child) is True:
+        return ''
+    if choice.BOSS_ROTATION and choice.boss_held(agenda, area):
+        return ''
+    return ZONE_LEFT_SAID.format(parent=display_name(area))
+
+
+def left_unrun(agenda: Agenda, area: int, child: int, why: str, walk: bool) -> None:
+    """ZONE_LEFT_NO_WAY: `child`'s way in from `area` given up for the game, said as a block (the watch tools'
+    ZONE_BLOCKED) or, for a walk into the next root, as no walk (the Town Portal and the waypoint instead)."""
+    if walk:
+        agenda.no_walk.add((area, child))
+        LOG.info('Macro: zone: %s: no walk from %s into %s: the Town Portal instead', why, display_name(area),
+                 display_name(child))  # fmt: skip
+        return
+    boss_stays(agenda, child, why)
+    agenda.blocked[child] = why
+    # The watch tools read it (d2-loop-watch logwords.py ZONE_BLOCKED, EVENT, NOW)
+    LOG.info('Macro: zone: %s (%d) blocked: %s', display_name(child), child, why)
+
+
+def tried_here(tz) -> bool:
+    """WAY_TRIED_AT_DOOR: whether this leg starts at the way on (a try of the way)."""
+    at_way = getattr(tz, 'at_way', None)
+    return not WAY_TRIED_AT_DOOR or at_way is None or at_way()
+
+
+def way_tried(agenda: Agenda, area: int, to: int, *, counted: bool = True) -> int:
     """The legs made by the way from `area` to `to` since the character came to `area` (counted afresh on each new
-    level: an arrival anywhere is no failure), this one counted."""
+    level: an arrival anywhere is no failure), this one counted: at the way on (`counted`), else each WAY_RUNS_A_TRY
+    level runs toward it (WAY_TRIED_AT_DOOR)."""
     if agenda.way_from != area:
         agenda.ways.clear()
+        _way_runs.clear()
         agenda.way_from = area
-    agenda.ways[area, to] += 1
+    if not counted:
+        _way_runs[area, to] += 1
+        counted = _way_runs[area, to] % WAY_RUNS_A_TRY == 0
+    if counted:
+        agenda.ways[area, to] += 1
     return agenda.ways[area, to]
 
 
@@ -1185,11 +1554,13 @@ def foes_near(world: World) -> int:
     )
 
 
-def portal_fight(run: Run, tz: LegHands, game: str, goal: Objective) -> bool:
+def portal_fight(run: Run, tz: LegHands, game: str, goal: Objective, agenda: Agenda | None = None) -> bool:
     """PORTAL_FIGHT_FIRST: with a hostile within SIGHT, the fight posted instead of the Town Portal's cast, said, up to
-    PORTAL_FIGHTS times for `goal` on the character's level in `game`; whether it was (the goal is kept)."""
+    PORTAL_FIGHTS times for `goal` on the character's level in `game`; whether it was (the goal is kept). Under
+    PORTAL_FIGHT_NEAR each fight bounded (`PortalHold`), the counts of one it ended taken back on `agenda`."""
     from inventory_tracking.macros.hunting.base import SIGHT  # late: the hunt's modules import the loop's
 
+    global _portal_hold
     world = run.world()
     player = world.player
     if not PORTAL_FIGHT_FIRST or player is None or player.in_town or goal.label == DANGER_PORTAL:
@@ -1212,8 +1583,96 @@ def portal_fight(run: Run, tz: LegHands, game: str, goal: Objective) -> bool:
     LOG.info('Macro: tz: %s held: %d hostiles within %.0f, %s first (%d of %d)', goal.label, near, SIGHT,
              'the plain run fights them' if turned else 'the level run fights them', fought + 1,
              PORTAL_FIGHTS)  # fmt: skip
+    if agenda is not None and (PORTAL_FIGHT_PLAIN if turned else PORTAL_FIGHT_NEAR):
+        _portal_hold = PortalHold(
+            agenda.game, goal.key, goal.label, time.monotonic(), Counter(agenda.worked), Counter(agenda.ended_empty),
+            frozenset(agenda.wayless), plain=turned,
+        )  # fmt: skip
     fight()
     return True
+
+
+def portal_hold_done(agenda: Agenda) -> None:
+    """The leg after a fight held for a Town Portal (PORTAL_FIGHT_NEAR), the portal's or any other: the hold
+    dropped, so no later run is ended by it; the counts of a run its bound ended taken back (`taken_back`)."""
+    global _portal_hold
+    hold, _portal_hold = _portal_hold, None
+    if hold is not None and hold.over and hold.game == agenda.game:
+        taken_back(agenda, hold)
+
+
+def portal_hold_over(agenda: Agenda, now: float) -> bool:
+    """PORTAL_FIGHT_NEAR: whether the fight held for a Town Portal (`portal_fight`) is over at `now`, its seconds up
+    (said once), while its goal is still to make in its game: the level run's looks then end it (`worth_skip`); the
+    plain run's (PORTAL_FIGHT_PLAIN) the runner's timer (running/legs.py `_plain_over`)."""
+    hold = _portal_hold
+    if hold is None or not (PORTAL_FIGHT_PLAIN if hold.plain else PORTAL_FIGHT_NEAR) or hold.game != agenda.game:
+        return False
+    if not hold.over:
+        if now - hold.started < PORTAL_FIGHT_SECONDS:
+            return False
+        if not any(goal.key == hold.key for goal in agenda.stack) and hold.key not in agenda.queue:
+            return False  # its goal gone (a new package, a cut): the run is the run
+        hold.over = True
+        # The watch tools may read it (d2-loop-watch logwords.py)
+        LOG.info(PORTAL_FIGHT_OVER, hold.label, now - hold.started)
+    return True
+
+
+def plain_fight_bound() -> float | None:
+    """PORTAL_FIGHT_PLAIN: the seconds the plain run just posted for a held Town Portal may fight
+    (running/legs.py `fight`), None when it is no such run."""
+    hold = _portal_hold
+    if not PORTAL_FIGHT_PLAIN or hold is None or not hold.plain or hold.over:
+        return None
+    return max(0.0, PORTAL_FIGHT_SECONDS - (time.monotonic() - hold.started))
+
+
+def taken_back(agenda: Agenda, hold: PortalHold) -> None:
+    """The level run a held fight's bound ended (`portal_hold_over`) is no run of its level: the agenda's counts it
+    added (`Agenda.ran`, `nothing_left`, `no_way_on`: runner.py `_run_over`) taken back."""
+    for area in [area for area, runs in agenda.worked.items() if runs > hold.worked.get(area, 0)]:
+        agenda.worked[area] = hold.worked.get(area, 0)
+    for area in [area for area, ends in agenda.ended_empty.items() if ends > hold.ended_empty.get(area, 0)]:
+        agenda.ended_empty[area] = hold.ended_empty.get(area, 0)
+    agenda.wayless &= set(hold.wayless)
+
+
+def fold_trips(agenda: Agenda, goal: Objective) -> None:
+    """PORTAL_TRIPS_FOLD: as `goal`, the stack's top, a package's Town Portal, is cast, the trip packages under its
+    package whose own portal is not made yet folded into this trip: their town goals it lacks after its town visit,
+    the rest dropped, said. A package of other kinds (the Gheed's swap) is left, and all under it."""
+    stack = agenda.stack
+    if not PORTAL_TRIPS_FOLD or not stack or stack[-1] is not goal or goal.kind != PORTAL_TO_TOWN:
+        return
+    ends = [index for index, each in enumerate(stack) if each.kind == RESUME]
+    if not ends:
+        return
+    top = ends[-1]  # this package: stack[top:], its RESUME at the bottom
+    mine = stack[top:]
+    visit = next((index for index, each in enumerate(mine) if each.kind == TOWN_ROUTINE), None)
+    if visit is None:
+        return
+    kinds = {each.kind for each in mine}
+    folded: list[Objective] = []
+    while ends[:-1]:
+        below = ends[-2]
+        package = stack[below:top]  # the package under, its first goal last
+        if not package or package[-1].kind != PORTAL_TO_TOWN or any(each.kind not in TRIP_KINDS for each in package):
+            break
+        extra = [each for each in package if each.kind not in kinds and each.kind not in (WAYPOINT, THROUGH_PORTAL)]
+        kinds |= {each.kind for each in extra}
+        folded += package
+        mine[visit:visit] = extra  # below the visit on the stack: made after it
+        del stack[below:top]
+        ends.pop()
+        top = below
+    if not folded:
+        return
+    stack[top:] = mine
+    # The watch tools may read it (d2-loop-watch logwords.py)
+    LOG.info('Macro: agenda: %s: the trip folded in %s', goal.label,
+             [each.label for each in reversed(folded) if each.kind != RESUME])  # fmt: skip
 
 
 def boss_held(agenda: Agenda, child: int) -> list[Boss]:
@@ -1227,7 +1686,7 @@ def boss_held(agenda: Agenda, child: int) -> list[Boss]:
 def boss_stays(agenda: Agenda, child: int, why: str) -> None:
     """Under BOSS_STAYS, a level holding a boss of the ledger alive (`boss_held`) is never blocked for `why`: the loop
     stops where it is for the player (Abort, cause 'idle': stops.py STOP, the game not left), the bosses named."""
-    alive = boss_held(agenda, child)
+    alive = stopping(boss_held(agenda, child))
     if not alive:
         return
     # The watch tools read it (d2-loop-watch logwords.py EVENT, NOW)
@@ -1240,8 +1699,124 @@ def boss_alive(agenda: Agenda) -> str | None:
     """Under BOSS_STAYS, the bosses of the game's scope alive (`bosses_alive`: the ledger's, its kills the tracker's),
     said ('Baal (The Worldstone Chamber), Maffer Dragonhand (Durance of Hate Level 3)'); None with none, off a plan,
     or the switch off."""
-    alive = bosses_alive(agenda)
+    everyone = bosses_alive(agenda)
+    alive = stopping(everyone)
+    left = [boss for boss in everyone if boss not in alive]
+    if left and agenda.zone_said.get(-1) != said(left):
+        agenda.zone_said[-1] = said(left)
+        LOG.info('Macro: zone: %s left alive: not act bosses, their runs spent (STOPS_FOR_ACT_BOSSES)', said(left))
     return said(alive) if alive else None
+
+
+def stopping(alive: list[Boss]) -> list[Boss]:
+    """STOPS_FOR_ACT_BOSSES: the bosses of `alive` the loop stops for (the act bosses')."""
+    return [boss for boss in alive if boss.area in ACT_BOSSES] if STOPS_FOR_ACT_BOSSES else alive
+
+
+def act_levels(agenda: Agenda) -> frozenset[int]:
+    """The levels of the shard acts (`Agenda.acts`) the agenda's plan works (`boss_scope`); none off a plan."""
+    plan = agenda.plan
+    if not isinstance(plan, Itinerary) or not agenda.acts:
+        return frozenset()
+    acts = frozenset(area for act in agenda.acts if (zone := manual_zone(act)) is not None for area in zone.areas)
+    return boss_scope(plan) & acts
+
+
+def levels_owed(agenda: Agenda) -> list[int]:
+    """ACT_OWED: the shard acts' levels (`act_levels`) still to run: never entered nor run this game (`Agenda.entered`,
+    `worked`: the game's record's), not finished by the zone's verdict (with zone navigation `Agenda.finished` is the
+    judge's at each leg; `kept` from before a restart), and not out of reach (`out_of_reach`: blocked after its bounded
+    tries, or behind such a level). A level entered and left open by the zone's verdict is said at the game's end
+    (`blocked_said`), not owed: the loop never stands stopped for what its zone no longer plans. None with no shard act
+    or the switch off."""
+    if not ACT_OWED:
+        return []
+    reworked = agenda.reopened if POLICY_NOW else {}
+    run = agenda.entered | {level for level, runs in agenda.worked.items() if runs > reworked.get(level, 0)}
+    return sorted(act_levels(agenda) - agenda.finished - agenda.kept - out_of_reach(agenda) - run)
+
+
+UNROUTED = "no goal of the plan reaches it at the game's end"
+
+
+def unrouted(agenda: Agenda, end: str) -> None:
+    """ACT_OWED: at the game's end (`end`: its goal's label), each shard act's level still owed has no goal of the plan
+    to reach it: the plan's gap, blocked with its why as a door no click takes is (said, in the game's record), so the
+    loop never stands stopped for it (the coordinator, 2026-10-22 20:42). The plan routes to every level it can. None
+    while an act boss of the plan is alive (UNROUTED_AFTER_BOSSES): the game does not end then."""
+    if UNROUTED_AFTER_BOSSES and stopping(bosses_alive(agenda)):
+        return
+    for level in levels_owed(agenda):
+        agenda.blocked[level] = f'{UNROUTED} ({end})'
+        # The watch tools read it (d2-loop-watch logwords.py ZONE_BLOCKED, EVENT, NOW)
+        LOG.info('Macro: zone: %s (%d) blocked: %s', display_name(level), level, agenda.blocked[level])
+
+
+def reroute(agenda: Agenda) -> None:
+    """UNROUTED_AFTER_BOSSES: with an act boss of the plan alive, the levels blocked as unrouted (`unrouted`, an old
+    service's or the game's record's) unblocked, said: the game did not end, so no verdict of its end stands."""
+    if not UNROUTED_AFTER_BOSSES or not any(why.startswith(UNROUTED) for why in agenda.blocked.values()):
+        return
+    alive = stopping(bosses_alive(agenda))
+    if not alive:
+        return
+    levels = sorted(level for level, why in agenda.blocked.items() if why.startswith(UNROUTED))
+    for level in levels:
+        del agenda.blocked[level]
+    # The watch tools may read it (d2-loop-watch logwords.py)
+    LOG.info('Macro: zone: %s alive: the levels blocked as unrouted are routed again: %s', said(alive), levels)
+
+
+def out_of_reach(agenda: Agenda) -> frozenset[int]:
+    """The levels blocked (`Agenda.blocked`) and, with zone navigation, those under them in the zone's graph (no way in
+    but through a blocked level: Kurast Causeway's temples)."""
+    blocked = frozenset(agenda.blocked)
+    plan = agenda.plan
+    if not blocked or not isinstance(plan, Itinerary) or not zonenav.on(plan):
+        return blocked
+    graph = zonenav.graph_of(plan)
+    return blocked | frozenset(level for area in blocked if area in graph.nodes for level in graph.subtree(area))
+
+
+def blocked_said(agenda: Agenda) -> str | None:
+    """ACT_OWED: the shard acts' levels not done that do not hold the game, said at its end: blocked after their
+    bounded tries ('Tristram (38) blocked (why)'), behind a blocked one, or entered and left open by the zone's verdict;
+    None with none."""
+    if not ACT_OWED:
+        return None
+    levels = act_levels(agenda)
+    reach = out_of_reach(agenda)
+    blocked = sorted(levels & agenda.blocked.keys())
+    behind = sorted(levels & reach - agenda.blocked.keys())
+    left = sorted(levels - agenda.finished - agenda.kept - reach - frozenset(levels_owed(agenda)))
+    parts = [owed_said(agenda, blocked)] if blocked else []
+    if behind:
+        parts.append(f'behind it {behind}')
+    if left:
+        parts.append(f'left open by the zone {left}')
+    return '; '.join(parts) or None
+
+
+def owed_said(agenda: Agenda, levels: Iterable[int]) -> str:
+    """'Catacombs Level 2 (35) not done, Tal Rasha's Tomb (66) blocked (its why)'."""
+    return ', '.join(
+        f'{display_name(level)} ({level}) blocked ({agenda.blocked[level]})'
+        if level in agenda.blocked
+        else f'{display_name(level)} ({level}) not done'
+        for level in levels
+    )
+
+
+def owed(agenda: Agenda) -> str | None:
+    """What holds the game (BOSS_STAYS, ACT_OWED), said: '<bosses> alive' and '<the shard acts' levels owed>' (the
+    acts named); None with nothing owed."""
+    parts = []
+    if (alive := boss_alive(agenda)) is not None:
+        parts.append(f'{alive} alive')
+    if levels := levels_owed(agenda):
+        acts = ', '.join(str(act) for act in agenda.acts)
+        parts.append(f'the shard act{"s" if len(agenda.acts) > 1 else ""} {acts} owed: {owed_said(agenda, levels)}')
+    return '; '.join(parts) or None
 
 
 def fought_first(agenda: Agenda, area: int, to: int, stop: Abort, level_run: Callable[[], None] | None) -> bool:

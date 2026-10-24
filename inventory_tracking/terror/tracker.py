@@ -38,9 +38,11 @@ constants on this build). Unit ids are taken to stay the same in a rejoined game
 import json
 import math
 import os
+import threading
 import time
 from collections import deque
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 
 from inventory_tracking.common import LOG
@@ -111,6 +113,49 @@ SAVE_SECONDS = 5.0  # between saves while playing; leaving a game and a Herald a
 # were killed is `slain` (one record of it). macros/bossledger.py `BossLedger` is the macros' view of it
 BOOK_SECONDS = 24 * 3600.0
 BOOK_MOVE = 15.0  # world units a boss seen moves before its place is written again
+# BOOK_KILLS (2026-10-22, game cyberg65, rca/2026-10-22/walled-boss-findings.md): Ancient Kaa the Soulless died at
+# 19:56:19 (take 20261022T165515Z-67, unit 1834794757 at life 0) and was in `slain`; the service's restart at 22:06:05
+# in the Worldstone Chamber, a level the stored game did not hold yet, began a fresh game state ("game rejoined; Heralds
+# seen []") whose save later replaced the old one, and every kill before it was gone: at 23:09 the ledger sent the run
+# to Kaa's last place, stood 16 s there and kept the Canyon of the Magi worked for him. True: a boss's kill is written
+# in this game's book too ('killed', by '<game-id>-<level>', the key that survived), and `killed` is `slain` with the
+# book's kills. False: `slain` alone, as before
+BOOK_KILLS = True
+# The cause of that loss, and what BOOK_KILLS leaves (2026-10-22, rca/2026-10-22/boss-alive-findings.md, the same game:
+# 37 of its 40 bosses killed by 23:15, Duriel at 19:59:56, his life 0, mode 0 then 12, a `died` event in take
+# 20261022T165949Z-73). The fresh state of 22:06:05 was a stored part of the game holding the Worldstone Chamber's seed
+# alone, saved by the old service in its last second (why its state had reset is not in its logs: its event of entering
+# the Chamber was never written; a seed read twice differently resets it, `entered`); the new service rejoined it,
+# then entered the Worldstone Keep and the Fortress, levels the stored game of acts 1-4 held with the same seeds, and
+# its first save dropped that game as "what was stored of it before" (`save`). And `boss_game` names whatever game the
+# macros last began: after a game change, before the agenda begins the new one (a KP_1 run with the loop off never
+# does), the old game's book was this one's.
+# SEED_JOIN True: a stored game holding a level of this one with its seed is a part of it, merged in (`join`) when that
+# level is entered and before every save, never dropped. False: the first match taken, the others dropped, as before
+SEED_JOIN = True
+# BOOK_FRESH True: the probe writes kills and sightings into the book, and `killed` reads its kills, only while the book
+# is named for this state's game: from `boss_game` until the state resets (a game left, another game's seed), when the
+# macros name it again. False: whatever game was named last, as before
+BOOK_FRESH = True
+# BOOK_SIGHT True: a boss of the book seen alive by the probe (its super unique name, or its own monster class:
+# SLAIN_BOSSES) is written `seen`, with its unit and place: a route's boss has no spot of its own in the book, so the
+# ledger's `sight` never took one (Duriel, the Countess, Radament...), and a boss never seen is what tzloop.py
+# BOSS_UNSEEN judges. False: seen by the ledger's binding near a spot only, as before
+BOOK_SIGHT = True
+# BOOK_RECALL True: when the macros name the game (`boss_game`), the probe's logs of it since it began (the game's
+# record's 'began', midgame.py; the PROBE_LOG of each session folder beside the store, written after it began) are read
+# into the book (`recall`): each kill and sighting the book does not hold yet, from where the last read stopped, so
+# kills lost with a game state, made before the game was named or before BOOK_KILLS, are the game's own reads again.
+# The game's record holds the game's start; a game id is one game (bossledger.py `game_key`). False: the book holds
+# what was written live only
+BOOK_RECALL = True
+PROBE_LOG = 'terror-probe.jsonl'  # the probe's events of a session (probe.py `write`), a folder beside the store each
+# The game's record (2026-10-22, rca/2026-10-22/restart-zone-findings.md; the player: "no copies, no stale records"):
+# one per game, by the same '<game-id>' (macros/bossledger.py `game_key`), in the store's 'records' beside 'bosses': the
+# parts its owners write (macros/midgame.py `keep`: the loop's and the agenda's; macros/sightings.py: the valuables
+# remembered), each written atomically when it changed, read back at the service's start; RECORD_SECONDS old, none.
+# A service restart (planned or not) takes the game up from it (midgame.py `take_up`)
+RECORD_SECONDS = 4 * 3600.0
 # The game's names of those modifiers (monumod.json ids, d2data 2026-10-06): the zone's own line
 # under 'Terrorized: <level>' in the game's top-right text.
 MODIFIER_NAMES = {
@@ -201,11 +246,21 @@ class ZoneTracker:
         # The boss book (BOOK_SECONDS): '<game-id>-<level>' -> boss name -> its record; the game it is written for
         self.book: dict[str, dict[str, dict]] = self.stored_book()
         self.book_game: str | None = None
+        # Whether the macros named `book_game` since this state last reset (a game left, another game's seed): the
+        # probe's kills go into the book, and `killed` reads it, only then (another game's book is never this one's)
+        self.book_fresh = False
+        # The probe's logs read into the book (`recall`): game -> log -> bytes read; game -> the read's own tracker
+        self.recalled: dict[str, dict[str, int]] = {}
+        self.recall_reads: dict[str, ZoneTracker] = {}
+        # One writer of the store and the book at a time (the probe's thread, the macros'); re-entered by `write`
+        self.lock = threading.RLock()
+        self.records: dict[str, dict] = self.stored_records()
         self.reset()
 
     def reset(self):
         self.game_levels: dict[int, str] = {}  # area -> level seed (hex): what this game is known by
         self.slain: frozenset[str] = frozenset()  # the super uniques and bosses killed this game, by name
+        self.book_fresh = False  # the book's game named again by the macros before the probe writes into it
         self.restored = False
         self.areas: dict[int, Count] = {}
         self.level_rooms: dict[int, int] = {}  # area -> Room2 count of the level
@@ -273,11 +328,16 @@ class ZoneTracker:
             elif kind == 'seen':
                 self.saw(event)
                 named = SLAIN_BOSSES.get(event.get('txt_id'))
+                if BOOK_KILLS and named is None and counted(event) and (data_byte(event, TYPE_FLAGS) or 0) & SUPER_FLAG:
+                    named = super_name(event)  # a super unique's corpse is one killed this game as a boss's is
                 if named and event.get('mode') in DEAD_MODES:
                     # A boss first seen already dead was killed this game before this service read it (a restart):
                     # the route's fight stage is over. Andariel's after a restart stood 45 s at her mark and the loop
                     # left the game (12:42:19, 13:58:36 on 2026-10-18)
                     self.slain = self.slain | {named}
+                    self.book_kill(event.get('area'), named, event.get('unit_id'))
+                elif BOOK_SIGHT and BOOK_KILLS and self.book_named():
+                    self.sight_noted(self.book_game, event, self.named(event))
             elif kind == 'terror_levels':
                 self.terror_levels = frozenset(event['levels'])
             elif kind == 'area':
@@ -298,9 +358,10 @@ class ZoneTracker:
                     self.area_count(event['area']).killed += 1
                 if unit_id not in self.allies:
                     self.dead.setdefault(unit_id, event['area'])
-                    named = (self.elites.get(unit_id) or (None,) * 6)[5] or SLAIN_BOSSES.get(event.get('txt_id'))
+                    named = self.named(event)
                     if named:
                         self.slain = self.slain | {named}
+                    self.book_kill(event.get('area'), named, unit_id)  # unnamed: a unit the ledger took for a boss
 
         # A boss kill saves at once: a restart before the next periodic save forgot Andariel's death (2026-10-18)
         if events and (
@@ -322,9 +383,12 @@ class ZoneTracker:
         if self.game_levels.get(area, seed) != seed:  # another game, entered without the leaving being seen
             self.save()
             self.reset()
+        new = area not in self.game_levels
         self.game_levels[area] = seed
         left, self.left = self.left, {}
         if self.restored:
+            if new and SEED_JOIN:
+                self.join()  # the 22:06 part of cyberg65, then the Keep's and the Fortress's seeds of the game
             return
         games = self.stored_games()
         game = next((g for g in reversed(games) if g['levels'].get(str(area)) == seed), None)
@@ -345,6 +409,27 @@ class ZoneTracker:
         self.game_levels = {int(k): v for k, v in game['levels'].items()} | levels
         self.restored = True
         LOG.info('Terror tracker: game rejoined; Heralds seen %s', self.heralds)
+        if SEED_JOIN:
+            self.join(games)
+
+    def join(self, games: list[dict] | None = None) -> None:
+        """SEED_JOIN: each stored game holding a level of this one with its seed, and a level this one does not hold,
+        is a part of this game: its levels and its state merged in (`restore`), said."""
+        mine = {str(area): seed for area, seed in self.game_levels.items()}
+        for game in games if games is not None else self.stored_games():
+            theirs = game['levels']
+            if not mine.items() & theirs.items() or theirs.keys() <= mine.keys():
+                continue
+            try:
+                self.restore(game['state'], merge=True)
+            except (KeyError, TypeError, ValueError) as exc:
+                LOG.warning('Terror tracker: a stored part of this game unreadable: %s', exc)
+                continue
+            added = sorted(int(area) for area in theirs.keys() - mine.keys())
+            self.game_levels = {int(area): seed for area, seed in theirs.items()} | self.game_levels
+            mine = {str(area): seed for area, seed in self.game_levels.items()}
+            LOG.info('Terror tracker: a stored part of this game joined: levels %s; Heralds seen %s', added,
+                     self.heralds)  # fmt: skip
 
     def stored_games(self) -> list[dict]:
         if self.store is None:
@@ -437,8 +522,11 @@ class ZoneTracker:
         self.saved_at = self.clock()
         if self.store is None or not self.game_levels:
             return
+        stored = self.stored_games()
+        if SEED_JOIN:
+            self.join(stored)  # a part of this game is merged in, never dropped as "what was stored of it before"
         mine = {str(area): seed for area, seed in self.game_levels.items()}
-        others = [g for g in self.stored_games() if not any(mine.get(a) == seed for a, seed in g['levels'].items())]
+        others = [g for g in stored if not any(mine.get(a) == seed for a, seed in g['levels'].items())]
         self.write({'games': [*others, {'levels': mine, 'state': self.state()}][-STORED_GAMES:], 'bosses': self.book})
 
     def write(self, data: dict) -> None:
@@ -446,18 +534,57 @@ class ZoneTracker:
         the others kept."""
         if self.store is None:
             return
+        with self.lock:
+            try:
+                held = json.loads(self.store.read_text(encoding='utf-8'))
+                held = held if isinstance(held, dict) else {}
+            except OSError, ValueError:
+                held = {}
+            held |= data
+            part = self.store.with_name(f'{self.store.name}.part')
+            try:
+                part.write_text(json.dumps(held, separators=(',', ':')), encoding='utf-8')
+                os.replace(part, self.store)
+            except OSError as exc:
+                LOG.warning('Terror tracker: games not saved to %s: %s', self.store, exc)
+
+    def stored_records(self) -> dict[str, dict]:
+        """The games' records as stored (RECORD_SECONDS), the latest STORED_GAMES."""
+        if self.store is None:
+            return {}
         try:
-            held = json.loads(self.store.read_text(encoding='utf-8'))
-            held = held if isinstance(held, dict) else {}
-        except OSError, ValueError:
-            held = {}
-        held |= data
-        part = self.store.with_name(f'{self.store.name}.part')
-        try:
-            part.write_text(json.dumps(held, separators=(',', ':')), encoding='utf-8')
-            os.replace(part, self.store)
-        except OSError as exc:
-            LOG.warning('Terror tracker: games not saved to %s: %s', self.store, exc)
+            held = json.loads(self.store.read_text(encoding='utf-8')).get('records', {})
+        except OSError, ValueError, AttributeError:
+            return {}
+        if not isinstance(held, dict):
+            return {}
+        now = self.wall()
+        return {
+            str(key): entry
+            for key, entry in held.items()
+            if isinstance(entry, dict)
+            and isinstance(entry.get('at'), (int, float))
+            and now - float(entry['at']) <= RECORD_SECONDS
+        }
+
+    def record(self, key: str | None) -> dict:
+        """Game `key`'s record (RECORD_SECONDS): its parts and 'at', the wall clock it was last written; {} for none."""
+        entry = self.records.get(key) if key is not None else None
+        if not isinstance(entry, dict) or self.wall() - float(entry.get('at', 0.0)) > RECORD_SECONDS:
+            return {}
+        return dict(entry)
+
+    def record_note(self, key: str, part: str, value: dict) -> bool:
+        """`value` as game `key`'s `part`, written at once when it changed; whether it did."""
+        value = json.loads(json.dumps(value))  # as the store holds it: lists, string keys
+        entry = self.records.get(key)
+        if isinstance(entry, dict) and entry.get(part) == value:
+            return False
+        entry = {**(entry if isinstance(entry, dict) else {}), part: value, 'at': self.wall()}
+        others = sorted((each for each in self.records.items() if each[0] != key), key=lambda each: each[1]['at'])
+        self.records = dict([*others[-(STORED_GAMES - 1) :], (key, entry)])
+        self.write({'records': self.records})
+        return True
 
     def stored_book(self) -> dict[str, dict[str, dict]]:
         """The boss book as stored, entries older than BOOK_SECONDS dropped."""
@@ -482,8 +609,17 @@ class ZoneTracker:
         return kept
 
     def boss_game(self, game: str | None) -> None:
-        """The game the boss book is written for (macros/bossledger.py `game_key`), None: none."""
-        self.book_game = game
+        """The game the boss book is written for (macros/bossledger.py `game_key`), None: none. Named anew (another
+        game, or this state reset since: BOOK_FRESH), the probe's logs of it are read into it (BOOK_RECALL)."""
+        with self.lock:
+            named = game is not None and (game != self.book_game or not self.book_fresh)
+            self.book_game, self.book_fresh = game, game is not None
+        if named and BOOK_RECALL and game is not None:
+            self.recall(game)
+
+    def book_named(self) -> bool:
+        """Whether the probe writes into the book and `killed` reads it (BOOK_FRESH): a game named for this state."""
+        return self.book_game is not None and (self.book_fresh or not BOOK_FRESH)
 
     def boss_note(
         self,
@@ -495,48 +631,167 @@ class ZoneTracker:
         seen: bool = False,
         by: str = '',
         tried: bool = False,
+        killed: bool = False,
+        gone: str | None = None,
     ) -> bool:
         """Boss `name` of level `area` in this game's book (`boss_game`): its place, the unit taken for it, seen, how
-        known, the recoveries kept for it (`tried`: one more, macros/running/recovery.py BOSS_RECOVERY); written at once
-        when that changed (a place only once it moved BOOK_MOVE). Whether it changed."""
-        if self.book_game is None:
-            return False
-        records = self.book.setdefault(f'{self.book_game}-{area}', {})
-        stored = records.get(name)
-        fresh = stored is None
-        record: dict[str, object] = (
-            dict(stored) if stored is not None else {'place': None, 'unit': None, 'seen': False, 'by': by}
+        known, the recoveries kept for it (`tried`: one more, macros/running/recovery.py BOSS_RECOVERY), its kill
+        (`killed`, BOOK_KILLS), why it is not to be found (`gone`: macros/bossledger.py `BossLedger.absent`; '' clears
+        it); written at once when that changed (a place only once it moved BOOK_MOVE). Whether it changed."""
+        return self.note(
+            self.book_game, area, name, place=place, unit=unit, seen=seen, by=by, tried=tried, killed=killed, gone=gone
         )
-        changed = fresh
-        if place is not None:
-            old = record.get('place')
-            if not isinstance(old, list) or len(old) != 2 or math.dist(old, place) >= BOOK_MOVE:
-                record['place'], changed = [round(place[0], 1), round(place[1], 1)], True
-        if unit is not None and record.get('unit') != unit:
-            record['unit'], changed = unit, True
-        if seen and not record.get('seen'):
-            record['seen'], changed = True, True
-        if tried:
-            count = record.get('tries')
-            record['tries'], changed = (count if isinstance(count, int) else 0) + 1, True
-        if not changed:
+
+    def note(
+        self,
+        game: str | None,
+        area: int,
+        name: str,
+        *,
+        place: tuple[float, float] | None = None,
+        unit: int | None = None,
+        seen: bool = False,
+        by: str = '',
+        tried: bool = False,
+        killed: bool = False,
+        gone: str | None = None,
+    ) -> bool:
+        """`boss_note` in game `game`'s book (None: none): the probe's own writes (`kill_noted`, `sight_noted`) name the
+        game they read."""
+        if game is None:
             return False
-        record['at'] = self.wall()
-        records[name] = record
-        self.write({'bosses': self.book})
-        return True
+        with self.lock:  # the probe's thread and the macros' both write it
+            records = self.book.setdefault(f'{game}-{area}', {})
+            stored = records.get(name)
+            fresh = stored is None
+            record: dict[str, object] = (
+                dict(stored) if stored is not None else {'place': None, 'unit': None, 'seen': False, 'by': by}
+            )
+            changed = fresh
+            if place is not None:
+                old = record.get('place')
+                if not isinstance(old, list) or len(old) != 2 or math.dist(old, place) >= BOOK_MOVE:
+                    record['place'], changed = [round(place[0], 1), round(place[1], 1)], True
+            if unit is not None and record.get('unit') != unit:
+                record['unit'], changed = unit, True
+            if seen and not record.get('seen'):
+                record['seen'], changed = True, True
+            if tried:
+                count = record.get('tries')
+                record['tries'], changed = (count if isinstance(count, int) else 0) + 1, True
+            if killed and not record.get('killed'):
+                record['killed'], changed = True, True
+            if gone is not None and str(record.get('gone') or '') != gone:
+                record['gone'], changed = gone, True
+            if not changed:
+                return False
+            record['at'] = self.wall()
+            records[name] = record
+            self.write({'bosses': self.book})
+            return True
 
     def boss_book(self) -> list[tuple[int, str, dict]]:
         """(level, name, record) of this game's book (`boss_game`)."""
-        if self.book_game is None:
+        return self.game_book(self.book_game)
+
+    def game_book(self, game: str | None) -> list[tuple[int, str, dict]]:
+        """(level, name, record) of game `game`'s book (None: none)."""
+        if game is None:
             return []
-        prefix = f'{self.book_game}-'
-        return [
-            (int(key[len(prefix) :]), name, record)
-            for key, records in self.book.items()
-            if key.startswith(prefix) and key[len(prefix) :].isdigit()
-            for name, record in records.items()
-        ]
+        prefix = f'{game}-'
+        with self.lock:  # a copy: the probe's thread writes it while the macros' reads it
+            return [
+                (int(key[len(prefix) :]), name, record)
+                for key, records in self.book.items()
+                if key.startswith(prefix) and key[len(prefix) :].isdigit()
+                for name, record in records.items()
+            ]
+
+    def named(self, event) -> str | None:
+        """The boss or super unique an event's unit is (its superuniques.txt name as first seen, else its own monster
+        class: SLAIN_BOSSES), None for any other."""
+        return (self.elites.get(event.get('unit_id')) or (None,) * 6)[5] or SLAIN_BOSSES.get(event.get('txt_id'))
+
+    def kill_noted(self, game: str | None, area: int, name: str | None, unit: object = None) -> bool:
+        """BOOK_KILLS: the kill of boss `name` (None: the one of game `game`'s book whose unit `unit` is, the ledger's
+        binding) on level `area`, written in its record (on its own level when the book names it on another; made on
+        `area` when it has none). Whether that changed the book."""
+        unit = unit if isinstance(unit, int) and not isinstance(unit, bool) else None
+        with self.lock:
+            records = self.game_book(game)
+            if name is None:
+                bound = (boss for _, boss, record in records if unit is not None and record.get('unit') == unit)
+                name = next(bound, None)
+                if name is None:
+                    return False
+            levels = [level for level, boss, _ in records if boss == name]
+            level = area if area in levels or not levels else levels[0]
+            return self.note(game, level, name, killed=True)
+
+    def sight_noted(self, game: str | None, event, name: str | None) -> bool:
+        """BOOK_SIGHT: boss `name` (of the event's level in game `game`'s book) seen alive by the probe's `event`:
+        `seen`, its unit and place, a gone one owed again (bossledger.py BOSS_ABSENT). Whether that changed the
+        book."""
+        area = event.get('area')
+        if name is None or not isinstance(area, int) or event.get('mode') in DEAD_MODES:
+            return False
+        with self.lock:
+            mine = (record for level, boss, record in self.game_book(game) if (level, boss) == (area, name))
+            record = next(mine, None)
+            if record is None or record.get('killed'):
+                return False
+            x, y = event.get('x') or 0, event.get('y') or 0
+            unit = event.get('unit_id')
+            return self.note(
+                game, area, name, place=(float(x), float(y)) if x or y else None,
+                unit=unit if isinstance(unit, int) else None, seen=True, gone='' if record.get('gone') else None,
+            )  # fmt: skip
+
+    def recall(self, game: str) -> None:
+        """BOOK_RECALL: the probe's logs of game `game` since it began (its record's 'began') read into its book from
+        where the last read stopped: each kill (`kill_noted`) and sighting (`sight_noted`) the book lacks; said when it
+        changed the book. The logs are the PROBE_LOG of each session folder beside the store written since."""
+        began = (self.record(game).get('loop') or {}).get('began') if self.store is not None else None
+        if self.store is None or not isinstance(began, (int, float)) or isinstance(began, bool):
+            return
+        since = datetime.fromtimestamp(float(began), UTC).isoformat()[:19]
+        marks = self.recalled.setdefault(game, {})
+        reads = self.recall_reads.setdefault(game, ZoneTracker())  # its own state: the names its units are
+        kills = sights = 0
+        for log in sorted(self.store.parent.glob(f'*/{PROBE_LOG}')):
+            try:
+                if log.stat().st_mtime < float(began):
+                    continue
+                with log.open('rb') as file:
+                    file.seek(marks.get(str(log), 0))
+                    data = file.read()
+            except OSError:
+                continue
+            whole = data.rfind(b'\n') + 1  # a line being written is read the next time
+            marks[str(log)] = marks.get(str(log), 0) + whole
+            for line in data[:whole].splitlines():
+                head = line[:90]  # '{"at":"<stamp>","event":"died",...': read only kills and sightings whole
+                if b'"died"' not in head and b'"seen"' not in head:
+                    continue
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                if not isinstance(event, dict) or str(event.get('at', ''))[:19] < since:
+                    continue
+                before = reads.slain
+                reads.apply([event])
+                area = event.get('area')
+                if not isinstance(area, int):
+                    continue
+                if event['event'] == 'died' or event.get('mode') in DEAD_MODES:
+                    names = sorted(reads.slain - before) or ([None] if event['event'] == 'died' else [])
+                    kills += sum(self.kill_noted(game, area, name, event.get('unit_id')) for name in names)
+                else:
+                    sights += self.sight_noted(game, event, reads.named(event))
+        if kills or sights:
+            LOG.info("Terror tracker: the probe's logs of game %s since %s UTC read into its book: %d kills, "
+                     '%d sightings', game, since, kills, sights)  # fmt: skip
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
@@ -664,9 +919,11 @@ class ZoneTracker:
         """'Elites: 3 killed · 2 alive of 7-9 · fixed: 1 killed of 3' for `area`. Its rooms (the
         ones the level guide read, unless given) name the level's fixed groups (elites.py)."""
         rooms = self.layouts.get(area, ()) if rooms is None else rooms
+        with self.lock:  # a copy: the probe's thread writes it while the macros' reads it
+            seen = tuple(self.elites.items())
         sightings = [
             elites.Sighting(unit_id, kind, txt_id, x, y, name, unit_id in self.dead and unit_id not in self.positions)
-            for unit_id, (where, kind, txt_id, x, y, name) in self.elites.items()
+            for unit_id, (where, kind, txt_id, x, y, name) in seen
             if where == area
         ]
         return elites.line(elites.tally(area, rooms, sightings))
@@ -740,16 +997,28 @@ class ZoneTracker:
         And each boss (terror/bosses.py): the Summoner carries the unique flag only (his record on
         2026-10-11, 15:51: type flags 0x08), and the macro request beside his corpse found "0 super
         uniques seen on level 74"."""
+        with self.lock:  # a copy: the probe's thread writes it while the macros' reads it (20:46:46 on 2026-10-24)
+            seen = tuple(self.elites.values())
         return [
             (float(x), float(y))
-            for where, kind, txt_id, x, y, _ in self.elites.values()
+            for where, kind, txt_id, x, y, _ in seen
             if where == area and (kind == 'super' or txt_id in BOSSES)
         ]
 
+    def book_kill(self, area: object, name: str | None, unit: object = None) -> None:
+        """BOOK_KILLS: boss `name`'s kill on level `area` (None: the boss of the book whose unit `unit` is) written in
+        this game's book (no game named for this state, BOOK_FRESH: nothing; `recall` reads it from the log later)."""
+        if BOOK_KILLS and isinstance(area, int) and self.book_named():
+            self.kill_noted(self.book_game, area, name, unit)
+
     def killed(self) -> frozenset[str]:
         """The super uniques (by their superuniques.txt name) and bosses killed this game: what a
-        route's `fight` stage waits for (routes/progress.py). Read from the macro's thread."""
-        return self.slain
+        route's `fight` stage waits for (routes/progress.py). Read from the macro's thread. BOOK_KILLS: with the
+        kills of this game's book, which a lost game state does not take with it (BOOK_FRESH: the book of the game
+        named for this state only)."""
+        if not BOOK_KILLS or not self.book_named():
+            return self.slain
+        return self.slain | {name for _, name, record in self.boss_book() if record.get('killed')}
 
     def remembered(self, area: int) -> list[tuple[int, float, float, bool]]:
         """(unit id, x, y, leader) of the hostile monsters alive in `area` at their last seen position,

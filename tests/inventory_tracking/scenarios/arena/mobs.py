@@ -50,7 +50,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from typing import Any
 
-from inventory_tracking.combat import threats
+from inventory_tracking.combat import revivers, threats
 from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim import casters, monsters as sim_monsters
 from inventory_tracking.combat.sim.casters import hit_chance, resisted
@@ -75,7 +75,7 @@ from inventory_tracking.combat.sim.monsters import (
     shoots,
 )
 from inventory_tracking.combat.stance import WAY_SAMPLE, no_footing
-from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
+from inventory_tracking.game.layout import LYING_DEAD, MAGIC_RESIST, NO_OWNER
 from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
@@ -93,6 +93,12 @@ from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 # refit them).
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
 from tests.inventory_tracking.scenarios.threat.table import table
+
+
+# The immune ones as the live look reads them (the measure of builds/warlock/mark.py DESIGNATED_MARK, 2026-10-22): an
+# immune mob's record carries magic 100 (`Monster.resists`), and the demons' blows take life off it (`Mobs.hit`): the
+# strike takes nothing, the demons are its answer. False (the default): as before, immune to every hit, unread.
+IMMUNE_READ = False
 
 
 # monmode.txt: the client's modes of a monster's strikes and casts (game/layout.py STRIKING_MODES), and the
@@ -466,6 +472,10 @@ class Mobs:
         # The blows of the last tick on the character's companions: (the index of the companion among those `tick` was
         # given, its raw points), for game.py's rule PETS_FIGHT
         self.mate_blows: list[tuple[int, float]] = []
+        # game.py's rule REVIVERS_RAISE: a live reviver's unit -> the frame of its next raise (`raise_dead`), and the
+        # raises played
+        self.raise_due: dict[int, int] = {}
+        self.raises = 0
 
     @staticmethod
     def _walker(mob: Mob) -> Walker:
@@ -522,6 +532,44 @@ class Mobs:
         for unit, (summoner, lasts) in list(self.summoned.items()):
             if (lasts is not None and self.frame >= lasts) or summoner not in self.pack.walkers:
                 self.vanish(unit)
+
+    def raise_dead(self) -> list[int]:
+        """game.py's rule REVIVERS_RAISE: each live reviver of the production table (combat/revivers.py) raises the
+        nearest corpse of its family within its raise range back at full life where it lies (the same unit, as the
+        game does: scenarios/revivers/harness.py), never one it spares (combat/revivers.py `spared`: a unique, a
+        champion but for a Greater Mummy), one every its `seconds` (the table's mean wait: the think delay over the
+        raise chance; the cast's own length is not played). The first comes that long after the reviver is first seen
+        with a corpse in range. Returns the units raised this tick."""
+        table = revivers.revivers()
+        found = []
+        for unit in self.live():
+            reviver = table.get(self.mobs[unit].txt)
+            if reviver is None:
+                continue
+            at = self.mobs[unit].at
+            dead = [
+                mob
+                for mob in self.mobs.values()
+                if mob.mode == LYING_DEAD
+                and mob.unit in self.hostile
+                and mob.unit not in self.summoned
+                and mob.txt in reviver.raises
+                and not revivers.spared(reviver, mob.flags)
+                and math.dist(at, mob.at) <= reviver.range
+            ]
+            if not dead:
+                self.raise_due.pop(unit, None)
+                continue
+            due = self.raise_due.setdefault(unit, self.frame + round(reviver.seconds * GAME_RATE))
+            if self.frame < due:
+                continue
+            corpse = min(dead, key=lambda mob: (math.dist(at, mob.at), mob.unit))
+            self.raise_due[unit] = self.frame + round(reviver.seconds * GAME_RATE)
+            self.hostile.remove(corpse.unit)
+            self.spawn(replace(corpse, life=corpse.full, mode=1))
+            self.raises += 1
+            found.append(corpse.unit)
+        return found
 
     def turn(self, unit: int) -> None:
         """A hostile made the character's (Bind Demon, game.py `Arena.bind`): out of the pack and the hostiles, an
@@ -748,14 +796,14 @@ class Mobs:
             self.pack.stun(blow.unit, self.frame, frames)
         return replace(blow, damage=sum(parts.values()), parts=parts)
 
-    def hit(self, unit: int, points: float) -> bool:
-        """The character's damage on a monster; True: it died now. Nothing comes off an immune one, a
-        companion or a corpse. The pack is told what share of the monster's most life the hit took: a
-        tick's hits may stagger it at the next tick, and a swing under way is then lost; a Lightning
-        Enchanted one may let its sparks go (`Pack.struck`). One that dies may let a nova go
+    def hit(self, unit: int, points: float, *, by_pet: bool = False) -> bool:
+        """The character's damage on a monster (`by_pet`: a demon's); True: it died now. Nothing comes off an immune
+        one (but a demon's with IMMUNE_READ), a companion or a corpse. The pack is told what share of the monster's
+        most life the hit took: a tick's hits may stagger it at the next tick, and a swing under way is then lost; a
+        Lightning Enchanted one may let its sparks go (`Pack.struck`). One that dies may let a nova go
         (`Pack.died`), and an exploding one leaves its blast for the next tick."""
         mob = self.mobs.get(unit)
-        if mob is None or unit not in self.pack.walkers or mob.immune:
+        if mob is None or unit not in self.pack.walkers or (mob.immune and not (by_pet and IMMUNE_READ)):
             return False
         mob.life -= points
         self.pack.struck(unit, self.frame, points / mob.full if mob.full > 0 else 0.0)
@@ -808,9 +856,16 @@ class Mobs:
     def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
         """The missiles in flight of the classes `kinds` as game/decode.py `flights` reads them: (owner unit,
         class, x, y)."""
-        return tuple(
-            (bolt.unit, bolt.missile, bolt.x, bolt.y) for bolt in self.pack.minds.bolts if bolt.missile in kinds
-        )
+        found = [(bolt.unit, bolt.missile, bolt.x, bolt.y) for bolt in self.pack.minds.bolts if bolt.missile in kinds]
+        for missile in self.pack.flying:
+            # A shooter's bolt of a named class (sim/monsters.py `Pack.bolts`) where it is on its way now
+            if missile.kind in kinds and missile.origin is not None and missile.lands > missile.born:
+                share = min(max((self.frame - missile.born) / (missile.lands - missile.born), 0.0), 1.0)
+                x = missile.origin[0] + (missile.at[0] - missile.origin[0]) * share
+                y = missile.origin[1] + (missile.at[1] - missile.origin[1]) * share
+                if (x, y) != missile.origin:
+                    found.append((missile.unit, missile.kind, x, y))
+        return tuple(found)
 
     def monsters(self) -> list[Monster]:
         """The monsters as game/ reads them now: life in whole points, a dead one lying
@@ -829,6 +884,7 @@ class Mobs:
                 round(mob.full),
                 modifiers=tuple(mob.mods),
                 tier=mob.tier,
+                resists=((MAGIC_RESIST, 100),) if IMMUNE_READ and mob.immune else (),
                 damage_percent=self.shown_percent(mob.unit),
             )
             for mob in self.mobs.values()

@@ -2,11 +2,13 @@
 A part of macros/hunt.py `Hunter`, its methods bound there."""
 
 import math
+from collections.abc import Mapping
 from contextlib import contextmanager, nullcontext
 from typing import TYPE_CHECKING
 
+from inventory_tracking.combat import pack as herald_pack
 from inventory_tracking.combat.policy import RUN_MODES, observe
-from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, RUN_SPEED, Camp, camp, no_footing
+from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, HORIZON, RUN_SPEED, Camp, camp, no_footing
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.combat.threats import manaburn
 from inventory_tracking.common import LOG
@@ -16,11 +18,11 @@ from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Expired
-from inventory_tracking.macros.build import Intent, NoWay
+from inventory_tracking.macros.build import Draw, Intent, NoWay
 from inventory_tracking.macros.drinking import key_of, on_belt
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, Goal, spot_of
-from inventory_tracking.macros.hunting import choice, shrines
+from inventory_tracking.macros.hunting import base, choice, shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     BOSS_MARK_UNITS,
@@ -49,6 +51,7 @@ from inventory_tracking.macros.hunting.base import (
     act_window,
     threat,
 )
+from inventory_tracking.macros.hunting.laps import LapBook, loot_once, staff_once
 from inventory_tracking.macros.pickup import Refused, pick_up
 from inventory_tracking.macros.pursuit import (
     ENTRY_REACH,
@@ -62,7 +65,7 @@ from inventory_tracking.macros.pursuit import (
 )
 from inventory_tracking.macros.routines import SUPER_UNIQUE_FLAG, take_battle_weapons
 from inventory_tracking.macros.running.base import DOOR_PRESS
-from inventory_tracking.macros.safety import WALK_ROUND, WAY_SHARE
+from inventory_tracking.macros.safety import DUD_UNITS, WALK_ROUND, WAY_SHARE, every_act_vetoed
 from inventory_tracking.macros.sight import clear_shot, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
@@ -99,11 +102,13 @@ from inventory_tracking.macros.travel import (
     navigator,
     planning,
     spare_jump,
+    stand_line,
     step_walk,
 )
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
+from inventory_tracking.takes import decisions
 from inventory_tracking.terror.bosses import BOSSES
 
 
@@ -219,6 +224,22 @@ def last_leg(goal: Goal, step: Step, here: Point, area: int) -> Step:
     return step
 
 
+# 2026-10-23 (Duriel's Lair, 15:15:10.49: "safety: Teleport to (22603.3, 15703.1) chosen 3 looks in a row ...: the spot
+# is dropped for 20s", and 31 ms later the same look's act pressed it again; 15:15:15.32 the retreat's spot the same;
+# rca/2026-10-23/gap-findings.md). The safety drops a spot after its look chose it (macros/safety.py `hopped`), so
+# the look that drops it still holds it. True: a Teleport to a spot the safety holds dropped is not pressed, and the
+# next look prices it barred (`dropped`). False: the look's act is made, as before.
+DUD_BINDS = True
+DUD_SAID = 'the safety dropped this Teleport spot (a Teleport there cast nothing): looking again'
+
+
+def dropped(act, duds: Mapping[Point, float], near: float, now: float) -> bool:
+    """Whether `act` (DUD_BINDS) is a Teleport to within `near` of a spot `duds` holds dropped until after `now`."""
+    if not DUD_BINDS or not isinstance(act, Advance) or act.step.skill != TELEPORT:
+        return False
+    return any(until > now and math.dist(act.step.spot, spot) <= near for spot, until in duds.items())
+
+
 # A level run's move toward its way out by a door, stairs or a portal (not an open passage) that did not move the
 # character within ENTRY_REACH of it ends the run there: the route's press goes through by the door's click
 # (macros/route.py, levels/doors.py), as at a way no hop gets nearer to (pursuit.py `to_the_door`). 23:18:59-23:19:45
@@ -269,6 +290,17 @@ def barred(self: Hunter, act, now: float) -> bool:
     return any(until > now and math.dist(act.step.spot, spot) <= DEAD_END_NEAR for spot, until in self.dead_ends)
 
 
+# REJUV_VETOED (2026-10-23, rca/2026-10-23/arena-red.md, the arena's low_life_in_melee: 500 of 1800 life, three Hell
+# Bovines in contact, healing potions and rejuvenations on the belt): the look at 0.05 s found every act vetoed (the
+# hold and the walks by the reach bar, the jumps by the rollouts), and the drinker gave a healing potion, which heals
+# over seconds; combat/survival.py EMERGENCY_REJUVENATION did not fire because it reads the window's losses
+# (`Pressure.sustained`, `burst`), and the first reading has none: the life came low into the look. The rejuvenation
+# came at 0.66 s, once the walk had been hit. True: under the safety floor, a look that found every act vetoed
+# (macros/safety.py `every_act_vetoed`) drinks a rejuvenation before its act whether a healing potion is on the belt or
+# not, and the next look decides the act at the life restored. False: only with no healing potion, as before.
+REJUV_VETOED = True
+
+
 def mana_rejuvenation(self: Hunter, run: Run, loot: Loot, rejuvenations: int) -> bool:
     """A Rejuvenation for the mana in a scary moment (combat/threats/manaburn.py MANA_REJUVENATION,
     `rejuvenation_for_mana`; the player, 2026-10-21 ~16:30: "we can restore mana with rejuv potions, in a very scary
@@ -289,11 +321,24 @@ def mana_rejuvenation(self: Hunter, run: Run, loot: Loot, rejuvenations: int) ->
     return True
 
 
+def refilled(self: Hunter, run: Run) -> Advance | None:
+    """The Teleport out a Rejuvenation for the mana makes at once (combat/threats/drain_escape.py MANA_ESCAPE, item
+    5: the take of 2026-10-23 18:57:40 lost the refilled mana in 0.34 s to a 249 ms look): the leave the look priced
+    while the mana did not pay for it, if that look is fresh; None else."""
+    escape = self.safety.refill
+    if escape is None or not escape.fresh(run.clock()):
+        return None
+    self.safety.refill = None
+    LOG.info('Macro: drink: %s', escape.reason)
+    return Advance(escape.step, escape.goal, escape.reason, dodge=True)  # type: ignore[arg-type]
+
+
 def pursue(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, key_names, *, in_reach: bool
 ) -> bool:
     """One look of the pursuit and its act (pursuit.py): a move, a use, or the hand-over to the route's step.
     Whether something was done (the loop then looks again). An act from a `stale` look is not made."""
+    book = act_book(self, run)  # the act queue's laps (ACT_LAPS); None off
     looked = run.clock()
     taken = self.yielded_act(run, world)
     if taken is not None:
@@ -305,21 +350,30 @@ def pursue(
         )  # fmt: skip
         self.pursued = found.goal
     else:
-        with self.way_time():
+        with self.way_time(), staff_once(run), loot_once(run):
             found = self.judge(run, world, foes, ground, in_reach=in_reach)
+        told(self, looked, found)  # the look's decision to the take (takes/decisions.py DECISION_EVENTS)
+    if book is not None:
+        book.lap('judge')
+        decision = self.safety.decision or {}
+        if book.current is not None and taken is None and decision.get('looked_at', -math.inf) >= looked:
+            book.current.priced = (decision.get('ms') or 0.0) / 1000
     act, goal, posted, pressed = found.act, found.goal, found.posted, found.pressed
     running = posted is not None and posted.runs
     stamp = posted.pressed_at if posted is not None else -math.inf
+    escaping = None  # the refill's Teleport out (`refilled`), made with no look between
     if self.pursuing and run.loot is not None:
         loot = run.loot()
         supply = on_belt(loot)
         kind = PotionType.REJUVENATION
         settings = self.build.settings
-        # Recover the budget; the next look must see the healing before it allows a costlier act
+        # Recover the budget; the next look must see the healing before it allows a costlier act. With every act
+        # vetoed a healing potion is too slow (REJUV_VETOED)
+        cornered = REJUV_VETOED and taken is None and every_act_vetoed(self.safety.decision, looked)
         if (
             0 < loot.life < loot.max_life * settings.safety.floor / 100
             and loot.belt_read  # an unread cell may hold the healing potion
-            and not supply[PotionType.HEALING]
+            and (not supply[PotionType.HEALING] or cornered)
             and supply[kind]
             and run.clock() - self.drinker.drunk_at.get(kind, -math.inf) >= settings.drink.rejuvenation_gap
             and not self.drinker.busy
@@ -330,7 +384,12 @@ def pursue(
                 self.tell(run, 'recovering the life budget; the next look decides the act')
                 return True
         if mana_rejuvenation(self, run, loot, supply[kind]):
-            return True
+            escaping = refilled(self, run) if found.place is not None else None
+            if escaping is None:
+                return True
+            act = escaping
+    if book is not None:
+        book.lap('loot')
     if isinstance(act, Hold):
         # A fight's cached yield from the last look must not release this strike again
         self.judged = (stamp, run.clock(), False)
@@ -357,8 +416,16 @@ def pursue(
     if isinstance(act, Defer):
         self.defer(run, goal, act.goal.label if act.goal is not None else 'the key', posted)
         return False
-    if self.stale(run, world, looked, act):
+    if dropped(act, self.safety.duds, DUD_UNITS, run.clock()):
+        # The safety dropped the spot in this very look (pursuit.py DUD_BINDS): the next look prices it barred
+        assert isinstance(act, Advance)
+        self.tell(run, f'{DUD_SAID}: ({act.step.spot[0]:.1f}, {act.step.spot[1]:.1f})')
+        self.nap(run, FRAME)
         return True
+    if escaping is None and self.stale(run, world, looked, act):
+        return True
+    if book is not None:
+        book.lap('stale')
     # The pointer held for the act, its mark re-based as it begins (`Actuator.held_act`)
     try:
         with run.actuator.held_act(), self.way_time():
@@ -410,6 +477,39 @@ def pursue(
     return True
 
 
+def told(self: Hunter, looked: float, found) -> None:
+    """The decision of the look begun at `looked` told to the take (takes/decisions.py, 2026-10-23): the safety's
+    own when it priced this look, else the act chosen."""
+    if not decisions.DECISION_EVENTS:
+        return
+    decision = self.safety.decision or {}
+    if decision.get('looked_at', -math.inf) >= looked:
+        decisions.tell(decision)
+        return
+    act = found.act
+    decisions.tell(
+        {
+            'looked_at': round(looked, 3),
+            'chosen': type(act).__name__,
+            'chosen_place': list(act.step.spot) if isinstance(act, Advance) else None,
+            'goal': found.goal.label if found.goal is not None else None,
+            'priced': False,
+        }
+    )
+
+
+def act_book(self: Hunter, run: Run) -> LapBook | None:
+    """The hunter's act-queue laps begun for this pursue, its readers timed (hunting/laps.py); None: ACT_LAPS off."""
+    if not base.ACT_LAPS:
+        return None
+    book = self.__dict__.get('act_laps')
+    if book is None:
+        book = self.__dict__['act_laps'] = LapBook()
+    book.begin(getattr(run.actuator, 'sent', None))
+    book.reads(run)
+    return book
+
+
 def way_time(self: Hunter):
     """The time limit for planning the far goal's way outside the safety's look (travel.py `planning`): the
     look's WAY_SHARE; none without a timer (the arena)."""
@@ -440,6 +540,15 @@ def stale(self: Hunter, run: Run, world: World, looked: float, act) -> bool:
         )  # fmt: skip
         self.dropped = 0
         return False
+    if base.STALE_DANGER_KEPT and moved <= STALE_MOVED and danger_act(act):
+        # The safety's escape checked against the look now instead of judged again (STALE_DANGER_KEPT)
+        LOG.info(
+            'Macro: look: the act of a danger look %.2f s old is made (%s): the character stands %.1f units from '
+            'where the look saw it',
+            age, what, moved,
+        )  # fmt: skip
+        self.dropped = 0
+        return False
     self.dropped += 1
     LOG.info(
         'Macro: look: the act of a look %.2f s old is dropped (%s, the character %.1f units from where the look '
@@ -447,6 +556,13 @@ def stale(self: Hunter, run: Run, world: World, looked: float, act) -> bool:
         age, what, moved,
     )  # fmt: skip
     return True
+
+
+def danger_act(act) -> bool:
+    """Whether `act` is the safety's escape: a retreat or a dodge (the moves `barred` lets through). 2026-10-23: not a
+    progress move priced in a danger look: made from the old look it walked into the pack (the arena's cs_run seed 15,
+    slow host: a 0.46 s old safe approach Blade Warped into blows of 5529 of 1736 life)."""
+    return isinstance(act, Advance) and (act.dodge or act.reason.startswith('retreat'))
 
 
 def give_up(self: Hunter, run: Run, reason: str) -> None:
@@ -471,7 +587,7 @@ def priced_for(self: Hunter, run: Run, seconds: float):
     def observed(world: World) -> None:
         if previous is not None:
             previous(world)
-        if run.clock() >= until:
+        if run.clock() >= until and not getattr(run, 'flying', 0):
             self.expired_motion = world.player is not None and world.player.mode in RUN_MODES
             raise Expired(f'{EXPIRED}: look again before continuing')
 
@@ -550,6 +666,11 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
         take_battle_weapons(run)
     if not act.reason:  # a reason's move (a retreat, a dodge) is the safety's own
         step = last_leg(goal, step, (player.x, player.y), player.area)
+    if herald_pack.MARK_THEN_WALK and step.skill is not None and not danger_act(act):
+        walked = walk_in(self, run, world, ground, step, place, aspect, key_names, goal.spend)
+        if walked is None:
+            return  # the mark went out from here: the next look prices the walk in
+        step = walked
     bounced(self, act, (player.x, player.y), run.clock())
     by = 'Walking' if step.skill is None else skill_name(step.skill)
     if goal.crossed and step.skill is None and step.spot == goal.place:
@@ -570,9 +691,57 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
     )  # fmt: skip
     if step.skill is not None and step.skill != TELEPORT:
         run.say(f'{by} toward {goal.label}')  # a walk and a Teleport hop say their own line
+    book = self.__dict__.get('act_laps')
+    if book is not None and base.ACT_LAPS:
+        book.lap('make')
+        if book.current is not None:
+            book.current.by = by
     self.travel.make(
         run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place, hurry=act.dodge
     )
+
+
+def standing_fits(decision: Mapping) -> bool:
+    """Whether the safety's last look prices standing within its life budget: its Hold's worst harm (the decision's
+    candidates) at or under the budget. False with no Hold priced."""
+    budget = decision.get('budget')
+    hold = next((c for c in decision.get('candidates', ()) if c.get('act') == 'Hold'), None)
+    return budget is not None and hold is not None and hold.get('worst') is not None and hold['worst'] <= budget
+
+
+def walk_in(
+    self: Hunter, run: Run, world: World, ground: Ground, step, place: Point, aspect: float, key_names, intent: Intent
+):
+    """MARK_THEN_WALK (combat/pack.py): a progress jump toward a big group (`big_group`) with none in the strike's
+    reach. While the demons hold it (a FIRST skill keyed under WALK_HOLD s ago), the walk toward the same place
+    (`Travel.options`' walk; the jump when there is none); with none keyed and standing within the safety's budget
+    (`standing_fits`), the mark first from here (`Hunter.mark_from_here`), None: the next look. `step` otherwise."""
+    player = world.player
+    if player is None:
+        return step
+    here, now = (player.x, player.y), run.clock()
+    foes = self.foes(world, now)
+    pressed = any(price.pressed for price in (self.safety.draws or {}).values())
+    big = herald_pack.big_group(here, foes, pressed)
+    reach = self.attack.reach
+    if big is None or any(in_reach(ground, here, (m.x, m.y), reach, world.doors) for m in foes):
+        return step
+    keyed = max((self.buffs.cast_at.get((skill, None), -math.inf) for skill in herald_pack.FIRST), default=-math.inf)
+    if now - keyed > herald_pack.WALK_HOLD:
+        if not standing_fits(self.safety.decision):
+            return step  # standing to cast is over the budget: the jump as priced
+        if self.mark_from_here(run, world, foes, key_names):
+            LOG.info('Macro: pursuit: %s: the mark from here, then the walk in (MARK_THEN_WALK)', big)
+            return None
+        return step
+    walks = [s for s in self.travel.options(run, world, ground, aspect, place, intent) if s.skill is None]
+    if not walks:
+        return step
+    LOG.info(
+        'Macro: pursuit: %s: walked toward (%.1f, %.1f), the demons on it (the mark %.2fs ago; MARK_THEN_WALK)',
+        big, *place, now - keyed,
+    )  # fmt: skip
+    return walks[0]
 
 
 DOOR_NEAR = 15.0  # world units: a closed door this near, across a passage's walk, is opened first (`door_across`)
@@ -972,6 +1141,13 @@ def step(self: Hunter, run: Run, key_names) -> None:
     LOG.info('Macro: step asked with %d hostiles near, from (%.1f, %.1f): the sweep takes it', len(near), *here)
 
 
+def sent_demons(draw: Draw | None, world: World, companions: list[Monster]) -> list[tuple[float, float]]:
+    """Where the companions the build's draw sends stand (macros/safety.py `Safety.sendable`): the pack's demons."""
+    if draw is None or draw.skill not in world.slots:
+        return []
+    return [(m.x, m.y) for m in companions if draw.sends(world, m)]
+
+
 def better_stand(
     self: Hunter,
     world: World,
@@ -993,11 +1169,18 @@ def better_stand(
     attack = self.attack
     seen = attack.sees(observe(player, near, companions, ground, world.doors), companions)
     jumps = () if run is None else self.travel.jumps(run, world)
+    # No place the keep range would hop out of at once (combat/pack.py PLACES_KEEP_RANGE): the safety's own model
+    kept = herald_pack.range_kept(
+        [m for m in world.monsters if not m.ally and m.owner == NO_OWNER and m.mode not in (0, 12)],
+        sent_demons(self.build.draw, world, companions),
+    )
     place = camp(
         seen,
         attack,
         no_footing(ground, world.doors),
-        shown=lambda spot: in_view(ground_fraction(player, spot[0], spot[1], aspect)) and not self.sweep.shuns(spot),
+        shown=lambda spot: (
+            in_view(ground_fraction(player, spot[0], spot[1], aspect)) and not self.sweep.shuns(spot) and kept(spot)
+        ),
         gain=gain,
         jumps=jumps,
         # Cows are fought from inside the herd (the player, 2026-10-12: "special tactics for some mob types
@@ -1026,6 +1209,34 @@ def better_stand(
     return place
 
 
+# STAND_PAYS_GAP (2026-10-23, the player: "your goal is to maximize exp/hour"; rca/2026-10-23/fight-yield-findings.md):
+# a level run's better place in the fight (`next_step` priced, hunt.py `fight` -> `Safety.offer`) is priced by
+# combat/stance.py `camp` with the way's own seconds (a Teleport 0.30 s, a walk ~0.7 s), but the strikes stop longer:
+# the fight lets go, the look makes the move, the strike is pressed again. Tonight's sessions (2026-10-22/23, 34
+# probe.logs): 1590 better-place Teleports, the next strike 0.84 s after the yield at the median (quartiles 0.72-1.06),
+# 174 walks 1.11 s (1.01-1.21) against 0.70 priced; 1774 such yields, 1384 of them after one cast, 1788 s without a
+# strike. True: the place's worth is taken over what is left of stance HORIZON after its seconds and STAND_GAP_EXTRA
+# more (`pays_the_gap`), and it is gone to only while that still beats here by the gain asked (a Teleport's 1.25 ->
+# ~1.53). A place out of a crowd (combat/stance.py CROWD_ESCAPE: worth under the gain, taken for safety) is not
+# judged so. False: as `camp` priced it, as before. Off as built (2026-10-23): the arena's level-run reviver scenes
+# (situations/revivers.py "run: fallen herald ...", 6 seeds) cleared 1.8-3.2 s slower with it on, the arena's own move
+# being as quick as its price; a live A/B (the loop's kills an hour, d2-loop-watch andy.py) decides.
+STAND_PAYS_GAP = False
+STAND_GAP_EXTRA = 0.5  # seconds: 0.84 - 0.30 for a Teleport, 1.11 - 0.70 for a walk (the medians above)
+
+
+def pays_the_gap(place: Camp, gain: float) -> bool:
+    """Whether a fight's better place still beats here by `gain` with STAND_GAP_EXTRA more seconds of no strike
+    (STAND_PAYS_GAP); True for a crowd escape (worth under `gain` times here's), with the switch off, or past the
+    horizon."""
+    if not STAND_PAYS_GAP or place.worth < gain * place.here:
+        return True
+    left = HORIZON - place.seconds
+    if left <= 0.0:
+        return True
+    return place.worth * max(left - STAND_GAP_EXTRA, 0.0) / left >= gain * place.here
+
+
 def next_step(
     self: Hunter,
     run: Run,
@@ -1043,6 +1254,12 @@ def next_step(
     self.sweep.forget(run.clock())
     gain = CAMP_GAIN if priced or not fighting else SWEEP_GAIN
     place = self.better_stand(world, foes, ground, aspect, gain, run, landed=priced)
+    if priced and fighting and place is not None and not pays_the_gap(place, gain):
+        LOG.info(
+            'Macro: run: the fight stays: %s; the strike gap of %.1f s more does not pay (STAND_PAYS_GAP)',
+            stand_line(place), STAND_GAP_EXTRA,
+        )  # fmt: skip
+        place = None
     found = Step.to(place) if place is not None else None
     if found is None and not fighting and foes:
         found = self.toward(run, world, foes, ground, aspect)

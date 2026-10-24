@@ -1,6 +1,7 @@
 """Corpus: distinct captured items, a stable labelling sample and the label score."""
 
 import json
+from pathlib import Path
 
 from inventory_tracking.corpus.build import collect, item_id, label_page, sample
 from inventory_tracking.corpus.score import score
@@ -192,3 +193,57 @@ def test_disagreement_retains_capture_even_without_original_run(tmp_path):
     assert review_order(['other', identifier], feedback) == [identifier, 'other']
     feedback[identifier]['status'] = 'resolved'
     assert review_order(['other'], feedback) == ['other']
+
+
+# -- the corpus through the one assessment entry point (CORPUS, design.md §10.4 step 2, 2026-10-23) ------------------
+
+REPLAY = Path(__file__).parents[1] / 'loot' / 'fixtures' / 'assess_replay.json'
+
+
+def test_the_corpus_verdict_is_the_identify_verdict_on_recorded_reads():
+    # The gate's sample: real reads with their KB result and the identify worker's verdict at the freeze
+    # (loot/fixtures/assess_replay.json). The full corpus: rca/2026-10-23/scripts/assess_2b_corpus.py
+    from inventory_tracking.corpus.score import corpus_assessment
+
+    reads = json.loads(REPLAY.read_text())['reads']
+    for read in reads:
+        found = corpus_assessment(read['observation'], read['result'])
+        assert found.value is not None
+        assert found.value.verdict == read['verdict'], read['title']
+        if read['owned'] is None or read['observation']['item'].get('rarity') not in ('set', 'unique'):
+            assert (found.outcome.value == 'vendor') == (read['expect']['town'] == 'sell'), found.said()
+        else:  # the corpus tells no owned copies: a set or unique item is kept (keep.py K4, S8)
+            assert found.outcome.value == 'keep', found.said()
+
+
+def test_a_corpus_row_carries_the_verdict_and_the_entry_points_outcome(monkeypatch):
+    from types import SimpleNamespace
+
+    from inventory_tracking.corpus import score as scorer
+
+    read = json.loads(REPLAY.read_text())['reads'][0]
+    runtime = SimpleNamespace(database=None)
+    monkeypatch.setattr(scorer, '_LOADED', SimpleNamespace(runtime=runtime))
+    monkeypatch.setattr('pricing.api.published_snapshot', lambda _runtime: __import__('contextlib').nullcontext())
+    monkeypatch.setattr('pricing.knowledge.pipeline.retrieve_draft', lambda *args, **kwargs: read['result'])
+    row = scorer._assess({'id': 'x', 'observation': read['observation']})
+    assert row['verdict'] == read['verdict']
+    assert row['outcome'] == ('vendor' if read['expect']['town'] == 'sell' else row['outcome'])
+    assert row['rule']
+    assert row['why']
+    monkeypatch.setattr(scorer, '_LOADED', None)
+    assert scorer._assess({'id': 'x', 'observation': read['observation']})['verdict'] == 'error'
+
+
+def test_card_score_names_the_trade_value_items_the_town_would_vendor():
+    from inventory_tracking.corpus.score import card_score
+
+    results = [
+        {'id': 'a', 'name': 'Ring', 'rarity': 'rare', 'outcome': 'vendor', 'rule': 'K8', 'why': 'junk'},
+        {'id': 'b', 'name': 'Shako', 'rarity': 'unique', 'outcome': 'keep', 'rule': 'K5', 'why': 'worth 3 Ist'},
+        {'id': 'c', 'name': 'Old', 'rarity': 'magic', 'verdict': 'vendor'},
+    ]
+    summary = card_score(results, {'a': 'sell', 'b': 'slow', 'c': 'sell'})
+    assert summary['judged'] == 2
+    assert summary['worth_vendored'] == ['Ring (rare): K8 junk']
+    assert summary['confusion'] == {'sell→vendor': 1, 'slow→keep': 1}

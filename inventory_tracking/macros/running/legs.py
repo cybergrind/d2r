@@ -1,6 +1,7 @@
 """The KP_6 loop's legs: the level run a leg posts, the way on, the leg's hands (macros/loop.py `LegHands`), the town
 visit and the identify. A part of macros/runner.py `MacroRunner`, its methods bound there."""
 
+import threading
 import time
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
@@ -10,7 +11,7 @@ from inventory_tracking.game.records import World
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.macros import cta, route, zonenav
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.agenda import ZONE_LEFT
+from inventory_tracking.macros.agenda import SKIPPED, ZONE_LEFT
 from inventory_tracking.macros.cain import identify_all
 from inventory_tracking.macros.cube import perfect_of, stash, stash_only, transmute, unpack
 from inventory_tracking.macros.engine import Run
@@ -24,13 +25,13 @@ from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.portal import portal_source
 from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.routines import show_items_on
-from inventory_tracking.macros.running.base import PICK_SLACK, PICKUP, TRANSMUTES, VERDICT_SECONDS
+from inventory_tracking.macros.running.base import ATTACK, PICK_SLACK, PICKUP, TRANSMUTES, VERDICT_SECONDS
 from inventory_tracking.macros.running.recovery import back_for_bosses
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL, skill_name
 from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem, sold_full
 from inventory_tracking.macros.townexit import walk_out as walk_out_of_town
 from inventory_tracking.macros.travel import cut
-from inventory_tracking.macros.tzloop import full_clear
+from inventory_tracking.macros.tzloop import full_clear, plain_fight_bound, portal_hold_over, worth_skip
 from inventory_tracking.macros.tzroutine import Itinerary, policy_of
 from inventory_tracking.macros.visit import Hands, visit
 from inventory_tracking.routes.model import USE
@@ -55,6 +56,33 @@ def _loop_level_run(self: MacroRunner, hunter: Hunter, rush: bool = True, agenda
         )  # fmt: skip
         hunter.post(post)
         self.attack_mode, self.attack_declined = True, False
+
+
+def _bound_plain(self: MacroRunner, hunter: Hunter, seconds: float) -> None:
+    """The plain run just posted for a held Town Portal (macros/tzloop.py PORTAL_FIGHT_PLAIN) ended after `seconds`
+    if it is still on then (`_plain_over`)."""
+    post = hunter.pursuit
+    if post is None:
+        return
+    timer = threading.Timer(seconds, _plain_over, args=(self, hunter, post.pressed_at))
+    timer.daemon = True
+    timer.start()
+
+
+def _plain_over(self: MacroRunner, hunter: Hunter, pressed_at: float) -> bool:
+    """The held plain run posted at `pressed_at` ended, its seconds up (tzloop.py `portal_hold_over`, said there),
+    as merclost.py ends a run for its trip: the attack mode off, the next leg asks the portal again. Nothing when that
+    run is over already or the loop is off. From the timer's thread; whether it ended it."""
+    with self.lock:
+        run = hunter.pursuit
+        if not self.loop.on or not self.attack_mode or run is None or run.pressed_at != pressed_at:
+            return False  # over by itself, another run, or the player's KP_6 off
+        if not portal_hold_over(self.loop.agenda, time.monotonic()):
+            return False
+        self.attack_mode = False
+        if self.working and self.routine == ATTACK:
+            self.cancelled.set()
+        return True
 
 
 def _trip_levels(self: MacroRunner) -> frozenset[int] | None:
@@ -85,6 +113,8 @@ def _agenda_policy(self: MacroRunner, area: int) -> str:
         # Dry Hills): the run ends here ("it should run within terror zones", the player). A level crossed on the way
         # is never in the zone: TRANSIT as before
         return ZONE_LEFT
+    if isinstance(plan, Itinerary) and worth_skip(self.loop, area, time.monotonic(), self.valuable_left):
+        return SKIPPED  # not worth playing on (macros/zonenav.py `worth`): the run ends, the zone goes on
     return policy_of(area, trip, full_clear(self.loop))
 
 
@@ -150,6 +180,10 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
     def way_on() -> None:
         self._way_on(run, key_names, take_one, level_run)
 
+    def at_way() -> bool:
+        player = run.world().player
+        return player is not None and bool(self.at_the_way_on(player))
+
     def walk_out(to: int) -> None:
         # The town's walls and rooms from the level guide's map (macros/townexit.py)
         walk_out_of_town(run, lambda: hunter.level() if hunter is not None and hunter.level is not None else None, to)
@@ -159,6 +193,8 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
             raise Abort('no level guide to hunt with')
         labels()
         self._loop_level_run(hunter, rush=False)
+        if (seconds := plain_fight_bound()) is not None:
+            _bound_plain(self, hunter, seconds)  # a held Town Portal's (tzloop.py PORTAL_FIGHT_PLAIN)
 
     def fight_back() -> None:
         # Beset (macros/loop.py FIGHT_BACK): the kind's own level run, past nothing, so the attacker is fought
@@ -244,6 +280,9 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         found = [s for s in self.sightings.outstanding() if area is None or s.area == area]
         return f'{found[0].label} at ({found[0].x:.0f}, {found[0].y:.0f})' if found else None
 
+    def remembered() -> tuple[tuple[int | None, str], ...]:
+        return tuple((s.area, f'{s.label} at ({s.x:.0f}, {s.y:.0f})') for s in self.sightings.outstanding())
+
     def terrorized(area: int) -> bool | None:
         wanted = getattr(self.progress, 'wanted', None)
         return wanted(area) if wanted is not None else None
@@ -278,10 +317,13 @@ def _loop_hands(self: MacroRunner, run: Run, key_names) -> LegHands:
         identify=identify_loot,
         bring=bring,
         way_on=way_on,
+        at_way=at_way,
         fight=fight,
         fight_back=fight_back,
+        life=lambda: self.life_seen,
         left=self.valuable_left,
         sighted=sighted,
+        remembered=remembered,
         terrorized=terrorized,
         navigate=navigate,
         walk_out=walk_out,

@@ -8,8 +8,9 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.stash import REFRESH_SECONDS
 from inventory_tracking.macros.actuator import Abort, Cause
+from inventory_tracking.macros.bossledger import game_key
 from inventory_tracking.macros.hunting.base import SIGHT
-from inventory_tracking.macros.loop import GAME_SECONDS, STILL_RECOVER, STILL_SECONDS
+from inventory_tracking.macros.loop import GAME_SECONDS, NO_PROGRESS_SECONDS, STILL_RECOVER, STILL_SECONDS
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.running.base import (
     JOURNEY_SECONDS,
@@ -19,6 +20,7 @@ from inventory_tracking.macros.running.base import (
     PICKUP,
 )
 from inventory_tracking.macros.teleport import LOST_KEY
+from inventory_tracking.macros.tzloop import owed
 from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.native.memory import one_unit_table
 
@@ -73,12 +75,12 @@ def poll(self: MacroRunner, now: float) -> None:
                 and now - warned[1] > MAKE_ROOM_AFTER
                 and self.loop.on
             ):
-                if self.loop.room_tried != game:
+                if not self.loop.cube_tried(game):
                     # Room is made before the watchdog stops the stand; the Gheed's swap first when it is one. The
                     # stand is answered: only one made after it is `stood_after_cube`'s
                     self.stand_answered = now
                     if not self._gheeds_swap(warned[0], self.valuable_left(), game):
-                        self.loop.make_room, self.loop.room_tried = True, game
+                        self.loop.cube_try(game)
                         LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
                     self.attack_mode = False
                     if self.working:
@@ -86,13 +88,18 @@ def poll(self: MacroRunner, now: float) -> None:
                 else:
                     stood_after_cube(self, warned, now)
             kills = self.hunter.score.killed if self.hunter is not None else 0  # a fight in place is no stall
+            agenda = self.loop.agenda
+            self.loop.progress_seen(game, now, (kills, len(agenda.finished), len(agenda.cleared), area))
             # The Throne's wave wait is no stall either (hunting/throne.py `Waves.due`, bounded by its WAVE_WAIT)
             waves = self.hunter is not None and self.hunter.waves.due(now)
             if self.loop.waiting:
                 pass  # for the game window's focus: the player's time, not the loop's
-            elif self.loop.on and self.loop.overdue(game, now):
-                seconds = self.loop.kind.game_seconds or GAME_SECONDS
-                why = f'over {seconds:.0f} s in {game or "the lobby"}'
+            elif self.loop.on and self.loop.over_time(game, now, owing=(owing := game_owes(self, game))):
+                if owing:
+                    why = f'no progress for {NO_PROGRESS_SECONDS:.0f} s in {game}'
+                else:
+                    seconds = self.loop.kind.game_seconds or GAME_SECONDS
+                    why = f'over {seconds:.0f} s in {game or "the lobby"}'
             elif self.loop.on and not self.attack_mode and self.loop.beset(self.where, self.life_seen, now, game, area):
                 # Hit standing outside a fight: fought back, or left with life low (macros/stops.py `first`; the
                 # player, 2026-10-19: "we must not die or we lose exp and our gear"; "Fight back first")
@@ -117,6 +124,9 @@ def poll(self: MacroRunner, now: float) -> None:
                 self.attack_mode = False
                 if self.working:
                     self.cancelled.set()
+            # After a stop of the loop's own, the stand guard's look (macros/guard.py): last, so a stop just made
+            # above is answered at the next poll, once its run is over
+            self._guard_poll(now, game, area)
         # The merc lost, or the belt empty in a dangerous fight: a town trip at its safe moment (running/merclost.py)
         self._merc_poll(now)
         if game is None:
@@ -249,3 +259,21 @@ def _staff_in_hand(self: MacroRunner) -> bool | None:
         return None if staff is None else staff.in_hand
     finally:
         memory.close()
+
+
+# The player, 2026-10-23: "make sure that we don't save/exit and waste the shards" (rca/2026-10-23/shard-exit-audit.md).
+# True: a game a Worldstone Shard terrorized (`Agenda.acts`) is never cut by its clock, only by no progress: a
+# restart's take-up sets the game's clock back to its start (cyberg65: 17624 s, its cap 3900 s) and no plan, so
+# `owed` read None until the next leg's plan and the cap fired at the first look (23:55:13 on 2026-10-22); and the
+# game's end (the carried shards over the limit used, more acts) is the agenda's, not the clock's. False: as before
+SHARD_NO_CLOCK = True
+
+
+def game_owes(self: MacroRunner, game: str | None) -> bool:
+    """Whether `game` still owes levels or bosses (tzloop.py `owed`: BOSS_STAYS, ACT_OWED) or, SHARD_NO_CLOCK, is a
+    shard's game, so the watchdog cuts it by no progress, not by its clock (loop.py NO_PROGRESS_SECONDS); False out of
+    a game or with the agenda another game's."""
+    loop = self.loop
+    if game is None or not loop.kind.agenda or loop.agenda.bosses.game != game_key(loop.game_id or game):
+        return False
+    return (SHARD_NO_CLOCK and bool(loop.agenda.acts)) or owed(loop.agenda) is not None

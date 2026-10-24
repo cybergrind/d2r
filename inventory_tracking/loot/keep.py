@@ -14,7 +14,8 @@
   FIRST_COPY_USABLE_ONLY a told first copy no build the player may play names (`unusable_first`: no want row, the
   usable rows included; priced under DUPLICATE_IST; appraised vendor or slow; no charm or jewel): DROP
 - K7 a charm or jewel (used in multiples, appraisal/owned.py MULTIPLE_COPY_BASES): KEEP when worth KEEP_IST, a want
-  names it or it has no price (S8), else DROP; never compared as copies
+  names it or it has no price (S8), else DROP; never compared as copies; but a Shimmering Large or Grand Charm under
+  its top roll (`shimmering_below_top`) priced under DUPLICATE_IST: DROP
 - K5 worth DUPLICATE_IST or more by its own rolls: KEEP (expensive: duplicates kept, N1)
 - K8 worthless (vendor, or under KEEP_IST) and no want: DROP; and a rare circlet or helm no want row names
   (JUNK_UNWANTED: the player, 2026-10-20 ~12:50, rare helms kept only when "really good"), priced or not; rare boots
@@ -24,7 +25,11 @@
   magic circlets and class items, so K9 no longer keeps such an unknown
 - K6 owned copies exist: KEEP only when better than every copy on the rolls that matter, else DROP (N2); with
   BEST_COPY_USABLE_ONLY a better copy is DROP too when `unusable_best` says no build names it (cheap, vendor or slow)
-- K9 no price, no want: KEEP the first, logged `unknown` for the update-kb skill (Q13)
+- K9 a plain white or grey weapon or armor on no allowlist entry (loot/base_floor.py `town_junk`,
+  loot/data/base-pickups.json; the player, 2026-10-23: "every base must worth 4+ist at least", "we don't know what is
+  cost and going to ruin all our inventory space? for base that doesn't cost anything?") and not taken by it in the
+  field: DROP (sold in town, never stashed); one the allowlist took in this game's field or matches is KEEP before
+  K8 (`base_floor.town_kept`); else no price, no want: KEEP the first, logged `unknown` (Q13)
 - K10 else KEEP: a cheap first copy, or a want
 
 K7 runs before K5 and K8 before K6 (the design's table lists them the other way): a charm is never judged as a
@@ -37,12 +42,13 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from inventory_tracking.loot import wants as want_rows
-from inventory_tracking.loot.facts import MAGIC, RARE, SET, UNIQUE, ItemFacts, Owner
+from inventory_tracking.loot import base_floor, wants as want_rows
+from inventory_tracking.loot.facts import MAGIC, RARE, RESISTS, SET, UNIQUE, ItemFacts, Owner
 from inventory_tracking.loot.value import DUPLICATE_IST, KEEP_IST, Comparison, Value, better_than, comparable, score
 
 
 __all__ = [
+    'BASE_RULE',
     'BEST_COPY_USABLE_ONLY',
     'CHARMS',
     'DECIDED_WITHOUT_COPIES',
@@ -144,6 +150,12 @@ LOOP_GEAR = frozenset(('book', 'key', 'ques', 'scro'))  # Tomes, keys, scrolls, 
 # (misc.json:12513 `xa1` ... `xa5`), statues, Uber keys and essences are itemtype `ques`: LOOP_GEAR above
 NEVER_SOLD_CODES = frozenset(('leg',))
 MULTIPLES = CHARMS | JEWELS
+# Shimmering (all resistances) Large and Grand Charms (the player, 2026-10-24: "keep only top rolls for large/grand
+# shimmering"): the top roll of the top tier is always kept (loot/build_wants.py shimmering-*-charm-top); a lower roll
+# only at DUPLICATE_IST or more by its trades (a fat life suffix), never plain. The tiers (items/data/item_metadata.json
+# prefixes 1106 mcha 6-8, 1104 lcha 13-15; the fills: guides/pricing-primer.html CH-sc-shimmering)
+SHIMMERING_TOP = {'mcha': 8, 'lcha': 15}
+CHARM_NAMES = {'mcha': 'Large Charm', 'lcha': 'Grand Charm'}
 # The rare item types kept only by a want row (the player, 2026-10-20 ~12:50: "rare helms (tiara, corona, etc) that are
 # really good - fcr + 2skills level + other valuable stats"; the rows: loot/build_wants.py G10): circlets, and plain
 # helms, which roll neither FCR nor a Warlock skill (d2data magicsuffix/magicprefix itypes). Anything else of them that
@@ -175,6 +187,19 @@ WEAPONS = frozenset((
 CLASS_WEAPONS = frozenset(('abow', 'ajav', 'aspe', 'h2h', 'h2h2', 'knif', 'orb', 'scep', 'wand'))
 JUNK_UNWANTED_BAR = frozenset(('ring', 'amul', 'glov', 'tors', 'shie')) | CLASS_ARMOR | WEAPONS
 JUNK_MAGIC_BAR = frozenset(('circ',)) | CLASS_ARMOR | CLASS_WEAPONS
+
+
+def shimmering_below_top(facts: ItemFacts) -> int | None:
+    """The all resistances of a magic Shimmering Large or Grand Charm `facts` under its top roll (SHIMMERING_TOP), None
+    when it is none, rolls the top or is unread. Pure."""
+    top = SHIMMERING_TOP.get(facts.base_type)
+    if top is None or facts.quality != MAGIC:
+        return None
+    rolled = {facts.stat(stat) for stat in RESISTS}
+    if len(rolled) != 1:
+        return None  # unread, or not one all-resistances roll
+    (res,) = rolled
+    return res if res is not None and 0 < res < top else None
 
 
 def junk_unwanted() -> frozenset[str]:
@@ -220,6 +245,7 @@ class KeepRules:
 
 
 RULES = KeepRules()
+BASE_RULE = 'K9'  # a plain base under the floor (loot/base_floor.py): sold in town (loot/api.py `town_kept`)
 # The rules decided without the owned copies: `decide_all` reads the collection only for the others
 DECIDED_WITHOUT_COPIES = frozenset(('K0', 'K1', 'K2', 'K3', 'K5', 'K7', 'K8'))
 
@@ -279,6 +305,10 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     kind = facts.base_type
     if kind in LOOP_GEAR:
         return Decision(Action.NEVER_TOUCH, 'K1', "the loop's own tool")
+    if facts.runeword:
+        # D12 (2026-10-23, the 2B agent's corpus: 17 of 20 runewords judged plain bases, Insight and Authority sold by
+        # K9): a runeword is never given up by the loop's rules, whatever its base would be worth
+        return Decision(Action.KEEP, 'K1', f'a runeword ({facts.runeword}): never given up')
     if (low := gheeds_low(facts)) is not None:
         return Decision(Action.DROP, 'K1', low)
     if kind in RUNES | GEMS | POTIONS | ORGANS | SUNDER or (kind in CHARMS and facts.quality in (SET, UNIQUE)):
@@ -299,6 +329,16 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
         return Decision(Action.KEEP, 'K4', f'{why} ({_price(value)})')
     wanted = f'; wanted: {value.wants[0].label}' if value.wants else ''
     if kind in MULTIPLES:
+        below = shimmering_below_top(facts)
+        if (
+            below is not None
+            and not value.wants
+            and value.worth_ist is not None
+            and value.worth_ist < rules.duplicate_ist
+        ):
+            charm, top = CHARM_NAMES[kind], SHIMMERING_TOP[kind]
+            return Decision(Action.DROP, 'K7', f'a Shimmering {charm} under the top roll ({below} of {top} all res), '
+                            f'under {rules.duplicate_ist:g} Ist ({value.said()})')  # fmt: skip
         if value.wants or (value.tier != 'worthless' and (value.worth_ist or 0) >= rules.keep_ist):
             return Decision(Action.KEEP, 'K7', f'used in multiples, {_price(value)}{wanted}')
         if value.tier == 'unknown':
@@ -321,6 +361,10 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
             if (given_up := unusable_best(facts, value, rules)) is not None:
                 return Decision(Action.DROP, 'K6', f'{given_up}, better than the {told}', compared)
             return Decision(Action.KEEP, 'K6', f'the best copy ({value.said()}), better than the {told}', compared)
+    if not named and not value.wants and (allowlisted := base_floor.town_kept(facts)) is not None:
+        # Before K8: a base the allowlist took or matches (4+ Ist) is never sold by its appraisal (the verifier,
+        # rca/2026-10-23/base-pickups-verify.md: "K8 ... do not consult `remembered`")
+        return Decision(Action.KEEP, BASE_RULE, f'on the base allowlist ({allowlisted})')
     if value.tier == 'worthless' and not value.wants:
         return Decision(Action.DROP, 'K8', f'worthless ({value.said()}), no want')
     if facts.quality == RARE and kind in junk_unwanted() and not value.wants:
@@ -328,6 +372,8 @@ def decide(facts: ItemFacts, value: Value, owned: Sequence[ItemFacts] | None, ru
     if facts.quality == MAGIC and kind in junk_magic() and not value.wants:
         named = 'gloves' if kind == 'glov' else JUNK_NAMES.get(kind, kind)
         return Decision(Action.DROP, 'K8', f'magic {named} no want row names ({value.said()})')
+    if not named and not value.wants and (junk := base_floor.town_junk(facts)) is not None:
+        return Decision(Action.DROP, BASE_RULE, junk)  # before K6: a better junk base is junk all the same
     if same:
         compared = better_than(facts, same, value.matters)
         told = f'{len(same)} owned: {compared.said()}'

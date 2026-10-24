@@ -21,10 +21,12 @@ def test_rainbow_facets_do_not_pool_elements_or_trigger_variants():
     for props, price in variants:
         result = assess(item | {'properties': props}, data)
         assert result['decision_ist'] == price
+    # rca/2026-10-22/jewel-verify-G5.md: an undecoded trigger or an unlisted 5/5 variant prices from the pooled
+    # 5/5 band (asks 10, 4, 1 per three sellers -> q1 1), never CHECK.
     for props in ({'750': 5, '735': 5}, {'783': 5, '723': 5, '784': 100}):
         result = assess(item | {'properties': props}, data)
-        assert result['verdict'] == 'check'
-        assert result['decision_ist'] is None
+        assert result['verdict'] != 'check'
+        assert result['decision_ist'] == 1
 
 
 def test_facet_native_trigger_has_same_identity_as_market_fields():

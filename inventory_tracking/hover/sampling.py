@@ -4,6 +4,7 @@ import time
 
 from inventory_tracking.hover.native import collect_native
 from inventory_tracking.hover.ui import collect_ui
+from inventory_tracking.native import layout
 from inventory_tracking.native.memory import bounded, mappings_held
 from inventory_tracking.native.process import identity, process_mappings
 
@@ -16,12 +17,12 @@ def observe_ui(pid, images, snapshot=None, *, all_grids=False):
     mappings = process_mappings(pid)
     with bounded(pid, mappings) as reader:
         started = time.monotonic()
-        mouse_before = reader.read(base + 0x1EC9C4D, 11)
+        mouse_before = reader.read(base + layout.MOUSE_GATE_RVA, 11)
         result = collect_ui(reader.read, base, pe['image_size'])
         if snapshot is not None:
             result['native'] = collect_native(reader.read, base, result, snapshot, all_grids=all_grids)
         result['mouse_position_hex'] = mouse_before.hex()
-        result['stable'] &= reader.read(base + 0x1EC9C4D, 11) == mouse_before
+        result['stable'] &= reader.read(base + layout.MOUSE_GATE_RVA, 11) == mouse_before
     result['mappings_stable'] = mappings_held(mappings, process_mappings(pid), reader.ranges)
     result['process_stable'] = identity(pid) == images['identity']
     result['stable'] &= result['mappings_stable'] and result['process_stable']

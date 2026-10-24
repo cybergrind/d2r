@@ -108,6 +108,17 @@ def result_tones(result):
     return {**tones, **watch_tones(result), **base_tones(base_summary(result))}
 
 
+def add_card(result, add) -> None:
+    """The card's line for what the loop would do with the item: the one assessment entry point at CARD
+    (identify/service.py `card_of`, CARD_ASSESSED; display only, 2026-10-23); nothing when it cannot be judged."""
+    from inventory_tracking.identify.service import CARD_ASSESSED, card_of  # here: it imports this module
+
+    if CARD_ASSESSED and result.get('extraction') and (card := card_of(result['extraction'], result)):
+        from inventory_tracking.appraisal.triage import card_line, card_tone
+
+        add(card_line(card), card_tone(card))
+
+
 @dataclass(frozen=True)
 class ItemAssessment:
     lines: tuple[StyledLine, ...]
@@ -137,6 +148,7 @@ class ItemAssessment:
             from inventory_tracking.appraisal.triage import headline, tone
 
             add(headline(triage), tone(triage))
+            add_card(result, add)  # beside the trade verdict
         commodity = commodity_lines(result)
         if commodity is not None:
             for line in commodity:
@@ -150,6 +162,8 @@ class ItemAssessment:
         if container is None:
             container = {0: 'Main inventory', 3: 'Horadric Cube'}.get(page, 'Unrecorded')
         add(f'Item: {item.get("rarity", "unknown").capitalize()} {item.get("name", "Unknown item")}', item_tone(item))
+        if 'triage' not in result:
+            add_card(result, add)  # no trade verdict: under the item
         add(f'Container: {container}', Tone.METADATA, osd=False)
         if item.get('name') != item.get('base_name') and item.get('base_name'):
             add(f'Base: {item["base_name"]}')

@@ -1,15 +1,15 @@
 {
   "classifications": {
-    "verdict": 420,
+    "verdict": 430,
     "own-use": 49,
-    "pickup": 40,
+    "pickup": 46,
     "context": 87
   },
   "table_score": {
-    "total": 412,
-    "evaluated": 412,
-    "passed": 410,
-    "accuracy": 0.9951456310679612
+    "total": 422,
+    "evaluated": 422,
+    "passed": 420,
+    "accuracy": 0.995260663507109
   },
   "pickup": [
     {
@@ -34,7 +34,7 @@
     },
     {
       "id": "guides/warlock.html#s6:1",
-      "text": "SHOW Important Mats and Itemsall rings/amulets/charms/jewels (any rarity), every rune, uber mats, terror-zone and absolute items, flawless + perfect gems and skulls",
+      "text": "SHOW Important Mats and Itemsall rings/amulets/charms/jewels (any rarity), every rune, uber mats, terror-zone and absolute items, gems and skulls of every grade from chipped up (chipped and flawed are the player's own addition in the game's editor, 2026-10-12, kept in the repo profile since 2026-10-20 so a re-import does not drop them)",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
@@ -44,17 +44,17 @@
     },
     {
       "id": "guides/warlock.html#s6:3",
-      "text": "SHOW Unique Setevery gold and green item (Lean only)",
+      "text": "SHOW Unique ARMOR / WEAPONS, SHOW Set ARMOR / WEAPONSgenerated (above): rarity unique or set plus a base-code list and no category (a category would OR the list away). A base is listed when a unique / set piece that spawns on it sells (named-trades.json: 3+ trades in 30 days at a median \u2265 0.25 Ist, or any trade in 90 days at a median \u2265 1 Ist), sits in a maxroll planner loadout, is a leveling recommendation the player does not own yet, or is still missing from the character's Chronicle (2026-10-11; rerun the Chronicle probe and the generator as it fills); the older ask / guide-mention / elite-base reasons apply only to the few items the trade record does not cover. Rings, amulets, jewels and charms are not in these lists \u2014 Important Mats shows them. A base shared by a wanted and an unwanted item shows both (Veil of Steel rides on Nightwing's Spired Helm, Blackhorn's Face on Hellwarden's Death Mask, Sigon's bases carry the Warlord's pieces). The Unique ARMOR rule carries 107 codes; the game imported it on 2026-10-09",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:4",
-      "text": "SHOW Unique ARMOR / WEAPONS, SHOW Set ARMOR / WEAPONSLean2 only, replacing the row above: rarity unique or set plus a base-code list and no category (a category would OR the list away). A base is listed when a unique / set piece that spawns on it has a good-roll ask \u2265 0.25 Ist (primer \u00a75 floor), is named by a maxroll build guide or planner loadout, is a leveling recommendation, or is elite. Rings, amulets, jewels and charms are not in these lists \u2014 Important Mats shows them. A base shared by a wanted and an unwanted item shows both (Veil of Steel rides on Nightwing's Spired Helm, Blackhorn's Face on Hellwarden's Death Mask, Sigon's bases carry the Warlord's pieces). The Unique ARMOR rule carries 107 codes; the game imported it on 2026-10-09",
+      "text": "SHOW Rare ARMOR / WEAPONSrare gloves, boots, belts, circlets; rare class items whose prefix is paid and that have buyers (demand check 2026-10-09, review log): Barb helms, pelts, Necro heads, grimoires, orbs, the four elite Paladin shields (Sacred Targe / Rondache, Zakarum / Vortex Shield), Warlock daggers of the Blade\u2013Legend Spike line plus Bone Knife and Mithril Point (rare eth Mithril Points with +2 Warlock skills or 40 IAS / leech ask Jah+), the four elite-type claws (Greater Claws / Talons, Feral Claws, Runic Talons; rare claws of any base trade about four times a year site-wide, so the broader category was dropped again on 2026-10-09), the three elite scepters (Mighty Scepter rares draw the most offers of the lot; Caduceus, Seraph Rod), Amazon bows (Matriarchal / Grand Matron), Amazon spears (Ceremonial Pike, Matriarchal Spear / Pike), Ceremonial and Matriarchal Javelins, Phase Blade / Berserker Axe / Colossus Blade. Hidden on evidence: Dagger / Dirk / Poignard / Rondel rares, wands, the eleven non-elite Paladin shield bases, normal and exceptional scepters, rare non-class armor and the other weapon families. Rare Corona / Spired Helm / Bone Visage / Demonhead stay hidden: no helm outside the circlets can roll FCR or + class skills (magicsuffix.json: of the Apprentice / of the Magus only on rods, rings, amulets, orbs, circlets; the class-skill prefixes only on amulets and circlets), only +1/+2 Warcries (Expert's, Veteran's) or Shadow Disciplines (Mentalist's, Psychic), and the +3 versions never on a rare",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:5",
-      "text": "SHOW Rare ARMOR / WEAPONSrare gloves, boots, belts, circlets; rare class items whose class or tree prefix is the paid gate (pricing guide \u00a77, triage class rules 2026-10-08/09): Barb helms, pelts, Necro heads, grimoires, orbs, every Paladin shield base (+2 Paladin pays on any of the 15, 2026-10-09; was the four elite ones), every dagger base (+2 Warlock or a +2 tree pays on Dagger / Dirk / Poignard / Rondel as well as the Blade\u2013Legend Spike line, Bone Knife and Mithril Point; rare eth Mithril Points with +2 Warlock skills or 40 IAS / leech ask Jah+), wands (+2 Necro with +3 Bone Spear / Poison Nova / Bone Spirit, 5 priced rare sellers), every claw (+2 Assassin on the normal-type claws, two sockets or eth 200 ED on the elite-type ones), every scepter (eth 200 ED: 19 sellers from 57 Ist; +2 Paladin + +3 FoH / Hammer thin), Amazon bows (Matriarchal / Grand Matron), Amazon spears (Ceremonial Pike, Matriarchal Spear / Pike), Ceremonial and Matriarchal Javelins (Maiden Javelin still hidden), Phase Blade / Berserker Axe / Colossus Blade. Rare non-class body armor, helms, shields and the other weapon families stay hidden \u2014 see the 2026-10-09 review-log entry for what that gives up",
+      "text": "SHOW Rare Merc Polearms2026-10-20, for the loop's field identify (it picks a magic or rare item over 6 cells, identifies it and drops a bad one where it stands): rare Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge and Mancatcher (7s8 7wc 7pa 7h7 7vo 7br, d2data weapons.json), the merc polearms of the Insight rows. Evidence is asks only (2026-09-18: eth rare 15-ED buckets, Thresher 8 listings, Mancatcher / Voulge / Poleaxe / Cryptic 3 each, mostly small-charm or absurd Jah asks); shown because the player asked for it and the field identify drops the bad ones. Matriarchal Spear was already in Rare WEAPONS",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
@@ -69,27 +69,57 @@
     },
     {
       "id": "guides/warlock.html#s6:8",
-      "text": "SHOW Craft Bases ARMORoptional \u2014 untick it when not crafting. Magic copies of the six caster-craft bases: Boots / Demonhide Boots / Wyrmhide Boots (Caster Boots), Light Belt / Sharkskin Belt / Vampirefang Belt (Caster Belt). Cube fodder only (\u00a73): no magic boot or belt roll is worth identifying. With the rule off, every magic boot and belt is hidden; rare ones stay shown by Rare ARMOR",
+      "text": "SHOW Magic Amazon Bows Spears2026-10-20, for the field identify: magic Matriarchal Bow, Grand Matron Bow, Ceremonial Pike, Matriarchal Spear and Matriarchal Pike (amb amc am9 amd ame, d2data weapons.json; the same bases Rare WEAPONS shows), the player's \u201cspears, matron bow\u201d (2026-10-20 ~11:55). All 2x4, so the loop takes them only to identify them. Magic polearms stay hidden: no wants row asks for one and the scoped record holds five magic elite-polearm listings, two of them priced (a Pul and a 14-Jah ask, 2026-09-18)",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:9",
-      "text": "SHOW Bases ARMORwhite, Superior and gray (eth/socketed): Sacred Targe / Sacred Rondache / Targe, all grimoires, Circlet and Coronet. Paladin shields and grimoires retain plain whites for resistance and skill bonuses. Tiara and Diadem bases are hidden, including Superior and gray copies; their magic, rare, unique and set versions remain shown. The six generic armor bases now use the Gray rule below.",
+      "text": "SHOW Craft Bases ARMORoptional \u2014 untick it when not crafting. Magic copies of the six caster-craft bases: Boots / Demonhide Boots / Wyrmhide Boots (Caster Boots), Light Belt / Sharkskin Belt / Vampirefang Belt (Caster Belt). Cube fodder only (\u00a73): no magic boot or belt roll is worth identifying. With the rule off, every magic boot and belt is hidden; rare ones stay shown by Rare ARMOR",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:10",
-      "text": "SHOW Bases WEAPONSwhite, Superior and gray: Fanged Knife / Legend Spike, Flail, Greater / Runic Talons. Plain Flails remain available for self-use; elite daggers and claws retain unsocketed skill-bearing copies. Kris / Cinquedeas now use the Gray rule. No broad circlet category is used here; Circlet and Coronet are explicitly preserved in Bases ARMOR.",
+      "text": "SHOW Bases ARMORwhite, Superior and gray (eth/socketed): Sacred Targe / Sacred Rondache / Targe, all grimoires, Circlet and Coronet. Paladin shields and grimoires retain plain whites for resistance and skill bonuses. Tiara and Diadem bases are hidden, including Superior and gray copies; their magic, rare, unique and set versions remain shown. The six generic armor bases now use the Gray rule below.",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:11",
-      "text": "SHOW Bases WEAPONS GraySuperior and gray (eth/socketed) only, plain 0-socket whites hidden: Kris / Cinquedeas, Phase Blade / Berserker Axe / Colossus Blade (max 6), the seven merc polearms and spears \u2014 Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Mancatcher, Matriarchal Spear \u2014 Grand Matron / Matriarchal Bow (max 5), Crystal Sword (HotO needs 4, Larzuk gives 6). Only eth 4-socket copies of the polearms sell (Infinity); a non-eth 0os Thresher is vendor food",
+      "text": "SHOW Bases WEAPONSwhite, Superior and gray: every 3-socket dagger line \u2014 Kris / Cinquedeas / Fanged Knife and Blade / Stiletto / Legend Spike (trades 2026-10-09: the Warlock staff-mod is the price, Larzuk gives the 3 sockets, so plain whites sell too), Flail, Greater / Runic Talons. Plain Flails remain available for self-use; elite daggers and claws retain unsocketed skill-bearing copies. Kris / Cinquedeas used the Gray rule from 2026-09-20 to 2026-10-09. No broad circlet category is used here; Circlet and Coronet are explicitly preserved in Bases ARMOR.",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
       "id": "guides/warlock.html#s6:12",
+      "text": "SHOW Bases WEAPONS GraySuperior and gray (eth/socketed) only, plain 0-socket whites hidden: Phase Blade / Berserker Axe / Colossus Blade (max 6), the seven merc polearms and spears \u2014 Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Mancatcher, Matriarchal Spear \u2014 Grand Matron / Matriarchal Bow (max 5), Crystal Sword (HotO needs 4, Larzuk gives 6). Only eth 4-socket copies of the polearms sell (Infinity); a non-eth 0os Thresher is vendor food",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:13",
       "text": "SHOW Bases ARMOR GraySuperior and gray (eth/socketed) only: Archon Plate, Dusk Shroud, Wire Fleece, Sacred Armor, Mage Plate, Monarch and Grand Crown. Plain unsocketed non-ethereal non-Superior copies are hidden. The grimoire category remains included; all grimoire qualities are also covered by Bases ARMOR.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:14",
+      "text": "SHOW Cure Helms Gray2026-10-20: gray (eth or socketed, plain or Superior) Corona, Spired Helm, Bone Visage and Demonhead (urn uhm uh9 usk, d2data armor.json), the Cure bases of the merc (want row G17: eth, 0 or 3 sockets). Rarity lowQuality plus the eth/socketed flag: an elite base cannot be low quality (itemratio.json, the Uber rows' Normal 1 / divisor 1), so the rule adds the gray copies alone; plain whites and unsocketed non-eth Superior copies stay hidden. The filter cannot ask for eth only, so socketed non-eth copies show too; the macro's ground read keeps only the eth ones",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:15",
+      "text": "SHOW Staff Mod Wands Scepters2026-10-20: white and Superior (plain too) Bone / Grim / Tomb / Grave / Lich / Unearthed Wand and War / Divine Scepter / Caduceus (7bw 7gw 9bw 9gw bwn gwn 7ws 9ws wsp, d2data weapons.json). The macro reads their staff mods off the ground and takes only the paid ones (want rows G20: a wand with +3 Bone Spear and +3 Bone Spirit, fills median 22.8; a scepter with +3 Fist of the Heavens, median 9.32, or +3 Blessed Hammer with +2 Concentration); the rest are left where they lie",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:16",
+      "text": "SHOW Staff Mod Staves Gray2026-10-20: Superior and gray staves that can hold 4+ sockets (6bs 6cs 6ws 8bs 8cs 8ws bst cst wst): the +3 Energy Shield 4os (Memory) / 5os (Call to Arms) staff of want row G20, read off the ground",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:17",
+      "text": "SHOW Pelts Barb Helms Gray2026-10-20: Superior and gray Druid pelts and Barbarian helms (categories druid, barbh): 3os +3 Tornado / Volcano / Armageddon / Hurricane / Fury pelts and 3os +3 Find Item helms (want rows G20, asks only)",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:18",
+      "text": "SHOW Superior Mask Bone Shield2026-10-20: Superior Mask and Bone Shield (msk bsh): Superior 15 ED with the exact count sells (PK-self-use-bases; want rows G16, Mask 0/3os, Bone Shield 0/2os)",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
@@ -194,7 +224,7 @@
     },
     {
       "id": "guides/pindle-anya.html#s3:24",
-      "text": "PK-jewelID every jewel. Keep Ruby (30\u201340 ED) of Fervor (15 IAS), Scintillating (10\u201315@) of Fervor, Ruby of Carnage/Bliss (weapon-only), any 15 IAS / 12\u201315@ / ED+life, rare jewels with ED-IAS-res, all Rainbow Facets. Single low affix \u2192 vendor.keepVMI tables 16\u201317 (2024); plan Traderie jewel sample: \"1x Ohm\" ask for 35 ED/15 IAS; d2io ask: Ruby Jewel of Hope 34 ED/20 life \"LF 1 Mal\"; d2io fill: Shimmering Jewel of Virility 6 str/10@ \u2192 20 Perfect Gems (sold 2026-09-17); d2io 2026-08-28 (orientation): 40ED Ist, 15IAS Pul, 15@ Pul\u2013Um.",
+      "text": "PK-jewelID every jewel. Keep (stash for trade) any 15 IAS jewel (of Fervor, magic-only: Ruby / Scintillating of Fervor are the top), max dmg \u226510 at any level, Ruby 35\u201340 ED, Scintillating 11\u201315@, life \u226515 (of Hope), Ruby of Carnage/Bliss (weapon-only), the paid pairs of primer \u00a73.2 (Ruby 31\u201340 + str/dex/life/FHR/MF/\u2212req, Shimmering 8\u201310@ + str/dex, Shimmering + life 9+, 7 FHR + a top prefix), rare jewels with three good rolls or ED+max / ED+@ / ED+min / @+30 res (a rare never rolls IAS), all Rainbow Facets and Colossal jewels. ED \u226434 alone, 5\u201310@ alone, max \u22649, min alone and other single low affixes \u2192 vendor.keepVMI tables 16\u201317 (2024); plan Traderie jewel sample: \"1x Ohm\" ask for 35 ED/15 IAS; d2io ask: Ruby Jewel of Hope 34 ED/20 life \"LF 1 Mal\"; d2io fill: Shimmering Jewel of Virility 6 str/10@ \u2192 20 Perfect Gems (sold 2026-09-17); d2io 2026-08-28 (orientation): 40ED Ist, 15IAS Pul, 15@ Pul\u2013Um.",
       "reason": "Ground pickup or filter instruction before item identification"
     },
     {
@@ -215,10 +245,10 @@
   ],
   "groups": {
     "verdict": {
-      "total": 363,
-      "evaluated": 363,
-      "passed": 361,
-      "accuracy": 0.9944903581267218
+      "total": 373,
+      "evaluated": 373,
+      "passed": 371,
+      "accuracy": 0.9946380697050938
     },
     "own-use": {
       "total": 49,
@@ -272,7 +302,7 @@
     },
     {
       "id": "guides/pricing-primer.html#twin:3",
-      "text": "D-3jewelfacet 5/5; Colossal; two good affixesfacet 4.05\u20139.3 med (guide Um\u2013Vex) \u00b7 pairs med 28.6\u201380 (min 8.2) \u00b7 singles min 0.8\u20132.6, realistic Pul\u2013Istno affix from {ED \u226520, IAS 15, @ \u22658, max \u226510}\u00a73, \u00a74.5",
+      "text": "D-3jewelany Rainbow Facet; any Colossal; magic on a \u00a73.2 sell pattern; rare with three good rolls or a named pairfacet 5/5 q1 2.0\u20137.6 asks (2026-09-18 \u2192 10-04), 5/4 \u2248 Ist, 5/3 \u00b7 4/4 \u2248 Mal, 3-roll \u2248 Lem \u00b7 Colossal fills from 0.67 (2026-10-08/09) \u00b7 15 IAS floor q1 1.0, Ruby of Fervor q1 9.3 (asks 2026-10-22) \u00b7 rare: offermagic with no \u00a73.2 sell pattern (JW-trash); rare without three good rolls or a named pair; never a unique jewel\u00a73, \u00a74.5",
       "reason": "Navigation summary; detailed tables contain the item cases"
     },
     {
@@ -402,7 +432,7 @@
     },
     {
       "id": "guides/pricing-primer.html#d3:1",
-      "text": "D-3 \u00b7 Jewel \u2014 Rainbow Facet 5/5 \u2192 sell: fire/lightning asks Ohm\u2013Ber, cold/poison Ist\u2013Lo; expect the guide band (fire Um\u2013Mal, light Gul\u2013Vex, cold Ist\u2013Gul, poison Lem\u2013Pul); facet <5/5 \u2192 Lem\u2013Ist. Colossal Ancient Jewel \u2192 \u00a74.5 (Ist for mid rolls, multi-Jah asks at \u221210 / MF \u226530). Magic/rare with two of ED \u226520 \u00b7 15 IAS \u00b7 all res \u22658 \u00b7 max dmg \u226510 \u2192 sell Vex\u2013Ber+ (Ruby of Fervor asks 8.2 \u2192 28.6); one of them \u2192 Pul\u2013Ist; none \u2192 vendor / gems\u00a73: pairs, not singles; low-req dmg jewels are a PvP niche",
+      "text": "D-3 \u00b7 Jewel \u2014 Rainbow Facet, any roll \u2192 sell, never vendor: 5/5 by element and trigger (asks q1 2.0\u20137.6, 15\u201323 sellers each, 2026-09-18 \u2192 10-04; fills 2026-10-09 lightning 3.6\u201313.4, fire 2.6\u20135.9, cold 1.0\u20131.8); 5/4 \u2248 Ist, 5/3 or 4/4 \u2248 Mal, 3-roll \u2248 Lem in bulk (\u00a73.1). Colossal Ancient Jewel \u2192 never vendor, priced by the \u2212res roll (\u00a74.5; cheapest of 117 fills 0.67 Ist, 2026-10-08/09); keep the best copy of each name. Magic \u2192 sell on a \u00a73.2 pattern: 15 IAS with any prefix (floor asks q1 1.0, 13 sellers, 2026-10-22), max \u226510, Ruby 35\u201340 ED, Scintillating 11\u201315 all res, life \u226515, or a paid pair (Ruby of Fervor asks q1 9.3, 9 sellers, 2026-10-22); else vendor. Rare \u2192 three good rolls or a named pair \u2192 sell at offer; else vendor\u00a73: a magic jewel is one prefix + one suffix; rare-jewel asks are a 1-Jah floor, not prices",
       "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
     },
     {
@@ -496,128 +526,128 @@
       "reason": "Failed-unique durability explanation; not an item keep rule"
     },
     {
-      "id": "guides/warlock.html#s6:13",
+      "id": "guides/warlock.html#s6:19",
       "text": "Bulwark (Demonhead) \u2014 s0-1:3, example 4: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:14",
+      "id": "guides/warlock.html#s6:20",
       "text": "Spirit (Crystal Sword) \u2014 s1:1, example 5: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:15",
+      "id": "guides/warlock.html#s6:21",
       "text": "Spectral Shard (Blade) \u2014 s1:1, example 7: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:16",
+      "id": "guides/warlock.html#s6:22",
       "text": "Wizardspike (Bone Knife) \u2014 s1:1, example 8: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:17",
+      "id": "guides/warlock.html#s6:23",
       "text": "Razorswitch (Jo Staff) \u2014 s1:1, example 13: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:18",
+      "id": "guides/warlock.html#s6:24",
       "text": "Splendor (Bone Shield) \u2014 s1:2, example 3: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:19",
+      "id": "guides/warlock.html#s6:25",
       "text": "Ancients' Pledge (Kite Shield) \u2014 s1:2, example 4: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:20",
+      "id": "guides/warlock.html#s6:26",
       "text": "Rhyme (Bone Shield) \u2014 s1:2, example 5: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:21",
+      "id": "guides/warlock.html#s6:27",
       "text": "Lore (Cap) \u2014 s1:4, example 6: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:22",
+      "id": "guides/warlock.html#s6:28",
       "text": "Stealth (Quilted Armor) \u2014 s1:5, example 2: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:23",
+      "id": "guides/warlock.html#s6:29",
       "text": "Bulwark (Demonhead) \u2014 s1:12, example 10: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:24",
+      "id": "guides/warlock.html#s6:30",
       "text": "Caster Leather Gloves \u2014 s3:6, example 1: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:25",
+      "id": "guides/warlock.html#s6:31",
       "text": "Caster Demonhide Gloves \u2014 s3:6, example 2: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:26",
+      "id": "guides/warlock.html#s6:32",
       "text": "Caster Bramble Mitts \u2014 s3:6, example 3: no automatic own-use keep.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:27",
+      "id": "guides/warlock.html#s6:33",
       "text": "2026-09-20 \u2014 Added \u00a70.1 (merc survival) from a mercenary screen + three tooltip screenshots and the Holy Freeze skill tooltip: diagnosis is defense 1,853 and 10 % leech, not resists or life; Fortitude in an eth 4os Dusk Shroud (Lo ~5.9 + base 0.25\u20130.8) jumps ahead of the helm and Giant Thresher that the \u00a70 merc bullet had queued. Sacred Armor excluded on the merc's 204 str. Cure/Bulwark mods left unverified (\u00a77 item 5); Prayer+Meditation pairing not asserted.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:28",
+      "id": "guides/warlock.html#s6:34",
       "text": "2026-09-20 \u2014 User-approved click reduction: Mage Plate, Monarch, Dusk Shroud, Archon Plate, Wire Fleece, Sacred Armor, Kris and Cinquedeas moved to Superior + gray only. Removed all Tiara/Diadem base visibility, including the overlapping circlet category in both base-weapon rules; explicit armor codes preserve Circlet/Coronet visibility. Plain Flail, crafting boots/belts, low runes, gems and all other drops retain their prior visibility. This deliberately sacrifices unsocketed non-Superior Kris/Cinquedeas with skill bonuses and Tiara/Diadem runeword or imbue fodder. Codes verified against d2data armor/weapons dumps; profile structure and visibility changes checked locally. In-game import/Alt verification remains pending. The older General (ALL) profile was not changed.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:29",
+      "id": "guides/warlock.html#s6:35",
       "text": "2026-09-18 \u2014 Caster Belt base was listed as Sash / Demonhide Sash / Spiderweb Sash (that is the Safety Belt recipe, Tal + P.Emerald). Corrected to Light Belt / Sharkskin Belt / Vampirefang Belt per diablo2.io recipe-caster-belt-t3880, Arreat Summit, d2runewizard.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:30",
+      "id": "guides/warlock.html#s6:36",
       "text": "2026-09-18 \u2014 Belt item codes went lbl zlb ulc \u2192 vbl xtb utc \u2192 vbl zvb uvc; xtb is Battle Boots and utc is Troll Belt. Codes verified against d2data armor.json and the PD2 Item_Codes wiki. Filter updated in the same pass.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:31",
+      "id": "guides/warlock.html#s6:37",
       "text": "2026-09-18 \u2014 Caster Ring had \u201c5\u201310 % FCR\u201d as a fixed mod; the ring craft has no fixed FCR (+1\u20135 energy instead). A 10 FCR caster ring is a rolled suffix.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:32",
+      "id": "guides/warlock.html#s6:38",
       "text": "2026-09-18 \u2014 Regenerate Mana on Caster Boots / Belt / Gloves is 4\u201310 %, not 5\u201310 % (Arreat Summit, d2tomb, d2runewizard agree).",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:33",
+      "id": "guides/warlock.html#s6:39",
       "text": "2026-09-19 \u2014 Added \u00a70 upgrade path from a full gear/stat screenshot check; it supersedes the earlier in-chat \u201cHotO is better than Wizardspike\u201d verdict, which ignored that Wizardspike carries the resist cap on this gear.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:34",
+      "id": "guides/warlock.html#s6:40",
       "text": "2026-09-20 \u2014 Grand Crown moved out of Bases ARMOR into a new Superior + gray only rule (same shape as the Bases WEAPONS Gray split) after a 2os Superior copy and then a plain white one showed on runs. Plain white Grand Crown is now hidden; lootfilter/warlock_echoing_strike.json not touched.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:35",
+      "id": "guides/warlock.html#s6:41",
       "text": "2026-09-19 \u2014 Bases WEAPONS split: polearms / spears, PB / BA / CB, bows and Crystal Sword moved to a Superior + gray only rule (rarity hiQuality + eth/socketed flag, no normal) after a plain white Thresher showed on a run. Daggers, Flail and Talons keep plain whites.",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
-      "id": "guides/warlock.html#s6:36",
+      "id": "guides/warlock.html#s6:42",
       "text": "2026-09-18 \u2014 Filter narrowing pass: magic boots/belts limited to the six craft bases; rare class categories, rare elite armors / polearms / scepters / orbs, 1-socket daggers and 2-socket claws hidden; white Mask / Crown / Preserved Head hidden; Blade and Stiletto added to the Void line. Magic gloves were dropped, then restored (Lancer's / Archer's / Kenshi's \u2026 of Alacrity sell).",
       "reason": "Historical review log; current guidance is in the guide body"
     },
     {
       "id": "guides/warlock.html#s7:1",
-      "text": "Warlock Lean2 (imported 2026-10-09; the game accepted a Show rule with 107 item codes, so that is no limit): Alt-compare against Lean on a Pindle run \u2014 a normal-base junk unique (Bverrit Keep, Stoutnail) must stay hidden while Shako / Death Mask / Monarch uniques show; a unique Ring or Amulet must still show (accessories rule).",
+      "text": "Warlock Lean2 (imported 2026-10-09; the game accepted a Show rule with 107 item codes, so that is no limit): Alt check on any run \u2014 a normal-base junk unique (Bverrit Keep, Stoutnail) must stay hidden while Shako / Death Mask / Monarch uniques show; a unique Ring or Amulet must still show (accessories rule).",
       "reason": "Explicitly unverified appendix; not an asserted item verdict"
     },
     {
@@ -1312,7 +1342,7 @@
       ],
       "actual": {
         "verdict": "vendor",
-        "reason": "misses reviewed pattern: Druid Summoning skiller with 30-45 Life pattern complete",
+        "reason": "misses reviewed pattern: Documented skill-tree + life combination",
         "band": null,
         "reference_band": {
           "category": "family",
@@ -1395,7 +1425,7 @@
       ],
       "actual": {
         "verdict": "vendor",
-        "reason": "misses reviewed pattern: Druid Summoning skiller with 30-45 Life pattern complete",
+        "reason": "misses reviewed pattern: Documented skill-tree + life combination",
         "band": null,
         "reference_band": {
           "category": "family",
@@ -1471,9 +1501,9 @@
   ],
   "exact_verdict_score": {
     "mode": "triage",
-    "labelled": 703,
+    "labelled": 711,
     "worth": 94,
-    "checks": 1562,
+    "checks": 1525,
     "check_recall": 1.0,
     "recall": 1.0,
     "keeps": 6,
@@ -1486,7 +1516,7 @@
       "sell\u2192sell": 6,
       "slow\u2192slow": 88,
       "vendor\u2192slow": 3,
-      "vendor\u2192vendor": 508
+      "vendor\u2192vendor": 516
     },
     "missed": [],
     "false_keeps": []

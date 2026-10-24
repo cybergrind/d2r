@@ -338,6 +338,7 @@ def test_the_gamble_line_is_learned_apart_from_her_trade_line():
 
 
 def test_the_switch_off_is_today_and_on_it_is_due_at_the_cap(monkeypatch):
+    monkeypatch.setattr(gamble, 'NEAR_CAP_ONLY', False)  # the rule before 2026-10-23
     assert due(940_000, 2_500_000, CAP) is not None  # a sale would pass the cap
     assert due(800_000, 2_300_000, CAP) is None  # sales still go, 100,000 over the floor
     assert due(800_000, 2_500_000, CAP) is not None  # 300,000 over the floor: a session's worth
@@ -345,6 +346,23 @@ def test_the_switch_off_is_today_and_on_it_is_due_at_the_cap(monkeypatch):
     assert due(940_000, None, CAP) is None  # the stash's gold unread
     monkeypatch.setattr(gamble, 'GAMBLE', False)
     assert due(950_000, 2_500_000, CAP) is None
+
+
+def test_a_session_only_near_the_cap_of_the_carried_gold(monkeypatch):
+    # The player, 2026-10-23: "Only near gold cap" (gamble.py NEAR_CAP_ONLY): the carried gold within NEAR_CAP of it
+    monkeypatch.setattr(gamble, 'GAMBLE_FLOOR', 200_000)
+    monkeypatch.setattr(gamble, 'CARRIED_FLOOR', 200_000)
+    cap = 960_000  # level 96
+    assert gamble.NEAR_CAP_ONLY
+    assert due(495_783, 2_276_681, cap) is None  # 23:43:56 on 2026-10-22: a session then, none now
+    assert due(cap - gamble.NEAR_CAP, 2_276_681, cap) is None  # at the margin's edge: not yet
+    said = due(cap - gamble.NEAR_CAP + 1, 2_276_681, cap)
+    assert said is not None
+    assert f'within {gamble.NEAR_CAP} of the cap {cap}' in said
+    assert due(955_000, 0, cap) is not None  # the stashes' gold plays no part in it
+    assert due(955_000, 50_000_000, cap) is not None
+    assert due(955_000, 2_276_681, None) is None  # the cap unread
+    assert due(None, 2_276_681, cap) is None
 
 
 def test_the_budget_is_the_floor_the_reserve_and_the_session_most(monkeypatch):

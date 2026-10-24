@@ -18,6 +18,7 @@ from dataclasses import asdict, dataclass, field
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.presets import display_name
+from inventory_tracking.macros import bossledger
 from inventory_tracking.macros.bossledger import BossLedger
 from inventory_tracking.macros.goals import GUARD_NEAR
 
@@ -55,6 +56,9 @@ TRANSIT = 'transit'
 # A level of the zone the zone moved on from under its run (the tracker reads it not terrorized now): the run ends
 # there, its drops picked up; the agenda then makes for the new zone (23:30 on 2026-10-19)
 ZONE_LEFT = 'zone left'
+# A level of the zone judged not worth playing on (macros/zonenav.py `worth`, STALLED_SKIP, 2026-10-23): its block's
+# word, and the policy its run ends by at the next look as ZONE_LEFT's does (hunting/choice.py `agenda_cleared`)
+SKIPPED = 'skipped'
 # TZ+, the TZ leveling kind's default since 2026-10-20 (macros/tzroutine.py TZ_PLUS). The player, ~18:50: "add another
 # mode TZ+: it tries to kill slightly more mobs on levels with not so many mobs to get herald spawn ... we don't want
 # to clear very large levels with 300 mobs or so ... we just kill reasonable groups and if herald doesn't spawn - we're
@@ -64,7 +68,13 @@ ZONE_LEFT = 'zone left'
 PLUS = 'tz+'
 PLUS_WAY = 'tz+ on the way'
 GROUPS_TAKEN = frozenset((PLUS, PLUS_WAY))
-WAYS_ON = frozenset((ON_THE_WAY, PLUS_WAY))  # the leaders near, then the area's end goal: no room is explored
+# A level of a rotating zone that turned, worked for the bosses alive on it or under it (hunting/choice.py
+# BOSS_ROTATION, BOSSES_ONLY; 2026-10-23, lever 2 of rca/2026-10-22/exp-hour-findings.md): its plain monsters are no
+# goal (142 exp a kill against ~1,900 terrorized), leaders included; the bosses of the game's ledger (`boss_goal`) and
+# the super chests near, then the area's end goal; what strikes at the party is met (hunting/choice.py). "Kill every
+# boss" (the player, 2026-10-23)
+BOSS_WAY = 'bosses on the way'
+WAYS_ON = frozenset((ON_THE_WAY, PLUS_WAY, BOSS_WAY))  # the leaders near, then the area's end goal: no room explored
 # Hostiles: a level of this many (terror/zones.py `level_population`) and more is big: only its big groups and its
 # leaders are gone for, never a clear. The player's own number ("300 mobs or so"). Exp an hour agrees (2026-10-20,
 # 16:48-18:55, in-level time): Frozen Tundra (374), every room explored, 9.9M an hour, under the loop's 11-12M an hour
@@ -91,6 +101,14 @@ GROUP_NEAR = 60.0
 # tz-remnants-findings.md: a remnant kill cost 1.26 s and 0.95 Teleports against a pack kill's 0.69 s and 0.45, at
 # 1,349 exp a second of its gap against 2,334). False: a Herald's minions and the strikers near are goals, as before.
 REMNANTS_LEFT = True
+
+# RETRY_TRIES_AFTER_RESTART (2026-10-23 08:55: Catacombs Level 3 blocked by ~30 empty legs in 30 s (hunting/revive.py
+# REVIVER_STAND, now off) with Andariel alive and four shards spent; a block of the game's record stayed for good).
+# True: a level blocked because its way in was "made N times with no arrival" (tzloop.py `way_spent`) is not blocked
+# in the record a new service takes up: the tries are counted afresh (still bounded by zonenav.py WAY_TRIES each
+# service). A door no click takes stays blocked. False: every block of the record kept, as before.
+RETRY_TRIES_AFTER_RESTART = True
+TRIES_SAID = 'times with no arrival'
 
 # In-level tiers (goals-plan.md §3), lowest first. Drops come before the metric; a Herald comes to the character
 # anyway. CHEST after the leaders in the read (they come at a character standing at a chest), before the rest.
@@ -130,6 +148,23 @@ OMEN_HOLD = True
 # is no goal (BOSS_ARRIVED). False: the leaders' rules only, as before
 BOSS_GOALS = True
 BOSS_ARRIVED = 15.0
+# bossledger.py BOSS_ABSENT: units from a boss's last place within which the client would hold its unit if it were there
+# (terror/tracker.py HELD_RANGE 40, less a margin); its unit not in the read that near: not there, `BossLedger.absent`
+ABSENT_NEAR = 30.0
+# HELD_GOALS (2026-10-22, Tower Cellar Level 1, 20:04:13-20:04:26, take 20261022T170322Z-21: 26 Teleports in 10 s round
+# (12702, 5170), no kill; rca/2026-10-22/flipflop-findings.md): a group of 10 stood 46-60 units east of the Next level
+# mark behind a wall; its way went west first, and one hop took the character out of the client's read of the whole
+# group (gone from the crowd) and past GROUP_NEAR, so the agenda gave back the route's goal, whose hop brought the group
+# into the read again: 13 flips each way, then the group was passed (CLEAR_SECONDS) and left alive (the player: kill
+# every pack in a TZ). True: the target chosen at the last look (`Agenda.held`) is kept: a held group's members out of
+# the read are taken at their last places (`LevelView.unseen`, the terror tracker's, which forgets a monster not where
+# it was seen: the goal looked at and not found there is resolved), the held one's reach (GROUP_NEAR, CHEST_NEAR,
+# REMEMBERED_NEAR, WAY_UNITS) is HELD_REACH times its own, and it is compared with the others at its distance over
+# HELD_REACH (hysteresis: the choice does not flip at a threshold each look). It ends when killed, passed (no progress:
+# hunting/choice.py `goes_on`, hunting/judging.py `no_progress`), forgotten, out of HELD_REACH, or another comes
+# first by tier. False: each look chooses afresh from the read, as before.
+HELD_GOALS = True
+HELD_REACH = 2.0
 
 # levels.txt Act (d2data levels.json, 2026-10-19): each act's town is its first level
 TOWNS = (1, 40, 75, 103, 109)
@@ -201,6 +236,7 @@ class Leader:
     label: str
     herald: bool = False
     live: bool = True
+    reviver: bool = False  # a reviver raising its pack (combat/revivers.py REVIVERS_FIRST): the Herald's tier
 
 
 @dataclass(frozen=True)
@@ -227,6 +263,11 @@ class LevelView:
     # population (terror/zones.py `level_population`; BIG_LEVEL), None unknown: a level under BIG_LEVEL
     crowd: tuple[tuple[int, Point], ...] = ()
     population: float | None = None
+    # HELD_GOALS: this level's hostiles remembered alive out of the read (unit, last place): a held group's members
+    unseen: tuple[tuple[int, Point], ...] = ()
+    # bossledger.py BOSS_ABSENT: every live hostile unit the client holds (those left alone for now too); None: the
+    # units of `hostiles`
+    present: frozenset[int] | None = None
 
     @property
     def group_size(self) -> int:
@@ -345,10 +386,18 @@ class Agenda:
     wayless: set[int] = field(default_factory=set)
     # Runs of a level done that ended with nothing left to go to (`nothing_left`), by area
     ended_empty: Counter[int] = field(default_factory=Counter)
-    # Runs a level had when its boss's trip, which only crossed it, was over (macros/tzloop.py `reopen`): its own trip
-    # counts its runs from there
+    # Runs a level had when its boss's trip, which only crossed it, was over (macros/tzloop.py `reopen`), or when the
+    # policy it is worked under came to tour its rooms after a way on (tzloop.py `rework`, POLICY_NOW): its own trip,
+    # its policy now, counts its runs from there
     reopened: dict[int, int] = field(default_factory=dict)
+    # Zone navigation (tzloop.py POLICY_NOW, 2026-10-22): the policy each level entered was last judged under; a level's
+    # verdict is its policy's (`rework`)
+    worked_under: dict[int, str] = field(default_factory=dict)
     said: str | None = None
+    # HELD_GOALS: (area, units) of the in-level target chosen last (a group's members, else its one unit); derived
+    # again after a restart. `members`: each group goal's members at the last look (`groups_near`)
+    held: tuple[int, frozenset[int]] | None = field(default=None, compare=False)
+    members: dict[int, frozenset[int]] = field(default_factory=dict, compare=False, repr=False)
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
     policies: dict[int, str] = field(default_factory=dict)  # how each level was last said to be worked (`worked_as`)
     # The act kind's shard this game (macros/actloop.py): None not tried yet, else how it went (actloop.USED ...);
@@ -373,9 +422,8 @@ class Agenda:
     zone_graph: str = ''  # the zone whose graph was said in this game
     # Zone navigation (zonenav.py, 2026-10-21): the legs made by each way (from, to) into a child, up to a parent or
     # across into the next root's levels (`WAY_TRIES`, `WALK_TRIES`); the walks that failed or ran out of tries (the
-    # Town Portal instead); the levels cleared before a service restart in this
-    # game (`RESUME`: taken back from the kept facts, tzloop.py `zone_resume`); whether the kept facts were looked
-    # for in this game, and what was last written
+    # Town Portal instead); the levels cleared before a service restart in this game (`RESUME`: the game's record,
+    # macros/midgame.py RECORD: `state`'s 'kept' holds them and the zone's verdicts last judged, `cleared`)
     no_walk: set[tuple[int, int]] = field(default_factory=set)
     ways: Counter[tuple[int, int]] = field(default_factory=Counter)
     way_from: int | None = None  # the level `ways` counts from (counted afresh on each new level)
@@ -384,8 +432,7 @@ class Agenda:
     zone_at: int | None = None
     arrival_runs: int = 0
     kept: set[int] = field(default_factory=set)
-    zone_resumed: bool = False
-    zone_written: str = ''
+    cleared: set[int] = field(default_factory=set)  # the zone's levels judged cleared at the last leg (tzloop.py)
     # The game's bosses (macros/bossledger.py): a view of the terror tracker's file-backed book, no state of its own
     bosses: BossLedger = field(default_factory=BossLedger, compare=False, repr=False)
 
@@ -399,14 +446,14 @@ class Agenda:
         self.chests, self.opened = {}, set()
         self.worked, self.finished, self.failures, self.dropped = Counter(), set(), Counter(), set()
         self.plan, self.wayless, self.ended_empty = None, set(), Counter()
-        self.reopened = {}
+        self.reopened, self.worked_under = {}, {}
         self.policies = {}
         self.shard, self.acts, self.overflow = None, (), {}
         self.entered, self.mapped, self.explored, self.no_back = set(), set(), set(), set()
         self.blocked, self.zone_said, self.zone_graph = {}, {}, ''
         self.no_walk, self.ways, self.way_from, self.kept = set(), Counter(), None, set()
         self.zone_at, self.arrival_runs = None, 0
-        self.zone_resumed, self.zone_written = False, ''
+        self.cleared = set()
         self.bosses.begin(game)
         return True
 
@@ -432,8 +479,9 @@ class Agenda:
             'wayless': sorted(self.wayless),
             'ended_empty': [[area, count] for area, count in sorted(self.ended_empty.items())],
             'reopened': [[area, runs] for area, runs in sorted(self.reopened.items())],
+            'worked_under': [[area, policy] for area, policy in sorted(self.worked_under.items())],
             'opened': sorted(self.opened),
-            'kept': sorted(self.kept),
+            'kept': sorted(self.kept | self.cleared),  # cleared before the restart, whatever the facts say then
             'failures': [[list(key), count] for key, count in self.failures.items()],
             'dropped': [list(key) for key in self.dropped],
             'stack': [asdict(goal) for goal in self.stack],
@@ -456,12 +504,17 @@ class Agenda:
         self.mapped = {int(area) for area in state['mapped']}
         self.explored = {int(area) for area in state['explored']}
         self.blocked = {int(area): str(why) for area, why in state['blocked']}
+        if RETRY_TRIES_AFTER_RESTART:
+            # A level blocked by counted tries: its tries afresh in a new service (RETRY_TRIES_AFTER_RESTART)
+            self.blocked = {area: why for area, why in self.blocked.items() if TRIES_SAID not in why}
         self.no_back = {int(area) for area in state['no_back']}
         self.no_walk = {(int(a), int(b)) for a, b in state['no_walk']}
         self.ways = Counter({(int(a), int(b)): int(count) for (a, b), count in state['ways']})
         self.wayless = {int(area) for area in state['wayless']}
         self.ended_empty = Counter({int(area): int(count) for area, count in state['ended_empty']})
         self.reopened = {int(area): int(runs) for area, runs in state['reopened']}
+        # A state written before POLICY_NOW (2026-10-22) has none (macros/midgame.py POLICY_UNKNOWN)
+        self.worked_under = {int(area): str(policy) for area, policy in state.get('worked_under', ())}
         self.opened = {int(unit) for unit in state['opened']}
         self.kept = {int(area) for area in state['kept']}
         self.failures = Counter({tuple(key): int(count) for key, count in state['failures']})
@@ -470,7 +523,7 @@ class Agenda:
         self.zone_at = state['zone_at']
         self.arrival_runs = int(state['arrival_runs'])
         self.queue, self.kills, self.chests, self.plan, self.heralds = {}, {}, {}, None, {}
-        self.zone_resumed, self.zone_written = False, ''
+        self.cleared = set()
         self.game = game
         self.bosses.begin(game)  # the book's records of this game are the file's: read back by the tracker
 
@@ -601,7 +654,8 @@ class Agenda:
         if HERALD_KEPT:
             self.heralds.update((leader.unit, leader.label) for leader in view.leaders if leader.herald)
         for leader in view.leaders:
-            tier = HERALD if leader.herald or leader.unit in self.heralds else LEADER if leader.live else LEADER_NEAR
+            first = leader.herald or leader.unit in self.heralds or leader.reviver
+            tier = HERALD if first else LEADER if leader.live else LEADER_NEAR
             label = self.heralds.get(leader.unit, leader.label)
             self.kills[leader.unit] = kill(view.area, leader.unit, leader.place, label, tier)
         for unit in view.spent:
@@ -617,6 +671,24 @@ class Agenda:
                 self.chests[unit] = Objective(OPEN, 'Super chest', CHEST, view.area, place, unit)
 
     def in_level(self, view: LevelView) -> Objective | None:
+        """`_in_level`'s target, held for the next look (HELD_GOALS: `held`)."""
+        found = self._in_level(view)
+        self.held = self._held_of(view.area, found) if HELD_GOALS else None
+        return found
+
+    def _held_of(self, area: int, found: Objective | None) -> tuple[int, frozenset[int]] | None:
+        """(area, units) of the target `found` held (a group's members, else its unit); None with no unit."""
+        if found is None or found.unit is None:
+            return None
+        return area, self.members.get(found.unit, frozenset((found.unit,)))
+
+    def holding(self, area: int) -> frozenset[int]:
+        """HELD_GOALS: the units of the target held on `area`; none off it or with the switch off."""
+        if not HELD_GOALS or self.held is None or self.held[0] != area:
+            return frozenset()
+        return self.held[1]
+
+    def _in_level(self, view: LevelView) -> Objective | None:
         """The level run's next target (goals-plan.md §3), first match: a live Herald, else one remembered alive
         (HERALD_KEPT); a Herald's omen (its pack, its stand, else a wait in place: OMEN_HOLD); the side
         drop's guards, then the drop; a leader in sight (on TZ+ a reasonable group too, `groups_near`); a super chest
@@ -625,12 +697,27 @@ class Agenda:
         after the drop. None: the area's end goal is next (on TZ+ its goals met: rooms explored, no group near)."""
         self.observe(view)
         here = view.here
+        held = self.holding(view.area)
+        self.members = {}  # this look's groups (`groups_near`)
 
         def away(place: Point) -> float:
             return math.dist(here, place)
 
         def where(goal: Objective) -> Point:
             return goal.place if goal.place is not None else here
+
+        def holds(goal: Objective) -> bool:
+            if goal.unit is None or not held:
+                return False
+            return goal.unit in held or bool(self.members.get(goal.unit, frozenset()) & held)
+
+        def stretch(goal: Objective, limit: float) -> float:
+            # HELD_GOALS: the held target's reach is HELD_REACH times its own
+            return limit * HELD_REACH if holds(goal) else limit
+
+        def rank(goal: Objective) -> float:
+            # HELD_GOALS: the held target is compared at its distance over HELD_REACH (hysteresis)
+            return away(where(goal)) / HELD_REACH if holds(goal) else away(where(goal))
 
         known = [
             goal for goal in self.kills.values() if goal.area == view.area and not view.passed(where(goal), goal.unit)
@@ -665,22 +752,25 @@ class Agenda:
         if view.policy == TRANSIT:
             return None  # the drops above, then the way on
         reach = WAY_UNITS if view.policy in WAYS_ON else math.inf
-        seen = [goal for goal in known if goal.unit in live and away(where(goal)) <= reach]
+        leaders = view.policy != BOSS_WAY  # no leader on a turned level's way to its bosses
+        seen = [goal for goal in known if leaders and goal.unit in live and away(where(goal)) <= stretch(goal, reach)]
         if view.policy in GROUPS_TAKEN:
-            seen += self.groups_near(view)
+            seen += self.groups_near(view, held)
         if seen:
-            return min(seen, key=lambda goal: away(where(goal)))
+            return min(seen, key=rank)
         chests = [
             goal
             for goal in self.chests.values()
-            if goal.area == view.area and away(where(goal)) <= CHEST_NEAR and not view.passed(where(goal), goal.unit)
+            if goal.area == view.area
+            and away(where(goal)) <= stretch(goal, CHEST_NEAR)
+            and not view.passed(where(goal), goal.unit)
         ]
         if chests:
-            return min(chests, key=lambda goal: away(where(goal)))
-        remembered = [goal for goal in known if goal.unit not in live]
-        near = [goal for goal in remembered if away(where(goal)) <= REMEMBERED_NEAR]
+            return min(chests, key=rank)
+        remembered = [goal for goal in known if leaders and goal.unit not in live]
+        near = [goal for goal in remembered if away(where(goal)) <= stretch(goal, REMEMBERED_NEAR)]
         if near:
-            found = min(near, key=lambda goal: away(where(goal)))
+            found = min(near, key=rank)
             return Objective(KILL, found.label, LEADER_NEAR, found.area, found.place, found.unit)
         if (boss := self.boss_goal(view)) is not None:
             return boss
@@ -708,6 +798,7 @@ class Agenda:
         if not BOSS_GOALS or self.plan is None:
             return None
         found: list[tuple[float, Objective]] = []
+        held = view.present if view.present is not None else frozenset(unit for unit, _ in view.hostiles)
         for boss in self.bosses.alive_in(view.area):
             known = self.kills.get(boss.unit) if boss.unit is not None else None
             place = known.place if known is not None and known.place is not None else boss.place
@@ -716,8 +807,15 @@ class Agenda:
             away = math.dist(view.here, place)
             if boss.unit is None:
                 if away <= BOSS_ARRIVED:
+                    # bossledger.py BOSS_ABSENT: `sight` took no super unique for it here
+                    self.bosses.absent(boss, f'its spot ({place[0]:.0f}, {place[1]:.0f}) reached, {away:.0f} away, '
+                                             'and no super unique there')  # fmt: skip
                     continue
                 found.append((away, Objective(NAVIGATE, boss.name, LEADER_NEAR, view.area, place)))
+            elif bossledger.BOSS_ABSENT and boss.unit not in held and away <= ABSENT_NEAR:
+                # bossledger.py BOSS_ABSENT: the client would hold its unit this near where it was last seen
+                self.bosses.absent(boss, f'not at its last place ({place[0]:.0f}, {place[1]:.0f}), {away:.0f} away: '
+                                         f'the client holds no unit {boss.unit}')  # fmt: skip
             else:
                 found.append((away, kill(view.area, boss.unit, place, boss.name, LEADER_NEAR)))
         return min(found, key=lambda pair: pair[0])[1] if found else None
@@ -735,16 +833,25 @@ class Agenda:
             extra = f' ({known}: groups of {size} and more)'
         LOG.info('Macro: agenda: %s is worked %s%s', display_name(area), policy, extra)
 
-    def groups_near(self, view: LevelView) -> list[Objective]:
+    def groups_near(self, view: LevelView, held: frozenset[int] = frozenset()) -> list[Objective]:
         """TZ+'s KILL goals for the reasonable groups of `view.crowd` (`groups`, `LevelView.group_size`): each group's
         nearest member, when within GROUP_NEAR and not passed (a group behind a wall is left whole, not member by
         member). A level under BIG_LEVEL takes groups of GROUP_MIN, a big one only of BIG_GROUP; a lone monster, a
-        pair, a group further are left."""
+        pair, a group further are left. HELD_GOALS: the `held` group's members out of the read are taken at their last
+        places (`LevelView.unseen`) and its reach is HELD_REACH times GROUP_NEAR; each goal's members are noted
+        (`members`)."""
         found = []
-        for group in groups(view.crowd, view.group_size):
+        crowd = list(view.crowd)
+        if held:
+            read = {unit for unit, _ in crowd}
+            crowd += [(unit, place) for unit, place in view.unseen if unit in held and unit not in read]
+        for group in groups(crowd, view.group_size):
             unit, place = min(group, key=lambda member: math.dist(view.here, member[1]))
-            if math.dist(view.here, place) <= GROUP_NEAR and not view.passed(place, unit):
+            units = frozenset(member for member, _ in group)
+            limit = GROUP_NEAR * HELD_REACH if units & held else GROUP_NEAR
+            if math.dist(view.here, place) <= limit and not view.passed(place, unit):
                 found.append(kill(view.area, unit, place, f'a group of {len(group)}'))
+                self.members[unit] = units
         return found
 
     def known(self, area: int) -> int:

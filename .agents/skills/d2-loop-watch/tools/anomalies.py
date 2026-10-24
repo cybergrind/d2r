@@ -27,13 +27,22 @@ The log lines and the loop's state at the take's open come from the session's pr
   Warp) in --jump-window s (15) all within --jump-radius (25) of their centroid, with <= 1 kill in the window, the
   cluster lasting --jump-least s (5) or more. Facts: the jumps, the radius, the kills, the jump casts said; `reasons:`
   the jumps' reasons from the log (JUMP_REASON).
+- **NO_DAMAGE** (the player, 2026-10-24 ~20:35: "we need to have some king of debug message when we expect us to
+  deliver damage but not damaging the mob => and do automatic rca for such cases"): one target struck at (the
+  decisions' `Strike` target and the STRIKE lines, STRIKE_GAP s apart at most) with >= --dry-casts (4) casts of its
+  own (each blade cast, BLADE births in the frames, given to the target struck last before it; the `cast` events
+  where a take has no blades) over >= --dry-seconds (1.5) s, and its life never falling: no `hit` on it, its life of
+  128 never HURT under its start, no kill, up to DAMAGE_LAG s after the last strike. Also a stretch of strikes at
+  anything with that many casts and no `hit` on any hostile (`no hit on anything`). Facts: the target (elite or
+  monster, its class, the agenda's or its stats' Herald tier), its distance, the casts and the life before and after.
+  tools/nodamage.py RCAs each case (watch.py runs it).
 
 One line per case, `ANOMALY: <kind> <take> <local from-to> <seconds>s: <facts>; cause?: <top kinds>` (watch.py says
 them when a take closes), or `--json`. Stdlib only (watch.py runs with a plain python3).
 
     python3 .agents/skills/d2-loop-watch/tools/anomalies.py <take>... | --since 'YYYY-MM-DD HH:MM' [--until ...]
         [--idle 8] [--still 1.5] [--near 30] [--fight 30] [--jumps 6] [--jump-window 15] [--jump-radius 25]
-        [--jump-least 5] [--json] [--summary]
+        [--jump-least 5] [--dry-casts 4] [--dry-seconds 1.5] [--json] [--summary]
 """
 
 import argparse
@@ -93,6 +102,13 @@ HERALD = 'Herald wait'
 WAVE = 'wave wait'
 PIECE = 2.0  # seconds: the shortest still that is a piece of an IDLE
 MERGE_GAP = 4.0  # seconds between two still pieces at one spot that make one IDLE
+# NO_DAMAGE (2026-10-24)
+BLADE = 706  # missiles.txt: Echoing Strike's blade (builds/warlock/echoing_strike/mechanics.py MISSILE)
+BLADE_BIRTH = 0.1  # seconds: blades first seen this close together are one cast (five spawn in a frame or two)
+STRIKE_GAP = 1.5  # seconds between two strikes at one target that keep one stretch of strikes at it
+CAST_AFTER = 0.5  # seconds after its strike a cast may begin and still be that strike's (the press, the pointer lag)
+DAMAGE_LAG = 1.0  # seconds after the last strike its damage may still show (blades fly ~0.8 s; the server batches)
+NO_HIT = 'nothing'  # the `what` of a stretch of strikes at anything with no hit on any hostile
 
 
 @dataclass(frozen=True)
@@ -105,11 +121,13 @@ class Limits:
     jump_window: float = 15.0  # seconds
     jump_radius: float = 25.0  # units
     jump_least: float = 5.0  # seconds a cluster lasts at least (6 hops in 3 s cost 3 s: no case)
+    dry_casts: int = 4  # NO_DAMAGE: casts at one target with its life not falling
+    dry_seconds: float = 1.5  # NO_DAMAGE: ... over this long at least
 
 
 @dataclass
 class Case:
-    kind: str  # IDLE, LONG_FIGHT, JUMP_CLUSTER
+    kind: str  # IDLE, LONG_FIGHT, JUMP_CLUSTER, NO_DAMAGE
     take: str
     start: datetime  # local
     end: datetime
@@ -139,15 +157,18 @@ class Case:
 
 
 def rows(directory: Path, name: str) -> list[dict]:
-    """A take's file, packed or plain; an open take's gzip ends mid-stream and a line may be torn: what reads."""
+    """A take's file, plain or packed; an open take's gzip ends mid-stream and a line may be torn: what reads. The plain
+    file first while it is there: the packer (takes/retain.py) writes the gzip beside it and removes the plain file only
+    once the gzip is whole, so a gzip next to a plain file is still being written (two false LONG_FIGHTs on 2026-10-24,
+    rca/2026-10-24/slow-fights-findings.md)."""
     packed, plain = directory / f'{name}.gz', directory / name
     found: list[dict] = []
     try:
-        if packed.exists():
-            with gzip.open(packed, 'rt', encoding='utf-8', errors='replace') as handle:
-                parsed(handle, found)
-        elif plain.exists():
+        if plain.exists():
             with plain.open(encoding='utf-8', errors='replace') as handle:
+                parsed(handle, found)
+        elif packed.exists():
+            with gzip.open(packed, 'rt', encoding='utf-8', errors='replace') as handle:
                 parsed(handle, found)
     except OSError, EOFError, zlib.error:
         pass
@@ -646,6 +667,191 @@ def clusters(take: Take, skip: list[tuple[float, float, str]], limits: Limits) -
     return found
 
 
+def strikes_of(take: Take) -> list[tuple[float, int, str]]:
+    """Each strike the macro made, in time order: (t, the target's unit, 'elite' / 'monster' / '?'): the decisions'
+    `Strike` with a target and the STRIKE lines (which also name the target's rank)."""
+    found = [(e['t'], int(e['target']), '?') for e in take.events
+             if e.get('event') == 'decision' and e.get('chosen') == 'Strike' and e.get('target')]  # fmt: skip
+    found += [(t, int(m.group(3)), m.group(1)) for t, text in take.lines() if (m := STRIKE.search(text)) is not None]
+    return sorted(found)
+
+
+def blade_casts(take: Take) -> list[float]:
+    """When each Echoing Strike cast's blades were first seen (BLADE births, BLADE_BIRTH s apart at most are one)."""
+    seen: set[int] = set()
+    births: list[float] = []
+    for frame in take.frames:
+        for x in frame.get('x') or ():
+            if x[1] == BLADE and x[0] not in seen:
+                seen.add(x[0])
+                if not births or frame['t'] - births[-1] > BLADE_BIRTH:
+                    births.append(frame['t'])
+    return births
+
+
+def cast_times(take: Take) -> tuple[list[float], str]:
+    """The strike casts and what they were counted from: the blades, else the `cast` events (a take with no blades)."""
+    blades = blade_casts(take)
+    if blades:
+        return blades, 'blade casts'
+    return take.times('cast'), 'casts'
+
+
+def owned(casts: list[float], strikes: list[tuple[float, int, str]]) -> dict[int, list[float]]:
+    """Each cast given to the target struck last before it (within CAST_AFTER + STRIKE_GAP s)."""
+    times = [t for t, _, _ in strikes]
+    found: dict[int, list[float]] = {}
+    for c in casts:
+        i = bisect.bisect_right(times, c) - 1
+        if i >= 0 and c - times[i] <= STRIKE_GAP + CAST_AFTER:
+            found.setdefault(strikes[i][1], []).append(c)
+    return found
+
+
+def stretches(times: list[float], gap: float = STRIKE_GAP) -> list[tuple[float, float]]:
+    """The sorted `times` cut where two are more than `gap` apart: (first, last) of each run."""
+    found: list[tuple[float, float]] = []
+    for t in times:
+        if found and t - found[-1][1] <= gap:
+            found[-1] = (found[-1][0], t)
+        else:
+            found.append((t, t))
+    return found
+
+
+def herald_tiers(directory: Path) -> dict[int, int]:
+    """Each unit's Herald tier (itemstatcost 367 `heraldtier`) from units.jsonl, where it has one."""
+    return {
+        int(row['unit']): int(row['stats']['367'])
+        for row in rows(directory, 'units.jsonl')
+        if 'unit' in row and (row.get('stats') or {}).get('367')
+    }
+
+
+@dataclass
+class Stretch:
+    """Strikes at one target (`unit`; 0: strikes at anything), STRIKE_GAP s apart at most, with the casts given to it
+    and what became of it up to DAMAGE_LAG s after the last."""
+
+    unit: int
+    start: float
+    end: float  # the last strike or the last of its casts, whichever is later
+    casts: list[float]
+    hits: int = 0  # `hit` events on the target (on any hostile for unit 0)
+    lost: int = 0  # its life of 128 at the start less its least
+    killed: bool = False
+    any_hits: int = 0  # `hit` events on any hostile
+
+    @property
+    def damaged(self) -> bool:
+        return bool(self.hits or self.killed or self.lost >= HURT)
+
+
+class StrikeRead:
+    """A take's strikes, their casts and the life of what they struck at, indexed once (NO_DAMAGE, nodamage.py)."""
+
+    def __init__(self, take: Take) -> None:
+        self.take = take
+        self.strikes = strikes_of(take)
+        self.casts, self.counted = cast_times(take)
+        self.by_target = owned(self.casts, self.strikes)
+        self.hits: dict[int, list[float]] = {}
+        for e in take.events:
+            life = e.get('life') or [0, 0]
+            if e.get('event') == 'hit' and life[1] < life[0]:
+                self.hits.setdefault(int(e['unit']), []).append(e['t'])
+        self.all_hits = sorted(t for ts in self.hits.values() for t in ts)
+        self.kills = {int(e['unit']): e['t'] for e in take.events if e.get('event') == 'kill' and 'unit' in e}
+        self.what = {unit: rank for _, unit, rank in self.strikes if rank != '?'}
+        self.tiers = {int(m.group(2)): int(m.group(3)) for _, text in take.lines() if (m := ELITE_TARGET.search(text))}
+        self.frame_times = [f['t'] for f in take.frames]
+
+    def track(self, unit: int, a: float, b: float) -> list[tuple[float, list, list]]:
+        """(t, the unit's row, the character's row) in the frames of [a, b] the cases count."""
+        i, j = bisect.bisect_left(self.frame_times, a), bisect.bisect_right(self.frame_times, b)
+        frames = self.take.frames[i:j]
+        return [(f['t'], m, f['p']) for f in frames if not outside(f) for m in f.get('m', ()) if m[0] == unit]
+
+    def judged(self, unit: int, start: float, end: float, casts: list[float]) -> Stretch:
+        upto = end + DAMAGE_LAG
+        found = Stretch(unit, start, end, casts, any_hits=between(self.all_hits, start, upto))
+        if unit:
+            found.hits = between(self.hits.get(unit, []), start, upto)
+            found.killed = start <= self.kills.get(unit, -math.inf) <= upto
+            lives = [m[5] for _, m, _ in self.track(unit, start - 0.2, upto)]
+            found.lost = lives[0] - min(lives) if lives else 0
+        else:
+            found.hits = found.any_hits
+        return found
+
+    def stretches(self) -> list[Stretch]:
+        """Every target's stretches, then the stretches of strikes at anything, in time order each."""
+        found = []
+        for unit in sorted({u for _, u, _ in self.strikes}):
+            own = self.by_target.get(unit, [])
+            for a, b in stretches(sorted({t for t, u, _ in self.strikes if u == unit})):
+                mine = [c for c in own if a <= c <= b + CAST_AFTER]
+                found.append(self.judged(unit, a, max([b, *mine]), mine))
+        for a, b in stretches([t for t, _, _ in self.strikes]):
+            mine = [c for c in self.casts if a <= c <= b + CAST_AFTER]
+            found.append(self.judged(0, a, max([b, *mine]), mine))
+        return found
+
+    def case(self, stretch: Stretch, struck: int | None = None) -> Case:
+        """The NO_DAMAGE case of `stretch`; `struck`: the target a stretch of strikes at anything names."""
+        take, unit = self.take, stretch.unit or (struck or 0)
+        a, b = stretch.start, stretch.end
+        rows_in = self.track(unit, a - 0.2, b + DAMAGE_LAG) if unit else []
+        lives = [m[5] for _, m, _ in rows_in]
+        away = [math.dist(p[3:5], m[3:5]) for _, m, p in rows_in]
+        life = f'{lives[0]}->{lives[-1]}/128' if lives else 'not in the read'
+        far = f'{away[0]:.1f} away ({min(away):.0f}-{max(away):.0f})' if away else 'distance unknown'
+        cls = int(rows_in[0][1][1]) if rows_in else None
+        name = monster(cls) if cls is not None else 'class ?'
+        tier = self.tiers.get(unit)
+        if tier is None and unit:
+            tier = herald_tiers(take.directory).get(unit)
+        rank = self.what.get(unit, 'unit')
+        target = f'the {rank} {name} unit {unit}{f", tier {tier}" if tier else ""}' if unit else 'every target'
+        dry = not stretch.any_hits
+        facts = (
+            f'struck at {target}, {far}, {len(stretch.casts)} {self.counted}, life {life}'
+            f'{", no hit on anything" if dry else ""}'
+        )
+        first = take.frames[0]['t']
+        data = {'unit': unit, 'class': cls, 'what': rank, 'tier': tier, 'casts': len(stretch.casts),
+                'counted': self.counted, 'life': [lives[0], lives[-1]] if lives else None,
+                'away': [round(away[0], 1), round(min(away), 1), round(max(away), 1)] if away else None, 'dry': dry,
+                'at': round(a - first, 1), 'from': round(a, 3), 'to': round(b, 3)}  # fmt: skip
+        return Case('NO_DAMAGE', take.name, take.local(a), take.local(b), facts, kinds(take.lines(), a, b), data)
+
+
+def no_damage(take: Take, skip: list[tuple[float, float, str]], limits: Limits) -> list[Case]:
+    """The stretches of strikes at one target whose life did not fall, and of strikes at anything with no hit at all
+    (when no target's case covers them); not while the loop is off or stands for a restart."""
+    if not take.frames:
+        return []
+    read = StrikeRead(take)
+    if not read.strikes:
+        return []
+    excluded = [(a, b) for a, b, why in skip if why in ('loop off', 'restart')]
+    found: list[Case] = []
+    reported: list[tuple[float, float]] = []
+    for stretch in read.stretches():
+        a, end = stretch.start, stretch.end
+        if len(stretch.casts) < limits.dry_casts or end - a < limits.dry_seconds or stretch.damaged:
+            continue
+        if any(x <= a <= y for x, y in excluded):
+            continue
+        if stretch.unit:
+            reported.append((a, end))
+            found.append(read.case(stretch))
+        elif not any(x <= a <= y or a <= x <= end for x, y in reported):
+            struck = Counter(u for t, u, _ in read.strikes if a <= t <= end).most_common(1)
+            found.append(read.case(stretch, struck[0][0] if struck else None))
+    return found
+
+
 def detect(
     directory: Path, on: bool | None = None, limits: Limits | None = None, runs: Path = logwords.RUNS
 ) -> list[Case]:
@@ -664,6 +870,7 @@ def detect(
             on = serve.states.get(directory.name)
     skip = windows(take, on)
     found = idles(take, skip, limits) + fights(take, skip, limits) + clusters(take, skip, limits)
+    found += no_damage(take, skip, limits)
     return sorted(found, key=lambda case: case.start)
 
 
@@ -685,7 +892,8 @@ def summary(cases: list[Case], takes: int) -> str:
     for case in cases:
         seconds[case.kind] = seconds.get(case.kind, 0.0) + case.seconds
     head = ', '.join(
-        f'{kind} {counts[kind]} ({seconds.get(kind, 0.0):.0f}s)' for kind in ('IDLE', 'LONG_FIGHT', 'JUMP_CLUSTER')
+        f'{kind} {counts[kind]} ({seconds.get(kind, 0.0):.0f}s)'
+        for kind in ('IDLE', 'LONG_FIGHT', 'JUMP_CLUSTER', 'NO_DAMAGE')
     )
     longest = sorted(cases, key=lambda case: -case.seconds)[:10]
     return '\n'.join(
@@ -706,11 +914,23 @@ def main() -> None:
     parser.add_argument('--jump-window', type=float, default=Limits.jump_window)
     parser.add_argument('--jump-radius', type=float, default=Limits.jump_radius)
     parser.add_argument('--jump-least', type=float, default=Limits.jump_least)
+    parser.add_argument('--dry-casts', type=int, default=Limits.dry_casts)
+    parser.add_argument('--dry-seconds', type=float, default=Limits.dry_seconds)
+    parser.add_argument('--kind', action='append', help='only these kinds (IDLE, LONG_FIGHT, JUMP_CLUSTER, NO_DAMAGE)')
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--summary', action='store_true', help='the counts by kind and the 10 longest after the lines')
     args = parser.parse_args()
     limits = Limits(
-        args.idle, args.still, args.near, args.fight, args.jumps, args.jump_window, args.jump_radius, args.jump_least
+        args.idle,
+        args.still,
+        args.near,
+        args.fight,
+        args.jumps,
+        args.jump_window,
+        args.jump_radius,
+        args.jump_least,
+        args.dry_casts,
+        args.dry_seconds,
     )
     directories = [Path(t) if Path(t).is_dir() else COMBAT / t for t in args.takes]
     if args.since is not None:
@@ -720,7 +940,7 @@ def main() -> None:
     cases: list[Case] = []
     for directory in directories:
         try:
-            found = detect(directory, limits=limits)
+            found = [c for c in detect(directory, limits=limits) if not args.kind or c.kind in args.kind]
         except (OSError, ValueError, KeyError, IndexError) as error:
             print(f'{directory.name}: unread ({error})', file=sys.stderr)
             continue

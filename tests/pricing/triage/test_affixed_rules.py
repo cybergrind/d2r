@@ -258,20 +258,21 @@ def test_rare_bow_is_gated_by_enhanced_damage_without_speed(family, base, gate):
     assert assess(item | {'properties': {'510': gate - 1, '457': 20}}, tables)['verdict'] == 'vendor'
 
 
-def test_rare_jewel_needs_two_paid_stats_and_reports_low_rolls():
+def test_rare_jewel_named_pair_sells_and_a_near_miss_is_vendor_not_check():
+    # rca/2026-10-22/jewel-verify-G4.md: no review-only rare jewel row; a near miss matches no pattern.
     from pricing.triage.engine import assess
     from pricing.triage.import_affixed_rules import affixed_rules
 
     tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
     item = {'category': 'rare', 'family': 'jewl', 'properties': {'510': 20, '441': 8}}
-    assert assess(item, tables)['verdict'] == 'check'
-    low = assess(item | {'properties': {'510': 19, '441': 8}}, tables)
-    assert low['verdict'] == 'check'
-    assert 'enhanced damage' in low['reason']
-    assert '19' in low['reason']
-    assert low['band'] is None
-    for properties in ({'510': 30}, {'441': 10}, {'448': 15}, {'510': 30, '441': 0}):
+    result = assess(item, tables)
+    assert result['verdict'] == 'sell'
+    assert result['decision_ist'] is None
+    assert assess(item | {'properties': {'510': 19, '441': 8}}, tables)['verdict'] == 'vendor'
+    for properties in ({'510': 30}, {'441': 10}, {'510': 30, '441': 0}):
         assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+    # G1 P6: maximum damage 10+ alone is one paid bucket at any equip level.
+    assert assess(item | {'properties': {'448': 15}}, tables)['verdict'] == 'sell'
 
 
 def test_crafted_melee_ring_uses_same_complete_pattern_as_rare_ring():
@@ -513,18 +514,29 @@ def test_jeweler_sacred_targe_requires_both_deflecting_mods_and_four_sockets():
         assert assess(item | change, tables)['verdict'] == 'vendor'
 
 
-def test_magic_resistance_damage_jewel_requires_both_modifiers():
-    assert verdict('jewl', {'441': 8, '448': 10}, 'magic') == 'check'
-    assert verdict('jewl', {'441': 8}, 'magic') == 'vendor'
-    assert verdict('jewl', {'448': 10}, 'magic') == 'vendor'
+def test_magic_flat_max_damage_jewel_sells_alone_or_with_all_resistances():
+    # G1 P1/P4/P8 (rca/2026-10-22/jewel-verify-G1.md): max 10+ sells at any equip level; all res alone is vendor.
+    assert verdict('jewl', {'441': 8, '448': 10}, 'magic') == 'sell'
+    assert verdict('jewl', {'448': 10}, 'magic') == 'sell'
+    assert verdict('jewl', {'448': 9}, 'magic') == 'vendor'
+    assert verdict('jewl', {'441': 8, '427': 8, '428': 8, '426': 8, '401': 8}, 'magic') == 'vendor'
 
 
-@pytest.mark.parametrize(('prop', 'minimum'), [('510', 30), ('457', 15), ('441', 10)])
-def test_documented_single_affix_magic_jewel_pattern_has_a_review_floor(prop, minimum):
-    assert verdict('jewl', {prop: minimum}, 'magic') == 'check'
-    assert verdict('jewl', {prop: minimum - 1}, 'magic') == 'vendor'
-    assert verdict('ring', {prop: minimum}, 'magic') == 'vendor'
-    assert verdict('jewl', {prop: minimum}, 'rare') == 'vendor'
+@pytest.mark.parametrize(
+    ('properties', 'expected'),
+    [
+        ({'457': 15}, 'sell'),  # G2: Fervor is fixed 15 and magic-only, so no lower roll exists
+        ({'510': 30}, 'vendor'),  # G3 E2: Realgar alone
+        ({'510': 34}, 'vendor'),  # G3 E3: low Ruby alone
+        ({'510': 35}, 'sell'),  # G3 E4
+        ({'441': 10, '427': 10, '428': 10, '426': 10, '401': 10}, 'vendor'),  # G3 A3: Shimmering alone
+        ({'441': 11, '427': 11, '428': 11, '426': 11, '401': 11}, 'sell'),  # G3 A4: Scintillating
+    ],
+)
+def test_single_affix_magic_jewels_sell_or_vendor_without_review(properties, expected):
+    assert verdict('jewl', properties, 'magic') == expected
+    assert verdict('ring', properties, 'magic') == 'vendor'
+    assert verdict('jewl', properties, 'rare') == 'vendor'
 
 
 @pytest.mark.parametrize(('family', 'skill', 'speed'), [('circ', '514', '520'), ('glov', '456', '457')])
@@ -669,6 +681,33 @@ def test_premium_rule_cannot_turn_sparse_asks_into_a_price(sellers):
     assert result['decision_ist'] is None
     assert result['band'] is None
     assert result['reference_band']['q1_ist'] == 11
+
+
+@pytest.mark.parametrize('sellers', [1, 2])
+def test_premium_jewel_with_sparse_asks_sells_without_a_price(sellers):
+    # The player, 2026-10-22: no CHECK for jewels. The reviewed row decides; sparse asks stay reference only.
+    rule = {
+        'category': 'magic',
+        'name': 'Jewel',
+        'bucket': 'scintillating-energy',
+        'properties': {'441': {'min': 12}, '421': {'min': 5}},
+        'premium': True,
+    }
+    from pricing.triage.family_bands import roll_bucket
+
+    item = {'category': 'magic', 'name': 'Jewel', 'family': 'jewl', 'properties': {'441': 12, '421': 9}}
+    bucket = roll_bucket(rule, item)
+    band = {'bucket': bucket, 'q1_ist': 2.58, 'median_ist': 2.58, 'sellers': sellers, 'liquidity': 'none'}
+    tables = {
+        'bands': {('family', 'jewel', bucket): band},
+        'rules': {'keep_ist': 0.25, 'rows': [rule]},
+        'own': {'rows': []},
+    }
+    result = present(assess(item, tables))
+    assert result['verdict'] == 'sell'
+    assert result['decision_ist'] is None
+    assert result['band'] is None
+    assert result['reference_band']['q1_ist'] == 2.58
 
 
 @pytest.mark.parametrize('resist', ['427', '428', '426', '401'])
@@ -946,10 +985,13 @@ def test_magic_two_skill_gloves_of_alacrity_are_limited_to_listed_trees():
     assert verdict('glov', {'456': 2, '457': 10}, 'magic') == 'vendor'
 
 
-def test_rare_jewel_with_two_useful_rolls_is_reviewable():
-    assert verdict('jewl', {'510': 20, '437': 6}) == 'check'
-    assert verdict('jewl', {'441': 8, '429': 7}) == 'check'
-    assert verdict('jewl', {'510': 20, '437': 5}) == 'vendor'
+def test_rare_jewel_two_good_rolls_sell_only_as_a_named_pair():
+    # G4 B: two good rolls outside the named pairs had 0 offers on 36 listings (2026-09-18).
+    assert verdict('jewl', {'510': 20, '437': 6}) == 'vendor'
+    # Main session 2026-10-22: the rare Shimmering of Daring twin sells (G3 A13 over G4 B).
+    assert verdict('jewl', {'441': 8, '427': 8, '428': 8, '426': 8, '401': 8, '429': 7}) == 'sell'
+    assert verdict('jewl', {'510': 30, '437': 5}) == 'sell'
+    assert verdict('jewl', {'510': 29, '437': 9}) == 'vendor'
 
 
 @pytest.mark.parametrize(

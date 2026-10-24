@@ -13,9 +13,14 @@ from inventory_tracking.common import LOG, timestamp
 
 
 def publish(path, report):
-    temporary = path.with_suffix('.tmp')
-    temporary.write_text(json.dumps(report, indent=2) + '\n')
-    temporary.replace(path)
+    # A temp file of the writer's own: two threads writing one card 2 ms apart shared `<name>.tmp`, the second
+    # `replace` raised FileNotFoundError and killed the loop's thread (rca/2026-10-23/loop-no-legs.md, 00:41:44)
+    temporary = path.with_name(f'{path.stem}.{os.getpid()}.{uuid.uuid4().hex[:8]}.tmp')
+    try:
+        temporary.write_text(json.dumps(report, indent=2) + '\n')
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def watch(args):

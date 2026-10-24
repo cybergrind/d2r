@@ -1,13 +1,15 @@
 """RotW stack widget: captured native getter returns widget + 0x608 directly."""
 
 from inventory_tracking.items.metadata import item_base
+from inventory_tracking.native import layout
 
 
 ITEM_POINTER = 0x608
 
 
 def material_widget(widget, base):
-    return widget.get('vtable') == base + 0x1712F88 and widget.get('methods', {}).get('0xc0') == base + 0x220B60
+    vtable, method = layout.MATERIALS_WIDGET
+    return widget.get('vtable') == base + vtable and widget.get('methods', {}).get('0xc0') == base + method
 
 
 def validate_material_item(item, widget):

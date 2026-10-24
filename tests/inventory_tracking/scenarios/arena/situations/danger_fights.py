@@ -202,11 +202,15 @@ def started(take: str) -> datetime.datetime:
     return datetime.datetime.strptime(take.split('-')[0], '%Y%m%dT%H%M%SZ').replace(tzinfo=datetime.UTC)
 
 
-def cut(name: str) -> Situation:
-    """The situation `name` (FIGHTS) from its take (the module text)."""
-    take_name, clock = FIGHTS[name]
+def cut(
+    name: str, fight: tuple[str, str] | None = None, seconds: float = SECONDS, about: str | None = None
+) -> Situation:
+    """The situation `name` (FIGHTS, or `fight`: its take and clock time) from its take (the module text), `seconds`
+    long (stand_guard.py cuts its stand so)."""
+    take_name, clock = FIGHTS[name] if fight is None else fight
     at = datetime.datetime.fromisoformat(clock).replace(tzinfo=ZONE)
-    into = (at - started(take_name)).total_seconds() + SECONDS + MARGIN
+    into = (at - started(take_name)).total_seconds() + seconds + MARGIN
+    about = about or f'{clock}: one of the most dangerous fights of the takes beside the Fane (danger_fights.py)'
     manifest = json.loads((TAKES / take_name / 'manifest.json').read_text())
     player_level = int((manifest.get('character_stats') or {}).get('12') or 96)
     kept = cutting.MOB_RANGE
@@ -214,17 +218,14 @@ def cut(name: str) -> Situation:
     try:
         with tempfile.TemporaryDirectory() as scratch:
             small = head(TAKES / take_name, into, Path(scratch))
-            found = from_take(
-                small, at.isoformat(), SECONDS, name=name, reach=REACH,
-                about=f'{clock}: one of the most dangerous fights of the takes beside the Fane (danger_fights.py)',
-            )  # fmt: skip
+            found = from_take(small, at.isoformat(), seconds, name=name, reach=REACH, about=about)
             loaded = Take.load(small)
             first = int((found.source or {})['frame'])
             found.scene.mobs += out_of_sight(loaded, found)
             percent = damage_percents(small, loaded.frames[first]['t'])
-            curses = curses_of(loaded, first, SECONDS)
-            orders, said = orders_of(loaded, first, SECONDS)
-            melee = melee_of(loaded, first, SECONDS)
+            curses = curses_of(loaded, first, seconds)
+            orders, said = orders_of(loaded, first, seconds)
+            melee = melee_of(loaded, first, seconds)
             read = last(loaded, 'r', first)
             staffed = any(frame.get('w') for frame in loaded.frames[: first + 1])
     finally:

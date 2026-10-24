@@ -351,6 +351,21 @@ def test_a_restart_held_for_a_safe_point_mid_game() -> None:
     assert logwords.RESUMED_ANY not in line  # restart.py's resume line is the runner's alone
 
 
+def test_a_restart_by_a_portal_trip_mid_game() -> None:
+    # restart.py --when trip (macros/midgame.py TRIP, 2026-10-24): the Town Portal for it, the return after it, and the
+    # loop's own way back with the portal gone
+    form = one('macros/loop.py', 'safe moment for the restart')
+    found = logwords.TRIP_BEGUN.search(logged(form % ('Catacombs Level 3', 'cyber41 (player unit 7)')))
+    assert found is not None
+    assert found.groups() == ('Catacombs Level 3', 'cyber41 (player unit 7)')
+    assert logwords.SAFE_POINT.search(logged(form % ('Catacombs Level 3', 'cyber41 (player unit 7)'))) is None
+    assert logwords.TRIP_BACK in logged(one('macros/loop.py', 'back through the portal left for the restart'))
+    form = one('macros/loop.py', 'the portal left for the restart is not taken')
+    found = logwords.TRIP_NO_PORTAL.search(logged(form % 'no Town Portal in sight'))
+    assert found is not None
+    assert found.groups() == ('no Town Portal in sight',)
+
+
 def test_the_players_press() -> None:
     form = one('macros/runner.py', 'Macro: request %s, ')
     assert logwords.REQUEST_LOOP in logged(form % ('loop', 0, 'loop'))
@@ -516,7 +531,9 @@ def test_a_sale_and_the_gold() -> None:
     keys = logged(one('macros/shop.py', 'Macro: shop: keys %s') % (17, 17, 0, 0, '', 20, 20))
     assert logwords.NOTE.search(keys) is not None
     assert logwords.DID.search(keys) is not None
-    potions = logged(one('macros/shop.py', 'potions: belt short %d ->') % (5, 0, 5, 'Super Healing Potion', 2250, ''))
+    potions = logged(
+        one('macros/shop.py', 'potions: belt short %d ->') % (5, 0, 5, 'Super Healing Potion', 2250, '', 5, 0)
+    )
     assert logwords.NOTE.search(potions) is not None
     assert logwords.DID.search(potions) is not None
 
@@ -1045,8 +1062,15 @@ def test_a_zone_way_spent_or_a_child_skipped_for_time_is_a_blocked_event() -> No
     # macros/tzloop.py (2026-10-21): a way in made over zonenav.py WAY_TRIES legs with no arrival (Upper Kurast's
     # passage to the Causeway, 13:48:00), and a child the time budget skips: both block the child, the zone goes on
     form = 'Macro: zone: %s (%d) blocked: %s'
-    assert produced('macros/tzloop.py', 'Macro: zone: ').count(form) == 2  # way_spent's and zone_budget's
-    for why in ('its way in from Upper Kurast was made 6 times with no arrival', 'no time left for it (90 s left)'):
+    # way_spent's, zone_budget's, unrouted's (ACT_OWED, 2026-10-22: a shard act's level no goal reaches) and
+    # left_unrun's (ZONE_LEFT_NO_WAY, 2026-10-24: a child of a level the zone left, its run going to nothing)
+    assert produced('macros/tzloop.py', 'Macro: zone: ').count(form) == 4
+    for why in (
+        'its way in from Upper Kurast was made 6 times with no arrival',
+        'no time left for it (90 s left)',
+        "no goal of the plan reaches it at the game's end (no goals left)",
+        'the zone left Upper Kurast: its level run goes to nothing, its way in included',
+    ):
         line = logged(form % ('Kurast Causeway', 82, why))
         found = logwords.ZONE_BLOCKED.search(line)
         assert found is not None
@@ -1056,9 +1080,14 @@ def test_a_zone_way_spent_or_a_child_skipped_for_time_is_a_blocked_event() -> No
         assert logwords.GAME_LEFT not in line
 
 
-def test_the_zone_resumed_after_a_restart_is_said_at_once() -> None:
-    # macros/tzloop.py zone_resume (zonenav.py RESUME, 2026-10-21): the zone's facts taken back after a service restart
-    line = logged(one('macros/tzloop.py', 'resumed after a restart') % ('Act3-Manual', 12, 7, 1))
+def test_the_game_taken_up_after_a_restart_is_said_at_once() -> None:
+    # macros/midgame.py `restore` (RECORD, 2026-10-22): the game's state, the zone's facts with it, taken back from its
+    # record after a service restart (before it, tzloop.py zone_resume's own line)
+    form = one('macros/midgame.py', 'taken up after a restart')
+    line = logged(form % ('cyberg65 (player unit 3054865448)', 2895.0, [35, 36, 37], 'used', [1], '', 0, 'none'))
+    found = logwords.CARRIED.search(line)
+    assert found is not None
+    assert found.groups() == ('cyberg65 (player unit 3054865448)', '2895')
     assert logwords.NOW.search(line) is not None
     assert logwords.EVENT.search(line) is None  # no child blocked in it
     assert logwords.ZONE_BLOCKED.search(line) is None

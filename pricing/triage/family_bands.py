@@ -85,11 +85,18 @@ def compile_comparisons(rule, members):
     return bands
 
 
+def floor(rule):
+    return rule.get('band_role') == 'floor'
+
+
 def lookup(item, rules, bands):
     reference = None
     if item.get('quantity', 1) != 1:
         return None, None
-    for rule in rules:
+    # A floor row (Jewel of Fervor) prices last, whatever the rule-file order. A matched compound row with
+    # fewer than three sellers falls through to the floor instead of a 1-2-seller quote.
+    floors = [rule for rule in rules if floor(rule)]
+    for rule in [rule for rule in rules if not floor(rule)] + floors:
         name = family_name(rule)
         coarse = bands.get(('family', name, pattern_bucket(rule)))
         if coarse is not None:
@@ -97,6 +104,10 @@ def lookup(item, rules, bands):
 
             band = cohort_band(item, coarse)
             if band and band.get('q1_ist') is not None:
+                if floors and not floor(rule) and band.get('sellers', 0) < 3:
+                    reference = reference or coarse
+                    continue
+                # The reference is the pricing rule's own coarse band: engine.assess re-reads its cohorts.
                 return band, coarse
             reference = reference or coarse
             continue

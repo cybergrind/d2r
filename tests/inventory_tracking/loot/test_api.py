@@ -15,6 +15,7 @@ import pytest
 
 from inventory_tracking.game.decode import item_size
 from inventory_tracking.game.records import VALUABLE, Carried, Drop, Pack
+from inventory_tracking.items.grid import Grid
 from inventory_tracking.loot import api, keep
 from inventory_tracking.loot.api import CLASSES, FIELD_IDENTIFY, MOST_TRIES, Field, droppable, reserve_short
 from inventory_tracking.loot.facts import ItemFacts, Owner, Where, from_observation
@@ -23,6 +24,16 @@ from inventory_tracking.loot.shadow import Appraised
 from inventory_tracking.loot.value import Band, assess
 from inventory_tracking.macros.actuator import Hand
 from inventory_tracking.macros.pickmode import MONARCH
+
+
+@pytest.fixture(autouse=True, params=[True, False], ids=['assessed', 'legacy'])
+def field_assessed(request, monkeypatch):
+    """The field routine through the entry point (api.py ASSESS_FIELD, 2026-10-23) and with the layers called directly
+    (legacy until ASSESS_FIELD is proven): the same answers both ways."""
+    from inventory_tracking.loot import api
+
+    monkeypatch.setattr(api, 'ASSESS_FIELD', request.param)
+    return request.param
 
 
 FIXTURES = Path(__file__).parent / 'fixtures' / 'field'
@@ -1314,7 +1325,8 @@ def parked(found: Field, *items: Carried) -> None:
         assert found.park(drop_of(item.unit_id, item.txt, 2, size=item.size, source='material'), (GAME, 7))
 
 
-def test_the_loops_gems_go_into_the_cube_in_one_batch_at_the_quiet_look_after_the_pickup(looped, lines):
+def test_the_loops_gems_go_into_the_cube_in_one_batch_at_the_quiet_look_after_the_pickup(looped, lines, monkeypatch):
+    monkeypatch.setattr(api, 'BLOCK_FREE', False)  # the stash-bound alone (with it on: the tests below)
     unknown_ring = Carried(250, RING, 4, 3, (1, 1), MAGIC, False)  # needs the Tome or Cain: stays
     hands = Hands(visited(*gems(), unknown_ring, cube=EMPTY_CUBE), own=OWN)
     parked(looped, gems()[0])  # the ruby just picked; the others were carried already
@@ -1360,6 +1372,109 @@ def test_parking_is_off_with_its_switch_or_the_loop(looped, monkeypatch):
     monkeypatch.setattr(api, 'FIELD_AT_ONCE', False)
     assert not looped.park(ruby, (GAME, 7))
     assert not looped.park(drop_of(201, RING, MAGIC, size=(1, 1)), (GAME, 7))
+
+
+# The free block kept free (BLOCK_FREE, rca/2026-10-23/room-blocks-findings.md; the player, 2026-10-23: "make sure that
+# you cleared inventory for the extended run ... and actually have space"): the game puts a small pickup into the 2 x 4
+# block (items/grid.py `pickup_spot`), so the loop's settled small items standing in it go into the cube at the quiet
+# look after the pickup, with the stash-bound ones.
+
+SMALL_CHARM, JEWEL, SUPER_HEALING = 618, 658, 606  # items metadata classes of cm1, jew, hp5
+
+
+def landed(*picked: tuple[int, int, int]) -> tuple[Carried, ...]:
+    """The loop's small items (unit, class, quality) picked one by one after a visit, each where the game puts it."""
+    pack = visited()
+    found: list[Carried] = []
+    for unit, txt, quality in picked:
+        spot = pack.inventory.pickup_spot(item_size(txt))
+        assert spot is not None
+        item = Carried(unit, txt, *spot, item_size(txt), quality, quality not in (MAGIC, RARE))
+        found.append(item)
+        pack = replace(pack, items=(*pack.items, item))
+    return tuple(found)
+
+
+def picked_small(found: Field, *items: Carried) -> None:
+    for item in items:
+        assert found.park(drop_of(item.unit_id, item.txt, item.quality, size=item.size, source='material'), (GAME, 7))
+
+
+def test_a_ring_and_a_charm_picked_after_a_visit_go_into_the_cube_and_the_block_is_free_again(looped, lines):
+    ring, charm = landed((300, RING, MAGIC), (301, SMALL_CHARM, MAGIC))
+    assert {(ring.x, ring.y), (charm.x, charm.y)} == {(4, 3), (4, 2)}  # inside the block: the 2 x 3 gone too
+    hands = Hands(visited(ring, charm), own=OWN)
+    assert not hands.pack.inventory.has_room((2, 3))
+    picked_small(looped, ring, charm)
+
+    assert looped.due()
+    assert looped.at_once(hands)
+
+    assert sorted(hands.put_in) == [300, 301]  # the ring unidentified: Cain identifies the cube's too
+    assert hands.pack.inventory.has_room((2, 4))
+    assert not OWN & set(hands.put_in)
+    assert lines == ["Macro: loot: cube: 2 of the loop's small items moved in, out of the free block (Ring, Small "
+                     'Charm): 2x4 free']  # fmt: skip
+    assert not looped.due()  # once a pickup
+
+
+def test_one_in_a_spare_cell_stays_and_nothing_moves_with_the_block_free(looped, lines):
+    jewel = Carried(302, JEWEL, 2, 3, (1, 1), MAGIC, False)  # the visit's spare cells: no block lost to it
+    hands = Hands(visited(jewel), own=OWN)
+    picked_small(looped, jewel)
+    assert not looped.at_once(hands)
+    assert hands.put_in == []
+    assert lines == []
+
+
+def test_what_waits_for_the_tome_stays_and_the_largest_block_that_can_be_is_freed(looped, lines):
+    kriss_drop = drop_of(303, KRISS, RARE, size=item_size(KRISS), source='shown')
+    assert looped.pick(kriss_drop, (GAME, 7))  # picked for the field identify: the Tome's, it stays
+    kriss = Carried(303, KRISS, 4, 0, item_size(KRISS), RARE, False)  # column 4: no 2 x 4 or 2 x 3 can be freed
+    potion = Carried(305, SUPER_HEALING, 3, 0, (1, 1), 2, True)  # never into the cube
+    ring = Carried(304, RING, 3, 3, (1, 1), MAGIC, False)
+    hands = Hands(visited(kriss, ring, potion), own=OWN)
+    assert not hands.pack.inventory.has_room((2, 2))
+    picked_small(looped, ring)
+
+    assert looped.at_once(hands)
+
+    assert hands.put_in == [304]  # out of the 2 x 2 at (2, 2)
+    assert hands.pack.inventory.has_room((2, 2))
+    assert (
+        lines[-1] == "Macro: loot: cube: 1 of the loop's small items moved in, out of the free block (Ring): 2x2 free"
+    )
+
+
+def test_nothing_moves_unless_the_cube_takes_every_item_in_the_way(looped, lines):
+    ring, charm = landed((306, RING, MAGIC), (307, SMALL_CHARM, MAGIC))
+    one_cell = ('##.', '###', '###', '###')
+    pack = visited(ring, charm, cube=one_cell)
+    moved = api.bench(pack, [ring, charm])
+    assert len(moved) == 1  # not the 2 x 4 (two in the way), the 2 x 3 beside the one
+    assert replace(pack, items=tuple(i for i in pack.items if i not in moved)).inventory.has_room((2, 3))
+    assert api.bench(visited(ring, charm, cube=FULL_CUBE), [ring, charm]) == []
+    assert api.bench(visited(ring, charm), []) == []  # nothing settled: nothing moved
+
+
+def test_small_parking_is_off_with_its_switch_and_never_a_potion(looped, monkeypatch):
+    ring = drop_of(308, RING, MAGIC, size=(1, 1), source='material')
+    potion = drop_of(309, SUPER_HEALING, 2, size=(1, 1), source='material')
+    assert not looped.park(potion, (GAME, 7))
+    assert not looped.park(drop_of(310, MONARCH, MAGIC), (GAME, 7))  # big: the field identify's
+    assert looped.park(ring, (GAME, 7))
+    monkeypatch.setattr(api, 'BLOCK_FREE', False)
+    assert not looped.park(drop_of(311, RING, MAGIC, size=(1, 1), source='material'), (GAME, 7))
+
+
+def test_a_big_item_is_judged_where_the_game_puts_it(monkeypatch):
+    # A small item at (4, 0): the game puts a 2 x 2 at (2, 2), leaving column 4's 1 x 3; the first spot row by row
+    # was (3, 1), which leaves none, so the old rule left it on the ground
+    rows = ('###.######', '###..#####', '##...#####', '##...#####')
+    assert Grid(rows).pickup_spot((2, 2)) == (2, 2)
+    assert api.leaves_room(rows, (2, 2))
+    monkeypatch.setattr(api, 'BLOCK_FREE', False)
+    assert not api.leaves_room(rows, (2, 2))
 
 
 # M2, the town side of the keep rules (keep.DECIDES; the player, 2026-10-20 ~15:05, answering: "Sell cheap
@@ -1456,6 +1571,24 @@ def picked_ring(found: Field, unit: int) -> None:
     assert found.pick(drop_of(unit, RING, source='material', size=(1, 1)), (GAME, 7)), unit
 
 
+@pytest.fixture
+def rings_to_cain(monkeypatch):
+    """The rings carried to Cain as before 2026-10-23 ~11:25 (FIELD_IDENTIFY_RINGS off): RINGS_TO_CAIN's own tests."""
+    monkeypatch.setattr(api, 'FIELD_IDENTIFY_RINGS', False)
+
+
+def test_a_magic_ring_is_identified_in_the_field_and_a_magic_amulet_still_goes_to_cain():
+    # The player, 2026-10-23 ~11:25: "allow field identify for rings" (FIELD_IDENTIFY_RINGS)
+    from inventory_tracking.items.metadata import metadata
+
+    [amulet] = [int(cid) for cid, base in metadata()['bases'].items() if base['name'] == 'Amulet']
+    assert api.FIELD_IDENTIFY_RINGS
+    assert api.RINGS_TO_CAIN
+    assert not api.to_cain(magic_ring(60, 0, 0))
+    assert api.to_cain(Carried(61, amulet, 0, 0, (1, 1), MAGIC, False))
+
+
+@pytest.mark.usefixtures('rings_to_cain')
 def test_only_an_unidentified_magic_ring_or_amulet_goes_to_cain(monkeypatch):
     from inventory_tracking.items.metadata import metadata
 
@@ -1471,6 +1604,7 @@ def test_only_an_unidentified_magic_ring_or_amulet_goes_to_cain(monkeypatch):
     assert not api.to_cain(magic_ring(60, 0, 0))
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_a_magic_ring_is_carried_to_cain_and_the_monarch_beside_it_identified(looped, lines):
     hands = Hands(visited(magic_ring(60, 2, 2), carried_monarch(10)), own=OWN)
     hands.reads[10] = Appraised(read(0, 32, 15), VENDOR, 'vendor')
@@ -1487,6 +1621,7 @@ def test_a_magic_ring_is_carried_to_cain_and_the_monarch_beside_it_identified(lo
     assert hands.pack.identifies == 19  # one scroll: the Monarch's
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_rings_alone_wait_for_cain_quietly_and_are_said_once(looped, lines):
     hands = Hands(visited(magic_ring(60, 2, 2), magic_ring(61, 2, 3)), own=OWN)
     picked_ring(looped, 60)
@@ -1523,6 +1658,7 @@ def filled_own(*free: tuple[int, int]) -> frozenset[int]:
     return OWN | {item.unit_id for item in fillers(*free)}
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_where_room_is_made_the_rings_wait_when_the_room_comes_without_them(looped, lines):
     hands = Hands(visited(magic_ring(60, 2, 2)), own=OWN)  # column 3 free: a 1x3 is there
     picked_ring(looped, 60)
@@ -1533,6 +1669,7 @@ def test_where_room_is_made_the_rings_wait_when_the_room_comes_without_them(loop
     assert 'Macro: loot: field: room: 1 magic rings and amulets carried to Cain unidentified' in lines
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_where_nothing_else_makes_room_the_rings_are_identified_with_the_tome_as_before_and_said(looped, lines):
     hands = Hands(visited(*fillers((2, 2)), magic_ring(60, 2, 2), cube=FULL_CUBE), own=filled_own((2, 2)))
     hands.reads[60] = ring_read(60)
@@ -1552,6 +1689,7 @@ def kriss_ring_hands(cube: tuple[str, ...]) -> Hands:
     return Hands(visited(*fillers(*free), magic_ring(60, 3, 1), cube=cube), own=filled_own(*free))
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_room_for_a_field_item_takes_the_ring_into_the_cube_unidentified_when_nothing_else_frees_it(looped, lines):
     hands = kriss_ring_hands(EMPTY_CUBE)
     picked_ring(looped, 60)
@@ -1565,6 +1703,7 @@ def test_room_for_a_field_item_takes_the_ring_into_the_cube_unidentified_when_no
     assert "Macro: loot: field: at once: rare Kriss (unit 7): room: 1 of the loop's items into the cube" in lines
 
 
+@pytest.mark.usefixtures('rings_to_cain')
 def test_room_for_a_field_item_with_the_cube_full_identifies_the_ring_with_the_tome_and_drops_it(looped, lines):
     asked: list[str] = []
     looped.trip = lambda label: asked.append(label) is None
@@ -1591,3 +1730,25 @@ def test_a_field_routine_is_one_visit_of_its_hands(looped):
 
     assert hands.visits == 2  # the routine's and its settle's (the inner one the outer's: loot/hands.py `visit`)
     assert hands.dropped == [10]
+
+
+def test_a_field_drop_logs_its_stat_lines_and_verdict_and_keeps_its_read(tmp_path):
+    # FIELD_AUDIT (2026-10-23, the loot verifier: "dropped as worthless" after the Tome said no stats, kept no record)
+    import json
+    from types import SimpleNamespace
+
+    from inventory_tracking.loot import api
+    from inventory_tracking.loot.keep import Action, Decision
+
+    lines = []
+    entry = SimpleNamespace(
+        observation={'item': {'name': 'Bone Knife', 'identified': True},
+                     'decoded_stats': [{'text': '+12% Enhanced Damage'}, {'text': 'Fire Resist +9%'}]},
+        verdict='vendor',
+    )  # fmt: skip
+    facts = SimpleNamespace(title=lambda: 'rare Bone Knife')
+    drop = Decision(Action.DROP, 'K8', 'junk')
+    api._audit(lambda *args: lines.append(args[0] % args[1:]), facts, 5, entry, drop)  # pyrefly: ignore[bad-argument-type] a stub with title() alone
+    assert 'before the drop: verdict vendor; +12% Enhanced Damage; Fire Resist +9%' in lines[0]
+    [record] = (tmp_path / 'identified').glob('*.json')
+    assert json.loads(record.read_text())['observation']['field_drop'] == 'drop K8 junk'

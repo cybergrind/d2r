@@ -7,7 +7,7 @@ def test_each_group_names_its_item_classes():
     assert sorted(material_classes(['shards']).values())[0] == 'Deep Worldstone Shard'
     assert material_classes(['keys']) == {662: 'Key of Terror', 663: 'Key of Hate', 664: 'Key of Destruction'}
     assert material_classes(['statues'])[683] == "Worusk's End"  # the table says 'Uber Ancient Summon Material Act5'
-    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4, 1, 1, 1, 1]
+    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4, 1, 2, 1, 1]
 
 
 def test_charms_are_the_three_sizes():
@@ -27,6 +27,11 @@ def test_gems_are_the_flawless_and_perfect_ones_of_every_colour_and_skulls():
         'Skull',
         'Topaz',
     }
+
+
+def test_jewels_are_both_jewel_classes():
+    # A Colossal Jewel lying unidentified is taken like any jewel (rca/2026-10-22/jewel-verify-G5.md §6).
+    assert material_classes(['jewels']) == {658: 'Jewel', 690: 'Colossal Jewel'}
 
 
 def test_no_groups_means_no_classes():

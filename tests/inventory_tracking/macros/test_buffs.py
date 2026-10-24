@@ -655,9 +655,9 @@ def test_the_pointer_is_moved_up_the_body_while_the_hover_names_another_monster(
         aimed: list[tuple[float, float]] = []
         aim = run.actuator.aim
 
-        def noted(x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0) -> None:
+        def noted(x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0, bind=None) -> None:
             aimed.append((x, y))
-            aim(x, y, scatter=scatter, near=near)
+            aim(x, y, scatter=scatter, near=near, bind=bind)
 
         run.actuator.aim = noted
         assert buffs.cast(run, due, key_names, ASPECT).cast
@@ -739,3 +739,19 @@ def test_a_cast_on_a_monster_lets_the_held_strike_go_before_the_pointer_leaves_i
     (released,) = [event for event in play.keys.events if event[0] == 'button' and event[1] == 3][:1]
     assert (released[2] == on_line) is first  # off: the strike was let go with the pointer on the target
     assert play.pressed()[-1] == 'F6'  # the key is pressed either way
+
+
+@pytest.mark.parametrize('on', [True, False])
+def test_a_routine_that_waits_is_not_due_with_a_hostile_on_the_character(monkeypatch, on):
+    # 2026-10-23: the Defiler's summon and Consume waited 1.5-3.5 s under blows (rca/2026-10-23/pause-findings.md)
+    from inventory_tracking.macros import buffs as buffs_module
+
+    monkeypatch.setattr(buffs_module, 'ROUTINES_AWAY', on)
+    row = replace(BOLT_ROW, caster='later', target=None, waits=True)
+    buffs = plan(row, later=lambda cast: Tried(cast.run.clock(), cast=True))
+    near, far = game(NEAR), game(FAR)
+    near.clock.now = far.clock.now = 100.0
+    assert (buffs.due(near.run(), row, buffs.facts(near.run(), near.world, foes=[NEAR])) is None) is on
+    assert buffs.due(far.run(), row, buffs.facts(far.run(), far.world, foes=[FAR])) is not None
+    plain = replace(row, waits=False)  # a row of the shared executor's, or a caster that does not wait: as before
+    assert buffs.due(near.run(), plain, buffs.facts(near.run(), near.world, foes=[NEAR])) is not None

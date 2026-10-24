@@ -22,6 +22,16 @@ from inventory_tracking.presentation import Tone
 from tests.inventory_tracking.appraisal.test_text import saved_result
 
 
+@pytest.fixture(autouse=True)
+def no_collection(monkeypatch):
+    """The card's CARD line reads owned copies from the collection (loot/value.py `CollectionCopies`): none here, so
+    no test reads the player's database (a set or unique is then kept, S8)."""
+    from inventory_tracking.loot import assess, value
+
+    monkeypatch.setattr(value, 'CollectionCopies', assess.NoCopies)
+    monkeypatch.setattr(assess, 'SHADOW_SAID', set())
+
+
 def probe_result(**items):
     """Unit ids are decimal strings in probes (`a` → '1', `b` → '2', `c` → '3')."""
     ids = {'a': '1', 'b': '2', 'c': '3'}
@@ -270,7 +280,8 @@ def test_a_new_pass_adds_to_the_summary_still_on_screen(parts):
     worker.tick()
     texts = [line.text for line in displays[-1]]
     assert texts[0] == 'Identified 2 — 2 keep · 0 check · 0 vendor'
-    assert [t.split(':')[0] for t in texts[1::2]] == ['KEEP   Ring 2 (Ring)', 'KEEP   Ring 1 (Ring)']  # newest first
+    rows = [t.split(':')[0] for t in texts[1:] if not t.startswith(' ')]
+    assert rows == ['KEEP   Ring 2 (Ring)', 'KEEP   Ring 1 (Ring)']  # newest first
     assert worker.expires == 105.0 + worker.hit_seconds  # the whole card gets a fresh lease
     assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['2']  # the file: one pass
 

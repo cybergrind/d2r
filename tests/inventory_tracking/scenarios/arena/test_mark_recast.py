@@ -12,6 +12,7 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.builds.warlock.mark import MARK_RECASTS
+from inventory_tracking.macros import hunt
 from tests.inventory_tracking.scenarios.arena import replay
 from tests.inventory_tracking.scenarios.arena.game import Arena
 
@@ -31,6 +32,10 @@ def played(monkeypatch, caplog, misses: float) -> tuple[list[str], list[tuple[fl
             arenas.append(self)
 
     monkeypatch.setattr(replay, 'Arena', Missing)
+    # The recasts, not the bout's cast hold: the seal's Venom Lords (blows of 4-9k against 1818 life within 1.0 s) hold
+    # every fight cast under the strike (macros/hunt.py FIGHT_CAST_REACH, 2026-10-22), so the play is staged without it
+    # (rca/2026-10-23/arena-red.md, survival-findings.md §2)
+    monkeypatch.setattr(hunt, 'FIGHT_CAST_REACH', False)
     staging = replay.stored(next(moment for moment in replay.MOMENTS if moment.name == 'vizier-seal'))
     assert staging is not None, 'stage it: python -m tests.inventory_tracking.scenarios.arena.replay --cut'
     with caplog.at_level(logging.INFO, logger='inventory_tracking'):

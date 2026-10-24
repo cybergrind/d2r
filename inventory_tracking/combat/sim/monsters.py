@@ -294,6 +294,11 @@ class Missile:
     lands: int  # the frame it arrives at
     takes: bool  # rolled when it was let go: arriving on its target, it takes life
     parts: Mapping[str, float]
+    # Where and at what frame it was let go, and its missile class (missiles.txt) where the pack names one
+    # (`Pack.bolts`): what a read of the missiles in flight shows; None / -1: not kept
+    origin: Point | None = None
+    born: int = -1
+    kind: int | None = None
 
 
 @dataclass(frozen=True)
@@ -342,6 +347,12 @@ class Pack:
         self.sparks: list[Spark] = []
         self.arrived = 0  # the sparks that have ended on the character, whether or not they took life
         self.flying: list[Missile] = []
+        # Shooters (unit ->) whose shots are bolts of a missile class: (class, missiles let go a shot, units a
+        # second they fly, the chance a shot at the character takes life, one roll for all its missiles, None: the
+        # fit's; the factor on the gap between its shots). Empty: a shot is one missile at the fit's speed, its class
+        # not kept, as before (an arena scene names them: Multiple Shots' volleys of 3,
+        # rca/2026-10-23/dominus-burst-findings.md)
+        self.bolts: dict[int, tuple[int, int, float, float | None, float]] = {}
         self.novas: list[Nova] = []
         # The walkers of a read AI (`Walker.mind`); AWARE as of now (stage.py `awareness` widens it).
         self.minds = casters.Minds(self, aware=AWARE)
@@ -665,10 +676,21 @@ class Pack:
         if not self._sighted(walker, target):
             walker.doing = WALK if walker.unit in self.awake and self._closer(walker, target) else STAND
             return
-        takes = walker.mark != 0 or roll.random() < found['takes_life']['value']
+        bolt = self.bolts.get(walker.unit)
+        chance = found['takes_life']['value'] if bolt is None or bolt[3] is None else bolt[3]
+        takes = walker.mark != 0 or roll.random() < chance
         parts = dict(self.shots[walker.unit])
         parts = self._sized(walker, parts.pop(PHYSICAL, 0.0), SHOT, parts)
-        flight = max(math.ceil(away / (found['speed']['value'] / GAME_RATE)), 1)
-        self.flying.append(Missile(walker.unit, walker.mark, target, frame + flight, takes, parts))
+        if bolt is None:
+            flight = max(math.ceil(away / (found['speed']['value'] / GAME_RATE)), 1)
+            self.flying.append(Missile(walker.unit, walker.mark, target, frame + flight, takes, parts))
+        else:
+            kind, count, speed, _, _ = bolt
+            flight = max(math.ceil(away / (speed / GAME_RATE)), 1)
+            for _ in range(count):
+                self.flying.append(
+                    Missile(walker.unit, walker.mark, target, frame + flight, takes, parts, walker.at, frame, kind)
+                )
         walker.doing, walker.aim, walker.mark = STRIKE, walker.mark, -1
-        walker.until = frame + max(round(roll.uniform(0.5, 1.5) * self._gap(walker)), 1)
+        gap = self._gap(walker) * (bolt[4] if bolt is not None else 1.0)
+        walker.until = frame + max(round(roll.uniform(0.5, 1.5) * gap), 1)

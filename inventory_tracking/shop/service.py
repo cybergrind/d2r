@@ -14,10 +14,22 @@ import time
 from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
+from inventory_tracking.loot.assess import (
+    Assessment,
+    Assessor,
+    Outcome,
+    ResultAppraiser,
+    Site,
+    shadow,
+    shop_priced,
+    triage_verdict,
+)
+from inventory_tracking.loot.facts import Owner, Where, from_observation
 from inventory_tracking.presentation import StyledLine, Tone
 from inventory_tracking.reports import publish
+from inventory_tracking.shop import rules
 from inventory_tracking.shop.capture import capture_sentinel, capture_shop, decode_stock
-from inventory_tracking.shop.rules import match_item, skill_targets
+from inventory_tracking.shop.rules import skill_targets
 
 
 REQUEST_PREFIX = 'shop '
@@ -29,35 +41,77 @@ QUIET_SECONDS = 5  # OSD lease for no-target results, status and failures
 # for a CHECK with no price (48 of the 52 alerts 2026-10-06..22: "+2 Warlock skills; no supported price"), a vendor buy
 # is not worth the gold and the trip ("notify on really good items ... not just any +2 skills", the player, 2026-10-22)
 PRICED_IST = 2.5
+# A vendor's stock item is judged by the one assessment entry point at SHOP (loot/assess.py, design.md §10.4 step 1;
+# the player, 2026-10-23: "I want to have one place that decides pickups/value"): the priced triage verdict
+# (`shop_priced`) and the reviewed patterns (rules.py `match_item`). Gate (2026-10-23): the hits equal on the recorded
+# stocks and reads (tests/inventory_tracking/shop/test_assessed.py). While on, a stock item the old rule (`priced` +
+# `match_item`) judges otherwise logs one shadow line. False: the old rule alone
+ASSESSED = True
 
 
 def triage_stock(record):
-    from pricing.api import shop_triage as shop_retrieve
+    """The live evaluation: the stock's shop triage (the SHOP site's price source) through `assess`."""
+    from pricing.api import shop_triage
 
-    return assess(record, retrieve=shop_retrieve)
+    return assess(record, retrieve=shop_triage)
 
 
 def priced(triage):
-    """Whether a triage verdict alone makes a vendor item a target: sold, or slowly, at PRICED_IST or more."""
+    """Whether a triage verdict alone makes a vendor item a target: sold, or slowly, at PRICED_IST or more by the
+    lower quartile, the median when the quartile is missing or empty (one rule with loot/assess.py `shop_priced`,
+    2026-10-23: a `q1_ist` key present with None read no price here before). Legacy until ASSESSED is proven: the
+    switch-off path and the shadow."""
     if triage is None or triage['verdict'] not in ('sell', 'slow'):
         return False
     band = triage.get('band') or {}
-    price = band.get('q1_ist', band.get('median_ist'))
+    price = band.get('q1_ist')
+    if price is None:
+        price = band.get('median_ist')
     return price is not None and price >= PRICED_IST
+
+
+def shop_assessment(observation, result) -> Assessment:
+    """A vendor's stock item judged at SHOP by the one entry point: its decoded read, `result` the shop triage's
+    (None: no price source), the triage's own verdict (`triage_verdict`)."""
+    facts = from_observation(observation, where=Where.GROUND, owner=Owner.UNKNOWN)
+    return Assessor(ResultAppraiser(lambda _: result, triage_verdict)).assess(facts, Site.SHOP)
+
+
+def _reasons(assessment: Assessment, triage) -> list[str]:
+    """The hit's lines: the triage's headline for a priced one (the card's dated words), then the patterns."""
+    reasons = assessment.why.split('; ')
+    return reasons if shop_priced(assessment.value) is None else [_headline(triage), *reasons[1:]]
+
+
+def _judged(observation, result) -> tuple[list[str], bool]:
+    """(the hit's reasons, whether the triage priced it) for one stock item; no reasons: no target."""
+    triage = (result or {}).get('triage')
+    old = [*([_headline(triage)] if priced(triage) else []), *rules.match_item(observation)]
+    if not ASSESSED:
+        return old, priced(triage)
+    assessment = shop_assessment(observation, result)
+    found = _reasons(assessment, triage) if assessment.outcome == Outcome.BUY else []
+    new, was = ('buy' if found else 'pass'), ('buy' if old else 'pass')
+    shadow(('shop', assessment.facts.unit_id, new, was), Site.SHOP, assessment.facts.title(), new, was,
+           new_decides=True)  # fmt: skip
+    return found, shop_priced(assessment.value) is not None
+
+
+def _headline(triage) -> str:
+    from inventory_tracking.appraisal.triage import headline
+
+    return headline(triage)
 
 
 def assess(record, *, retrieve=None):
     observations, issues = decode_stock(record)
     hits = []
     for observation in observations:
-        triage = retrieve(observation).get('triage') if retrieve else None
+        result = retrieve(observation) if retrieve else None
         # The reviewed patterns always count (rules.py), a triage verdict only with a price
-        reasons = match_item(observation)
-        if priced(triage):
-            from inventory_tracking.appraisal.triage import headline
-
-            reasons = [headline(triage), *reasons]
+        reasons, priced_now = _judged(observation, result)
         if reasons:
+            triage = (result or {}).get('triage')
             hits.append(
                 {
                     'name': observation['item']['name'],
@@ -65,7 +119,7 @@ def assess(record, *, retrieve=None):
                     'position': observation['source']['position'],
                     'page': observation['source']['container']['page'],
                     'reasons': reasons,
-                    **({'triage': triage} if priced(triage) else {}),
+                    **({'triage': triage} if priced_now else {}),
                 }
             )
         if observation.get('unresolved_stats'):

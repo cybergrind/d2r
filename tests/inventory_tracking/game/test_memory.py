@@ -6,6 +6,8 @@ when every classifier walked the item table on its own (the outputs below were r
 before the walks were shared), and counted in walks: the reads of a unit table's 128 heads.
 """
 
+import ctypes
+import errno
 import struct
 
 import pytest
@@ -19,15 +21,23 @@ from inventory_tracking.game.layout import (
     GAME_NAME_RVA,
     GOLD_CLASS,
     GOLD_STAT,
+    IN_GAME,
     ITEM_OWNER,
     ITEM_UNIT,
+    MONSTER_UNIT,
+    OBJECT_UNIT,
+    SKILL_SLOT_SIZE,
+    SKILL_SLOTS,
+    SKILL_SLOTS_RVA,
     SUPER_HEALING,
+    TRACE_RVAS,
+    VIEW_RVA,
 )
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.records import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot
 from inventory_tracking.game.units import walked
 from inventory_tracking.items.grid import CUBE_GRID, INVENTORY_GRID
-from inventory_tracking.items.identity import IDENTIFIED_FLAG
+from inventory_tracking.items.identity import IDENTIFIED_FLAG, RUNEWORD_FLAG
 from inventory_tracking.loot import ground
 from inventory_tracking.loot.materials import appraised_classes, material_classes
 from inventory_tracking.loot.shown import ShownRule
@@ -38,8 +48,10 @@ from inventory_tracking.native.layout import (
     QUANTITY_STAT,
     ROOM1_ROOM2,
     ROOM2_LEVEL,
+    UI_PANELS_RVA,
+    UI_PANELS_SIZE,
 )
-from inventory_tracking.native.memory import ProcessMemory
+from inventory_tracking.native.memory import ProcessMemory, Replay
 from tests.inventory_tracking.fake_memory import Memory
 
 
@@ -435,6 +447,22 @@ def test_the_carried_items_and_the_stash_are_read_with_one_walk_of_each_table(ga
     assert (game.memory.walks(ITEM_UNIT), game.memory.walks(0)) == (1, 1)
 
 
+def test_a_carried_runeword_is_read_by_the_game_flag(monkeypatch):
+    """D12 (2026-10-23): the ItemData flag IFLAG_RUNEWORD (items/identity.py RUNEWORD_FLAG, MapAssist
+    Types/Items.cs:2460) read into Carried.runeword, so the loop's rules never take a carried runeword for a plain base;
+    an item without it reads False."""
+    monkeypatch.setattr(game_memory, 'ProcessMemory', lambda pid: ProcessMemory())  # unbound
+    play = Game()
+    runeword = play.item(RING, 128 * 10 + 5, 0, owner=PLAYER, flags=IDENTIFIED_FLAG | RUNEWORD_FLAG)
+    ring = play.item(RING, 128 * 11 + 5, 0, owner=PLAYER, flags=IDENTIFIED_FLAG)
+    play.player(PLAYER, 'CybergrindAA', life=(900, 1200), grids={INVENTORY_GRID: (10, 4, {0: runeword, 1: ring})})
+    play.chain()
+    pack = play.game_memory().carried()
+    assert pack is not None
+    assert [(item.unit_id, item.identified, item.runeword) for item in pack.items] == [
+        (128 * 10 + 5, True, True), (128 * 11 + 5, True, False)]  # fmt: skip
+
+
 def tome_game(stats: list[tuple[int, int, int]] | None) -> Game:
     """The character carrying a Tome of Identify at (8, 0) with the stat list `stats` (None: no stat list)."""
     from inventory_tracking.game.layout import IDENTIFY_TOME
@@ -465,3 +493,84 @@ def test_the_tome_of_identify_reads_its_quantity_and_0_with_none_in_a_read_stat_
     assert pack is not None
     assert [(item.txt, item.x, item.y) for item in pack.items] == [(534, 8, 0)]
     assert pack.identifies == charges
+
+
+# The replayed batch (native/memory.py REPLAY, 2026-10-23): a look and the loot's walk read their last pass's spans in
+# one process_vm_readv at their start, the fields served from those bytes
+
+
+def vm_over(memory: Memory, calls: list[int]):
+    """A process_vm_readv over the fake blocks, stopping at the first unreadable span as the kernel does."""
+
+    def call(pid, local, count, remote, remote_count, flags):
+        calls.append(remote_count)
+        done = b''
+        for index in range(remote_count):
+            try:
+                done += Memory.read(memory, remote[index].iov_base, remote[index].iov_len)
+            except ValueError:
+                break
+        if not done:
+            ctypes.set_errno(errno.EFAULT)
+            return -1
+        ctypes.memmove(local._obj.iov_base, done, len(done))
+        return len(done)
+
+    return call
+
+
+def replayed(play: Game) -> tuple[GameMemory, list[int]]:
+    """`GameMemory` over the blocks reading through a replay with the fake process_vm_readv."""
+    if BASE + UI_PANELS_RVA not in play.memory.blocks:  # the image's bytes a look reads: in a game
+        play.memory.block(BASE + UI_PANELS_RVA, UI_PANELS_SIZE)[IN_GAME] = 1
+        play.memory.block(BASE + SKILL_SLOTS_RVA, SKILL_SLOTS * SKILL_SLOT_SIZE)
+        play.memory.block(BASE + VIEW_RVA, 1)
+        play.memory.block(TABLE + MONSTER_UNIT * 1024, 1024)  # no monsters, no doors
+        play.memory.block(TABLE + OBJECT_UNIT * 1024, 1024)
+        for rva in TRACE_RVAS:
+            play.memory.block(BASE + rva, 1)
+    memory, calls = GameMemory(0, BASE, TABLE), []
+    memory.replay = Replay(0, play.memory.read, call=vm_over(play.memory, calls))
+    return memory, calls
+
+
+def test_a_replayed_look_and_loot_give_what_a_pread_each_gave_with_the_fields_from_one_batch(game):
+    memory, calls = replayed(game)
+    first_world, first_loot = memory.world(), look(memory)  # the first passes read one pread a field
+    assert calls == []
+    assert first_world.player is not None
+    assert first_loot.drops == LOOT_DROPS
+
+    game.memory.reads.clear()
+    world, loot = memory.world(), look(memory)
+    preads = list(game.memory.reads)
+
+    assert len(calls) == 2  # one call a pass, of the spans the pass before read
+    # Every field read from the batch: a pread only where nothing can be read (left out of the batch)
+    assert preads
+    for address, size in preads:
+        with pytest.raises(ValueError, match='Unmapped'):
+            Memory.read(game.memory, address, size)
+    assert world == first_world == game.game_memory().world()
+    assert loot == first_loot == look(game.game_memory())
+    assert memory.replay is not None
+    tallies = memory.replay.report()
+    assert {kind: (t.passes, t.calls) for kind, t in tallies.items()} == {'look': (2, 1), 'loot': (2, 1)}
+    assert tallies['loot'].served == 86  # the second pass's whole: the first pass's misses are its preads
+
+
+def test_a_replayed_look_sees_what_changed_since_the_last_one(game):
+    memory, _ = replayed(game)
+    before = memory.world()
+    assert before.player is not None
+    assert before.player.x == 5000
+    paths = [block for block in game.memory.blocks.values() if len(block) == 0x28]  # the player units' paths
+    for block in paths:
+        struct.pack_into('<HH', block, 0, 0, 5007)
+
+    after = memory.world()
+
+    assert after.player is not None
+    assert after.player.x == 5007
+    assert memory.replay is not None
+    assert memory.replay.report()['look'].served > 0

@@ -10,7 +10,7 @@ import pytest
 from inventory_tracking.levels.handlers import tal_rasha
 from inventory_tracking.levels.model import DURIEL_PORTAL, ORIFICE, LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import object_spots
-from inventory_tracking.macros import acts, tzroutine, zonenav
+from inventory_tracking.macros import acts, midgame, tzloop, tzroutine, zonenav
 from inventory_tracking.macros.acts import act2
 from inventory_tracking.macros.loop import LEAVE, TZ_LEVEL, TZ_LOOT, TZ_NEXT_LEVEL, TZ_PORTAL, TZ_SHARD, TZ_WAYPOINT
 from inventory_tracking.macros.teleport import USES
@@ -226,6 +226,9 @@ def test_under_zone_navigation_the_lair_is_entered_from_the_true_tomb_only(monke
     from tests.inventory_tracking.macros.acts.test_act2 import tomb_entrances
 
     monkeypatch.setattr(zonenav, 'ACTS', frozenset({2}))  # zone navigation on for act 2, as live (pinned off in tests)
+    # The order of before 2026-10-23: the Canyon's tombs all toured before the rotation (zonenav.py ROTATION_ANY_ACT
+    # puts the rotation right after Duriel, the tombs left after it: test_rotation_zone.py)
+    monkeypatch.setattr(zonenav, 'ROTATION_ANY_ACT', False)
     act = ActGame(2, monkeypatch, true_tomb=true_tomb)
     tomb_entrances(act)
     walk = act.play()
@@ -244,3 +247,175 @@ def test_under_zone_navigation_the_lair_is_entered_from_the_true_tomb_only(monke
     assert walk.kills[0] == 'Duriel'
     assert walk.kills[1] == 'Andariel'  # the rotation's boss right after the act's (zonenav.py ROTATION_BOSSES_FIRST)
     assert walk.legs[-1] == LEAVE
+
+
+def test_tombs_turned_under_the_game_are_cleared_not_blocked_and_duriel_is_killed(monkeypatch, caplog):
+    # cyberg65 2026-10-22 19:52-19:59 (rca/2026-10-22/tombs-findings.md): a Shard: Act 1 game rotated into
+    # Act2-TalRashas, the zone no longer terrorized as the Canyon's run ended, kept for Duriel (tzloop.py BOSS_ZONES).
+    # Each tomb was worked on the way (one run), "cleared" by the zone, then "blocked: entered and left unfinished" back
+    # in the Canyon: the hub's rule read the agenda's tour flag (`explored`, never set on a way on) and not the zone's
+    # verdict. A finished tomb is never blocked; the tour goes on to the true tomb and Duriel
+    import logging
+
+    from tests.inventory_tracking.macros.acts.harness import ZoneWalk, crossing
+    from tests.inventory_tracking.macros.acts.test_bosses import TAL_RASHAS, TOWER
+
+    caplog.set_level(logging.INFO)
+    monkeypatch.setattr(zonenav, 'ROTATION', True)
+    walk = crossing(ZoneWalk(monkeypatch, TAL_RASHAS))
+    game = walk.game
+    game.progress.wanted = lambda level: level in game.zone  # the tracker's read, as it turns
+
+    def on_run(area: int) -> None:
+        if area == CANYON:
+            game.zone = TOWER  # the Tal Rasha rotation turned: its tombs kept for Duriel
+        elif area in TOMBS:
+            # Worked on the way (agenda.py ON_THE_WAY: Duriel alive under it), as live: the run reads the tomb's map
+            # but tours no rooms, so runner.py `_zone_seen` notes it mapped, never explored
+            game.unmapped.add(area)
+            game.loop.agenda.mapped.add(area)
+
+    walk.on_run = on_run
+    played = walk.play()
+
+    assert played.stopped is None, (played.stopped, played.where)
+    assert 'Macro: zone: turned and kept in the plan for their bosses: Act2-TalRashas (Duriel' in caplog.text
+    assert 'entered and left unfinished' not in caplog.text
+    assert 'Duriel' in played.kills
+    assert all(played.runs.count(tomb) <= 1 for tomb in TOMBS)
+
+
+# Game cyberg65 on 2026-10-22 (rca/2026-10-22/tombs-policy-findings.md): a Shard: Act 1 game rotated into
+# Act2-TalRashas, the zone turned as the Canyon's run ended, and the tombs were worked on the way for Duriel (one run
+# each, never toured), the true tomb the fifth, Duriel killed at 19:59:56. The rule of before the 20:04 fix blocked the
+# false tombs "entered and left unfinished" (19:54-19:58). At 21:40:32 an Eastern shard over the limit terrorized act 2
+# (actloop.py OVERFLOW): every act 2 level owed under the act's policy, which tours the rooms. The tombs' state of the
+# way on (and the old blocks, carried by the game's record over the 20:26-21:38 restarts) read as their verdict: the
+# act's tombs unplayed
+COLD_TRUE_TOMB = 71  # the fixture's tour order puts it fifth (NEAREST_TOMBS: 69, 66, 72, 67, 71, ...), as live
+
+
+def worked_on_the_way_then_owed(monkeypatch, restart: bool):
+    """The turned tombs' game up to Duriel's death and the Town Portal home, then act 2 terrorized by an overflow
+    shard; with `restart` the game's record kept by a service of before POLICY_NOW (no policies, the old rule's blocks
+    on the false tombs) and taken up by a new loop. (walk, the tombs entered on the way, the runs made before)."""
+    from inventory_tracking.macros.agenda import TOWNS
+    from tests.inventory_tracking.macros.acts.harness import NEAREST_TOMBS, ZoneWalk, crossing
+    from tests.inventory_tracking.macros.acts.test_bosses import TAL_RASHAS, TOWER
+    from tests.inventory_tracking.macros.acts.test_rotation_zone import restarted
+
+    monkeypatch.setattr(zonenav, 'ROTATION', True)
+    monkeypatch.setattr(zonenav, 'ACTS', frozenset({2}))  # act 2 by the zone's graph, as live
+    walk = crossing(ZoneWalk(monkeypatch, TAL_RASHAS, true_tomb=COLD_TRUE_TOMB))
+    game = walk.game
+    game.loop.records = game.book
+    game.progress.wanted = lambda level: level in game.zone
+
+    def on_run(area: int) -> None:
+        if area == CANYON and 2 not in game.loop.agenda.acts:
+            game.zone = TOWER  # the Tal Rasha rotation turned: its tombs kept for Duriel
+        if area not in {CANYON, *TOMBS, LAIR}:
+            return
+        if 2 in game.loop.agenda.acts:
+            game.unmapped.discard(area)  # under the act's policy: its rooms toured
+        else:
+            game.unmapped.add(area)  # worked on the way (19:52:14 on): the map read, no room toured
+            game.loop.agenda.mapped.add(area)
+
+    walk.on_run = on_run
+    before = walk.play(until=lambda played: 'Duriel' in played.killed and played.area in TOWNS)
+    assert before.stopped is None, (before.stopped, before.where)
+    agenda = game.loop.agenda
+    on_the_way = sorted(set(TOMBS) & agenda.entered)
+    assert on_the_way == sorted(NEAREST_TOMBS[: NEAREST_TOMBS.index(COLD_TRUE_TOMB) + 1])
+    # The Eastern shard over the limit at the town stop (actloop.py OVERFLOW): act 2 planned whatever the client reads
+    agenda.acts, agenda.overflow = (2,), {2: 'used'}
+    # Its levels read terrorized from here, as live (tzloop.py MANUAL_TURNED: one read not terrorized is finished)
+    from inventory_tracking.routes.tz_groups import manual_zone
+
+    act2 = manual_zone(2)
+    assert act2 is not None
+    game.zone = game.zone | frozenset(act2.areas)
+    if restart:
+        false_tombs = [tomb for tomb in on_the_way if tomb != COLD_TRUE_TOMB]
+        for tomb in false_tombs:
+            agenda.blocked[tomb] = tzloop.LEFT_UNFINISHED  # the hub's rule of before the 20:04 fix
+        midgame.keep(game.loop, game.progress)
+        key = midgame.key_of(game.loop.game_id)
+        assert key is not None
+        part = game.book.record(key)['loop']
+        part['agenda'] = {name: value for name, value in part['agenda'].items() if name != 'worked_under'}
+        game.book.record_note(key, 'loop', part)  # as a service of before POLICY_NOW kept it
+        restarted(walk, game.loop.store)
+        game.progress.wanted = lambda level: level in game.zone
+    return walk, on_the_way, len(before.runs)
+
+
+@pytest.mark.parametrize('restart', [False, True], ids=['same-service', 'restarted'])
+@pytest.mark.parametrize('on', [True, False], ids=['policy-now', 'off'])
+def test_tombs_worked_on_the_way_then_owed_by_an_overflow_shard_are_played_under_the_acts_policy(
+    monkeypatch, caplog, on, restart
+):
+    caplog.set_level('INFO')
+    monkeypatch.setattr(tzloop, 'POLICY_NOW', on)
+    monkeypatch.setattr(midgame, 'POLICY_UNKNOWN', on)
+    walk, on_the_way, ran = worked_on_the_way_then_owed(monkeypatch, restart)
+    caplog.clear()
+    played = walk.play(legs=600)
+    after = played.runs[ran:]
+    agenda = walk.game.loop.agenda
+
+    if not on:
+        # The defect: back in the Canyon the tombs of the way on are blocked "entered and left unfinished" (the hub's
+        # rule judging their way on's state under the act's touring policy; restarted, the old rule's blocks are kept
+        # too), never played again; the true tomb blocked, Duriel's Lair is never reached and the loop goes between
+        # the Town Portal and the Canyon's waypoint until it stops
+        assert 'entered and left unfinished' in caplog.text
+        assert not set(on_the_way) & set(after)
+        assert played.stopped == 'TZ Town Portal again and again in cyber32: nothing came of it'
+        return
+    assert played.stopped is None, (played.stopped, played.where)
+    assert played.legs[-1] == LEAVE
+    assert 'entered and left unfinished' not in caplog.text
+    assert set(TOMBS) | {CANYON, LAIR} <= set(after)  # every tomb under the act's policy, the Canyon and the lair too
+    assert all(after.count(tomb) == 1 for tomb in TOMBS)
+    for tomb in on_the_way:
+        assert f"Tal Rasha's Tomb ({tomb}) was worked" in caplog.text
+        assert agenda.worked_under[tomb] in zonenav.TOURING
+    assert not set(TOMBS) & agenda.blocked.keys()
+    assert played.kills.count('Duriel') == 1  # dead already: never fought again
+    if restart:
+        assert 'the record kept no policy' in caplog.text
+        assert 'taken up after a restart' in caplog.text
+
+
+def test_a_tomb_judged_afresh_then_left_unfinished_under_the_acts_policy_is_blocked(monkeypatch, caplog):
+    # The hub's rule for what it is meant for: entered again under the act's policy, its run cut short (back in the
+    # Canyon by its waypoint, a trip to town and back) and which mark leads back is not known: blocked, said, the tour
+    # goes on with the others, and the block stays (no second judging afresh: its policy has not changed)
+    caplog.set_level('INFO')
+    walk, on_the_way, ran = worked_on_the_way_then_owed(monkeypatch, restart=False)
+    game, first = walk.game, NEAREST[0]
+    assert first in on_the_way
+    worked = walk.on_run
+    cut: list[int] = []
+
+    def on_run(area: int) -> None:
+        worked(area)
+        if area == first and not cut:
+            cut.append(area)
+            game.unmapped.add(area)  # its rooms not all seen
+            game.go('waypoint', CANYON)
+
+    walk.on_run = on_run
+    caplog.clear()
+    played = walk.play(legs=600)
+    after = played.runs[ran:]
+
+    assert played.stopped is None, (played.stopped, played.where)
+    assert played.legs[-1] == LEAVE
+    assert game.loop.agenda.blocked[first] == tzloop.LEFT_UNFINISHED
+    assert f"Tal Rasha's Tomb ({first}) blocked: entered and left unfinished" in caplog.text
+    assert caplog.text.count(f"Tal Rasha's Tomb ({first}) was worked") == 1
+    assert after.count(first) == 1
+    assert set(TOMBS) - {first} <= set(after)

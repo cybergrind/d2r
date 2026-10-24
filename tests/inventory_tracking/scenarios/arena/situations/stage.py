@@ -203,8 +203,8 @@ class Cast(Mobs):
             walker.traits = replace(walker.traits, melee=True)
             self.pack.shots.pop(mob.unit, None)
 
-    def hit(self, unit: int, points: float) -> bool:
-        died = super().hit(unit, points)
+    def hit(self, unit: int, points: float, *, by_pet: bool = False) -> bool:
+        died = super().hit(unit, points, by_pet=by_pet)
         mob = self.mobs.get(unit)
         if died and mob is not None and explodes(mob.txt):
             self.burst.append((mob.at, unit, mob.txt))

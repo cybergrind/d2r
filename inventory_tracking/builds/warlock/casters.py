@@ -7,7 +7,7 @@ buff executor (macros/buffs.py) with a `Casting` and answers with a `Tried`.
 import math
 import struct
 import weakref
-from collections.abc import Generator, Sequence
+from collections.abc import Callable, Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import replace
 
@@ -20,6 +20,9 @@ from inventory_tracking.builds.warlock.buffs import (
     ENGORGE_REACH,
     ENGORGE_RETRY,
     OMEN_TXT,
+    OPENER_KEEP,
+    OPENER_LEAD,
+    OPENER_TXT,
     SIGIL_EARLY,
     SIGIL_EDGE,
     SIGIL_GAP,
@@ -38,7 +41,7 @@ from inventory_tracking.builds.warlock.buffs import (
     keep_reason,
     kept,
 )
-from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY, world_spot
+from inventory_tracking.builds.warlock.defiler import DEFILER_MANA, DEFILER_RETRY, world_spot
 from inventory_tracking.builds.warlock.mark import demons
 from inventory_tracking.builds.warlock.skills import BIND_DEMON, CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.combat import pack as herald_pack
@@ -66,7 +69,7 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
-from inventory_tracking.macros.travel import label
+from inventory_tracking.macros.travel import clear_line, label
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
@@ -100,10 +103,41 @@ CONSUME_ANY_DEFILER = True
 # character (`FightCame`, `fight_breaks`) and is put off to the first quiet, CONSUME_SOON on at the soonest (buffs.py
 # `consume_due` holds it off while the hostiles are near). False: it goes on to its end, as before.
 CONSUME_BREAKS = True
+# 2026-10-24 (rca/2026-10-24/consume-miss-findings.md; the player: exp/hour, no death): Consume goes on the unit the
+# game's record names under the pointer, not on the one aimed at. 14:30:19.7-27.9: the record named a super healing
+# potion's label (4, 2190385010), 2.5 units off the Defiler, at all three keys: 8.1 s standing, no Consume, a Grand
+# Charm 1 away (take 20261024T112707Z-101); 14:24:20 an object (type 2) the same way; 13:06:51 the walking mercenary
+# (class 338, 1.8 off; `crowd` leaves it out). True: with the record readable (mouse mode) it is read after the aim,
+# before the key (`hover_cover`); an item's label or an object (STILL_COVERS: they do not walk off) has another Defiler
+# summoned at another spot, a live monster of the look that is not a Defiler (it walks) is looked at again the next
+# attempt; no key either way. A Defiler named (CONSUME_ANY_DEFILER), nothing, or a unit the look does not hold: the key
+# as before. False: the key whatever the record names, as before. On from the restart after 15:00 on 2026-10-24
+# (11 replay tests; the warlock folder plus test_routines.py green with it on: 604).
+CONSUME_HOVER_CHECK = True
 # World units a Defiler may walk while the pointer travels before the pointer follows it (user, 2026-10-07).
 AIM_DRIFT = 1.0
 AIM_TRIES = 4
 PANEL_OPEN = 'a panel is open'  # what stops a summon with the player's panel open (`hand_off`)
+# 2026-10-23 (the player: "push exp/hour"; rca/2026-10-23/defiler-idle-findings.md): a key the mana does not pay for
+# casts nothing, and `summon_defiler` went on to the next spot 1.8 s later, up to five (05:27:00-07 with mana 2-38: four
+# keys, 7.4 s). True: no key while the mana read is under DEFILER_MANA (defiler.py): `NoMana`, which the renewal puts
+# off to the first quiet (CONSUME_SOON). False: keyed whatever the mana, as before.
+SUMMON_PAYS = True
+NO_MANA = 'no mana'  # the words of `NoMana`
+# 2026-10-23 (the same findings): a summon the game refuses (ground a Defiler cannot stand on, the mana) shows no cast
+# mode at all, and the summon waited 1.5 s for a Defiler at each spot: 03:57:59-58:18 at the Plains of Despair's entry,
+# full mana, the level's ground not yet read, 7 of 11 keys refused, 18.6 s. Of the 418 keys that cast in the takes of
+# 2026-10-22/23 the cast mode showed a median 0.03 s after the key (p99 0.06 s, the most 0.76 s with the character
+# busy at the key). True: with no cast mode (game/layout.py ACTING) and no Defiler SUMMON_REFUSED s after the key, the
+# next spot is keyed at once. False: each spot waited 1.5 s, as before.
+SUMMON_REFUSED_FAST = True
+SUMMON_REFUSED = 0.35  # seconds after the key with no cast mode: refused
+SUMMON_SHOWS = 1.5  # seconds a cast summon is waited for to show
+STILL = 1  # a monster's neutral mode: standing, not walking (modes 2-3)
+
+
+class NoMana(Abort):
+    """A summon the mana does not pay for (SUMMON_PAYS): nothing keyed."""
 
 
 def defilers(world: World) -> list[Monster]:
@@ -203,7 +237,7 @@ def summon_defiler(
 ) -> Monster:
     """Summon one Defiler. `until` (a clock time) keeps trying that long: a new game takes no input for a while.
     `skip` starts that many spots further on, for a Defiler that replaces a crowded one; `tried` (kept by the
-    caller) gets the spot it took and is taken last again."""
+    caller) gets the spots it keyed, refused or taken, and they are taken last again."""
     start = run.world()
     before = {monster.unit_id for monster in defilers(start)}
     # A spot that cannot be walked on takes no summon (user, 2026-10-06): try the next one.
@@ -218,6 +252,7 @@ def summon_defiler(
     while world is None and spots:
         spot = spots.pop(0)
         hand_off(looked[0])
+        unpaid(run, looked[0])
         rect = run.actuator.keys.focused_window_rect()
         if run.pad is not None and start.player is not None and rect is not None:
             # Controller mode: a heading toward the spot (macros/pad.py); the game puts it at its own distance.
@@ -225,8 +260,12 @@ def summon_defiler(
             run.pad.aim_place(here, world_point(start.player, *spot, rect[2] / rect[3]))
         else:
             run.actuator.move(*spot, scatter=(40, 25))
-        press_skill(run, SUMMON_DEFILER)
-        world = run.seen(came, 1.5)
+        keyed = press_skill(run, SUMMON_DEFILER)
+        world = answer(run, came, keyed, spot)
+        if world is None and tried is not None and spot not in tried:
+            # 17:33:49-57 on 2026-10-23 (Hole Level 2): each of three summons in one Consume renewal keyed the same two
+            # refused spots first again, 0.7 s each time; a refused spot goes last like a taken one (`open_spots`)
+            tried.append(spot)
         if world is None and not spots and until is not None and run.clock() < until:
             looked[0] = run.world()
             spots = open_spots(run, looked[0])[:1]
@@ -261,6 +300,34 @@ def summon_defiler(
         )
     run.pause('key')
     return defiler
+
+
+def unpaid(run: Run, world: World) -> None:
+    """`NoMana` when the mana read is under a summon's cost (SUMMON_PAYS); nothing when it pays or is not read."""
+    if not SUMMON_PAYS:
+        return
+    mana = run.reads.mana(world)
+    if mana is not None and mana < DEFILER_MANA:
+        raise NoMana(f'{NO_MANA} for a Defiler: {mana:.0f} of {DEFILER_MANA:.0f}')
+
+
+def answer(run: Run, came: Callable[[World], bool], keyed: float, spot: tuple[float, float]) -> World | None:
+    """The first look with the new Defiler within SUMMON_SHOWS of the key; None without one, and SUMMON_REFUSED after
+    the key with no cast mode shown (SUMMON_REFUSED_FAST): the game refused the spot."""
+    acted = [False]
+
+    def answered(seen: World) -> bool:
+        if came(seen):
+            return True
+        if seen.player is not None and seen.player.mode in ACTING:
+            acted[0] = True
+        return SUMMON_REFUSED_FAST and not acted[0] and run.clock() - keyed >= SUMMON_REFUSED
+
+    seen = run.seen(answered, SUMMON_SHOWS)
+    if seen is None or came(seen):
+        return seen
+    LOG.info('Macro: Summon Defiler at (%.2f, %.2f): no cast in %.2fs, refused', *spot, run.clock() - keyed)
+    return None
 
 
 def hand_off(world: World) -> None:
@@ -374,17 +441,36 @@ def log_miss(run: Run, world: World, unit: int) -> None:
         for m in world.monsters
         if m.unit_id != unit and math.hypot(m.x - target.x, m.y - target.y) < 40
     ]
+    over = run.hovered() if run.hovered is not None and run.pad is None else 'unread'
     LOG.info(
         'Macro: Consume showed nothing; Defiler mode %s, player mode %s at (%+.1f, %+.1f), '
-        'Consume %s, pointer %s; near: %s',
+        'Consume %s, pointer %s, under it %s; near: %s',
         target.mode,
         player.mode,
         player.x - target.x,
         player.y - target.y,
         player.consume,
         run.actuator.keys.pointer(),
+        over,
         ', '.join(near) or 'nothing',
     )
+
+
+def hover_cover(run: Run, world: World) -> tuple[int, int] | None:
+    """CONSUME_HOVER_CHECK: what the game's record names under the pointer put on a Defiler, when it is not a unit
+    Consume can take there: an item's label or an object (STILL_COVERS), a live monster of the look that is not a
+    Defiler (the mercenary, the bound demon). None: a Defiler, nothing, a unit the look does not hold, unread."""
+    if not CONSUME_HOVER_CHECK or run.pad is not None or run.hovered is None:
+        return None
+    run.pace.sleep(HOVER_SECONDS)  # for the record to follow the pointer's move
+    over = run.hovered()
+    if over is None:
+        return None
+    if over[0] in STILL_COVERS:
+        return over
+    if over[0] == MONSTER_UNIT and any(m.unit_id == over[1] and m.txt_id != DEFILER for m in world.monsters):
+        return over
+    return None
 
 
 def consume(run: Run, defiler: Monster, tried: list[tuple[float, float]] | None = None) -> None:
@@ -412,6 +498,16 @@ def consume(run: Run, defiler: Monster, tried: list[tuple[float, float]] | None 
                 'Macro: Defiler %s under the pointer; type and id at %s', defiler.unit_id, run.research(defiler.unit_id)
             )
         if not clear(run.world()):  # somebody walked up during the pointer move
+            continue
+        over = hover_cover(run, run.world())
+        if over is not None:  # CONSUME_HOVER_CHECK: the key would cast nothing (or on that unit)
+            still = over[0] in STILL_COVERS
+            LOG.info(
+                'Macro: Consume not pressed, under the pointer on the Defiler: %s (%s)', over,
+                'it stays: another is summoned' if still else 'it walks: looked at again',
+            )  # fmt: skip
+            if still and attempt + 1 < CONSUME_ATTEMPTS:
+                defiler = summon_defiler(run, skip=attempt + 1, tried=tried)
             continue
         before, began = (mine(run.world()) if run.pad is not None else {}), run.clock()
         others = {m.unit_id for m in defilers(run.world()) if m.unit_id != defiler.unit_id and not pets.dead(m)}
@@ -489,7 +585,7 @@ def defiler_dance(cast: Casting) -> Tried:
         return Tried(run.clock())
     log_consume(run, 'after')
     if not defilers(run.world()):
-        summon_defiler(run)
+        left_out(run)
     return Tried(run.clock(), cast=True)
 
 
@@ -545,9 +641,50 @@ def renew_consume(run: Run) -> None:
     with fight_breaks(run):
         take_prebuff_weapons(run)
         tried: list[tuple[float, float]] = []
-        consume(run, summon_defiler(run, tried=tried), tried)
+        found = to_consume(run) if plan.CONSUME_STANDING else None
+        consume(run, found or summon_defiler(run, tried=tried), tried)
     if not defilers(run.world()):
+        left_out(run)
+
+
+def to_consume(run: Run) -> Monster | None:
+    """A Defiler standing still (STILL: a walking one makes the aim follow it, 2026-10-12 09:58) drawn in the window
+    with nobody in the way of the pointer on it (`crowd`, `townsfolk_over`; the bound demon beside the character crowds
+    the one following it), the nearest the character (CONSUME_STANDING); None with none: one is summoned for it."""
+    world = run.world()
+    rect = run.actuator.keys.focused_window_rect()
+    player = world.player
+    if rect is None or player is None:
+        return None
+    aspect = rect[2] / rect[3]
+    found = sorted(
+        (
+            m
+            for m in defilers(world)
+            if m.mode == STILL
+            and on_screen(screen_fraction(player, m.x, m.y, aspect))
+            and not crowd(world, m.x, m.y)
+            and not townsfolk_over(world, m.x, m.y)
+        ),
+        key=lambda m: math.dist((player.x, player.y), (m.x, m.y)),
+    )
+    if not found:
+        return None
+    here = found[0]
+    LOG.info(
+        'Macro: Consume on the standing Defiler %d, %.1f off: no summon for it', here.unit_id,
+        math.dist((player.x, player.y), (here.x, here.y)),
+    )  # fmt: skip
+    return here
+
+
+def left_out(run: Run) -> None:
+    """The Defiler left out after a Consume: summoned, or with the mana short (`NoMana`) left to the Defiler's row,
+    which summons it once the mana pays (defiler.py DEFILER_PAYS): the Consume made stays a Consume."""
+    try:
         summon_defiler(run)
+    except NoMana as short:
+        LOG.info('Macro: the Defiler left out after the Consume waits (%s): the Defiler row summons it', short)
 
 
 def consume_again(cast: Casting) -> Tried:
@@ -579,7 +716,7 @@ def consume_again(cast: Casting) -> Tried:
         # A key of the player's stopped it: no failure of the cast, so the next try comes soon.
         wait = CONSUME_RETRY
         tried = Tried(started)
-        if 'a key was pressed' in str(stop) or PANEL_OPEN in str(stop):
+        if 'a key was pressed' in str(stop) or PANEL_OPEN in str(stop) or isinstance(stop, NoMana):
             wait = CONSUME_SOON
             tried = Tried.again(run.clock(), CONSUME_RETRY, wait)
         LOG.info('Macro: no Consume (%s); again in %.0fs', stop, wait)
@@ -725,6 +862,42 @@ ENGORGE_RETRY_AT_ONCE = True
 ENGORGE_DANGER_LOOKS = 4
 ENGORGE_DANGER_REACH = 30.0  # world units; on the screen still
 ENGORGE_DANGER_RETRY = 0.25  # seconds
+# 2026-10-23 (the player: "try to push exp/hour more"; rca/2026-10-23/exp-casts-findings.md §1): a corpse with a live
+# unit standing within ENGORGE_CLEAR of it is one the pointer lands on that unit's body, not the corpse. In the take
+# 20261022T234119Z-68 (Tal Rasha's Tomb, the Gorebelly pack) 41 tries were refused against 14 keyed: the nearest live
+# monster stood a median 2.0 units off the corpse of a refused try (25 of 37 within 3), 7.4 off one keyed (6 of 40
+# within 3, with the take -66's); 29 refusals in one 121 s fight, each a pointer move off the strike's target. True:
+# the look's units (pets too: the record names them) keep the corpses within ENGORGE_CLEAR out of the tries; with no
+# clear corpse nothing is touched and the row is asked again in its retry, while a pet in danger still tries the
+# crowded ones after the clear ones. False: the nearest corpses whatever stands on them, as before.
+ENGORGE_CLEAR_AIM = True
+ENGORGE_CLEAR = 3.0  # world units from a live unit's feet to the corpse within which the pointer finds the unit
+# The corpses whose Engorge showed nothing are left out of the tries (pets.py ENGORGE_LEARNS, `PetWatch.refused`)
+REFUSED_SAID_SECONDS = 10.0  # between two "each of the corpses in reach showed nothing" lines
+REFUSED_SAID: list[float] = [-math.inf]
+# What under the pointer stays over a corpse (an object, an item's label: they do not walk off), so a corpse it covers
+# is refused for good (pets.py ENGORGE_LEARNS). Live 16:09:12-16:10:28 (take 20261023T130907Z-67): 50 tries refused on
+# three corpses under objects (type 2), each with the strike let go first; 22.4 s of 76 s had the strike up for
+# Engorge's tries. A live monster over one is not: it moves.
+STILL_COVERS = (OBJECT_UNIT, ITEM_UNIT)
+
+
+def clear_corpses(
+    near: Sequence[tuple[int, float, float]],
+    world: World,
+    here: tuple[float, float],
+    dead: set[int],
+    *,
+    crowded_too: bool,
+) -> list[tuple[int, float, float]]:
+    """The corpses to try, nearest first: with ENGORGE_CLEAR_AIM those with no live unit of the look (`dead`, the
+    corpses read now, left out) within ENGORGE_CLEAR (then, with `crowded_too`, the others); all of them else."""
+    by_distance = sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))
+    if not ENGORGE_CLEAR_AIM:
+        return by_distance
+    standing = [(m.x, m.y) for m in world.monsters if m.unit_id not in dead]
+    clear = [c for c in by_distance if all(math.dist(c[1:], at) > ENGORGE_CLEAR for at in standing)]
+    return clear + [c for c in by_distance if c not in clear] if crowded_too else clear
 
 
 def covers(over: tuple[int, int] | None, alive: set[int]) -> bool:
@@ -769,6 +942,20 @@ def engorge(cast: Casting) -> Tried:
     ]
     if not near:
         return Tried.again(run.clock(), every, retry, touched=False)
+    if pets.ENGORGE_LEARNS and watch.refused:
+        fresh = [corpse for corpse in near if corpse[0] not in watch.refused]
+        if not fresh:
+            if run.clock() - REFUSED_SAID[0] >= REFUSED_SAID_SECONDS:
+                REFUSED_SAID[0] = run.clock()
+                LOG.info('Macro: no Engorge: each of the %d corpses in reach showed nothing before', len(near))
+            return Tried.again(run.clock(), every, retry, touched=False)
+        near = fresh
+    tries = clear_corpses(near, world, here, {unit for unit, _, _ in corpses}, crowded_too=urgent)[:looks]
+    if not tries:
+        LOG.info(
+            'Macro: no Engorge: each of the %d corpses in reach has a live unit within %.1f', len(near), ENGORGE_CLEAR
+        )
+        return Tried.again(run.clock(), every, retry, touched=False)
     alive = {m.unit_id for m in world.monsters}
     let_go = getattr(cast.buffs, 'let_go', None)
     if ENGORGE_HOVER_FIRST:
@@ -785,14 +972,15 @@ def engorge(cast: Casting) -> Tried:
         let_go()  # the record follows the pointer once the strike is let go
     run.keys.update(cast.key_names(world, (ENGORGE,)))
     # The nearest corpse the pointer really has under it (a live monster often stands on one).
-    for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:looks]:
+    for unit, x, y in tries:
         if run.pad is not None:
             # Controller mode: the client's target has to name the corpse (macros/pad.py).
             if not run.pad.aim_unit(MONSTER_UNIT, unit, here, (x, y), f'the corpse {unit}'):
                 continue
+            without = pets.bare(world, run.reads.unit_states) if pets.ENGORGE_LEARNS else frozenset()
             cast.buffs.key(run, ENGORGE)
             if run.pad.pressed:
-                watch.keyed(run.clock())
+                watch.keyed(run.clock(), unit, without)
             # Whether Engorge's target (controllerskillsettings.json targetGroup 0, the monsters) can name a corpse
             # at all: the aim's own `Pad target:` lines, and this one for a press (controller-gaps.md step 3).
             LOG.info(
@@ -810,10 +998,13 @@ def engorge(cast: Casting) -> Tried:
             # there it is (whether the record shows a corpse at all is not known yet).
             if covers(over, alive):
                 LOG.info('Macro: no Engorge at (%.1f, %.1f): under the pointer %s, not the corpse %d', x, y, over, unit)
+                if pets.ENGORGE_LEARNS and over is not None and over[0] in STILL_COVERS:
+                    watch.refuse(unit)  # an object or an item's label stays where it is: never tried again
                 continue
+        without = pets.bare(world, run.reads.unit_states) if pets.ENGORGE_LEARNS else frozenset()
         cast.buffs.key(run, ENGORGE)
         at = run.clock()
-        watch.keyed(at)
+        watch.keyed(at, unit, without)
         LOG.info(
             'Macro: Engorge on the corpse %d at (%.1f, %.1f), %.1f away; under the pointer %s',
             unit, x, y, math.dist(here, (x, y)), over,
@@ -837,6 +1028,9 @@ def watch_of(executor: object) -> SigilWatch:
     found = WATCHES.get(executor)
     if found is None:
         found = WATCHES[executor] = SigilWatch()
+    owner = getattr(executor, 'cast_at', None)
+    if owner is not None:
+        plan.LAID.owner, plan.LAID.watch = owner, found  # for buffs.py `opener_due` (SIGIL_OPENER)
     return found
 
 
@@ -875,6 +1069,8 @@ def sigil(cast: Casting) -> Tried:
         return pack_sigil(cast)
     if target is not None and target.txt_id == OMEN_TXT:
         return omen_sigil(cast)
+    if target is not None and target.txt_id == OPENER_TXT:
+        return opener_sigil(cast)
     watch = watch_of(cast.buffs)
     now = run.clock()
     area = world.player.area if world is not None and world.player is not None else None
@@ -894,7 +1090,13 @@ def sigil(cast: Casting) -> Tried:
         if again and watch.age(now) < SIGIL_GAP:
             assert watch.at is not None
             return Tried(watch.at + SIGIL_GAP - every, touched=False)
-    aimed = afresh(cast)
+    aimed, blind = afresh(cast), False
+    if SIGIL_SIGHT and aimed.target is not None and aimed.world is not None and aimed.world.player is not None:
+        me = aimed.world.player
+        blind = not sight_of(run, aimed.world, (me.x, me.y))((aimed.target.x, aimed.target.y))
+        if blind and refused(run, aimed.world, watch, now):
+            unseen(now, f'{label(aimed.target)} at ({aimed.target.x:.1f}, {aimed.target.y:.1f})')
+            return Tried.again(now, every, SIGIL_LOOK, touched=False)
     tried = cast.buffs.shared(aimed)
     if not tried.cast:
         # Off the screen (the blades reach further than it shows): no sigil now, asked again in a second.
@@ -903,6 +1105,7 @@ def sigil(cast: Casting) -> Tried:
         if keeping and why is not None and why.startswith(UNSHOWN) and watch.unit == aimed.target.unit_id:
             watch.unshown[aimed.target.unit_id] = watch.unshown.get(aimed.target.unit_id, 0) + 1
         watch.lay(aimed.target.unit_id, (aimed.target.x, aimed.target.y), area, tried.at)
+        watch.blind = tried.at if blind else None
         if again:
             here = aimed.target
             LOG.info('Macro: sigil under %s at (%.1f, %.1f): %s', label(here), here.x, here.y, why)
@@ -925,12 +1128,134 @@ def omen_sigil(cast: Casting) -> Tried:
     return tried
 
 
+def opener_sigil(cast: Casting) -> Tried:
+    """A fight's group's sigil first (buffs.py SIGIL_OPENER, `opener_target`'s stand-in): the group and its disc
+    (`opening`) of the world read now, laid there unless the one that lies covers OPENER_KEEP of the group (by the
+    missile read, its radius too, else where it was aimed); none sooner than SIGIL_GAP after the last. Off the screen
+    it is asked again in a second."""
+    run, target = cast.run, cast.target
+    assert target is not None
+    watch = watch_of(cast.buffs)
+    now = run.clock()
+    world = run.world() if SIGIL_AIM_AFRESH else cast.world
+    if world is None or world.player is None:
+        world = cast.world
+    if world is None or world.player is None:
+        return Tried(now, touched=False)
+    player = world.player
+    here, area = (player.x, player.y), player.area
+    foes = [m for m in world.monsters if not m.ally and m.owner == NO_OWNER]
+    found = plan.opening(here, foes, [(d.x, d.y) for d in demons(world)])
+    if found is None:
+        return Tried(now, touched=False)
+    seen, lying = in_flight(run, world)
+    gone = seen and lying is None and watch.age(now) >= SIGIL_SHOWS  # none of the character's in flight
+    if watch.lies(now, area) and not gone and watch.age(now) <= SIGIL_LASTS - SIGIL_EARLY:
+        at = (lying[0], lying[1]) if lying is not None else watch.place
+        assert at is not None
+        share = plan.covers(at, found, lying[2] if lying is not None else SIGIL_RADIUS)
+        if share >= OPENER_KEEP:
+            return Tried(now, touched=False)  # the one that lies holds the group
+        if watch.age(now) < SIGIL_GAP:
+            assert watch.at is not None
+            return Tried(watch.at, touched=False)  # the row asks again SIGIL_GAP after it
+        why = f'the one that lies covers {share:.0%} of it'
+    elif watch.lies(now, area) and not gone:
+        why = f'the sigil runs out in {max(0.0, SIGIL_LASTS - watch.age(now)):.1f} s'
+    else:
+        why = 'no sigil of the character lies'
+    tried = cast.buffs.shared(replace(cast, world=world, target=replace(target, x=found.spot[0], y=found.spot[1])))
+    if not tried.cast or tried.at is None:
+        return Tried.again(now, SIGIL_GAP, 1.0)  # off the screen: asked again in a second
+    watch.lay(target.unit_id, found.spot, area, tried.at)
+    LOG.info(
+        'Macro: sigil first: %s, at (%.1f, %.1f), %.0f%% of it there within %.1f s: %s',
+        found.why, *found.spot, 100 * plan.covers(found.spot, found), OPENER_LEAD, why,
+    )  # fmt: skip
+    return tried
+
+
+# 2026-10-23 (the player: "try to push exp/hour more"; rca/2026-10-23/exp-casts-findings.md §2): a pack's sigil was laid
+# again whenever the one that lay covered under SIGIL_HALF of the pack and a disc covered one member more. Its ground
+# lasts 19 s (missiles.txt sigillethargy* Range 100+25 a level frames: SIGIL_LASTS), but a sigil aimed at the disc
+# lands on the feet of a monster whose body is under the pointer, up to 6 units off the disc (the missiles of the take
+# 20261022T233432Z-66), and the pack shifts as it fights: the next look found the one that lay covering 5-6 of 15
+# against the disc's 9 and laid it again, 42 of that take's 50 sigils, one every 1.3-3 s. True: one that covers
+# SIGIL_KEEP_SHARE of what the best disc would (the Herald weighted) is kept until it runs out or the pack leaves it
+# (28 of those 41 recasts not made). False: any disc covering more lays it again, as before.
+SIGIL_KEEP_SHARE_ON = True
+SIGIL_KEEP_SHARE = 0.5
+
+# 2026-10-24 (the LONG_FIGHT of the take 20261024T075426Z-51, an elite DuneBeast pack in Harem Level 2: 34 s, 13 sigil
+# keys, 3 sigils): the game lays no sigil at a spot behind a wall. The key put the sigil on the right button for 80 ms,
+# the character stayed in neutral (mode 1) or went on striking, and no missile 686 showed; the keys that laid one had a
+# clear line. Of the 272 sigil keys of the takes of 2026-10-23 and -24 matched to their spot, those whose straight line
+# from the character crossed no wall (travel.py `clear_line`) laid one 207 times of 212, those through a wall 26 of 60
+# (the game's own sight test is not the walkable grid: half of those still land, but no rule told which). Not the read:
+# the patch of 2026-10-23 19:03 left the missile read whole (the two that landed after the first were seen and kept).
+# True: a sigil goes at a spot in sight first, the pack's at the best disc in sight (`sighted_disc`); with none, one
+# key through the wall, and when that one lays no missile (`refused`), none out of sight for SIGIL_REFUSED_SKIP from
+# its key, looked at again in SIGIL_LOOK (the coordinator, 2026-10-24: keep the through-wall ones that land). Replayed
+# on the 63 keys through a wall of those takes (29 landed, 34 refused): 49 pressed, 28 landed, 21 refused; a key only
+# in sight would have lost the 29.
+# False: through walls, as before.
+SIGIL_SIGHT = True
+SIGIL_REFUSED_SKIP = 3.0
+SIGHT_SAID = 3.0  # seconds between two "out of sight" lines
+_unseen_said = [-math.inf]
+
+
+def refused(run: Run, world: World, watch: SigilWatch, now: float) -> bool:
+    """Whether the last key was one out of sight (`SigilWatch.blind`) under SIGIL_REFUSED_SKIP ago that laid no
+    sigil: none of the character's in flight SIGIL_SHOWS after it (`in_flight`), or not looked for yet. With the
+    missiles unread it counts as refused: one key out of sight a SIGIL_REFUSED_SKIP."""
+    if watch.blind is None or watch.blind != watch.at or not 0.0 <= watch.age(now) < SIGIL_REFUSED_SKIP:
+        return False
+    if watch.age(now) < SIGIL_SHOWS:
+        return True
+    return in_flight(run, world)[1] is None
+
+
+def sight_of(run: Run, world: World, here: tuple[float, float]) -> Callable[[tuple[float, float]], bool]:
+    """Whether the character sees a ground point: no wall or closed door on the straight line (travel.py
+    `clear_line`); every point with the level's ground unread."""
+    ground = run.reads.ground()
+    return lambda spot: clear_line(ground, world.doors, here, spot)
+
+
+def sighted_disc(
+    here: tuple[float, float],
+    pack: Sequence[herald_pack.Member],
+    radius: float,
+    sees: Callable[[tuple[float, float]], bool],
+) -> tuple[tuple[float, float], str] | None:
+    """The disc in sight (`sight_of`) that covers the most of the pack, the Herald weighted (combat/pack.py
+    `cover_weight`): at a member or at the middle of what its disc covers, the nearer of two alike; None with none."""
+    found: list[tuple[float, float]] = []
+    for member in pack:
+        inside = [m.at for m in herald_pack.covering(member.at, pack, radius)]
+        found += [member.at, (sum(p[0] for p in inside) / len(inside), sum(p[1] for p in inside) / len(inside))]
+    seen = [spot for spot in found if sees(spot)]
+    if not seen:
+        return None
+    best = max(seen, key=lambda spot: (herald_pack.cover_weight(spot, pack, radius), -math.dist(spot, here)))
+    return best, f'in sight, the disc covering {len(herald_pack.covering(best, pack, radius))} of {len(pack)}'
+
+
+def unseen(now: float, what: str) -> None:
+    """Says that no sigil is laid, the spot being out of sight, once in SIGHT_SAID."""
+    if now - _unseen_said[0] >= SIGHT_SAID or now < _unseen_said[0]:
+        _unseen_said[0] = now
+        LOG.info('Macro: sigil: %s behind a wall: none laid (the key out of sight before laid none)', what)
+
+
 def pack_sigil(cast: Casting) -> Tried:
     """A tier 4-5 Herald pack's sigil (combat/pack.py SIGIL_COVER): at the disc that covers the most of the pack, or on
     the demon that holds it (`sigil_spot`), of the world read now. Laid again only when the one that lies covers under
-    SIGIL_HALF of the pack and a disc covers more, or when it runs out (SIGIL_EARLY); none sooner than SIGIL_GAP after
-    the last. Where it lies is the missile read (its radius too), else where it was aimed; who stands in it is told by
-    place (SIGIL_EDGE inside the radius), not by fifteen monsters' state words a look."""
+    SIGIL_HALF of the pack and a disc covers more (with SIGIL_KEEP_SHARE_ON: over twice as much), or when it runs out
+    (SIGIL_EARLY); none sooner than SIGIL_GAP after the last. Where it lies is the missile read (its radius too), else
+    where it was aimed; who stands in it is told by place (SIGIL_EDGE inside the radius), not by fifteen monsters'
+    state words a look."""
     run, anchor = cast.run, cast.target
     assert anchor is not None
     watch = watch_of(cast.buffs)
@@ -956,8 +1281,11 @@ def pack_sigil(cast: Casting) -> Tried:
         inside = herald_pack.covering(at, pack, radius)
         if len(inside) >= herald_pack.SIGIL_HALF * len(pack):
             return Tried(now, touched=False)
-        if herald_pack.cover_weight(spot, pack, radius) <= herald_pack.cover_weight(at, pack, radius):
+        held, best = herald_pack.cover_weight(at, pack, radius), herald_pack.cover_weight(spot, pack, radius)
+        if best <= held:
             return Tried(now, touched=False)  # no disc covers more: kept
+        if SIGIL_KEEP_SHARE_ON and held >= SIGIL_KEEP_SHARE * best:
+            return Tried(now, touched=False)  # it holds half of what a new one would at least: kept
         if watch.age(now) < SIGIL_GAP:
             assert watch.at is not None
             return Tried(watch.at + SIGIL_GAP - SIGIL_LOOK, touched=False)
@@ -966,11 +1294,24 @@ def pack_sigil(cast: Casting) -> Tried:
         why = f'the sigil runs out in {max(0.0, SIGIL_LASTS - watch.age(now)):.1f} s'
     else:
         why = 'no sigil of the character lies'
+    blind = False
+    if SIGIL_SIGHT:
+        sees = sight_of(run, world, here)
+        if not sees(spot):
+            other = sighted_disc(here, pack, radius, sees)
+            if other is not None:
+                spot, where = other
+            elif refused(run, world, watch, now):
+                unseen(now, f"the pack's disc at ({spot[0]:.1f}, {spot[1]:.1f}) and every other")
+                return Tried.again(now, SIGIL_LOOK, SIGIL_LOOK, touched=False)
+            else:
+                blind, where = True, f'{where}, behind a wall (one try)'
     tried = cast.buffs.shared(replace(cast, world=world, target=replace(anchor, x=spot[0], y=spot[1])))
     if not tried.cast or tried.at is None:
         # Off the screen: no sigil now, asked again in a second.
         return Tried.again(now, SIGIL_LOOK, 1.0)
     watch.lay(anchor.unit_id, spot, area, tried.at)
+    watch.blind = tried.at if blind else None
     LOG.info("Macro: sigil: the pack's at (%.1f, %.1f), %s within %.1f: %s", *spot, where, radius, why)
     return tried
 

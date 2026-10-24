@@ -12,9 +12,10 @@ until a second build shows what an attack's own facts are.
 
 import math
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
+from inventory_tracking.combat import revivers
 from inventory_tracking.combat.mechanics.life import foe_points, monster_level
 from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.game.layout import IMMUNE
@@ -44,6 +45,10 @@ class Foe:
     tier: int = 0  # its Herald's tier (stat 367, on the Herald and its minions; game/records.py); 0: none
     # The resistance stats (game/layout.py MONSTER_RESISTS) it is immune to as read at the look; empty: none or unread
     immune_to: frozenset[int] = frozenset()
+    # What a point off it is worth to a line (combat/revivers.py `weights`, REVIVERS_FIRST): more for a reviver
+    # raising its pack, less for one such a reviver would raise; 1: neither
+    weight: float = 1.0
+    raising: bool = False  # a live reviver with a hostile it can raise within its raise range (combat/revivers.py)
 
     @property
     def herald(self) -> bool:
@@ -162,4 +167,7 @@ def observe(
         left = full * (m.life / m.max_life if m.max_life else 1.0)
         immune_to = frozenset(stat for stat, percent in getattr(m, 'resists', ()) if percent >= IMMUNE)
         foes[m.unit_id] = Foe(m.txt_id, (m.x, m.y), left, m.leader, tier=tier, immune_to=immune_to)
+    weighed = revivers.weights((m.unit_id, m.txt_id, (m.x, m.y), getattr(m, 'flags', 0)) for m in hostiles)
+    for unit, weight in weighed.items():
+        foes[unit] = replace(foes[unit], weight=weight, raising=weight == revivers.REVIVER_WEIGHT)
     return Observation((player.x, player.y), foes, blocked=walls(ground, doors), moving=moving, aimable=aimable)

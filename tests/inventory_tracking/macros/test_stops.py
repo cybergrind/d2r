@@ -135,7 +135,7 @@ def test_every_combination_of_the_facts_is_answered_as_before():
         stop = Stopped(cause, on, left if on else None, game, *marks)
         assert decide(stop) is spec(stop), stop
         seen.add(decide(stop))
-    assert seen == set(Remedy) - {R.DEAD, R.LEAVE, R.FIGHT, R.AGAIN, R.STOP}
+    assert seen == set(Remedy) - {R.DEAD, R.LEAVE, R.FIGHT, R.AGAIN, R.STOP, R.TRIPPING}  # TRIPPING: its own test
 
 
 def test_a_door_no_click_takes_outside_the_skip_leaves_the_game_as_before():
@@ -179,3 +179,37 @@ def test_with_the_switches_off_those_games_are_left_as_before(monkeypatch):
 def test_the_safety_rules_come_first_in_a_terrorized_game_too():
     assert first('pickup', on=True, dead=True) is R.DEAD
     assert first('beset', on=True, dead=False, beset=Beset(low=True)) is R.LEAVE
+
+
+def test_a_valuable_with_no_room_while_a_trip_for_room_is_under_way_is_no_stop():
+    # 22:34:08 on 2026-10-22: the trip pushed at 22:33:45, the run stood by the Amulet again, and the loop stopped
+    from inventory_tracking.macros.stops import Remedy, Stopped, decide
+
+    stop = Stopped('room', True, 'Amulet', 'cyberg65', cubed=True, tripping=True, dropped=False)
+    assert decide(stop) is Remedy.TRIPPING
+    assert decide(Stopped('room', True, 'Amulet', 'cyberg65', cubed=True)) is Remedy.DROP
+
+
+def test_the_cube_is_tried_again_once_the_inventory_changed():
+    from inventory_tracking.macros.loop import Loop
+
+    loop = Loop()
+    loop.free = 4
+    loop.cube_try('cyberg65')
+    assert loop.cube_tried('cyberg65')
+    loop.free = 2  # picked up since: the cube may have room again
+    assert not loop.cube_tried('cyberg65')
+    assert not loop.cube_tried('another')
+
+
+def test_a_town_routine_out_of_its_town_makes_the_leg_again_from_where_the_character_is(monkeypatch):
+    # 15:31:35.97 on 2026-10-23 (rca/2026-10-23/visit-portal-findings.md): the visit stopped in the River of Flame
+    # (visit.py TOWN_ONLY) is no reason to leave a game with a shard's acts: the leg made again goes back to town
+    from inventory_tracking.macros import stops
+
+    assert first('town', on=True, dead=False) is R.AGAIN
+    assert first('town', on=True, dead=True) is R.DEAD
+    assert first('town', on=False, dead=False) is None
+    monkeypatch.setattr(stops, 'LEFT_TOWN_AGAIN', False)
+    assert first('town', on=True, dead=False) is None
+    assert decide(Stopped('town', **ON)) is R.RECOVER  # as 'other' was

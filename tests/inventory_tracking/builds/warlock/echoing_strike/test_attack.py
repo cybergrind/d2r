@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike import attack as _attack_module
 from inventory_tracking.builds.warlock.echoing_strike.attack import (
     BLADES_A_CAST,
     ECHOING_STRIKE_ATTACK,
@@ -537,7 +538,8 @@ def test_the_hold_strikes_a_leader_in_reach_through_its_body_whatever_its_pack_i
     assert blades_on(HERE, found.focal, leader) == 5  # the five meet on it
 
 
-def test_a_held_leader_is_kept_until_it_is_gone_and_a_herald_takes_over_from_any_other():
+def test_a_held_leader_is_kept_until_it_is_gone_and_a_herald_takes_over_from_any_other(monkeypatch):
+    monkeypatch.setattr(_attack_module, 'T5_BEST_LINE', False)  # the old path, pinned
     attack = holding()
     far = foe(0.0, 14.0, elite=True)
     assert aimed(attack, Observation(HERE, {1: foe(8.0, 0.0), 7: far})).unit == 7
@@ -616,6 +618,7 @@ def moment() -> Observation:
 
 
 def test_in_the_takes_herald_fight_the_line_goes_through_the_herald_with_the_blades_meeting_on_it(monkeypatch):
+    monkeypatch.setattr(_attack_module, 'T5_BEST_LINE', False)  # the old path, pinned
     from inventory_tracking.builds.warlock.echoing_strike import attack
 
     herald = next(at for unit, _, at, *_ in MOMENT if unit == MOMENT_HERALD)
@@ -641,7 +644,8 @@ def test_hold_leader_puts_the_hold_on_the_games_attack(monkeypatch):
     assert game.held.unit == 9  # the copy the switch makes holds it in the attack's own `held`
 
 
-def test_a_leader_immune_to_the_blades_is_held_too():
+def test_a_leader_immune_to_the_blades_is_held_too(monkeypatch):
+    monkeypatch.setattr(_attack_module, 'T5_BEST_LINE', False)  # the old path, pinned
     # The player, 2026-10-21 ~20:15: "we still need to focus physical immune mobs, and magical immune"; "we need to do
     # the best aiming when we're trying to focus mob" (the 18:35 Gloam Herald stood at physical 110)
     from inventory_tracking.game.layout import COLD_RESIST, MAGIC_RESIST, PHYSICAL_RESIST
@@ -655,7 +659,8 @@ def test_a_leader_immune_to_the_blades_is_held_too():
 
 
 @pytest.mark.parametrize('away', [10.0, 14.0, 18.0, 21.5])
-def test_the_held_line_meets_on_an_immune_leader_at_every_bearing_through_the_screen(away):
+def test_the_held_line_meets_on_an_immune_leader_at_every_bearing_through_the_screen(away, monkeypatch):
+    monkeypatch.setattr(_attack_module, 'T5_BEST_LINE', False)  # the old path, pinned
     # The 18:35 Gloam Herald (physical 110) kept at 18 by manaburn.CASTER_RANGE: the line from there still meets on
     # it. The window shows less than the blades fly (game/view.py `reachable_focal`): toward the screen's bottom the
     # focal point is drawn in (14.8 for a leader 21.5 off), and the five blades still pass within the contact radius

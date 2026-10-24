@@ -4,13 +4,8 @@ import math
 
 from pricing.knowledge.assessment.domain.contracts import ComparableContract
 from pricing.knowledge.assessment.handlers.socket_fillers import compare_equipment_sockets
-from pricing.knowledge.assessment.mechanics.affixed_charges import affixed_charge_properties
-from pricing.knowledge.assessment.mechanics.affixed_cold import affixed_cold_properties
+from pricing.knowledge.assessment.mechanics import affix_effects
 from pricing.knowledge.assessment.mechanics.affixed_damage import affixed_without_ed
-from pricing.knowledge.assessment.mechanics.affixed_per_level import affixed_per_level_properties
-from pricing.knowledge.assessment.mechanics.affixed_physical import affixed_physical_properties
-from pricing.knowledge.assessment.mechanics.affixed_poison import affixed_poison_properties
-from pricing.knowledge.assessment.mechanics.affixed_triggers import affixed_trigger_properties
 from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 from pricing.knowledge.assessment.mechanics.shield_blocking import modifier_blocking
 from pricing.knowledge.assessment.mechanics.superior_quality import (
@@ -63,22 +58,8 @@ def exact_contract(facts, family, policy, supported):
     gaps = [*facts.gaps, *facts.projection_gaps]
     affix_properties = {}
     if policy == 'affixed':
-        consumed, effect_gaps = set(), []
-        for project in (
-            affixed_charge_properties,
-            affixed_trigger_properties,
-            affixed_per_level_properties,
-            affixed_cold_properties,
-            affixed_poison_properties,
-            affixed_physical_properties,
-        ):
-            values, keys, errors = project(facts)
-            for key, value in values.items():
-                if key in affix_properties and affix_properties[key] != value:
-                    effect_gaps.append(f'Affix effects conflict on market property {key}.')
-                affix_properties[key] = value
-            consumed |= keys
-            effect_gaps.extend(errors)
+        # The same projection triage's from_drop reads; never project affix effects here alone.
+        affix_properties, consumed, effect_gaps = affix_effects.affix_effect_properties(facts)
         gaps = [g for g in gaps if g not in {f'No verified market mapping for native stat {key}.' for key in consumed}]
         gaps.extend(effect_gaps)
     if family not in supported:

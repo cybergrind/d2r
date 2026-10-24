@@ -309,6 +309,16 @@ def test_a_level_whose_zone_moved_on_ends_its_run_with_a_strike_at_hand():
     assert hunt.cleared(run, play.world, [archer], Ground(()), door) is None
 
 
+def test_a_level_skipped_as_not_worth_playing_on_ends_its_run_with_a_strike_at_hand():
+    # zonenav.py STALLED_SKIP (rca/2026-10-23/exp-hour-levels-findings.md): the SKIPPED policy ends the run as ZONE_LEFT
+    from inventory_tracking.macros.agenda import SKIPPED
+
+    door = Goal('Next level', (5000.0, 5300.0), ENTER, PLACE_NEAR, PRESSED, route='Infernal Pit')
+    play, hunt, run = agenda_hunt(SKIPPED)
+    archer = replace(foe(32, 5025.0, 5000.0, txt_id=576), mode=4)
+    assert hunt.cleared(run, play.world, [archer], Ground(()), door) is None
+
+
 def test_a_tz_runs_way_out_not_on_the_card_yet_takes_no_other_levels_door():
     # 01:01:26 on 2026-10-20, Lost City: "at Ancient Tunnels (Valley of Snakes is not marked yet): going through takes
     # a press" again and again, then the game left. An unexplored room is gone to instead, or nothing

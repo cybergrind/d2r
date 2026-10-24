@@ -6,6 +6,7 @@ import pytest
 
 from inventory_tracking.macros import zonenav
 from inventory_tracking.macros.agenda import (
+    FULL_CLEAR,
     LEVEL,
     LOOT,
     NEXT_LEVEL,
@@ -34,7 +35,7 @@ from inventory_tracking.macros.zonenav import (
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, LOOT as LOOT_STAGE, STAND, USE, Stage, back, enter
 from inventory_tracking.routes.progress import Facts, Progress
-from inventory_tracking.routes.zone_graph import Chain, zone_graph
+from inventory_tracking.routes.zone_graph import Chain, ZoneGraph, zone_graph
 
 
 # Act 3's trips as its script plans them (acts/act3.py), the parts the cases use
@@ -166,6 +167,32 @@ def test_a_way_on_policy_needs_its_route_work_done_not_every_room():
     # Entered with no run yet: its run first (the Halls of Pain and of Anguish were explored on arrival, never run)
     assert 102 not in judged({102: LevelState(entered=True, mapped=True)}, {102: PLUS_WAY}).explored
     assert 100 in judged({100: LevelState(entered=True)}, {100: TRANSIT}).explored
+
+
+@pytest.mark.parametrize(
+    ('then', 'now', 'explored', 'afresh'),
+    [
+        (PLUS_WAY, PLUS, False, True),  # a way on, now a touring policy: Tal Rasha's tombs, cyberg65 21:40
+        (TRANSIT, FULL_CLEAR, False, True),  # only crossed, now terrorized by a shard
+        (zonenav.EARLIER, PLUS, False, True),  # a record of before POLICY_NOW (macros/midgame.py POLICY_UNKNOWN)
+        (PLUS_WAY, PLUS, True, False),  # a tour of its found every room: its work stands
+        (PLUS, PLUS, False, False),  # the same policy: its verdict (a block for being left unfinished) stands
+        (PLUS, FULL_CLEAR, False, False),  # touring then and now: its rooms' verdict stands
+        (PLUS, PLUS_WAY, False, False),  # less work now: what was done stands
+        (zonenav.EARLIER, TRANSIT, False, False),
+    ],
+)
+def test_a_levels_work_under_a_way_on_does_not_stand_for_a_touring_policy(then, now, explored, afresh):
+    assert zonenav.rework(then, now, explored) is afresh
+
+
+def test_the_judge_says_the_policy_each_level_was_judged_under_a_blocked_ones_too():
+    states = {**done(94, 95), 92: LevelState(blocked='a door no click takes')}
+    found = judged(states, {80: PLUS_WAY, 92: TRANSIT})
+    assert found.policies[80] == PLUS_WAY
+    assert found.policies[92] == TRANSIT
+    assert found.policies[94] == found.policies[95] == PLUS
+    assert set(found.policies) == set(GRAPH.nodes)
 
 
 def test_a_level_whose_runs_ran_out_is_explored_and_said_so():
@@ -378,6 +405,82 @@ def test_a_rotations_boss_root_comes_right_after_the_shard_acts_boss_from_any_ac
     assert zonenav.play_order(graph, plan, fortress) is graph  # no boss alive there: as before
 
 
+# --- the rotation from any act (zonenav.py ROTATION_ANY_ACT, `any_act_order`; 2026-10-23, lever 3 of
+# rca/2026-10-22/exp-hour-findings.md: the River of Flame and the Arreat Plateau unplayed while act 1 went on) ---
+
+
+def overflow_plan() -> tuple[Itinerary, ZoneGraph]:
+    """Acts 1 and 5 terrorized by shards (the kind's act first) and the River of Flame's rotation; its graph."""
+    from inventory_tracking.macros.tzroutine import itinerary
+    from inventory_tracking.routes.tz_groups import installed_active_zones, manual_zone
+
+    river = next(zone for zone in installed_active_zones() if zone.name == 'Act4-RiverOfFlame')
+    act1, act5 = manual_zone(1), manual_zone(5)
+    assert act1 is not None
+    assert act5 is not None
+    plan = itinerary(act1.core | act5.core | river.core, (1, 5))
+    assert plan is not None
+    return plan, zonenav.graph_of(plan)
+
+
+def root_of(graph: ZoneGraph, level: int) -> int:
+    return next(root for root in graph.roots if level in graph.subtree(root))
+
+
+ANDARIEL, BAAL, ROGUE_ENCAMPMENT = 37, 132, 1
+
+
+def test_the_rotation_of_another_act_comes_right_after_the_act_boss_now_played():
+    plan, graph = overflow_plan()
+    river = root_of(graph, 107)
+    andariel = root_of(graph, ANDARIEL)
+    assert graph.roots[-1] == river  # the rotation last, as before
+    alive = {ANDARIEL, BAAL}
+    # From act 1's town the rotation was never first (ROTATION_FIRST: the character's act only)
+    assert zonenav.play_order(graph, plan, ROGUE_ENCAMPMENT, alive) is graph
+    ordered = zonenav.play_order(graph, plan, ROGUE_ENCAMPMENT, alive, (), 1000.0)
+    assert ordered.roots[ordered.roots.index(andariel) + 1] == river  # Andariel's root, then the River
+    assert ordered.roots.index(andariel) == 0
+    assert sorted(ordered.roots) == sorted(graph.roots)  # the act's roots all still played (owed: tzloop ACT_OWED)
+
+
+def test_with_the_act_boss_dead_the_rotation_comes_before_the_acts_roots_left():
+    plan, graph = overflow_plan()
+    river, andariel = root_of(graph, 107), root_of(graph, ANDARIEL)
+    ordered = zonenav.any_act_order(graph, plan, {BAAL}, {andariel}, 1000.0)
+    assert ordered is not None
+    act1_left = [root for root in graph.roots if root not in (andariel, river) and root < 40]
+    assert ordered.index(river) < min(ordered.index(root) for root in act1_left)
+
+
+def test_the_act_now_played_is_the_first_with_a_root_left():
+    # Act 1 done: the rotation after act 5's boss (Baal), not before it
+    plan, graph = overflow_plan()
+    river, baal = root_of(graph, 107), root_of(graph, BAAL)
+    act1 = frozenset(root for root in graph.roots if root < 40)
+    ordered = zonenav.any_act_order(graph, plan, {BAAL}, act1, 1000.0)
+    assert ordered is not None
+    assert ordered.index(river) == ordered.index(baal) + 1
+    # The ledger not read (tzloop.py BOSS_STAYS off): each act boss counted alive until its root is finished
+    assert zonenav.any_act_order(graph, plan, None, act1, 1000.0) == ordered
+
+
+def test_a_rotation_done_or_its_slot_nearly_gone_keeps_the_order_as_before():
+    plan, graph = overflow_plan()
+    river = root_of(graph, 107)
+    alive = {ANDARIEL, BAAL}
+    assert zonenav.any_act_order(graph, plan, alive, {river}, 1000.0) is None  # played: nothing to put first
+    assert zonenav.any_act_order(graph, plan, alive, (), zonenav.ROTATION_LEAST - 1) is None  # turns under the run
+    assert zonenav.any_act_order(graph, plan, alive, (), None) is None  # the clock not known
+    assert zonenav.any_act_order(graph, plan, alive, (), zonenav.ROTATION_LEAST) is not None
+
+
+def test_the_switch_off_is_the_order_as_before(monkeypatch):
+    plan, graph = overflow_plan()
+    monkeypatch.setattr(zonenav, 'ROTATION_ANY_ACT', False)
+    assert zonenav.play_order(graph, plan, ROGUE_ENCAMPMENT, {ANDARIEL, BAAL}, (), 1000.0) is graph
+
+
 def test_a_tomb_holds_duriels_lair_and_a_level_off_the_graph_only_itself():
     from inventory_tracking.macros.tzroutine import itinerary
     from inventory_tracking.routes.tz_groups import installed_active_zones
@@ -389,3 +492,71 @@ def test_a_tomb_holds_duriels_lair_and_a_level_off_the_graph_only_itself():
     assert 73 in zonenav.boss_reach(graph, 66)  # each tomb is a way into the Lair (`Node.sources`)
     assert 73 in zonenav.boss_reach(graph, 46)
     assert zonenav.boss_reach(graph, 999) == frozenset((999,))
+
+
+CHARM = (92, 'Grand Charm at (100, 200)')
+
+
+def test_a_valuable_remembered_on_another_level_is_fetched_by_the_waypoint_the_stairs_or_one_floor_up():
+    # zonenav.py FETCH_ELSEWHERE (2026-10-23, cyberg66's Grand Charm in Catacombs Level 3): every level done, the
+    # game's end would come next; the way to the charm's level instead
+    everything = done(*GRAPH.nodes)
+    town = produce(view(75, everything, fetch=CHARM))
+    assert kinds(town) == [(WAYPOINT, 80)]  # the waypoint to its tree's root
+    assert 'to fetch Grand Charm at (100, 200) in' in town[0].label
+    assert kinds(produce(view(80, everything, fetch=CHARM))) == [(NEXT_LEVEL, 92)]  # down the stairs toward it
+    assert kinds(produce(view(93, everything, fetch=CHARM))) == [(UP_LEVEL, 92)]  # one floor up to it
+    assert kinds(produce(view(95, everything, fetch=CHARM))) == [(UP_LEVEL, 80)]  # a sibling: up, then down
+    # On another tree with nothing left there: the Town Portal, then the waypoint
+    assert kinds(produce(view(97, everything, fetch=CHARM))) == [(PORTAL_TO_TOWN, None)]
+    # On its level: the PICKUP goal of the level's own, as before
+    assert kinds(produce(view(92, everything, fetch=CHARM, sighted='Grand Charm'))) == [(PICKUP, None)]
+
+
+def test_a_fetch_waits_for_a_run_on_another_tree_and_for_the_town_visit_and_not_under_the_switch_off(monkeypatch):
+    run = {81: LevelState(entered=True, mapped=True, runs=0)}
+    assert kinds(produce(view(81, run, fetch=CHARM))) == [(LEVEL, None)]  # Upper Kurast's run first
+    assert kinds(produce(view(75, {}, visit_due=True, fetch=CHARM))) == [(WAYPOINT, 103)]  # the visit first
+    blocked = done(*GRAPH.nodes) | {92: LevelState(blocked='its map was never read in 2 runs')}
+    assert kinds(produce(view(75, blocked, fetch=CHARM))) == []  # no way into a level blocked: the guard's, as before
+    monkeypatch.setattr(zonenav, 'FETCH_ELSEWHERE', False)
+    assert kinds(produce(view(75, done(*GRAPH.nodes), fetch=CHARM))) == []
+
+
+def test_the_scripts_on_the_way_hold_the_way_toward_the_valuable():
+    everything = judged(done(*GRAPH.nodes))
+    found = scripts(GRAPH, everything, base_of, fetch=92)
+    assert [(stage.kind, stage.to) for stage in found[80][1].stages if stage.to] == [(ENTER, 92)]
+    climb = found[93][1].stages[-1]
+    assert (climb.kind, climb.to, climb.back) == (ENTER, 92, True)
+    assert not any(stage.to == 92 for stage in scripts(GRAPH, everything, base_of)[80][1].stages)
+
+
+def test_a_level_kept_cleared_over_a_restart_with_its_boss_alive_and_runs_owed_is_reopened(monkeypatch):
+    # Sewers Level 1 (92) kept cleared in the game's record, Icehawk Riftwing alive: the loop stopped at 05:35:08
+    kept = LevelState(entered=True, mapped=True, explored=True, runs=2, kept=True, bosses=1)
+    monkeypatch.setattr(zonenav, 'KEPT_HOLDS_BOSS', True)
+    assert 92 not in judged({**done(93), 92: kept}).explored
+    spent = LevelState(entered=True, mapped=True, explored=True, runs=99, kept=True, bosses=1)
+    assert 92 in judged({**done(93), 92: spent}).explored  # its runs spent: kept, the loop stops for the player
+    monkeypatch.setattr(zonenav, 'KEPT_HOLDS_BOSS', False)
+    assert 92 in judged({**done(93), 92: kept}).explored
+
+
+def test_a_level_with_no_progress_for_the_stall_window_is_skipped_never_an_act_bosses_or_its_way(monkeypatch):
+    # rca/2026-10-23/exp-hour-levels-findings.md: 314 s with no kill in Claw Viper Temple Level 1 (cyberg46 03:24)
+    monkeypatch.setattr(zonenav, 'STALLED_SKIP', False)
+    assert zonenav.worth(GRAPH, 96, 600.0, 7.4e6) is None  # off: played until its verdict
+    monkeypatch.setattr(zonenav, 'STALLED_SKIP', True)
+    why = zonenav.worth(GRAPH, 96, 120.0, 7.4e6)
+    assert why == "skipped: no kill and no level done for 120 s, expected 0.0 M/h against the game's 7.4 M/h"
+    assert zonenav.worth(GRAPH, 96, zonenav.STALL_SECONDS - 1, 7.4e6) is None  # yielding lately
+    assert zonenav.worth(GRAPH, 96, None, 7.4e6) is None  # the stall not known
+    assert zonenav.worth(GRAPH, 96, 120.0, None) == (
+        "skipped: no kill and no level done for 120 s, expected 0.0 M/h against the game's rate unread"
+    )
+    assert zonenav.worth(GRAPH, 102, 600.0, 7.4e6) is None  # Mephisto's level
+    assert zonenav.worth(GRAPH, 101, 600.0, 7.4e6) is None  # on the way to him
+    assert zonenav.worth(GRAPH, 5, 600.0, 7.4e6) is None  # off the graph
+    assert zonenav.boss_way(GRAPH, 101)
+    assert not zonenav.boss_way(GRAPH, 81)

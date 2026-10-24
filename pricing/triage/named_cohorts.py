@@ -16,8 +16,75 @@ IDENTITY_FACETS = {
     'wraithstep': 'wraithstep_tree',
     'opalvein': 'opalvein_bonus',
     "ormus' robes": 'ormus_skill',
-    'rainbow facet': 'rainbow_variant',
+    'rainbow facet': 'facet_roll',
 }
+# Colossal Ancient jewels: (enemy -res market property, native stat), (skill damage property, native stat).
+# uniqueitems.json pierce-*/extra-* 5-10; ids verified in metadata stats 2026-10-22. Protector's Stone's second
+# stat is ED (not captured on the unique path) and its pierce 366 has no market projection, hence the native key.
+COLOSSAL_RES = {
+    "defender's fire": (('735', '333:0'), ('750', '329:0')),
+    "defender's bile": (('723', '336:0'), ('783', '332:0')),
+    "protector's frost": (('609', '335:0'), ('747', '331:0')),
+    "guardian's thunder": (('736', '334:0'), ('743', '330:0')),
+    "guardian's light": (('1877', '358:0'), ('1879', '357:0')),
+    "protector's stone": (('1881', '366:0'), None),
+}
+IDENTITY_FACETS |= dict.fromkeys(COLOSSAL_RES, 'colossal_res')
+# The price-driving roll regions, lowest first (rca/2026-10-22/jewel-verify-G5.md §2-3). A region with fewer
+# than three sellers, or an unreadable roll, takes the next-lower supported region: never no price.
+REGIONS = {
+    'facet_roll': ('3-roll', '5/3-4/4', '5/4', '5/5'),
+    'colossal_res': ('5-7', '8-9', '10', '10/10'),
+}
+# Rainbow Facet: element and trigger split only the 5/5 copies (15-23 sellers each); below, the fills agree
+# across variants. An undecoded trigger prices from the pooled 5/5 band.
+SCOPED_FACETS = {'rainbow_variant': ('facet_roll', '5/5')}
+
+
+def roll_value(item, prop, native):
+    value = item.get('properties', {}).get(prop)
+    if value is None:
+        value = item.get('native_rolls', {}).get(native)
+    return value if type(value) in (int, float) else None
+
+
+def facet_roll(item):
+    """'5/5' | '5/4' | '5/3-4/4' | '3-roll' from the one element's (skill damage, -res) pair, both 3-5."""
+    from pricing.triage.facet_identity import variants
+
+    properties = item.get('properties', {})
+    pairs = {props for _, props, _, _ in variants()}
+    found = [
+        (properties.get(mastery), properties.get(pierce))
+        for mastery, pierce in pairs
+        if properties.get(mastery) not in (None, 0) or properties.get(pierce) not in (None, 0)
+    ]
+    if len(found) != 1 or not all(type(v) in (int, float) and 3 <= v <= 5 for v in found[0]):
+        return None
+    high, low = sorted(found[0], reverse=True)
+    if (high, low) == (5, 5):
+        return '5/5'
+    if (high, low) == (5, 4):
+        return '5/4'
+    return '5/3-4/4' if high == 5 or (high, low) == (4, 4) else '3-roll'
+
+
+def colossal_res(item):
+    """'5-7' | '8-9' | '10' | '10/10' (-10 with +10 skill damage) from a Colossal jewel's -res roll."""
+    stats = COLOSSAL_RES.get(str(item.get('name', '')).casefold())
+    if not stats:
+        return None
+    pierce = roll_value(item, *stats[0])
+    if pierce is None or not 5 <= pierce <= 10:
+        return None
+    if pierce < 8:
+        return '5-7'
+    if pierce < 10:
+        return '8-9'
+    mastery = roll_value(item, *stats[1]) if stats[1] else None
+    return '10/10' if mastery == 10 else '10'
+
+
 IDENTITY_PROPERTIES = {
     'torch_class': dict.fromkeys(('453', '514', '498', '442', '403', '488', '519', '1862'), 3),
     'wraithstep_tree': dict.fromkeys(('1546', '1547', '1548'), 1),
@@ -55,6 +122,10 @@ def value(item, facet, rules):
         from pricing.triage.facet_identity import identity
 
         return identity(item)
+    if facet == 'facet_roll':
+        return facet_roll(item)
+    if facet == 'colossal_res':
+        return colossal_res(item)
     if facet in IDENTITY_PROPERTIES or facet == 'ormus_skill':
         properties = item.get('properties', {})
         choices = ormus_skills() if facet == 'ormus_skill' else IDENTITY_PROPERTIES[facet]
@@ -101,12 +172,9 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
         rows = [row for row in rows if row.get('socket_contents') != 'filled']
     identity = identity_facet({'category': category, 'name': name})
     mandatory = (identity,) if identity else ()
-    if identity == 'rainbow_variant':
-        from pricing.triage.facet_identity import variants
-
-        rolls = dict.fromkeys(p for _, props, _, _ in variants() for p in props)
-        facets = (*(f'property:{p}' for p in rolls), *facets)
-    facets = (*mandatory, *facets)
+    if identity == 'facet_roll':
+        mandatory, facets = ('facet_roll', 'rainbow_variant'), ('rainbow_variant',)
+    facets = (*mandatory[:1], *facets)
     prepared = [(row, from_listing(row)) for row in rows]
     bands = []
 
@@ -132,7 +200,15 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
             result.update(
                 facet=facet,
                 children={
-                    key: node(group, facets[index if 'split_at' in result else index + 1 :], [*path, [facet, key]])
+                    key: node(
+                        group,
+                        tuple(
+                            f
+                            for f in facets[index if 'split_at' in result else index + 1 :]
+                            if f not in SCOPED_FACETS or SCOPED_FACETS[f] == (facet, json.loads(key))
+                        ),
+                        [*path, [facet, key]],
+                    )
                     for key, group in sorted(groups.items())
                 },
             )
@@ -151,8 +227,24 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
     summaries = fallback[0]['variant_prices'] if fallback else []
     reference.update(bucket=bucket, named_cohorts=tree, cohort_rules=rules, variant_prices=summaries)
     if mandatory:
-        reference['required_identity'] = list(mandatory)
+        reference['required_identity'] = list(mandatory[:1])
     return [reference, *bands]
+
+
+def region_priced(category, name):
+    """True when a roll-region facet prices this name; a roll model must not override its regions."""
+    return identity_facet({'category': category, 'name': name}) in REGIONS
+
+
+def region_band(node, facet, observed):
+    """The observed region's band, else the next-lower then the next-higher one with three sellers."""
+    order = REGIONS[facet]
+    start = order.index(observed) if observed in order else 0
+    for region in (*order[start::-1], *order[start + 1 :]):
+        child = node['children'].get(token(region))
+        if child is not None and child['band'].get('sellers', 0) >= 3 and child['band'].get('q1_ist') is not None:
+            return child
+    return None
 
 
 def lookup(item, reference):
@@ -174,6 +266,20 @@ def lookup(item, reference):
             # Captured totals include inserts; do not buy a roll premium from them.
             return node['band']
         observed = value(item, facet, reference['cohort_rules'])
+        if facet in REGIONS:
+            child = region_band(node, facet, observed)
+            if child is None:
+                return None
+            if token(observed) not in node['children'] or child is not node['children'][token(observed)]:
+                return child['band']  # a fallback region prices the item; its sub-splits are another roll's
+            node = child
+            continue
+        if facet in SCOPED_FACETS:
+            child = node['children'].get(token(observed)) if observed is not None else None
+            if child is None or child['band'].get('sellers', 0) < 3 or child['band'].get('q1_ist') is None:
+                return node['band']  # undecoded trigger or a thin variant: the pooled 5/5 band
+            node = child
+            continue
         if observed is None or (facet == 'socket_variant' and any(v in (None, 'unknown') for v in observed)):
             return None
         child = node['children'].get(token(observed))

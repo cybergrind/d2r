@@ -102,8 +102,14 @@ def main():
     from pricing.triage.bands import latest_rows
 
     unique_rows = latest_rows(rows)
+    from pricing.triage.named_cohorts import region_priced
+
+    # Colossal and Rainbow Facet copies are priced by their roll region (named_cohorts.REGIONS, G5 §5.2).
     document['roll_models'] = [
-        model for report in reports if (model := compile_model(report, unique_rows, require_supported_split=True))
+        model
+        for report in reports
+        if (model := compile_model(report, unique_rows, require_supported_split=True))
+        and not region_priced(model['category'], model['name'])
     ]
     from pricing.triage.engine import prepare_tables
     from pricing.triage.market_demand import compile_evidence

@@ -14,6 +14,7 @@ and its log lines; the memory belongs to one buff executor (`watch_of`).
 
 import math
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from inventory_tracking.builds.warlock.bind import SUMMONED
@@ -71,6 +72,25 @@ PULL_HOLD = 1.0  # seconds one ask stands (asked again at every look while it ho
 PULL_ONCE_OUT = True
 PULL_OUT = 5.0  # units
 PULL_REST = 3.0  # seconds after a landing
+# Engorge learns from what its key did (the player, 2026-10-23: "your goal is to maximize exp/hour";
+# rca/2026-10-23/unraveler-findings.md). Live 15:07:41-15:09:46 (take 20261023T120656Z-66, a tier 5 Unraveler Herald
+# pack): 27 keys, 20 on the one corpse 3426990368, "brought no heal" again and again, the pets 128/128 and their
+# Engorge state on most of it; each key let the held strike go 0.53 s (the take's button events). Over last night's and
+# today's takes (20.6 h) 554 of 1,614 keys did nothing: 248 with the state off and still off after, 286 with the
+# state up on every pet and none with room for a heal, 20 again on a corpse that had shown nothing (1 of 21 such keys
+# took). Engorge's buff (skills.txt 379 aurastate engorge, ln56) lasts 47.3 s at the character's level (the median of
+# the takes' state spans after one key). True: a corpse whose key showed no effect (no heal on a pet with room for one,
+# no ENGORGE_STATE turned on on a pet without it) is not tried again (`refused`, casters.py `engorge`), and the buff
+# for its own sake (buffs.py ENGORGE_PACK_FIRST, `engorge_due`) is not cast while every pet alive shows the state
+# (`buffed`); a pet in danger still gets its heal. False: every corpse and every cadence, as before.
+# The arena, 20 seeds a scene off -> on (the 13 danger fights, both Fane cuts, the canyon, Dominus, the revivers'
+# scenes and the cuts of 15:07 and 15:59-16:01; the arena plays no Engorge heal or state, so there every corpse is
+# refused after one key): no new death (the canyon 22 of 60 either way), no scene's least or median lowest life lower;
+# strikes in the 60 s cut of 15:07 87.3 -> 87.9, of 16:00 78.0 -> 81.2. Since 2026-10-23 ~17:10 a corpse under an
+# object or an item's label is refused too (casters.py STILL_COVERS).
+ENGORGE_LEARNS = True
+ENGORGE_STATE = 211  # states.txt `engorge` (skills.txt 379 aurastate): on a pet while the buff lasts
+REFUSED_MOST = 400  # corpses remembered refused at most (a game's unit ids: one set a watch)
 
 
 @dataclass
@@ -95,6 +115,48 @@ class Pet:
     @property
     def life(self) -> int:
         return self.seen[-1][1] if self.seen else 0
+
+
+@dataclass(frozen=True)
+class Trial:
+    """One Engorge key whose corpse is judged (ENGORGE_LEARNS): its clock, the corpse, the pets' life with room for
+    a heal at the key, and the pets whose state words showed no ENGORGE_STATE then."""
+
+    at: float
+    corpse: int
+    room: dict[int, int]
+    bare: frozenset[int]
+
+
+def shows(words: bytes | None) -> bool | None:
+    """Whether a unit's state words show ENGORGE_STATE (32 states to a little-endian word); None unread."""
+    if not words:
+        return None
+    word, bit = divmod(ENGORGE_STATE, 32)
+    if len(words) < (word + 1) * 4:
+        return None
+    return bool(int.from_bytes(words[word * 4 : word * 4 + 4], 'little') >> bit & 1)
+
+
+States = Callable[[Monster], bytes | None]
+
+
+def buffed(world: World, states: States | None) -> bool | None:
+    """Whether every pet alive shows Engorge's state (ENGORGE_STATE); None with no pet, no reader or one unread."""
+    live = alive(world)
+    if states is None or not live:
+        return None
+    found = [shows(states(m)) for m in live]
+    if any(seen is None for seen in found):
+        return None
+    return all(found)
+
+
+def bare(world: World, states: States | None) -> frozenset[int]:
+    """The pets alive whose state words read without Engorge's state (`shows` False; unread ones left out)."""
+    if states is None:
+        return frozenset()
+    return frozenset(m.unit_id for m in alive(world) if shows(states(m)) is False)
 
 
 @dataclass(frozen=True)
@@ -149,16 +211,23 @@ class PetWatch:
         self.unhealed = 0  # Engorges in a row that brought no heal
         self.pack_said = -math.inf
         self.pack_at = -math.inf  # clock of the last look the pack's Engorge was due at (buffs.py `engorge_first`)
+        self.trial: Trial | None = None  # the last key whose corpse is not judged yet (ENGORGE_LEARNS)
+        self.refused: set[int] = set()  # corpses whose key showed no effect: not tried again (ENGORGE_LEARNS)
+        self.seen_as: dict[int, Monster] = {}  # unit -> the pet as the last look read it, for its state words
+        self.states: States | None = None  # the last look's reader of state words (None: none)
 
-    def look(self, world: World, now: float, below: float) -> tuple[Peril, ...]:
+    def look(self, world: World, now: float, below: float, states: States | None = None) -> tuple[Peril, ...]:
         """Take the look's pets in; the ones in danger (under `below` of their life, or PET_FALL lost within
-        PET_FALL_SECONDS). A pet dead in it is said lost once (PET_LINES)."""
+        PET_FALL_SECONDS). A pet dead in it is said lost once (PET_LINES). `states` reads a pet's state words, for
+        the judgement of the last key's corpse (`settle`)."""
         if now < self.at:  # the clock went back: another game's or another test's
             self.reset()
         if now == self.at:
             return self.perils
         self.at = now
+        self.states = states
         for monster in pets(world):
+            self.seen_as[monster.unit_id] = monster
             pet = self.pets.get(monster.unit_id)
             if pet is None:
                 pet = self.pets[monster.unit_id] = Pet(monster.unit_id, monster.txt_id)
@@ -176,6 +245,8 @@ class PetWatch:
                 pet.seen.popleft()
         for unit in [u for u, pet in self.pets.items() if now - pet.last_at > PET_FORGET]:
             del self.pets[unit]
+            self.seen_as.pop(unit, None)
+        self.settle(now)
         self.judge(now)
         found = []
         for pet in self.pets.values():
@@ -247,13 +318,51 @@ class PetWatch:
             name_of(pet.txt, pet.bound), pet.unit, max(monster.life, 0), LIFE_SHARE, before, LIFE_SHARE, engorged,
         )  # fmt: skip
 
-    def keyed(self, at: float) -> None:
+    def keyed(self, at: float, corpse: int | None = None, without: frozenset[int] = frozenset()) -> None:
         """An Engorge key went at `at`: its heal is judged ENGORGE_HEAL_SHOWS later on the pets with room for one. One
-        not judged yet is judged now by the looks since it."""
+        not judged yet is judged now by the looks since it. With ENGORGE_LEARNS the key's `corpse` is judged too
+        (`settle`): `without`, the pets whose state words showed no ENGORGE_STATE at the key."""
+        self.settle(at, early=True)
         self.judge(at, early=True)
         self.last_key = at
         room = {u: p.life for u, p in self.pets.items() if p.seen and not p.lost and p.life <= p.whole - PET_HEALED}
         self.keyed_at, self.keyed_life = (at, room) if room else (None, {})
+        if ENGORGE_LEARNS and corpse is not None and (room or without):
+            self.trial = Trial(at, corpse, dict(room), frozenset(without))
+
+    def refuse(self, corpse: int) -> None:
+        """`corpse` not tried again (ENGORGE_LEARNS): its key showed nothing, or something that stays covers it."""
+        if len(self.refused) >= REFUSED_MOST:
+            self.refused.clear()
+        self.refused.add(corpse)
+
+    def settle(self, now: float, *, early: bool = False) -> None:
+        """Whether the last key's corpse showed an effect, once ENGORGE_HEAL_SHOWS has passed (ENGORGE_LEARNS): a heal
+        on a pet with room for one, or ENGORGE_STATE on a pet that lacked it. None of either where one could show: the
+        corpse is `refused`. `early` (another key is going): by the heal alone, and no verdict without a look since."""
+        trial = self.trial
+        if trial is None or (not early and now - trial.at < ENGORGE_HEAL_SHOWS - TICK):
+            return
+        self.trial = None
+        healed, looked = False, False
+        for unit, life in trial.room.items():
+            pet = self.pets.get(unit)
+            after = [seen for t, seen in pet.seen if t > trial.at] if pet is not None else []
+            looked = looked or bool(after)
+            healed = healed or (bool(after) and max(after) - life >= PET_HEALED)
+        read = [] if early or self.states is None else [
+            shows(self.states(self.seen_as[unit])) for unit in trial.bare if unit in self.seen_as
+        ]  # fmt: skip
+        if healed or any(read):
+            return
+        if not (looked or any(seen is False for seen in read)):
+            return  # nothing could show either way: no verdict
+        self.refuse(trial.corpse)
+        if PET_LINES:
+            LOG.info(
+                'Macro: pet: the Engorge on the corpse %d %.1fs ago showed nothing (no heal%s): not tried again',
+                trial.corpse, now - trial.at, ', no Engorge state on the pets' if read else '',
+            )  # fmt: skip
 
     def judge(self, now: float, *, early: bool = False) -> None:
         """Whether the last Engorge key brought a heal, once ENGORGE_HEAL_SHOWS has passed (`unhealed`); `early`: now,

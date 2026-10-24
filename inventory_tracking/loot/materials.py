@@ -24,7 +24,9 @@ GROUPS = {
     'charms': r'cm[1-3]',
     'essences': r'tes|ceh|bet|fed',  # Twisted, Charged, Burning, Festering
     'rings': r'rin',  # class 537
-    'jewels': r'jew',  # class 658
+    # class 658 Jewel, class 690 Colossal Jewel (misc.json cjw). No treasure class drops a non-unique Colossal
+    # Jewel; the unique ones are marked by loot/uniques.py. Defence only (rca/2026-10-22/jewel-verify-G5.md §6).
+    'jewels': r'jew|cjw',
     'amulets': r'amu',  # class 535
     'leg': r'leg',  # Wirt's Leg, class 88 (weapons.txt): the way to the cow level
 }

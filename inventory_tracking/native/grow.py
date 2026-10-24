@@ -17,8 +17,8 @@ EXE = Path('/mnt/extra/1000/games/steam/steamapps/common/Diablo II Resurrected/D
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'pricing' / 'raw' / 're' / 'D2R-decrypted.exe'  # git-ignored, beside the dumps
 BASE = 0x140000000
-SIZE = 0x142789000 - BASE  # end of .reloc
-TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CB800, 0x1000
+SIZE = 0x14278B000 - BASE  # end of .reloc (2026-10-23 patch)
+TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CD200, 0x1000
 PAGE = 0x1000
 
 

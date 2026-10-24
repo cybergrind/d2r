@@ -11,6 +11,7 @@ LEVEL_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['levels'].items()}
 DISPLAY_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['names'].items()}
 LEVEL_LINKS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['links'].items()}
 LEVEL_WARPS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['warps'].items()}
+LEVEL_TELEPORT: dict[int, int] = {int(k): v for k, v in _TABLE.get('teleport', {}).items()}
 _SPOTS = json.loads((Path(__file__).parent / 'data' / 'preset_warps.json').read_text())
 _WARPS = _SPOTS['warps']
 _WAYPOINTS = _SPOTS['waypoints']
@@ -40,6 +41,11 @@ def numbered_name(area: int) -> str:
     """`display_name`, numbered where several levels share it ("Tal Rasha's Tomb 3")."""
     number = NUMBERED.get(area)
     return display_name(area) if number is None else f'{display_name(area)} {number}'
+
+
+def teleport_rule(area: int) -> int:
+    """levels.txt Teleport of `area`: 0 no Teleport, 1 anywhere, 2 only over a clear line (levels/reach.py)."""
+    return LEVEL_TELEPORT.get(area, 1)
 
 
 def linked_level(area: int, slot: int) -> int | None:

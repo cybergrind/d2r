@@ -41,6 +41,8 @@ def build(d2data: Path) -> dict:
             for v in levels.values()
             if v.get('Id') and any(v.get(f'Vis{slot}') for slot in range(8))
         },
+        # Teleport where it is not 1 (levels/reach.py): 0, none; 2, only over a clear line (Duriel's Lair).
+        'teleport': {str(v['Id']): v['Teleport'] for v in levels.values() if 'Id' in v and v.get('Teleport', 1) != 1},
     }
 
 

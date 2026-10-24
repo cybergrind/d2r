@@ -13,11 +13,13 @@ act loop (macros/actloop.py) makes it at a game's start.
 - Confirmed (`Used.confirmed`): the shard's unit gone from the carried items and the stack one lower; `listed`
   whether the tracker then reads every grouped level of the act terrorized (None: not looked at).
 - `over_limit` / `use_carried` (2026-10-21, actloop.py OVERFLOW): the shards whose stack is at the stash's cap
-  (game/layout.py STACK_MOST, 99), and a carried shard right-clicked where it lies (one in the cube taken out first):
+  (game/layout.py STACK_MOST, 99) or has no room for all the carried ones (2026-10-22), and a carried shard
+  right-clicked where it lies (one in the cube taken out first):
   confirmed by its unit gone, its stack not one higher.
 """
 
-from collections.abc import Callable
+from collections import Counter
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
@@ -96,12 +98,14 @@ def choose_shard(view: StashView | None, act: int | None = None) -> int | None:
     return max(held, key=lambda shard: (view.count(shard), -SHARD_ORDER.index(shard)))
 
 
-def over_limit(view: StashView | None) -> tuple[int, ...]:
+def over_limit(view: StashView | None, carried: Iterable[Carried] = ()) -> tuple[int, ...]:
     """The shards whose Materials-tab stack is at the stash's cap (STACK_MOST: game/records.py `StashView.full`), so
-    one more cannot be stored, in SHARD_ORDER; () with the stash unread."""
+    one more cannot be stored, or for which more are `carried` than its stack has room for (stack 98 and two carried:
+    one is over the limit, actloop.py CARRIED_COUNT), in SHARD_ORDER; () with the stash unread."""
     if view is None:
         return ()
-    return tuple(shard for shard in SHARD_ORDER if view.count(shard) >= STACK_MOST)
+    held = Counter(item.txt for item in carried)
+    return tuple(shard for shard in SHARD_ORDER if view.count(shard) + max(held[shard], 1) > STACK_MOST)
 
 
 def stacks_said(view: StashView | None) -> str:

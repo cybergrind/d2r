@@ -4,23 +4,29 @@
 - `BoundedReader`: reads only inside readable mappings, under a byte budget;
 - `game_read`: one bounded read of the unit table, the process identity rechecked after it;
 - `stable_read`: a small value read twice under the identity and mapping checks;
-- `vm_read_spans`: many spans in few process_vm_readv calls; `vm_read`/`proc_read`: the access probes.
+- `vm_read_spans`: many spans in few process_vm_readv calls; `vm_read`/`proc_read`: the access probes;
+- `Replay`: each kind of pass's reads (a look, the loot's walk) asked of the kernel in one batch at the pass's start.
 A stale pid or a remapped page gives an error, never wrong data: the callers make it "unread".
 """
 
 import ctypes
 import errno
 import os
+import threading
+import time
 from bisect import bisect_right
+from collections import deque
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from typing import Any
 
-from inventory_tracking.common import error
+from inventory_tracking.common import LOG, error
 from inventory_tracking.native.process import identity, process_mappings
 
 
 Read = Callable[[int, int], bytes]  # (address, size) -> bytes of the game's memory
+Span = tuple[int, int]  # (address, size) of a read
 READ_BUDGET = 8 * 1024 * 1024  # bytes one BoundedReader may read
 
 
@@ -226,13 +232,14 @@ def vm_call():
     return call
 
 
-def vm_read_spans(call, pid: int, spans) -> list[bytes | None] | None:
+def vm_read_spans(call, pid: int, spans, *, calls: float = float('inf')) -> list[bytes | None] | None:
     """Each span (address, size) of process `pid`, None where unreadable, in as few calls as the kernel's partial
     reads allow (a read stops at the first span it cannot read: that one is None, the rest are asked again). None
-    when the kernel refuses the call altogether."""
+    when the kernel refuses the call altogether. At most `calls` calls: the spans past the last are None."""
     out: list[bytes | None] = [None] * len(spans)
     start = 0
-    while start < len(spans):
+    while start < len(spans) and calls > 0:
+        calls -= 1
         chunk = spans[start : start + IOV_MAX]
         total = sum(size for _, size in chunk)
         buffer = ctypes.create_string_buffer(total)
@@ -254,6 +261,210 @@ def vm_read_spans(call, pid: int, spans) -> list[bytes | None] | None:
             offset, done = offset + size, done + 1
         start += done + (done < len(chunk))  # past the span the read stopped at
     return out
+
+
+# The replayed batch (2026-10-23, the player: "we need to find out way to bring memory reads from 100ms to <10ms for
+# important information"; rca/2026-10-23/lag-findings.md). Every field of a look was one pread, 500-2000 a look or a
+# loot walk, and each pread gives the GIL up and waits to have it back behind the service's Python (the convoy of
+# rca/2026-10-13/latency-findings.md §2.3: 532 preads 0.6 ms alone, 146 ms under one busy thread at the 0.5 ms switch
+# interval). The addresses a pass reads barely change from one pass to the next (the same units, the same stat
+# lists), so a pass first asks the kernel for every span the last pass of its kind read, in one or two
+# process_vm_readv calls, and its decoders are served from those bytes; a span not among them (a new unit, a moved
+# list) is one pread as before. Off: every read is a pread.
+REPLAY = True
+REPLAY_SPANS = 16384  # spans kept of a pass for the next (a loot walk reads ~2000)
+REPLAY_BYTES = 8 * 1024 * 1024  # bytes asked of a batch at most
+REPLAY_CALLS = 8  # process_vm_readv calls a batch may make: each unreadable span costs one more
+REPLAY_KEPT = 512  # pass times kept per kind (`Replay.report`)
+
+
+@dataclass
+class Tally:
+    """One kind of pass, since the last report: passes, the spans served from the batch and read on their own, the
+    batch calls, and each pass's milliseconds."""
+
+    passes: int = 0
+    served: int = 0
+    missed: int = 0
+    calls: int = 0
+    ms: deque[float] = field(default_factory=lambda: deque(maxlen=REPLAY_KEPT))
+
+
+class _Pass:
+    """One pass under way: the bytes read for it at its start (`served`: a span's first copy; `extra`: its later
+    copies in order) and the spans it reads, in order (the next pass's pattern)."""
+
+    def __init__(self, served: dict[Span, bytes], extra: dict[Span, deque[bytes]]) -> None:
+        self.served, self.extra, self.read = served, extra, list[Span]()
+        self.hits = self.misses = 0
+
+
+class _Chunk:
+    """At most IOV_MAX spans of a pattern, ready for one call: the remote iovecs (read-only, so two runs' threads
+    may share them; each call has a buffer of its own)."""
+
+    def __init__(self, spans: list[Span]) -> None:
+        self.spans = spans
+        self.sizes = [size for _, size in spans]
+        self.total = sum(self.sizes)
+        self.remote = (IOVec * len(spans))(*(IOVec(address, size) for address, size in spans))
+
+
+class Replay:
+    """The reads of a process's memory through `fallback` (a pread), batched per kind of pass (`pass_of`): a pass
+    asks the kernel at its start for every span the last pass of its kind read, in the order it read them (a stat
+    list's header twice around its array, as `read_stats` rereads it), and serves each read in turn from those bytes:
+    the n-th read of a span gets the n-th copy, a read beyond them or of a span not asked is `fallback`'s. Passes are
+    the calling thread's: another thread's reads go to `fallback`; a pass begun inside one is part of it. `call` is
+    libc's process_vm_readv (None, or refused: every read is `fallback`'s)."""
+
+    def __init__(self, pid: int, fallback: Read, *, call=None, clock: Callable[[], float] = time.perf_counter) -> None:
+        self.pid, self.fallback, self.call, self.clock = pid, fallback, call, clock
+        self.patterns: dict[str, list[Span]] = {}
+        self.prepared: dict[str, tuple[list[Span], list[_Chunk]]] = {}  # kind -> (pattern, its chunks)
+        self.tallies: dict[str, Tally] = {}
+        self.local = threading.local()
+        # `said(text)` every `every` seconds of `clock` from a pass's end (`tallied`: the run's `memory reads` line)
+        self.said: Callable[[str], None] | None = None
+        self.every = 60.0
+        self.said_at: float | None = None
+
+    def share(self, patterns: dict[str, list[Span]], prepared: dict[str, tuple[list[Span], list[_Chunk]]]) -> None:
+        """Keep the patterns in `patterns` and `prepared` (the runner's, across its runs of one thread at a time)."""
+        self.patterns, self.prepared = patterns, prepared
+
+    def read(self, address: int, size: int) -> bytes:
+        current: _Pass | None = getattr(self.local, 'current', None)
+        if current is None:
+            return self.fallback(address, size)
+        key = (address, size)
+        data = current.served.pop(key, None)
+        if data is None and (later := current.extra.get(key)):
+            data = later.popleft()
+        if data is not None:
+            current.hits += 1
+        else:
+            current.misses += 1
+            data = self.fallback(address, size)  # a read that fails is left out of the next pass's batch
+        current.read.append(key)
+        return data
+
+    @contextmanager
+    def pass_of(self, kind: str) -> Iterator[None]:
+        """Within the block this thread's reads are one pass of `kind`."""
+        if getattr(self.local, 'current', None) is not None or not REPLAY:
+            yield
+            return
+        began = self.clock()
+        try:
+            calls, served, extra = self._batch(kind)
+        except Exception as exc:  # whatever the batch met, the pass reads one pread a field: never the caller's
+            LOG.warning('Memory: the batched read of %s failed (%s): one pread a field', kind, exc)
+            calls, served, extra = 0, {}, {}
+        current = self.local.current = _Pass(served, extra)
+        try:
+            yield
+        finally:
+            self.local.current = None
+            if current.read:  # a pass that read nothing (a remembered answer) leaves the last pattern
+                self.patterns[kind] = current.read[:REPLAY_SPANS]
+            tally = self.tallies.setdefault(kind, Tally())
+            tally.passes += 1
+            tally.served += current.hits
+            tally.missed += current.misses
+            tally.calls += calls
+            now = self.clock()
+            tally.ms.append(1000 * (now - began))
+            if self.said is not None:
+                if self.said_at is None:
+                    self.said_at = now
+                elif now - self.said_at >= self.every:
+                    self.said_at = now
+                    self.said(tallied(self.report(), batched=self.call is not None and REPLAY))
+
+    def _chunks(self, kind: str) -> list[_Chunk]:
+        """The last pattern of `kind` as chunks for the calls, kept while the pattern is the same."""
+        pattern = self.patterns.get(kind)
+        if not pattern:
+            return []
+        kept = self.prepared.get(kind)
+        if kept is not None and kept[0] == pattern:
+            return kept[1]
+        asked, total = [], 0
+        for address, size in pattern:
+            if not address or size <= 0:
+                continue
+            total += size
+            if total > REPLAY_BYTES:
+                break
+            asked.append((address, size))
+        chunks = [_Chunk(asked[at : at + IOV_MAX]) for at in range(0, len(asked), IOV_MAX)]
+        self.prepared[kind] = (pattern, chunks)
+        return chunks
+
+    def _batch(self, kind: str) -> tuple[int, dict[Span, bytes], dict[Span, deque[bytes]]]:
+        """(calls made, the first copy of each span read now, the later copies) for the last pattern of `kind`."""
+        served: dict[Span, bytes] = {}
+        extra: dict[Span, deque[bytes]] = {}
+        if self.call is None:
+            return 0, served, extra
+        calls = 0
+        for chunk in self._chunks(kind):
+            calls += 1
+            buffer = ctypes.create_string_buffer(chunk.total)
+            local = IOVec(ctypes.addressof(buffer), chunk.total)
+            got = self.call(self.pid, ctypes.byref(local), 1, chunk.remote, len(chunk.spans), 0)
+            if got < 0 and ctypes.get_errno() in REFUSED:
+                self.call = None  # refused for this process: reads one pread each from now on
+                return calls, {}, {}
+            raw, offset, found = buffer.raw, 0, list[bytes | None]()
+            for size in chunk.sizes:
+                if offset + size > got:
+                    break
+                found.append(raw[offset : offset + size])
+                offset += size
+            if len(found) < len(chunk.spans):  # stopped at a span it cannot read: that one is left, the rest asked
+                tally = [0]
+
+                def counted(*args, tally=tally):
+                    tally[0] += 1
+                    return self.call(*args)
+
+                rest = chunk.spans[len(found) + 1 :]
+                slow = vm_read_spans(counted, self.pid, rest, calls=REPLAY_CALLS - 1) if rest else []
+                calls += tally[0]
+                found += [None, *(slow if slow is not None else [None] * len(rest))]
+            for key, data in zip(chunk.spans, found, strict=True):
+                if data is None:
+                    continue
+                if key in served:
+                    extra.setdefault(key, deque()).append(data)
+                else:
+                    served[key] = data
+        return calls, served, extra
+
+    def report(self) -> dict[str, Tally]:
+        """The tallies since the last report, taken."""
+        taken, self.tallies = self.tallies, {}
+        return taken
+
+
+def tallied(tallies: dict[str, Tally], *, batched: bool = True) -> str:
+    """The `memory reads` line's text of `tallies`, the busiest kind first: passes, ms p50/p90/max, batch calls a
+    pass, the share of reads served from the batch; `batched` False (the call refused or REPLAY off) leads it with
+    "refused, pread"."""
+    parts = [] if batched else ['refused, pread']
+    for kind, tally in sorted(tallies.items(), key=lambda item: -sum(item[1].ms)):
+        ms = sorted(tally.ms)
+        if not ms:
+            continue
+        reads = tally.served + tally.missed
+        parts.append(
+            f'{kind} {tally.passes} passes {ms[len(ms) // 2]:.1f}/{ms[int(0.9 * (len(ms) - 1))]:.1f}/{ms[-1]:.1f} ms, '
+            f'{tally.calls / max(1, tally.passes):.1f} calls, {reads / max(1, tally.passes):.0f} reads, '
+            f'{100 * tally.served / max(1, reads):.0f}% batched'
+        )
+    return '; '.join(parts)
 
 
 def proc_read(pid, address, size):

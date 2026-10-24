@@ -82,6 +82,13 @@ LEADER_SHARE = 0.85
 # sweep stay first (a boss, a bound summoner, what bars the goal, the dolls: the `through` units of `aim`). False: the
 # best line (with FOCUS_LEADERS' share rule when that is on).
 HOLD_LEADER = True
+# T5_BEST_LINE (2026-10-23, the player ~20:35: "Best line in T5 packs (Recommended)"; rca/2026-10-23/
+# death-canyon-findings.md §10): in the canyon's tier 5 Hell Slinger pack the hold kept the blades on the Herald (164k
+# life, a minion 33k) while the minions' javelins came on; the best line killed 13.7 a play there against 8.4. True: a
+# tier 5 Herald is no leader the strike holds (HERALD_TIER): the best line, its minions included; every other leader,
+# the bosses too, is held as before. False: as before.
+T5_BEST_LINE = True  # on 2026-10-24 ~09:50: "Best line in T5 packs (Recommended)"; gate passed
+HERALD_TIER = 5
 # A leader whose resistance to the blades' damage is IMMUNE (physical: Echoing Strike is weapon damage, skills.txt 388;
 # the 18:35 Gloam Herald of the same day, stat 36 at 110 with Stone Skin, rca/2026-10-21/herald-gloam-findings.md) is
 # not held: the blades take nothing off it, its mark and the demons are its answer (mark.py MARK_IMMUNE). This fight's
@@ -95,6 +102,11 @@ HELD_IMMUNE: tuple[int, ...] = ()
 # sweep's short offset (-3) is not used for a leader: on a leader within 7 units MIN_FOCAL holds it at 4 and the blades
 # are 1.8 units apart either side of it, in contact only with its edge.
 LEADER_OFFSETS = (0.0, 1.0)
+
+
+def unheld(foe: Foe) -> bool:
+    """T5_BEST_LINE: a tier 5 Herald, struck by the best line, not held."""
+    return T5_BEST_LINE and foe.herald and foe.tier >= HERALD_TIER
 
 
 @dataclass
@@ -174,13 +186,13 @@ def virtual_cast(
                 first.add((unit, leg))
                 taken = min(dealt, left[unit])
                 left[unit] -= taken
-                total += taken * (elite_weight if foe.elite else 1.0)
+                total += taken * (elite_weight if foe.elite else 1.0) * foe.weight
                 if unit in linked:
                     for other in linked:
                         if other != unit and left.get(other, 0) > 0:
                             spread = min(dealt * share, left[other])
                             left[other] -= spread
-                            total += spread * (elite_weight if foes[other].elite else 1.0)
+                            total += spread * (elite_weight if foes[other].elite else 1.0) * foes[other].weight
     return total
 
 
@@ -229,8 +241,14 @@ class LinePolicy:
         if held.unit is not None and held.unit not in seen.foes:
             LOG.info('Macro: strike: the leader %d held is gone: let go', held.unit)
             held.unit = None
+        if held.unit is not None and unheld(seen.foes[held.unit]):
+            held.unit = None  # a tier 5 Herald: the best line (T5_BEST_LINE)
         leaders = sorted(
-            (unit for unit, foe in seen.foes.items() if foe.elite and not foe.immune_to & set(HELD_IMMUNE)),
+            (
+                unit
+                for unit, foe in seen.foes.items()
+                if foe.elite and not foe.immune_to & set(HELD_IMMUNE) and not unheld(foe)
+            ),
             key=lambda unit: (
                 not seen.foes[unit].herald,
                 unit != held.unit,

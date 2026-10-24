@@ -166,3 +166,15 @@ def test_the_loop_turned_on_again_counts_afresh():
     loop.experience.look('g1', CHAOS, Reading(5, 94), 0.0)
     loop.start()
     assert loop.experience.first is None
+
+
+def test_the_games_going_rate_counts_from_its_first_reading_to_the_last():
+    ledger = Ledger()
+    assert ledger.game_rate() is None  # unread
+    ledger.look('g1', CHAOS, Reading(1_000_000, 96), 100.0)
+    ledger.look('g1', CHAOS, Reading(1_000_100, 96), 110.0)
+    assert ledger.game_rate() is None  # under a minute
+    ledger.look('g1', 1, Reading(1_600_000, 96), 100.0 + 360.0)
+    assert ledger.game_rate() == pytest.approx(6_000_000)  # +600,000 in 6 min, the town's look too
+    ledger.look('g2', CHAOS, Reading(2_000_000, 96), 1000.0)
+    assert ledger.game_rate() is None  # a new game counts afresh

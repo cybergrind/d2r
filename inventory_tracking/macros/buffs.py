@@ -36,8 +36,17 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.teleport import ground_fraction
+from inventory_tracking.macros.threat import near_hostile
 from inventory_tracking.macros.travel import label, life
 from inventory_tracking.native.layout import DEAD_MODES
+
+
+# 2026-10-23: an upkeep or prebuff row cast by a routine of its own (the Defiler's summon, Consume and their dance: up
+# to 1.5-3.5 s of waits for the summon to show and the Defiler to stand clear) is not due while a live hostile is
+# within threat.NEAR of the character: 32 pauses of 51 s under blows on 2026-10-22/23, the Consume routine "crowded"
+# by the very hostiles hitting the character (rca/2026-10-23/pause-findings.md). The fight's own rows (the Defiler a
+# fight is worth, `worth_a_defiler`) are the fight's choice and stay. Off: due as before.
+ROUTINES_AWAY = True
 
 
 # A buff with a shown state (`Buff.state`) is cast while the state is off; an unshown cast is retried after
@@ -65,6 +74,19 @@ MOVED_UNITS = 0.7  # world units the target went since the look: the pointer is 
 NUDGE_UP = 0.025
 NUDGE_AWAY = 0.015
 NUDGES = 2
+# The Death Mark keys that did not take, 18:49-19:43 on 2026-10-24 (rca/2026-10-24/dm-latency-findings.md §9): 36 of
+# 358 keys (11 of 89 Herald-pack marks), each found out ~1.1 s after its key and keyed again 3.5 s (p50) after it.
+# Of the 36, 16 were pressed after NUDGES with the hover still naming another member ("pressed anyway"), and ~14 went
+# down while the hover record flickered between the target and nothing every ~40 ms (a walking target at the pointer's
+# edge; "-305:O -264:T -24:- +16:T +96:-"): one read naming nothing ended the check, and the key went on no monster.
+# ONTO_TWICE: True, the key waits for two reads in a row naming the target, nothing named counted as a miss and moved
+# up the body as for a neighbour, ONTO_EXTRA reads more at most. False: one read naming the target or nothing.
+ONTO_TWICE = False
+ONTO_EXTRA = 2
+# ONTO_PACK_MEMBER: True, a cast of combat/pack.py FIRST (Death Mark) on a tier PACK_TIER_MIN+ Herald pack's member
+# whose hover names another member of that pack (the same tier) goes on the one named, at once, and is counted on it
+# (the pack's order takes any member that can be clicked: the player, 2026-10-21 Q1). False: nudged as before.
+ONTO_PACK_MEMBER = False
 SHOWN_ON_MOST = 8  # hostiles nearest a cast's target whose state words are read for where it went instead
 # A cast with `Buff.shows` on a unit whose state shows already at the key (the last cast's lasting still) is judged by
 # the state once `shows_within` has passed, not by the old one's at once (the player, 2026-10-21 ~17:41: "note: we
@@ -162,6 +184,9 @@ class Buffs:
         # skill -> (clock of the key, whether it showed on some monster) of the last settled cast with `Buff.shows`
         # (`lands`, macros/safety.py DRAW_CASTABLE)
         self.landed: dict[int, tuple[float, bool]] = {}
+        self.retarget: Monster | None = (
+            None  # the pack's member a cast went on instead of its target (ONTO_PACK_MEMBER)
+        )
 
     def took_of(self, run: Run) -> dict[int, float]:
         """The casts that took, merged into the runner's cross-run record (`Run.lasting`) once a run brings it."""
@@ -227,7 +252,12 @@ class Buffs:
             hurt=lambda: self.hurt(run),
             missed=self.missed,
             states=lambda m: run.reads.unit_states(m),
+            mana=lambda: run.reads.mana(world),
         )
+
+    def before_strike(self, facts: BuffFacts) -> bool:
+        """Whether a fight row's cast goes before the bout's first strike now (`Buff.before_strike`)."""
+        return any(row.before_strike is not None and row.before_strike(facts) for row in self.rows('fight'))
 
     def missing(self, row: Buff, facts: BuffFacts) -> bool:
         """Whether a stated row is due by the state rule (STATE_RETRY / STATE_DISTRUST)."""
@@ -247,6 +277,8 @@ class Buffs:
         """The row with its target if due now: state missing, its own `due`, a target if it names one, `worth`."""
         facts = replace(facts, now=run.clock())
         facts = replace(facts, lapsing=lapsing(row, facts))
+        if ROUTINES_AWAY and row.waits and row.phase in ('prebuff', 'upkeep') and near_hostile(facts.world):
+            return None  # a routine of its own (a summon, Consume) waits until no hostile is on the character
         if row.shows is not None:
             self.settle(run, row, facts)
         if row.state is not None and not self.missing(row, facts):
@@ -404,7 +436,10 @@ class Buffs:
         if SHOWN_BEFORE_WAITS and row.shows is not None and target is not None:
             before = run.reads.unit_states(target)  # the last cast's state lasting still: no proof of this one
         asked = Casting(run, row, self, due.facts.world, target, aspect, key_names)
+        self.retarget = None
         tried = self.casters[row.caster](asked) if row.caster is not None else self.shared(asked)
+        if self.retarget is not None:  # the key went on another member of the pack (ONTO_PACK_MEMBER)
+            target, self.retarget = self.retarget, None
         if tried.at is not None:
             self.remember(row, tried.at, target.unit_id if target is not None else None)
         if tried.cast and tried.at is not None:
@@ -498,6 +533,8 @@ class Buffs:
         if run.pad is None and AIM_CHECK and fresh.player is not None:
             self.onto(run, cast, now, fresh)
         self.key(run, skill)
+        if self.retarget is not None:
+            target = self.retarget
         if QUICK_CONFIRM and run.pad is None and cast.row.shows is not None:
             self.confirm(run, skill, target)
         at = run.clock()
@@ -518,9 +555,14 @@ class Buffs:
         if run.hovered is None:
             return
         named: list[str] = []
+        if ONTO_TWICE:
+            self.onto_twice(run, cast, target, world, point, named)
+            return
         for nudge in range(NUDGES + 1):
             run.pace.sleep(HOVER_WAIT)
             over = run.hovered()
+            if over is not None and over[0] == MONSTER_UNIT and self.pack_member(cast, target, world, over[1]):
+                return  # ONTO_PACK_MEMBER: the key goes on the member named
             if over is None or over[0] != MONSTER_UNIT or over[1] == target.unit_id:
                 if named:
                     LOG.info(
@@ -546,6 +588,77 @@ class Buffs:
             'Macro: buff: %s on %s: the pointer names %s after %d moves (the cast goes on the unit under it): '
             'pressed anyway',
             skill_name(cast.row.skill), label(target), ', '.join(dict.fromkeys(named)), NUDGES,
+        )  # fmt: skip
+
+    def pack_member(self, cast: Casting, target: Monster, world: World, unit: int) -> bool:
+        """ONTO_PACK_MEMBER: whether the hovered `unit` is another member of `target`'s tier PACK_TIER_MIN+ Herald
+        pack (the same tier) and the row's skill is one of combat/pack.py FIRST; then it is the cast's target
+        (`retarget`), said once."""
+        from inventory_tracking.combat import pack as herald_pack  # late: combat/pack.py's own imports stay small
+
+        if not ONTO_PACK_MEMBER or unit == target.unit_id or cast.row.skill not in herald_pack.FIRST:
+            return False
+        if not herald_pack.in_pack(target.tier):
+            return False
+        other = next((m for m in world.monsters if m.unit_id == unit), None)
+        if other is None or other.tier != target.tier or other.ally:
+            return False
+        self.retarget = other
+        LOG.info(
+            'Macro: buff: %s on %s: the pointer names %s of its pack: cast on it (ONTO_PACK_MEMBER)',
+            skill_name(cast.row.skill), label(target), label(other),
+        )  # fmt: skip
+        return True
+
+    def onto_twice(
+        self, run: Run, cast: Casting, target: Monster, world: World, point: tuple[float, float], named: list[str]
+    ) -> None:
+        """ONTO_TWICE: the hover read every HOVER_WAIT until two reads in a row name the target, NUDGES moves and
+        ONTO_EXTRA more reads at most; nothing named is a miss, moved up the body as for a neighbour."""
+        assert cast.aspect is not None
+        player = world.player
+        assert player is not None
+        hovered = run.hovered
+        if hovered is None:
+            return
+        on, moves = 0, 0
+        for _ in range(NUDGES + 2 + ONTO_EXTRA):
+            run.pace.sleep(HOVER_WAIT)
+            over = hovered()
+            if over is not None and over[0] == MONSTER_UNIT and self.pack_member(cast, target, world, over[1]):
+                return
+            if over is not None and over[0] == MONSTER_UNIT and over[1] == target.unit_id:
+                on += 1
+                if on >= 2:
+                    if named:
+                        LOG.info(
+                            'Macro: buff: %s on %s: the pointer named %s; moved %d times, now on it twice',
+                            skill_name(cast.row.skill), label(target), ', '.join(named), moves,
+                        )  # fmt: skip
+                    return
+                continue
+            on = 0
+            other = None
+            if over is not None and over[0] == MONSTER_UNIT:
+                other = next((m for m in world.monsters if m.unit_id == over[1]), None)
+                named.append(label(other) if other is not None else f'the unit {over[1]}')
+            else:
+                named.append('nothing')
+            if moves >= NUDGES:
+                continue  # no more moves: the reads go on to the bound
+            moves += 1
+            if moves == 1 or other is None:
+                moved = (point[0], point[1] - NUDGE_UP * moves)
+            else:
+                there = screen_fraction(player, other.x, other.y, cast.aspect)
+                dx, dy = point[0] - there[0], point[1] - there[1]
+                away = math.hypot(dx, dy) or 1.0
+                moved = (point[0] + dx / away * NUDGE_AWAY, point[1] - NUDGE_UP + dy / away * NUDGE_AWAY)
+            if on_screen(moved):
+                run.actuator.aim(*moved, scatter=(1, 1))
+        LOG.info(
+            'Macro: buff: %s on %s: the pointer named %s, never the target twice (ONTO_TWICE): pressed anyway',
+            skill_name(cast.row.skill), label(target), ', '.join(dict.fromkeys(named)),
         )  # fmt: skip
 
     def on_ground(self, cast: Casting) -> Tried:

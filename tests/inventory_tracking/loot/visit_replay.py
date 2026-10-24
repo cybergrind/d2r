@@ -41,10 +41,17 @@ TRADE_ROOM = 8  # macros/town.py at OLD_COMMIT
 SURE_BLOCK = (1, 3)  # macros/cube.py at OLD_COMMIT
 
 
+# Fields added after the golden plans were written, left out at their default so the plans still compare byte for
+# byte (D12, 2026-10-23: game/records.py Carried.runeword)
+LATER_FIELDS = frozenset({('Carried', 'runeword')})
+
+
 def canon(value: Any) -> Any:
     """`value` as plain JSON data: a dataclass as its type's name and fields, a set sorted, a mapping's keys as text."""
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        fields = {f.name: canon(getattr(value, f.name)) for f in dataclasses.fields(value)}
+        name = type(value).__name__
+        fields = {f.name: canon(getattr(value, f.name)) for f in dataclasses.fields(value)
+                  if (name, f.name) not in LATER_FIELDS or getattr(value, f.name) != f.default}  # fmt: skip
         return {'type': type(value).__name__, **fields}
     if isinstance(value, enum.Enum):
         return value.value

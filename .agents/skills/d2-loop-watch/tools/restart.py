@@ -13,10 +13,15 @@ once, wherever the character is, so this waits for a safe moment first (`--when`
   a field level with no hostile within 30, no valuable on the ground, no package under way; the lobby too), then the
   service restarts and the new one goes on in the same game, the agenda where it was (no second shard). Past `--wait`
   the hold is cancelled (`"when": "cancel"`) and nothing restarts. `--kind` here is the kind from the next game.
+- `trip`, the loop on (the player, 2026-10-24 ~13:35: "go to town and restart -> return back"): in a town at once; in
+  a field level at its next safe moment (`safe`'s, and no boss alive on the level, no Herald known there) the loop
+  casts Town Portal, stands in town for the restart, and the new service goes back through the portal it left (gone:
+  the loop's own way back from town). Once the trip has begun the wait is at least TRIP_SECONDS more.
 
 Then it waits for the new service's `resumed after a restart` line and prints it.
 
-    python3 .agents/skills/d2-loop-watch/tools/restart.py [--loop on|off|keep] [--when lobby|town|safe] [--wait 300]
+    python3 .agents/skills/d2-loop-watch/tools/restart.py [--loop on|off|keep] [--when lobby|town|safe|trip]
+        [--wait 300]
 
 Exit 0: restarted and resumed; 1: no safe moment within --wait (nothing restarted); 2: asked, no resume seen.
 """
@@ -41,6 +46,7 @@ from logwords import (
     RESUMED_OFF,
     RESUMED_ON,
     SAFE_POINT,
+    TRIP_BEGUN,
 )
 
 
@@ -48,8 +54,10 @@ RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'al
 REQUEST_FILE = 'restart.request'
 ON = (LOOP_ON, LOOP_RESUMED, RESUMED_ON)
 OFF = (LOOP_OFF, LOOP_STOPPED, RESUMED_OFF)
-LOBBY, TOWN, SAFE = 'lobby', 'town', 'safe'  # macros/midgame.py's words
+LOBBY, TOWN, SAFE, TRIP = 'lobby', 'town', 'safe', 'trip'  # macros/midgame.py's words
 CANCEL = 'cancel'
+# `trip`: the wait once the loop's Town Portal for the restart is begun (its cast, the stand in town, ~10 s)
+TRIP_SECONDS = 60.0
 RESUME_SECONDS = 60.0  # for the new service's resume line
 TAKEN_SECONDS = 5.0  # for the service to take a request (its loop ticks every ~0.1 s)
 
@@ -140,6 +148,9 @@ def safe_wait(handle, args, runs: Path, log: Path, request: Path, target: dict) 
                 say(f'held by the service: {text[11:160].rstrip()}')
             elif (m := NOT_SAFE.search(text)) is not None:
                 say(f'not yet: {m.group(1)}')
+            elif (m := TRIP_BEGUN.search(text)) is not None:
+                deadline = max(deadline, time.time() + TRIP_SECONDS)  # never cancelled with the portal cast
+                say(f'portal trip for the restart from {m.group(1)}: {text[11:200].rstrip()}')
             elif SAFE_POINT.search(text) is not None:
                 standing = True
                 say(f'at a safe point: {text[11:200].rstrip()}')
@@ -179,10 +190,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         '--when',
-        choices=(LOBBY, TOWN, SAFE),
+        choices=(LOBBY, TOWN, SAFE, TRIP),
         default=LOBBY,
         help='the safe moment with the loop on: the next lobby (default); the next safe point in a town, or in a town '
-        'or a field level (the game goes on, macros/midgame.py)',
+        'or a field level, or a town reached by Town Portal from a field level and back (the game goes on, '
+        'macros/midgame.py)',
     )
     parser.add_argument('--wait', type=float, default=300.0, help='seconds to wait for a safe moment')
     parser.add_argument('--runs', type=Path, default=RUNS, help=argparse.SUPPRESS)  # tests

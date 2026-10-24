@@ -514,9 +514,9 @@ SWITCHES: dict[str, tuple[Any, str]] = {
     'CLEAR_FOOTING': (safety, 'CLEAR_FOOTING'),
     'DANGER_LOOK': (safety, 'DANGER_LOOK'),
     'READ_LAG': (survival, 'READ_LAG'),
-    'REMARK_AFTER_REBUFF': (mark, 'REMARK_AFTER_REBUFF'),  # round 3b: Death Mark again after a rebuff hop
-    # round 3c (12:56, danger-durance-1956): a doll Herald marked and killed before the rebuff
-    'DOLL_HERALD_MARK': (hunt, 'DOLL_HERALD_MARK'),
+    # rounds 3b-3c (REMARK_AFTER_REBUFF, DOLL_HERALD_MARK): the one designation since 2026-10-22, its mark again after a
+    # rebuff hop and a doll Herald's before the first strike (builds/warlock/mark.py DESIGNATED_MARK)
+    'DESIGNATED_MARK': (mark, 'DESIGNATED_MARK'),
     'DOLL_HERALD_FIRST': (cta, 'DOLL_HERALD_FIRST'),
     # round 3d (2026-10-22, the t5 Hulk and the pursuit-mode Fane deaths; REJUV_REACTS and AURA_SWINGERS stay off and
     # out of the list):

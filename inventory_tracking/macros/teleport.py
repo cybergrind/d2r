@@ -57,7 +57,9 @@ from inventory_tracking.levels.model import (
     Target,
 )
 from inventory_tracking.levels.presets import warp_box
+from inventory_tracking.levels.reach import bars, crossed, lined
 from inventory_tracking.levels.route import Point, room_at
+from inventory_tracking.macros import actuator, binding
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
@@ -198,6 +200,18 @@ KEY_DROP_WAIT = True
 KEY_DROP_MODES = frozenset((4, 9))
 KEY_DROP_SECONDS = 0.6
 HOP_POLL = 0.01  # seconds between looks for a hop's landing and its cast's end (30 ms otherwise, engine.POLL)
+# 2026-10-23: a Teleport key the game dropped (no cast seen after it, the character blocking or hit: KEY_DROP_MODES)
+# is pressed again on the first look that has the character free, DROP_REPRESSES times at most within
+# REPRESS_SECONDS, instead of after the whole REPRESS_SECONDS: 99 pauses of 0.6-2.2 s with hostiles on the character,
+# 1546 life, were the hop's wait after a dropped key (rca/2026-10-23/pause-findings.md). Off: the one wait, as before.
+DROP_REPRESS = True
+DROP_REPRESSES = 3
+# 2026-10-23: once the hop's cast is seen (its landing then fixed: the game took the pointer at the cast), the hunt's
+# strike is aimed from the landing during the flight (`Run.flight`, hunt.py `preaim`): the strike's aim, 92 ms p50
+# after the cast's end, came after the landing (rca/2026-10-23/lag-findings.md §1, pause-findings.md). Off: the
+# pointer stays on the landing until the fight aims, as before. The hook is set only under hunt.py PREAIM (off).
+PREAIM_FLIGHT = True
+PREAIM_AFTER = 0.04  # seconds after the cast is first seen: a frame on, the pointer is surely taken
 # Seconds after the cast before is over within which a kept key's cast shows (the game issues it on its
 # next frame, or the one after when the press sat in its second entry).
 QUEUED_SECONDS = 0.09
@@ -570,7 +584,10 @@ class Way:
     Dijkstra from the mark's tile with hops of at most REACH_TILES between landable tiles, walls in
     between or not (a teleport crosses them). A tile is landable when its centre has footing by the
     read grids, or lies on a room no grid covers; the mark's tile always is. A hop is one the window
-    shows (`view`, the same value the landing is chosen under), so every hop planned can be made."""
+    shows (`view`, the same value the landing is chosen under), so every hop planned can be made. On a level
+    whose Teleport needs a clear line (levels/reach.py `lined`: Duriel's Lair) a hop is one whose line from tile
+    centre to tile centre is clear (`barred`, the game's flying-player bars), so no hop across a wall is planned and
+    a room no such way reaches has no potential."""
 
     def __init__(self, target: Target, view: Viewport = HOST_VIEW, far: bool = False) -> None:
         # Kept for the landing: built once here, where it was built anew for each of the 800-odd spots a
@@ -578,6 +595,8 @@ class Way:
         ground = self.ground = Ground(target.ground)
         self.view = view
         self.rooms = target.rooms
+        # The game's bars of a Teleport's line, on a level that has them (levels/reach.py); None: a hop crosses all
+        self.barred = barred = bars(ground.grids) if lined(target.area) else None
         landable: set[tuple[int, int]] = set()
         for room in self.rooms:
             for x in range(room.x, room.x + room.width):
@@ -599,6 +618,7 @@ class Way:
         ]
         self.cost = {mark: 0.0}
         queue = [(0.0, mark)]
+        marked = scaled(target.point)  # a hop into the mark's tile lands on the mark (the character's own spot)
         while queue:
             here_cost, (x, y) = heapq.heappop(queue)
             if here_cost > self.cost[x, y]:
@@ -606,8 +626,16 @@ class Way:
             for dx, dy, step in offsets:
                 there = (x + dx, y + dy)
                 if there in landable and here_cost + step < self.cost.get(there, math.inf):
+                    if barred is not None and not crossed(
+                        barred, centre(there), marked if (x, y) == mark else centre((x, y))
+                    ):
+                        continue  # the hop from there to here is refused by the game
                     self.cost[there] = here_cost + step
                     heapq.heappush(queue, (here_cost + step, there))
+
+    def hops(self, start: Point, point: Point) -> bool:
+        """Whether a hop from `start` to `point` (tiles) is one the game makes (`barred`)."""
+        return self.barred is None or crossed(self.barred, scaled(start), scaled(point))
 
     def on_rooms(self, point: Point) -> bool:
         return room_at(self.rooms, point) is not None
@@ -642,6 +670,11 @@ class Way:
         )
 
 
+def centre(tile: tuple[int, int]) -> Point:
+    """A tile's centre in world units."""
+    return (tile[0] + 0.5) * TILE_UNITS, (tile[1] + 0.5) * TILE_UNITS
+
+
 @lru_cache(maxsize=8)
 def way_for(target: Target, view: Viewport = HOST_VIEW, far: bool = False) -> Way:
     """The potential of a target under a window's shape, kept across presses: rooms, grids, mark and
@@ -673,7 +706,8 @@ def entry_in_view(target: Target, player: Player, way: Way, aspect: float) -> Po
     entry = entry_stand(target)
     if entry is None or not in_view(ground_fraction(player, *scaled(entry), aspect)):
         return None
-    return entry if landable(target, way, entry) else None
+    start = (player.x / TILE_UNITS, player.y / TILE_UNITS)
+    return entry if landable(target, way, entry) and way.hops(start, entry) else None
 
 
 def landing(
@@ -701,6 +735,8 @@ def landing(
             continue  # the warp's own tiles: a hop onto them lands anywhere beside
         if not way.view.hop_view(ground_fraction(player, *scaled(point), aspect)) or not landable(target, way, point):
             continue
+        if not way.hops(start, point):
+            continue  # a line the game refuses a Teleport over (levels/reach.py)
         found.append((way.to_go(point), math.dist(point, start), point))
     # Only spots that take MIN_GAIN off the way: a spot beside the door with footing on a tile the way
     # does not count (its centre in the wall the stairs sit in) was the nearest "beside" spot, came out
@@ -1481,6 +1517,48 @@ def _hop_toward(
     hop_to(run, target, player, rect, spot, gain, key_names)
 
 
+def dropped_watch(run: Run, arrived: Callable[[World], bool], landing: Point | None = None) -> World | None:
+    """The landing within REPRESS_SECONDS of the key (None: none), the key pressed again at once each time the game is
+    seen to have dropped it (DROP_REPRESS): no cast (ACTING) since the key, a block or a hit (KEY_DROP_MODES) seen, then
+    the character free. Once the cast is seen, `run.flight` is given `landing` (world units; PREAIM_FLIGHT)."""
+    until = run.clock() + REPRESS_SECONDS
+    cast = dropped = False
+    flown = not PREAIM_FLIGHT or landing is None or run.flight is None or run.pad is not None
+    again = 0
+    cast_at: float | None = None  # when the cast was first seen (PREAIM_AFTER)
+    while True:
+        try:
+            world = run.world()
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+            return None  # as `run.seen`: an unread look ends the watch
+        if arrived(world):
+            return world
+        player = world.player
+        if player is not None:
+            if player.mode in ACTING:
+                cast = True
+                cast_at = run.clock() if cast_at is None else cast_at
+                due = run.clock() - cast_at >= PREAIM_AFTER
+                if not flown and due and run.flight is not None and landing is not None:
+                    flown = True
+                    run.flight(landing)  # the strike aimed during the flight (PREAIM_FLIGHT)
+                    continue  # looked at again at once: the aim took game time
+            elif player.mode in KEY_DROP_MODES:
+                dropped = dropped or not cast
+                cast_at = None if dropped else cast_at
+            elif DROP_REPRESS and dropped and again < DROP_REPRESSES:
+                again += 1
+                LOG.info('Macro: the Teleport key was dropped by a block or a hit: pressed again at once (%d)', again)
+                press_skill(run, TELEPORT, HOP_POLL)
+                cast = dropped = False
+                until = max(until, run.clock() + REPRESS_SECONDS)
+        if run.clock() >= until:
+            return None
+        run.pace.sleep(HOP_POLL)
+
+
 def hop_to(
     run: Run, target: Target, player: Player, rect: tuple[int, int, int, int], spot: Point, gain: float, key_names
 ) -> None:
@@ -1500,7 +1578,14 @@ def hop_to(
     if run.pad is not None:
         run.pad.aim_place((player.x, player.y), aim)  # controller mode: a heading (macros/pad.py)
     else:
-        run.actuator.snap(*ground_fraction(player, *scaled(spot), aspect), scatter=(4, 3))
+        start = player
+        if actuator.LATE_BIND:
+            # The pointer put from where the newest look sees the character, not where the hop was chosen (a slide, a
+            # walk's last steps, a knock-back since: the spot's place in the window moved with it)
+            newest = binding.newest_world(run, light=True).player
+            if newest is not None and newest.area == player.area:
+                start = newest
+        run.actuator.snap(*ground_fraction(start, *scaled(spot), aspect), scatter=(4, 3))
     press_hop(run, lambda w: w.player is not None and landed_from(w.player, player, aim))
     if target.warp:
         door, entry = scaled(target.point), entry_spot(target)
@@ -1535,7 +1620,7 @@ def hop_to(
             and now.mode not in KEY_DROP_MODES
         )
 
-    seen = run.seen(arrived, REPRESS_SECONDS, HOP_POLL)
+    seen = dropped_watch(run, arrived, aim)
     if seen is None and unspent():
         LOG.info(
             'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS

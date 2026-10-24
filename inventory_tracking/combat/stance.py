@@ -273,7 +273,9 @@ def taken(
         hit = attack.dealt(spot, aimed.at, within, blocked)
         lines.append([(k, hit[unit] * share[k]) for k, (unit, _) in enumerate(near) if unit in hit])
     left = [foe.left for _, foe in near]
-    weight = [ELITE_WEIGHT if foe.elite else 1.0 for _, foe in near]
+    # an elite's point ELITE_WEIGHT times, a raising reviver's REVIVER_WEIGHT more (`Foe.weight`, combat/revivers.py; a
+    # raised one's is not cut here: a place is priced against fixed bars, and every place of a raised pack would fall)
+    weight = [(ELITE_WEIGHT if foe.elite else 1.0) * max(foe.weight, 1.0) for _, foe in near]
     clock, casts, total = after, 0, 0.0
     done = False
     while clock + CAST_SECONDS <= HORIZON:

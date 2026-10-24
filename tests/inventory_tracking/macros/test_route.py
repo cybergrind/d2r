@@ -626,3 +626,22 @@ def test_a_room_that_holds_a_door_is_not_walked_past():
     )
     assert did == ['step']
     assert play.walks == []
+
+
+def test_a_door_on_the_edge_is_walked_to_rather_than_straight_out(monkeypatch):
+    """17:57:19-34 on 2026-10-23: six presses of three clicks straight out of the Outer Cloister's roof edge; the way
+    into the Monastery Gate was the door in the edge's gap (route.py CROSS_DOOR, levels/exits.py `door_passage`)."""
+    from inventory_tracking.levels.doors import Door
+
+    play, did = at_the_edge(), []
+    door = Door(77, 24, 0, (EDGE.x + EDGE.width) * 5 + 2.0, EDGE_MARK[1] * 5 + 15.0)  # on the edge, 27 off
+    play.world = replace(play.world, doors=(door,))
+    border_press(play, Progress([OUTER], route.PERFORMED), did)
+    assert play.walks
+    assert all(y > EDGE_MARK[1] * 5 + 3 for _x, y in play.walks)  # toward the door, not straight east
+
+    monkeypatch.setattr(route, 'CROSS_DOOR', False)
+    play, did = at_the_edge(), []
+    play.world = replace(play.world, doors=(door,))
+    border_press(play, Progress([OUTER], route.PERFORMED), did)
+    assert all(abs(y - EDGE_MARK[1] * 5) < 3 for _x, y in play.walks)

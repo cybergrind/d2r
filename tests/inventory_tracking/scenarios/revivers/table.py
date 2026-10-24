@@ -31,6 +31,8 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.combat.revivers import RULES  # the AI families' parameters: production's (the same dump)
+
 
 HERE = Path(__file__).parent
 TABLE = HERE / 'revivers.json'
@@ -38,33 +40,6 @@ EXCEL = HERE.parents[3] / 'pricing' / 'raw' / 'game-excel'
 RESURRECT = '97'  # skills.txt srvdofunc of Resurrect and Resurrect2
 SELF_RESURRECT = '61'  # skills.txt srvstfunc of Self-resurrect
 GAME_RATE = 25  # frames a second
-
-# AI -> where its Hell parameters hold the raise chance (percent per think) and the raise range (units
-# from the reviver to the corpse), and what it raises. `aidel(H)` is the frames between two thinks.
-RULES: dict[str, dict[str, Any]] = {
-    'FallenShaman': {
-        'chance': 'aip1(H)',
-        'range': 'aip4(H)',
-        'bases': ('fallen1', 'fallenshaman1'),
-        'raises': 'corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion',
-    },
-    'GreaterMummy': {
-        'chance': 'aip2(H)',
-        'range': 'aip5(H)',
-        'flag': 'lUndead',
-        'raises': 'corpses of any lUndead monster on its side, champions too, never a unique; it also heals them',
-    },
-    'FetishShaman': {
-        'chance': 'aip1(H)',
-        'range': 'aip5(H)',
-        'close': 'aip3(H)',  # the squared distance to the corpse from which it raises; further off it walks there
-        'bases': ('fetish1', 'fetishblow1'),
-        'raises': (
-            'corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by '
-            '(aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too'
-        ),
-    },
-}
 
 
 def rows(directory: Path, name: str) -> list[dict[str, str]]:
@@ -167,7 +142,7 @@ def derive(directory: Path = EXCEL) -> dict[str, Any]:
         'dated': '2026-10-10',
         'source': 'pricing/raw/game-excel (dumped 2026-10-06): monstats, skills, levels, superuniques, strings',
         'rules': {
-            ai: {key: value for key, value in rule.items() if key not in ('bases', 'close')}
+            ai: {key: value for key, value in rule.items() if key not in ('bases', 'close', 'champions')}
             for ai, rule in RULES.items()
         },
         'raised': {ai: raised_by(rule) for ai, rule in RULES.items()},
