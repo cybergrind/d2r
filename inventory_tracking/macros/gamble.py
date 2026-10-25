@@ -361,7 +361,7 @@ def _settled(run: Run, moved_from: tuple[int | None, int | None] | None = None) 
     leave those values: a purchase's gold can show late."""
     if WAIT_GOLD_MOVE and moved_from is not None:
         began = run.clock()
-        while _golds(run) == moved_from and run.clock() - began < GOLD_MOVE_SECONDS:
+        while not _moved(_golds(run), moved_from) and run.clock() - began < GOLD_MOVE_SECONDS:
             run.pace.sleep(GOLD_SETTLE)
     last, began = _golds(run), run.clock()
     while run.clock() - began < GOLD_SECONDS:
@@ -371,6 +371,13 @@ def _settled(run: Run, moved_from: tuple[int | None, int | None] | None = None) 
             return now
         last = now
     return last
+
+
+def _moved(now: tuple[int | None, int | None], before: tuple[int | None, int | None]) -> bool:
+    """Whether the gold reads left `before`. A look without the stats (None) is no move: at 11:03:04 on 2026-10-25 one
+    ended the wait for buy 7's price after 0.64 s, it read "for 0 gold" and gambling stopped as if the shared stash had
+    paid (the price showed at the next sale: "for -45000")."""
+    return None not in now and now != before
 
 
 def _sum(golds: tuple[int | None, int | None]) -> int | None:

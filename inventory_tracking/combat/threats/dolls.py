@@ -142,7 +142,8 @@ def runner(txt: int) -> bool:
 
 def herald_doll(monster: Any) -> bool:
     """A Terror Zone Herald that is a running doll (`RUNNERS`): its tier (stat 367) with the unique flag, as
-    builds/warlock/mark.py `herald` tells a Herald (macros/cta.py DOLL_HERALD_FIRST, hunt.py DOLL_HERALD_MARK)."""
+    builds/warlock/mark.py `herald` tells a Herald (macros/cta.py DOLL_HERALD_FIRST, builds/warlock/mark.py
+    DOLL_HERALD_FIRST)."""
     txt = getattr(monster, 'txt_id', None)
     txt = getattr(monster, 'txt', None) if txt is None else txt  # a read Monster's `txt_id`, a priced Hostile's `txt`
     return (

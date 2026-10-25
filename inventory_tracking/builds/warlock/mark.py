@@ -261,11 +261,13 @@ def move_reason(facts: BuffFacts) -> str | None:
     if player is None or not own_demons(facts.world):
         return None
     here = (player.x, player.y)
+    if herald_pack.mark_asked(facts.now) and facts.since(DEATH_MARK) > MARK_DELAY:
+        # R2: the mark from here before the walk in (macros/hunting/moves.py); its asker judged the fight already
+        # (combat/pack.py `big_group`, tier 4 packs too)
+        return herald_pack.WALK_SAID
     pressed = facts.draws is not None and any(price.pressed for price in facts.draws.values())
     if herald_pack.hard_fight(here, facts.foes, pressed) is None:
         return None
-    if herald_pack.mark_asked(facts.now) and facts.since(DEATH_MARK) > MARK_DELAY:
-        return herald_pack.WALK_SAID  # R2: the mark from here before the walk in (macros/hunting/moves.py)
     if not herald_pack.DM_AFTER_EVERY_MOVE:
         return None
     if herald_pack.DM_MOVE_NO_BURN and herald_pack.burning(here, facts.foes):
@@ -980,7 +982,7 @@ def target_before(facts: BuffFacts) -> Monster | None:
 def mark_ahead(facts: BuffFacts) -> bool:
     """Whether the build's fight casts go before the bout's first strike (`Buff.ahead`): the designated monster's mark
     is due (`due_on`, a Herald pack's member's with `pack_designated`), for the demons' aggro first. Before the model
-    (DESIGNATED_MARK off): a doll Herald in reach (macros/hunt.py DOLL_HERALD_MARK, 2026-10-22)."""
+    (DESIGNATED_MARK off): a doll Herald in reach (the retired macros/hunt.py DOLL_HERALD_MARK, 2026-10-22)."""
     if not DESIGNATED_MARK:
         return any(dolls.herald_doll(m) for m in facts.reachable)
     if not mark_due(facts) or rebuff_waits(facts):

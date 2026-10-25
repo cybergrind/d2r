@@ -24,7 +24,7 @@ from inventory_tracking.macros.bossledger import Boss, said as bosses_said
 from inventory_tracking.macros.build import NoWay, PricedStep
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import PICK_UP, WAIT, Goal, rest_of_level
-from inventory_tracking.macros.hunting import choice, revive, shrines
+from inventory_tracking.macros.hunting import choice, moves, revive, shrines
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
     COMES_TO_ITS_MARK,
@@ -388,6 +388,8 @@ def judge(
     facts, waits = hold_off(self, world, foes, facts, pressed and posted is not None and posted.advance, now)
     self.look_facts = facts  # the look's priced acts (YIELD_KEEPS_KILLING's hold)
     act = NoWay(waits) if waits is not None else decide(facts, posted, self.pursuing)
+    if moves.DOOR_FIGHT:  # the pack behind a closed door: the mark, then the door (moves.py DOOR_FIGHT)
+        act = moves.door_fight(self, world, foes, goal, act, in_reach=in_reach, hurt=facts.hurt, now=now)
     note_hold_off(self, world, foes, act, now)
     unshot(self, goal, act, foes, now)
     if (

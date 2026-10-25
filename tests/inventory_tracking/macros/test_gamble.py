@@ -440,6 +440,39 @@ def test_a_price_that_shows_late_is_waited_for_not_taken_for_the_shared_stashs(m
     assert done.paid == done.bought * RING_PRICE
 
 
+class FlickerGold(LateGold):
+    """LateGold, and one read without the stats right after each purchase (11:03:04 on 2026-10-25: buy 7 read "for 0
+    gold" 0.64 s after the click, the wait for the price ended by an unread look)."""
+
+    flicker = False
+
+    @property
+    def loot(self):
+        if self.flicker:
+            self.flicker = False
+            return replace(super().loot, stats=())
+        return super().loot
+
+    @loot.setter
+    def loot(self, value) -> None:
+        self._loot = value
+
+    def set_gold(self, carried: int, bank: int) -> None:
+        super().set_gold(carried, bank)
+        if hasattr(self, 'clock'):
+            self.flicker = True
+
+
+def test_an_unread_look_does_not_end_the_wait_for_a_late_price():
+    play = FlickerGold(carried=950_000, bank=2_500_000)
+
+    done = gamble.gamble(play.run(), by_quality)
+
+    assert done.bought >= 2
+    assert 'not from the carried or the personal stash' not in (done.stop or '')
+    assert done.paid == done.bought * RING_PRICE
+
+
 def test_the_live_floor_is_the_players_200k():
     # the player, 2026-10-21 ~15:20: "yes, lower it to 200k"
     import ast

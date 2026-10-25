@@ -92,7 +92,30 @@ SEEN_MOST = 200
 STOP_UNITS = 40.0  # world units: a valuable this near holds a teleport step back (`worth_a_stop`)
 STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
+# The pickup's line, said by the click's wait (`click`) and by a later look's read (`pending`); the watch reads it
+# (d2-loop-watch logwords.py PICKED)
+PICKED_LINE = (
+    'Macro: picked up %s %.2fs after the click %s pixels from its ground, from %.1f away; under the pointer %s'
+)
 STOOD_SECONDS = 0.4  # the character standing this long after a click with the item still there: a miss
+# PICK_AT_ONCE (2026-10-25, rca/2026-10-25/smoothness-findings.md §3.2; the player: "when I'm playing it by hand it
+# feels way smoother"): a near pickup waited after its click for the item to leave the ground (0.15 s p50, 0.19 p90)
+# before the next look, then the look and the next act (0.12 s): ~0.27 s standing a pickup, 51 near pickups/h. True: a
+# click on a drop within AT_ONCE_UNITS that the hover record names under the pointer, watched AT_ONCE_LOOK for a walk it
+# began (then the wait as before), returns; the drop is out of every choice (SHUNNED, `unshunned`:
+# the agenda's, the sweep's, the press's) for AT_ONCE_SECONDS, and its "picked up" is read at the next looks
+# (`pending`, from `late`): said when it is off the ground. Still on the ground after AT_ONCE_SECONDS: a target again,
+# a valuable watched as a click's (CLICKED, `late`), and that drop's next click waits as before (AT_ONCE_MISSED).
+# False: every click waits, as before.
+PICK_AT_ONCE = False
+AT_ONCE_UNITS = 3.0  # world units: a drop this near is taken where the character stands
+AT_ONCE_SECONDS = 0.5  # the click -> off the ground p90 0.19 s (the session of 2026-10-25, 154 near pickups)
+AT_ONCE_LOOK = 0.06  # seconds the click is watched first: a walk it began shows by then (walks set off 0.03 s p50)
+AT_ONCE_POLL = 0.02
+# Unit id -> (drop, clock of the click, aim, distance, the hover record): the clicks whose pickup a later look reads
+PENDING: dict[int, tuple[Drop, float, tuple[int, int], float, tuple[int, int] | None]] = {}
+AT_ONCE_MISSED: set[int] = set()  # drops an at-once click left on the ground: their next click waits
+AT_ONCE_MOST = 64  # misses remembered at most
 POLL = 0.05
 # Never a click with an item under the pointer that serves the press nothing (the player, 2026-10-21 ~00:55: "not
 # always clicking correct object (we often can pickup hp/rejuv potion) that we wanted"): the game takes the item under
@@ -506,6 +529,7 @@ def late(loot: Loot, now: float) -> None:
     """Log `CLICKED` valuables found carried within LATE_SECONDS as picked up (the watch's tools match the line);
     forget the rest after it. So too a valuable `SEEN` on the ground within LATE_SECONDS and carried now that no
     pickup click took (`taken_by_a_move`)."""
+    pending(loot, now)
     for unit, (drop, at) in list(CLICKED.items()):
         if unit in loot.carried and now - at <= LATE_SECONDS:
             LOG.info(
@@ -517,6 +541,40 @@ def late(loot: Loot, now: float) -> None:
         elif now - at > LATE_SECONDS:
             del CLICKED[unit]
     taken_by_a_move(loot, now)
+
+
+def pending(loot: Loot, now: float) -> None:
+    """PICK_AT_ONCE: the at-once clicks' pickups read in `loot`, read at `now`. Off the ground (or carried): said picked
+    up, as `click` says it. Still on the ground AT_ONCE_SECONDS after the click: said, a target again (its shun over),
+    a valuable watched as a click's (CLICKED), and the drop's next click waits (AT_ONCE_MISSED)."""
+    if not PENDING or loot.game is None:
+        return  # none pending, or an unread look: no drop is known off the ground by it
+    grounded = {drop.unit_id for drop in loot.drops}
+    for unit, (drop, at, aim, away, over) in list(PENDING.items()):
+        if now - at > LATE_SECONDS:
+            del PENDING[unit]  # no look read it in time (the game left): not said either way
+            LOG.info(
+                'Macro: pickup: %s clicked %.2fs ago (PICK_AT_ONCE): no look read its pickup', drop.label, now - at
+            )
+        elif unit not in grounded or unit in loot.carried:
+            del PENDING[unit]
+            LOG.info(PICKED_LINE, drop.label, now - at, aim, away, over)
+            LOG.info('Macro: pickup: %s read picked up at a later look (PICK_AT_ONCE)', drop.label)
+            SEEN.pop(unit, None)  # said here, not again by `taken_by_a_move`
+        elif now - at >= AT_ONCE_SECONDS:
+            del PENDING[unit]
+            if SHUNNED.get(unit) == at + AT_ONCE_SECONDS:
+                del SHUNNED[unit]  # its own shun only: one set since stays
+            if len(AT_ONCE_MISSED) > AT_ONCE_MOST:
+                AT_ONCE_MISSED.clear()
+            AT_ONCE_MISSED.add(unit)
+            if drop.kind == VALUABLE:
+                CLICKED[unit] = (drop, at)
+            LOG.info(
+                'Macro: %s at (%.1f, %.1f) still on the ground %.2fs after the click %s pixels from it (PICK_AT_ONCE): '
+                'a target again, its next click waited on',
+                drop.label, drop.x, drop.y, now - at, aim,
+            )  # fmt: skip
 
 
 def taken_by_a_move(loot: Loot, now: float) -> None:
@@ -671,16 +729,17 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
     away = math.dist((player.x, player.y), (drop.x, drop.y))
     run.actuator.click()
     began = run.clock()
+    if at_once(run, drop, player, began, away, over):
+        # The next look at once; its pickup read by the looks after (`pending`), the drop out of their choices
+        PENDING[drop.unit_id] = (drop, began, aim, away, over)
+        SHUNNED[drop.unit_id] = began + AT_ONCE_SECONDS
+        return True
     deadline = began + PICK_SECONDS + away / WALK_SPEED
     stood: tuple[tuple[float, float], float] | None = None  # (where the character stands, since when)
     while run.clock() < deadline:
         walker = run.world().player  # a cancel stops here
         if not on_ground(run, drop):
-            LOG.info(
-                'Macro: picked up %s %.2fs after the click %s pixels from its ground, from %.1f away; under the '
-                'pointer %s',
-                drop.label, run.clock() - began, aim, away, over,
-            )  # fmt: skip
+            LOG.info(PICKED_LINE, drop.label, run.clock() - began, aim, away, over)
             SEEN.pop(drop.unit_id, None)  # said here, not again by `taken_by_a_move`
             run.say(f'{drop.label}: picked up')
             return True
@@ -702,6 +761,28 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
         None if now is None else (round(now.x, 1), round(now.y, 1)), over,
     )  # fmt: skip
     return False
+
+
+def at_once(run: Run, drop: Drop, player: Player, began: float, away: float, over: tuple[int, int] | None) -> bool:
+    """PICK_AT_ONCE: whether the click begun at `began` is left to the later looks' read (`pending`): a drop within
+    AT_ONCE_UNITS that the hover record named under the pointer (a blind click waits), not missed at once before
+    (AT_ONCE_MISSED), and in AT_ONCE_LOOK the character neither set off (the click walked it: the wait sees the walk
+    through; a step onto the drop's spot is the pickup's) nor the drop already off the ground (said by the wait)."""
+    proved = over is not None and over[0] == ITEM_UNIT and over[1] == drop.unit_id
+    if not PICK_AT_ONCE or not proved or away > AT_ONCE_UNITS or run.loot is None or drop.unit_id in AT_ONCE_MISSED:
+        return False
+    while run.clock() - began < AT_ONCE_LOOK:
+        now = run.world().player
+        if not on_ground(run, drop):
+            return False
+        if now is not None and math.dist((player.x, player.y), (now.x, now.y)) > MOVED_UNITS:
+            stepped_off = math.dist((now.x, now.y), (drop.x, drop.y)) > 1.0
+        else:
+            stepped_off = False
+        if now is not None and (now.mode in RUN_MODES or stepped_off):
+            return False  # a walk the click began (onto the drop's own spot is the pickup's step)
+        run.pace.sleep(AT_ONCE_POLL)
+    return True
 
 
 def worth_a_stop(run: Run) -> Drop | None:

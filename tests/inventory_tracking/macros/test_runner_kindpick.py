@@ -11,7 +11,7 @@ import pytest
 from inventory_tracking.macros import kindpick
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.kindpick import entries
-from inventory_tracking.macros.loop import ANDARIEL, LK, coming_kinds
+from inventory_tracking.macros.loop import ANDARIEL, LK, RECOVERY_PAUSE, coming_kinds
 from inventory_tracking.macros.pickmode import MOST, SURE
 from inventory_tracking.macros.runner import MacroRunner
 from tests.inventory_tracking.macros.fakes import patch_runner
@@ -322,4 +322,37 @@ def test_the_card_is_written_by_one_thread_at_a_time(tmp_path):
     for writer in writers:
         writer.join()
     assert errors == []
+    runner.close()
+
+
+# KIND_ENDS_ZONE_WAIT (2026-10-25 ~12:10, the player: "why andariel loop is not working?"): Andariel picked after the
+# Moo Moo Farm turn still waited "1292 s before the next leg (the next terror zone)"
+
+
+def test_another_kind_picked_ends_the_zone_wait_to_the_recoveries_pause(fast):
+    runner = make([], [])
+    runner.loop.cooling = time.monotonic() + 1500.0  # tzloop.py `zone_wait`: the next terror zone
+    now = time.monotonic()
+    assert runner.choose_kind(now, now, 'lk')
+    assert runner.loop.kind == LK
+    assert runner.loop.cooling <= time.monotonic() + RECOVERY_PAUSE
+    runner.close()
+
+
+def test_the_same_kind_picked_keeps_the_zone_wait(fast):
+    runner = make([], [])
+    kind = runner.loop.kind
+    runner.loop.cooling = until_at = time.monotonic() + 1500.0
+    runner._switch_kind(kind, 'picked')
+    assert runner.loop.cooling == until_at
+    runner.close()
+
+
+def test_with_the_switch_off_another_kind_keeps_the_zone_wait(fast, monkeypatch):
+    patch_runner(monkeypatch, 'KIND_ENDS_ZONE_WAIT', False)
+    runner = make([], [])
+    runner.loop.cooling = until_at = time.monotonic() + 1500.0
+    now = time.monotonic()
+    assert runner.choose_kind(now, now, 'lk')
+    assert runner.loop.cooling == until_at
     runner.close()

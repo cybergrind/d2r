@@ -280,7 +280,7 @@ def test_a_blade_warp_landing_after_the_priced_bound_is_a_landing(monkeypatch, o
 FAR = tuple(replace(m, x=m.x - 4.0, y=m.y + 10.0) for m in FOES)  # the take's pack 22.3-36.6 off: beyond the strike
 
 
-def walker(*, foes=FAR, keyed=None, budget=500.0, worst=100.0, cast=True, pressed=False):
+def walker(*, foes=FAR, keyed=None, budget=500.0, worst=100.0, cast=True, pressed=False, exempt=None, leaving=None):
     """A stand-in Hunter for `walk_in` at the take's place: its foes, the safety's last look (a Hold priced `worst`
     against `budget`), the mark's last key `keyed` s before (None: never), and what `mark_from_here` did."""
     from inventory_tracking.macros.build import Step
@@ -294,7 +294,10 @@ def walker(*, foes=FAR, keyed=None, budget=500.0, worst=100.0, cast=True, presse
     hunter = SimpleNamespace(
         foes=lambda world, now: list(foes),
         safety=SimpleNamespace(
-            draws=draws, decision={'budget': budget, 'candidates': [{'act': 'Hold', 'worst': worst}]}
+            draws=draws,
+            decision={'budget': budget, 'candidates': [{'act': 'Hold', 'worst': worst}]},
+            hold_exempt=exempt,
+            burn_leaving=leaving,
         ),
         attack=SimpleNamespace(reach=REACH),
         buffs=SimpleNamespace(cast_at=cast_at),
@@ -347,6 +350,16 @@ def test_r2_standing_over_the_budget_jumps_as_priced(monkeypatch):
     assert calls == []
 
 
+def test_r2_a_real_threat_or_the_mana_leave_jumps_as_priced(monkeypatch):
+    """2026-10-25 (rca/2026-10-25/tactics/apply-0b.md): manaburn seed 18, the mark from here and the walk in while the
+    safety saw a drainer (its `real_threat`), the least life 36% -> 27%."""
+    jump, out, calls = walk(monkeypatch, exempt='a drainer')
+    assert out == jump
+    jump, out, calls = walk(monkeypatch, keyed=1.0, leaving='mana: leaving')
+    assert out == jump
+    assert calls == []
+
+
 def test_r2_leaves_a_regular_group_and_a_pack_in_reach_alone(monkeypatch):
     jump, out, calls = walk(monkeypatch, foes=trash(FAR))
     assert out == jump
@@ -384,3 +397,12 @@ def test_r1_holds_off_in_a_mana_burn_fight_with_dm_move_no_burn(monkeypatch, no_
     facts = facts_of(monkeypatch, foes=(burner, *FOES[1:]))
     assert (mark.move_reason(facts) is None) == no_burn
     assert mark.move_reason(facts_of(monkeypatch)) == mark.PETS_SAID  # no burner: R1 as before
+
+
+def test_r2_big_group_takes_a_tier_4_pack_for_the_walk_in_alone():
+    """2026-10-25 (the coordinator: "hard fights (T4-5 Herald packs, big groups)"): a tier 4 pack is a big group for
+    MARK_THEN_WALK, while R1's `hard_fight` keeps tier 5."""
+    tier4 = tuple(replace(m, tier=4, flags=0) for m in FOES)
+    assert pack.hard_fight(HERE, tier4) is None
+    assert pack.big_group(HERE, tier4) == 'a tier 4-5 Herald pack, 9 near'
+    assert pack.big_group(HERE, tier4[:5]) is None

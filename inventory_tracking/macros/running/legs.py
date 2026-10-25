@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
-from inventory_tracking.macros import cta, route, zonenav
+from inventory_tracking.macros import cta, route, zonenav, zonewait
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import SKIPPED, ZONE_LEFT
 from inventory_tracking.macros.cain import identify_all
@@ -108,10 +108,12 @@ def _agenda_policy(self: MacroRunner, area: int) -> str:
         finished = self.loop.agenda.finished
         trip = plan.trip_of(area, finished) if zonenav.on(plan) else plan.excursion_of(area, finished)
     wanted = getattr(self.progress, 'wanted', None)
-    if trip is not None and area in trip.zone and wanted is not None and wanted(area) is False:
+    filling = zonewait.filler(plan)
+    if trip is not None and area in trip.zone and wanted is not None and wanted(area) is False and not filling:
         # The zone moved on under the run (23:30 on 2026-10-19: Spider Forest explored 1.5 min after the zone went to
         # Dry Hills): the run ends here ("it should run within terror zones", the player). A level crossed on the way
-        # is never in the zone: TRANSIT as before
+        # is never in the zone: TRANSIT as before. A Worldstone Keep filler game's levels are worked though not
+        # terrorized (macros/zonewait.py ZONE_WAIT_WSK, 2026-10-25)
         return ZONE_LEFT
     if isinstance(plan, Itinerary) and worth_skip(self.loop, area, time.monotonic(), self.valuable_left):
         return SKIPPED  # not worth playing on (macros/zonenav.py `worth`): the run ends, the zone goes on

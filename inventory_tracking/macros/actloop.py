@@ -24,6 +24,7 @@ from collections.abc import Callable, Iterable
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView, World
+from inventory_tracking.game.stash import NORTHERN_FLOOR
 from inventory_tracking.macros import (
     midgame,
     terrorize as hands,  # `hands.CLICKS` read at the call
@@ -42,6 +43,8 @@ from inventory_tracking.macros.terrorize import (
     use_carried,
 )
 from inventory_tracking.macros.travel import cut
+from inventory_tracking.macros.tzroutine import alone_act
+from inventory_tracking.native.layout import TOWN_IDS
 
 
 # The act kind "Shard: Act 4" offered (the picker's entry). On 2026-10-20 ~21:18 after the player's in-game test
@@ -122,11 +125,35 @@ SHARD_ALWAYS_PICKED = True
 # `overflow_due`). Before this, the overflow ran in the act kinds alone (22:27:44 on 2026-10-21 was "Shard: Act 3").
 # Empty: as before
 OVERFLOW_KINDS = frozenset(('tz',))
+# A spare Northern Worldstone Shard for the Baal kind (the player, 2026-10-25 ~12:50: "keep northern shards +1, if we
+# can - use before running baal"). True: every kind keeps one Northern past its full stack carried (`spared`: the first
+# carried copy; a second still falls), and a Baal game's start in town uses a carried one, or in the Fortress one of a
+# stack at the cap, on act 5 before its waypoint (`baal_shard`, loop.py BAAL_SHARD): the Keep 2 and 3 and the Throne
+# terrorized. Nothing spare: the Baal game as before. False: a full stack's Northern put down in a kind with no use for
+# it, and no shard step in a Baal game, as before
+# NORTHERN_STACK (the player, 2026-10-25 ~13:48, asked whether every Baal game takes a Northern from the stash's stack:
+# "floor is 40, use up to it"): True: a Baal game with no Northern carried takes one from the stack, in any town
+# (Harrogath, where its games start), while the stack holds more than NORTHERN_FLOOR (game/stash.py). False: the stack
+# only at the cap and in the Fortress, as before.
+NORTHERN_STACK = True
+NORTHERN_FOR_BAAL = True  # on 2026-10-25 ~13:35: "we could run terrorized baal that drops an expensive statue"
+NORTHERN_ACT = 5
+NORTHERN = next(shard for shard, act in SHARDS.items() if act == NORTHERN_ACT)
 
 
 def act_of(kind) -> int | None:
     """The act a kind terrorizes; None for any other kind."""
     return ACTS.get(kind.key)
+
+
+def alone(act: int | None) -> bool:
+    """Whether act `act`'s game plays it alone (macros/acts/engine.py `ActScript.alone`; act2.py ALONE, the player,
+    2026-10-25 ~17:15: "act 2 tz leveling ... go all canyon of the magi + all tals rasha tombs ... go full arcane
+    sanctuary"): its kind's game uses no shard over the limit (`overflow_due`, `picked_shards`, `unusable`: the acts
+    would not be played, tzroutine.py `itinerary` plans the alone act only), and no game of a kind with no act of its
+    own (TZ leveling, OVERFLOW_KINDS) uses its shard as an overflow (it would be the game's first act: alone, the
+    rotation dropped). False for None."""
+    return act is not None and alone_act((act,)) == act
 
 
 def shard_goal(world: World, loop) -> Objective | None:
@@ -243,13 +270,14 @@ def overflow_due(
     first, then the cube's; None: one from its stack); the acts after `own` first (act 3: 4, 5, 1, 2), at most
     OVERFLOW_MOST played a game. () with the switch off or the stash unread. `carried_only`: only the acts of a carried
     shard (a TZ leveling game, OVERFLOW_KINDS), so one with none carried does not take the slot from one carried."""
-    if not OVERFLOW:
+    if not OVERFLOW or alone(own):
         return ()
     held = tuple(carried)
     due = sorted(
         (SHARDS[shard], shard)
         for shard in over_limit(view, held if CARRIED_COUNT else ())
         if SHARDS[shard] != own
+        and not (own is None and alone(SHARDS[shard]))  # a TZ game's first act: alone, its rotation dropped
         and SHARDS[shard] not in agenda.acts
         and SHARDS[shard] not in agenda.overflow
         and (not carried_only or any(item.txt == shard for item in held))
@@ -270,7 +298,7 @@ def picked_shards(loop) -> frozenset[int]:
     each shard of an act neither terrorized nor tried in this game. Empty otherwise (today's: left on the ground)."""
     agenda, kind = getattr(loop, 'agenda', None), getattr(loop, 'kind', None)  # a bare loop: no act kind's game
     own = act_of(kind) if kind is not None else None
-    if not (OVERFLOW and PICK_OVER_LIMIT and hands.CLICKS) or own is None or agenda is None:
+    if not (OVERFLOW and PICK_OVER_LIMIT and hands.CLICKS) or own is None or agenda is None or alone(own):
         return frozenset()
     if agenda.shard in NO_OVERFLOW:
         return frozenset()
@@ -394,6 +422,10 @@ def unusable(loop, act: int) -> str | None:
     own = act_of(kind)
     if own is None and getattr(kind, 'key', None) not in OVERFLOW_KINDS:
         return f'{getattr(kind, "name", kind.key)} has no shard use'
+    if alone(own) and act != own:
+        return f'act {own} plays alone (macros/acts/act{own}.py ALONE): no other act in its game'
+    if own is None and alone(act):
+        return f'act {act} plays alone (macros/acts/act{act}.py ALONE): never an overflow act of this kind'
     if own is not None and agenda.shard is not None and agenda.shard in NO_OVERFLOW:
         return f'no shard is risked in this game ({agenda.shard})'
     if act == own:
@@ -425,6 +457,9 @@ def spared(loop, item: Carried, carried: Callable[[], Pack | None] | None = None
     if OWN_CARRIED and why is not None and getattr(loop, 'kind', None) is not None and act == act_of(loop.kind):
         # the next game's own act uses it first (`own_shard`): the first copy kept, a second falls below
         why, kept = None, f"a {name} kept for the next game's act {act} (OWN_CARRIED)"
+    if NORTHERN_FOR_BAAL and why is not None and act == NORTHERN_ACT:
+        # any kind: one Northern carried for a Baal game's start (`baal_shard`), a second falls below
+        why, kept = None, f'a {name} kept for a Baal game'
 
     if why is None and carried is not None and (pack := carried()) is not None:
         first = next((each for each in (*pack.items, *pack.in_cube) if each.txt == item.txt), None)
@@ -437,6 +472,56 @@ def spared(loop, item: Carried, carried: Callable[[], Pack | None] | None = None
         _said_down.add(said)
         LOG.info('Macro: act: the %s (unit %d) may be put down: %s', name, item.unit_id, why)
     return None
+
+
+def northern_ready(run: Run, area: int | None) -> str | None:
+    """NORTHERN_FOR_BAAL: where a Baal game's shard step finds its Northern: 'carried' (the inventory's, then the
+    cube's), or 'stack' in a town with its stack over NORTHERN_FLOOR (NORTHERN_STACK off: the Fortress with the
+    stack at the cap, `over_limit`); None with none, the switch or the clicks off."""
+    if not (NORTHERN_FOR_BAAL and hands.CLICKS):
+        return None
+    if carried_own(run, NORTHERN_ACT) is not None:
+        return 'carried'
+    if NORTHERN_STACK:
+        view = run.reads.stash_view()
+        if area in TOWN_IDS and view is not None and view.count(NORTHERN) > NORTHERN_FLOOR:
+            return 'stack'
+        return None
+    if area == PANDEMONIUM_FORTRESS and NORTHERN in over_limit(run.reads.stash_view()):
+        return 'stack'
+    return None
+
+
+def baal_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> bool:
+    """BAAL_SHARD (loop.py): act 5 terrorized before a Baal game's waypoint by a carried Northern where it lies
+    (`use_carried`), else in the Fortress one from its stack at the cap (`terrorize`), as the overflow's uses
+    (`overflow`); whether it took. A refusal (act 5 terrorized already) or a stop is said and the game goes on as
+    before; the player's hand or a cut run raises, so the step is tried again."""
+    item = carried_own(run, NORTHERN_ACT)
+    player = run.world().player
+    town = TOWN_IDS if NORTHERN_STACK else (PANDEMONIUM_FORTRESS,)
+    if item is None and (player is None or player.area not in town or northern_ready(run, player.area) != 'stack'):
+        LOG.info('Macro: act: no Northern Worldstone Shard carried for the Baal run: act 5 is not terrorized')
+        return False
+    floor = NORTHERN_FLOOR + 1 if NORTHERN_STACK else SHARD_FLOOR
+    try:
+        used = use_carried(run, item, inventory_key, terrorized) if item is not None else (
+            terrorize(run, inventory_key, NORTHERN_ACT, terrorized, floor)
+        )  # fmt: skip
+    except Abort as stop:
+        if cut(run, stop):
+            raise
+        LOG.info('Macro: act: the Northern Worldstone Shard for the Baal run stopped (%s): the run as before',
+                 stop)  # fmt: skip
+        return False
+    if used is not None and used.confirmed:
+        LOG.info('Macro: act: act 5 terrorized by a %s Northern Worldstone Shard before the Baal run',
+                 'carried' if item is not None else "stack's")  # fmt: skip
+        run.say('Act 5 terrorized: the Baal run')
+        return True
+    why = 'nothing used' if used is None else 'gone, its stack not as it should be' if used.gone else 'still carried'
+    LOG.info('Macro: act: the Northern Worldstone Shard for the Baal run did not take (%s): the run as before', why)
+    return False
 
 
 def played_said(acts: tuple[int, ...]) -> str:

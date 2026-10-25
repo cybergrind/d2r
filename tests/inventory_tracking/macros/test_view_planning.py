@@ -176,3 +176,18 @@ def test_without_the_corners_nothing_changes():
     view = Viewport(2560 / 1418)
     assert not view.hop_view((0.9, 0.93))
     assert not view.hop_between(6, 0)
+
+
+def test_a_hop_is_never_aimed_on_the_mana_orb(monkeypatch):
+    # Game 173 at 17:16:56 on 2026-10-25: aimed at (0.797, 0.826), inside VIEW, on the mana orb's demon: cast nothing
+    from inventory_tracking.game import view as view_module
+
+    monkeypatch.setattr(view_module, 'HOP_SHAPE', True)
+    monkeypatch.setattr(view_module, 'CORNERS', [True])
+    port = view_module.Viewport()
+    assert not port.hop_view((0.797, 0.826))
+    assert port.hop_view((0.797, 0.80))  # above the horns
+    assert port.hop_view((0.5, 0.83))  # over the bar's middle: the bar's top is 0.92
+    assert port.hop_view((0.92, 0.93))  # the right corner beside the bar, as before
+    monkeypatch.setattr(view_module, 'HOP_SHAPE', False)
+    assert port.hop_view((0.797, 0.826))  # as before

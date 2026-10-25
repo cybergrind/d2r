@@ -183,7 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--loop', choices=('on', 'off', 'keep'), default='keep')
     parser.add_argument(
         '--kind',
-        choices=('lk', 'andariel', 'tz', 'tzclear', *ACT_KINDS),
+        choices=('lk', 'andariel', 'baal', 'tz', 'tzclear', *ACT_KINDS),
         help="the loop's run (macros/loop.py `loop_kinds`: tz and tzclear only once macros/tzloop.py ENABLED; "
         "act1 ... act5 once macros/actloop.py ENABLED and the act's script is ready, macros/acts/); with --when "
         'town|safe from the next game',

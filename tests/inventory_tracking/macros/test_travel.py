@@ -439,7 +439,8 @@ def test_a_jump_the_player_or_the_run_cut_is_not_remembered_as_failed(stop):
     assert travel.jump_failed == {}
 
 
-def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has_it_casting():
+def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has_it_casting(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_FREE_FRAME', False)  # SWAP_SETTLE first (on: a free frame, 2026-10-25)
     # The fixed 0.2 s of every walk leg (rca/2026-10-13/latency-findings.md §2.2): a character free at the look
     # the walk was chosen by and at one now is clicked at once; one that was casting waits as before.
     play = Game(world())
@@ -640,6 +641,7 @@ def test_with_no_free_aim_or_the_switch_off_the_walk_is_clicked_where_aimed(monk
 
 @pytest.mark.parametrize('on', [True, False])
 def test_a_walk_click_the_character_never_sets_off_on_is_given_up_once_it_stood_free(monkeypatch, on):
+    monkeypatch.setattr(travel_module, 'WALK_FREE_FRAME', False)  # one click's path (on: a second, settled; 2026-10-25)
     # 2026-10-23: walks that set off do so within 0.058 s of the click (p99 of 1104); the 322 that never did each stood
     # out the whole STEP_WALK_SECONDS, 34 of them with a hostile within 3 (rca/2026-10-23/pause-findings.md)
     monkeypatch.setattr(travel_module, 'WALK_NO_START', on)
@@ -664,6 +666,7 @@ def test_a_walk_click_the_character_never_sets_off_on_is_given_up_once_it_stood_
 
 
 def test_a_block_after_a_walk_click_starts_the_count_again_at_its_end(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_FREE_FRAME', False)  # one click's path (on: a second, settled; 2026-10-25)
     monkeypatch.setattr(travel_module, 'WALK_NO_START', True)
     play = Game(world())
     run = play.run()
@@ -691,6 +694,7 @@ def test_a_walk_set_off_is_waited_for_its_move(monkeypatch):
 
 
 def test_a_walk_a_body_stopped_short_before_the_first_look_is_waited_for_as_before(monkeypatch):
+    monkeypatch.setattr(travel_module, 'WALK_FREE_FRAME', False)  # one click's path (on: a second, settled; 2026-10-25)
     # Tower Cellar 5 (2026-10-11, the take's 3.35-3.43 s): the click set the character off and a body stopped it 1.99
     # units on, short of MOVED, before the macro's first look; that walk is not a click the game ignored
     monkeypatch.setattr(travel_module, 'WALK_NO_START', True)

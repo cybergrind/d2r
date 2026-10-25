@@ -7,6 +7,7 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.builds.warlock.skills import PSYCHIC_WARD  # a buff's Quick Cast, its skill on the right button
 from inventory_tracking.macros import hunt
 from inventory_tracking.macros.skills import TELEPORT
 from tests.inventory_tracking.scenarios.loop.helpers import NO_MARK_SLOTS, attack_mode, foe, game, hunter, left_click
@@ -17,15 +18,15 @@ STRIKE_OFF_KEYS = tuple(None if skill == ECHOING_STRIKE else skill for skill in 
 CASTING = 10
 
 
-def landed_casting(cast_until: float):
-    """A foe in reach of the character, who is in its Teleport's cast's tail until `cast_until`: Teleport on the right
-    button meanwhile, Echoing Strike back on it after; the strike on no skill key."""
+def landed_casting(cast_until: float, skill: int = TELEPORT):
+    """A foe in reach of the character, who is in its Teleport's cast's tail until `cast_until`: Teleport (or `skill`)
+    on the right button meanwhile, Echoing Strike back on it after; the strike on no skill key."""
     play = game(foe(10, 5008.0, 5000.0), slots=STRIKE_OFF_KEYS)
     play.toughness[10] = 1000
     player = play.world.player
     assert player is not None
     free = replace(player, right_skill=ECHOING_STRIKE)
-    play.world = replace(play.world, player=replace(free, mode=CASTING, right_skill=TELEPORT))
+    play.world = replace(play.world, player=replace(free, mode=CASTING, right_skill=skill))
     play.arrivals.append((cast_until, lambda: setattr(play, 'world', replace(play.world, player=free))))
     return play
 
@@ -85,3 +86,25 @@ def test_a_click_in_the_cast_tail_is_the_players(monkeypatch, looks):
     looks['clock'] = lambda: play.clock.now
     attack_mode(play, hunter(play), until=0.6, events=[left_click(play, 0.02, seconds=0.2)])
     assert all(at >= 0.22 for at, _ in play.struck_at), 'no strike while the player holds the button'
+
+
+@pytest.mark.parametrize('hops', [False, True], ids=['every-tail', 'hops-only'])
+def test_with_cast_tail_hops_a_buffs_tail_is_napped_through_and_a_hops_still_taken(monkeypatch, looks, hops):
+    # CAST_TAIL_HOPS (2026-10-25): Psychic Ward's tail held the loop 0.23 s in arena fane-death-20, with no pursuit look
+    monkeypatch.setattr(hunt, 'CAST_TAIL', True)
+    monkeypatch.setattr(hunt, 'CAST_TAIL_HOPS', hops)
+    ward = landed_casting(0.05, PSYCHIC_WARD)
+    looks['clock'] = lambda: ward.clock.now
+    attack_mode(ward, hunter(ward), until=0.5)
+    if hops:
+        assert len(looks['loop naps']) == 2  # the loop's own pace through a buff's tail, its looks between
+    else:
+        assert looks['loop naps'] == []
+    assert ward.struck_at
+    looks['choose'].clear()
+    looks['loop naps'].clear()
+    hop = landed_casting(0.05)
+    looks['clock'] = lambda: hop.clock.now
+    attack_mode(hop, hunter(hop), until=0.5)
+    assert looks['loop naps'] == []  # a Teleport's tail is waited either way
+    assert 0.05 <= looks['choose'][0] <= 0.05 + hunt.SLICE + 0.002

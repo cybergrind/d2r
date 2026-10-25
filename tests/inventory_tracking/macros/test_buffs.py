@@ -129,7 +129,10 @@ def test_a_cast_the_state_does_not_show_is_made_again_after_a_while_and_then_dis
     assert buffs.unseen[AURA] == 1  # unreadable says nothing
 
 
-def test_a_row_is_asked_its_own_due_then_its_target_then_its_worth():
+def test_a_row_is_asked_its_own_due_then_its_target_then_its_worth(monkeypatch):
+    from inventory_tracking.macros import buffs as buffs_module
+
+    monkeypatch.setattr(buffs_module, 'OFF_SCREEN_NEXT', False)  # FAR off the screen still asked (on: 2026-10-25)
     play = game(NEAR)
     run = play.run()
     asked = []
@@ -227,9 +230,12 @@ def test_a_casts_told_line_is_said_at_the_first_cast_on_a_monster_and_its_said_l
     assert lines == ['said 7', 'told 7', 'said 7']
 
 
-def test_no_cast_on_a_monster_off_the_screen_or_gone_and_nothing_is_remembered(caplog):
+def test_no_cast_on_a_monster_off_the_screen_or_gone_and_nothing_is_remembered(caplog, monkeypatch):
     import logging
 
+    from inventory_tracking.macros import buffs as buffs_module
+
+    monkeypatch.setattr(buffs_module, 'OFF_SCREEN_NEXT', False)  # the cast dropped, not asked again (on: 2026-10-25)
     play = game(FAR)
     buffs, run = plan(BOLT_ROW), play.run()
     with caplog.at_level(logging.INFO, logger='inventory_tracking'):

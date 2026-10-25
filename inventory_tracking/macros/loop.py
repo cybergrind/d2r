@@ -70,13 +70,14 @@ from inventory_tracking.macros.volatile import (
 from inventory_tracking.macros.waypoint import travel
 from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.routes.catalog.act2 import TOMBS
-from inventory_tracking.routes.model import FIGHT, LOOT, USE
+from inventory_tracking.routes.model import FIGHT, LOOT, STAND, USE
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import KILLED_AT
 
 
 __all__ = [
     'ANDARIEL',
+    'BAAL',
     'COMING',
     'KINDS',
     'LK',
@@ -100,6 +101,9 @@ __all__ = [
 
 KURAST_DOCKS, LOWER_KURAST, PANDEMONIUM_FORTRESS = 75, 79, 103
 ROGUE_ENCAMPMENT, CATACOMBS_2, CATACOMBS_3, CATACOMBS_4 = 1, 35, 36, 37  # levels.txt
+# levels.txt (third-parties/d2data/json/levels.json, read 2026-10-25): Harrogath, The Worldstone Keep Level 2 (its
+# waypoint, act 5 row 8 of macros/data/waypoints.json) and 3, the Throne of Destruction, The Worldstone Chamber
+HARROGATH, WORLDSTONE_KEEP_2, WORLDSTONE_KEEP_3, THRONE, CHAMBER = 109, 129, 130, 131, 132
 
 
 @dataclass(frozen=True)
@@ -125,10 +129,13 @@ class Kind:
     swaps_gheeds: bool = False  # the Gheed's swap (macros/charms.py)
     boss: str | None = None  # whose drops may still be landing at PICK_UP (`KILLED_AT`)
     # The HUD's mode word (runner.py `run_badge`; the player, 2026-10-19: "ATT, BUFF, LK, AND (andariel), BAAL, DIAB,
-    # MEPH": the last three for kinds to come)
+    # MEPH": BAAL built 2026-10-25, DIAB and MEPH for kinds to come)
     word: str = ''
     fortress_ends_game: bool = False  # leaving its level for the Fortress ends the game (`done`)
     full_clear: bool = False  # every hostile, every room: the Herald hunt (macros/tzloop.py `full_clear`)
+    # The boss's own level: the loot leg waits for his drops there only (`DROPS_LAND`), not on a level before it (the
+    # Throne's loot after Lister for Baal); None: on any level of the kind
+    lair: int | None = None
 
 
 LK = Kind(
@@ -150,7 +157,31 @@ ANDARIEL = Kind(
     boss='Andariel',
     word='AND',
 )
-KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
+# Baal (the player, 2026-10-25 ~12:17: "build a baal runner, very similar to andariel runner"; 2026-10-22: "we need to
+# kill all bosses, no exceptions to that -> they can give a very valuable drops, especially baal's statue"): the
+# Worldstone Keep 2 by waypoint, down to the Throne, its five waves (macros/hunting/throne.py), the portal once Baal
+# left his throne, his fight in the Worldstone Chamber, the loot, Save and Exit. Town trips and the Gheed's swap as
+# Andariel's, from Harrogath. The route is the catalogue's 'Baal' (routes/catalog/act5.py), the shard act 5 script's
+# first trip (macros/acts/act5.py)
+# BAAL_GAME_SECONDS (estimate, 2026-10-25): the act 5 shard game at 23:10-23:16 on 2026-10-24 took 105 s for the
+# waves, ~15 s for Baal's walk into the portal and 24 s from the Chamber to his kill; the Keep's two levels rushed and
+# the waypoint ~60 s: ~4 min a game, twice that before the watchdog leaves it
+BAAL_GAME_SECONDS = 480.0
+BAAL = Kind(
+    'baal',
+    'Baal',
+    WORLDSTONE_KEEP_2,
+    frozenset((WORLDSTONE_KEEP_2, WORLDSTONE_KEEP_3, THRONE, CHAMBER)),
+    HARROGATH,
+    metric='Baal kills an hour',
+    game_seconds=BAAL_GAME_SECONDS,
+    trips=True,
+    swaps_gheeds=True,
+    boss='Baal',
+    word='BAAL',
+    lair=CHAMBER,
+)
+KINDS = {kind.key: kind for kind in (LK, ANDARIEL, BAAL)}
 # The terror zone kinds (macros/goals-plan.md): goals from the agenda (tzloop.py), offered only with tzloop.ENABLED
 FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM_FORTRESS, 109}
 TZ_GAME_SECONDS = 1200.0
@@ -250,6 +281,25 @@ FIGHT_ANDARIEL = 'Andariel'  # the level run on Level 4: her fight
 TRIP = 'to town for room'
 TO_THE_ENCAMPMENT = 'to the Rogue Encampment'
 THROUGH_PORTAL = 'back through the portal'
+# Baal's legs (`baal_leg`, 2026-10-25): the waypoint to the Worldstone Keep Level 2; Levels 2 and 3 as the Catacombs'
+# (the level run to the stairs, rushed, then through); on the Throne the level run, fighting, for its route stages (the
+# stand, the hall, the five waves to Lister: macros/hunting/throne.py `wave_goal`); the portal to the Chamber once Baal
+# left his throne (the way on: running/legs.py `throne_shut`, teleport.py `baal_gone`); in the Chamber his fight
+TO_THE_KEEP = 'to the Worldstone Keep'
+DOWN_THE_KEEP = 'down the Worldstone Keep'
+FIGHT_THRONE = "the Throne's waves"
+TO_THE_CHAMBER = 'into the Worldstone Chamber'
+FIGHT_BAAL = 'Baal'
+TO_HARROGATH = 'to Harrogath'  # a trip's and the Gheed's swap's way back from the Fortress (TO_THE_ENCAMPMENT's)
+# A spare Northern Worldstone Shard used on act 5 before the waypoint, once a game (actloop.py NORTHERN_FOR_BAAL; the
+# player, 2026-10-25 ~12:50: "keep northern shards +1, if we can - use before running baal")
+BAAL_SHARD = 'a Northern shard for act 5'
+# The kinds' towns the Fortress's way back goes to (`gheeds_leg`, `boss_town_leg`)
+HOME_LEGS = {ROGUE_ENCAMPMENT: TO_THE_ENCAMPMENT, HARROGATH: TO_HARROGATH}
+# A game's prebuff in these towns may fail and is cast again on the kind's first level (`next_game`, DOWN's
+# `prebuff_once`): the Encampment's start NPCs refuse Consume (routines.py TOWN_NPCS); Harrogath's start is not played
+# by the loop yet (2026-10-25), so a refusal there must not cost a Baal game either
+PREBUFF_LATER = {ROGUE_ENCAMPMENT: 'Catacombs 2', HARROGATH: 'the Worldstone Keep 2'}
 # The Gheed's swap (macros/charms.py; the player, 2026-10-18: "put our own gheed into SHARED tab; go back and pick new
 # one; go to town, identify; check what is better")
 SWAP_OUT = "Gheed's Fortune away"
@@ -281,11 +331,16 @@ CUBE_PER_NEED = True
 MERC_TRIPS = 4
 # How often one leg may be made in one game before the loop gives up on it (default REPEAT).
 REPEATS = {PICK_UP: 20, CHESTS: 3, DOWN: 12, FIGHT_ANDARIEL: 3}  # DOWN: the pickups at the stairs too
+# The Throne's legs (2026-10-25, unplayed as legs: bounds by the act 5 shard games' Throne): the waves' level run again
+# after a trip or a run ended early; the way on a level run while the portal is shut (the hall, Baal's walk), then the
+# press, again after a click that did not take
+REPEATS |= {DOWN_THE_KEEP: 12, FIGHT_THRONE: 8, TO_THE_CHAMBER: 8, FIGHT_BAAL: 3}
 # Each trip and the swap (twice) go to the Fortress and back; once more at an Andariel game's start
 REPEATS |= {
     TRIP: TRIPS_A_GAME,
     TO_THE_FORTRESS: 1 + TRIPS_A_GAME + 2,
     TO_THE_ENCAMPMENT: TRIPS_A_GAME + 2,
+    TO_HARROGATH: TRIPS_A_GAME + 2,
     THROUGH_PORTAL: TRIPS_A_GAME + 2,
 }
 # A route begun with the cube full and the loop's inventory cells partly filled starts with the town visit (the player,
@@ -482,6 +537,10 @@ class Loop:
     cooling: float = 0.0  # time.monotonic() before which no leg is made (`recover`, RECOVERY_PAUSE)
     lobby_fails: int = 0  # game creations failed in a row (macros/stops.py `first`, cause 'lobby')
     fought: tuple[str, float] | None = None  # (game, run clock) at her level's first loot leg (`DROPS_LAND`)
+    # BAAL_SHARD (actloop.py NORTHERN_FOR_BAAL): the game whose shard step was made, and where the last look in town
+    # found a Northern for it ('carried', 'stack'; None: none, or the switch off)
+    northern: str | None = None
+    northern_ready: str | None = None
     # The bosses read dead in a game (routes/progress.py `dead`): name -> the run clock of the first leg that read it
     # (`landing`: DROPS_LAND from it for a kill KILLED_AT did not see), and the game they belong to
     slain: dict[str, float] = field(default_factory=dict)
@@ -1110,10 +1169,12 @@ class Loop:
         except Hand:
             raise
         except Abort as stop:
-            if now.player is None or now.player.area != ROGUE_ENCAMPMENT:
+            if now.player is None or now.player.area not in PREBUFF_LATER:
                 raise
-            # Consume cannot take the Encampment's start NPCs (routines.py TOWN_NPCS): again on Catacombs 2 (`DOWN`)
-            LOG.info('Macro: loop: the prebuff in the Rogue Encampment failed (%s): again on Catacombs 2', stop)
+            # Consume cannot take the Encampment's start NPCs (routines.py TOWN_NPCS): again on Catacombs 2 (`DOWN`);
+            # Harrogath's start is unplayed by the loop (2026-10-25): again on the Worldstone Keep 2 (`DOWN_THE_KEEP`)
+            LOG.info('Macro: loop: the prebuff in %s failed (%s): again on %s', display_name(now.player.area), stop,
+                     PREBUFF_LATER[now.player.area])  # fmt: skip
 
     def town(self, run: Run, visit: Callable[[Exit], object] | None, game: str, exit: Exit) -> None:
         """The TOWN leg: the town visit, ending by `exit`."""
@@ -1145,6 +1206,21 @@ class Loop:
         if world.in_game and world.player is not None:
             game_id = str(self.game_id or world.game_name)
             say_experience(self.experience.look(game_id, world.player.area, experience_now(run), time.monotonic()))
+
+    def into_the_chamber(self, way_on: Callable[[], None]) -> None:
+        """TO_THE_CHAMBER: the way on at the Throne's portal (running/legs.py `_way_on`: the level run while the portal
+        is shut, the press once Baal is gone). A click that did not take (teleport.py `Untook`: Baal still on his
+        throne, the hall not clear, the portal not open yet) is no stop: the leg is made again, the next one's level
+        run fights the hall or waits, REPEATS bounding it. 2026-10-22 (the TZ's, tzloop.py SKIP_USE and FOUGHT_FIRST):
+        "No click took Worldstone Chamber" left games with Baal alive; the player: "we need to kill all bosses, no
+        exceptions to that".
+        """
+        from inventory_tracking.macros.teleport import Untook  # late: only this leg's
+
+        try:
+            way_on()
+        except Untook as untook:
+            LOG.info('Macro: loop: the Worldstone Chamber: %s: the leg is made again', untook)
 
     def leave(self, run: Run, game: str) -> None:
         """The LEAVE leg: Save and Exit, the game done and counted. A game's planned end in a level first makes the
@@ -1478,6 +1554,11 @@ class Loop:
             if in_town and cells_low(in_inventory) and not space.low and in_cube >= 3 and items and not visiting:
                 # The loop's items into the cube for pickup room, between visits only (runner.py `make_room`)
                 self.make_room = True
+        self.northern_ready = None
+        if self.kind.key == BAAL.key and world.in_game and world.player is not None and world.player.in_town:
+            from inventory_tracking.macros import actloop  # late: as `loop_kinds`
+
+            self.northern_ready = actloop.northern_ready(run, world.player.area)
         staff = run.teleport() if world.in_game and run.teleport is not None else None
         # In a visit any missing charge is topped up (town.py `tops_up`), decided again at Halbu's (macros/visit.py)
         in_session = world.in_game and self.visiting == world.game_name
@@ -1533,29 +1614,37 @@ class Loop:
                 self.fetch_back = None  # nothing left: the kind's legs go on
         elif leg == TOWN:
             self.town(run, visit, game, self.exit_of(game))
-        if leg in (TO_THE_CHESTS, TO_THE_CATACOMBS):
+        if leg in (TO_THE_CHESTS, TO_THE_CATACOMBS, TO_THE_KEEP):
             # The carried gold, once a game (the player, 2026-10-17: "just use gold in the inventory")
             coins = gold(run)
             LOG.info('Macro: loop: gold carried %s, the most worn item %s', coins, self.wear)
             if not (run.own_teleport is not None and run.own_teleport()):
                 # Own Teleport (Enigma) is in every move whatever the gold (runner.py LOOPED_TELEPORT)
                 self.teleports = teleports(coins, gold_cap(run), self.teleports)
-            if world.player is None or world.player.area != ROGUE_ENCAMPMENT:
+            # The prebuff waits for the first level where the town's start may refuse it (`next_game`)
+            later = (ROGUE_ENCAMPMENT, HARROGATH) if leg == TO_THE_KEEP else (ROGUE_ENCAMPMENT,)
+            if world.player is None or world.player.area not in later:
                 self.prebuff_once(run, game)
             travel(run, self.kind.start, self.marks)
         elif leg == CHESTS:
             level_run()
-        elif leg == DOWN:
+        elif leg in (DOWN, DOWN_THE_KEEP):
             if down is None:
                 raise Abort('no level run to the stairs')
-            self.prebuff_once(run, game)  # not cast in the Encampment (`next_game`)
+            self.prebuff_once(run, game)  # not cast in the Encampment or Harrogath (`next_game`)
             down()
-        elif leg == FIGHT_ANDARIEL:
+        elif leg in (FIGHT_ANDARIEL, FIGHT_THRONE, FIGHT_BAAL):
             if fight is None:
                 raise Abort('no level run to fight with')
             fight()  # posts the run and returns; its end is PICK_UP's
+        elif leg == TO_THE_CHAMBER:
+            if down is None:
+                raise Abort('no way on to press')
+            self.into_the_chamber(down)
         elif leg == PICK_UP:
-            boss = self.kind.boss
+            lair = self.kind.lair
+            on_lair = lair is None or (world.player is not None and world.player.area == lair)
+            boss = self.kind.boss if on_lair else None
             if boss is not None and (self.fought is None or self.fought[0] != game):
                 # Her fight's run has just ended (`fight` only posts it): the clock starts here
                 self.fought = (game, run.clock())
@@ -1568,9 +1657,9 @@ class Loop:
                 else:
                     landing = 0.0
                 if landing > 0:
-                    LOG.info("Macro: loop: Andariel's drops may still be landing: %.1fs more, then the ground again",
+                    LOG.info("Macro: loop: %s's drops may still be landing: %.1fs more, then the ground again", boss,
                              landing)  # fmt: skip
-                    watched_sleep(run, landing, "Andariel's drops' wait")  # a hostile hitting the character ends it
+                    watched_sleep(run, landing, f"{boss}'s drops' wait")  # a hostile hitting the character ends it
                 else:
                     progress.looted(world.player.area)
         elif leg == PORTAL:
@@ -1603,6 +1692,17 @@ class Loop:
                     LOG.info("Macro: charms: the level's loot is done: the game is left from town")
         elif leg == TO_THE_ENCAMPMENT:
             travel(run, ROGUE_ENCAMPMENT, self.marks)
+        elif leg == TO_HARROGATH:
+            travel(run, HARROGATH, self.marks)
+        elif leg == BAAL_SHARD:
+            from inventory_tracking.macros import actloop  # late: as `loop_kinds`
+
+            self.northern = game  # once a game, whatever comes of it
+            try:
+                actloop.baal_shard(self, run, hands.terrorized, hands.inventory_key())
+            except Hand, Cancelled:
+                self.northern = None  # the player's hand or a cut run: tried again at the next leg
+                raise
         elif leg == THROUGH_PORTAL:
             self.back_through_portal(run, game)
             if self.gheed in (PICK, RETURN) and progress is not None and self.swap_level is not None:
@@ -1744,29 +1844,71 @@ def gheeds_leg(world: World, loop: Loop) -> str | None:
     player = world.player
     assert player is not None
     game, area, parked, stage = world.game_name, player.area, loop.parked, loop.gheed
+    home, levels = swap_ground(loop.kind)
+    to_home = HOME_LEGS[home]
     if loop.abandon:
         if parked is None:
             return None
-        legs = {PANDEMONIUM_FORTRESS: GHEED_CHOOSE, ROGUE_ENCAMPMENT: TO_THE_FORTRESS}
-        leg = legs.get(area, SWAP_BACK if area in ANDARIEL.levels else None)
+        legs = {PANDEMONIUM_FORTRESS: GHEED_CHOOSE, home: TO_THE_FORTRESS}
+        leg = legs.get(area, SWAP_BACK if area in levels else None)
         return leg if leg is not None and loop.made[game, leg] < REPEAT else None
     if area == PANDEMONIUM_FORTRESS:
         if parked is not None:
-            return TO_THE_ENCAMPMENT if stage == PICK else GHEED_CHOOSE
+            return to_home if stage == PICK else GHEED_CHOOSE
         if stage == OUT:
             return GHEED_STASH
-        return TO_THE_ENCAMPMENT if stage == RETURN else None
-    if area == ROGUE_ENCAMPMENT:
+        return to_home if stage == RETURN else None
+    if area == home:
         if parked is not None:
             return THROUGH_PORTAL if stage == PICK else TO_THE_FORTRESS
         if stage == OUT:
             return TO_THE_FORTRESS
         return THROUGH_PORTAL if stage == RETURN else None
-    if area in ANDARIEL.levels:
+    if area in levels:
         if parked is not None and (stage != PICK or loop.fresh):
             return SWAP_BACK
         if parked is None and loop.swap_due and loop.swap != game and loop.kind.swaps_gheeds:
             return SWAP_OUT
+    return None
+
+
+def swap_ground(kind: Kind) -> tuple[int, frozenset[int]]:
+    """The Gheed's swap's town and levels for `kind` (`gheeds_leg`): a boss kind's own (its home among HOME_LEGS:
+    Andariel's Encampment, Baal's Harrogath), else Andariel's as before (the agenda kinds' swap is their package's)."""
+    if kind.agenda or kind.home not in HOME_LEGS:
+        return ROGUE_ENCAMPMENT, ANDARIEL.levels
+    return kind.home, kind.levels
+
+
+def boss_town_leg(world: World, loop: Loop, to_start: str) -> str | None:
+    """A boss kind's legs in the towns (`andariel_leg`, `baal_leg`): from the Fortress `to_start` (its waypoint), or
+    home on a trip; at home Save and Exit at a game's end, a trip's Fortress and the way back through the portal, the
+    Fortress for a session due (the room low with something a session takes, keys or scrolls short, a repair), else
+    `to_start`; any other town `to_start` (as `lk_leg`); out of town a trip for room due (several a game:
+    `Loop.may_trip`), else None for the kind's levels."""
+    player = world.player
+    assert player is not None
+    game = world.game_name
+    home = loop.kind.home
+    if player.area == PANDEMONIUM_FORTRESS:
+        return HOME_LEGS[home] if loop.tripping(game) else to_start
+    if player.area == home:
+        if loop.done == game:
+            return LEAVE
+        if loop.tripping(game):
+            return TO_THE_FORTRESS if loop.fortressed != game else THROUGH_PORTAL
+        if (loop.room_low and loop.carrying) or loop.short or loop.repair:
+            return TO_THE_FORTRESS
+        return to_start
+    if player.in_town:
+        return to_start
+    if (
+        loop.trip_due
+        and not loop.tripping(game)
+        and loop.trips_in(game) < TRIPS_A_GAME
+        and player.area in loop.kind.levels
+    ):
+        return TRIP
     return None
 
 
@@ -1775,26 +1917,8 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     3, on Level 4 her fight, the loot, Save and Exit."""
     player = world.player
     assert player is not None
-    game = world.game_name
-    if player.area == PANDEMONIUM_FORTRESS:
-        return TO_THE_ENCAMPMENT if loop.tripping(game) else TO_THE_CATACOMBS
-    if player.area == ROGUE_ENCAMPMENT:
-        if loop.done == game:
-            return LEAVE
-        if loop.tripping(game):
-            return TO_THE_FORTRESS if loop.fortressed != game else THROUGH_PORTAL
-        if (loop.room_low and loop.carrying) or loop.short or loop.repair:
-            return TO_THE_FORTRESS
-        return TO_THE_CATACOMBS
-    if player.in_town:
-        return TO_THE_CATACOMBS  # any other town: its waypoint (as `lk_leg`)
-    if (
-        loop.trip_due
-        and not loop.tripping(game)
-        and loop.trips_in(game) < TRIPS_A_GAME
-        and player.area in ANDARIEL.levels
-    ):
-        return TRIP  # several a game (`Loop.may_trip`)
+    if (leg := boss_town_leg(world, loop, TO_THE_CATACOMBS)) is not None:
+        return leg
     if player.area in (CATACOMBS_2, CATACOMBS_3):
         return DOWN
     if player.area == CATACOMBS_4:
@@ -1807,8 +1931,39 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     raise Abort(f'the Andariel loop has nothing to do in {display_name(player.area)}')
 
 
+def baal_leg(world: World, progress: Progress | None, loop: Loop) -> str:
+    """Baal's legs (`next_leg`; the player, 2026-10-25: "build a baal runner, very similar to andariel runner"):
+    Harrogath's waypoint (the Fortress first for its errands), down the Worldstone Keep 2 and 3, on the Throne its
+    route's stages (the stand, the waves to Lister: FIGHT_THRONE; Lister's loot; the portal once Baal left:
+    TO_THE_CHAMBER), in the Chamber his fight, the loot (his drops waited for: `Kind.lair`), Save and Exit."""
+    player = world.player
+    assert player is not None
+    if (leg := boss_town_leg(world, loop, TO_THE_KEEP)) is not None:
+        if leg == TO_THE_KEEP and loop.northern_ready is not None and loop.northern != world.game_name:
+            return BAAL_SHARD  # act 5 terrorized first (actloop.py NORTHERN_FOR_BAAL); nothing spare: as before
+        return leg
+    area = player.area
+    if area in (WORLDSTONE_KEEP_2, WORLDSTONE_KEEP_3):
+        return DOWN_THE_KEEP
+    step = progress.step(area) if progress is not None and area in (THRONE, CHAMBER) else None
+    stage = step.stage.kind if step is not None else None
+    if area == THRONE:
+        if stage in (STAND, FIGHT):
+            return FIGHT_THRONE  # the waves before the Chamber: its portal opens only once Baal walked into it
+        if stage == LOOT:
+            return PICK_UP
+        return TO_THE_CHAMBER  # its USE stage (or unread): the way on, a level run while the portal is shut
+    if area == CHAMBER:
+        if stage == FIGHT:
+            return FIGHT_BAAL
+        if stage == LOOT:
+            return PICK_UP
+        return SWAP_BACK if loop.parked is not None else LEAVE
+    raise Abort(f'the Baal loop has nothing to do in {display_name(area)}')
+
+
 # Each kind's legs outside the town visit (`next_leg`); the TZ kinds' are the agenda's
-LEGS = {LK.key: lk_leg, ANDARIEL.key: andariel_leg}
+LEGS = {LK.key: lk_leg, ANDARIEL.key: andariel_leg, BAAL.key: baal_leg}
 
 
 def _named(item: Carried) -> str:

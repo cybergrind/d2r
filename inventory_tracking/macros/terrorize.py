@@ -86,13 +86,13 @@ def name_of(shard: int) -> str:
     return base['name'] if base is not None else f'item {shard}'
 
 
-def choose_shard(view: StashView | None, act: int | None = None) -> int | None:
+def choose_shard(view: StashView | None, act: int | None = None, floor: int = SHARD_FLOOR) -> int | None:
     """The shard to use: of `act`'s only when one is asked for, else any; its stack SHARD_FLOOR or more; the most-held
     first, ties by SHARD_ORDER (the cheaper). None with the stash unread or no stack at the floor."""
     if view is None:
         return None
     wanted = [shard for shard in SHARD_ORDER if act is None or SHARDS[shard] == act]
-    held = [shard for shard in wanted if view.count(shard) >= SHARD_FLOOR]
+    held = [shard for shard in wanted if view.count(shard) >= floor]
     if not held:
         return None
     return max(held, key=lambda shard: (view.count(shard), -SHARD_ORDER.index(shard)))
@@ -120,21 +120,23 @@ def terrorize(
     inventory_key: str | None,
     act: int | None = None,
     terrorized: Callable[[int], bool | None] | None = None,
+    floor: int = SHARD_FLOOR,
 ) -> Used | None:
     """One shard (`choose_shard`, of `act` when given) taken out of the Materials tab and right-clicked, in town; the
     use, or None when nothing was used (no shard at the floor, CLICKS off, a click that did not do what it should).
-    `terrorized`: the tracker's read (routes/progress.py `wanted`), looked at for CONFIRM_SECONDS after. Panels are
+    `floor`: the stack's least (SHARD_FLOOR; a Baal game's Northern: actloop.py NORTHERN_STACK). `terrorized`: the
+    tracker's read (routes/progress.py `wanted`), looked at for CONFIRM_SECONDS after. Panels are
     closed after, through a cancel too. `Abort` out of town or with no game window."""
     world = run.world()
     player = world.player
     if player is None or player.area not in TOWN_IDS:
         raise Abort('a Worldstone Shard is used in town')
     view = run.reads.stash_view()
-    shard = choose_shard(view, act)
+    shard = choose_shard(view, act, floor)
     wanted = f'act {act}' if act is not None else 'any act'
     if shard is None:
-        LOG.info('Macro: terrorize: no shard for %s at %d or more (%s)', wanted, SHARD_FLOOR, stacks_said(view))
-        run.say(f'Terrorize: no shard at {SHARD_FLOOR}+')
+        LOG.info('Macro: terrorize: no shard for %s at %d or more (%s)', wanted, floor, stacks_said(view))
+        run.say(f'Terrorize: no shard at {floor}+')
         return None
     assert view is not None
     shard_act, before = SHARDS[shard], view.count(shard)

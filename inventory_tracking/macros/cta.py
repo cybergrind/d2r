@@ -57,7 +57,7 @@ RENEW_ORDERS = True
 # True: while such a doll (combat/threats/dolls.py `herald_doll`) is alive within DOLL_HERALD_NEAR and Battle Orders is
 # shown with its time left not known or over DOLL_KILL_SECONDS (quicker to kill the doll than for it to run out), it
 # is not renewed (`renew_orders`) and not due for the safety (`orders_look`: no rebuff retreat beside the doll): the
-# doll is killed first, marked before the first strike (macros/hunt.py DOLL_HERALD_MARK, builds/warlock/mark.py
+# doll is killed first, marked before the first strike (builds/warlock/mark.py `mark_ahead`,
 # `unmarked_herald`) and the strike's first target (echoing_strike/attack.py HOLD_LEADER). Run out, the rebuff's own
 # rules (macros/safety.py REBUFF_RETREAT, REACH_BAR). False: as before.
 DOLL_HERALD_FIRST = True

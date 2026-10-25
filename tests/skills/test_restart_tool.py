@@ -133,3 +133,16 @@ def test_a_trip_restart_is_followed_past_the_wait_once_the_portal_is_cast(tmp_pa
     assert 'portal trip for the restart from Catacombs Level 3' in out
     assert 'at a safe point:' in out
     assert 'resumed after a restart: loop on' in out
+
+
+def test_every_kind_the_loop_offers_by_itself_is_a_kind_choice(capsys):
+    # 2026-10-25: the Baal kind (macros/loop.py BAAL) is `--kind baal`
+    import pytest
+
+    from inventory_tracking.macros.loop import KINDS
+
+    with pytest.raises(SystemExit):
+        restart.main(['--kind', 'no such kind'])
+    said = capsys.readouterr().err
+    assert all(repr(key) in said for key in KINDS)
+    assert "'baal'" in said

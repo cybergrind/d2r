@@ -33,6 +33,7 @@ from functools import lru_cache
 
 from inventory_tracking.combat.mechanics.life import leader
 from inventory_tracking.combat.pack import (
+    DEMON_HOLDS,
     HOP_TURNS,
     PACK_BACK,
     PACK_SEEN,
@@ -40,6 +41,7 @@ from inventory_tracking.combat.pack import (
     SURROUND_RADIUS,
     holders,
     in_pack,
+    left_holding,
     on_character,
 )
 from inventory_tracking.combat.sim.monsters import GAME_RATE, REACH, Traits
@@ -197,6 +199,31 @@ COMMIT_SECONDS = 5.0  # hunting/judging.py DANCE_SECONDS, macros/safety.py RANGE
 STALL_GAP = 2.0  # seconds a stall lasts past the last look whose progress LANDED barred (the stands between them)
 DENTED = 0.15  # of a member's life lost since the stall began: the fight goes on, no stall (a kill likewise)
 COMMIT_SAID = 'kept at range with no progress: the mana burn keep range let go (BURN_STALL_COMMIT)'
+
+# BURN_ENGAGE (2026-10-25, rca/2026-10-25/tactics/apply-burn.md; the coordinator's JUMP_CLUSTER of take
+# 20261025T110846Z-131, the Throne 14:10:40-51: 7 jumps round (15087, 5018) within 22, 0 kills, "toward Lister the
+# Tormentor" x5 against "keeping range: mana burn" x4, MARK_HOLDS_JUMPS live; door-pack-findings.md: the door opened,
+# the keep range still held the fight off). The keep range's hop and the pursuit's jump in undo each other, and every
+# drainer seen waived the mark's hold (macros/safety.py `real_threat`: "a drainer"). True: (a) a drainer waives the
+# hold only within its keep range of the character or with the mana leaving; (b) while the demons hold a burner
+# (`burn_held`: one within combat/pack.py DEMON_HOLDS of it) no progress jump lands inside a burner's keep range
+# (ENGAGE_HELD; a walk, a retreat and a dodge are not barred); (c) while the demons hold a burner the keep range
+# hops out once per Death Mark (combat/pack.py MARK): a second hop waits for a new mark, unless a drainer closes in
+# (`closing_in`); with no mark keyed, or the burners unheld, the hops as before.
+BURN_ENGAGE = True  # on 2026-10-25 ~17:15: gburn3 gate passed (apply-burn.md)
+ENGAGE_HELD = 'the demons hold the burners: no jump into their keep range (BURN_ENGAGE)'
+
+
+def burn_held(demons: Iterable[Point], burning: Sequence[Burner]) -> bool:
+    """Whether a demon holds a burner (BURN_ENGAGE): one within combat/pack.py DEMON_HOLDS of a draining burner."""
+    found = [b.at for b in burning if b.drains]
+    return any(math.dist(d, at) <= DEMON_HOLDS for d in demons for at in found)
+
+
+def drainer_close(here: Point, burning: Sequence[Burner]) -> bool:
+    """A draining burner within its keep range of `here` (BURN_ENGAGE's real threat)."""
+    return any(b.drains and math.dist(here, b.at) < b.keep for b in burning)
+
 
 # skills.txt row 54 Teleport (the installed game's, pricing/raw/game-excel/skills.txt, read 2026-10-21): mana 24,
 # lvlmana -1, minmana 1, manashift 8. Cost at skill level L: max(mana + lvlmana * (L - 1), minmana) * 2^manashift / 256.
@@ -389,7 +416,7 @@ def hop_spots(here: Point, burning: Sequence[Burner], demons: Sequence[Point]) -
         return []
     near = [b.at for b in burning if math.dist(here, b.at) <= PACK_SEEN] or [b.at for b in burning]
     middle = (sum(p[0] for p in near) / len(near), sum(p[1] for p in near) / len(near))
-    through = holders(here, demons) or [here]
+    through = holders(here, left_holding(demons, jumped=True)) or [here]  # ALONG_ALL: the hop brings them along
     via = (sum(p[0] for p in through) / len(through), sum(p[1] for p in through) / len(through))
     if math.dist(via, middle) < 1e-6:
         via = here

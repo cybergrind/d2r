@@ -106,6 +106,7 @@ BOUNCE_WINDOW = 3.0  # seconds
 # (manaburn.py PACK_LANDING, off, alone).
 PACK_RANGE_LANDING = True
 PACK_RANGE_LANDED = "kept at range: a landing the pack's hop would leave at once"
+REAGGRO_KINDS = (herald_pack.KEEP, herald_pack.PLACE)  # the jumps REAGGRO_BY_MARK bars (not a retreat)
 # RANGE_STALL_LIFT (2026-10-24, rca/2026-10-24/canyon-spin-findings.md; the player: "exp/hour, never die", "the loop
 # must never stand still"): Tal Rasha's Tomb, 15:42:21-15:47:13, take 20261024T124212Z-68. The run's way out (Canyon of
 # the Magi) lay past a room whose south wall an idle tier 5 Herald pack of 15 Steel Weevils (scarab4) walked along,
@@ -803,11 +804,11 @@ def burns_close(here: Point, spot: Point, burning: Sequence[manaburn.Burner], re
     return False
 
 
-def lands_in_range(here: Point, spot: Point, hostiles: Sequence, demons: Sequence[Point]) -> bool:
+def lands_in_range(here: Point, spot: Point, hostiles: Sequence, demons: Sequence[Point], jumped: bool = False) -> bool:
     """PACK_RANGE_LANDING: whether a landing at `spot` is one a tier 4-5 Herald pack's hop would leave at once
-    (combat/pack.py `breaks_range`, with the demons the draw sends), from a `here` that is not, or no farther from
-    the pack than `here` (manaburn.py INTRUDE_SLACK)."""
-    if not PACK_RANGE_LANDING or herald_pack.breaks_range(spot, hostiles, demons) is None:
+    (combat/pack.py `breaks_range`, with the demons the draw sends; none by a jump with ALONG_ALL), from a `here` that
+    is not, or no farther from the pack than `here` (manaburn.py INTRUDE_SLACK)."""
+    if not PACK_RANGE_LANDING or herald_pack.breaks_range(spot, hostiles, demons, jumped) is None:
         return False
     if herald_pack.breaks_range(here, hostiles, demons) is None:
         return True
@@ -868,8 +869,8 @@ class Pricing:
     # The character's mana (whole points; None: unread) and the hostiles that drain it (combat/threats/manaburn.py)
     mana: float | None = None
     burning: tuple[manaburn.Burner, ...] = ()
-    # The demons idle by the character just after a hop (combat/pack.py REAGGRO_BY_MARK): a Teleport toward the fight
-    # is barred, the mark sends them (builds/warlock/mark.py REMARK_AFTER_HOP)
+    # The demons idle by the character with the pack on it (combat/pack.py REAGGRO_BY_MARK): the keep range's hop and
+    # a voluntary Teleport are barred, the mark sends them (builds/warlock/mark.py REAGGRO_PACK)
     reaggro: bool = False
     # The character's strikes are credited with the kills they forecast (FLOOR_NO_CREDIT: not with the life budget 0)
     credit: bool = True
@@ -878,6 +879,8 @@ class Pricing:
     demons: tuple[Point, ...] | None = None
     # RANGE_STALL_LIFT: PACK_RANGE_LANDING's bar lifted for the goal's moves after its stall (`Safety.range_stall`)
     range_lifted: bool = False
+    # MARK_HOLDS_JUMPS / NO_SHORT_HOPS_T5 (combat/pack.py `jump_hold`): the look's hold on jumps; None: none
+    jump_hold: herald_pack.JumpHold | None = None
 
     def __post_init__(self) -> None:
         seen, here = self.seen, self.seen.origin
@@ -957,9 +960,31 @@ class Pricing:
         """BURN_LANDING_MARGIN for a landing at `spot` from here (`burns_close`)."""
         return burns_close(self.here, spot, self.burning, self.attack.reach)
 
-    def breaks_range(self, spot: Point) -> bool:
-        """PACK_RANGE_LANDING for a landing at `spot` from here (`lands_in_range`); never while not attacking."""
-        return self.demons is not None and lands_in_range(self.here, spot, self.look.hostiles, self.demons)
+    def breaks_range(self, spot: Point, jumped: bool = False) -> bool:
+        """PACK_RANGE_LANDING for a landing at `spot` from here (`lands_in_range`; `jumped`: by a jump, which takes
+        the demons along with combat/pack.py ALONG_ALL); never while not attacking."""
+        return self.demons is not None and lands_in_range(self.here, spot, self.look.hostiles, self.demons, jumped)
+
+    @staticmethod
+    def jump_kind(step: Step, *, retreat: bool, dodge: bool, why: str | None) -> str | None:
+        """What kind of jump `step` is for the holds (combat/pack.py `held`, REAGGRO_BY_MARK): the keep range's hop
+        (BACK_SAID), a retreat, or a voluntary move (no reason, no dodge); None for a walk and the other escapes (a
+        threat's dodge, the mana leave, the rebuff, the doll bait), which no hold bars."""
+        if step.skill is None:
+            return None
+        if why is not None and why.startswith(herald_pack.BACK_SAID):
+            return herald_pack.KEEP
+        if retreat:
+            return herald_pack.RETREAT
+        return herald_pack.PLACE if not dodge and not why else None
+
+    def held_jump(self, step: Step, *, retreat: bool, dodge: bool, why: str | None) -> str | None:
+        """Why the jump `step` is not made now (combat/pack.py `held`, MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5); None for
+        a walk, an escape no hold bars, or with no hold."""
+        kind = self.jump_kind(step, retreat=retreat, dodge=dodge, why=why)
+        if kind is None or self.jump_hold is None:
+            return None
+        return herald_pack.held(self.jump_hold, step.spot, kind)
 
     def move_price(
         self,
@@ -1036,15 +1061,32 @@ class Pricing:
         if kept and self.burns_close(step.spot):
             # Nor to a burner's keep range's edge, where the next look's hop takes it out again (BURN_LANDING_MARGIN)
             damage = replace(damage, barred=damage.barred or manaburn.LANDED)
-        if kept and not self.range_lifted and self.breaks_range(step.spot):
+        if kept and not self.range_lifted and self.breaks_range(step.spot, step.skill is not None):
             # Nor where a Herald pack's hop would take it out at once (PACK_RANGE_LANDING), unless the stall lifted it
             # (RANGE_STALL_LIFT)
             damage = replace(damage, barred=damage.barred or PACK_RANGE_LANDED)
         if self.left is not None and math.dist(step.spot, self.left[0]) <= BOUNCE_NEAR:
             # Two safety moves that undo each other (BOUNCE_BACK)
             damage = replace(damage, barred=damage.barred or BOUNCED)
-        if self.reaggro and step.skill == TELEPORT and not (retreat or dodge) and self.toward_fight(step.spot):
-            # The demons re-aggro by the mark, not by a hop that takes them along (herald_pack.REAGGRO_BY_MARK)
+        if (
+            manaburn.BURN_ENGAGE
+            and kept
+            and step.skill is not None
+            and not why
+            and self.burning
+            and self.demons
+            and not manaburn.clear_of(step.spot, self.burning)
+            and manaburn.burn_held(self.demons, self.burning)
+        ):
+            # The demons on the burners: the jump in would bring them back and the keep range hop out again
+            damage = replace(damage, barred=damage.barred or manaburn.ENGAGE_HELD)
+        held = self.held_jump(step, retreat=retreat, dodge=dodge, why=why)
+        if held is not None:
+            # The demons on the mark or holding a tier 5 pack: the jump would bring them back (combat/pack.py
+            # MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5)
+            damage = replace(damage, barred=damage.barred or held)
+        if self.reaggro and self.jump_kind(step, retreat=retreat, dodge=dodge, why=why) in REAGGRO_KINDS:
+            # The demons re-aggro by the mark, not by a hop that brings the pack along (herald_pack.REAGGRO_BY_MARK)
             damage = replace(damage, barred=damage.barred or herald_pack.REAGGRO_SAID)
         damage = self.doll_landing(step, seconds - settings.move_overhead, damage, escape=retreat or dodge,
                                    asked=not (why or retreat or firing))  # fmt: skip
@@ -1412,6 +1454,25 @@ STALL_DROP = 0.1  # of its full life
 THROWS_HOLD = 4.0
 THROWS_SAID = 2.0  # a type's rate said again when it moved by this ratio
 THROWS_PLACES = 2.0  # seconds of the character's places a bolt in flight may have been let go at (`throws_read`)
+# STAND_NOT_RETREAT (pursuit.py): the bars a wait that changed nothing lifts (WAIT_LIFT, `Pricing.waited`); not a
+# draining pack's (manaburn.py LANDED): the mana it burns is not priced as harm, so its stand's harm 0 says nothing
+# (the arena's manaburn-death-1857 seed 15: a stand at its keep range, the pack on, lowest life 70% -> 29%)
+KEEP_BARS = (PACK_RANGE_LANDED, manaburn.PACK_LANDED)
+
+
+def kept_out(p: Pricing) -> bool:
+    """STAND_NOT_RETREAT: no draining pack kept at range (`burning`), and a progress move fits the life budget and is
+    barred by a keep range alone (KEEP_BARS), which a wait lifts; a stand does not end the life budget's refusal (the
+    arena's radament-sewers, Radament holding his ground behind the sewer's walls: his kill at 23 s with the
+    retreats, at 43 s with stands, seed 1)."""
+    return not p.burning and any(
+        isinstance(c.act, Move)
+        and not c.retreat
+        and not c.act.dodge
+        and c.harm.barred in KEEP_BARS
+        and c.harm.worst <= p.allowance
+        for c in p.candidates
+    )
 
 
 @dataclass(frozen=True)
@@ -1479,6 +1540,9 @@ class Safety:
     # nothing in reach; kept while nothing changes, past WAIT_HORIZON the keep ranges' bars are lifted (`waited`)
     wait_since: tuple[tuple, float, dict[int, Point], float] | None = None
     wait_said: float | None = None  # the wait whose lift was said
+    # STAND_NOT_RETREAT (pursuit.py): (the goal, since when the character first stood for it in place of a retreat
+    # that saved nothing); kept until the goal changes or something comes in reach, past STAND_SECONDS as before
+    stood: tuple[tuple, float] | None = None
     # RANGE_STALL_LIFT: (the goal, since when its progress has been barred by PACK_RANGE_LANDING, the life then), kept
     # while the looks are retreats and safe approaches with nothing changed; and the stall whose lift was said
     range_stall: tuple[tuple, float, float] | None = None
@@ -1487,6 +1551,9 @@ class Safety:
     # Hops out of a draining pack (combat/threats/manaburn.py BURN_HOPS), by the pack: (hops, the last one's spot, where
     # the character stood when it was chosen): a hop chosen again before it lands is not counted again
     burn_hops: dict[int, tuple[int, Point, Point]] = field(default_factory=dict)
+    burn_mark: dict[int, float] = field(
+        default_factory=dict
+    )  # manaburn.BURN_ENGAGE: the mark's key each pack's hop spent
     # manaburn.BURN_STALL_COMMIT: (the pack's key, since when its keep range has held the fight off, the life then, the
     # last look its bar held, the members' life then), the pack fought in now (None: none), and the packs a burn or a
     # hurt took that from for good
@@ -1512,6 +1579,10 @@ class Safety:
     orders: OrdersLook | None = None
     # A rejuvenation drunk just now (DANGER_LOOK), set by the hunt before each price
     alarmed: bool = False
+    # The last look's real threat for the jump hold (`real_threat`; combat/pack.py MARK_HOLDS_JUMPS): the fight's
+    # better place asks it (macros/hunting/moves.py `better_stand`)
+    hold_exempt: str | None = None
+    idle_since: float | None = None  # since when the demons idle by the character with the pack on it (REAGGRO_BY_MARK)
     rebuffed_at: float = -math.inf  # clock of the last rebuff retreat chosen (macros/cta.py REBUFF_GRACE)
     rebuffing: bool = False  # this look: Battle Orders due, not safe to cast, a rebuff retreat asked (`rebuff_back`)
     killing_first: str | None = None  # this look: why the rebuff retreat waits for a kill (KILL_FIRST)
@@ -1591,6 +1662,7 @@ class Safety:
             self.wait_said = None
             self.bait_hops.clear()
             self.burn_hops.clear()
+            self.burn_mark.clear()
             self.mana_seen.clear()
             self.mana_look = None
             self.mana_drunk.clear()
@@ -1973,7 +2045,7 @@ class Safety:
         if leaving is not None:
             allowance = 0.0
         walkers = self.walked_round(look, seen.origin) if facts.attacking else ()
-        reaggro = facts.attacking and self.idle_after_hop(look, seen.origin, facts.now)
+        reaggro = facts.attacking and self.idle_after_hop(look, seen.origin, facts.now)  # REAGGRO_BY_MARK
         burning = self.kept_at_range(look, seen.origin, settings, loot, felt, mana, facts) if facts.attacking else ()
         p = Pricing(
             facts, look, seen, settings, attack, leg, jumps, barred, hands, options, battle_ready, teleport_hands,
@@ -1984,6 +2056,12 @@ class Safety:
             credit=credit, demons=self.demons_of(look) if facts.attacking else None,
             range_lifted=self.range_stalled(goal, key, facts),
         )  # fmt: skip
+        if facts.attacking:
+            self.hold_exempt = self.real_threat(p, felt, allowance, leaving)
+            p.reaggro = p.reaggro and self.hold_exempt is None  # a real threat lets the hop through (REAGGRO_BY_MARK)
+            p.jump_hold = herald_pack.jump_hold(
+                facts.now, seen.origin, look.hostiles, look.companions, self.hold_exempt
+            )  # MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5
         clock.lap('the forecast')
         held = self.hold(p)
         clock.lap('holding')
@@ -2034,6 +2112,7 @@ class Safety:
             safety=settings,
             clear=min((math.dist(p.here, m.at) for m in look.hostiles), default=None),
             throwers=tuple(m.at for m in look.hostiles if m.throws > 0),  # READ_THROWS (pursuit.py THROWN_OUT)
+            stand=self.may_stand(doll_key, facts) and kept_out(p),  # STAND_NOT_RETREAT
         )
         obstructed = p.obstructed()
         if obstructed is not None:
@@ -2064,6 +2143,7 @@ class Safety:
         self.dolls_waited(p, doll_key, chosen)
         self.waits(p, doll_key, chosen, loot.max_life)
         self.range_stalls(p, key, chosen, loot)
+        self.stands(doll_key, chosen, priced)  # STAND_NOT_RETREAT
         self.burn_stalls(p, chosen, loot)  # manaburn.BURN_STALL_COMMIT
         self.decision = p.record(
             chosen, dear=dear, insisting=insisting, spendable=spendable, blocked_by=self.blocked_by, draws=self.draws
@@ -2295,17 +2375,58 @@ class Safety:
             return None
         return (last[0], last[1]) if math.dist(here, last[1]) <= BOUNCE_NEAR else None
 
+    def real_threat(self, p: Pricing, felt: Pressure, allowance: float, leaving: str | None) -> str | None:
+        """The real threat that lets a jump through the hold (combat/pack.py MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), or
+        None: surrounded, a hit of HOLD_BURST of the life within 1 s, the life budget spent, blows in reach that take
+        the life (REACH_BAR's), a rejuvenation's alarm, a drainer kept at range or the mana floor's leave, a live doll
+        close, HOLD_SHOOTERS ranged hostiles in reach."""
+        here = p.here
+        close = sum(1 for m in p.look.hostiles if math.dist(here, m.at) <= herald_pack.SURROUND_RADIUS)
+        if close >= herald_pack.SURROUND_COUNT:
+            return f'surrounded: {close} within {herald_pack.SURROUND_RADIUS:.0f}'
+        if felt.burst >= herald_pack.HOLD_BURST:
+            return f'hit: {felt.burst:.0%} of the life within 1 s'
+        if allowance <= 0:
+            return 'the life budget is spent'
+        if p.reach_blows(here) >= p.look.life:
+            # 2026-10-25 (apply-0b.md): danger-durance-1956 seed 17, the retreat held 0.43 s after the mark's key with
+            # 4529 of 2907 in reach walked 16 into a wall and died; the jump lived
+            return f'{REACH_SAID} here'
+        if self.alarmed:
+            return "the rejuvenation's alarm"
+        if leaving is not None or (
+            manaburn.drainer_close(here, p.burning) if manaburn.BURN_ENGAGE else any(b.drains for b in p.burning)
+        ):
+            return 'a drainer'
+        if p.close:
+            return 'a live doll close'
+        table = bolts.threat_table().monsters
+        shooters = sum(
+            1
+            for m in p.look.hostiles
+            if math.dist(here, m.at) <= SHOT_REACH and getattr(table.get(m.txt), 'ranged', False)
+        )
+        if shooters >= herald_pack.HOLD_SHOOTERS:
+            return f'ranged fire: {shooters} shooters within {SHOT_REACH:.0f}'
+        return None
+
     def demons_of(self, look: Look) -> tuple[Point, ...]:
         """Where the companions the build's draw sends stand (`sendable`): the pack's demons (`pack_back`)."""
         return tuple(look.companions[i] for i, _ in self.sendable if i < len(look.companions))
 
     def idle_after_hop(self, look: Look, here: Point, now: float) -> bool:
-        """The demons idle by the character under REAGGRO_WAIT s after a hop landed (combat/pack.py `idle_by`,
-        `since_hop`): a Teleport toward the fight is barred meanwhile (`Pricing.reaggro`)."""
-        if not herald_pack.REAGGRO_BY_MARK or herald_pack.since_hop(now) > herald_pack.REAGGRO_WAIT:
+        """The demons idle by the character with the pack on it (combat/pack.py `reaggro_due`): the keep range's hop
+        and a voluntary Teleport are barred for the stretch's first REAGGRO_WAIT s, until the mark has landed
+        (`reaggro_holds`, `Pricing.reaggro`)."""
+        if not herald_pack.REAGGRO_BY_MARK:
             return False
         demons = [look.companions[i] for i, _ in self.sendable if i < len(look.companions)]
-        return herald_pack.idle_by(here, demons, [h.at for h in look.hostiles])
+        if not herald_pack.reaggro_due(here, demons, [h.at for h in look.hostiles]):
+            self.idle_since = None
+            return False
+        if self.idle_since is None:
+            self.idle_since = now
+        return herald_pack.reaggro_holds(now, self.idle_since)
 
     def pack_back(self, p: Pricing) -> int | None:
         """A Teleport back from a tier 4-5 Herald's pack (combat/pack.py, the player's rulings of 2026-10-21 ~10:00:
@@ -2355,6 +2476,13 @@ class Safety:
         coming = self.burn_watch.closing_in(p.facts.now, here, burning, p.look.hostiles)
         if key is None or (self.burn_hops.get(key, (0, here, here))[0] >= manaburn.BURN_HOPS and not coming):
             return None
+        if (
+            manaburn.BURN_ENGAGE
+            and not coming
+            and -math.inf < herald_pack.MARK.at <= self.burn_mark.get(key, -math.inf)
+            and manaburn.burn_held(demons, burning)
+        ):
+            return None  # the demons on the burners, the mark's hop spent: the next waits for a new mark (BURN_ENGAGE)
         demons = [] if coming else demons
         why = manaburn.why_back(here, burning, demons) or herald_pack.pulled(p.facts.now)  # a build's pull (pets.py)
         if why is None:
@@ -2386,6 +2514,7 @@ class Safety:
         if count and math.dist(spot, chosen.step.spot) <= DUD_UNITS and math.dist(stood, here) <= STILL_UNITS:
             return
         self.burn_hops[key] = (count + 1, chosen.step.spot, here)
+        self.burn_mark[key] = herald_pack.MARK.at  # BURN_ENGAGE: the mark this hop spent
         LOG.info('Macro: safety: %s, hop %d of %d to (%.1f, %.1f)', chosen.reason, count + 1, manaburn.BURN_HOPS,
                  *chosen.step.spot)  # fmt: skip
 
@@ -2578,6 +2707,28 @@ class Safety:
             LOG.info('Macro: safety: stood %.1f s with nothing coming: the keep ranges lifted for the way; %s',
                      facts.now - found[1], getattr(chosen, 'reason', '') or type(chosen).__name__)  # fmt: skip
         self.wait_since = found
+
+    def may_stand(self, key: tuple, facts: Facts) -> bool:
+        """STAND_NOT_RETREAT: whether standing may be chosen over a retreat that saves no harm (`Facts.stand`): nothing
+        in reach, and the goal `key` stood for under STAND_SECONDS since its first such stand."""
+        found = self.stood
+        return (
+            arbiter.STAND_NOT_RETREAT
+            and not facts.in_reach
+            and (found is None or found[0] != key or facts.now - found[1] < arbiter.STAND_SECONDS)
+        )
+
+    def stands(self, key: tuple, chosen: Act, facts: Facts) -> None:
+        """STAND_NOT_RETREAT's memory over the looks: the first stand of the goal `key` chosen in place of a retreat
+        starts its clock (`stood`); another goal or anything in reach ends it."""
+        found = self.stood
+        if not arbiter.STAND_NOT_RETREAT or facts.in_reach or (found is not None and found[0] != key):
+            found = None
+        if found is None and facts.stand and isinstance(chosen, NoWay) and chosen.reason == WAITING:
+            found = (key, facts.now)
+            LOG.info('Macro: safety: standing here: no retreat saves any harm (STAND_NOT_RETREAT, %.0f s at most '
+                     'for %s)', arbiter.STAND_SECONDS, key[2])  # fmt: skip
+        self.stood = found
 
     def range_stalled(self, goal: Goal, key: tuple, facts: Facts) -> bool:
         """RANGE_STALL_LIFT: whether this look's moves are priced without PACK_RANGE_LANDING's bar: the goal `key` (no

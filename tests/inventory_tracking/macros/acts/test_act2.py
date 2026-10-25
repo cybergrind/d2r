@@ -4,6 +4,8 @@ zones one by one". The plan pinned and the game walked: the Eastern shard, the C
 Duriel's Lair from the true tomb (levels/handlers/tal_rasha.py DURIEL, on since 2026-10-21; before, his step skipped and
 said), the Arcane Sanctuary, the Palace Cellars and the Harem, the sewers, the act's rest, then the rotation."""
 
+from inventory_tracking.macros import acts
+from inventory_tracking.macros.acts import act2
 from inventory_tracking.macros.loop import LEAVE, TZ_SHARD
 from tests.inventory_tracking.macros.acts.harness import TRUE_TOMB, ActGame, line_of, plan_of, trips_of
 from tests.inventory_tracking.macros.test_tzloop import CANYON, CATACOMBS, LUT_GHOLEIN, NEAREST, TOMBS
@@ -67,7 +69,14 @@ def tomb_entrances(act: ActGame) -> None:
     act.way_on = way_on
 
 
+def whole_order(monkeypatch) -> None:
+    """Act 2's whole order, as before act2.py ALONE (2026-10-25): the act 2 kind's game plays the rest of the act and
+    the rotation after the Arcane Sanctuary."""
+    monkeypatch.setitem(acts.SCRIPTS, 2, act2.script(alone=False))
+
+
 def test_an_act_2_game_is_the_shard_then_the_tombs_then_the_sanctuary_then_the_act_then_the_rotation(monkeypatch):
+    whole_order(monkeypatch)
     act = ActGame(2, monkeypatch)
     tomb_entrances(act)
     walk = act.play()

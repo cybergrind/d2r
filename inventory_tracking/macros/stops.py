@@ -115,7 +115,9 @@ def first(cause: Cause, *, on: bool, dead: bool, beset: Beset | None = None, lob
         return Remedy.STOP
     if on and cause == 'zone':
         # A terror zone the loop cannot play (Moo Moo Farm): the game is left and the next zone waited for in the lobby
-        # (tzloop.py `zone_wait`), the loop on. Stopped, it stood 30 min until someone looked (03:30:20 on 2026-10-20)
+        # (tzloop.py `zone_wait`), the loop on. Stopped, it stood 30 min until someone looked (03:30:20 on 2026-10-20).
+        # With zonewait.py ZONE_WAIT_WSK on (2026-10-25, the player: "do worldstone keep, if we get some shard - good,
+        # if not - next game") this stop comes only when the next zone is nearer than one Worldstone Keep game
         return Remedy.LEAVE
     if on and cause == 'lobby':
         # A game creation failed: once is tried again (a one-off, 13:02 on 2026-10-18). Again is no lobby: Battle.net

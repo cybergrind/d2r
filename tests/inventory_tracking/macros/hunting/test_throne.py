@@ -81,3 +81,32 @@ def test_the_zones_own_way_into_the_chamber_holds_the_gate_while_lister_s_minion
     here = (15080.5, 5015.5)
     assert throne_shut(waves, None, world_at([baal, *minions], here=here), 0.0) == 'the throne hall first (3 left)'
     assert throne_shut(waves, None, world_at([baal], here=here), 5.0) == 'Baal has not left his throne'
+
+
+def test_the_wait_at_the_foot_holds_through_a_read_at_its_edge(monkeypatch):
+    # Game 125 at 14:11:28 on 2026-10-25: landed 3.48 from the foot, the reads flipping 3.47/3.51: 57 flips in 15 s
+    monkeypatch.setattr(throne, 'FOOT_HOLD', True)
+    waves = throne.Waves()
+    waves.begin('g')
+    assert throne.portal_shut(waves, seat=None, hall=[], now=0.0) == throne.PORTAL_OPENING  # gone at 0
+    edge, past = (15088.3, 5011.7), (15088.5, 5011.9)  # 3.48 and 3.54 from the foot (15090.5, 5009.0)
+    assert throne.portal_shut(waves, seat=None, hall=[], now=10.0, here=edge) == throne.PORTAL_OPENING
+    assert throne.portal_shut(waves, seat=None, hall=[], now=11.0, here=past) == throne.PORTAL_OPENING  # held
+    assert throne.portal_shut(waves, seat=None, hall=[], now=10.0 + throne.FOOT_WAIT, here=past) is None
+    far = (15082.1, 5006.9)  # 8.7 from the foot: off it, the wait begins again there
+    fresh = throne.Waves()
+    fresh.begin('g')
+    throne.portal_shut(fresh, seat=None, hall=[], now=0.0)
+    assert throne.portal_shut(fresh, seat=None, hall=[], now=10.0, here=edge) == throne.PORTAL_OPENING
+    assert throne.portal_shut(fresh, seat=None, hall=[], now=11.0, here=far) == throne.PORTAL_NEAR
+    assert throne.portal_shut(fresh, seat=None, hall=[], now=12.0, here=edge) == throne.PORTAL_OPENING
+    assert throne.portal_shut(fresh, seat=None, hall=[], now=12.0 + throne.FOOT_WAIT - 0.1, here=edge) is not None
+
+
+def test_off_the_foot_is_the_old_edge_both_ways(monkeypatch):
+    monkeypatch.setattr(throne, 'FOOT_HOLD', False)
+    waves = throne.Waves()
+    waves.begin('g')
+    throne.portal_shut(waves, seat=None, hall=[], now=0.0)
+    assert throne.portal_shut(waves, seat=None, hall=[], now=10.0, here=(15088.3, 5011.7)) == throne.PORTAL_OPENING
+    assert throne.portal_shut(waves, seat=None, hall=[], now=11.0, here=(15088.5, 5011.9)) == throne.PORTAL_NEAR

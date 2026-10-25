@@ -130,6 +130,9 @@ KIND = re.compile(r'Macro: Loop run: (.+)$')
 # `agenda_cleared`): elites.py's activities (engaging, approach, explore, chests, pickup)
 FIGHT = re.compile(r'Macro: fight \([^)]*\): \d+ casts? seen in ([\d.]+)s')
 TARGET = re.compile(r'Macro: agenda: target .* \((\w+), tier \d+')
+# The same line whole: (the target's label, its kind, its tier). exphour.py's SHORT_LEVELS replay reads the label ('a
+# group of 5', 'an unexplored room', 'the elite 279 (1817783950)').
+TARGET_GOAL = re.compile(r'Macro: agenda: target (.+) \((\w+), tier (\d+), \d+ leaders known here\)$')
 
 # A leg's stop ends the loop: (why). running/recovery.py _loop_stopped `'Macro: loop stopped: %s'`; with a
 # valuable on the ground `why` ends in "...: the loop stops here" (running/recovery.py).
@@ -184,6 +187,13 @@ OVERFLOW = re.compile(
     r'(?:act (\d) terrorized too, played after (.+)|(?:refused|not used) \((.*?)\): act (\d) not played)'
 )
 
+# A Worldstone Shard used on an act (the Baal kind's `a Northern shard for act 5` leg, the act kinds' shard): (shard,
+# act). terrorize.py `'Macro: terrorize: %s used for act %d (stack %d -> %s)%s; the act %s'` and the carried one's
+# `'Macro: terrorize: the carried %s used for act %d%s; the act %s'`. exphour.py marks the game terrorized by it.
+# 2026-10-25 14:21:06,211 INFO Macro: terrorize: Northern Worldstone Shard used for act 5 (stack 93 -> 92); the act read
+# terrorized
+TERRORIZED = re.compile(r'Macro: terrorize: (?:the carried )?(.+?) used for act (\d)\b')
+
 # A routine's own stop or crash. runner.py MacroRunner._guarded `'Macro stopped: %s'`; runner.py
 # `LOG.exception('Macro failed')` (ERROR, a traceback after it).
 # 2026-10-18 15:58:40,662 INFO Macro stopped: Ring was under the pointer at 3 aims and no click picked it up
@@ -214,7 +224,8 @@ EVENT = re.compile(
 # 2026-10-18 16:03:49,890 INFO Macro: cube: 4 of 4 of the loop's items moved in
 DID = re.compile(
     r'Macro: (stash: .*put in.*|repair: the staff .*|shop: sold .*|shop: keys .*|cube: .*moved.*'
-    r'|gamble: session done.*|shop: potions: .*|act: .* shard over the limit.*)'
+    r'|gamble: session done.*|shop: potions: .*|act: .* shard over the limit.*'
+    r'|zone wait: a Worldstone Keep game (?:while|taken up).*)'
 )
 # The lines the live watch says the moment they come (watch.py `NOW`): stops, recoveries, full stacks, sales, repairs,
 # the restart's resume (and the game taken back from its record after it, the zone's facts with it: midgame.py
@@ -233,7 +244,8 @@ NOW = re.compile(
     r'|identify: '
     r'|shop: the item .* no longer'
     r'|trade session done|gamble: session done|gamble: .*gambling stopped|act: .* shard over the limit'
-    r'|merc lost: |belt low: |merc: (dead|revived|not revived|carried gold))'
+    r'|merc lost: |belt low: |merc: (dead|revived|not revived|carried gold)'
+    r'|zone wait: (?:a|the) Worldstone Keep game)'
     r'|Macro failed|Traceback|ERROR'
 )
 # A game's notes in the live watch (watch.py `NOTE`): the cube's moves, the stash's puts, the shop's keys and healing
@@ -262,6 +274,31 @@ EXPERIENCE_GAME = re.compile(
 # The seven Tal Rasha's Tombs are numbered (levels/presets.py `numbered_name`, 2026-10-20: the Canyon's tour of them):
 # 2026-10-20 14:10:00,000 INFO Macro: experience: Tal Rasha's Tomb 4: +410,000 in 52s (level 94)
 EXPERIENCE_LEVEL = re.compile(r'Macro: experience: (?!game \d+:)(.+?): ([+-][\d,]+) in (\d+)s \(level (\d+)\)')
+
+
+# A terror zone game's plan: (the zone's parts joined by ' + ', its trips). tzroutine.py `itinerary`
+# `'Macro: tz: zone %s: %s; skipped %s%s'`; an `ActN-Manual` part is an act a shard over the limit terrorized, the
+# others the game's own zone (exphour.py tells the two apart).
+# 2026-10-25 04:09:36,598 INFO Macro: tz: zone Act3-Manual + Act2-Sewers: Mephisto from 101: [101, 102]; Sewers 1 from
+#     48: [48, 47]; skipped none
+TZ_ZONE = re.compile(r'Macro: tz: zone ([^:]+): (.*?); skipped ')
+
+# A Worldstone Keep game played while the terror zone read cannot be played (macros/zonewait.py ZONE_WAIT_WSK,
+# 2026-10-25; the player: "do worldstone keep, if we get some shard - good, if not - next game"): (the zone read, why
+# it is not playable, the seconds to the next zone, the filler's trips). zonewait.py FILLER_SAID `'Macro: zone wait: a
+# Worldstone Keep game while %s is not playable (%s), %.0f s to the next zone: %s'`, said once a filler game as it
+# begins in town; FILLER_TAKEN `'... game taken up in %s (%s is not playable)'` after a restart on a filler level. DID
+# (kind 'zone wait': games.py counts the filler games) and NOW carry both. Not yet in a real log (2026-10-25).
+# 2026-10-25 12:04:27,000 INFO Macro: zone wait: a Worldstone Keep game while Act1-MooMooFarm is not playable (no
+#     catalogue excursion covers it), 1553 s to the next zone: Baal from 129: [129, 130]
+ZONE_FILLER = re.compile(
+    r'Macro: zone wait: a Worldstone Keep game while (.+?) is not playable \((.*)\), (\d+) s to the next zone: (.*)$'
+)
+# The filler dropped under its game as the zone read turns playable (the turn, or a shard over the limit used):
+# (the zone now, the level it is played from). zonewait.py FILLER_ENDS `'Macro: zone wait: the Worldstone Keep game ends
+# its filler: %s is playable, played from %s'`. NOW carries it.
+ZONE_FILLER_ENDS = re.compile(r'Macro: zone wait: the Worldstone Keep game ends its filler: (.+?) is playable, played '
+                              r'from (.+)$')  # fmt: skip
 
 
 def amount(text: str) -> int:

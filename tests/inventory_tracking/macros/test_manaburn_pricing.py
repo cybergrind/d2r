@@ -379,24 +379,39 @@ def test_the_teleport_back_into_the_pack_between_two_keep_range_hops_is_barred(h
     assert asked()['veto'] is None  # as played: taken, and hop 2 of 3 took the character out again 0.55 s later
 
 
-def test_just_after_a_hop_with_the_demons_idle_by_the_character_the_teleport_back_in_is_barred(
-    herald2_on, monkeypatch
-) -> None:
+def test_with_the_demons_idle_by_the_character_the_teleport_back_in_waits_for_the_mark(herald2_on, monkeypatch) -> None:
     """The look of 20:31:38.10: the demons 0.6 from the character in neutral mode after the hop of 37.33, the nearest
-    spider 12.8 from them (combat/pack.py REAGGRO_BY_MARK: the mark re-aggroes them, mark.py REMARK_AFTER_HOP)."""
+    live spider 10.6 off (combat/pack.py REAGGRO_BY_MARK, rewritten 2026-10-25, rca/2026-10-25/tactics/apply-1.md: the
+    mark re-aggroes the pack, the hop would bring it along). With REAGGRO_ON 0 (no member within PACK_BACK here) the
+    voluntary Teleport is barred for the stretch's first REAGGRO_WAIT s, and lifted once the mark has landed."""
+    monkeypatch.setattr(herald_pack, 'MARK_HOLDS_JUMPS', False)  # REAGGRO_BY_MARK's bar alone
     monkeypatch.setattr(manaburn, 'PACK_LANDING', False)
     monkeypatch.setattr(module, 'PACK_RANGE_LANDING', False)
     step = Step(BACK_IN, TELEPORT)
+    safety: list = []
 
-    def asked() -> dict:
-        decision = priced_toward('herald-spiders-pingpong', step, herald=SPIDER_HERALD)
+    def asked(now: float = NOW) -> dict:
+        decision = priced_toward('herald-spiders-pingpong', step, herald=SPIDER_HERALD, before=keep(now))
         return next(c for c in decision['candidates'] if c['why'] == '' and c['place'] == BACK_IN)
 
-    herald_pack.hopped(NOW - 0.5, 8.4)
+    def keep(now: float):
+        def before(found) -> None:
+            if safety:
+                found.idle_since = safety[0].idle_since
+            safety[:] = [found]
+
+        return before
+
+    assert asked()['veto'] is None  # REAGGRO_ON 2: no member on the character, nothing barred
+    monkeypatch.setattr(herald_pack, 'REAGGRO_ON', 0)
     assert asked()['veto'] == herald_pack.REAGGRO_SAID
-    herald_pack.hopped(NOW - herald_pack.REAGGRO_WAIT - 0.1, 8.4)  # the mark had its time
-    assert asked()['veto'] is None
-    herald_pack.hopped(NOW - 0.5, 8.4)
+    herald_pack.FIRST.add(-1)
+    try:
+        herald_pack.keyed(-1, NOW - herald_pack.MARK_LANDS - 0.05)  # the mark keyed in the stretch and landed
+        safety[0].idle_since = NOW - herald_pack.MARK_LANDS - 0.1
+        assert asked()['veto'] is None
+    finally:
+        herald_pack.FIRST.discard(-1)
     monkeypatch.setattr(herald_pack, 'REAGGRO_BY_MARK', False)
     assert asked()['veto'] is None
 
@@ -464,3 +479,28 @@ def test_a_plain_mana_burn_pack_with_the_mana_full_keeps_no_progress_move_out(mo
     assert asked()['veto'] != manaburn.LANDED
     monkeypatch.setattr(manaburn, 'DRAIN_GATE', False)
     assert asked()['veto'] == manaburn.LANDED
+
+
+def test_the_teleport_back_in_waits_for_the_mark_and_a_walk_does_not(monkeypatch) -> None:
+    """The same look (20:31:38.10) with a Death Mark keyed 0.2 s before it (combat/pack.py MARK_HOLDS_JUMPS,
+    rca/2026-10-25/tactics/apply-0b.md): the voluntary Teleport is held while the demons land on the mark; the walk
+    to the same place is not."""
+    monkeypatch.setattr(herald_pack, 'MARK_HOLDS_JUMPS', False)
+    monkeypatch.setattr(manaburn, 'PACK_LANDING', False)
+    monkeypatch.setattr(module, 'PACK_RANGE_LANDING', False)
+
+    def asked(skill) -> dict:
+        decision = priced_toward('herald-spiders-pingpong', Step(BACK_IN, skill), herald=SPIDER_HERALD)
+        return next(c for c in decision['candidates'] if c['why'] == '' and c['place'] == BACK_IN)
+
+    herald_pack.FIRST.add(-1)
+    try:
+        herald_pack.keyed(-1, NOW - 0.2)
+        assert asked(TELEPORT)['veto'] is None  # off
+        monkeypatch.setattr(herald_pack, 'MARK_HOLDS_JUMPS', True)
+        assert asked(TELEPORT)['veto'].startswith(herald_pack.HELD_SAID)
+        assert not (asked(None)['veto'] or '').startswith(herald_pack.HELD_SAID)
+        herald_pack.keyed(-1, NOW - herald_pack.MARK_WALKS - 0.1)
+        assert not (asked(TELEPORT)['veto'] or '').startswith(herald_pack.HELD_SAID)
+    finally:
+        herald_pack.FIRST.discard(-1)

@@ -1376,7 +1376,7 @@ def test_a_kind_request_switches_at_once_with_the_loop_off_and_from_the_next_gam
     assert runner.choose_kind(10.0, 10.0, 'lk')
     assert (runner.loop.kind, runner.loop.pending, runner.loop.chosen) == (LK, None, True)
     assert ['Macro: Loop run: Lower Kurast'] in shown
-    assert not runner.choose_kind(11.0, 11.0, 'baal')  # no such kind
+    assert not runner.choose_kind(11.0, 11.0, 'mephisto')  # no such kind (baal is one since 2026-10-25)
     assert not runner.choose_kind(10.0, 12.0, 'andariel')  # too old
     assert runner.loop.kind == LK
 

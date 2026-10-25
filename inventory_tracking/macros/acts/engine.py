@@ -11,6 +11,9 @@ specialization and concrete points/steps to scripting".
   (`Macro: act: act N step K (<label>): <why>: skipped`); its levels fall to the later steps or the itinerary's skipped.
 - Any object with `label` and `plan(ActPlan)` is a step: an act file may define its own (`ActPlan.add`, `rest`,
   `skip`, `route_trip`), never editing this module.
+- `ActScript.alone` (2026-10-25): the act played by itself as its kind's game's own act, its `alone` steps only (no
+  rest of the act, no rotation, no other act: macros/tzroutine.py `alone_act`, macros/actloop.py `alone`); its `whole`
+  levels toured whole (tzroutine.py WHOLE). None: as before.
 
 Pure: the catalogue and the installed zone table only. Reuses routes/tz_routes.py and macros/tzroutine.py.
 """
@@ -50,6 +53,13 @@ class ActScript:
     act: int
     steps: tuple[Step, ...] = ()
     ready: bool = False
+    # The act played alone (2026-10-25, macros/acts/act2.py ALONE): in a game whose own act it is (its kind's shard,
+    # played first: tzroutine.py `alone_act`) only these steps, then the game's end: no rest of the act, no rotation,
+    # no shard of another act (actloop.py `alone`). None: `steps`, the act's rest and the rotation, as before
+    alone: tuple[Step, ...] | None = None
+    # The levels the alone game works whole: every room toured whatever the level's size or a boss on it (tzroutine.py
+    # WHOLE, `Excursion.whole`)
+    whole: frozenset[int] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -178,14 +188,19 @@ class ActPlan:
         LOG.info('Macro: act: act %d step %d (%s): %s: skipped', self.script.act, self.step, label, why)
 
 
-def act_trips(script: ActScript, zone: ActiveZone) -> Trips:
+def act_trips(script: ActScript, zone: ActiveZone, alone: bool = False) -> Trips:
     """`script`'s trips over its act's manual zone `zone`, in the shape of tzroutine.py `_route_trips`: each trip with
-    the levels it only crosses, then the levels no trip covers. The steps in order, then the act's other levels."""
+    the levels it only crosses, then the levels no trip covers. The steps in order, then the act's other levels;
+    `alone` (with `ActScript.alone`): its alone steps only, no other level of the act."""
     act = ActPlan(script, zone)
-    for number, step in enumerate(script.steps, 1):
+    alone = alone and script.alone is not None
+    steps = script.alone if alone and script.alone is not None else script.steps
+    for number, step in enumerate(steps, 1):
         act.step = number
         step.plan(act)
-    act.step = len(script.steps) + 1
+    if alone:
+        return tuple(act.trips), tuple(act.uncovered)
+    act.step = len(steps) + 1
     act.rest(zone.areas, 'the rest of the act')
     return tuple(act.trips), tuple(act.uncovered)
 
@@ -200,7 +215,9 @@ def check(script: ActScript, act: int) -> list[str]:
     if zone is None:
         return [*problems, f'no act {act}']
     names = {route.name for route in ROUTES}
-    for number, step in enumerate(script.steps, 1):
+    if any(area not in zone.areas for area in script.whole):
+        problems.append(f'whole levels outside act {act}')
+    for number, step in enumerate((*script.steps, *(script.alone or ())), 1):
         if isinstance(step, Trip):
             if step.route not in names and not step.missing:
                 problems.append(f'step {number}: no catalogue route {step.route!r} (mark it missing)')

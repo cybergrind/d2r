@@ -67,7 +67,15 @@ SKIPPED = 'skipped'
 # PLUS_WAY: ON_THE_WAY's, and the groups (a big level on the way to a boss, a boss that comes to a stand).
 PLUS = 'tz+'
 PLUS_WAY = 'tz+ on the way'
-GROUPS_TAKEN = frozenset((PLUS, PLUS_WAY))
+# A weak level shortened (macros/tzroutine.py SHORT_LEVELS, WEAK_AREAS). The player, 2026-10-25 ~10:15, on the levels
+# under about 1,600 exp a second with travel (rca/2026-10-25/exp-hour-findings.md: "Plains of Despair 949, Bloody
+# Foothills 1,088, Burial Grounds 1,119, Blood Moor 1,192, Black Marsh 1,201"): "Shorten them: clear only the elites,
+# bosses and big packs on those levels, then move on". Its leaders in the read at any distance and those remembered,
+# its groups of SHORT_PACK and more, the super chests near and the bosses of the game's ledger; no unexplored room.
+# Then the area's end goal: the level is done (macros/zonenav.py: not TOURING, so one run is its work). The Herald, its
+# omen and the side drop with its guards come first as on every policy: no valuable in the read is left.
+SHORT = 'short'
+GROUPS_TAKEN = frozenset((PLUS, PLUS_WAY, SHORT))
 # A level of a rotating zone that turned, worked for the bosses alive on it or under it (hunting/choice.py
 # BOSS_ROTATION, BOSSES_ONLY; 2026-10-23, lever 2 of rca/2026-10-22/exp-hour-findings.md): its plain monsters are no
 # goal (142 exp a kill against ~1,900 terrorized), leaders included; the bosses of the game's ledger (`boss_goal`) and
@@ -90,6 +98,11 @@ GROUP_LINK = 15.0
 GROUP_MIN = 4
 # On a big level only groups of this many: twice the exp for the same detour, as its own rate is under the loop's.
 BIG_GROUP = 8
+# SHORT: a big pack is a group of this many (GROUP_LINK). A weak level's alternative is the next level at the loop's
+# average (2,088 exp a second, 10-24/25), so only the detour BIG_GROUP is priced at (twice a GROUP_MIN group's exp for
+# the same hops) is kept. On the five weak levels the player named (10-24 10:36 to 10-25 05:38) 255 of 430 group targets
+# were of 4-7 hostiles (409 s), and the rooms explored took 449 s: the time this leaves.
+SHORT_PACK = BIG_GROUP
 # Units: a group's nearest member further than this is no detour the metric pays (a screen, as CHEST_NEAR, USE_NEAR);
 # the tour brings the rest near, and what is never near is left ("we don't want to hunt every mob").
 GROUP_NEAR = 60.0
@@ -271,7 +284,10 @@ class LevelView:
 
     @property
     def group_size(self) -> int:
-        """The fewest hostiles a group gone for has here: BIG_GROUP on a big level, else GROUP_MIN."""
+        """The fewest hostiles a group gone for has here: SHORT_PACK on a shortened level, BIG_GROUP on a big level,
+        else GROUP_MIN."""
+        if self.policy == SHORT:
+            return SHORT_PACK
         return BIG_GROUP if self.population is not None and self.population >= BIG_LEVEL else GROUP_MIN
 
 
@@ -692,7 +708,8 @@ class Agenda:
         """The level run's next target (goals-plan.md §3), first match: a live Herald, else one remembered alive
         (HERALD_KEPT); a Herald's omen (its pack, its stand, else a wait in place: OMEN_HOLD); the side
         drop's guards, then the drop; a leader in sight (on TZ+ a reasonable group too, `groups_near`); a super chest
-        within CHEST_NEAR; a leader remembered within REMEMBERED_NEAR; on COVER/PLUS/FULL_CLEAR the next room, then
+        within CHEST_NEAR; a leader remembered within REMEMBERED_NEAR; on SHORT a leader remembered further, no room;
+        on COVER/PLUS/FULL_CLEAR the next room, then
         leaders further, unless the route's next object (`use_at`) is within USE_NEAR and no farther; on TRANSIT nothing
         after the drop. None: the area's end goal is next (on TZ+ its goals met: rooms explored, no group near)."""
         self.observe(view)
@@ -774,6 +791,12 @@ class Agenda:
             return Objective(KILL, found.label, LEADER_NEAR, found.area, found.place, found.unit)
         if (boss := self.boss_goal(view)) is not None:
             return boss
+        if view.policy == SHORT:
+            # Its leaders remembered further too ("clear only the elites, bosses and big packs"), no room: then done
+            if remembered:
+                found = min(remembered, key=lambda goal: away(where(goal)))
+                return Objective(KILL, found.label, LEADER_FAR, found.area, found.place, found.unit)
+            return None
         if view.policy in WAYS_ON:
             return None
         use = view.use_at if USE_FIRST else None
@@ -828,7 +851,7 @@ class Agenda:
         self.policies[area] = policy
         extra = ''
         if policy in GROUPS_TAKEN:
-            size = LevelView(area, (0.0, 0.0), population=population).group_size
+            size = LevelView(area, (0.0, 0.0), policy=policy, population=population).group_size
             known = f'{population:.0f} hostiles' if population is not None else 'its size unknown'
             extra = f' ({known}: groups of {size} and more)'
         LOG.info('Macro: agenda: %s is worked %s%s', display_name(area), policy, extra)

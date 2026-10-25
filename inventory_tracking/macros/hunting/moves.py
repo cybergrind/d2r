@@ -2,7 +2,7 @@
 A part of macros/hunt.py `Hunter`, its methods bound there."""
 
 import math
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from contextlib import contextmanager, nullcontext
 from typing import TYPE_CHECKING
 
@@ -666,6 +666,8 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
         take_battle_weapons(run)
     if not act.reason:  # a reason's move (a retreat, a dodge) is the safety's own
         step = last_leg(goal, step, (player.x, player.y), player.area)
+    if DOOR_FIGHT and act.reason == DOOR_SAID and door_walk(self, run, world, act, place, aspect, key_names):
+        return  # the mark from here, or the door clicked: the next look prices what came of it
     if herald_pack.MARK_THEN_WALK and step.skill is not None and not danger_act(act):
         walked = walk_in(self, run, world, ground, step, place, aspect, key_names, goal.spend)
         if walked is None:
@@ -726,6 +728,11 @@ def walk_in(
     reach = self.attack.reach
     if big is None or any(in_reach(ground, here, (m.x, m.y), reach, world.doors) for m in foes):
         return step
+    if getattr(self.safety, 'hold_exempt', None) is not None or getattr(self.safety, 'burn_leaving', None) is not None:
+        # A real threat (macros/safety.py `real_threat`) or the mana's leave: the jump as priced (2026-10-25,
+        # apply-0b.md: manaburn seed 18, the mark from here and the walk while a drainer was in reach, the least life
+        # 36% -> 27%)
+        return step
     keyed = max((self.buffs.cast_at.get((skill, None), -math.inf) for skill in herald_pack.FIRST), default=-math.inf)
     if now - keyed > herald_pack.WALK_HOLD:
         if not standing_fits(self.safety.decision):
@@ -745,19 +752,102 @@ def walk_in(
 
 
 DOOR_NEAR = 15.0  # world units: a closed door this near, across a passage's walk, is opened first (`door_across`)
+# DOOR_FIGHT (2026-10-25, rca/2026-10-25/door-pack-findings.md, tactics/apply-door.md; the player, ~11:20: "why we have
+# abandoned T5 pack without even trying to engage it"; "they were in closed room, behind closed door. we didn't try to
+# engage it by teleporting into their room or open their door"; "there were no hp issues"). Take
+# 20261025T081241Z-36, 11:12:54-11:13:46: 15 Mana Burn members of a tier 5 Herald pack behind a closed DoorWoodenRight
+# (mode 0 throughout); every approach vetoed by the burn keep range (manaburn.py LANDED), the ping-pong Teleports
+# undid two Death Marks, the budgets passed the pack with no strike; no act opens a door for a fight (`door_across` is
+# for passages). True: a fight goal of a tier 4-5 pack's member with no shot from here, a closed door across the
+# straight line to it within DOOR_SEEK, the character unhurt and no mana leave (`door_fight`): the mark first on a
+# member drawn on the screen (`Hunter.mark_from_here`; the demons land in the room and take the aggro), then the walk
+# to the door, no Teleport, the door clicked open at DOOR_NEAR (`advance`); the fight's own rules from there (the shot
+# through the doorway). DOOR_SECONDS a door at most, then the budgets as before. Never a Teleport into the room.
+# False: as before.
+DOOR_FIGHT = False
+DOOR_SEEK = 30.0  # world units from the character a door across the line to the pack is gone to
+DOOR_SECONDS = 10.0  # seconds a door is tried for, from its first look
+DOOR_MARK_AGAIN = 6.0  # seconds after the mark's last key it is cast again before the walk (MARK_THEN_WALK WALK_HOLD)
+DOOR_SAID = 'the pack behind a closed door: the mark, then the door opened (DOOR_FIGHT)'
 
 
-def door_across(world: World, here: Point, place: Point) -> Door | None:
-    """The nearest closed door within DOOR_NEAR of the character that stands across the straight walk to `place`."""
+def door_across(world: World, here: Point, place: Point, near: float = DOOR_NEAR) -> Door | None:
+    """The nearest closed door within `near` of the character that stands across the straight walk to `place`."""
     found = []
     for door in world.doors:
-        if not door.closed or math.dist(here, (door.x, door.y)) > DOOR_NEAR:
+        if not door.closed or math.dist(here, (door.x, door.y)) > near:
             continue
         steps = max(1, math.ceil(math.dist(here, place) / 0.5))
         if any(door.blocks((here[0] + (place[0] - here[0]) * i / steps, here[1] + (place[1] - here[1]) * i / steps))
                for i in range(steps + 1)):  # fmt: skip
             found.append(door)
     return min(found, key=lambda door: math.dist(here, (door.x, door.y))) if found else None
+
+
+def door_fight(
+    self: Hunter,
+    world: World,
+    foes: Sequence[Monster],
+    goal: Goal | None,
+    act,
+    *,
+    in_reach: bool,
+    hurt: bool,
+    now: float,
+):
+    """DOOR_FIGHT: the walk to the door between the character and the pack its fight goal is in (an Advance with
+    DOOR_SAID, made by `advance`), in place of `act`; `act` as it is otherwise."""
+    if not DOOR_FIGHT or goal is None or goal.unit is None or in_reach or hurt or isinstance(act, Hold):
+        return act
+    player = world.player
+    target = next((m for m in foes if m.unit_id == goal.unit), None)
+    if player is None or target is None or not herald_pack.in_pack(target.tier):
+        return act
+    if self.safety.burn_leaving is not None:
+        return act  # the mana leave first
+    here = (player.x, player.y)
+    door = door_across(world, here, (target.x, target.y), DOOR_SEEK)
+    if door is None:
+        return act
+    tries: dict[int, float] = self.__dict__.setdefault('door_tries', {})
+    first = tries.setdefault(door.unit_id, now)
+    if now - first > DOOR_SECONDS:
+        return act  # tried: the budgets as before
+    gap = math.dist(here, (door.x, door.y))
+    share = min(1.0, max(gap - 1.5, 0.0) / gap) if gap > 1e-6 else 0.0
+    spot = (here[0] + (door.x - here[0]) * share, here[1] + (door.y - here[1]) * share)  # this side of the leaf
+    if self.__dict__.get('door_said') != door.unit_id:
+        self.__dict__['door_said'] = door.unit_id
+        LOG.info(
+            'Macro: pursuit: %s: the door %d at (%.1f, %.1f), %.1f off, between the character and %s',
+            DOOR_SAID, door.unit_id, door.x, door.y, gap, goal.label,
+        )  # fmt: skip
+    return Advance(Step(spot), goal, DOOR_SAID)
+
+
+def door_walk(self: Hunter, run: Run, world: World, act, place: Point, aspect: float, key_names) -> bool:
+    """DOOR_FIGHT's walk to the door (`door_fight`): the mark first from here when none was keyed DOOR_MARK_AGAIN s
+    ago, then the door clicked open once within DOOR_NEAR; whether this look's hands are done (else the walk)."""
+    player = world.player
+    if player is None:
+        return True
+    here, now = (player.x, player.y), run.clock()
+    keyed = max((self.buffs.cast_at.get((skill, None), -math.inf) for skill in herald_pack.FIRST), default=-math.inf)
+    if now - keyed > DOOR_MARK_AGAIN:
+        foes = self.foes(world, now)
+        if self.mark_from_here(run, world, foes, key_names):
+            LOG.info('Macro: pursuit: %s: the mark from here', DOOR_SAID)
+            return True
+    door = door_across(world, here, place)
+    if door is None:
+        return False
+    thing = next((t for t in (run.things() if run.things is not None else ()) if t.unit_id == door.unit_id), None)
+    if thing is None:
+        return False
+    mark = Target(player.area, (), (door.x / TILE_UNITS, door.y / TILE_UNITS), act.goal.label, 'target',
+                  use=door.txt_id)  # fmt: skip
+    use_thing(run, mark, player, thing, aspect)
+    return True
 
 
 def warp_ready(
@@ -1169,10 +1259,20 @@ def better_stand(
     attack = self.attack
     seen = attack.sees(observe(player, near, companions, ground, world.doors), companions)
     jumps = () if run is None else self.travel.jumps(run, world)
+    if jumps and run is not None:
+        # The demons on the mark or holding a tier 5 pack: the better place is walked to (combat/pack.py
+        # MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), a jump would bring them back
+        hold = herald_pack.jump_hold(
+            run.clock(), here, foes, [(m.x, m.y) for m in companions], getattr(self.safety, 'hold_exempt', None)
+        )
+        if herald_pack.walks_now(hold):
+            jumps = ()
     # No place the keep range would hop out of at once (combat/pack.py PLACES_KEEP_RANGE): the safety's own model
     kept = herald_pack.range_kept(
         [m for m in world.monsters if not m.ally and m.owner == NO_OWNER and m.mode not in (0, 12)],
         sent_demons(self.build.draw, world, companions),
+        here,
+        min((jump.least for jump in jumps), default=math.inf),  # `camp` jumps where a jump reaches (ALONG_ALL)
     )
     place = camp(
         seen,

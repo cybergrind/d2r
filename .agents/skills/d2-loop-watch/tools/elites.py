@@ -21,7 +21,7 @@ Run with the repo's Python: `uv run --offline python .agents/skills/d2-loop-watc
   and trip as the phases.
 
     uv run --offline python .agents/skills/d2-loop-watch/tools/elites.py [--since 'YYYY-MM-DD HH:MM'] [--until ...]
-        [--kind tz|tzclear|andariel|lk|any] [--against SINCE UNTIL] [--json] [--runs DIR]
+        [--kind tz|tzclear|andariel|lk|baal|any] [--against SINCE UNTIL] [--json] [--runs DIR]
 
 `--against`: the other window's rate and a 90% bootstrap interval of the difference (games resampled): better /
 worse / no evidence.
@@ -32,7 +32,7 @@ import json
 import random
 import sys
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -71,7 +71,10 @@ DRAWS = 2000
 KILL_KINDS = ('champion', 'unique', 'super', 'herald')
 
 # The kinds by the name the log says (macros/loop.py Kind.name), and the legs only one kind makes
-NAMES = {kind.name: kind.key for kind in (loop_module.LK, loop_module.ANDARIEL, loop_module.TZ, loop_module.TZ_CLEAR)}
+NAMES = {
+    kind.name: kind.key
+    for kind in (loop_module.LK, loop_module.ANDARIEL, loop_module.BAAL, loop_module.TZ, loop_module.TZ_CLEAR)
+}
 TZ_LEGS = {
     loop_module.TZ_WAYPOINT,
     loop_module.TZ_LEVEL,
@@ -85,6 +88,14 @@ TZ_LEGS = {
 }
 ANDARIEL_LEGS = {loop_module.TO_THE_CATACOMBS, loop_module.DOWN, loop_module.FIGHT_ANDARIEL}
 LK_LEGS = {loop_module.TO_THE_CHESTS, loop_module.CHESTS, loop_module.PORTAL}
+BAAL_LEGS = {
+    loop_module.BAAL_SHARD,
+    loop_module.TO_THE_KEEP,
+    loop_module.DOWN_THE_KEEP,
+    loop_module.FIGHT_THRONE,
+    loop_module.TO_THE_CHAMBER,
+    loop_module.FIGHT_BAAL,
+}
 
 # The phases, by leg
 LOBBY, TOWN, TRAVEL, LEVEL, LOOT, TRIP = 'lobby', 'town', 'travel', 'level', 'loot', 'trip'
@@ -127,15 +138,24 @@ PHASE_OF = {
     loop_module.TO_THE_CHESTS: TRAVEL,
     loop_module.TO_THE_FORTRESS: TRAVEL,
     loop_module.PORTAL: TRAVEL,
+    loop_module.TO_THE_KEEP: TRAVEL,
     loop_module.TZ_LEVEL: LEVEL,
     loop_module.DOWN: LEVEL,
     loop_module.FIGHT_ANDARIEL: LEVEL,
     loop_module.CHESTS: LEVEL,
+    loop_module.DOWN_THE_KEEP: LEVEL,
+    loop_module.FIGHT_THRONE: LEVEL,
+    loop_module.TO_THE_CHAMBER: LEVEL,  # the portal wait on the Throne: a level run while it is shut
+    loop_module.FIGHT_BAAL: LEVEL,
+    loop_module.FIGHT_BACK: LEVEL,
     loop_module.TZ_LOOT: LOOT,
     loop_module.TZ_PICKUP: LOOT,
     loop_module.PICK_UP: LOOT,
+    loop_module.PICK_BACK: LOOT,
+    loop_module.BAAL_SHARD: TOWN,
     loop_module.TRIP: TRIP,
     loop_module.TO_THE_ENCAMPMENT: TRIP,
+    loop_module.TO_HARROGATH: TRIP,
     loop_module.THROUGH_PORTAL: TRIP,
 }
 
@@ -154,6 +174,7 @@ class Piece:
     phase: str
     game: str  # session/game number
     activity: str = ''  # ACTIVITIES (`activity_of`, a fight's seconds ENGAGING)
+    leg: str = ''  # the leg the loop said last (exphour.py's Baal phases read it)
 
     @property
     def seconds(self) -> float:
@@ -167,6 +188,7 @@ class Kill:
     area: int
     session: str
     unit: int
+    txt: int = 0  # monstats *hcIdx: the act bosses' (terror/bosses.py BOSSES) told apart
 
 
 @dataclass
@@ -225,12 +247,14 @@ def kind_of_leg(leg: str, now: str | None) -> str | None:
         return 'andariel'
     if leg in LK_LEGS:
         return 'lk'
+    if leg in BAAL_LEGS:
+        return 'baal'
     return None
 
 
 def walk(window: Window, session: str, events: list[Event]) -> None:
     """One session's play pieces of the window's kind (andy.py `walk`, by phase)."""
-    on, kind, phase, game = False, None, LOBBY, f'{session}/0'
+    on, kind, phase, game, leg = False, None, LOBBY, f'{session}/0', ''
     target: str | None = None
     fights: list[tuple[datetime, datetime]] = []
     last: datetime | None = None
@@ -243,7 +267,7 @@ def walk(window: Window, session: str, events: list[Event]) -> None:
         if last is not None and on and (window.kind == 'any' or kind == window.kind):
             start, end = max(last, window.since), min(upto, window.until)
             if end > start:
-                pieces.append(Piece(start, end, phase, game, activity_of(phase, target)))
+                pieces.append(Piece(start, end, phase, game, activity_of(phase, target), leg))
         last = upto
 
     for event in events:
@@ -272,7 +296,7 @@ def walk(window: Window, session: str, events: list[Event]) -> None:
         for low, high in excluded:
             parts = [part for a, b in parts for part in ((a, min(b, low)), (max(a, high), b)) if part[1] > part[0]]
         for a, b in parts:
-            window.pieces += engaged(Piece(a, b, piece.phase, piece.game, piece.activity), fights)
+            window.pieces += engaged(replace(piece, start=a, end=b), fights)
 
 
 def engaged(piece: Piece, fights: list[tuple[datetime, datetime]]) -> list[Piece]:
@@ -284,9 +308,9 @@ def engaged(piece: Piece, fights: list[tuple[datetime, datetime]]) -> list[Piece
         if high <= piece.start or low >= piece.end:
             continue
         a, b = max(low, piece.start), min(high, piece.end)
-        out.append(Piece(a, b, piece.phase, piece.game, ENGAGING))
+        out.append(replace(piece, start=a, end=b, activity=ENGAGING))
         rest = [part for x, y in rest for part in ((x, min(y, a)), (max(x, b), y)) if part[1] > part[0]]
-    return [Piece(x, y, piece.phase, piece.game, piece.activity) for x, y in rest] + out
+    return [replace(piece, start=x, end=y) for x, y in rest] + out
 
 
 def kills_in(directory: Path) -> list[Kill]:
@@ -308,7 +332,14 @@ def kills_in(directory: Path) -> list[Kill]:
             seen.add(row.get('unit_id'))
             at = datetime.fromisoformat(row['at']).astimezone().replace(tzinfo=None)
             found.append(
-                Kill(at, str(row.get('kind') or '?'), int(row.get('area') or 0), directory.name, row['unit_id'])
+                Kill(
+                    at,
+                    str(row.get('kind') or '?'),
+                    int(row.get('area') or 0),
+                    directory.name,
+                    row['unit_id'],
+                    int(row.get('txt_id') or 0),
+                )
             )
     return found
 
@@ -419,7 +450,7 @@ def main() -> None:
     now = datetime.now()
     parser.add_argument('--since', type=logwords.local, default=now - timedelta(hours=2))
     parser.add_argument('--until', type=logwords.local, default=now)
-    parser.add_argument('--kind', default='tz', choices=('tz', 'tzclear', *ACT_KINDS, 'andariel', 'lk', 'any'))
+    parser.add_argument('--kind', default='tz', choices=('tz', 'tzclear', *ACT_KINDS, 'andariel', 'lk', 'baal', 'any'))
     parser.add_argument('--against', nargs=2, type=logwords.local, metavar=('SINCE', 'UNTIL'))
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--runs', type=Path, default=RUNS, help="the sessions directory (default: this checkout's)")

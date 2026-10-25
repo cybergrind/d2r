@@ -229,6 +229,7 @@ def test_under_zone_navigation_the_lair_is_entered_from_the_true_tomb_only(monke
     # The order of before 2026-10-23: the Canyon's tombs all toured before the rotation (zonenav.py ROTATION_ANY_ACT
     # puts the rotation right after Duriel, the tombs left after it: test_rotation_zone.py)
     monkeypatch.setattr(zonenav, 'ROTATION_ANY_ACT', False)
+    monkeypatch.setitem(acts.SCRIPTS, 2, act2.script(alone=False))  # the whole order (act2.py ALONE off)
     act = ActGame(2, monkeypatch, true_tomb=true_tomb)
     tomb_entrances(act)
     walk = act.play()

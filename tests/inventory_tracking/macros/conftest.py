@@ -59,6 +59,8 @@ def no_drop_left_alone(monkeypatch):
     from test to test."""
     monkeypatch.setattr(pickup, 'SHUNNED', {})
     monkeypatch.setattr(pickup, 'LOOKED', {})
+    monkeypatch.setattr(pickup, 'PENDING', {})  # PICK_AT_ONCE's clicks whose pickup a later look reads
+    monkeypatch.setattr(pickup, 'AT_ONCE_MISSED', set())
 
 
 @pytest.fixture(autouse=True)
@@ -92,3 +94,12 @@ def no_deposit_refused(monkeypatch):
     """A refused deposit ends the deposits per process (stash.py REFUSED): none from test to test, no picture."""
     monkeypatch.setattr(stash, 'REFUSED', [])
     monkeypatch.setattr(stash, '_picture', lambda what: None)
+
+
+@pytest.fixture(autouse=True)
+def no_filler_game_kept(monkeypatch):
+    """The Worldstone Keep filler games (zonewait.py `_games`, ZONE_WAIT_WSK) are kept per process: none from test to
+    test."""
+    from inventory_tracking.macros import zonewait
+
+    monkeypatch.setattr(zonewait, '_games', {})

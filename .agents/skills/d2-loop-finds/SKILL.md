@@ -28,7 +28,8 @@ unexplained and that the report would call a defect, and then only the lines aro
 What it reads, in `inventory_tracking/runs/alt-d/*/probe.log` (the docstring has the details):
 
 - **appraised items**: every item Cain identified, from `Identify assessment:`, with the triage's verdict, band and stats;
-- **materials**: runes, gems, shards, essences, keys and tokens picked up, priced by `pricing.knowledge lookup`;
+- **materials**: runes, gems, shards, essences, keys, tokens and the Uber Ancients' statues (since 2026-10-25) picked
+  up, priced by `pricing.knowledge lookup`; a statue the knowledge base cannot price is listed as unpriced;
 - **the ground**: `games.py` (the d2-loop-watch skill's reader) for what the sure mode missed and the sets and uniques
   left by design.
 

@@ -11,12 +11,14 @@ Consume ran out in Diablo's fight (rca/2026-10-14/run-1214-findings.md §3.4).
 """
 
 import math
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import MONSTER_UNIT
 from inventory_tracking.game.records import Monster, World
+from inventory_tracking.game.view import markable
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, DrawPrice, Tried
 from inventory_tracking.macros.engine import Run
@@ -74,6 +76,33 @@ MOVED_UNITS = 0.7  # world units the target went since the look: the pointer is 
 NUDGE_UP = 0.025
 NUDGE_AWAY = 0.015
 NUDGES = 2
+# combat/threats/manaburn.py BURN_ENGAGE (2026-10-25, the coordinator from d2r-f3's arena: manaburn seed 35, the mark
+# again after the jump spent 0.5 s finding its target under the pack, "after 2 moves ... pressed anyway", while 14
+# members closed in): with a draining member within BURN_CLOSE of the character, BURN_NUDGES moves at most.
+# BURN_AIM_ONCE: its own switch, off (2026-10-25 arena, apply-burn.md: with BURN_ENGAGE, manaburn seed 18 died at 31 s
+# with it and lived without it, 52%; seed 2 36% -> 51% without it: the fewer moves put the mark on a neighbour)
+BURN_AIM_ONCE = False
+BURN_NUDGES = 1
+BURN_CLOSE = 18.0  # units: manaburn.py FAST_KEEP, the keep range
+
+
+def burn_closing(world: World) -> bool:
+    """BURN_AIM_ONCE with BURN_ENGAGE: a hostile that drains by Mana Burn (manaburn.py `drains`) within BURN_CLOSE of
+    the character."""
+    from inventory_tracking.combat.threats import manaburn  # late: the buff module's imports stay small
+
+    player = world.player
+    if not (BURN_AIM_ONCE and manaburn.BURN_ENGAGE) or player is None:
+        return False
+    return any(
+        not m.ally
+        and manaburn.drains(m.modifiers)
+        and m.mode not in DEAD_MODES
+        and math.dist((player.x, player.y), (m.x, m.y)) <= BURN_CLOSE
+        for m in world.monsters
+    )
+
+
 # The Death Mark keys that did not take, 18:49-19:43 on 2026-10-24 (rca/2026-10-24/dm-latency-findings.md §9): 36 of
 # 358 keys (11 of 89 Herald-pack marks), each found out ~1.1 s after its key and keyed again 3.5 s (p50) after it.
 # Of the 36, 16 were pressed after NUDGES with the hover still naming another member ("pressed anyway"), and ~14 went
@@ -94,7 +123,15 @@ ONTO_PACK_MEMBER = False
 # one again until it died at 19:30:00.6: no key at all. True: a monster row whose target is drawn off the aim's limits
 # (`on_monster`'s own test) is asked again with the hostiles in reach drawn inside them alone, said once; none: not due.
 # False: as before (the cast dropped).
-OFF_SCREEN_NEXT = False
+OFF_SCREEN_NEXT = True  # on 2026-10-25 ~12:40 with OMEN_MARK_FIRST and MARK_SHAPE (mark-at-spawn-findings.md)
+# MARK_SHAPE (2026-10-25, rca/2026-10-25/mark-at-spawn-findings.md §3; the 11:37:30 spawn's mark refused twice as "off
+# the screen at (0.56, 0.83)", its key 1.16 s after the pack showed): True, a cast of combat/pack.py FIRST (Death Mark)
+# may be aimed anywhere inside the HUD's measured outline (game/view.py `markable`), here and in OFF_SCREEN_NEXT's
+# test; of the session's 114 such refusals 109 fall inside it. False: AIM_LIMITS, as for every other cast.
+MARK_SHAPE = True  # on 2026-10-25 ~12:40 with OMEN_MARK_FIRST (109 of 114 refusals inside the outline)
+# QUICK_POLL: the hover read this often during a quick aim (`quick_aim`, macros/hunt.py OMEN_MARK_FIRST), up to
+# HOVER_WAIT, the key going at the first read naming the target or a member of its pack
+QUICK_POLL = 0.01
 SHOWN_ON_MOST = 8  # hostiles nearest a cast's target whose state words are read for where it went instead
 # A cast with `Buff.shows` on a unit whose state shows already at the key (the last cast's lasting still) is judged by
 # the state once `shows_within` has passed, not by the old one's at once (the player, 2026-10-21 ~17:41: "note: we
@@ -174,6 +211,9 @@ class Buffs:
         self.casters = build.casters
         # (skill, unit or None for anything) -> clock of the last cast (or a caster's counted try, `Tried.at`)
         self.cast_at: dict[tuple[int, int | None], float] = {}
+        from inventory_tracking.combat import pack as herald_pack  # late: combat/pack.py's own imports stay small
+
+        herald_pack.MARK.at = -math.inf  # a new plan's clock: no mark keyed yet (MARK_HOLDS_JUMPS)
         self.unseen: dict[int, int] = {}  # skill -> casts of it in a row that the character's state did not show after
         self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
         self.refusals: set[tuple[int, int]] = set()  # (skill, unit) a refusal of `Buff.worth` was said for
@@ -195,6 +235,30 @@ class Buffs:
         self.retarget: Monster | None = (
             None  # the pack's member a cast went on instead of its target (ONTO_PACK_MEMBER)
         )
+        self.quick = False  # a quick aim under way (`quick_aim`)
+
+    @contextmanager
+    def quick_aim(self) -> Iterator[None]:
+        """The casts on a monster made inside it aim quickly (macros/hunt.py OMEN_MARK_FIRST, the player, 2026-10-25:
+        "we need near instant cast after pack has appeared"; "we can both strike firind + cast DM"): no pointer move
+        when the hover names the target or a member of its tier 4-5 Herald pack already (the cast goes on that one),
+        the hover read every QUICK_POLL after a move and the key at its first naming either (HOVER_WAIT at most, no
+        nudges), and the held strike kept held (no `let_go_first`, and no release at the key while the character
+        casts: the game keeps a key that comes during a cast, rca/2026-10-25/mark-at-spawn-findings.md §2)."""
+        self.quick = True
+        try:
+            yield
+        finally:
+            self.quick = False
+
+    def aimable(self, skill: int, point: tuple[float, float]) -> bool:
+        """Whether a cast of `skill` may be aimed at window fraction `point`: the mark's measured shape for a
+        combat/pack.py FIRST skill with MARK_SHAPE (game/view.py `markable`), else AIM_LIMITS (`on_screen`)."""
+        from inventory_tracking.combat import pack as herald_pack  # late: combat/pack.py's own imports stay small
+
+        if MARK_SHAPE and skill in herald_pack.FIRST:
+            return markable(point)
+        return on_screen(point)
 
     def took_of(self, run: Run) -> dict[int, float]:
         """The casts that took, merged into the runner's cross-run record (`Run.lasting`) once a run brings it."""
@@ -322,7 +386,7 @@ class Buffs:
         aspect = rect[2] / rect[3]
 
         def shown(m: Monster) -> bool:
-            return on_screen(screen_fraction(player, m.x, m.y, aspect))
+            return self.aimable(row.skill, screen_fraction(player, m.x, m.y, aspect))
 
         if shown(target) or row.target is None:
             return facts, target
@@ -448,6 +512,9 @@ class Buffs:
         self.cast_at[row.skill, None] = at
         if unit is not None:
             self.cast_at[row.skill, unit] = at
+        from inventory_tracking.combat import pack as herald_pack  # late: combat/pack.py's own imports stay small
+
+        herald_pack.keyed(row.skill, at)  # the mark's key holds the jumps (combat/pack.py MARK_HOLDS_JUMPS)
 
     def cast(
         self,
@@ -552,7 +619,7 @@ class Buffs:
                 return Tried()
         else:
             point = screen_fraction(world.player, target.x, target.y, cast.aspect)
-            if not on_screen(point):
+            if not self.aimable(skill, point):
                 # Once a target: a due cast not made is never silent (the player, 2026-10-20: "never death marked
                 # the leader"; rca/2026-10-20/leader-not-marked-findings.md)
                 self.say_once(
@@ -561,14 +628,20 @@ class Buffs:
                     f'screen at ({point[0]:.2f}, {point[1]:.2f})',
                 )  # fmt: skip
                 return Tried()
-            self.let_go_first(run)
-            run.actuator.aim(*point, scatter=(3, 3))
+            if not self.quick:
+                self.let_go_first(run)
+                run.actuator.aim(*point, scatter=(3, 3))
+            elif not self.named(run, cast, target, world, wait=False):
+                run.actuator.aim(*point, scatter=(3, 3))  # the strike held on: it follows the pointer onto the pack
         fresh = run.world()
         now = next((m for m in fresh.monsters if m.unit_id == target.unit_id), None)
         if now is None:
             return Tried()  # it died under the strike while the pointer went over: no mark on a corpse
         if run.pad is None and AIM_CHECK and fresh.player is not None:
-            self.onto(run, cast, now, fresh)
+            if self.quick:
+                self.named(run, cast, now, fresh, wait=self.retarget is None)
+            else:
+                self.onto(run, cast, now, fresh)
         self.key(run, skill)
         if self.retarget is not None:
             target = self.retarget
@@ -595,7 +668,8 @@ class Buffs:
         if ONTO_TWICE:
             self.onto_twice(run, cast, target, world, point, named)
             return
-        for nudge in range(NUDGES + 1):
+        nudges = NUDGES if not burn_closing(world) else min(NUDGES, BURN_NUDGES)
+        for nudge in range(nudges + 1):
             run.pace.sleep(HOVER_WAIT)
             over = run.hovered()
             if over is not None and over[0] == MONSTER_UNIT and self.pack_member(cast, target, world, over[1]):
@@ -610,7 +684,7 @@ class Buffs:
                 return
             other = next((m for m in world.monsters if m.unit_id == over[1]), None)
             named.append(label(other) if other is not None else f'the unit {over[1]}')
-            if nudge == NUDGES:
+            if nudge == nudges:
                 break
             if nudge == 0 or other is None:
                 moved = (point[0], point[1] - NUDGE_UP)
@@ -624,8 +698,40 @@ class Buffs:
         LOG.info(
             'Macro: buff: %s on %s: the pointer names %s after %d moves (the cast goes on the unit under it): '
             'pressed anyway',
-            skill_name(cast.row.skill), label(target), ', '.join(dict.fromkeys(named)), NUDGES,
+            skill_name(cast.row.skill), label(target), ', '.join(dict.fromkeys(named)), nudges,
         )  # fmt: skip
+
+    def named(self, run: Run, cast: Casting, target: Monster, world: World, *, wait: bool) -> bool:
+        """The quick aim's hover check (`quick_aim`): whether the hover names `target` or another member of its tier
+        4-5 Herald pack (then the cast's target, `retarget`); read once, or with `wait` every QUICK_POLL up to
+        HOVER_WAIT. No hover readable: False without `wait` (the pointer goes on the body), True with it."""
+        from inventory_tracking.combat import pack as herald_pack  # late: combat/pack.py's own imports stay small
+
+        hovered = run.hovered
+        if hovered is None:
+            return wait
+        until = run.clock() + (HOVER_WAIT if wait else 0.0)
+        while True:
+            over = hovered()
+            if over is not None and over[0] == MONSTER_UNIT:
+                if over[1] == target.unit_id:
+                    return True
+                other = next((m for m in world.monsters if m.unit_id == over[1]), None)
+                if (
+                    other is not None
+                    and not other.ally
+                    and herald_pack.in_pack(target.tier)
+                    and other.tier == target.tier
+                ):
+                    self.retarget = other
+                    LOG.info(
+                        'Macro: buff: %s on %s: the pointer names %s of its pack: cast on it (quick aim)',
+                        skill_name(cast.row.skill), label(target), label(other),
+                    )  # fmt: skip
+                    return True
+            if run.clock() >= until:
+                return False
+            run.pace.sleep(QUICK_POLL)
 
     def pack_member(self, cast: Casting, target: Monster, world: World, unit: int) -> bool:
         """ONTO_PACK_MEMBER: whether the hovered `unit` is another member of `target`'s tier PACK_TIER_MIN+ Herald
@@ -730,6 +836,12 @@ class Buffs:
         """Press `skill` through a held strike: let it go, press the key (routines.press_through), QUICK_SETTLE_SECONDS
         after a release (QUICK_SETTLE)."""
         released = self.let_go is not None and bool(run.actuator.holding or run.actuator.holding_buttons)
+        if released and self.quick:
+            # The quick aim (`quick_aim`): under the held strike's cast the game keeps the key, the strike goes on after
+            seen = run.world().player
+            if seen is not None and seen.mode in ACTING:
+                press_through(run, skill)
+                return
         if self.let_go is not None:
             self.let_go()
         if QUICK_SETTLE and released:

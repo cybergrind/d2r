@@ -17,7 +17,7 @@ from dataclasses import dataclass, replace
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import World
 from inventory_tracking.levels.presets import display_name, numbered_name
-from inventory_tracking.macros import actloop, merc, zonenav
+from inventory_tracking.macros import actloop, merc, zonenav, zonewait
 from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import (
     EXCURSION,
@@ -504,7 +504,13 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         return agenda.next((player.x, player.y), valuable=left, area=player.area)
     if plan is None:
         raise Abort('no terror zone is read in this game')
-    if not plan.excursions and player.in_town:
+    # ZONE_WAIT_WSK (macros/zonewait.py, 2026-10-25, the player: "do worldstone keep, if we get some shard - good, if
+    # not - next game"): the wait for a zone the loop cannot play filled with Worldstone Keep games, the zone read
+    # played again as soon as it is playable; off, or with the next zone nearer than one such game, the wait below
+    filled = zonewait.fill(agenda.game, plan, player.in_town, player.area, zone_wait(time.time()))
+    if filled is not None:
+        plan = filled
+    elif not plan.excursions and player.in_town:
         # Every way into the zone blocked (Moo Moo Farm: only the red portal the player opens with Wirt's Leg leads in;
         # Blood Moor, Rocky Waste and Outer Steppes until their towns' walks out, rca/2026-10-19/town-exit-findings.md):
         # no goals, so each game was left at once, a game a minute for the hour (F1). The player, 2026-10-19: "we need
@@ -1438,6 +1444,8 @@ def way_unrun(agenda: Agenda, plan: object, area: int, child: int, tz) -> str:
     trip = plan.trip_of(area, frozenset(agenda.finished))
     if trip is None or area not in trip.zone or tz.terrorized(area) is not False or tz.terrorized(child) is True:
         return ''
+    if zonewait.filler(plan):
+        return ''  # a Worldstone Keep filler game's levels are worked, not terrorized (zonewait.py ZONE_WAIT_WSK)
     if choice.BOSS_ROTATION and choice.boss_held(agenda, area):
         return ''
     return ZONE_LEFT_SAID.format(parent=display_name(area))
@@ -1576,7 +1584,8 @@ def portal_fight(run: Run, tz: LegHands, game: str, goal: Objective, agenda: Age
         LOG.info('Macro: tz: %s with %d hostiles within %.0f after %d fights: cast all the same', goal.label, near,
                  SIGHT, fought)  # fmt: skip
         return False
-    turned = tz.terrorized(player.area) is False
+    # A Worldstone Keep filler game's level is worked, not one the zone left (zonewait.py ZONE_WAIT_WSK)
+    turned = tz.terrorized(player.area) is False and not (agenda is not None and zonewait.filler(agenda.plan))
     fight = (tz.fight if turned else tz.fight_back) or tz.level_run
     _portal_fights[key] = fought + 1
     # The watch tools may read it (d2-loop-watch logwords.py)

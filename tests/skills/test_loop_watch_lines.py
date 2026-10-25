@@ -54,6 +54,17 @@ REAL = [
         ('pickup',),
     ),
     (
+        'TARGET_GOAL',
+        '2026-10-19 09:27:40,514 INFO Macro: agenda: target the elite 279 (1817783950) (kill, tier 4, 2 leaders known '
+        'here)',
+        ('the elite 279 (1817783950)', 'kill', '4'),
+    ),
+    (
+        'TARGET_GOAL',
+        '2026-10-24 13:04:03,349 INFO Macro: agenda: target an unexplored room (explore, tier 7, 0 leaders known here)',
+        ('an unexplored room', 'explore', '7'),
+    ),
+    (
         'RESUMED',
         '2026-10-18 15:58:35,613 INFO Macro: resumed after a restart: loop on, pickup sure valuables, run Andariel',
         ('on', 'Andariel'),
@@ -193,6 +204,12 @@ REAL = [
         '2026-10-18 15:59:04,238 INFO Macro: leg time: level run (at Next level: going through takes a press): 0 '
         'units in 6.6s since its first leg, 0.0 units/s; 0 jumps, 0 walks; key to key none',
         ('0', '6.6', '0', '0'),
+    ),
+    (
+        'TERRORIZED',
+        '2026-10-25 14:21:06,211 INFO Macro: terrorize: Northern Worldstone Shard used for act 5 (stack 93 -> 92); the '
+        'act read terrorized',
+        ('Northern Worldstone Shard', '5'),
     ),
 ]
 
@@ -621,6 +638,24 @@ def experience_lines() -> list[str]:
     ledger.look('cyber5', 108, Reading(2_000_000, 94), 60.0)
     lines = ledger.game_over(3, Reading(3_234_567, 95), 600.0)
     return [logged(form % line) for line in lines]
+
+
+def test_the_agenda_target_line_from_the_hunt() -> None:
+    # exphour.py's SHORT_LEVELS replay reads the target's label, kind and tier (2026-10-25)
+    form = one('macros/hunting/choice.py', 'Macro: agenda: target %s')
+    found = logwords.TARGET_GOAL.search(logged(form % ('a group of 5', 'kill', 4, 0)))
+    assert found is not None
+    assert found.groups() == ('a group of 5', 'kill', '4')
+
+
+def test_a_tz_games_plan_names_its_zone_parts() -> None:
+    # exphour.py tells a shard's act (ActN-Manual) from the game's own zone by this line (2026-10-25)
+    form = one('macros/tzroutine.py', 'Macro: tz: zone ')
+    text = logged(form % ('Act3-Manual + Act2-Sewers', 'Mephisto from 101: [101, 102]; Sewers 1 from 48: [48, 47]',
+                          'none', ''))  # fmt: skip
+    found = logwords.TZ_ZONE.search(text)
+    assert found is not None
+    assert found.groups() == ('Act3-Manual + Act2-Sewers', 'Mephisto from 101: [101, 102]; Sewers 1 from 48: [48, 47]')
 
 
 def test_the_experience_of_a_tz_game_and_its_levels() -> None:
@@ -1169,6 +1204,33 @@ def test_a_shard_over_the_limit_used_or_refused_is_said_at_once() -> None:
         assert logwords.DID.search(line) is not None
         assert logwords.EVENT.search(line) is None  # no stop: the game goes on
         assert logwords.GAME_LEFT not in line
+
+
+def test_a_worldstone_keep_game_filling_a_zone_wait_is_said_counted_and_its_end_said(tmp_path: Path) -> None:
+    # macros/zonewait.py ZONE_WAIT_WSK (the player, 2026-10-25 ~12:06: "do worldstone keep, if we get some shard -
+    # good, if not - next game")
+    began = logged(one('macros/zonewait.py', 'game while %s is not playable') % (
+        'Act1-MooMooFarm', 'no catalogue excursion covers it', 1553.0, 'Baal from 129: [129, 130]'))  # fmt: skip
+    found = logwords.ZONE_FILLER.search(began)
+    assert found is not None
+    trips = 'Baal from 129: [129, 130]'
+    assert found.groups() == ('Act1-MooMooFarm', 'no catalogue excursion covers it', '1553', trips)
+    taken = logged(one('macros/zonewait.py', 'game taken up in') % ('The Worldstone Keep Level 3', 'Act1-MooMooFarm'))
+    ended = logged(one('macros/zonewait.py', 'ends its filler') % ('Act5-Manual + Act1-MooMooFarm',
+                                                                   'The Worldstone Keep Level 2'))  # fmt: skip
+    found = logwords.ZONE_FILLER_ENDS.search(ended)
+    assert found is not None
+    assert found.groups() == ('Act5-Manual + Act1-MooMooFarm', 'The Worldstone Keep Level 2')
+    for line in (began, taken, ended):
+        assert logwords.NOW.search(line) is not None  # the live watch says it
+        assert logwords.EVENT.search(line) is None  # no stop: the game goes on
+        assert logwords.ZONE.search(line) is None
+    # games.py counts the filler games among what the loop did (kind 'zone wait'), never their ends
+    session = tmp_path / '20261025T100000Z-test'
+    session.mkdir()
+    (session / 'probe.log').write_text('\n'.join(('2026-10-25 12:04:20,000 INFO Macro: Loop: game 7, next game', began,
+                                                  ended, taken)) + '\n')  # fmt: skip
+    assert games.read(session, None, None)[2]['zone wait'] == 2
 
 
 def test_the_bound_demon_lost_is_said_at_once_and_noted_in_its_game(capsys) -> None:

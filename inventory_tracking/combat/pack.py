@@ -134,7 +134,7 @@ HOP = Hop()
 
 def hopped(at: float, units: float) -> None:
     """A Teleport or Blade Warp landed at clock `at`, `units` from where it was keyed (the demons within 10 come
-    along and stop striking: builds/warlock/mark.py REMARK_AFTER_HOP)."""
+    along and stop striking: builds/warlock/mark.py DESIGNATED_MARK `aggro_lost`; every one with ALONG_ALL)."""
     HOP.at, HOP.units = at, units
 
 
@@ -144,27 +144,11 @@ def since_hop(now: float) -> float:
     return gap if gap >= 0.0 else math.inf
 
 
-# The mark at the landing, before the strike is pressed (2026-10-24, rca/2026-10-24/aggro-findings.md §4): of 140
-# landings re-marked within 5 s in the takes of 09:53-11:32, the strike's button went down 0.35 s after the landing
-# (p50) and the mark's key 0.90 s (p90 1.5) after it, the strike first in 120: the bout asks its before-strike rows
-# (builds/warlock/mark.py `mark_ahead`) only once the strike is held (macros/hunt.py AHEAD_BEFORE_PRESS off since its
-# omen gate of 2026-10-23). True: under LANDING_AHEAD s after a jump landed (`HOP`), the bout asks them at its first
-# look too, before the press (`landing_ahead`, macros/hunt.py). False: as before.
-MARK_AT_LANDING = False
-LANDING_AHEAD = 1.5  # seconds after a landing the before-strike rows go before the press
-# The arena's T5 Bramble Hulk Herald (herald.py, 10 seeds, GLUED, 2026-10-24 12:00): with the mark before the press at
-# every landing the keep range's hops made, the least life's median fell 0.98 -> 0.59, the Herald died in 5 plays of 10
-# against 7, kills 13.3 -> 11.6 (the strike's first cast 0.3 s later under the pack coming on). False: not in reach of
-# a tier 4-5 Herald pack's member (`in_pack`), where the strike stays first. True: there too.
-LANDING_IN_PACK = False
-
-
-def landing_ahead(now: float, hostiles: Iterable = ()) -> bool:
-    """Whether the bout's before-strike rows go before the strike's press now (MARK_AT_LANDING): a jump landed under
-    LANDING_AHEAD s ago, and no member of a tier 4-5 Herald pack among `hostiles` (those in reach; LANDING_IN_PACK)."""
-    if not MARK_AT_LANDING or since_hop(now) > LANDING_AHEAD:
-        return False
-    return LANDING_IN_PACK or not any(in_pack(getattr(m, 'tier', 0)) for m in hostiles)
+# Retired 2026-10-25 (rca/2026-10-25/tactics/apply-1.md): MARK_AT_LANDING / LANDING_IN_PACK (`landing_ahead`, the
+# before-strike rows before the press under LANDING_AHEAD s after any landing): never called by macros/hunt.py, and
+# its arena gate of 2026-10-24 ~12:20 failed (T5 Bramble Hulk least life 0.98 -> 0.59, Herald 7/10 -> 5/10);
+# HERALD_MARK_FIRST below (on) and R1's landing mark (DM_AFTER_EVERY_MOVE) are the mark at a landing.
+LANDING_AHEAD = 1.5  # seconds after a landing the before-strike rows go before the press (HERALD_MARK_FIRST)
 
 
 # The mark first at a tier 5 Herald fight's landing (2026-10-24, rca/2026-10-24/dm-latency-findings.md; the player,
@@ -213,7 +197,7 @@ def herald_mark_first(now: float, hostiles: Iterable = (), read: Iterable = (), 
 # The hard fight (2026-10-24 ~20:30, rca/2026-10-24/dm-latency-findings.md §10; the player, ~20:27: "we don't need to
 # cast DM like every second for regular enemies, but it is a great way to handle hard situations"): the one test the
 # mark-after-every-move (DM_AFTER_EVERY_MOVE, builds/warlock/mark.py `move_reason`) and the mark-then-walk
-# (macros/hunt.py MARK_THEN_WALK) act under; a regular fight keeps the mark's own rules. Hard, within HARD_SEEN of
+# (MARK_THEN_WALK below) act under; a regular fight keeps the mark's own rules. Hard, within HARD_SEEN of
 # the character: a tier HERALD_MARK_TIER Herald pack's member; a boss or super unique (terror/bosses.py); the safety's
 # price of holding over its life budget (the caller's `pressed`: a `DrawPrice.pressed` of its last look); a hostile
 # that drains mana (Mana Burn, or its type's own mana element: combat/threats/drain_escape.py `threat`); or HARD_PACK
@@ -286,7 +270,7 @@ def hard_fight(here: Point, hostiles: Iterable, pressed: bool = False) -> str | 
 # the demons hold it (a FIRST skill keyed under WALK_HOLD s ago); with none keyed, the mark goes first from where the
 # character stands (`ask_mark`, builds/warlock/mark.py `move_reason`) when the safety's look prices standing within its
 # life budget (the Hold's worst harm). A retreat still jumps. False: the jump, as before.
-MARK_THEN_WALK = False
+MARK_THEN_WALK = True  # on 2026-10-25 ~17:15: g0b3 gate passed (apply-0b.md)
 BIG_GROUP = 6  # hostiles: a T5 Herald pack is 6-15; a champion pack 3-5 alone is no big group
 WALK_HOLD = 6.0  # seconds after the mark's key the approach is walked (the demons' jump 0.28 s, a 15-unit walk ~2.5 s)
 WALK_SAID = 'the mark from here before walking in (MARK_THEN_WALK)'
@@ -297,6 +281,10 @@ def big_group(here: Point, hostiles: Iterable, pressed: bool = False) -> str | N
     within HARD_SEEN), or None."""
     found = list(hostiles)
     why = hard_fight(here, found, pressed)
+    if why is None and any(in_pack(getattr(m, 'tier', 0)) and math.dist(here, (m.x, m.y)) <= HARD_SEEN for m in found):
+        # A tier 4 pack too (2026-10-25, the coordinator: "hard fights (T4-5 Herald packs, big groups)"), for the walk
+        # in alone: DM_AFTER_EVERY_MOVE's `hard_fight` keeps tier 5
+        why = f'a tier {PACK_TIER_MIN}-5 Herald pack'
     if why is None:
         return None
     near = sum(1 for m in found if math.dist(here, (m.x, m.y)) <= HARD_SEEN)
@@ -343,28 +331,10 @@ def landing_ask() -> Iterator[None]:
         LANDING_ASK.on = False
 
 
-# The demons dragged by a fight's own hop (2026-10-24, rca/2026-10-24/aggro-findings.md §3; the player, 2026-10-21:
-# "use death mark and do not teleport"): 23.7 fight hops a minute in the takes of 09:53-11:32, 42% followed by another
-# within 1 s; after one the demons stood 11.4 units off the nearest hostile at the landing and 8.8 one second after
-# (those that struck before it), and struck again 1.1 s after the landing with a mark there, 3.3 s without. Of the 264
-# firing-spot hops 251 had a hostile within the strike's reach where the character stood. True: a firing stand, a
-# better place or a fight goal's own move by a jump of REMARK_HOP or more, from where the strike has a line, with a
-# demon within TAKEN_ALONG of the character striking (DEMON_HOLDS of a hostile), is priced DRAG_SECONDS more
-# (`drag_seconds`, macros/safety.py `move_price`): the demons' time back on the pack. False: as before.
-HOP_DRAG_PRICE = False
-DRAG_SECONDS = 1.1  # the demons' first blow after a landing with the mark at it (p50 of 42 whole windows)
-DRAG_HOP = 4.0  # units: builds/warlock/mark.py REMARK_HOP, a shorter jump takes no demon off its monster
-
-
-# The pack in reach left for a goal that is no fight (2026-10-24, the coordinator's LONG_FIGHTs of 11:49-11:51, take
-# 20261024T084705Z-77: tier 4 Drowned Carcass elites and a Fetish Shaman pack, 85 strikes and 60 jumps in one fight,
-# "Teleport toward full clear: an unexplored room" x33-39 with the packs in reach; 11:36:46-37:12, take
-# 20261024T083424Z-78: "toward Flayer Dungeon 1" x18 through a tier 4 Thrasher's pack): the jump to an unexplored room,
-# a chest or the next level is priced against holding by the way's seconds alone, so it always undercuts the hold's
-# clear time and the pack is fought again on the way back. True: such a move by a jump (no retreat, dodge, hop back or
-# firing stand, a goal that is no fight) from where the strike has a line is priced the clear time of what is in reach
-# more (macros/safety.py `move_price`, `Pricing.clear`): the pack is left to be cleared later. False: as before.
-LEAVE_PACK_PRICE = False
+# Retired 2026-10-25 (rca/2026-10-25/tactics/apply-1.md): HOP_DRAG_PRICE (`drag_seconds`, DRAG_SECONDS 1.1 s more on
+# a forgoable hop that drags striking demons) was never read by macros/safety.py `move_price` and gated neutral on
+# 2026-10-24 ~12:20; MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5 and REAGGRO_BY_MARK bar those hops instead of pricing them.
+# LEAVE_PACK_PRICE (the clear time of what is in reach on a move to a goal that is no fight) had no reader at all.
 # The Death Mark through the fight casts' hold (2026-10-24, rca/2026-10-24/aggro-findings.md §2: take
 # 20261024T084322Z-86, the doll Herald, 11:44:23.7-39: no mark in 15 s and 18 hops, "fight casts held: blows of 2702
 # of 2625 can come within 1.0 s"): the mark's cast (0.32 s, the takes' median) is as long as a strike's (0.40), which
@@ -380,28 +350,50 @@ def through_hold(skill: int) -> bool:
     return MARK_THROUGH_HOLD and skill in THROUGH
 
 
-def drag_seconds(here: Point, spot: Point, demons: Sequence[Point] | None, hostiles: Iterable[Point]) -> float:
-    """Seconds a jump from `here` to `spot` costs the fight by the demons it takes off the pack (HOP_DRAG_PRICE): one
-    within TAKEN_ALONG of `here` striking (DEMON_HOLDS of a hostile) and a jump of DRAG_HOP or more; else 0. The
-    caller asks it only for a move it may forgo (no retreat, dodge or hop back) from where the strike has a line."""
-    if not HOP_DRAG_PRICE or not demons or math.dist(here, spot) < DRAG_HOP:
-        return 0.0
-    foes = list(hostiles)
-    along = [d for d in demons if math.dist(here, d) <= TAKEN_ALONG]
-    return DRAG_SECONDS if any(math.dist(d, at) <= DEMON_HOLDS for d in along for at in foes) else 0.0
-
-
 # Re-aggro by the mark, not a hop (the player, 2026-10-21 ~21:05: "when we're teleporting - our minions are teleporting
-# with us and stop attacking. so, if we want to re-aggro - use death mark and do not teleport"): with the demons idle
-# by the character (`idle_by`: all within TAKEN_ALONG of it, the distance a Teleport takes allies along, none within
-# DEMON_HOLDS of a hostile, one in the fight within PACK_SEEN), Death Mark goes again (builds/warlock/mark.py
-# `remark_target`) and the safety bars a Teleport toward the fight for up to REAGGRO_WAIT s (macros/safety.py, named
-# REAGGRO_SAID): the hop would take the demons along, the mark sends them. False: as before.
+# with us and stop attacking. so, if we want to re-aggro - use death mark and do not teleport"; 2026-10-24 ~13:30:
+# "teleporting - takes aggro from our minions ... => no re-aggro => we take multiple heavy hits => teleport => no
+# re-aggro => ... => loop"; rca/2026-10-25/tactics/near-death.md P3, teleports.md §4.3, apply-1.md). The takes of
+# 10-21 to 10-25: the keep range's hop "on the character" was the last move before 11 of 28 T5 first hits; it fires
+# with the demons idle by the character and lands with them still there (every jump brings them, ALONG_ALL), so the
+# pack is on the character again. True (rewritten 2026-10-25): while the demons idle by the character (`idle_by`: all
+# within TAKEN_ALONG of it, none within DEMON_HOLDS of a hostile) with REAGGRO_ON or more hostiles on it within
+# PACK_BACK (`reaggro_due`), the keep range's hop and a voluntary Teleport are not made (macros/safety.py, named
+# REAGGRO_SAID) for up to REAGGRO_WAIT s, or until the mark has been keyed and landed (MARK_LANDS): the mark sends the
+# demons (builds/warlock/mark.py REAGGRO_PACK designates the pack's member, its mark due at once), the hop would only
+# bring the pack along. A real threat (`JumpHold.exempt`) and a retreat stay. False: as before (until 2026-10-25 it
+# barred only a Teleport toward the fight under REAGGRO_WAIT s after a hop).
 REAGGRO_BY_MARK = False
 REAGGRO_WAIT = 1.2  # seconds a stretch of idle demons bars the hop at most (the mark's delay 0.8 s and its 0.37 s cast)
 TAKEN_ALONG = 10.0
+# ALONG_ALL (2026-10-25, rca/2026-10-25/tactics/teleports.md §3.1, apply-0a.md; the player, 2026-10-24 ~20:24: "tp
+# brings dameon back to us, we want to aoid it in this case"): every Teleport and Blade Warp of the takes of 10-21 to
+# 10-25 brought every demon and the mercenary to within 4.5 of the character, whatever their distance at the key (about
+# 170,000 pet sightings, 0-3 to 30-60 units, none left behind); TAKEN_ALONG's 10 was measured on allies within 10
+# only. True: a jump takes every companion along (`along`), so a landing by a jump is judged with no demon holding
+# anything there (`breaks_range`, `range_kept`, macros/safety.py PACK_RANGE_LANDING) and a hop's spots are not
+# aimed "through the demons" (`hop_spots`, manaburn.py `hop_spots`): the hop brings them. A walk leaves them where
+# they stand. False: the allies within TAKEN_ALONG alone, as before.
+ALONG_ALL = False
+
+
+def along(start: Point, ally: Point) -> bool:
+    """Whether a jump keyed at `start` takes the companion at `ally` along (ALONG_ALL: every one; else within
+    TAKEN_ALONG)."""
+    return ALONG_ALL or math.dist(start, ally) <= TAKEN_ALONG
+
+
+def left_holding(demons: Iterable[Point], jumped: bool) -> list[Point]:
+    """The demons that still stand where they are once the character has moved: none after a jump with ALONG_ALL
+    (they come along), else all of them."""
+    return [] if ALONG_ALL and jumped else list(demons)
+
+
 DEMON_HOLDS = 5.8  # units: a demon this near a hostile strikes it (mark.py MARK_BESIDE 2.8 + HELD 3.0)
-REAGGRO_SAID = 'the demons idle by the character: re-aggro by Death Mark, not a hop'
+REAGGRO_SAID = 'the demons idle by the character: re-aggro by Death Mark, not a hop (REAGGRO_BY_MARK)'
+
+
+REAGGRO_ON = 2  # hostiles on the character (builds/warlock/mark.py REAGGRO_PRESS, the pack's re-aggro mark)
 
 
 def idle_by(here: Point, demons: Sequence[Point], hostiles: Iterable[Point]) -> bool:
@@ -411,6 +403,147 @@ def idle_by(here: Point, demons: Sequence[Point], hostiles: Iterable[Point]) -> 
         return False
     foes = [h for h in hostiles if math.dist(here, h) <= PACK_SEEN]
     return bool(foes) and not any(math.dist(d, h) <= DEMON_HOLDS for d in demons for h in foes)
+
+
+def reaggro_due(here: Point, demons: Sequence[Point], hostiles: Iterable[Point]) -> bool:
+    """Whether the mark re-aggroes the pack instead of a hop (REAGGRO_BY_MARK): the demons idle by the character
+    (`idle_by`) and REAGGRO_ON or more hostiles within PACK_BACK of it."""
+    found = list(hostiles)
+    if not idle_by(here, demons, found):
+        return False
+    return sum(1 for h in found if math.dist(here, h) < PACK_BACK) >= REAGGRO_ON
+
+
+def reaggro_holds(now: float, since: float | None) -> bool:
+    """Whether the re-aggro's bar holds at clock `now` for a stretch of `reaggro_due` begun at `since`: under
+    REAGGRO_WAIT s into it, and the mark not keyed in it MARK_LANDS s ago or more."""
+    if since is None or not 0.0 <= now - since <= REAGGRO_WAIT:
+        return False
+    return not (MARK.at >= since and since_mark(now) >= MARK_LANDS)
+
+
+# MARK_HOLDS_JUMPS (2026-10-25, rca/2026-10-25/tactics/teleports.md §3.4 and §4.1-4.4, apply-0b.md; the player,
+# 2026-10-24 ~19:58: "Retreat = safety tp out. tp = we move with merc and daemons. So, what is the logical reason to do
+# DM and then immediately call it off with tp?", ~20:24: "cast DM from safe distance => daemon gets teleported and gets
+# aggro => we just close distance walking (tp brings dameon back to us, we want to aoid it in this case)"). The takes
+# since 10-24 18:49: 198 fight Teleports an hour keyed within 1.5 s after a Death Mark key, 152 of them pulling the
+# sent demon back (better place 106, pursuit 15, keep range 14, retreats 9); the keep range's hop fired ~0.3 s after
+# the key, before the demons had landed (the mark's jump 0.28 s). True: under MARK_LANDS s after the mark's key
+# (`keyed`, macros/buffs.py) no jump is made (the keep range's hop and a retreat are judged again once the demons have
+# landed, with them as holders); under MARK_WALKS s a voluntary jump (a better place, a firing spot, the pursuit's
+# move) is not made either: walked (macros/hunting/moves.py `better_stand`) or the strike from here. A real threat
+# (`JumpHold.exempt`: surrounded, a hit of HOLD_BURST of the life within 1 s, the life budget spent, a rejuvenation's
+# alarm, a drainer, a live doll close) lifts it. False: as before.
+MARK_HOLDS_JUMPS = True  # on 2026-10-25 ~13:58: g0b2 arena 24 fights x 20 seeds, no new death (apply-0b.md)
+MARK_LANDS = 0.45  # s after the key: the mark's jump 0.28 s (p50) and a look's margin
+MARK_WALKS = 1.8  # s after the key: the demons on the pack (re-engaged p90 1.16-1.53 s with a mark)
+# NO_SHORT_HOPS_T5 (2026-10-25 ~11:08, the player: "from what I can see, we often try to move for short distances in
+# battle with T5 heralds => teleporting aggroed minions to us. sometimes that makes sense, but in most cases we just
+# bring aggro to our positions instead"; teleports.md §3.2: in T4-5 fights 93% of the demons engaged at a hop's key
+# were stripped by it, the keep range 526 of 595, the better place 547 of 595). True: in a fight with a tier
+# HERALD_MARK_TIER Herald pack's member within HARD_SEEN, while a companion holds the pack (one DEMON_APART or more
+# off the character within DEMON_HOLDS of a member: `pack_held`), a jump that is short (under SHORT_HOP units) or lands
+# within PACK_REACH of a member is not made: the better place and the firing spot (voluntary jumps, PLACE); walked, or
+# the strike from here. The keep range's hop and the retreats go (the arena, apply-short.md: herald seed 8 died with
+# the keep range's hops held), and the exemptions of MARK_HOLDS_JUMPS stay. False: as before.
+NO_SHORT_HOPS_T5 = False
+SHORT_HOP = 15.0  # units: the player's "short distances"
+PACK_REACH = 18.0  # units from a member a landing is still inside the pack's reach (PACK_RANGE's far end, FAST_KEEP)
+HOLD_BURST = 0.15  # the share of the life lost within 1 s that is a real threat (a T5 blow is 400-900 of ~2900)
+# Ranged hostiles (combat/bolts.py threat table `ranged`) within the shot's reach (sim/monsters.py SHOT_REACH) that are
+# a real threat: the walk in is for a pack the demons hold; a ranged pack throws at the walker, and a jump leaves the
+# throws aimed at its place (2026-10-25, apply-0b.md: the Canyon's 15 Hell Slingers, 4 javelins of 770-860 in two
+# frames from full life on the 12-unit walk the hold gave, every one of seeds 2-5 dead by 8 s; the jump lived)
+HOLD_SHOOTERS = 3
+HELD_SAID = 'a jump held'
+PLACE, KEEP, RETREAT = 'place', 'keep', 'retreat'  # the kinds of jump (`held`)
+
+
+@dataclass
+class Keyed:
+    """The clock the build's FIRST skill (Death Mark) was last keyed at (MARK_HOLDS_JUMPS)."""
+
+    at: float = -math.inf
+
+
+MARK = Keyed()
+
+
+def keyed(skill: int, at: float) -> None:
+    """A skill keyed at clock `at` (macros/buffs.py `Buffs.remember`): the mark's (a FIRST skill) is kept."""
+    if skill in FIRST:
+        MARK.at = at
+
+
+def since_mark(now: float) -> float:
+    """Seconds since the mark's key at clock `now`; inf with none (or a clock that went back)."""
+    gap = now - MARK.at
+    return gap if gap >= 0.0 else math.inf
+
+
+@dataclass(frozen=True)
+class JumpHold:
+    """What one look holds jumps by (`jump_hold`): where the character stands, the seconds since the mark's key, the
+    tier 5 pack's members while a companion holds it (() else), and the real threat that lifts the hold (None: none)."""
+
+    here: Point
+    marked: float = math.inf
+    held: tuple[Point, ...] = ()
+    exempt: str | None = None
+
+
+def pack_held(here: Point, members: Sequence[Point], companions: Iterable[Point]) -> bool:
+    """Whether a companion holds the pack: one DEMON_APART or more off the character within DEMON_HOLDS of a member."""
+    return any(math.dist(c, m) <= DEMON_HOLDS for c in holders(here, companions) for m in members)
+
+
+def jump_hold(
+    now: float, here: Point, hostiles: Iterable, companions: Iterable[Point], exempt: str | None = None
+) -> JumpHold | None:
+    """The look's hold on jumps (MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), or None with neither on. `hostiles`: the look's
+    (`at` or `x`, `y`, and `tier`); `companions`: where they stand; `exempt`: the real threat seen, if any."""
+    if not (MARK_HOLDS_JUMPS or NO_SHORT_HOPS_T5):
+        return None
+    held: tuple[Point, ...] = ()
+    if NO_SHORT_HOPS_T5:
+        members = []
+        for m in hostiles:
+            at = m.at if hasattr(m, 'at') else (m.x, m.y)
+            if getattr(m, 'tier', 0) >= HERALD_MARK_TIER and math.dist(here, at) <= HARD_SEEN:
+                members.append(at)
+        if members and pack_held(here, members, companions):
+            held = tuple(members)
+    return JumpHold(here, since_mark(now) if MARK_HOLDS_JUMPS else math.inf, held, exempt)
+
+
+def held(hold: JumpHold | None, spot: Point, kind: str) -> str | None:
+    """Why a jump of `kind` (PLACE: a voluntary one; KEEP: the keep range's hop; RETREAT) to `spot` is not made now
+    (MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), or None."""
+    if hold is None or hold.exempt is not None:
+        return None
+    if hold.marked <= MARK_LANDS:
+        return f'{HELD_SAID}: the demons land on the mark ({hold.marked:.2f} s after its key; MARK_HOLDS_JUMPS)'
+    if kind == PLACE and hold.marked <= MARK_WALKS:
+        return f'{HELD_SAID}: walked while the mark takes the pack ({hold.marked:.2f} s on; MARK_HOLDS_JUMPS)'
+    if hold.held and kind == PLACE:
+        # A voluntary jump alone: the keep range's hop goes (2026-10-25 arena, apply-short.md: herald seed 8, its hops
+        # at 8.6-8.8 held, a tier 5 hulk walked in to 4.7 and one blow of 2233 took 1783 life while the staff's
+        # Teleport swapped in; the safety priced the blow at 682)
+        away = math.dist(hold.here, spot)
+        inside = min(math.dist(spot, m) for m in hold.held)
+        if away < SHORT_HOP or inside < PACK_REACH:
+            return (
+                f'{HELD_SAID}: the demons hold the tier 5 pack, a jump of {away:.0f} landing {inside:.0f} from it '
+                'brings it onto the character (NO_SHORT_HOPS_T5)'
+            )
+    return None
+
+
+def walks_now(hold: JumpHold | None) -> bool:
+    """Whether the fight's better place is walked to now, not jumped (`held` for a PLACE jump anywhere near)."""
+    if hold is None or hold.exempt is not None:
+        return False
+    return hold.marked <= MARK_WALKS or bool(hold.held)
 
 
 @dataclass(frozen=True)
@@ -515,23 +648,34 @@ def lead() -> float:
     return LEAD_UNITS if RANGE_LEAD else 0.0
 
 
-def breaks_range(spot: Point, hostiles: Iterable, demons: Iterable[Point]) -> str | None:
+def breaks_range(spot: Point, hostiles: Iterable, demons: Iterable[Point], jumped: bool = False) -> str | None:
     """Why standing at `spot` would have the keep range hop back at once: `why_back` there, of the tier 4-5 Herald pack
-    among `hostiles` (`members`), the build's demons where they stand now, the members `lead()` nearer. None when it
-    would not, or with PLACES_KEEP_RANGE off. For a move the safety prices (macros/safety.py `Pricing.move_price`)."""
+    among `hostiles` (`members`), the build's demons where they stand now (none when `jumped` there with ALONG_ALL:
+    they come along), the members `lead()` nearer. None when it would not, or with PLACES_KEEP_RANGE off. For a move
+    the safety prices (macros/safety.py `Pricing.move_price`)."""
     if not PLACES_KEEP_RANGE:
         return None
-    return why_back(spot, members(hostiles), list(demons), lead())
+    return why_back(spot, members(hostiles), left_holding(demons, jumped), lead())
 
 
-def range_kept(hostiles: Iterable, demons: Iterable[Point]) -> Callable[[Point], bool]:
+def range_kept(
+    hostiles: Iterable, demons: Iterable[Point], here: Point | None = None, jumps_from: float = math.inf
+) -> Callable[[Point], bool]:
     """`breaks_range` as a filter over many places of one look (combat/stance.py `camp`'s `shown`): True where the
-    character could stand without the hop taking it out at once; every place with no pack or PLACES_KEEP_RANGE off."""
+    character could stand without the hop taking it out at once; every place with no pack or PLACES_KEEP_RANGE off.
+    A place `jumps_from` units or more from `here` is one a jump goes to (stance.py `camp`: a jump that reaches a
+    place is taken), judged with ALONG_ALL's demons along."""
     pack = members(hostiles) if PLACES_KEEP_RANGE else []
     if not pack:
         return lambda spot: True
     held, ahead = list(demons), lead()
-    return lambda spot: why_back(spot, pack, held, ahead) is None
+    gone = left_holding(held, jumped=True)
+
+    def kept(spot: Point) -> bool:
+        jumped = here is not None and math.dist(here, spot) >= jumps_from
+        return why_back(spot, pack, gone if jumped else held, ahead) is None
+
+    return kept
 
 
 def centre(here: Point, pack: Sequence[Member]) -> Point:
@@ -542,12 +686,13 @@ def centre(here: Point, pack: Sequence[Member]) -> Point:
 
 def hop_spots(here: Point, pack: Sequence[Member], demons: Sequence[Point]) -> list[Point]:
     """Where to hop to, best first: on rings PACK_RANGE from the pack's centre, along the way from the centre through
-    the demons (the character where none is out), so the demons stand between the pack and the landing; turned off it
+    the demons (the character where none is out, or with ALONG_ALL, which brings them along), so the demons stand
+    between the pack and the landing; turned off it
     by HOP_TURNS when walls or members stand there. Every spot is PACK_BACK or more from each member."""
     if not pack:
         return []
     middle = centre(here, pack)
-    through = demons or [here]
+    through = left_holding(demons, jumped=True) or [here]  # ALONG_ALL: the hop brings the demons, none stays between
     via = (sum(p[0] for p in through) / len(through), sum(p[1] for p in through) / len(through))
     heading = math.atan2(via[1] - middle[1], via[0] - middle[0])
     if math.dist(via, middle) < 1e-6:

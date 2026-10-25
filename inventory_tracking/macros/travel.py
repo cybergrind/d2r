@@ -57,6 +57,14 @@ STEP_WALK_SECONDS = 0.7  # a walk's click must show the character moving within 
 # it is clicked again, settled (rca/2026-10-14/diablo-handling.md fix 3).
 HURRY_FREE = 0.02
 HURRY_SECONDS = 0.3
+# WALK_FREE_FRAME (2026-10-25, rca/2026-10-25/smoothness-findings.md §3.3; the player: "when I'm playing it by hand it
+# feels way smoother"): a walk chosen while the character casts (the fight's strike that yielded to it) waited for
+# SWAP_SETTLE (0.2 s) free on end before its click, a swap's rule (routines.py `settle`): "Walking" -> click 0.39/0.59 s
+# p50/p90, 96 walks/h. True: every walk's first click is a hurried one (`step_walk`'s `hurry`): at the first look that
+# reads the cast over; one that set the character off in none of WALK_START_SECONDS free (WALK_NO_START) is clicked
+# again, settled; one that set it off is watched the whole STEP_WALK_SECONDS. False: SWAP_SETTLE before the first click,
+# as before.
+WALK_FREE_FRAME = False
 # 2026-10-23: a walk's click the character has not set off on (no walking mode, no move) WALK_START_SECONDS after it
 # was free to is given up then, not after the whole STEP_WALK_SECONDS: of 1426 walk clicks of 2026-10-22/23 the 1104
 # that went set off within 0.058 s (p99; 3 after 0.2 s), 322 never did, each a 0.7-1.0 s stand, 34 of them pauses with
@@ -1241,7 +1249,7 @@ class Travel:
         )  # fmt: skip
         self.tally.units += math.dist((origin.x, origin.y), (landed.x, landed.y))
         self.tally.jumps += 1
-        herald_pack.hopped(landed_at, math.dist((origin.x, origin.y), (landed.x, landed.y)))  # mark.py REMARK_AFTER_HOP
+        herald_pack.hopped(landed_at, math.dist((origin.x, origin.y), (landed.x, landed.y)))  # mark.py `aggro_lost`
         if skill in self.delayed:
             self.timed(skill, before, (began, aimed, waited, keyed, released))
             self.landed_at[skill] = landed_at
@@ -1595,6 +1603,8 @@ def step_walk(
             raise Abort('the character did not move')
         return 0.0
     settled = 0.0
+    asked = hurry  # the caller's own hurry (a dodge): its first click's short watch
+    hurry = hurry or WALK_FREE_FRAME  # the first click at the first free look, a second settled one if unseen
     for click in range(max(clicks, 2) if hurry else clicks):
         began = run.clock()
         hurried = hurry and not click
@@ -1614,7 +1624,10 @@ def step_walk(
             ):
                 where = off_item_labels(run, player, goal, aspect, where, over, alive, name)
         run.actuator.click()
-        within = HURRY_SECONDS if hurried else STEP_WALK_SECONDS
+        # WALK_FREE_FRAME's own hurry watches the whole STEP_WALK_SECONDS once the character set off (a body may hold
+        # it short of MOVED: the Tower Cellar 5 replay); WALK_NO_START gives up a click that set it off in none of
+        # WALK_START_SECONDS free
+        within = HURRY_SECONDS if hurried and (asked or not WALK_NO_START) else STEP_WALK_SECONDS
         if walk_seen(run, player, within, name) is not None:
             return settled
         if hurried:

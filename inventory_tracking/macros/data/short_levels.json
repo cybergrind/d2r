@@ -1,0 +1,96 @@
+{
+ "about": "Weak TZ levels for macros/tzroutine.py SHORT_LEVELS (the player, 2026-10-25 ~10:15: \"Shorten them: clear only the elites, bosses and big packs on those levels, then move on\"). Made by the d2-loop-watch skill's exphour.py --weak-out; do not edit by hand.",
+ "made": "2026-10-25 10:23",
+ "window": [
+  "2026-10-24 09:00",
+  "2026-10-25 05:38"
+ ],
+ "rule": {
+  "below_with_travel": 1600.0,
+  "on_level_under_average": 2088,
+  "seconds_at_least": 120,
+  "stays_at_least": 3
+ },
+ "levels": [
+  {
+   "area": 105,
+   "name": "Plains of Despair",
+   "a_second": 949,
+   "on_level": 1223,
+   "exp": 380325,
+   "on": 311,
+   "travel": 90,
+   "stays": 7
+  },
+  {
+   "area": 110,
+   "name": "Bloody Foothills",
+   "a_second": 1088,
+   "on_level": 1094,
+   "exp": 214519,
+   "on": 196,
+   "travel": 1,
+   "stays": 4
+  },
+  {
+   "area": 17,
+   "name": "Burial Grounds",
+   "a_second": 1119,
+   "on_level": 1120,
+   "exp": 277772,
+   "on": 248,
+   "travel": 0,
+   "stays": 14
+  },
+  {
+   "area": 2,
+   "name": "Blood Moor",
+   "a_second": 1192,
+   "on_level": 1516,
+   "exp": 627422,
+   "on": 414,
+   "travel": 112,
+   "stays": 5
+  },
+  {
+   "area": 6,
+   "name": "Black Marsh",
+   "a_second": 1201,
+   "on_level": 1471,
+   "exp": 814933,
+   "on": 554,
+   "travel": 125,
+   "stays": 9
+  },
+  {
+   "area": 43,
+   "name": "Far Oasis",
+   "a_second": 1450,
+   "on_level": 1793,
+   "exp": 964746,
+   "on": 538,
+   "travel": 127,
+   "stays": 5
+  },
+  {
+   "area": 8,
+   "name": "Den of Evil",
+   "a_second": 1511,
+   "on_level": 1515,
+   "exp": 304433,
+   "on": 201,
+   "travel": 0,
+   "stays": 4
+  },
+  {
+   "area": 7,
+   "name": "Tamoe Highland",
+   "a_second": 1560,
+   "on_level": 1561,
+   "exp": 766690,
+   "on": 491,
+   "travel": 1,
+   "stays": 7
+  }
+ ]
+}

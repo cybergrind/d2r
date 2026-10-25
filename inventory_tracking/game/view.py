@@ -34,6 +34,50 @@ CORNERS = [True]  # one switch for every Viewport; a list so it is changed in pl
 DEFAULT_ASPECT = 16 / 9  # the host's 2560 x 1418 window
 # Shares of the aim's line tried in turn, the furthest first, when the focal point is off the screen.
 SHARES = (1.0, 0.85, 0.7, 0.55, 0.4, 0.25)
+# The mark's aim shape (2026-10-25, rca/2026-10-25/mark-at-spawn-findings.md §3; the coordinator after the 11:37:30
+# spawn: 113 Death Marks of the session refused as "off the screen" by AIM_LIMITS, 53 of them below 0.80 where the
+# ground shows). Measured on 198 shots of the host's 2560 x 1418 window (11:37:25-34, Palace Cellar 3) by the pixels
+# that stay the same under the moving world, and on grid crops of one shot: the skill bar's top is at 0.920 from 0.29
+# to 0.71 across; the life orb and its angel rise to 0.845 from 0.155 to 0.29; the mana orb's demon's horns to 0.815
+# from 0.705 to 0.86; outside them (x < 0.15, x > 0.865) the ground shows down to the window's bottom. At the top the
+# desktop's bar covers the window's first 0.015, and the companions' portraits (with their names) the corner left of
+# 0.135 down to 0.075. Each limit keeps MARK_EDGE off the outline. `markable` is the mark's (macros/buffs.py
+# MARK_SHAPE); the other casts keep AIM_LIMITS, not measured for them.
+MARK_EDGE = 0.01
+MARK_TOP = 0.015 + MARK_EDGE
+MARK_PORTRAITS = (0.135 + MARK_EDGE, 0.075 + MARK_EDGE)  # left of across, above down: the portraits
+# (from this across on, the lowest down the mark may be aimed): the bottom corner, the angel and life orb, the bar,
+# the mana orb and its demon, the bottom corner
+MARK_FLOOR = (
+    (0.0, 1.0 - MARK_EDGE),
+    (0.155 - MARK_EDGE, 0.845 - MARK_EDGE),
+    (0.29, 0.920 - MARK_EDGE),
+    (0.705 - MARK_EDGE, 0.815 - MARK_EDGE),
+    (0.865 + MARK_EDGE, 1.0 - MARK_EDGE),
+)
+
+
+# HOP_SHAPE (2026-10-25, game 173 at 17:16:56-17:17:13): a Teleport toward a Small Charm 22.6 away was aimed at
+# (0.797, 0.826) of the window, inside VIEW (down to 0.84) but on the mana orb's demon (its horns rise to 0.815 from
+# 0.705 to 0.86 across, MARK_FLOOR): four presses cast nothing and the run stood 17 s. True: `hop_view` also keeps under
+# the HUD's measured outline (`hud_floor`). False: VIEW and the corners alone, as before.
+HOP_SHAPE = True
+
+
+def hud_floor(across: float) -> float:
+    """The lowest window fraction down at `across` above the HUD's measured outline (MARK_FLOOR)."""
+    return next((low for start, low in reversed(MARK_FLOOR) if across >= start), MARK_FLOOR[0][1])
+
+
+def markable(point: Point) -> bool:
+    """Whether a window fraction is inside the mark's aim shape (MARK_FLOOR's text): off the window's edges, the
+    desktop's bar, the portraits and the HUD's outline."""
+    across, down = point
+    if not (MARK_EDGE <= across <= 1.0 - MARK_EDGE and down >= MARK_TOP):
+        return False
+    if across < MARK_PORTRAITS[0] and down < MARK_PORTRAITS[1]:
+        return False
+    return down <= hud_floor(across)
 
 
 def _inside(point: Point, limits: tuple[Point, Point]) -> bool:
@@ -105,10 +149,12 @@ class Viewport:
     def hop_view(self, point: Point) -> bool:
         """Whether a teleport may be aimed at a window fraction: inside `VIEW`, or beside the skill bar
         down to CORNER_BOTTOM while the corners are on."""
+        across, down = point
+        if HOP_SHAPE and down > hud_floor(across):
+            return False
         if _inside(point, VIEW):
             return True
         (left, right), (_, bottom) = VIEW
-        across, down = point
         beside = abs(across - 0.5) >= HUD_HALF / self.aspect
         return CORNERS[0] and beside and left <= across <= right and bottom < down <= CORNER_BOTTOM
 

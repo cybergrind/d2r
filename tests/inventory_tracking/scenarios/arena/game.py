@@ -299,7 +299,17 @@ ALLIES_ALONG = False
 # at 43.062; the stopwatch's T5 stands of 18:49-21:03 run on across the moves' hops, the demons along on each. False:
 # a Blade Warp takes none, as before
 WARP_ALONG = False
+# ALONG_ALL (2026-10-25, rca/2026-10-25/tactics/teleports.md §3.1): the jump takes every companion along, whatever its
+# distance from where the jump began (the takes of 10-21 to 10-25: every demon and the mercenary within 4.5 of the
+# character after every Teleport and Blade Warp, from 0-3 to 30-60 units off at the key, none left behind), with
+# ALLIES_ALONG / HOP_DRAG. The arena's model of the game; inventory_tracking/combat/pack.py ALONG_ALL is the macro's
+# belief of it. False: those within TAKEN_ALONG alone, as before
+ALONG_ALL = False
 ALONG_GAP = 1.0
+# DOORS_OPEN (2026-10-25, rca/2026-10-25/door-pack-findings.md, tactics/apply-door.md): a closed door of the scene is an
+# object the character can click open, as the game's is (`operate`): opened, it is no wall for the character, the
+# blades or the monsters from the next tick. False: doors stand as the scene has them, as before
+DOORS_OPEN = False
 ALONG_SIDES = 3
 # MERC_HURT (2026-10-23, same findings): the mercenary takes the blows that land on it off its own life (its most from
 # the scene, its share the row's 128ths), as the pets do (PETS_FIGHT), and is gone at 0 (the canyon's fell at 69.9 s
@@ -572,7 +582,11 @@ class Arena(Game):
         self.route: list[Point] = []  # the points of that walk still to run to; empty: not running
         self.landing: Landing | None = None  # the hop or the Blade Warp under way
         self.things = [Thing(prop.unit, prop.txt, prop.mode, *prop.at) for prop in self.scene.things]
+        if DOORS_OPEN:  # the closed doors are objects to click (DOORS_OPEN)
+            shut = [door for door in doors if door.closed]
+            self.things += [Thing(door.unit_id, door.txt_id, door.mode, door.x, door.y) for door in shut]
         self.opening: int | None = None  # the unit id of the object the walk under way is to operate
+        self.doors_opened: list[tuple[float, int]] = []  # (clock, unit) of each door opened (DOORS_OPEN)
         self.staggers = 0
         self.blocks = 0
         if not instant_moves:
@@ -808,6 +822,21 @@ class Arena(Game):
     def operate(self, unit: int) -> None:
         self.things = [replace(thing, mode=2) if thing.unit_id == unit else thing for thing in self.things]
         self.opening = None
+        if DOORS_OPEN and any(door.unit_id == unit for door in self.world.doors):
+            self.open_door(unit)
+
+    def open_door(self, unit: int) -> None:
+        """DOORS_OPEN: door `unit` opened: no wall for the character, the blades or the monsters any more."""
+        doors = tuple(replace(door, mode=2) if door.unit_id == unit else door for door in self.world.doors)
+        self.world = replace(self.world, doors=doors)
+        self.barred = no_footing(self.ground, doors)
+        self.walls = walls(self.ground, doors)
+        pack = getattr(self.mobs, 'pack', None)
+        if pack is not None:
+            pack.doors = doors
+            pack.barred = no_footing(pack.ground, doors)
+            pack.ways.clear()
+        self.doors_opened.append((self.clock.now, unit))
 
     def say(self, text: str) -> None:
         """A line the macro says, with the arena's time (`Result.said`); none after the world stood still."""
@@ -913,12 +942,13 @@ class Arena(Game):
         self.world = replace(self.world, monsters=tuple(moved))
 
     def along(self, start: Point, far: bool) -> None:
-        """ALLIES_ALONG: a Teleport took every companion within TAKEN_ALONG of `start` along, each put ALONG_GAP off
-        the landing on a side of its own; a demon of the mark off its monster when the jump was `far` (REMARK_HOP)."""
+        """ALLIES_ALONG: a Teleport took every companion within TAKEN_ALONG of `start` (any: ALONG_ALL) along, each put
+        ALONG_GAP off the landing on a side of its own; a demon of the mark off its monster when the jump was `far`
+        (REMARK_HOP)."""
         here, moved, took = self.here, [], False
         index = 0
         for monster in self.world.monsters:
-            if (monster.ally or monster.owner != NO_OWNER) and math.dist(start, (monster.x, monster.y)) <= TAKEN_ALONG:
+            if (monster.ally or monster.owner != NO_OWNER) and self.taken_along(start, monster):
                 turn = index * math.tau / ALONG_SIDES
                 index += 1
                 took = took or (far and sends(self.world, monster))
@@ -931,13 +961,18 @@ class Arena(Game):
             self.marked = None
             self.idle_after_hop()
 
+    @staticmethod
+    def taken_along(start: Point, ally: Monster) -> bool:
+        """Whether a jump from `start` takes `ally` along: every one with ALONG_ALL, else one within TAKEN_ALONG."""
+        return ALONG_ALL or math.dist(start, (ally.x, ally.y)) <= TAKEN_ALONG
+
     def drag(self, start: Point) -> None:
         """A jump of REMARK_HOP or more took the demons within TAKEN_ALONG of `start` along (HOP_DRAG): beside the
         landing, the mark's hold on its monster gone (the takes of 2026-10-21/22: 2.8 units off the marked one before a
         hop, 21 one second after; rca/2026-10-22/immune-mark-findings.md)."""
         here, moved, took = self.here, [], False
         for monster in self.world.monsters:
-            if sends(self.world, monster) and math.dist(start, (monster.x, monster.y)) <= TAKEN_ALONG:
+            if sends(self.world, monster) and self.taken_along(start, monster):
                 monster, took = replace(monster, x=here[0] + BESIDE, y=here[1]), True
             moved.append(monster)
         self.world = replace(self.world, monsters=tuple(moved))

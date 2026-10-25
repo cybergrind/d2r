@@ -42,7 +42,12 @@ ASSESSMENT = 'Identify assessment: '
 MATERIAL = re.compile(
     r' Rune$|^(Chipped |Flawed |Flawless |Perfect )?(Amethyst|Diamond|Emerald|Ruby|Sapphire|Topaz|Skull)$'
     r'|Worldstone Shard|Essence|^Key of|Token'
+    r"|^(Talic's Anguish|Korlic's Pain|Madawc's Ire|Bul-Kathos' Nightmare|Worusk's End)$"
 )
+# The Uber Ancients' statues (loot/materials.py STATUE_NAMES; picked as materials, config `material_marks`): priced as a
+# material when the knowledge base can, else listed as unpriced. The player, 2026-10-25: "it looks like we don't factor
+# statues, do we?"
+STATUE = re.compile(r"^(Talic's Anguish|Korlic's Pain|Madawc's Ire|Bul-Kathos' Nightmare|Worusk's End)$")
 LOOKBACK_DAYS = 7  # how far back the sessions are searched for the window's games
 
 
@@ -252,7 +257,11 @@ def main() -> None:
     places = ordinals(played)
     found, stops = finds(directories, start, args.until, places)
     priced = sorted((f for f in found if f.value_ist), key=lambda f: -(f.value_ist or 0))
-    unpriced = [f for f in found if not f.value_ist and f.kind == 'appraised' and f.verdict not in ('vendor', '')]
+    unpriced = [
+        f
+        for f in found
+        if not f.value_ist and (STATUE.search(f.name) if f.kind == 'material' else f.verdict not in ('vendor', ''))
+    ]
     missed, design = ground(directories, start, args.until, places, read, stops)
     materials, verdicts = rest(found)
     summary = {

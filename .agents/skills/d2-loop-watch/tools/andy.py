@@ -126,6 +126,16 @@ TRIP_LEGS = {'to town for room', 'to the Rogue Encampment', 'back through the po
 SWAP_LEGS = {"Gheed's Fortune away", "Gheed's Fortune back"}
 ANDARIEL_LEGS = {WAYPOINT_LEG, DOWN, FIGHT} | TRIP_LEGS | SWAP_LEGS
 LK_LEGS = {'to Lower Kurast', 'the chests', 'Town Portal'}
+# The Baal kind's own legs (macros/loop.py `baal_leg`, 2026-10-25): its games are neither Andariel's nor LK's play here;
+# the trips' and the swap's legs it shares keep the kind they come in. No Baal headline in this tool (yet)
+BAAL_LEGS = {
+    'to the Worldstone Keep',
+    'down the Worldstone Keep',
+    "the Throne's waves",
+    'into the Worldstone Chamber',
+    'Baal',
+    'to Harrogath',
+}
 
 # The phases of a kill-to-kill cycle, in their order
 LOOT = 'loot after the kill'
@@ -155,7 +165,7 @@ class Event:
     kind: str  # 'leg', 'kill', 'on', 'off', 'request', 'area', 'create', 'loaded', 'save', 'route', 'run', 'left',
     # 'stopped', 'marked', 'door', 'legtime', 'reach', 'loopkind', 'end'
     data: Any = None
-    run: str | None = None  # the loop's kind then: 'andariel', 'lk', None
+    run: str | None = None  # the loop's kind then: 'andariel', 'baal', 'lk', None
 
 
 @dataclass
@@ -241,10 +251,15 @@ def parse(directory: Path) -> list[Event]:
     kind: str | None = None
     for event in events:
         if event.kind == 'loopkind' and event.data:
-            kind = 'andariel' if event.data == 'Andariel' else 'lk'
+            kind = {'Andariel': 'andariel', 'Baal': 'baal'}.get(event.data, 'lk')
         elif event.kind == 'leg':
             name = event.data[1]
-            kind = 'andariel' if name in ANDARIEL_LEGS else 'lk' if name in LK_LEGS else kind
+            if name in BAAL_LEGS:
+                kind = 'baal'
+            elif name in ANDARIEL_LEGS and not (kind == 'baal' and name in TRIP_LEGS | SWAP_LEGS):
+                kind = 'andariel'
+            elif name in LK_LEGS:
+                kind = 'lk'
         event.run = kind
     first = next((e.run for e in events if e.run is not None), None)
     for event in events:

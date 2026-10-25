@@ -25,7 +25,7 @@ from collections.abc import Mapping, Sequence
 from functools import cache
 
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.pack import TAKEN_ALONG
+from inventory_tracking.combat.pack import along
 from inventory_tracking.combat.sim.casters import mind_of
 from inventory_tracking.combat.sim.monsters import boost, rank_of
 from inventory_tracking.levels.geometry import Point
@@ -117,13 +117,14 @@ def covered(cover: Sequence[Point], start: Point, end: Point) -> float:
 
 def cover_at(cover: Sequence[Point], start: Point, place: Point) -> tuple[Point, ...]:
     """The companions' places (`cover`, the look's at `start`) when the character stands at `place`: as they are at
-    `start`; elsewhere the ones within TAKEN_ALONG of `start` come along, as far off the character and to the same side
+    `start`; elsewhere the ones a jump takes along (combat/pack.py `along`: within TAKEN_ALONG of `start`, every one
+    with ALONG_ALL) come along, as far off the character and to the same side
     (a Teleport lands an ally within 10 within 3 of the character, rca/2026-10-21/herald-gloam-findings.md §3), the
     others are left where they stand."""
     if place == start:
         return tuple(cover)
     dx, dy = place[0] - start[0], place[1] - start[1]
-    return tuple((c[0] + dx, c[1] + dy) if math.dist(c, start) <= TAKEN_ALONG else c for c in cover)
+    return tuple((c[0] + dx, c[1] + dy) if along(start, c) else c for c in cover)
 
 
 def place_at(legs: Sequence[tuple[Point, float]], seconds: float) -> Point:

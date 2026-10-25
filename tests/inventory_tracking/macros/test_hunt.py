@@ -3063,6 +3063,29 @@ def test_the_strike_is_aimed_from_the_landing_during_the_flight_and_kept_by_the_
     assert not hunt.preaim_kept(run, (5020.0, 5000.0), focal, view)  # an old one
 
 
+@pytest.mark.parametrize('on', [False, True], ids=['off', 'on'])
+def test_with_preaim_not_rebuff_a_rebuff_retreats_flight_leaves_the_pointer_alone(monkeypatch, on):
+    # PREAIM_NOT_REBUFF (2026-10-25): Battle Orders is cast at a rebuff retreat's landing, not the strike; the pre-aim's
+    # pointer move alone took the arena's fane-death-20 Herald kills 19 -> 8 of 100 (smoothness-findings.md §6)
+    from inventory_tracking.macros import hunt as hunt_module
+
+    monkeypatch.setattr(hunt_module, 'PREAIM_NOT_REBUFF', on)
+    play = game(foe(10, 5030.0, 5000.0))
+    hunt, run = hunter(play), play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    hunt.safety.rebuffed_at = play.clock.now - 0.1  # chosen, not landed yet
+    before = run.actuator.keys.pointer()
+    hunt.preaim(run, (5020.0, 5000.0))
+    if on:
+        assert hunt.preaimed is None
+        assert run.actuator.keys.pointer() == before
+    else:
+        assert hunt.preaimed is not None
+    hunt.safety.rebuff_landed = play.clock.now  # landed: the next hop's flight is pre-aimed again
+    hunt.preaim(run, (5020.0, 5000.0))
+    assert hunt.preaimed is not None
+
+
 def test_nothing_in_reach_of_the_landing_leaves_the_pointer_alone():
     play = game(foe(10, 5090.0, 5000.0))
     hunt, run = hunter(play), play.run()

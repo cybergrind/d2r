@@ -190,6 +190,8 @@ class Facts:
     # Where the hostiles stand whose throws at the character the look read (combat/bolts.py READ_THROWS,
     # `Hostile.throws`): a retreat from them is a skilled move out of their lines (THROWN_OUT); (): none read
     throwers: tuple[tuple[float, float], ...] = ()
+    # Standing beats a retreat that saves no harm (STAND_NOT_RETREAT; macros/safety.py `Safety.price`)
+    stand: bool = False
 
 
 @dataclass(frozen=True)
@@ -314,6 +316,21 @@ REBUFF_SAID = 'rebuffing Battle Orders clear of the hostiles'
 # Moves toward a level run's boss skip the strike gap while nothing hurts (`onward`): F1 of
 # rca/2026-10-18/andariel-cadence-findings.md §5 (the player, 2026-10-18: "F1: ok"). Off: I2 as before.
 RUSH_THE_BOSS = True
+# STAND_NOT_RETREAT (2026-10-25, rca/2026-10-25/approach-retreat-findings.md; the player: "best exp/hour we can ...
+# killing many mobs as fast as possible; do not die"): the approach/retreat dance (26 episodes, 1865 s in 23.9 h of
+# probe.log; Maggot Lair Level 3 03:55:31-36, Radament 03:38:08-40). With no progress act fitting, every retreat and
+# standing still (the safety's WAITING) were priced harm 0 by an idle pack, and the escape was chosen on (mean, worst,
+# seconds): WAITING's seconds are inf, so a retreat of 11-22 units always won though it saved nothing; from where it
+# landed a safe approach fitted again, and from that stand every progress act was refused again. True: with
+# `Facts.stand` (macros/safety.py `Safety.price`: nothing in reach, a progress move within the life budget barred by a
+# keep range alone (`kept_out`: the bars WAIT_LIFT lifts), under STAND_SECONDS of such stands for the goal), standing
+# is chosen over a retreat whose harm (mean and worst) is no less than standing's; WAIT_LIFT, the pack coming on or
+# STAND_SECONDS then end it. Not for a refusal by the life budget (Radament's shape): a stand does not lift it, and
+# against a boss holding his ground it only delayed the kill (arena radament-sewers seed 1: 23 -> 43 s); nor by a
+# draining pack (manaburn.py LANDED): the mana it burns is not priced as harm (arena manaburn-death seed 15: lowest
+# life 70% -> 29%). False: the least harm, then the fewest seconds, as before.
+STAND_NOT_RETREAT = False
+STAND_SECONDS = 6.0  # of standing for one goal (macros/safety.py WAIT_HORIZON 4 s and two looks), then as before
 
 
 def the_runs_boss(goal: Goal | None, pursuit: Pursuit | None) -> bool:
@@ -441,6 +458,17 @@ def lifted(facts: Facts) -> tuple[Facts, list[Candidate]]:
     return facts, [c for c in freed if veto(c.harm, facts.life, facts.safety) is None]
 
 
+def standing(facts: Facts, allowed: list[Candidate], chosen: Candidate) -> Candidate | None:
+    """STAND_NOT_RETREAT: the stand (the safety's WAITING, an unbarred NoWay priced as a retreat) in place of the
+    retreat `chosen` when it saves no harm (`Facts.stand`); None else."""
+    if not (STAND_NOT_RETREAT and facts.stand and isinstance(chosen.act, Move)):
+        return None
+    still = next((c for c in allowed if c.retreat and isinstance(c.act, NoWay)), None)
+    if still is None or still.harm.mean > chosen.harm.mean or still.harm.worst > chosen.harm.worst:
+        return None
+    return still
+
+
 def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     """One price in seconds, constrained by both life budget and the unliftable veto. `pursuit`: the mailbox, for a
     level run's boss (`onward`); None: no run."""
@@ -517,6 +545,9 @@ def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
     escapes = out_of_lines(facts, away_from(facts, escapes))  # out of read throwers' lines (THROWN_OUT)
     if escapes:
         chosen = min(escapes, key=lambda c: (c.harm.mean, c.harm.worst, c.seconds))
+        still = standing(facts, allowed, chosen)
+        if still is not None:
+            return still.act
         if isinstance(chosen.act, Move):
             return Move(chosen.act.step, chosen.act.goal, f'retreating: {short_of(facts, allowed)}')
         if isinstance(chosen.act, Hold):

@@ -42,6 +42,7 @@ from inventory_tracking.macros.agenda import (
     PICKUP as SIDE,
     PLUS,
     PLUS_WAY,
+    SHORT,
     SKIPPED,
     TRANSIT,
     ZONE_LEFT,
@@ -855,12 +856,13 @@ def goal(
         and area == THRONE
         and staged is not None
         and posted is not None
-        and posted.agenda
+        and (posted.agenda or posted.looped)
         and (found is None or found.stage == staged[1])
         and (world.game_name, area, staged[1].boss) not in self.marks_empty
     ):
         # The Throne's waves, then the portal (the player, 2026-10-20 ~09:33: "tz leveling should do baal and trone
-        # fight"; hunting/throne.py)
+        # fight"; hunting/throne.py). The KP_6 loop's runs too since 2026-10-25: the Baal kind's (macros/loop.py
+        # `baal_leg`; the player: "build a baal runner, very similar to andariel runner"); a KP_1 press keeps the route
         found = throne_goal(self, run, world, here, staged, found)
     if (
         found is not None
@@ -1267,9 +1269,9 @@ def agenda_target(
     assert player is not None
     area, now = player.area, run.clock()
     policy = level_policy(self, world, area) if self.agenda_policy is not None else FULL_CLEAR
-    if policy in (ON_THE_WAY, PLUS_WAY, BOSS_WAY) and (world.game_name, area) in self.wayless:
-        # no way to the route's goal: the rooms are explored for it (`judge`)
-        policy = PLUS if policy == PLUS_WAY else COVER
+    if policy in (ON_THE_WAY, PLUS_WAY, BOSS_WAY, SHORT) and (world.game_name, area) in self.wayless:
+        # no way to the route's goal: the rooms are explored for it (`judge`); a shortened level too (SHORT_LEVELS)
+        policy = PLUS if policy in (PLUS_WAY, SHORT) else COVER
     everyone = policy == FULL_CLEAR
     population = level_population(area, len(rooms) or None)
     agenda.worked_as(area, policy, population)

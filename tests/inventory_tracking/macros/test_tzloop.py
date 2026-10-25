@@ -438,6 +438,10 @@ def test_a_zone_with_no_excursion_waits_for_the_next_zone_instead_of_making_game
     # the loop stood until someone looked (03:30:20 on 2026-10-20): the next zone is waited for instead
     import time
 
+    from inventory_tracking.macros import zonewait
+
+    # The lobby's wait with the Worldstone Keep filler off (zonewait.py ZONE_WAIT_WSK; on: test_zonewait.py)
+    monkeypatch.setattr(zonewait, 'ZONE_WAIT_WSK', False)
     game = Script(ROGUE_ENCAMPMENT, monkeypatch, zone=frozenset((39,)))
     with pytest.raises(Abort, match='the terror zone Act1-MooMooFarm is not playable: no excursion') as stop:
         game.leg()
@@ -634,9 +638,9 @@ def test_the_terror_zone_kinds_are_offered_only_once_promoted(monkeypatch):
 
     monkeypatch.setattr(actloop, 'ENABLED', False)
     monkeypatch.setattr(tzloop, 'ENABLED', False)
-    assert set(loop_kinds()) == {'lk', 'andariel'}
+    assert set(loop_kinds()) == {'lk', 'andariel', 'baal'}
     monkeypatch.setattr(tzloop, 'ENABLED', True)
-    assert set(loop_kinds()) == {'lk', 'andariel', 'tz', 'tzclear'}
+    assert set(loop_kinds()) == {'lk', 'andariel', 'baal', 'tz', 'tzclear'}
     assert (TZ.metric, TZ_CLEAR.name) == ('experience and elite kills an hour', 'Full clear TZ')
     assert TZ.game_seconds is not None
     assert TZ.game_seconds > 240.0
@@ -1527,15 +1531,19 @@ def test_the_act4_kind_is_offered_only_once_enabled_and_the_picker_entry_goes_by
 STEPPES = frozenset((104, 105))
 
 
+@pytest.mark.parametrize('short', [False, True])
 @pytest.mark.parametrize('carried', [False, True])
-def test_the_izual_trip_works_the_plains_under_tz_plus_and_fights_izual_before_its_loot(monkeypatch, carried):
+def test_the_izual_trip_works_the_plains_under_tz_plus_and_fights_izual_before_its_loot(monkeypatch, carried, short):
     # Game 21 (21:33:35-21:38:12 on 2026-10-20): the Steppes' run carried across the open passage into the Plains
     # (21:35:26), worked them 136 s (159 kills), killed Izual (21:37:20) and a Herald, then the loot and the portal. The
     # Plains' own line, "+0 in 5s", was the loot leg's: the run's experience is booked to the level it began in
-    from inventory_tracking.macros.agenda import PLUS
+    from inventory_tracking.macros.agenda import PLUS, SHORT
     from inventory_tracking.macros.tzroutine import policy_of
     from inventory_tracking.routes.model import FIGHT
 
+    # SHORT_LEVELS (2026-10-25): the Plains of Despair are a weak level, worked SHORT with the switch on; Izual is
+    # fought all the same (its route's fight stage, a boss of the game)
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', short)
     game = Script(FORTRESS, monkeypatch, zone=STEPPES)
     seen: list[tuple[int, str, str | None]] = []
 
@@ -1557,7 +1565,7 @@ def test_the_izual_trip_works_the_plains_under_tz_plus_and_fights_izual_before_i
     legs = legs[: legs.index(LEAVE) + 1]
 
     plains = [entry for entry in seen if entry[0] == 105]
-    assert plains[0] == (105, PLUS, FIGHT)  # the Plains worked TZ+, Izual still to fight
+    assert plains[0] == (105, SHORT if short else PLUS, FIGHT)  # the Plains worked TZ+ (SHORT), Izual still to fight
     assert 'Izual' in game.killed
     assert legs.index(TZ_LOOT) > legs.index(TZ_LEVEL)  # his loot only after the run that fought him
     assert legs[-1] == LEAVE

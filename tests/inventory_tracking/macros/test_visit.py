@@ -2268,6 +2268,9 @@ def test_the_stash_never_puts_down_a_shard_the_game_can_still_use(monkeypatch, c
 
 
 def test_a_shard_of_an_act_terrorized_already_is_put_down_as_before(monkeypatch, caplog):
+    from inventory_tracking.macros import actloop
+
+    monkeypatch.setattr(actloop, 'NORTHERN_FOR_BAAL', False)  # its spare Northern: the test below
     play, town = shard_town(monkeypatch, (1, 5))  # act 5 terrorized: no use left in the game
 
     with caplog.at_level('INFO'):
@@ -2275,3 +2278,25 @@ def test_a_shard_of_an_act_terrorized_already_is_put_down_as_before(monkeypatch,
 
     assert sorted(i.unit_id for i in play.fallen) == [40, 41]
     assert 'may be put down: act 5 is terrorized in this game already' in caplog.text
+
+
+def test_the_town_visit_keeps_one_northern_for_a_baal_game_and_puts_the_second_down(monkeypatch, caplog):
+    # The player, 2026-10-25 ~13:31: "why we have dropped norther shared, without keepin it to terrorize the next
+    # game?" (an Andariel game's visit put a Northern down, its stack full). actloop.py NORTHERN_FOR_BAAL: the visit's
+    # put-downs ask `protected`, which asks `spared`: one Northern kept in any kind, the second falls
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros import actloop
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    monkeypatch.setattr(actloop, 'NORTHERN_FOR_BAAL', True)
+    play, town = shard_town(monkeypatch, (1, 5))
+    loop = SimpleNamespace(kind=ANDARIEL, agenda=None, done=None)  # a kind with no shard use
+    town.run.spared_item = lambda item: actloop.spared(loop, item, town.run.reads.carried)
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, OWN, Exit.WAYPOINT)
+
+    assert [i.unit_id for i in play.fallen] == [41]
+    assert 40 in {i.unit_id for i in carried(play).items}
+    assert 'kept for its use (a Northern Worldstone Shard kept for a Baal game)' in caplog.text

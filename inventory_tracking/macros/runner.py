@@ -35,7 +35,7 @@ from inventory_tracking.macros.hunting.base import NO_WAY_TO
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.kindpick import PICKER_TICK, KindPicker, entries
 from inventory_tracking.macros.latency import Press, Trace
-from inventory_tracking.macros.loop import ANDARIEL, Kind, Loop, loop_kinds
+from inventory_tracking.macros.loop import ANDARIEL, RECOVERY_PAUSE, Kind, Loop, loop_kinds
 from inventory_tracking.macros.merc import MercWatch
 from inventory_tracking.macros.pad import PadPlay
 from inventory_tracking.macros.pickmode import MODES, next_mode
@@ -113,6 +113,11 @@ __all__ = [
 # still hands the runner over (`_handed_over`); a request or a KP_6 on that finds `working` with its thread gone says
 # so and takes the runner back (`_reclaim`). False: as before
 HANDOVER = True
+# KIND_ENDS_ZONE_WAIT (2026-10-25, the player ~12:10: "why andariel loop is not working?"): Moo Moo Farm turned at 12:04
+# and the loop waited out the zone (tzloop.py `zone_wait`, `Loop.cooling` 1553 s); Andariel picked at 12:08:44 still
+# waited "1292 s before the next leg (the next terror zone)", and the player restarted serve. True: a kind picked other
+# than the current one keeps at most the recoveries' pause (loop.py RECOVERY_PAUSE). False: the wait stands.
+KIND_ENDS_ZONE_WAIT = True
 
 
 class MacroRunner:
@@ -564,11 +569,20 @@ class MacroRunner:
 
     def _switch_kind(self, kind: Kind, how: str) -> None:
         """The loop's kind chosen by the KP_6 presses, at once (the loop on or off). Under the lock."""
+        self._end_zone_wait(kind)
         self.loop.kind = kind
         self.loop.chosen = True  # by hand: no place overrides it
         self.loop.pending = None  # the press wins over a request
         LOG.info('Macro: loop kind: %s (%s)', kind.name, how)
         self._say_kind(kind)
+
+    def _end_zone_wait(self, kind: Kind) -> None:
+        """KIND_ENDS_ZONE_WAIT: the next terror zone's wait belongs to the kind that set it (the player, 2026-10-25
+        ~12:10: "why andariel loop is not working?": Andariel picked at 12:08:44 after the Moo Moo Farm turn, then
+        "waiting 1292 s before the next leg (the next terror zone)"); `kind` other than the loop's keeps the
+        recoveries' pause at most. Under the lock."""
+        if KIND_ENDS_ZONE_WAIT and kind != self.loop.kind:
+            self.loop.cooling = min(self.loop.cooling, time.monotonic() + RECOVERY_PAUSE)
 
     def _open_picker(self) -> None:
         """Three KP_6 presses: the kind picker on the HUD (macros/kindpick.py). With no canvas to show it, the next kind
@@ -644,6 +658,7 @@ class MacroRunner:
                 return False
             kind = kinds[key]
             self._close_picker('a kind was requested')
+            self._end_zone_wait(kind)
             if not self.loop.on:
                 self.loop.kind, self.loop.pending, self.loop.chosen = kind, None, True
                 self._say_kind(kind)

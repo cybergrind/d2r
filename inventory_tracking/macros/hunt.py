@@ -111,7 +111,7 @@ from inventory_tracking.macros.runmode import Mode, Taps, tapped
 from inventory_tracking.macros.safety import Safety
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skillpanel import select_right
-from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT, skill_name
 from inventory_tracking.macros.supply import Potions
 from inventory_tracking.macros.teleport import HOVER_SECONDS, MOVED, Way, hop_toward
 from inventory_tracking.macros.tour import Bounds, tour
@@ -233,6 +233,24 @@ OMEN_OPEN_REACH = 28.0  # units: the omen stand (combat/pack.py PACK_OMEN_STAND 
 # Attack mode with no level run reads the omens in its quiet too (`omens_now`; a level run's agenda reads them). The
 # arena's attack-mode Herald scenes set it (situations/herald_omen.py). False: attack mode alone reads none, as before.
 OMEN_READ_ALONE = False
+# OMEN_MARK_FIRST (2026-10-25, rca/2026-10-25/mark-at-spawn-findings.md; the player, ~11:33: "we have a visible and
+# significant delays before DM / for example the recet T5 fight: we have put lethargy in advance, waiting for spawn,
+# spawned -> waiting for an extended period of time -> DM", "we need near instant cast after pack has appeared";
+# ~11:36: "we can both strike firind + cast DM / when I'm playing it by hand it feels way smoother"; ~11:38: "this
+# happens after the actual pack is visible in game"). Today's 33 spawns, "the pack shows" to the mark's key: p50 0.72
+# s, p90 1.44, max 2.98, the strike first every time, and at 11:20:03 a keep range's hop between (1.19 s). The player's
+# hand (the takes of 10-22..24 played by hand): a key tapped during a cast is cast at the cast's end (0.16 s p50, 0.28
+# p90, 15 of 16 kept), one tapped with the character free in the next frame (0.04 s). True: the first look that sees a
+# pending omen's tier 4-5 pack (OMEN_EARLY before its expected spawn to OMEN_MARK_WINDOW after it, within
+# OMEN_OPEN_REACH of its spot, drawn where the mark may be aimed) casts the build's FIRST rows (Death Mark) before
+# anything else, the safety's moves included, once an omen (`omen_mark`): in the omen's hold with the strike held on
+# (`omen_strike`), else at the top of attack mode's look; on the member nearest the pointer (the pack's order takes
+# any), with the quick aim (macros/buffs.py `quick_aim`). Not under the fight casts' hold (FIGHT_CAST_REACH) and not
+# past a real threat the safety saw (`Safety.hold_exempt`) other than OMEN_MARK_PAST's. False: as before.
+OMEN_MARK_FIRST = True  # on 2026-10-25 ~12:40: arena 0/20 deaths both stands, least life up; key 0.35 -> 0.03 s
+OMEN_EARLY = 0.5  # s before the expected spawn a pack near the spot counts as this omen's (the read lags <0.3 s)
+OMEN_MARK_WINDOW = 2.0  # s after the expected spawn the omen's mark is still the first thing (then the mark's rules)
+OMEN_MARK_PAST = ('a drainer',)  # the safety's real threats the omen's mark goes before (the coordinator, 11:38)
 FIGHT_PACE_SECONDS = 2.0  # one cast a look while blows that take the life can come in reach in this time
 ALARM_SECONDS = 2.0
 # 2026-10-23: the strike aimed during a Teleport's flight from the landing aimed at (teleport.py PREAIM_FLIGHT calls
@@ -244,17 +262,28 @@ ALARM_SECONDS = 2.0
 PREAIM = False
 PREAIM_PIXELS = 12
 PREAIM_SECONDS = 1.0
+# PREAIM_NOT_REBUFF (2026-10-25, rca/2026-10-25/smoothness-findings.md §6): no pre-aim during a rebuff retreat's flight
+# (the safety's `rebuffed_at`, not landed yet): Battle Orders is cast at its landing, not a strike. In the arena's
+# fane-death-20 every seed opens with one, and its pointer move alone (the variant with no move plays as off in 100 of
+# 100) took the Herald kills 19 -> 8 of 100, a timing placebo 19 -> 16. False: every hop's flight, as PREAIM was built.
+PREAIM_NOT_REBUFF = False
 # CAST_TAIL (2026-10-24, rca/2026-10-24/realtime-4-findings.md §7; the player: "improve our reaction speed"): a
 # Teleport's landing is read ~77 ms before its cast ends, and the cast's Quick Cast keeps Teleport on the right button
 # to the end, so the strike's input was "unready": a FRAME nap, then the whole loop and a second pursue look before the
 # fight (cast end -> the fight's first look 89/177 ms p50/p90 live, 560 landings). On: the cast's tail is looked at
 # every SLICE and the fight starts from the look that sees the strike back. False: the nap as before.
-CAST_TAIL = False
+CAST_TAIL = True  # on 2026-10-25 ~17:15 with CAST_TAIL_HOPS (smoothness-findings.md §6: 1420 arena pairs)
 # CAST_TAIL_AGAIN (2026-10-24, the arena's 20 seeds: Herald time +2.7 ± 2.0 s, manaburn's least life -0.06 ± 0.05 with
 # CAST_TAIL): the look that sees the cast's end starts the loop's next pass at once (the pursuit's fresh look first),
 # not the fight. False: the fight from that look.
 CAST_TAIL_AGAIN = False
 CAST_TAIL_MOST = 0.25  # seconds of a cast's tail so waited (a Teleport's cast ~0.32 s, its landing read ~0.08 s early)
+# CAST_TAIL_HOPS (2026-10-25, rca/2026-10-25/smoothness-findings.md §6): CAST_TAIL waits only a Teleport's tail (the
+# hop's Quick Cast keeps Teleport on the right button, 50-80 ms in the arena), not a buff's or a mark's: the arena's
+# fane-death-20 waited 0.23 s on Psychic Ward's tail with no look of the pursuit's, and the safety's retreat came after
+# a strike instead of mid-cast. False: every cast's tail, as CAST_TAIL was built. Gate (2026-10-25, with CAST_TAIL on,
+# 1420 arena pairs): deaths on-only 5 / off-only 6, a timing placebo's spread; fane-death-20 Herald 19 -> 21 of 100.
+CAST_TAIL_HOPS = True  # on 2026-10-25 ~17:15 with CAST_TAIL
 # MARK_WITH_PRESS (2026-10-24, rca/2026-10-24/dm-latency-findings.md; the player, ~17:38: "the delay between teleport
 # and DM (when we have a clear target, like herald) is still quite significant. we need to find out why"): live, 1224
 # fight landings marked again within 3 s (the takes of 2026-10-24), the strike first in all; its press, a FRAME nap,
@@ -514,6 +543,8 @@ class Hunter:
         self.omens: dict[Point, float] = {}
         self.omen_area: int | None = None
         self.omen_looked = -math.inf
+        self.omen_marked: set[Point] = set()  # the omens whose pack's mark was asked (OMEN_MARK_FIRST)
+        self.omen_waited: str | None = None  # why an omen's mark waited, last said (`omen_waits`)
         self.toured: tuple[int, int, int] | None = None  # (level, rooms, explored) said to have no stop
         # Every level whose tour found no stop since the runner last read them (runner.py `_zone_seen`): a run carried
         # across a passage tours two levels, and `toured` names only the last. Barracks' 52 of 52 rooms, then the Outer
@@ -669,6 +700,7 @@ class Hunter:
         """The spots a Herald is coming to on level `area` (HERALD_OMEN), each kept OMEN_SECONDS from its first read."""
         if area != self.omen_area:
             self.omens, self.omen_area = {}, area
+            self.omen_marked = set()
         flights = getattr(run, 'flights', None)
         if flights is not None and now - self.omen_looked >= OMEN_LOOK:
             self.omen_looked = now
@@ -773,6 +805,8 @@ class Hunter:
                 foes = self.foes(world, now)
                 if any(in_reach(ground, here, (m.x, m.y), attack.reach, world.doors) for m in foes):
                     ended = 'the pack shows'
+                    # Its mark under the strike held on, before the hold lets go (OMEN_MARK_FIRST)
+                    self.omen_mark(run, world, foes, key_names)
                     break
                 if now > spawn + OMEN_GRACE:
                     break
@@ -795,6 +829,101 @@ class Hunter:
                     break
         LOG.info('Macro: omen: the strike let go after %.2f s: %s', run.clock() - began, ended)
         return pressed
+
+    def omen_shown(self, now: float, foes: Sequence[Monster]) -> tuple[Point, float, list[Monster]] | None:
+        """OMEN_MARK_FIRST: a pending omen not yet marked whose pack shows now (its tier 4-5 members within
+        OMEN_OPEN_REACH of its spot, OMEN_EARLY before its expected spawn to OMEN_MARK_WINDOW after it): its spot, the
+        expected spawn and the members; None with none."""
+        for spot, until in sorted(self.omens.items(), key=lambda one: one[1]):
+            spawn = until - OMEN_SECONDS + OMEN_SPAWN
+            if spot in self.omen_marked or not spawn - OMEN_EARLY <= now <= spawn + OMEN_MARK_WINDOW:
+                continue
+            members = [
+                m for m in foes if herald_pack.in_pack(m.tier) and math.dist(spot, (m.x, m.y)) <= OMEN_OPEN_REACH
+            ]
+            if members:
+                return spot, spawn, members
+        return None
+
+    def omen_due(self, now: float) -> bool:
+        """OMEN_MARK_FIRST: whether an omen not yet marked has its pack due now (OMEN_EARLY before its expected spawn
+        to OMEN_MARK_WINDOW after it)."""
+        if not OMEN_MARK_FIRST:
+            return False
+        for spot, until in self.omens.items():
+            spawn = until - OMEN_SECONDS + OMEN_SPAWN
+            if spot not in self.omen_marked and spawn - OMEN_EARLY <= now <= spawn + OMEN_MARK_WINDOW:
+                return True
+        return False
+
+    def omen_waits(self, why: str) -> None:
+        """Said once a reason while an omen's mark waits (OMEN_MARK_FIRST)."""
+        if why != self.omen_waited:
+            self.omen_waited = why
+            LOG.info("Macro: omen: the pack's mark waits: %s", why)
+
+    def omen_mark(self, run: Run, world: World, foes: Sequence[Monster], key_names) -> bool:
+        """OMEN_MARK_FIRST: a Herald's pack just shown (`omen_shown`) gets the build's first due FIRST row (Death Mark)
+        before anything else, once an omen, on the member drawn nearest the pointer (the pack's order takes any: the
+        player, 2026-10-21 Q1), with the quick aim (macros/buffs.py `quick_aim`: the strike held on, no hover wait when
+        the pointer is on the pack). Not under the fight casts' hold (FIGHT_CAST_REACH) or past a real threat the
+        safety saw (`Safety.hold_exempt`) other than OMEN_MARK_PAST's: then the next look asks again. Whether a key or
+        the pointer was touched."""
+        player = world.player
+        if not OMEN_MARK_FIRST or player is None or player.mode in DEAD or run.pad is not None:
+            return False
+        now = run.clock()
+        found = self.omen_shown(now, foes)
+        if found is None:
+            return False
+        spot, spawn, members = found
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None or not rect[3]:
+            return False
+        aspect, here = rect[2] / rect[3], (player.x, player.y)
+        view = Viewport(aspect)
+        # Drawn where the mark may be aimed (macros/buffs.py `aimable`: MARK_SHAPE's outline, else AIM_LIMITS)
+        drawn = [
+            m
+            for m in members
+            if any(self.buffs.aimable(skill, view.body(here, m.x, m.y)) for skill in herald_pack.FIRST)
+        ]
+        if not drawn:
+            return False
+        threat = getattr(self.safety, 'hold_exempt', None)
+        if threat is not None and not threat.startswith(OMEN_MARK_PAST):
+            self.omen_waits(f'a real threat: {threat}')
+            return False
+        pointer = run.actuator.keys.pointer()
+        at = (
+            ((pointer[0] - rect[0]) / rect[2], (pointer[1] - rect[1]) / rect[3])
+            if pointer is not None
+            else view.body(here, *spot)
+        )
+        prey = min(drawn, key=lambda m: math.dist(at, view.body(here, m.x, m.y)))
+        asked = self.fight_facts(run, world, foes, drawn, prey)
+        if FIGHT_CAST_REACH and asked.cast_barred is not None:
+            self.omen_waits(f'the fight casts are held: {asked.cast_barred}')
+            return False
+        self.omen_marked.add(spot)
+        for row in self.buffs.rows('fight'):
+            if row.skill not in herald_pack.FIRST or row.before_strike is None or not row.before_strike(asked):
+                continue
+            due = self.buffs.due(run, row, asked)
+            if due is None:
+                continue
+            if due.target is not None and herald_pack.in_pack(due.target.tier):
+                due = replace(due, target=prey)  # the pack's order: the member under the pointer, no pointer move
+            with self.buffs.quick_aim():
+                tried = self.buffs.cast(run, due, key_names, aspect)
+            if tried.cast:
+                LOG.info(
+                    "Macro: mark: first at the Herald's pack, %.2fs after its spawn was due (OMEN_MARK_FIRST)",
+                    run.clock() - spawn,
+                )
+            return tried.touched
+        LOG.info('Macro: omen: the pack shows, no mark due on it (OMEN_MARK_FIRST)')
+        return False
 
     def nearing_only(self, world: World, foes: Sequence[Monster], ground: Ground, here: Point, now: float) -> bool:
         """Whether everything in reach is a boss being neared (`untouched`) beyond the engage ring: the move first."""
@@ -1058,6 +1187,8 @@ class Hunter:
         something is in reach of it (PREAIM). The attack's held leader is left as it was; a stop the run does not honour
         leaves the pointer where it is."""
         self.preaimed = None
+        if PREAIM_NOT_REBUFF and self.rebuff_flying(run.clock()):
+            return  # Battle Orders at the landing, not the strike
         try:
             world = run.world()
             player, rect = world.player, run.actuator.keys.focused_window_rect()
@@ -1091,6 +1222,12 @@ class Hunter:
         except Abort as stop:
             if run.stops(stop):
                 raise
+
+    def rebuff_flying(self, now: float) -> bool:
+        """Whether a rebuff retreat the safety chose (`Safety.rebuff_chosen`) has not landed yet (PREAIM_NOT_REBUFF)."""
+        safety = self.safety
+        chosen = safety.rebuffed_at
+        return safety.rebuff_landed < chosen <= now <= chosen + safety_module.REBUFF_LANDS
 
     def preaim_kept(self, run: Run, here: Point, focal: Point, view: Viewport) -> bool:
         """Whether the pointer the flight put (`preaim`) stands for the aim at `focal` from `here`: within PREAIM_PIXELS
@@ -1164,6 +1301,8 @@ class Hunter:
             assert attack is not None  # the character is seen
             foes = self.foes(world, run.clock())
             self.keep_orders(run, world, foes)
+            if OMEN_MARK_FIRST and self.omen_mark(run, world, foes, key_names):
+                continue  # a Herald's pack just shown: its mark before anything else (OMEN_MARK_FIRST)
             if self.leashed and player.mode in DEAD:
                 self.end_run(run, 'the character died')
             elif self.running and (not self.sweep.steps or run.clock() > self.sweep.until):
@@ -1221,7 +1360,8 @@ class Hunter:
                         len(foes), label(nearest), math.dist(here, (nearest.x, nearest.y)),
                         'clear' if clear_shot(ground, here, (nearest.x, nearest.y), world.doors) else 'blocked', *here,
                     )  # fmt: skip
-                self.nap(run, POLL, key=self.pursuing)
+                # A Herald's pack due: a look a frame, its first frame seen at once (OMEN_MARK_FIRST)
+                self.nap(run, FRAME if self.omen_due(run.clock()) else POLL, key=self.pursuing)
                 continue
             rect = run.actuator.keys.focused_window_rect()
             if rect is None:
@@ -1463,6 +1603,8 @@ class Hunter:
         player = world.player
         if player is None or player.mode not in ACTING:
             return None
+        if CAST_TAIL_HOPS and player.right_skill != TELEPORT:
+            return None  # a buff's or a mark's tail: the loop's naps and looks, as before
         until = run.clock() + CAST_TAIL_MOST
         while run.clock() < until:
             if self.nap(run, SLICE) or self.move is not None:

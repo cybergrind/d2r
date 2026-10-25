@@ -1,7 +1,7 @@
-"""The pack's re-aggro with nobody designated (builds/warlock/mark.py REAGGRO_PACK), the mark at the landing before the
-press (combat/pack.py MARK_AT_LANDING) and the demons' drag on a forgoable jump's price (combat/pack.py HOP_DRAG_PRICE),
-2026-10-24. The player, ~11:30: "heralds/packs loose their aggro on minions and daemon/merc are staying not active for
-some time after teleport"; 2026-10-21: "if you reposition - re-aggro again" (rca/2026-10-24/aggro-findings.md)."""
+"""The pack's re-aggro with nobody designated (builds/warlock/mark.py REAGGRO_PACK), 2026-10-24 (the tests of the
+retired MARK_AT_LANDING and HOP_DRAG_PRICE went with them on 2026-10-25, rca/2026-10-25/tactics/apply-1.md). The
+player, ~11:30: "heralds/packs loose their aggro on minions and daemon/merc are staying not active for some time after
+teleport"; 2026-10-21: "if you reposition - re-aggro again" (rca/2026-10-24/aggro-findings.md)."""
 
 import logging
 from dataclasses import replace
@@ -95,29 +95,6 @@ def test_a_reason_comes_before_the_re_aggro(on) -> None:
     chosen = mark.target(facts(*PACK, leader, demons=ALONG))
     assert chosen is leader
     assert mark.DESIGNATION.rank != mark.REAGGRO_RANK
-
-
-def test_the_mark_at_the_landing_goes_before_the_press_only_while_on_and_just_landed(monkeypatch) -> None:
-    pack.hopped(NOW - 0.3, 20.0)
-    assert not pack.landing_ahead(NOW)
-    monkeypatch.setattr(pack, 'MARK_AT_LANDING', True)
-    assert pack.landing_ahead(NOW)
-    assert not pack.landing_ahead(NOW + pack.LANDING_AHEAD)
-    assert not pack.landing_ahead(NOW, [HERALD])  # a tier 4-5 Herald pack in reach: the strike stays first
-    monkeypatch.setattr(pack, 'LANDING_IN_PACK', True)
-    assert pack.landing_ahead(NOW, [HERALD])
-
-
-def test_a_jump_that_takes_striking_demons_along_costs_the_drag(monkeypatch) -> None:
-    here, spot, foes = (5000.0, 5000.0), (5020.0, 5000.0), [(5004.0, 5000.0)]
-    by_pack = [(5003.0, 5001.0)]
-    assert pack.drag_seconds(here, spot, by_pack, foes) == 0.0  # off
-    monkeypatch.setattr(pack, 'HOP_DRAG_PRICE', True)
-    assert pack.drag_seconds(here, spot, by_pack, foes) == pack.DRAG_SECONDS
-    assert pack.drag_seconds(here, (5002.0, 5000.0), by_pack, foes) == 0.0  # a short jump takes nobody off
-    assert pack.drag_seconds(here, spot, [(5003.0, 5030.0)], foes) == 0.0  # idle: nothing lost
-    assert pack.drag_seconds(here, spot, [(4980.0, 5000.0)], [(4983.0, 5000.0)]) == 0.0  # not taken along
-    assert pack.drag_seconds(here, spot, None, foes) == 0.0  # not attacking
 
 
 # Take 20261024T084322Z-86, 11:44:23: the tier 5 Undead Stygian Doll Herald (216, unit 3904379104) 15-20 off with

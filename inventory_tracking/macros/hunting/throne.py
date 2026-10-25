@@ -78,6 +78,14 @@ PORTAL_OPENS = 2.5
 PORTAL_FOOT = (0.5, 4.0)
 FOOT_NEAR = 2.5  # world units from the foot: stood there
 FOOT_WAIT = 3.0
+# FOOT_HOLD (2026-10-25, game 125 at 14:11:28-14:11:43): the Teleport to the foot landed at (15088.3, 5011.7), 3.48 from
+# it, at the edge of FOOT_NEAR + 1.0; the reads flipped 3.47/3.51, so the wait at the foot began and ended 57 times in
+# 15 s and the pursuit, within its goal, never moved nearer (the portal took 20 s after Baal went, 3.4 s in the 11
+# games before). True: stood at the foot within FOOT_NEAR + FOOT_ENTER, and kept there while within FOOT_NEAR +
+# FOOT_LEAVE. False: FOOT_NEAR + 1.0 both ways, as before
+FOOT_HOLD = True
+FOOT_ENTER = 2.0
+FOOT_LEAVE = 3.0
 PORTAL_AT = (15090.0, 5005.0)  # wthrone.ds1's FinalPortal (563), read there in the takes of 17:21 and 17:34 on 10-21
 PORTAL_NEAR = 'Baal is gone: to the portal'
 # Seconds since the portal stage began until the run ends with the level unchanged (agenda.py `no_way_on`)
@@ -262,7 +270,10 @@ def foot_of(portal: Point) -> Point:
 def foot_wait(waves: Waves, here: Point, portal: Point, now: float) -> str | None:
     """With Baal gone (`Waves.gone_since` set): why the portal is not clicked yet — the character not at its foot, or
     not FOOT_WAIT there and PORTAL_OPENS since he went; None once it may be."""
-    if math.dist(here, foot_of(portal)) > FOOT_NEAR + 1.0:
+    away = math.dist(here, foot_of(portal))
+    held = FOOT_LEAVE if waves.foot_since is not None else FOOT_ENTER
+    near = FOOT_NEAR + (held if FOOT_HOLD else 1.0)
+    if away > near:
         waves.foot_since = None
         return PORTAL_NEAR
     if waves.foot_since is None:

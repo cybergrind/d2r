@@ -14,8 +14,10 @@ Pure: macros/tzloop.py reads the views.
 """
 
 import functools
+import json
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
+from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.presets import display_name, numbered_name
@@ -36,6 +38,7 @@ from inventory_tracking.macros.agenda import (
     PLUS,
     PLUS_WAY,
     PORTAL_TO_TOWN,
+    SHORT,
     SIGHTED,
     TOWN_ROUTINE,
     TOWNS,
@@ -67,6 +70,27 @@ POLICY: dict[int, str] = {}
 # Plains of Despair, Dry Hills; rca/2026-10-20/tz-level-leave-findings.md). False: TZ leveling as before (COVER /
 # ON_THE_WAY, leaders only).
 TZ_PLUS = True
+# SHORT_LEVELS (2026-10-25, off until measured): the player, ~10:15, on the TZ levels under about 1,600 exp a second
+# with the travel to them (rca/2026-10-25/exp-hour-findings.md: "Plains of Despair 949, Bloody Foothills 1,088, Burial
+# Grounds 1,119, Blood Moor 1,192, Black Marsh 1,201"): "Shorten them: clear only the elites, bosses and big packs on
+# those levels, then move on" (narrows "farm until it's done" / "kill all packs" for those levels only). True: TZ
+# leveling works a weak area (`weak_areas`) it would work fully as TZ+ (agenda.py PLUS) as agenda.py SHORT instead: its
+# leaders, bosses and big packs (SHORT_PACK), no room, then done; a lighter policy there (on the way, a crossing, a
+# transit, COVER without TZ+) stays as it is (`shortened`). False: TZ+ as before. Measure: exphour.py, on against off.
+# On from 2026-10-25 ~11:46 after the wide suite (green with it on; d2r-7e restarts the loop)
+SHORT_LEVELS = True
+# The weak areas (levels.txt ids) and their exp a second, made by the d2-loop-watch skill's exphour.py `--weak-out`
+SHORT_LEVELS_FILE = Path(__file__).parent / 'data' / 'short_levels.json'
+
+
+@functools.cache
+def weak_areas() -> frozenset[int]:
+    """SHORT_LEVELS: the areas of SHORT_LEVELS_FILE; none without the file."""
+    if not SHORT_LEVELS_FILE.exists():
+        return frozenset()
+    return frozenset(int(row['area']) for row in json.loads(SHORT_LEVELS_FILE.read_text())['levels'])
+
+
 # The route stages a level run performs: an area at one of them is still a level's work
 WORKED_BY_RUNS = frozenset((FIGHT, USE, STAND))
 
@@ -111,6 +135,14 @@ CROSSING = ON_THE_WAY
 # "implement shards run for every act ... act1 shard -> catacombs 2 -> 3 -> 4 -> andariel -> marsh -> tower ->
 # countess -> rest of zones one by one"), once the script is `ready`. False: every act by the generic boss-first order
 ACT_SCRIPTS = True
+# How a level an alone act's script works whole is worked (macros/acts/engine.py `ActScript.whole`, `Excursion.whole`;
+# act2.py ALONE, the player, 2026-10-25 ~17:15: "go full arcane sanctuary (+kill summoner)"): TZ+ (agenda.py PLUS)
+# whatever its size or a boss on it: every room toured, every leader and the level's groups (BIG_GROUP on a big level:
+# "for levels with 300+ mobs - we just clear big groups and elites/champions", 2026-10-20; "the main goal for TZ
+# leveling is to kill all packs and DO NOT hunt every single enemy", 2026-10-21), its route's own work (the boss) too;
+# never shortened (SHORT_LEVELS: the player named it). FULL_CLEAR: every hostile and every room, as the Full clear TZ
+# kind's levels; the Full clear kind's own game is FULL_CLEAR anyway
+WHOLE = PLUS
 
 
 @dataclass(frozen=True)
@@ -129,6 +161,8 @@ class Excursion:
     # The levels crossed on the way to the boss (`BOSS_NEAREST`), worked by a later trip after the kill: never done as
     # they are left (tzloop.py `perform`), their runs here not counted against that trip (tzloop.py `reopen`)
     passes: frozenset[int] = frozenset()
+    # The levels an alone act's script works whole (`WHOLE`; macros/acts/engine.py `ActScript.whole`, 2026-10-25)
+    whole: frozenset[int] = frozenset()
 
     def after(self, area: int) -> int | None:
         """The level after `area` on the excursion; None at its end (or off it)."""
@@ -219,8 +253,13 @@ def itinerary(terrorized: frozenset[int], order: tuple[int, ...] = ()) -> Itiner
     terrorized act first, its boss's trip first; else the one rotating zone); None when no installed zone matches.
     `order`: the acts a shard terrorized in the order they are played (agenda.py `Agenda.acts`: the kind's act, then
     the acts of shards over the limit, actloop.py OVERFLOW); the other acts read after them, then the rotation."""
+    alone = alone_act(order) if MANUAL_ZONES else None
     if MANUAL_ZONES:
         zones = played_first(match_zones(terrorized), order)
+        if alone is not None and any(act_of_manual(zone) == alone for zone in zones):
+            zones = tuple(zone for zone in zones if act_of_manual(zone) == alone)
+            LOG.info("Macro: act: act %d alone (macros/acts/act%d.py ALONE): its script's steps only, then the "
+                     "game's end: no rest of the act, no rotation, no other act", alone, alone)  # fmt: skip
     else:
         zone = match_active_zone(terrorized)
         zones = (zone,) if zone is not None else ()
@@ -231,13 +270,16 @@ def itinerary(terrorized: frozenset[int], order: tuple[int, ...] = ()) -> Itiner
     skipped: list[tuple[int, str]] = []
     for zone in zones:
         before = set().union(*(trip.zone for trip in trips)) if trips else set()
-        found_trips, uncovered = _route_trips(zone)
+        lone = alone is not None and act_of_manual(zone) == alone
+        found_trips, uncovered = _route_trips(zone, lone)
+        whole = _whole(zone) if lone else frozenset()
         skipped += [(area, 'no catalogue excursion covers it') for area in uncovered]
         for found, passes in found_trips:
             if found.blockers:
                 skipped += [(area, found.blockers[0]) for area in found.covers]
                 continue
             trip = replace(_excursion(found, group, skipped), passes=passes)
+            trip = replace(trip, whole=whole & trip.zone - passes) if whole else trip
             if before and trip.zone <= before:
                 continue  # another zone's trips cover its levels already (the union's, never one zone's own)
             trips.append(trip)
@@ -286,6 +328,27 @@ def skipped_trips(zones: Iterable[ActiveZone], group: frozenset[int], left: Iter
     return [trip for trip in found if trip in kept]
 
 
+def alone_act(order: tuple[int, ...]) -> int | None:
+    """The act a game plays alone (macros/acts/engine.py `ActScript.alone`, act2.py ALONE, 2026-10-25): the first of
+    `order` (the game's own act, its kind's shard: agenda.py `Agenda.acts`) when its script is ready and has alone
+    steps; None otherwise (no shard act, the scripts off, an act 2 played as another act's overflow)."""
+    if not order or not (ACT_SCRIPTS and BOSS_FIRST and BOSS_NEAREST):
+        return None
+    from inventory_tracking.macros.acts import script_of  # late: the act scripts import this module
+
+    script = script_of(order[0])
+    return order[0] if script is not None and script.ready and script.alone is not None else None
+
+
+def _whole(zone: ActiveZone) -> frozenset[int]:
+    """The levels of manual zone `zone`'s act its script works whole when played alone (`ActScript.whole`)."""
+    from inventory_tracking.macros.acts import script_of
+
+    act = act_of_manual(zone)
+    script = script_of(act) if act is not None else None
+    return script.whole if script is not None else frozenset()
+
+
 def played_first(zones: tuple[ActiveZone, ...], order: tuple[int, ...]) -> tuple[ActiveZone, ...]:
     """`zones` (`match_zones`: the acts in act order, then the rotation) with the acts of `order` first, in its order;
     the rest as they were."""
@@ -313,14 +376,14 @@ def trips_said(trips: Iterable[Excursion]) -> str:
 Trips = tuple[tuple[tuple[RouteExcursion, frozenset[int]], ...], tuple[int, ...]]
 
 
-def _route_trips(zone: ActiveZone) -> Trips:
+def _route_trips(zone: ActiveZone, alone: bool = False) -> Trips:
     """The catalogue's trips covering `zone` (routes/tz_routes.py `zone_route_plan`), each with the levels it only
     crosses to its boss (none but the boss's), and the levels none covers. A terrorized act's: its script's order when
     the script is ready (`_scripted`, macros/acts/); else (`BOSS_FIRST`) the trip to its boss first (`_boss_trip`),
     then the trips of its levels that trip does not work: with `BOSS_NEAREST` the levels it crossed (nearest the boss
-    first), the rest of the boss's route, then the others."""
+    first), the rest of the boss's route, then the others. `alone`: the script's alone steps only (`alone_act`)."""
     act = act_of_manual(zone)
-    if act is not None and (scripted := _scripted(act, zone)) is not None:
+    if act is not None and (scripted := _scripted(act, zone, alone)) is not None:
         return scripted
     plan = zone_route_plan(zone)
     boss = ACT_BOSS_LEVELS.get(act) if act is not None and BOSS_FIRST else None
@@ -355,16 +418,17 @@ def _route_trips(zone: ActiveZone) -> Trips:
     return tuple(trips), tuple(uncovered)
 
 
-def _scripted(act: int, zone: ActiveZone) -> Trips | None:
-    """Act `act`'s trips by its script (macros/acts/act<N>.py, `ACT_SCRIPTS`), the boss-first order it declares;
-    None while the script is not ready, or with `BOSS_FIRST` or `BOSS_NEAREST` off (the generic order then)."""
+def _scripted(act: int, zone: ActiveZone, alone: bool = False) -> Trips | None:
+    """Act `act`'s trips by its script (macros/acts/act<N>.py, `ACT_SCRIPTS`), the boss-first order it declares (its
+    alone steps only with `alone`); None while the script is not ready, or with `BOSS_FIRST` or `BOSS_NEAREST` off (the
+    generic order then)."""
     if not (ACT_SCRIPTS and BOSS_FIRST and BOSS_NEAREST):
         return None
     from inventory_tracking.macros.acts import script_of  # late: the act scripts import this module
     from inventory_tracking.macros.acts.engine import act_trips
 
     script = script_of(act)
-    return act_trips(script, zone) if script is not None and script.ready else None
+    return act_trips(script, zone, alone) if script is not None and script.ready else None
 
 
 def _boss_trip(zone: ActiveZone, planned: Iterable[RouteExcursion], boss: int) -> RouteExcursion | None:
@@ -434,7 +498,8 @@ def policy_of(area: int, trip: Excursion | None, full_clear: bool = False, plus:
     2026-10-19 ~21:56); FULL_CLEAR for the Full clear TZ kind. TZ leveling with `plus` (default TZ_PLUS): PLUS on a
     level under BIG_LEVEL, PLUS_WAY on one whose script stands (`stand_areas`); on a big level PLUS_WAY on the way to a
     boss, else PLUS (its big groups only, agenda.py BIG_GROUP). Without: ON_THE_WAY on an excursion still heading to a
-    boss ("finding each elite on the way to Andariel, kill her and start a new game"); else COVER."""
+    boss ("finding each elite on the way to Andariel, kill her and start a new game"); else COVER. SHORT_LEVELS: PLUS
+    on a weak area is SHORT (`shortened`). A level an alone act's trip works whole (`Excursion.whole`): WHOLE."""
     if trip is None or area not in trip.zone:
         return TRANSIT
     if area in trip.passes:
@@ -443,6 +508,8 @@ def policy_of(area: int, trip: Excursion | None, full_clear: bool = False, plus:
         return FULL_CLEAR
     if area in POLICY:
         return POLICY[area]
+    if area in trip.whole:
+        return WHOLE  # an alone act's level worked whole (2026-10-25, act2.py ALONE: "full arcane sanctuary")
     bosses = boss_areas(trip.route)
     ahead = trip.areas[trip.areas.index(area) :]
     if trip.touring(area):
@@ -454,8 +521,16 @@ def policy_of(area: int, trip: Excursion | None, full_clear: bool = False, plus:
         return ON_THE_WAY if on_the_way else COVER
     population = level_population(area)
     if population is not None and population >= BIG_LEVEL:
-        return PLUS_WAY if on_the_way else PLUS
-    return PLUS_WAY if area in stand_areas(trip.route) else PLUS
+        return shortened(area, PLUS_WAY if on_the_way else PLUS)
+    return shortened(area, PLUS_WAY if area in stand_areas(trip.route) else PLUS)
+
+
+def shortened(area: int, policy: str) -> str:
+    """SHORT_LEVELS: SHORT for a weak area (`weak_areas`) worked fully as PLUS, else `policy`. Only PLUS: its goals
+    are SHORT's and more (the same leaders, chests and bosses; groups of GROUP_MIN, the rooms). Never a lighter one:
+    PLUS_WAY and ON_THE_WAY leave the far leaders SHORT goes for, COVER (TZ leveling without TZ+) takes no group,
+    TRANSIT, CROSSING and BOSS_WAY work less still, FULL_CLEAR is the Full clear kind's own."""
+    return SHORT if SHORT_LEVELS and policy == PLUS and area in weak_areas() else policy
 
 
 def kept_to(script: Script, trip: Excursion) -> Script:

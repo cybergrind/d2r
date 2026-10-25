@@ -1661,7 +1661,7 @@ def hop_to(
     landed = run.world().player
     if landed is not None:
         LANDING[:] = [(landed.x, landed.y, run.clock())]
-        herald_pack.hopped(run.clock(), math.dist((player.x, player.y), (landed.x, landed.y)))  # mark REMARK_AFTER_HOP
+        herald_pack.hopped(run.clock(), math.dist((player.x, player.y), (landed.x, landed.y)))  # mark.py `aggro_lost`
         off = (landed.x - aim[0], landed.y - aim[1])
         MISSED[:] = [(aim, (landed.x, landed.y), landed.area)] if math.hypot(*off) >= MOVED else []
         LOG.info(

@@ -609,6 +609,7 @@ def test_cyberg65_the_visit_uses_a_carried_northern_before_the_stash_and_act_5_i
 
 
 def test_a_second_northern_after_act_5_falls_said_while_another_full_acts_shard_is_used_too(monkeypatch, caplog):
+    monkeypatch.setattr(actloop, 'NORTHERN_FOR_BAAL', False)  # the spare Northern: test_loop_baal_northern.py
     # Two carried Northerns over the cap and a Deep over its own: act 5 once, act 4 too; the second Northern has no use
     deep = Carried(93, DEEP, 5, 3, (1, 1))
     game = cyberg65(monkeypatch, {NORTHERN: STACK_MOST, DEEP: STACK_MOST})
@@ -628,6 +629,7 @@ def test_a_second_northern_after_act_5_falls_said_while_another_full_acts_shard_
 
 
 def test_a_usable_shard_is_spared_one_a_class_and_only_while_the_game_can_use_it(monkeypatch):
+    monkeypatch.setattr(actloop, 'NORTHERN_FOR_BAAL', False)  # the spare Northern: test_loop_baal_northern.py
     game = act_game(monkeypatch, act=1, stacks={WESTERN: 96, NORTHERN: STACK_MOST})
     loop = game.loop
     loop.agenda.begin(GameId(GAME, 1))

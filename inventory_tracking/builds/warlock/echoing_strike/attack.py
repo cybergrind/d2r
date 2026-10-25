@@ -92,7 +92,7 @@ T5_BEST_LINE = True  # on 2026-10-24 ~09:50: "Best line in T5 packs (Recommended
 HERALD_TIER = 5
 # A leader whose resistance to the blades' damage is IMMUNE (physical: Echoing Strike is weapon damage, skills.txt 388;
 # the 18:35 Gloam Herald of the same day, stat 36 at 110 with Stone Skin, rca/2026-10-21/herald-gloam-findings.md) is
-# not held: the blades take nothing off it, its mark and the demons are its answer (mark.py MARK_IMMUNE). This fight's
+# not held: the blades take nothing off it, its mark and the demons are its answer (mark.py IMMUNE_TO). This fight's
 # Vile Witch Herald stood at 75 (its minions 25): hurt, a quarter of a blade's points a contact.
 # Empty since 2026-10-21 ~20:15, the player: "we still need to focus physical immune mobs, and magical immune"; "we
 # need to do the best aiming when we're trying to focus mob": every leader is held, immune or not (was

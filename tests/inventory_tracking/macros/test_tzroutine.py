@@ -79,12 +79,22 @@ def test_a_zone_of_two_excursions_and_one_with_a_blocked_way_and_an_unknown_one(
     assert itinerary(frozenset((999,))) is None  # no installed zone: nothing to plan
 
 
-def test_a_level_with_no_boss_ahead_is_covered_and_one_no_route_knows_too():
+def test_a_level_with_no_boss_ahead_is_covered_and_one_no_route_knows_too(monkeypatch):
+    from inventory_tracking.macros import tzroutine
+    from inventory_tracking.macros.agenda import SHORT
+
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', False)  # the policies before SHORT_LEVELS
     tower = itinerary(frozenset((6, 11, 15, 20, 21, 22, 23, 24, 25)))
     assert tower is not None
     hole = next(trip for trip in tower.excursions if trip.route == 'Hole')
     assert [policy_of(area, hole, plus=False) for area in hole.areas] == [COVER] * 3
     assert [policy_of(area, hole) for area in hole.areas] == [PLUS] * 3  # TZ+: the rooms and the groups too
+    # SHORT_LEVELS (2026-10-25): the Black Marsh (6) is weak, so TZ+ there is SHORT; COVER without TZ+ is kept (it
+    # takes no group, SHORT would)
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', True)
+    assert [policy_of(area, hole) for area in hole.areas] == [SHORT, PLUS, PLUS]
+    assert [policy_of(area, hole, plus=False) for area in hole.areas] == [COVER] * 3
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', False)
     unknown = Excursion('', 900, (900, 901), frozenset((900, 901)))
     assert policy_of(901, unknown, plus=False) == COVER
     assert policy_of(901, unknown) == PLUS
@@ -361,13 +371,20 @@ def test_tz_plus_explores_the_levels_on_the_way_to_a_boss_that_tz_leveling_left_
     # rca/2026-10-20/tz-level-leave-findings.md: under ON_THE_WAY the Outer Steppes were left at the way on with about
     # half their rooms read (19 visits 16:48-18:55), so a Herald could never come there
     from inventory_tracking.macros import tzroutine
+    from inventory_tracking.macros.agenda import SHORT
 
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', False)  # the policies before SHORT_LEVELS
     steppes = itinerary(frozenset((104, 105)))
     assert steppes is not None
     (trip,) = steppes.excursions
     assert trip.route == 'Izual'
     assert [policy_of(area, trip, plus=False) for area in (104, 105)] == [ON_THE_WAY, ON_THE_WAY]
     assert [policy_of(area, trip) for area in (104, 105)] == [PLUS, PLUS]
+    # SHORT_LEVELS (2026-10-25): the Plains of Despair (105) are weak: TZ+ there is SHORT, on the way stays on the way
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', True)
+    assert [policy_of(area, trip) for area in (104, 105)] == [PLUS, SHORT]
+    assert [policy_of(area, trip, plus=False) for area in (104, 105)] == [ON_THE_WAY, ON_THE_WAY]
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', False)
     # The switch: TZ leveling as before
     monkeypatch.setattr(tzroutine, 'TZ_PLUS', False)
     assert [policy_of(area, trip) for area in (104, 105)] == [ON_THE_WAY, ON_THE_WAY]
@@ -409,7 +426,12 @@ def trips_of(plan: Itinerary | None) -> list[tuple[str, int, tuple[int, ...]]]:
     return [(trip.route, trip.waypoint, trip.areas) for trip in plan.excursions]
 
 
-def test_a_terrorized_act_4_is_diablo_from_the_river_then_the_rivers_rest_the_city_the_steppes_and_the_plains():
+def test_a_terrorized_act_4_is_diablo_from_the_river_then_the_rivers_rest_the_city_the_steppes_and_the_plains(
+    monkeypatch,
+):
+    from inventory_tracking.macros import tzroutine
+
+    monkeypatch.setattr(tzroutine, 'SHORT_LEVELS', False)  # the policies before SHORT_LEVELS (the Plains are weak)
     # The player, 2026-10-20 ~21:27: "we must go river of flame -> CS -> kill diablo -> do rest of flame river -> city
     # of damned/planes of despair and etc". Game 21 (21:18:21) took Diablo's trip from the City, City and River first
     plan = itinerary(ACT4)

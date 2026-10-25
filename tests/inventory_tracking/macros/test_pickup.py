@@ -429,11 +429,12 @@ def test_over_the_cell_cap_the_look_reads_only_the_magic_rare_and_white_bases_th
     assert shown_rules() == pickup_rules(6)
 
 
-def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_for_a_while():
+def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_for_a_while(monkeypatch):
     # Worldstone Keep 3, 22:16 on 2026-10-10: 30 clicks in 21 s on a Large Charm that was under the
     # pointer every time, and nothing else was done meanwhile.
     from inventory_tracking.macros import pickup
 
+    monkeypatch.setattr(pickup, 'PICK_AT_ONCE', False)  # this press's own miss path (on: the press after's, 2026-10-25)
     pickup.SHUNNED.clear()
     play = game(RUNE)
     play.deaf_picks = 999
@@ -1114,6 +1115,7 @@ def test_a_later_try_at_a_drop_whose_clicks_moved_nobody_goes_nearer_before_its_
 
 
 def test_a_potion_no_click_takes_is_given_up_for_the_game_and_the_press_goes_on(monkeypatch, fresh, caplog):
+    monkeypatch.setattr(pickup, 'PICK_AT_ONCE', False)  # this press's own miss path (on: the press after's, 2026-10-25)
     # The player, 2026-10-21 ~13:40: the loop left a shard's act for a potion no click took
     monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
     play = game(HP_NEAR, belt=SHORT_HP)
@@ -1129,6 +1131,7 @@ def test_a_potion_no_click_takes_is_given_up_for_the_game_and_the_press_goes_on(
 
 
 def test_without_the_switch_a_potion_no_click_takes_stops_the_press_as_before(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'PICK_AT_ONCE', False)  # this press's own miss path (on: the press after's, 2026-10-25)
     monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', False)
     play = game(HP_NEAR, belt=SHORT_HP)
     play.deaf_picks = 999
@@ -1139,6 +1142,7 @@ def test_without_the_switch_a_potion_no_click_takes_stops_the_press_as_before(mo
 
 
 def test_a_valuable_no_click_takes_still_stops_the_press_with_the_pickup_cause(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'PICK_AT_ONCE', False)  # this press's own miss path (on: the press after's, 2026-10-25)
     monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
     play = game(RUNE)
     play.deaf_picks = 999
@@ -1150,6 +1154,7 @@ def test_a_valuable_no_click_takes_still_stops_the_press_with_the_pickup_cause(m
 
 
 def test_gold_no_click_takes_is_given_up_and_never_stops_the_press(monkeypatch, fresh):
+    monkeypatch.setattr(pickup, 'PICK_AT_ONCE', False)  # this press's own miss path (on: the press after's, 2026-10-25)
     monkeypatch.setattr(pickup, 'GIVE_UP_CHEAP', True)
     play = game(PILE)
     play.gold_radius = 0.0

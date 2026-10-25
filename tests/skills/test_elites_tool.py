@@ -145,3 +145,11 @@ def test_engaging_is_the_fights_seconds_and_the_rest_of_a_level_goes_by_its_targ
     assert doing['travel'] == pytest.approx(10.0)
     assert doing['town'] == pytest.approx(20.0)
     assert doing['lobby'] == pytest.approx(20.0)
+
+
+def test_the_baal_kind_is_told_by_its_legs_and_its_name() -> None:
+    assert elites.kind_of_leg("the Throne's waves", None) == 'baal'
+    assert elites.kind_of_leg('a Northern shard for act 5', 'tz') == 'baal'
+    assert elites.NAMES['Baal'] == 'baal'
+    assert elites.PHASE_OF['to the Worldstone Keep'] == elites.TRAVEL
+    assert elites.PHASE_OF['Baal'] == elites.LEVEL
