@@ -46,12 +46,14 @@ def played(
     far: bool = False,
     landing_mark: bool = False,
     every_move: bool = False,
+    no_burn: bool = False,
 ):
     """Attack mode alone on two tier `tier` Herald pack members 8-10 east (`burner`: with Mana Burn), the Herald itself
     12 east (`herald`), a demon of the character's beside it, a jump of 20 units landed `landed` s before (None: none):
     the game and the order of the marks and strikes. `any_member`: combat/pack.py HERALD_MARK_ANY_MEMBER. `far`: the
     members 23.5-25.1 off (FAR: drawn on the screen, beyond the strike's reach, echoing_strike REACH 22.1);
-    `landing_mark`: macros/hunt.py LANDING_MARK; `every_move`: combat/pack.py DM_AFTER_EVERY_MOVE (R1)."""
+    `landing_mark`: macros/hunt.py LANDING_MARK; `every_move`: combat/pack.py DM_AFTER_EVERY_MOVE (R1); `no_burn`:
+    combat/pack.py DM_MOVE_NO_BURN."""
     from inventory_tracking.builds.warlock import mark as mark_module
 
     monkeypatch.setattr(mark_module, 'why_not', lambda facts, monster: None)  # the mark's worth is not asked here
@@ -61,6 +63,7 @@ def played(
     monkeypatch.setattr(hunt_module, 'MARK_WITH_PRESS', with_press)
     monkeypatch.setattr(hunt_module, 'LANDING_MARK', landing_mark)
     monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', every_move)
+    monkeypatch.setattr(pack, 'DM_MOVE_NO_BURN', no_burn)
     mods = (MANA_BURN,) if burner else ()
     (a, b, c) = FAR if far else NEAR
     members = (
@@ -230,6 +233,15 @@ def test_r1_marks_first_at_a_hard_fight_s_landing_the_pack_beyond_the_strike(mon
     assert play.marks
     assert order[0] == 'mark'
     assert 'a hard fight (DM_AFTER_EVERY_MOVE)' in caplog.text
+
+
+@pytest.mark.parametrize('no_burn', [False, True])
+def test_r1_s_landing_mark_keeps_off_a_mana_burning_pack_with_no_burn(monkeypatch, caplog, no_burn) -> None:
+    # DM_MOVE_NO_BURN covers the landing's hook too (macros/hunt.py `landing_members`, 2026-10-24 ~23:10): without it
+    # the landing's mark among the Dark Shapes killed test_manaburn_death.py's seeds 1 and 3 with R1 on
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        played(monkeypatch, on=False, far=True, burner=True, every_move=True, no_burn=no_burn, until=1.0)
+    assert ('a hard fight (DM_AFTER_EVERY_MOVE)' in caplog.text) is not no_burn
 
 
 def test_r1_leaves_a_regular_fight_s_landing_to_the_mark_s_own_rules(monkeypatch) -> None:

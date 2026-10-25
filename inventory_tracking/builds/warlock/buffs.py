@@ -685,6 +685,7 @@ def engorged(world: World) -> list[Monster]:
         if (m.ally or m.owner == player.unit_id or m.txt_id == DEFILER_CLASS)
         and m.txt_id != HIRELING_CLASS_ID
         and not (PET_ENGORGE and pets.dead(m))
+        and (not pets.PET_DEMONS_ONLY or pets.heals(m))  # not the Bloody Foothills' barbarians (engorge-findings.md)
     ]
 
 

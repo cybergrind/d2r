@@ -96,17 +96,19 @@ def test_a_hostile_coming_a_blow_taken_reach_or_another_goal_ends_the_wait(monke
 
 @pytest.mark.slow
 def test_the_chaos_sanctuary_run_with_the_companions_along_no_longer_stands(monkeypatch) -> None:
-    """The arena's pursuit loop of test_cs_run.py (seed 3) with the companions as the game moves them: off it stalls on
-    WAITING at the Vizier's seal; on it works the whole route alive."""
+    """The arena's pursuit loop of test_cs_run.py (seed 1) with the companions as the game moves them: off it stalls on
+    WAITING at the Vizier's seal; on it works the whole route alive. Seed 1 since 2026-10-24: seed 3's off arm no
+    longer stalls after that day's other changes (rca/2026-10-24/red-goldens-findings.md §5); seed 1 stands on WAITING
+    toward Vizier seal 1 at 57 s off and takes all five seals alive on."""
     from tests.inventory_tracking.scenarios.arena import game
     from tests.inventory_tracking.scenarios.arena.situations.cs_run import FULL, ONCE, pair, played
 
     monkeypatch.setattr(game, 'ALLIES_ALONG', True)
     label, run, presses = pair(ONCE, FULL)[1]
     monkeypatch.setattr(module, 'WAIT_LIFT', False)
-    stood, _, _ = played(label, run, presses, 3)
+    stood, _, _ = played(label, run, presses, 1)
     monkeypatch.setattr(module, 'WAIT_LIFT', True)
-    went, _, _ = played(label, run, presses, 3)
+    went, _, _ = played(label, run, presses, 1)
     assert stood.ended == 'stalled'
     assert went.done
     assert went.dead_at is None

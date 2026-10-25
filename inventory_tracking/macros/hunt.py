@@ -37,13 +37,13 @@ from inventory_tracking.combat.policy import MIN_FOCAL, RUN_MODES, STRIKE_REACH,
 from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.combat.threats import dolls
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
-from inventory_tracking.game.records import Drop, Loot, Monster, Player, World
+from inventory_tracking.game.layout import ITEM_UNIT, LYING_DEAD, MONSTER_UNIT, NO_OWNER
+from inventory_tracking.game.records import HEALING, REJUVENATION, Drop, Loot, Monster, Player, World
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Target, unpack_cells
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
-from inventory_tracking.macros import binding, cta, safety as safety_module
+from inventory_tracking.macros import binding, cta, pickup as pickup_module, safety as safety_module
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.buffs import Buffs, worn_cta
@@ -131,6 +131,24 @@ __all__ = ['Bearings', 'Hunter', 'threat', 'walled']
 # casts, was left alone for UNTOUCHABLE_SECONDS, and the pursuit stood "in reach and not struck" to the play's end in
 # 3 of 10 seeds (rca/2026-10-21/arena-failures-findings.md S1). False: act bosses, Heralds and dear classes alone.
 PURSUED_IS_BOSS = True
+
+# QUIET_HOLD (2026-10-25, rca/2026-10-25/pickup-veto-pingpong-findings.md; the player: "our goal is to have best
+# exp/hour we can", "do not die"). Harem Level 2, 03:35:24-03:36:28, take 20261025T003442Z-51: a Magic Alpha Helm lay 18
+# units from an idle tier 5 Herald (Extra Fast) and its pack of 13. buffs.py QUIET_BY_THE_BOSS defers a side drop while
+# a boss (a Herald is one: `boss`) stands within the strike's reach (22.1) of the character, judged afresh at every
+# look: beyond 22.1 the helm was the run's goal and its safe approach landed within 22.1, where the goal was the
+# Herald's fight, every landing of which the pack's keep range barred (macros/safety.py PACK_RANGE_LANDED); the retreat
+# landed beyond 22.1 again, and the helm was the goal again: 62 Teleports in 64 s, 0 kills, the helm not taken. The
+# goal changing at every look also kept the budgets (hunting/judging.py DANCE_BUDGET, STILL_BUDGET; a drop is a kept
+# goal) from counting. True: a drop the boss rule deferred QUIET_FLIPS times within QUIET_FLIP_WINDOW s, each within
+# QUIET_FLIP_GAP s of a look it was the side drop at, is left alone (macros/pickup.py SHUNNED) while a boss that
+# deferred it lives in the read, on that level, for QUIET_HOLD_SECONDS at most: the fight's goal and its safety stand,
+# and the budgets count. A potion is never held. False: the boss rule look by look, as before.
+QUIET_HOLD = True
+QUIET_FLIPS = 3
+QUIET_FLIP_WINDOW = 10.0  # seconds
+QUIET_FLIP_GAP = 2.0  # seconds from the look the drop was the side drop at to the look the boss rule deferred it at
+QUIET_HOLD_SECONDS = 60.0
 
 # The game sends Echoing Strike's blades to the unit under the pointer, not to the ground the line aims at. The
 # Arachnid Lair's first T5 Herald, 2026-10-21 20:30: the held line stood on it, but a Flame Spider drawn over its feet
@@ -471,6 +489,11 @@ class Hunter:
         self.guarded_since: dict[int, float] = {}  # potion -> clock time its guards were first the fight first
         self.fetching: tuple[float, Drop | None] = (-math.inf, None)  # (when judged, a scarce potion worth a detour)
         self.side_left: dict[int, str] = {}  # potion -> why a knot of moves gave it up (choice.py POTION_HELD)
+        # QUIET_HOLD: (the drop, its label, clock) last the side drop; drop -> clocks the boss rule deferred it at;
+        # drop -> (the bosses that deferred it, the hold's end, the level) while it is left alone
+        self.quiet_seen: tuple[int, str, float] | None = None
+        self.quiet_flips: dict[int, list[float]] = {}
+        self.quiet_holds: dict[int, tuple[frozenset[int], float, int | None]] = {}
         self.area: int | None = None  # the level attack mode last saw the character on (not in town)
         # The run mode (macros/runmode.py): the pickup key's presses, the player's switch (level, full clear), the
         # level's mode (the HUD's) and the (level, line) last said
@@ -569,6 +592,78 @@ class Hunter:
             and not goal.clearing
             and goal.unit == monster.unit_id
         )
+
+    def side_drop(
+        self,
+        run: Run,
+        here: Point,
+        foes: Sequence[Monster] = (),
+        world: World | None = None,
+        *,
+        restocking: bool = False,
+    ) -> Drop | None:
+        """What a level run takes on its way (hunting/choice.py `side_drop`), a drop the boss rule keeps deferring
+        left alone while its boss lives (QUIET_HOLD)."""
+        if not QUIET_HOLD or restocking:
+            return choice.side_drop(self, run, here, foes, world, restocking=restocking)
+        now = run.clock()
+        area = world.player.area if world is not None and world.player is not None else None
+        self.quiet_release(foes, area, now)
+        found = choice.side_drop(self, run, here, foes, world)
+        self.quiet_note(here, foes, found, area, now)
+        return found
+
+    def quiet_note(
+        self, here: Point, foes: Sequence[Monster], found: Drop | None, area: int | None, now: float
+    ) -> None:
+        """QUIET_HOLD: `found`, the look's side drop, noted; a drop that was it QUIET_FLIP_GAP s ago and that the boss
+        rule (buffs.py QUIET_BY_THE_BOSS) defers now is one flip more, and QUIET_FLIPS within QUIET_FLIP_WINDOW s hold
+        it (`quiet_holds`, pickup.py SHUNNED)."""
+        if found is not None and found.kind not in (HEALING, REJUVENATION):
+            self.quiet_seen = (found.unit_id, found.label, now)
+            return
+        seen = self.quiet_seen
+        if seen is None or now - seen[2] > QUIET_FLIP_GAP or not self.buffs.quiet_by_the_boss:
+            return
+        bosses = frozenset(m.unit_id for m in foes if self.boss(m) and math.dist(here, (m.x, m.y)) <= self.reach)
+        if not bosses:
+            return  # gone for another reason than the boss rule's
+        unit, name, _ = seen
+        self.quiet_seen = None
+        if len(self.quiet_flips) > 200:
+            self.quiet_flips.clear()
+        flips = [at for at in self.quiet_flips.get(unit, ()) if now - at <= QUIET_FLIP_WINDOW] + [now]
+        self.quiet_flips[unit] = flips
+        if len(flips) < QUIET_FLIPS:
+            return
+        del self.quiet_flips[unit]
+        until = now + QUIET_HOLD_SECONDS
+        pickup_module.SHUNNED[unit] = until
+        self.quiet_holds[unit] = (bosses, until, area)
+        LOG.info(
+            'Macro: pursuit: %s: deferred by the boss in reach %d times in %.1f s, each a moment after it was the '
+            'goal: left alone while %s lives, %.0f s at most (QUIET_HOLD)',
+            name, len(flips), now - flips[0], ', '.join(str(boss) for boss in sorted(bosses)), QUIET_HOLD_SECONDS,
+        )  # fmt: skip
+
+    def quiet_release(self, foes: Sequence[Monster], area: int | None, now: float) -> None:
+        """QUIET_HOLD: the held drops whose bosses are dead or out of the read, on another level or past the hold's
+        seconds taken up again."""
+        for unit, (bosses, until, held_on) in list(self.quiet_holds.items()):
+            alive = any(m.unit_id in bosses and m.mode not in (0, LYING_DEAD) for m in foes)
+            if alive and area == held_on and now < until:
+                continue
+            del self.quiet_holds[unit]
+            if pickup_module.SHUNNED.get(unit) == until:
+                del pickup_module.SHUNNED[unit]
+            why = (
+                'its boss is dead or out of the read'
+                if not alive
+                else 'the level changed'
+                if area != held_on
+                else 'the hold ran out'
+            )
+            LOG.info('Macro: pursuit: the drop %d held by QUIET_HOLD is taken up again: %s', unit, why)
 
     def omens_now(self, run: Run, area: int, now: float) -> list[Point]:
         """The spots a Herald is coming to on level `area` (HERALD_OMEN), each kept OMEN_SECONDS from its first read."""
@@ -1243,8 +1338,14 @@ class Hunter:
         rect = run.actuator.keys.focused_window_rect()
         view = Viewport(rect[2] / rect[3]) if rect is not None and rect[3] else Viewport()
         here = (player.x, player.y)
-        if herald_pack.DM_AFTER_EVERY_MOVE and herald_pack.hard_fight(here, foes) is not None:
-            # A hard fight's mark after every move (R1): any hostile drawn on the screen is in the mark's reach
+        if (
+            herald_pack.DM_AFTER_EVERY_MOVE
+            and herald_pack.hard_fight(here, foes) is not None
+            and not (herald_pack.DM_MOVE_NO_BURN and herald_pack.burning(here, foes))
+        ):
+            # A hard fight's mark after every move (R1): any hostile drawn on the screen is in the mark's reach. Not
+            # with a drainer near (DM_MOVE_NO_BURN), as the mark rules' R1 (mark.py `move_reason`): the landing's mark
+            # among the Dark Shapes killed manaburn_death.py seeds 1 and 3 (2026-10-24 ~23:10)
             return [m for m in foes if view.on_screen(view.body(here, m.x, m.y))]
         if not LANDING_MARK:
             return []
@@ -1269,7 +1370,10 @@ class Hunter:
             if herald_pack.DM_AFTER_EVERY_MOVE
             else 'the pack beyond the strike (LANDING_MARK)'
         )
-        return self.first_rows(run, world, foes, shown, key_names, f'at the landing, %.2fs after it, {said}')
+        if not herald_pack.DM_AFTER_EVERY_MOVE:
+            return self.first_rows(run, world, foes, shown, key_names, f'at the landing, %.2fs after it, {said}')
+        with herald_pack.landing_ask():  # R1's own reasons alone, with every hostile on the screen in reach
+            return self.first_rows(run, world, foes, shown, key_names, f'at the landing, %.2fs after it, {said}')
 
     def first_rows(
         self, run: Run, world: World, foes: Sequence[Monster], shown: Sequence[Monster], key_names, said: str
@@ -2256,8 +2360,7 @@ class Hunter:
         if cast.casts:
             run.say(f'Last minute: {self.score.line()}')  # the HUD card's standing line between fights
 
-    # choice.py
-    side_drop = choice.side_drop
+    # choice.py (`side_drop` is the Hunter's own: QUIET_HOLD)
     restock = choice.restock
     given_up_charm = choice.given_up_charm
     carry_one_swap = choice.carry_one_swap

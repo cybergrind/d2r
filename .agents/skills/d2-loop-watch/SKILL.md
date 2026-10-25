@@ -68,7 +68,11 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
    down instead), a gem, a set or unique charm (Sunders, Gheed's, Annihilus, Torch), anything appraised other than
    `vendor` ("do not sell own equipment or valuable items"). A rare amulet with +FCR, +2 skills or +life is kept
    (`keepers.py`, whatever the appraisal says: two were sold at 03:48 on 2026-10-19); a high vendor price alone is no
-   reason to keep. Never a Ber Rune in a transmute (Enigma).
+   reason to keep. The keep bar is the exception to "only `vendor`" (loot/wants.py `KEEP_BAR`, the player 2026-10-21
+   ~08:55: "probably 3 stats with good rolls to keep"): the keep rules' K8 sells a rare ring, amulet, circlet, helm,
+   boots, belt, gloves, armor, shield, class item or weapon that no want row names, even at verdict `check` ("sold by the
+   keep rules: K8 a rare amulet no want row names"). By design, not a breach (Rune Eye +1 Amazon at 22:11 on 2026-10-24).
+   Never a Ber Rune in a transmute (Enigma).
 5. **The town visit** (`town visit` leg, macros/visit.py, town.py) only when the room runs low
    (`town.TRADE_ROOM`); it leaves keepers stashed, junk sold (junk may be parked on a stash page and sold after), keys
    and scrolls refilled, the staff repaired if the carried gold covers it, **the cube empty, a 2x4 block free**. The
@@ -118,6 +122,8 @@ Switches for a change under test are module constants with a dated comment (e.g.
 | `speed.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-towns]` | The Lower Kurast run: chests an hour (YIELD), where a stay's time goes (standing / casting / moving, stall reasons by log line, legs against Blade Warp's pace), inactive time in town and on the level. |
 | `trade.py [--since ..] [--until ..]` | Items identified by base and verdict, junk sold and its gold, gold an hour of play and a second of trade time, payback by kind (under 1 over 20+ items: leave that kind on the ground). |
 | `anomalies.py <take>... \| --since 'YYYY-MM-DD HH:MM' [--summary] [--json]` | A closed take's anomalies, one `ANOMALY: <kind> <take> <from-to> <s>s: <facts>; cause?: <log kinds>` line each: **IDLE** (≥ 8 s with no move, no strike, no kill and no hostile hurt in a field level with the loop on; not town, lobby, a panel, the Throne's wave wait, a Herald's wait while none is near), **LONG_FIGHT** (one target struck at > 30 s, or an elite's pack: its class, life over time, casts a second, jumps), **JUMP_CLUSTER** (≥ 6 jumps in 15 s within 25 of their centroid, ≤ 1 kill, ≥ 5 s: their reasons). Thresholds as flags. watch.py runs it on each take that closes. Baseline: `rca/2026-10-21/anomalies-baseline.md`. |
+| `nodamage.py <take> [--at HH:MM:SS] [--unit U] [--window 20] \| --since .. [--until ..] [--json] [--no-write]` (uv run) | The automatic RCA of a **NO_DAMAGE** anomaly (anomalies.py: ≥ 4 blade casts at one target over ≥ 1.5 s and its life never falls; `--dry-casts`/`--dry-seconds`; 0 transient cases of 5 on 2026-10-24). Ranks causes from the take: a closed door or wall on the line, immunity, untargetable, dead or out of the read, range against the blades' 22.1, the pointer against the target, the skill, the blades' contacts; writes `rca/auto/<date>/nodamage-<HHMMSS>-<unit>.md`, `unexplained (hint: …)` under 0.3. watch.py runs it on each case (`NO_DAMAGE RCA: … <verdict>; <path>`). |
+| `stopwatch.py live \| takes \| summary --tier 5 \| memory \| samples` | Pet stands (a pet within 4.5 of the character, no hostile within 5 of it, a hostile within 30) and the first Death Mark key into each: the delay the player sees after a Teleport. Baseline T5 18:49-21:03 on 2026-10-24: p50 1.00 s, p90 3.61 s (`rca/2026-10-24/stopwatch-findings.md`). `dmtruth.py`: last Teleport cast start to the curse landing, from the takes' records. |
 | `logwords.py` | The shared log patterns of watch/games/andy (a log line changed in code is changed here, and its test). |
 
 Deeper: `python -m inventory_tracking.takes.legs <take>...`; `.agents/skills/d2-rca/tools/session.py` (`log`, `idle`,
@@ -155,9 +161,10 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 | `trade session done[ (short of the contract: …)]` | Every part must hold (cube 0, block 2x4 free, junk left 0, keys, ground clear); "short of the contract" is a **Fix**. `stash: the view still unread: page by page` (the slow scan) should be rare; often is a finding. |
 | `cube: three X Rune [and a <gem>] into a Y Rune ...`, `runes cubed`, `not cubed: ...` | Rune stacks over 80 cubed toward 80 (3 a visit, gem recipes with the gem from the Gems tab by Ctrl+Shift+left click). `not taken into the cube` or a non-empty cube after: **Fix**. |
 | `Show Items was off before the level run: turned on` / `Show Items stays off` | Rule 2. The second stops the run: check `osd.log` and the key binding. |
+| `NO_DAMAGE RCA: <take> <time> unit <u>: <verdict>; <path>` | The player, 2026-10-24 ~20:35: "we need to have some king of debug message when we expect us to deliver damage but not damaging the mob => and do automatic rca for such cases". Read the report; a door, wall, pointer or range cause seen twice is a **Fix** (Develop); `unexplained` goes to the journal with the take. `failed/not run`: run the printed command by hand. |
 | `PLAYER: loop off` | Rule 7. Say where any valuable lies; finish notes; keep watching. |
 | `== following ...` | A new service: expect `resumed after a restart: loop on, ..., run Andariel`. |
-| `ANOMALY: IDLE\|LONG_FIGHT\|JUMP_CLUSTER <take> ...` | The player, 2026-10-21 ~21:08: "do automatic searching-rca-fixing loop for all cases where we wereen't active for a long time". RCA the case: the take's frames in the window (`anomalies.py <take> --json`, `d2-rca/tools/session.py idle\|unit <take>`), the probe.log lines at its local times; `cause?:` is a hint, not the cause. Then **Fix** via an agent (Develop). The same kind seen twice with the same cause is a **Fix** ahead of speed work. Waits by design (an inventory-full stand while a stop is due, the loop's own wait) are noted, not fixed. |
+| `ANOMALY: IDLE\|LONG_FIGHT\|JUMP_CLUSTER\|NO_DAMAGE <take> ...` | The player, 2026-10-21 ~21:08: "do automatic searching-rca-fixing loop for all cases where we wereen't active for a long time". RCA the case: the take's frames in the window (`anomalies.py <take> --json`, `d2-rca/tools/session.py idle\|unit <take>`), the probe.log lines at its local times; `cause?:` is a hint, not the cause. Then **Fix** via an agent (Develop). The same kind seen twice with the same cause is a **Fix** ahead of speed work. Waits by design (an inventory-full stand while a stop is due, the loop's own wait) are noted, not fixed. |
 
 ## Fix (rounds of the improvement loop)
 

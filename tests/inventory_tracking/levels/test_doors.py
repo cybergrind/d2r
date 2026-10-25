@@ -13,7 +13,7 @@ import pytest
 from inventory_tracking.levels import doors as module
 from inventory_tracking.levels.doors import Door, PassedDoors
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.sight import clear_shot
+from inventory_tracking.macros.sight import clear_shot, firing_spots
 
 
 TOMB_DOOR_RIGHT = 92  # objects.txt, 7 x 1 (data/doors.json)
@@ -126,6 +126,14 @@ def test_a_monster_pressed_into_a_closed_doorway_is_behind_the_door_from_its_far
     assert HERALD_DOOR.crosses(EAST, HERALD)
     assert not clear_shot(Ground(()), EAST, HERALD, (HERALD_DOOR,))
     assert not clear_shot(Ground(()), *EARLIER, (HERALD_DOOR,))
+
+
+def test_no_stand_for_it_is_offered_on_the_far_side(leaf) -> None:
+    # The take's grid offered 33 of 37 stands for the Herald east of the door; the pursuit hopped there at 20:32:27
+    spots = firing_spots(Ground(()), HERALD, 20.0, EAST, (HERALD_DOOR,))
+    assert spots
+    assert not any(HERALD_DOOR.crosses(spot, HERALD) for spot in spots)
+    assert any(spot[0] < HERALD_DOOR.x for spot in spots)  # its own side's
 
 
 def test_from_its_own_side_the_monster_in_the_doorway_is_struck(leaf) -> None:

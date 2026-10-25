@@ -63,8 +63,11 @@ from collections.abc import Callable, Iterable, Iterator
 from contextlib import suppress
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from functools import cache
 from pathlib import Path
 from typing import Any
+
+from logwords import ACT, LANDED, MARK_KEY, STRIKE_LINE, WHY
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -527,13 +530,6 @@ class PetWatch:
 # --- probe.log -------------------------------------------------------------------------------------------------------
 
 STAMP = re.compile(r'^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),(\d{3}) \w+ (.*)$')
-LANDED = 'Macro: teleport aimed at'
-MARK_KEY = re.compile(r'Macro: Death Mark on (\S+), player mode')
-STRIKE_LINE = 'Macro: Echoing Strike (right click)'
-ACT = re.compile(r'Macro: act queue: (.+?) (\d+) ms from the look to its first input: judge (\d+)')
-WHY = re.compile(
-    r'Macro: (mark: |safety: |buff: Death Mark|.*keeping range|Retreating|Escorting|pursuit: retreat|drink)'
-)
 HERALD = re.compile(r'tier (\d) Herald')
 
 
@@ -719,12 +715,21 @@ class TakeState:
             flags = rest[2] if len(rest) > 2 else 0
             owner = rest[3] if len(rest) > 3 else NO_OWNER
             ally = rest[4] if len(rest) > 4 else 0
-            if owner == unit or ally:  # the mercenary, the Defiler, the bound demon (alignment, not owner)
+            # the mercenary, the Defiler, the bound demon (alignment, not owner); an unowned ally that is no demon is
+            # not ours: the Bloody Foothills' barbarians, monstats 522/523 (rca/2026-10-24/engorge-findings.md)
+            if owner == unit or (ally and cls in demon_classes()):
                 companions.append((m_unit, cls, m_mode, mx, my))
             elif not ally and owner == NO_OWNER and distance(x, y, mx, my) <= NEAR:
                 foes.append(Foe(m_unit, cls, m_mode, mx, my, flags, self.marks.get(m_unit), self.tiers.get(m_unit, 0)))
         t = frame['t']
         return Sample(t, t + self.offset, area, x, y, mode, self.skill, life, mana, tuple(companions), tuple(foes))
+
+
+@cache
+def demon_classes() -> frozenset[int]:
+    """monstats.txt rows with `demon` 1 (the d2data dump): the classes a bound ally may be."""
+    rows = json.loads((ROOT / 'third-parties' / 'd2data' / 'json' / 'monstats.json').read_text())
+    return frozenset(int(row['*hcIdx']) for row in rows.values() if row.get('demon') == 1)
 
 
 def take_samples(take: Path) -> Iterator[Sample]:

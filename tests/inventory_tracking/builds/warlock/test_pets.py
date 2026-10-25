@@ -134,6 +134,15 @@ def test_a_dead_pet_is_no_hurt_demon_to_engorge():
     assert not demon_hurt(seen)
 
 
+@pytest.mark.parametrize('demons_only', [False, True])
+def test_with_pet_demons_only_a_hurt_unowned_barbarian_is_no_unit_to_engorge(monkeypatch, demons_only):
+    # The Bloody Foothills' barbarians (monstats 522, ally-flagged, no owner; rca/2026-10-24/engorge-findings.md)
+    monkeypatch.setattr(pets, 'PET_DEMONS_ONLY', demons_only)
+    barbarian = Monster(3000000001, 522, 1, 5003.0, 5000.0, ally=True, life=40, max_life=128)
+    found = engorged(look(barbarian, DEFILER))
+    assert found == ([DEFILER] if demons_only else [barbarian, DEFILER])
+
+
 def test_without_pet_engorge_a_hurt_pet_waits_the_hurt_seconds(monkeypatch):
     monkeypatch.setattr(plan, 'PET_ENGORGE', False)
     monkeypatch.setattr(plan, 'ENGORGE_PACK_FIRST', False)

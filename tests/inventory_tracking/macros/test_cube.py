@@ -623,3 +623,27 @@ def test_a_townsfolk_menu_is_closed_whoever_opened_it():
     OPENED.clear()
     assert left_open(('npc_interact',)) == ('npc_interact',)
     assert left_open(('npc_interact', 'inventory')) == ()  # the inventory not the loop's: the player's hand
+
+
+def test_the_keys_on_a_protected_cell_are_not_arranged_into_the_loops_block():
+    # 01:53:11 on 2026-10-25 (rca/2026-10-25/keys-protected-findings.md): the cube's room for a Grand Charm moved the
+    # keys (2, 2) -> (3, 3), off the player's protected cell into the 2 x 4 block in columns 3-4 ("the loop's space is
+    # the 2x4 block in columns 3-4 only", the player, 2026-10-24). With the protected cells nothing is clicked
+    from dataclasses import replace
+
+    from inventory_tracking.macros.cube import KEY_CLASS, arrange_keys
+    from tests.inventory_tracking.loot.test_storage_keys import BOOTS, KEYS, PLAYERS, PROTECTED, RING
+
+    play = Game(world(103, player=player(103, x=5048.0, y=5044.0)))
+    play.pack = Pack((*PLAYERS, KEYS, BOOTS, RING))
+    assert not arrange_keys(play.run(), 'i', PROTECTED)
+    assert play.keys.events == []
+    assert any(i.unit_id == KEYS.unit_id and (i.x, i.y) == (2, 2) for i in play.pack.items)
+
+    # The keys in the block (the state the 01:53 move left, (2, 2) empty again): back onto the cell they left
+    play = Game(world(103, player=player(103, x=5048.0, y=5044.0)))
+    play.pack = Pack((*PLAYERS, replace(KEYS, x=3, y=3)))
+    assert arrange_keys(play.run(), 'i', PROTECTED)
+    moved = next(i for i in play.pack.items if i.txt == KEY_CLASS)
+    assert (moved.x, moved.y) == (2, 2)
+    assert 'inventory' not in play.world.open_panels

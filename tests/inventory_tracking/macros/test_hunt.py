@@ -1578,18 +1578,32 @@ def test_no_death_mark_with_no_demon_out_and_the_reason_is_said(caplog):
     assert "no demon of the character's is out (the skill needs one)" in said[0]
 
 
-def test_death_mark_by_the_builds_own_rule_goes_on_diablo_once_while_it_lasts_and_says_why(caplog):
+@pytest.mark.parametrize('every_move', [False, True], ids=['own rule', 'R1'])
+def test_death_mark_by_the_builds_own_rule_goes_on_diablo_once_while_it_lasts_and_says_why(
+    caplog, monkeypatch, every_move
+):
     # With no safety price (the pursuit off): Diablo's life is long enough that the demons sent onto him save more
-    # of the fight than the cast costs (mark.py `gain`); not again while his mark lasts (MARK_SECONDS).
+    # of the fight than the cast costs (mark.py `gain`); not again while his mark lasts (MARK_SECONDS). R1
+    # (combat/pack.py DM_AFTER_EVERY_MOVE, a boss is a hard fight): again whenever the demon idles by the character,
+    # which this fake's demon does (it never goes to the mark), PETS_AGAIN or more apart
+    from inventory_tracking.builds.warlock.mark import PETS_AGAIN, PETS_SAID
+    from inventory_tracking.combat import pack
+
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', every_move)
     play = game(foe(10, 5008.0, 5000.0, txt_id=243), demon(), area=108)
     play.toughness[10] = 1000
     with caplog.at_level(logging.INFO):
         attack_mode(play, hunter(play), until=8.0)
-    assert play.marks == [10]
     cast = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark: Death Mark on')]
-    assert len(cast) == 1
     assert 'the monster 243 (10)' in cast[0]
-    assert "by the build's rule" in cast[0]
+    if not every_move:
+        assert play.marks == [10]
+        assert len(cast) == 1
+        assert "by the build's rule" in cast[0]
+        return
+    assert set(play.marks) == {10}
+    assert 2 <= len(cast) <= 8.0 / PETS_AGAIN + 1
+    assert any(PETS_SAID in line for line in cast)
 
 
 def test_the_sweep_goes_to_a_firing_spot_when_a_wall_stands_between(monkeypatch):

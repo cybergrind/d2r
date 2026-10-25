@@ -21,6 +21,7 @@ from itertools import pairwise
 from inventory_tracking.builds.warlock.echoing_strike.damage import DEFILER, damage_table, link_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
+    AHEAD,
     BLADES,
     LIFE,
     OUT_FRAMES,
@@ -102,6 +103,21 @@ HELD_IMMUNE: tuple[int, ...] = ()
 # sweep's short offset (-3) is not used for a leader: on a leader within 7 units MIN_FOCAL holds it at 4 and the blades
 # are 1.8 units apart either side of it, in contact only with its edge.
 LEADER_OFFSETS = (0.0, 1.0)
+# ARRIVAL_REACH (2026-10-25, rca/2026-10-25/strike-range-findings.md): the NO_DAMAGE cases with the verdict "range"
+# (rca/auto/2026-10-2[45]/nodamage-*.md) were no reach constant, stale read or stand: in each the character stood
+# and the target walked away at 4-8 units a second, in reach at the look and out of it when the blades got there
+# (BloodLord 20261024T211233Z-102 00:13:29: 21.8 at the look, 5 units a second away, 26.4 at the blades' furthest).
+# Over the 40,670 casts of 2026-10-24/25, 1.5% were such casts, 58% of them with no blade near the target; the speed
+# away read before the look holds back 1.05% of the casts, whose blades came near the target in 61% (85% the rest),
+# 54% of them with another monster within 20 to strike (about 4 s an hour of fighting, 6 in T5 fights). True: a
+# monster the blades meet beyond `reach` at its speed away (`Motion`, ARRIVAL_SPEED and up; `meets`) is no line's
+# anchor, nor a held leader's line (it stays held): the sweep strikes what the blades do reach. With none left, the
+# framework's straight cast is as before (controller.py `aim_choice`); `reaches` is what the hunt's reach check
+# would ask to step in first (a proposed hunt.py patch, the findings §4). False: the lines through what stands in
+# reach now.
+ARRIVAL_REACH = False
+ARRIVAL_SPEED = 2.0  # units a second away from the character: slower is taken as standing (the reads' jitter)
+ARRIVAL_SLACK = CONTACT_RADIUS  # units past `reach` a blade's tip still touches a monster (the casts' contacts)
 
 
 def unheld(foe: Foe) -> bool:
@@ -355,9 +371,10 @@ class Motion:
     clock: Callable[[], float] = time.monotonic
     seen: dict[int, list[tuple[float, Point]]] = field(default_factory=dict)
 
-    def note(self, foes: Mapping[int, Foe]) -> None:
-        """Remember where each of `foes` stands now; forget the units unseen for longer than MOTION_SECONDS."""
-        now = self.clock()
+    def note(self, foes: Mapping[int, Foe], now: float | None = None) -> None:
+        """Remember where each of `foes` stands now (`now`: the clock's, unless given: a simulator's frame time);
+        forget the units unseen for longer than MOTION_SECONDS."""
+        now = self.clock() if now is None else now
         for unit, foe in foes.items():
             samples = self.seen.setdefault(unit, [])
             if not samples or samples[-1][0] < now:
@@ -404,11 +421,71 @@ class EchoingStrike(LinePolicy):
     engage: float = ENGAGE
     motion: Motion = field(default_factory=Motion)
 
+    outrun_said: set[int] = field(default_factory=set)  # the units ARRIVAL_REACH has said it lays no line through
+
     def choose(self, seen: Observation, through: Collection[int] | None = None) -> Choice | None:
-        """`LinePolicy.choose`, with LIVE_LEAD frames of lead under LEAD_MOVING where no lead is set."""
+        """`LinePolicy.choose`, with LIVE_LEAD frames of lead under LEAD_MOVING where no lead is set; under
+        ARRIVAL_REACH no line is laid through a monster the blades meet out of reach (`outrun`)."""
         if LEAD_MOVING and self.lead is None:
             return replace(self, lead=LIVE_LEAD).choose(seen, through)
+        gone = self.outrun(seen)
+        if gone:
+            through = [unit for unit in (seen.foes if through is None else through) if unit not in gone]
+            if not through:
+                return None
         return super().choose(seen, through)
+
+    def leader_line(self, seen: Observation, unit: int) -> Choice | None:
+        """`LinePolicy.leader_line`; None for a leader the blades meet out of reach under ARRIVAL_REACH (`outrun`):
+        it stays held, the look strikes the best line (`kept`)."""
+        if unit in self.outrun(seen):
+            return None
+        return super().leader_line(seen, unit)
+
+    def meets(self, origin: Point, unit: int, at: Point) -> float:
+        """Units from `origin` where the blades meet `unit`, at `at` now and going away at its speed (`Motion`,
+        ARRIVAL_SPEED and up) from the look on: LIVE_LEAD frames to the blades' first, then SPEED a frame from AHEAD
+        of the character. Its distance now when it stands, comes on or goes across; inf when it outruns them."""
+        away = math.dist(origin, at)
+        found = self.motion.velocity(unit)
+        if found is None or not away:
+            return away
+        speed = (found[0] * (at[0] - origin[0]) + found[1] * (at[1] - origin[1])) / away  # units a second away
+        if speed < ARRIVAL_SPEED:
+            return away
+        step = speed / GAME_RATE  # units a frame
+        if step >= SPEED:
+            return math.inf
+        return max(away, AHEAD + SPEED * (away + step * LIVE_LEAD - AHEAD) / (SPEED - step))
+
+    def reaches(self, origin: Point, unit: int, at: Point) -> bool:
+        """Whether the blades cast from `origin` now get to `unit` at `at`: within `reach`, and met within
+        ARRIVAL_SLACK past it under ARRIVAL_REACH (`meets`). The hunt's reach check would ask this to step in first
+        at a monster walking out of reach (the findings' proposed hunt.py patch)."""
+        if math.dist(origin, at) > self.reach:
+            return False
+        return not ARRIVAL_REACH or self.meets(origin, unit, at) <= self.reach + ARRIVAL_SLACK
+
+    def outrun(self, seen: Observation) -> frozenset[int]:
+        """Under ARRIVAL_REACH, the foes in reach the blades meet beyond it (`reaches`): no line's anchor."""
+        if not ARRIVAL_REACH:
+            return frozenset()
+        gone = frozenset(
+            unit
+            for unit, foe in seen.foes.items()
+            if math.dist(seen.origin, foe.at) <= self.reach and not self.reaches(seen.origin, unit, foe.at)
+        )
+        for unit in gone - self.outrun_said:
+            if len(self.outrun_said) > 200:
+                self.outrun_said.clear()
+            self.outrun_said.add(unit)
+            at = seen.foes[unit].at
+            LOG.info(
+                'Macro: strike: %d, %.1f away, walks out of the blades\' reach (met at %.1f): no line through it '
+                '(ARRIVAL_REACH)',
+                unit, math.dist(seen.origin, at), self.meets(seen.origin, unit, at),
+            )  # fmt: skip
+        return gone
 
     def focused(self, seen: Observation, best: Choice | None) -> Choice | None:
         """`LinePolicy.focused`, at LEADER_SHARE under FOCUS_LEADERS where no focus is set."""
@@ -426,6 +503,7 @@ class EchoingStrike(LinePolicy):
         `Hunter`: the game's one attack serves every hunt made, and a replay played twice plays the same)."""
         self.held.unit = None
         self.motion.seen.clear()
+        self.outrun_said.clear()
 
     def kept(self, seen: Observation) -> Choice | None:
         """`LinePolicy.kept`, held under HOLD_LEADER where no hold is set (the copy shares `held`)."""
@@ -446,8 +524,10 @@ class EchoingStrike(LinePolicy):
         defilers = [(c.x, c.y) for c in companions if c.txt_id == DEFILER]
         linked = linked_set(defilers, {unit: foe.at for unit, foe in seen.foes.items()}, link_range, links)
         foes = seen.foes
+        if LEAD_MOVING or ARRIVAL_REACH:
+            # A simulator's look has its frame (sim/engine.py); the game's the clock's (`Motion.clock`)
+            self.motion.note(foes, seen.frame / GAME_RATE if seen.frame else None)
         if LEAD_MOVING:
-            self.motion.note(foes)
             foes = {
                 unit: foe if foe.route is not None else replace(foe, route=self.motion.route(unit, foe.at))
                 for unit, foe in foes.items()

@@ -128,7 +128,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
         return
     loop = self.loop
     left = self.valuable_left() if loop.on else None
-    game = loop.seen[0] if loop.seen is not None else None
+    game, area = _game_now(self), _area_now(self)
     # A refused click names its charm (macros/pickup.py `Refused`): the ground's first valuable may be another
     if self._gheeds_swap(why, why.drop.label if isinstance(why, Refused) and loop.on else left, game):
         return
@@ -141,7 +141,7 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
             cubed=loop.cube_tried(game),
             dropped=loop.dropped == game,
             trips=loop.kind.trips and may_trip,
-            packaged=loop.kind.packaged and may_trip and self.area_seen is not None,
+            packaged=loop.kind.packaged and may_trip and area is not None,
             terrorized=terrorized,
             tripping=bool(loop.kind.packaged) and game is not None and loop.tripping(game),
         )
@@ -154,8 +154,8 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
         LOG.info('Macro: loop: %s; %s lies on the ground: room is made in the cube', why, left)
     elif remedy is Remedy.PACKAGE:
         assert game is not None
-        assert self.area_seen is not None
-        tz_trip(loop, game, self.area_seen)
+        assert area is not None
+        tz_trip(loop, game, area)
         LOG.info("Macro: loop: %s; %s lies on the ground: a trip to town for room (the agenda's package)", why, left)
     elif remedy is Remedy.TRIP:
         loop.trip_due = True
@@ -181,6 +181,22 @@ def _loop_stopped(self: MacroRunner, why: object) -> None:
             self._show([f'Loop: {why}: leaving the game'])
         else:
             self._stop_loop(why)
+
+
+def _game_now(self: MacroRunner) -> str | None:
+    """The game a stop is judged in: the loop's clock's (`Loop.seen`), else, before the clock's first poll, the poll's
+    read (`Journey.game`; None in the lobby). 02:23:28 on 2026-10-25: the first leg after a restart stopped 0.14 s
+    after the loop's start, which clears `Loop.seen` (`Loop.start`; the game's record held no start time to take it up
+    from: "-1 s into it"), and the poll's watchdog sets it again only at its next look: with no game the room rules
+    held the loop by a Buriza on the ground, where the same state 3 minutes later made the room package's trip
+    (rca/2026-10-25/keys-protected-findings.md)."""
+    seen = self.loop.seen
+    return seen[0] if seen is not None else self.journey.game
+
+
+def _area_now(self: MacroRunner) -> int | None:
+    """The level a trip comes back to: the last poll's read, else the journey's last level read in this game."""
+    return self.area_seen if self.area_seen is not None else self.journey.area
 
 
 def _unplanned(self: MacroRunner) -> str | None:
@@ -304,15 +320,15 @@ def _field_trip(self: MacroRunner, label: str) -> bool:
     `stood_after_cube`, the stand answered). Whether a trip is due."""
     with self.lock:
         loop = self.loop
-        game = loop.seen[0] if loop.seen is not None else None
+        game, area = _game_now(self), _area_now(self)
         if not loop.on or game is None:
             return False
         if not (loop.may_trip(game) and loop.carrying):
             LOG.info('Macro: loop: %s lies on the ground with no room in the inventory or the cube: no trip may be '
                      'made', label)  # fmt: skip
             return False
-        if loop.kind.packaged and self.area_seen is not None:
-            tz_trip(loop, game, self.area_seen)
+        if loop.kind.packaged and area is not None:
+            tz_trip(loop, game, area)
             how = "the agenda's package"
         elif loop.kind.trips:
             loop.trip_due = True

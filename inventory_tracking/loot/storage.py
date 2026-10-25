@@ -81,6 +81,7 @@ __all__ = [
     'surplus',
     'uncubed',
     'unread_way_for_cube',
+    'volatile_rows',
 ]
 
 DATA = Path(__file__).resolve().parents[1] / 'macros' / 'data'  # stash_tabs.json, rune_cube.json
@@ -93,6 +94,14 @@ CUBE_CLASS = 564  # Horadric Cube
 KEY_CLASS = 558  # Key (macros/shop.py KEY)
 # Never moved: the cube, the tomes, the keys (Horadric Cube, Tome of Town Portal, Tome of Identify, Key)
 KEPT = frozenset((CUBE_CLASS, 533, 534, 558))
+# A key stack on a volatile cell (inside the loop's block) may go onto a free protected cell when only that frees the
+# block (`keys_move`): the 02:06 state on 2026-10-25, the keys at (3, 3) in the 2 x 4 block and (2, 2), the cell they
+# had held, empty. The keys are kept by class (`loot` never returns them), so on a protected cell they cost the
+# player nothing a key stack did not cost before, and they fill the empty protected cell a pickup would land on and
+# be read as the player's (macros/volatile.py `empty`); the player's own moves are never undone (a stack on a
+# protected cell never moves). Never for a larger block alone, never into a hole larger than 1 x 1 (a charm the player
+# took out by hand may come back there). False: keys only onto free volatile cells
+KEYS_ONTO_PROTECTED = True
 
 # A Grand Charm's block (across, down), the tallest sure valuable: room is a block, not a cell count (9 cells free in
 # pieces left one on the ground, 2026-10-17 21:00:03)
@@ -238,28 +247,65 @@ def _placed(rows: Sequence[str], items: Sequence[Carried]) -> list[Move]:
     return moves
 
 
-def keys_move(pack: Pack, size: tuple[int, int] = BIG_BLOCK) -> Move | None:
+def volatile_rows(rows: Grid, protected: frozenset[tuple[int, int]]) -> Grid:
+    """`rows` (the inventory's) with the protected cells taken: the loop's room (macros/volatile.py)."""
+    if not protected:
+        return rows
+    return Grid(
+        ''.join('#' if (col, row) in protected else cell for col, cell in enumerate(line))
+        for row, line in enumerate(rows)
+    )
+
+
+def keys_move(
+    pack: Pack, size: tuple[int, int] = BIG_BLOCK, protected: frozenset[tuple[int, int]] = frozenset()
+) -> Move | None:
     """A key stack and the free cell to move it to that frees a block of `size`, else grows the largest free block
     most; None when no move does ("move key two cells left to make continuous 2x4 space", the player, 2026-10-17).
-    A block of `size` ranks first: a 3 x 3 counted larger than the only 2 x 4 once (2026-10-18 12:36)."""
+    A block of `size` ranks first: a 3 x 3 counted larger than the only 2 x 4 once (2026-10-18 12:36).
+
+    `protected`: the character's protected cells (macros/volatile.py; every live caller passes them, none: as
+    before). The blocks are counted on the volatile cells only, the loop's room; a key stack on a protected cell is
+    the player's and never moves; a stack on a volatile cell goes onto a free volatile cell, or onto a free protected
+    cell only when that frees the block of `size` no volatile cell frees and the cell is a 1 x 1 hole among the
+    player's items, never a cell of a larger hole a charm taken out by hand left (KEYS_ONTO_PROTECTED). 01:53:11 on
+    2026-10-25: the keys were moved off the protected (2, 2) into the 2 x 4 block in columns 3-4, the only room the
+    player leaves the loop ("the loop's space is the 2x4 block in columns 3-4 only", the player, 2026-10-24), and a
+    picked Ring then landed on the empty (2, 2) and was read as the player's
+    (rca/2026-10-25/keys-protected-findings.md)."""
     rows = pack.inventory
 
     def score(lines: Grid) -> tuple[bool, int]:
         return lines.has_room(size), lines.largest_block()
 
-    best, found = score(rows), None
-    for key in (item for item in pack.items if item.txt == KEY_CLASS and item.size == (1, 1)):
-        without = Grid(
-            ''.join('.' if (col, row) == (key.x, key.y) else cell for col, cell in enumerate(line))
-            for row, line in enumerate(rows)
-        )
-        for y, line in enumerate(without):
-            for x, cell in enumerate(line):
-                if cell != '.' or (x, y) == (key.x, key.y):
-                    continue
-                block = score(without.take((x, y), (1, 1)))
-                if block > best:
-                    best, found = block, (key, (x, y))
+    def room(lines: Grid) -> Grid:
+        return volatile_rows(lines, protected)
+
+    def hole(x: int, y: int) -> bool:  # a free protected cell no free protected cell touches: a 1 x 1 hole
+        near = ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+        return not any(c in protected and 0 <= c[1] < len(rows) and 0 <= c[0] < rows.width and rows[c[1]][c[0]] == '.'
+                       for c in near)  # fmt: skip
+
+    best, found = score(room(rows)), None
+    keys = [i for i in pack.items if i.txt == KEY_CLASS and i.size == (1, 1) and (i.x, i.y) not in protected]
+    # Free volatile cells first; then, only for the block itself, free protected ones
+    for onto_protected in (False, True) if protected and KEYS_ONTO_PROTECTED else (False,):
+        if onto_protected and best[0]:
+            break
+        for key in keys:
+            without = Grid(
+                ''.join('.' if (col, row) == (key.x, key.y) else cell for col, cell in enumerate(line))
+                for row, line in enumerate(rows)
+            )
+            for y, line in enumerate(without):
+                for x, cell in enumerate(line):
+                    if cell != '.' or (x, y) == (key.x, key.y) or ((x, y) in protected) != onto_protected:
+                        continue
+                    if onto_protected and not hole(x, y):
+                        continue
+                    block = score(room(without.take((x, y), (1, 1))))
+                    if block > best and (block[0] or not onto_protected):
+                        best, found = block, (key, (x, y))
     return found
 
 
@@ -719,7 +765,13 @@ def _planned(
     # (2026-10-18), but never into the cube
     loop_junk = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.junk and i.unit_id not in h.unknown}
     waiting = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.unknown}
-    keys = {i.unit_id for i in staying.items if i.txt == KEY_CLASS and i.size == (1, 1)}
+    # A key stack on the player's cells (`h.own`: the protected cells, macros/volatile.py) is the player's: never moved
+    # aside (2026-10-25, rca/2026-10-25/keys-protected-findings.md)
+    keys = {
+        i.unit_id
+        for i in staying.items
+        if i.txt == KEY_CLASS and i.size == (1, 1) and (i.txt, i.x, i.y) not in h.own
+    }  # fmt: skip
     cube_then: Grid | None = None
     if any(i.txt == CUBE_CLASS for i in pack.items):
         # The cube with its keepers still in, its resources out

@@ -141,6 +141,20 @@ def test_the_demons_idle_by_the_character_after_the_warp_have_the_mark_out(monke
     assert mark.DESIGNATION.rank == mark.MOVE_RANK
 
 
+def test_an_unowned_ally_is_no_demon_of_r1_s(monkeypatch):
+    # The Bloody Foothills' barbarians (monstats 522/523, ally-flagged, no owner; "bound Act 5 Combatant" in the log,
+    # rca/2026-10-24/engorge-findings.md) standing by the character are no idle demon, and alone no reason for a mark
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
+    barbarians = tuple(
+        monster(9000 + i, txt, HERE[0] + 1.0, HERE[1], 0, 0, 128, ally=True) for i, txt in enumerate((522, 523))
+    )
+    facts = facts_of(monkeypatch, demons=DEMONS + barbarians)
+    assert [d.unit_id for d in mark.pets_with_us(facts.world, facts.foes)] == [1000251762, 1231039863]
+    alone = facts_of(monkeypatch, demons=barbarians)
+    assert mark.pets_with_us(alone.world, alone.foes) == []
+    assert mark.move_reason(alone) is None
+
+
 def test_the_warp_s_landing_has_the_mark_out_before_the_demons_are_asked(monkeypatch):
     monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
     facts = facts_of(monkeypatch, last=1.45, hop_ago=0.09)  # landed at 41.53, the key 1.45 s before it
@@ -355,3 +369,18 @@ def test_r2_the_ask_has_the_mark_rules_give_the_move_s_target(monkeypatch):
         assert chosen.unit_id == 2144188474
     finally:
         pack.ASKED.at = -math.inf
+
+
+@pytest.mark.parametrize('no_burn', [False, True])
+def test_r1_holds_off_in_a_mana_burn_fight_with_dm_move_no_burn(monkeypatch, no_burn):
+    # DM_MOVE_NO_BURN (gate R2: R1 in the manaburn scene 3 -> 6 deaths): a Mana Burn member in the take's pack
+    from inventory_tracking.combat.threats import manaburn
+
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
+    monkeypatch.setattr(pack, 'DM_MOVE_NO_BURN', no_burn)
+    burner = replace(FOES[0], modifiers=(min(manaburn.DRAINING),))
+    assert pack.burning(HERE, (burner,))
+    assert not pack.burning(HERE, FOES)
+    facts = facts_of(monkeypatch, foes=(burner, *FOES[1:]))
+    assert (mark.move_reason(facts) is None) == no_burn
+    assert mark.move_reason(facts_of(monkeypatch)) == mark.PETS_SAID  # no burner: R1 as before

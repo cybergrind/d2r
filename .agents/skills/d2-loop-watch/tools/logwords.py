@@ -521,3 +521,13 @@ DOOR_IN = re.compile(r'Macro: door Next level: in after ([\d.]+)s, walked ([\d.]
 # 2026-10-18 15:59:04,238 INFO Macro: leg time: level run (at Next level: going through takes a press): 0 units in
 #     6.6s since its first leg, 0.0 units/s; 0 jumps, 0 walks; key to key none
 LEG_TIME = re.compile(r'Macro: leg time: level run .*?: (\d+) units in ([\d.]+)s since .*?; (\d+) jumps, (\d+) walks')
+
+# stopwatch.py's lines (2026-10-24): a jump's landing, the Death Mark key, a strike, the act queue's input delay and
+# lines that say why a stand went on
+LANDED = 'Macro: teleport aimed at'
+MARK_KEY = re.compile(r'Macro: Death Mark on (\S+), player mode')
+STRIKE_LINE = 'Macro: Echoing Strike (right click)'
+ACT = re.compile(r'Macro: act queue: (.+?) (\d+) ms from the look to its first input: judge (\d+)')
+WHY = re.compile(
+    r'Macro: (mark: |safety: |buff: Death Mark|.*keeping range|Retreating|Escorting|pursuit: retreat|drink)'
+)

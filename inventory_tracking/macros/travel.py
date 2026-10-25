@@ -97,7 +97,7 @@ JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
 # the character 15 units at 41.53, the demons with it. True: the landing's watch (JUMP_SECONDS after the key) runs
 # `Run.in_flight`, the priced bound enforced at the first look after it: the move is judged after the warp's own
 # delay, and its landing is `hopped`. False: as before.
-JUMP_LANDING_UNPRICED = False
+JUMP_LANDING_UNPRICED = False  # 2026-10-24 22:52: held off with R1
 # A casting delay shows as state 185 (`Player.cooldown`), set at the action frame and cleared when the delay is over;
 # a key before the clear is refused. Measures: history/travel.md.
 DELAY_SHOWN = ONE_CAST  # a clear state this long after the key is the delay over; before, the cast has not thrown

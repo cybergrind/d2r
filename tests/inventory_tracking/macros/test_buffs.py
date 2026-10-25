@@ -755,3 +755,36 @@ def test_a_routine_that_waits_is_not_due_with_a_hostile_on_the_character(monkeyp
     assert buffs.due(far.run(), row, buffs.facts(far.run(), far.world, foes=[FAR])) is not None
     plain = replace(row, waits=False)  # a row of the shared executor's, or a caster that does not wait: as before
     assert buffs.due(near.run(), plain, buffs.facts(near.run(), near.world, foes=[NEAR])) is not None
+
+
+@pytest.mark.parametrize('on', [False, True])
+def test_off_screen_next_asks_again_among_the_hostiles_drawn_on_the_screen(monkeypatch, caplog, on):
+    # OFF_SCREEN_NEXT (take 20261024T162759Z-104, 19:29:55.405): the tier 5 Herald 3326285113 designated 20.5 off at
+    # (-14, -15) from the character, drawn at (0.51, 0.07), past the aim's limits; the member 1203341413 at (-9, -11)
+    # drawn inside them. Off: the Herald is the row's target (on_monster then drops the cast); on: the member
+    import logging
+
+    from inventory_tracking.macros import buffs as buffs_module
+    from inventory_tracking.macros.routines import on_screen, screen_fraction
+
+    monkeypatch.setattr(buffs_module, 'OFF_SCREEN_NEXT', on)
+    play = game()
+    here = me(play.world)
+    herald = Monster(3326285113, 310, 3, here.x - 14.0, here.y - 15.0, 0xFFFFFFFF, 8, life=40, max_life=128, tier=5)
+    member = Monster(1203341413, 310, 4, here.x - 9.0, here.y - 11.0, 0xFFFFFFFF, 16, life=76, max_life=128, tier=5)
+    assert not on_screen(screen_fraction(here, herald.x, herald.y, ASPECT))
+    assert on_screen(screen_fraction(here, member.x, member.y, ASPECT))
+
+    def herald_first(facts):
+        return next((m for m in facts.reachable if m.flags & 8), facts.reachable[0] if facts.reachable else None)
+
+    row = Buff(BOLT, 'fight', whenever, on='monster', target=herald_first)
+    buffs, run = plan(row), play.run()
+    facts = buffs.facts(run, play.world, foes=[herald, member], reachable=[herald, member])
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        due = due_now(buffs, run, row, facts)
+    assert due.target is not None
+    assert due.target.unit_id == (member.unit_id if on else herald.unit_id)
+    assert ('OFF_SCREEN_NEXT' in caplog.text) == on
+    off_only = buffs.facts(run, play.world, foes=[herald], reachable=[herald])
+    assert (buffs.due(run, row, off_only) is None) == on  # none drawn on the screen: not due

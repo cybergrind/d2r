@@ -26,6 +26,7 @@ from inventory_tracking.game.stash import full_of
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
+from inventory_tracking.loot.storage import volatile_rows
 from inventory_tracking.macros import visitlog
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
@@ -896,6 +897,9 @@ class Hands:
     view: Callable[[], StashView | None]
     transmute: Callable[[frozenset[int]], tuple[int, int]] | None = None
     appraise: Callable[[list[int]], object] | None = None
+    # The character's protected cells (macros/volatile.py) for the key arrangement (cube.py `arrange_keys`): a key
+    # stack on one never moves (2026-10-25, rca/2026-10-25/keys-protected-findings.md); none (tests): as before
+    protected: Callable[[], frozenset[tuple[int, int]]] = frozenset
 
 
 @dataclass(frozen=True)
@@ -1689,9 +1693,15 @@ def _visit(
     # A key stack out of the free block (the player, 2026-10-18: "we should have 2x4 inventory space")
     pack = _pack(run)
     _note(record, start, 'shops', pack, full=stacks)
-    if key is not None and not pack.inventory.has_room(needs.block) and keys_move(pack, needs.block):
+    # Never off the player's cells (the protected ones, macros/volatile.py), the room counted on the loop's cells
+    cells = hands.protected()
+    if (
+        key is not None
+        and not volatile_rows(pack.inventory, cells).has_room(needs.block)
+        and keys_move(pack, needs.block, cells)
+    ):
         try:
-            arrange_keys(run, key)
+            arrange_keys(run, key, cells, needs.block)
         except Abort as stop:
             if cut(run, stop):
                 raise

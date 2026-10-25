@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 
 from inventory_tracking.builds.warlock.bind import SUMMONED
 from inventory_tracking.builds.warlock.mark import sends
+from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.pack import ask_pull, pulled, since_hop
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import DEFILER_CLASS
@@ -91,6 +92,21 @@ PULL_REST = 3.0  # seconds after a landing
 ENGORGE_LEARNS = True
 ENGORGE_STATE = 211  # states.txt `engorge` (skills.txt 379 aurastate): on a pet while the buff lasts
 REFUSED_MOST = 400  # corpses remembered refused at most (a game's unit ids: one set a watch)
+# The pets are the demons Engorge heals (2026-10-24, rca/2026-10-24/engorge-findings.md). Engorge is skills.txt 379
+# pettype demon, requirespettype 1: it heals the character's pets of that type, the Warlock's summons (bind.py
+# SUMMONED, the Defiler among them) and the bound demon, a monster monstats calls a demon (Bind Demon takes only those,
+# bind.py `bindable`). Death Mark's `sends` (mark.py) takes every unit of the player's alignment, and in Bloody
+# Foothills that is the Act 5 Combatants (monstats act5barb1/2, *hcIdx 522/523: MonType human, AI NpcBarb, Align 1,
+# no owner; 62 of them in the take 20261024T203210Z-110). Live 23:32:40-23:37:30 (session 20261024T200458Z-2054f483)
+# they were 3-4 "bound Act 5 Combatant" pets at 1-111/128: 34 Engorge keys, the 30 "Engorge now" all for them,
+# "brought no heal" up to 29 in a row, 17 pulls asked and 3 pack hops made for their sake, 32 corpses refused, while 26
+# of the 30 keys on a foe's corpse landed (the engorge missiles 710/718 showed) and the Urdar and the Defiler stood at
+# 126-128/128 with the state up all along; session 20261024T150822Z-d017576b the same, 27 in a row. True: a unit
+# `sends` takes is a pet only when Engorge can heal it (`heals`), so the watch, its dangers, its judgements, the pull
+# and `buffed`/`bare` leave the Combatants (and any other aligned non-demon) out. False: every unit `sends` takes.
+# On 2026-10-25 03:30: the slow arena set with both Engorge switches on fails the same 6 tests as with them off, no new
+# death (rca/2026-10-24/engorge-findings.md)
+PET_DEMONS_ONLY = True
 
 
 @dataclass
@@ -179,9 +195,18 @@ def name_of(txt: int, bound: bool) -> str:
     return f'bound {found}' if bound else found
 
 
+def heals(monster: Monster) -> bool:
+    """Whether Engorge heals `monster` (PET_DEMONS_ONLY): one of the Warlock's summons or a monster monstats calls a
+    demon (the bundled tables' `demon` 1)."""
+    if monster.txt_id in SUMMONED or monster.txt_id == DEFILER_CLASS:
+        return True
+    row = tables()['monsters'].get(str(monster.txt_id))
+    return row is not None and row.get('demon') == '1'
+
+
 def pets(world: World) -> list[Monster]:
-    """The character's pets in the look (mark.py `sends`)."""
-    return [m for m in world.monsters if sends(world, m)]
+    """The character's pets in the look (mark.py `sends`); with PET_DEMONS_ONLY those Engorge heals (`heals`)."""
+    return [m for m in world.monsters if sends(world, m) and (not PET_DEMONS_ONLY or heals(m))]
 
 
 def dead(monster: Monster) -> bool:

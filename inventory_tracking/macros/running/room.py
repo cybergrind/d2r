@@ -71,7 +71,7 @@ def _room_in_cube(self: MacroRunner, run: Run) -> int:
     own = self.loop.told(pack, world.player.name, self.item_stats)
     if key is None or own is None:
         return 0
-    arranged = arrange_keys(run, key)
+    arranged = arrange_keys(run, key, self.loop.volatile.protected(world.player.name) or frozenset())
     return stash(run, key, own) + int(bool(arranged))
 
 

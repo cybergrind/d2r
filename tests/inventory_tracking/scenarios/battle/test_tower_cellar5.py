@@ -100,10 +100,13 @@ def record() -> list[evidence.Action]:
 
 def replayed(as_it_was: bool) -> tuple[tuple[float, str], ...]:
     """The macro's lines of one replay to END: (seconds into the take, the line), by the rules of that evening or
-    today's."""
-    replay = Replay(battle.FIXTURE, battle.script(patches=AS_IT_WAS if as_it_was else {}))
-    replay.key_names = battle.key_names
-    return tuple((line.at, line.text) for line in replay.run(END))
+    today's. The recorded fight's marks are pinned here, not only by this file's fixture: `said` caches the replay
+    for golden/test_replay_log.py too, so it must not depend on which file asked first."""
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(mark, 'REAGGRO_PACK', False)
+        replay = Replay(battle.FIXTURE, battle.script(patches=AS_IT_WAS if as_it_was else {}))
+        replay.key_names = battle.key_names
+        return tuple((line.at, line.text) for line in replay.run(END))
 
 
 @functools.cache

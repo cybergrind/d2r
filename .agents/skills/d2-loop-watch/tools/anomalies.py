@@ -836,9 +836,11 @@ def no_damage(take: Take, skip: list[tuple[float, float, str]], limits: Limits) 
         return []
     excluded = [(a, b) for a, b, why in skip if why in ('loop off', 'restart')]
     found: list[Case] = []
-    reported: list[tuple[float, float]] = []
+    reported: list[tuple[float, float]] = []  # the targets' cases, and the targets' stretches that hurt them
     for stretch in read.stretches():
         a, end = stretch.start, stretch.end
+        if stretch.unit and stretch.damaged:
+            reported.append((a, end))
         if len(stretch.casts) < limits.dry_casts or end - a < limits.dry_seconds or stretch.damaged:
             continue
         if any(x <= a <= y for x, y in excluded):

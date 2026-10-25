@@ -880,6 +880,11 @@ REFUSED_SAID: list[float] = [-math.inf]
 # three corpses under objects (type 2), each with the strike let go first; 22.4 s of 76 s had the strike up for
 # Engorge's tries. A live monster over one is not: it moves.
 STILL_COVERS = (OBJECT_UNIT, ITEM_UNIT)
+# Engorge takes a foe's corpse only (2026-10-24, rca/2026-10-24/engorge-findings.md): in the take 20261024T203210Z-110
+# (Bloody Foothills) the 4 keys on the corpse of an Act 5 Combatant (monstats 522, of the player's alignment) showed
+# no engorge missile (710/718) and no cast, against 26 of 30 on a foe's. True: a corpse whose unit the look reads as an
+# ally (`Monster.ally`: the Combatants, a pet, the mercenary) is left out of the tries. False: every corpse, as before.
+ENGORGE_FOE_CORPSES = True  # on 2026-10-25 03:30 with pets.PET_DEMONS_ONLY (the same slow arena set as off)
 
 
 def clear_corpses(
@@ -940,6 +945,9 @@ def engorge(cast: Casting) -> Tried:
         for corpse in corpses
         if math.dist(here, corpse[1:]) <= reach and on_screen(ground_fraction(player, *corpse[1:], aspect))
     ]
+    if ENGORGE_FOE_CORPSES:
+        allied = {m.unit_id for m in world.monsters if m.ally}
+        near = [corpse for corpse in near if corpse[0] not in allied]
     if not near:
         return Tried.again(run.clock(), every, retry, touched=False)
     if pets.ENGORGE_LEARNS and watch.refused:

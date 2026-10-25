@@ -87,6 +87,14 @@ ONTO_EXTRA = 2
 # whose hover names another member of that pack (the same tier) goes on the one named, at once, and is counted on it
 # (the pack's order takes any member that can be clicked: the player, 2026-10-21 Q1). False: nudged as before.
 ONTO_PACK_MEMBER = False
+# OFF_SCREEN_NEXT (2026-10-24 ~21:20, rca/2026-10-24/dm-latency-findings.md §10; the stopwatch's 4th worst T5 pet stand,
+# 7.65 s from 19:29:55.25, take 20261024T162759Z-104): after a Teleport of 24 the mark rules said "its mark again" on
+# the elite 310 (3326285113) at 55.407, its body was drawn past the aim's limits ("no Death Mark ...: its body is off
+# the screen at (0.51, 0.07)", game/view.py AIM_LIMITS), the cast was dropped, and every look after asked the same
+# one again until it died at 19:30:00.6: no key at all. True: a monster row whose target is drawn off the aim's limits
+# (`on_monster`'s own test) is asked again with the hostiles in reach drawn inside them alone, said once; none: not due.
+# False: as before (the cast dropped).
+OFF_SCREEN_NEXT = False
 SHOWN_ON_MOST = 8  # hostiles nearest a cast's target whose state words are read for where it went instead
 # A cast with `Buff.shows` on a unit whose state shows already at the key (the last cast's lasting still) is judged by
 # the state once `shows_within` has passed, not by the old one's at once (the player, 2026-10-21 ~17:41: "note: we
@@ -293,10 +301,39 @@ class Buffs:
             target = row.target(facts)
             if target is None:
                 return None
+            if OFF_SCREEN_NEXT and row.on == 'monster':
+                facts, target = self.on_screen_target(run, row, facts, target)
+                if target is None:
+                    return None
         if not row.worth(facts, target):
             self.say_refused(row, facts, target)
             return None
         return Due(row, facts, target)
+
+    def on_screen_target(
+        self, run: Run, row: Buff, facts: BuffFacts, target: Monster
+    ) -> tuple[BuffFacts, Monster | None]:
+        """OFF_SCREEN_NEXT: `target` and the facts when its body is drawn inside the aim's limits (or with no window or
+        character known, or in controller mode); else the row's target asked again with the hostiles in reach drawn
+        inside them alone, and those facts."""
+        player, rect = facts.world.player, run.actuator.keys.focused_window_rect()
+        if run.pad is not None or player is None or rect is None or not rect[3]:
+            return facts, target
+        aspect = rect[2] / rect[3]
+
+        def shown(m: Monster) -> bool:
+            return on_screen(screen_fraction(player, m.x, m.y, aspect))
+
+        if shown(target) or row.target is None:
+            return facts, target
+        inside = replace(facts, reachable=tuple(m for m in facts.reachable if shown(m)))
+        again = row.target(inside) if inside.reachable else None
+        self.say_once(
+            row, target,
+            f'Macro: buff: {skill_name(row.skill)} on {label(target)} is off the screen: '
+            + (f'on {label(again)} instead (OFF_SCREEN_NEXT)' if again is not None else 'none on it (OFF_SCREEN_NEXT)'),
+        )  # fmt: skip
+        return inside, again
 
     def settle(self, run: Run, row: Buff, facts: BuffFacts) -> None:
         """Whether the last cast of `row` on a monster took (`Buff.shows` on its state words, `Run.unit_states`). Not

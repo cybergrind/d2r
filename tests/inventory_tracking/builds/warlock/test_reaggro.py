@@ -136,6 +136,7 @@ def test_off_the_pack_order_marks_an_uncovered_member_before_the_doll_herald(mon
 
 
 def test_the_doll_herald_is_marked_first_and_again_after_a_jump(monkeypatch) -> None:
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', False)  # the mark's own rules (R1 on: below)
     monkeypatch.setattr(mark, 'DOLL_HERALD_FIRST', True)
     asked = facts(HERALD, *ROUND_IT, APART, demons=ALONG)
     assert mark.target(asked) is HERALD
@@ -179,6 +180,7 @@ def test_off_a_covered_t5_herald_loses_to_an_uncovered_member(monkeypatch) -> No
 
 
 def test_herald_first_marks_the_covered_t5_herald_and_again_after_a_jump(monkeypatch) -> None:
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', False)  # the mark's own rules (R1 on: below)
     monkeypatch.setattr(mark, 'HERALD_FIRST', True)
     asked = facts(T5_HERALD, *ROUND_T5, NEARER, demons=ALONG)
     assert mark.target(asked) is T5_HERALD
@@ -204,3 +206,17 @@ def test_only_death_mark_goes_through_the_fight_casts_hold_and_only_while_on(mon
     monkeypatch.setattr(pack, 'MARK_THROUGH_HOLD', True)
     assert pack.through_hold(DEATH_MARK)
     assert not pack.through_hold(SIGIL_LETHARGY)
+
+
+@pytest.mark.parametrize('first', ['DOLL_HERALD_FIRST', 'HERALD_FIRST'])
+def test_r1_the_herald_first_rulings_still_pick_the_mark_after_a_move(monkeypatch, first) -> None:
+    # R1 (combat/pack.py DM_AFTER_EVERY_MOVE): the target after a move is the mark rules' own pick, so the doll Herald
+    # and HERALD_FIRST still decide; the designation is the move's (MOVE_RANK)
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
+    monkeypatch.setattr(mark, first, True)
+    herald, round_it, apart = (
+        (HERALD, ROUND_IT, APART) if first == 'DOLL_HERALD_FIRST' else (T5_HERALD, ROUND_T5, NEARER)
+    )
+    asked = facts(herald, *round_it, apart, demons=ALONG)
+    assert mark.target(asked) is herald
+    assert mark.DESIGNATION.rank == mark.MOVE_RANK

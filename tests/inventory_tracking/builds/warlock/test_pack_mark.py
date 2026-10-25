@@ -119,6 +119,7 @@ def test_with_the_gate_off_the_defiler_goes_by_its_price(monkeypatch) -> None:
 
 
 def test_after_a_hop_the_held_member_is_marked_again_at_once_whatever_its_time_left(monkeypatch) -> None:
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', False)  # the mark's own rules (R1 on: `test_r1_*` below)
     marked_at = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, BEHIND.unit_id): NOW - 3.0}
     asked = facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)
     assert mark.target(asked) is None  # a mark lasts on BEHIND, the pack not pressing: kept, as before
@@ -149,6 +150,7 @@ def test_after_a_hop_marked_once_more_and_not_again_and_with_no_held_one_the_pac
 def test_in_a_herald_pack_the_packs_order_goes_before_the_leader_the_strike_holds(monkeypatch) -> None:
     from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', False)  # the mark's own rules (R1 on: `test_r1_*` below)
     # MARK_HELD_LEADER (off, retired 2026-10-22): the pack's own order holds in a tier 4-5 pack; with True the pack
     # spread off the demons in the arena's seed 3 of the T5 hulks (rca/2026-10-21/arachnid-herald-2-findings.md §13)
     monkeypatch.setattr(ECHOING_STRIKE_ATTACK.held, 'unit', IN_FRONT.unit_id)  # held: a minion drawn in front
@@ -157,7 +159,8 @@ def test_in_a_herald_pack_the_packs_order_goes_before_the_leader_the_strike_hold
     assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=lasting)) is None  # its mark lasts: kept
 
 
-def test_after_a_hop_no_mark_again_when_no_demon_came_along() -> None:
+def test_after_a_hop_no_mark_again_when_no_demon_came_along(monkeypatch) -> None:
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', False)  # the mark's own rules (R1 on: `test_r1_*` below)
     # The arena's T5 hulks, seed 3: the approach hops took no demon along; a mark again after each cost the sigil's
     # cover (held share 0.844 against 0.85; rca/2026-10-21/arachnid-herald-2-findings.md §13)
     pack.hopped(NOW - 0.4, 14.0)
@@ -169,3 +172,33 @@ def test_after_a_hop_no_mark_again_when_no_demon_came_along() -> None:
     assert mark.target(facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)) == BEHIND
     by_it = (demon(70, 744, 5011.0, 4995.0), demon(71, 189, 5009.0, 4994.0))  # within 10 of the character, on it
     assert not mark.aggro_lost(facts(HERALD, BEHIND, IN_FRONT, demons=by_it, cast_at=marked_at), BEHIND)
+
+
+def test_r1_a_mark_lasting_holds_nothing_back_with_the_demons_idle_by_the_character(monkeypatch) -> None:
+    # R1 (combat/pack.py DM_AFTER_EVERY_MOVE; the player 2026-10-24 ~20:24, "cast DM after the TP, so daemon is
+    # forced to attack"): the demons by the character (AT_HAND) with a mark lasting on BEHIND, MARK_AGAIN gone: again
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
+    lasting = {(DEATH_MARK, None): NOW - 3.0, (DEATH_MARK, BEHIND.unit_id): NOW - 3.0}
+    asked = facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=lasting)
+    assert mark.move_reason(asked) == mark.PETS_SAID
+    assert mark.target(asked) == BEHIND  # the held one again: the rules' own pick
+    assert mark.worth_a_mark(asked, BEHIND)
+    soon = {(DEATH_MARK, None): NOW - 0.5, (DEATH_MARK, BEHIND.unit_id): NOW - 0.5}
+    assert mark.target(facts(HERALD, BEHIND, IN_FRONT, FAR, cast_at=soon)) is None  # PETS_AGAIN not gone
+
+
+def test_r1_after_a_hop_that_pulled_the_demons_back_the_mark_goes_out_once(monkeypatch) -> None:
+    # R1 (the player ~20:24: "cast DM after the TP, so daemon is forced to attack"): a hop of REMARK_HOP or more that
+    # took the demons along (AT_HAND, idle by the character) has the mark out at once, whatever the curse's state on
+    # the old target; one key after the landing ends it. A hop that left them 30 off on their monsters is no reason
+    # (2026-10-25: the arena's Baal chamber, 7 marks after moves with the Defiler 2.8 off Baal)
+    monkeypatch.setattr(pack, 'DM_AFTER_EVERY_MOVE', True)
+    pack.hopped(NOW - 0.4, 14.0)
+    marked_at = {(DEATH_MARK, None): NOW - 1.0, (DEATH_MARK, BEHIND.unit_id): NOW - 1.0}  # under PETS_AGAIN
+    asked = facts(HERALD, BEHIND, IN_FRONT, cast_at=marked_at)
+    assert mark.move_reason(asked) == mark.MOVE_SAID
+    assert mark.target(asked) is not None
+    after = {(DEATH_MARK, None): NOW - 0.2, (DEATH_MARK, BEHIND.unit_id): NOW - 0.2}  # keyed after the landing
+    assert mark.move_reason(facts(HERALD, BEHIND, IN_FRONT, cast_at=after)) is None
+    away = (demon(70, 744, 5030.0, 5000.0), demon(71, 189, 5031.0, 5001.0))
+    assert mark.move_reason(facts(HERALD, BEHIND, IN_FRONT, demons=away, cast_at=marked_at)) is None

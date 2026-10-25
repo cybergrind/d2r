@@ -338,3 +338,50 @@ def test_a_shard_game_is_cut_by_no_progress_not_by_its_clock(monkeypatch):
     assert watch.game_owes(found, GAME)
     monkeypatch.setattr(watch, 'SHARD_NO_CLOCK', False)
     assert not watch.game_owes(found, GAME)  # no plan: nothing owed read
+
+
+# --- the first leg after a restart (2026-10-25, rca/2026-10-25/keys-protected-findings.md) ---
+
+
+@pytest.mark.parametrize(
+    ('why', 'seen', 'area'),
+    [
+        ("the loop's clock not set yet (`Loop.start` cleared it, the record had no start time)", None, 132),
+        ('the level not read by the poll yet', (GAME, 0.0), None),
+        ('neither', None, None),
+    ],
+)
+def test_the_first_leg_after_a_restart_takes_the_room_package_as_a_later_one_does(caplog, why, seen, area):
+    # 02:23:28 on 2026-10-25: the loop on 7 s after a restart, its first leg stopped 0.14 s later with a Buriza-Do
+    # Kyanon (2 x 4) on the ground, the cube already tried and an item already dropped in this game (the game's
+    # record): "the loop stops here"; the same state at 02:26:53 made the trip. The poll's own reads (the journey's
+    # game and level) answer for the loop's clock and the last level read
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.agenda import PORTAL_TO_TOWN
+
+    found = runner()
+    loop = found.loop
+    loop.seen, found.area_seen = seen, area
+    found.journey.note(GAME, 132, 0.0)
+    loop.cube_try(GAME)
+    loop.dropped = GAME
+    found.valuable_left = lambda: 'Unique Ballista'
+    with caplog.at_level(logging.INFO):
+        found._loop_stopped(Abort('inventory full: no room for Unique Ballista', cause='room'))
+    assert loop.on, why
+    assert loop.agenda.stack[-1].kind == PORTAL_TO_TOWN, why
+    assert loop.trips_in(GAME) == 1, why
+    assert "a trip to town for room (the agenda's package)" in caplog.text, why
+    assert 'the loop stops here' not in caplog.text, why
+
+
+def test_in_the_lobby_the_poll_names_no_game_and_no_trip_is_made():
+    from inventory_tracking.macros.actuator import Abort
+
+    found = runner()
+    found.loop.seen, found.area_seen = None, None
+    found.journey.note(None, None, 0.0)
+    found.valuable_left = lambda: 'Unique Ballista'
+    found._loop_stopped(Abort('inventory full: no room for Unique Ballista', cause='room'))
+    assert found.loop.trips_in(GAME) == 0
+    assert found.loop.agenda.package() is None

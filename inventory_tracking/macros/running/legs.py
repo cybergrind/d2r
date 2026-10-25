@@ -414,7 +414,8 @@ def _shared_town_visit(
     if own is None:
         raise Abort("the player's items are not told apart yet")
     hands = Hands(inventory_key, identify_loot, lambda items: junk_of(items, self.appraise),
-                  lambda: run.reads.stash_view(), transmute_gems, appraise=self.appraise)  # fmt: skip
+                  lambda: run.reads.stash_view(), transmute_gems, appraise=self.appraise,
+                  protected=lambda: self.loop.volatile.protected(self.loop.character) or frozenset())  # fmt: skip
     needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
     # The visit reads the stash itself (through the one record); `full` is the record's for an unread stash
     done = visit(run, hands, needs, own, exit, full=self.loop.stash.full(),

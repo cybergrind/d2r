@@ -84,12 +84,15 @@ def own_of(items: Iterable[Carried]) -> frozenset[tuple[int, int, int]]:
     return frozenset((item.txt, item.x, item.y) for item in items)
 
 
-def arrange_keys(run: Run, inventory_key: str) -> bool:
+def arrange_keys(
+    run: Run, inventory_key: str, protected: frozenset[tuple[int, int]] = frozenset(), size: tuple[int, int] = BIG_BLOCK
+) -> bool:
     """Move a key stack as `keys_move` says, put back if it does not land; whether it moved. Mouse mode only; the
-    panels closed after."""
+    panels closed after. `protected`: the character's protected cells (macros/volatile.py), which every live caller
+    passes: a stack on one never moves (01:53:11 on 2026-10-25, rca/2026-10-25/keys-protected-findings.md)."""
     rect = run.actuator.keys.focused_window_rect()
     pack = run.reads.carried()
-    move = keys_move(pack) if pack is not None else None
+    move = keys_move(pack, size, protected) if pack is not None else None
     if move is None or rect is None or run.pad is not None:
         return False
     key, (x, y) = move

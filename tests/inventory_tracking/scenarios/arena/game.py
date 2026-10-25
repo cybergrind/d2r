@@ -127,6 +127,7 @@ import itertools
 import json
 import math
 import random
+import sys
 from collections.abc import Callable, Generator, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
@@ -292,6 +293,12 @@ HOP_DRAG = False
 # (the take: the merc within 3 for 42.9 of 46.5 s). Blade Warp is not a Teleport: not taken (not measured). False: the
 # demons by HOP_DRAG alone and the merc by `follow`, as before
 ALLIES_ALONG = False
+# WARP_ALONG (2026-10-24, rca/2026-10-24/dm-latency-findings.md §11, stopwatch-findings.md §2): a Blade Warp takes the
+# companions along as a Teleport does (with ALLIES_ALONG). Take 20261024T171736Z-71: the Blade Warp of 15 landed at
+# 20:18:41.539 with the War Defiler and the bound demon 0.1 off the character, idle until the next Death Mark's curse
+# at 43.062; the stopwatch's T5 stands of 18:49-21:03 run on across the moves' hops, the demons along on each. False:
+# a Blade Warp takes none, as before
+WARP_ALONG = False
 ALONG_GAP = 1.0
 ALONG_SIDES = 3
 # MERC_HURT (2026-10-23, same findings): the mercenary takes the blows that land on it off its own life (its most from
@@ -321,6 +328,16 @@ HOP_IDLE_LEFT = ((0.0, 1.0), (0.25, 0.93), (0.5, 0.90), (1.0, 0.84), (1.5, 0.72)
 # goes for any hostile within PET_ENGAGE and strikes every tick, as before.
 PETS_MARK_ONLY = False
 PET_OWN_STRIKE = 0.15
+# The pets as the game plays them (2026-10-24 ~00:10, dm-latency-findings.md §11; the stopwatch's T5 stands of
+# 18:49-21:03 and the player: a Teleport or a Blade Warp pulls the demons back to the character, they stand there, and
+# the old curse does not send them again): ALLIES_ALONG, WARP_ALONG, HOP_IDLE and PETS_MARK_ONLY together
+# (`pets_as_game`). Each stays False by itself, as before
+PETS_AS_GAME = ('ALLIES_ALONG', 'WARP_ALONG', 'HOP_IDLE', 'PETS_MARK_ONLY', 'PETS_FOLLOW')
+# PETS_FOLLOW (2026-10-25, the same): the companions keep up with the character and a Death Mark's demons go to its
+# monster (`follow`) in every scene, not only the casters' scenes and those with PETS_FIGHT; where they stood still
+# (the Baal chamber) a mark sent no one, and R1's idle-demon mark went out every PETS_AGAIN s for 50 s. False: as
+# before
+PETS_FOLLOW = False
 BESIDE = 0.6
 # The rules a play may turn on (the module text).
 SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK, MANA_SHOWN = 'sigil slows', 'pets fight', 'bodies block', 'mana shown'
@@ -469,6 +486,14 @@ class Healer:
         )
         outcome = str(self.controller.step(state).outcome)
         self.outcomes[outcome] = self.outcomes.get(outcome, 0) + 1
+
+
+def pets_as_game(set_to: Callable[[object, str, bool], None] = setattr) -> None:
+    """The pets as the game plays them (PETS_AS_GAME) turned on through `set_to` (a test's `monkeypatch.setattr`, so
+    they are put back after it; the module's own `setattr` for a driver)."""
+    module = sys.modules[__name__]
+    for name in PETS_AS_GAME:
+        set_to(module, name, True)
 
 
 @contextmanager
@@ -804,7 +829,7 @@ class Arena(Game):
         now = self.clock.now
         if not self.instant_moves:
             self.move()
-        if self.follows or PETS_FIGHT in self.rules:
+        if self.follows or PETS_FIGHT in self.rules or PETS_FOLLOW:
             self.follow()
         self.bound_now(now)
         mates = [m for m in self.world.monsters if m.ally or m.owner != NO_OWNER]
@@ -1387,7 +1412,7 @@ class Arena(Game):
             start = self.here
             self.put(landing.spot)
             self.landing = None
-            if ALLIES_ALONG and landing.teleport:
+            if ALLIES_ALONG and (landing.teleport or WARP_ALONG):
                 self.along(start, math.dist(start, landing.spot) >= REMARK_HOP)
             elif HOP_DRAG and math.dist(start, landing.spot) >= REMARK_HOP:
                 self.drag(start)

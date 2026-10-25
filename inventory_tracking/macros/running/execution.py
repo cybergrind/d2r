@@ -330,8 +330,9 @@ def perform(self: MacroRunner, run: Run, actuator: Actuator, routine: str, key_n
             if key is not None and self.loop.own is not None:
                 try:
                     settle(run, 'room')  # the field identify's failures put down first (loot/design.md §2.4)
-                    # A key stack out of the 2 x 4 block first: the room is often there already, in pieces
-                    arrange_keys(run, key)
+                    # A key stack out of the 2 x 4 block first: the room is often there already, in pieces; never
+                    # off the player's protected cells (01:53:11 on 2026-10-25, cube.py `arrange_keys`)
+                    arrange_keys(run, key, self.loop.volatile.protected(self.loop.character) or frozenset())
                     stash(run, key, self.loop.own)  # the loop's items into the cube: room for what lies there
                 except Abort as stop:
                     if cut(run, stop):

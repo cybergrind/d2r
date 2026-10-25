@@ -23,7 +23,8 @@ Pure geometry over points: the safety, the mark and the omen ask it with what th
 """
 
 import math
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 from inventory_tracking.combat.mechanics.life import leader
@@ -227,7 +228,31 @@ HARD_PACK = 8
 # Warp landing (`HOP`, a jump of REMARK_HOP or more) the mark goes out first on a hostile in its reach, whatever its
 # state on the old target and whatever builds/warlock/mark.py `aggro_lost` says; with no move, whenever a demon idles
 # within PETS_WITH_US of the character (mark.py `pets_with_us`). False: the mark's own rules, as before.
+# Held off 2026-10-24 22:52: the live tree's test_manaburn_death dies with it on (seeds 1, 3) and passes off;
+# test_canyon_death adds seed 13
 DM_AFTER_EVERY_MOVE = False
+# DM_MOVE_NO_BURN (2026-10-24 ~21:45, dm-latency-findings.md §10, gate R2 on tree7, AGGRO + PETS + GLUED + WARP_ALONG):
+# R1 in the arena's manaburn scene, seeds 21-60: deaths 3 -> 6 (5 new, 2 saved), lowest life -0.142 +- 0.062, kills a
+# minute -6.4 +- 2.7, Death Mark keys a play 4.1 -> 8.2, Mana Burn hits 22.7 -> 38.6; herald 40 and the T5 cuts showed
+# no new death. True: no mark after a move while a hostile that drains mana stands within HARD_SEEN (`burning`): the
+# safety's mana leave and the marks' mana go first. False: R1 in those fights too. Gate R3 (tree7, with
+# JUMP_LANDING_UNPRICED, paired against off): manaburn 40 deaths 3 -> 1 (none new), low +0.060 +- 0.037, kills a minute
+# -0.8 +- 2.1; herald 40 deaths 2 -> 1 (none new), low +0.102 +- 0.062, kills a minute +0.46 +- 0.55, the pet stand's
+# p90 3.68 -> 1.80 s; T5 cuts 3 x 20 no death (dolls: kills a minute -5.0 +- 3.4, low +0.032 +- 0.018).
+DM_MOVE_NO_BURN = False  # 2026-10-24 22:52: held off with R1
+
+
+def burning(here: Point, hostiles: Iterable) -> bool:
+    """Whether a hostile that drains mana (Mana Burn, or its type's own mana element: combat/threats/drain_escape.py
+    `threat`) stands within HARD_SEEN of `here`."""
+    from inventory_tracking.combat.threats import drain_escape, manaburn  # late: they build on this module
+
+    escape = drain_escape.MANA_ESCAPE
+    return any(
+        (manaburn.drains(tuple(m.modifiers)) or (escape and drain_escape.threat(m.txt_id)))
+        and math.dist(here, (m.x, m.y)) <= HARD_SEEN
+        for m in hostiles
+    )
 
 
 def hard_fight(here: Point, hostiles: Iterable, pressed: bool = False) -> str | None:
@@ -295,6 +320,27 @@ def ask_mark(now: float) -> None:
 
 def mark_asked(now: float) -> bool:
     return MARK_THEN_WALK and 0.0 <= now - ASKED.at <= ASK_LASTS
+
+
+@dataclass
+class LandingAsk:
+    """Whether the FIRST rows are asked at a landing for R1 (DM_AFTER_EVERY_MOVE, macros/hunt.py `landing_mark`)."""
+
+    on: bool = False
+
+
+# While on, the mark answers for R1's own reasons alone (builds/warlock/mark.py `target`, `mark_ahead`): the landing's
+# hook counts every hostile on the screen as in the mark's reach, so the mark's other rules are not asked with them
+LANDING_ASK = LandingAsk()
+
+
+@contextmanager
+def landing_ask() -> Iterator[None]:
+    LANDING_ASK.on = True
+    try:
+        yield
+    finally:
+        LANDING_ASK.on = False
 
 
 # The demons dragged by a fight's own hop (2026-10-24, rca/2026-10-24/aggro-findings.md §3; the player, 2026-10-21:

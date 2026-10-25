@@ -229,14 +229,23 @@ def sends(world: World, monster: Monster) -> bool:
     return monster.ally or monster.owner == player.unit_id or monster.txt_id == DEFILER_CLASS
 
 
+def own_demons(world: World) -> list[Monster]:
+    """R1's demons (DM_AFTER_EVERY_MOVE): of `demons`, the Warlock's summons and those monstats calls a demon
+    (pets.py `heals`). Not the ally-flagged units no one owns: the Bloody Foothills' barbarians (monstats 522/523,
+    "bound Act 5 Combatant" in the log; rca/2026-10-24/engorge-findings.md), which no mark sends."""
+    from inventory_tracking.builds.warlock.pets import heals  # late: pets.py builds on this module
+
+    return [d for d in demons(world) if heals(d)]
+
+
 def pets_with_us(world: World, hostiles: Sequence[Monster]) -> list[Monster]:
-    """The demons within PETS_WITH_US of the character with none of `hostiles` within PET_CONTACT of them: idle by it,
-    no mark holding them on a hostile."""
+    """R1's demons (`own_demons`) within PETS_WITH_US of the character with none of `hostiles` within PET_CONTACT of
+    them: idle by it, no mark holding them on a hostile."""
     player = world.player
     if player is None:
         return []
     here, foes = (player.x, player.y), [(m.x, m.y) for m in hostiles]
-    near = [d for d in demons(world) if math.dist(here, (d.x, d.y)) <= PETS_WITH_US]
+    near = [d for d in own_demons(world) if math.dist(here, (d.x, d.y)) <= PETS_WITH_US]
     return [d for d in near if not any(math.dist((d.x, d.y), at) <= PET_CONTACT for at in foes)]
 
 
@@ -249,7 +258,7 @@ def move_reason(facts: BuffFacts) -> str | None:
     if not (herald_pack.DM_AFTER_EVERY_MOVE or herald_pack.MARK_THEN_WALK) or not facts.reachable:
         return None
     player = facts.world.player
-    if player is None or not demons(facts.world):
+    if player is None or not own_demons(facts.world):
         return None
     here = (player.x, player.y)
     pressed = facts.draws is not None and any(price.pressed for price in facts.draws.values())
@@ -259,8 +268,18 @@ def move_reason(facts: BuffFacts) -> str | None:
         return herald_pack.WALK_SAID  # R2: the mark from here before the walk in (macros/hunting/moves.py)
     if not herald_pack.DM_AFTER_EVERY_MOVE:
         return None
+    if herald_pack.DM_MOVE_NO_BURN and herald_pack.burning(here, facts.foes):
+        return None  # a mana-burn fight: the mana leave first (combat/pack.py DM_MOVE_NO_BURN)
     hop = herald_pack.since_hop(facts.now)
-    if herald_pack.HOP.units >= REMARK_HOP and hop <= MOVE_AFTER and hop < facts.since(DEATH_MARK):
+    if (
+        herald_pack.HOP.units >= REMARK_HOP
+        and hop <= MOVE_AFTER
+        and hop < facts.since(DEATH_MARK)
+        and pets_with_us(facts.world, facts.foes)
+    ):
+        # The jump pulled a demon back to the character, off what it fought (the stopwatch: a Teleport or Blade Warp
+        # takes them along and the old curse does not send them again); a demon the jump left on its monster is
+        # still at it (the arena's Baal chamber, seed 5: 7 marks after moves with the Defiler 2.8 off Baal)
         return MOVE_SAID
     if facts.since(DEATH_MARK) >= PETS_AGAIN and pets_with_us(facts.world, facts.foes):
         return PETS_SAID
@@ -886,6 +905,8 @@ def target(facts: BuffFacts) -> Monster | None:
     moved = moved_mark(facts)
     if moved is not None:
         return moved  # a hard fight's mark after a move (combat/pack.py DM_AFTER_EVERY_MOVE)
+    if herald_pack.LANDING_ASK.on:
+        return None  # R1's landing ask: its own reasons alone (combat/pack.py `landing_ask`)
     return rules_target(facts)
 
 
@@ -966,6 +987,8 @@ def mark_ahead(facts: BuffFacts) -> bool:
         return False
     if moved_mark(facts) is not None:
         return True  # a hard fight's mark after a move, before the strike (combat/pack.py DM_AFTER_EVERY_MOVE)
+    if herald_pack.LANDING_ASK.on:
+        return False  # R1's landing ask: its own reasons alone (combat/pack.py `landing_ask`)
     decided, reviver = reviver_designated(facts)
     if decided:
         return reviver is not None and worth_a_mark(facts, reviver)
