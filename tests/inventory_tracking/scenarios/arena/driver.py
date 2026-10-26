@@ -118,6 +118,7 @@ def fresh() -> None:
     teleport.LANDED.clear()
     teleport.LANDING.clear()
     teleport.MISSED.clear()
+    teleport.REFUSED.clear()
     # The pets' ask that the fight be pulled off the bound demon (builds/warlock/pets.py PET_PULL), standing until a
     # clock of the play that asked it: left over, the next play (its clock from zero) hopped off a demon nobody asked
     # for (2026-10-21: the Herald's "defiler dies" seed 2 played after "rebind" seed 1 went 12.27/20.16 -> 12.69/15.47)

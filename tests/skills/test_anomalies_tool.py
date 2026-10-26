@@ -71,19 +71,24 @@ REAL = [
     (
         'JUMP_REASON',
         '2026-10-21 20:57:12,300 INFO Macro: Teleport toward full clear: a group of 13: 19 left after this',
-        ('full clear: a group of 13', None, None, None),
+        ('full clear: a group of 13', None, None, None, None),
     ),
     (
         'JUMP_REASON',
         '2026-10-21 20:57:13,400 INFO Macro: run: a better place in the fight with 1 of 62 hostiles in reach, from '
         '(10106.5, 14882.5): a place at (10091.5, 14879.5), a jump by Teleport of 15 (0.3s)',
-        (None, 'a better place', None, None),
+        (None, 'a better place', None, None, None),
     ),
     (
         'JUMP_REASON',
         '2026-10-21 18:30:24,893 INFO Macro: Pack: keeping range: mana burn: 2 of the pack on the character within 18 '
         '(the nearest at 17.0)',
-        (None, None, 'keeping range', 'mana burn'),
+        (None, None, 'keeping range', 'mana burn', None),
+    ),
+    (
+        'JUMP_REASON',
+        '2026-10-25 21:32:00,557 INFO Macro: Mana: leaving: mana 258 of 745, burnt 489 0.5 s ago, 2 drainers in reach',
+        (None, None, None, None, 'leaving'),
     ),
 ]
 
@@ -298,6 +303,33 @@ def test_jumps_back_and_forth_in_a_small_area_are_a_cluster(tmp_path: Path) -> N
     assert case.data['radius'] <= 7
     assert case.cause == ['toward full clear: the elite N (N) x9']
     assert 'reasons: toward full clear' in case.line()
+
+
+# The 23:23:57 hops of take 20261025T202255Z-71 and the 21:32:00 leave of 20261025T182826Z-74 as probe.log says them
+# (the clock in seconds of the minute): each hop says its reason and, ms later, `Teleport toward` the goal
+HOP_A = 'Macro: Teleport toward full clear: the elite 41 (3846488025): clearing the way (14 near): 0 left after this'
+HOP_B = 'Macro: Teleport toward full clear: the elite 40 (2260900621): clearing the way (8 near): 0 left after this'
+TWIN_LINES = [
+    (57.092, 'Macro: Pack: keeping range: extra fast: surrounded: 13 of the pack within 5'),
+    (57.096, 'Macro: pursuit: Teleport toward full clear: the elite 41 (3846488025): clearing the way (14 near) at '
+     '(22669.8, 12593.7), 24 away from (22647.5, 12602.5): to (22669.8, 12593.7) within pressed goal'),
+    (57.100, HOP_A),
+    (57.191, 'Macro: Pack: keeping range: extra fast: 14 of the pack on the character within 18 (the nearest at 13.2)'),
+    (57.198, HOP_A.replace('14 near', '15 near')),
+    (57.209, 'Macro: Teleport on t, player mode 1'),
+    (60.557, 'Macro: Mana: leaving: mana 258 of 745, burnt 489 0.5 s ago, 2 drainers in reach'),
+    (60.573, HOP_B),
+    (62.000, HOP_B),
+]  # fmt: skip
+
+
+def test_one_hop_gives_one_reason_and_the_mana_leave_counts() -> None:
+    found = anomalies.reasons(TWIN_LINES, 0.0, 100.0)
+    assert sorted(found) == [
+        'keeping range: extra fast x2',
+        'mana: leaving x1',
+        'toward full clear: the elite N (N): clearing the way (N near) x1',  # 62.000: a jump of its own
+    ]
 
 
 def test_jumps_that_kill_or_go_somewhere_are_none(tmp_path: Path) -> None:

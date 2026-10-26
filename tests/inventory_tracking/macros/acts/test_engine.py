@@ -45,7 +45,7 @@ def test_one_kind_per_act_on_actloop_with_its_shard():
 
 
 def test_an_act_kind_is_offered_once_its_script_is_ready(monkeypatch):
-    offered = {key for key in loop_kinds() if key.startswith('act')}
+    offered = {key for key in loop_kinds() if key in ACT_KINDS}  # the shard act kinds (not act2tz: test_act2_alone)
     assert offered == {f'act{act}' for act in range(1, 6) if acts.ready(act)}
     assert 'act4' in offered
     assert [coming.key for coming in coming_kinds()] == sorted({*ACT_KINDS} - offered)

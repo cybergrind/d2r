@@ -265,10 +265,12 @@ def _ground(found: ItemFacts) -> ItemFacts:
     return replace(found, where=Where.GROUND, owner=Owner.UNKNOWN)
 
 
-def _picked_on_the_ground(found: ItemFacts) -> bool:
+def _picked_on_the_ground(found: ItemFacts, owned: int | None = 0) -> bool:
+    """The live GOOD pickup's verdict; `owned`: the copies the collection counts (None: not counted)."""
     from inventory_tracking.loot.assess import Assessor, FakeAppraiser, Outcome, Site
 
-    return Assessor(FakeAppraiser({})).assess(_ground(found), Site.GROUND).outcome == Outcome.PICK
+    assessor = Assessor(FakeAppraiser({}), counted=lambda _facts: owned)
+    return assessor.assess(_ground(found), Site.GROUND).outcome == Outcome.PICK
 
 
 def test_the_sacred_rondache_3os_45_res_normal_is_picked():
@@ -284,16 +286,41 @@ def test_the_sacred_rondache_3os_45_res_normal_is_picked():
     ('name', 'ethereal', 'sockets', 'rolls'),
     [
         ('Sacred Rondache', False, 0, RES_45),  # "Drop both": asks n11 4.05 against one fill of 2.0
-        ('Archon Plate', True, 4, {}),  # eth normal 4os: fills n83 median 2.58 (asks n98 9.32)
         ('Archon Staff', False, 6, {}),  # "Drop both": 3 buyers at 4+, 3 fills median 1.0
         ('Sacred Armor', True, 4, {}),  # eth normal 4os: fills n34 median 2.58
     ],
-    ids=['rondache-0os-45-normal', 'archon-eth-4os-normal', 'archon-staff-6os-normal', 'sacred-armor-eth-4os-normal'],
+    ids=['rondache-0os-45-normal', 'archon-staff-6os-normal', 'sacred-armor-eth-4os-normal'],
 )
 def test_the_ruled_out_bases_are_left(name, ethereal, sockets, rolls):
     found = facts(name, NORMAL, ethereal=ethereal, sockets=sockets, ed=0, **rolls)
     assert base_floor.allowed(found) is None
     assert not _picked_on_the_ground(found)
+
+
+def test_one_plain_eth_4os_archon_is_kept_for_own_use():
+    """The player, 2026-10-25: "I want to keep at least one 4os Archon Plate". Off the allowlist (eth normal 4os fills
+    n83 median 2.58), picked by OWN_USE while none is owned or the count is unread (S8), left once one is."""
+    archon = facts('Archon Plate', NORMAL, ethereal=True, sockets=4, ed=0)
+    assert base_floor.allowed(archon) is None
+    assert _picked_on_the_ground(archon, owned=0)
+    assert _picked_on_the_ground(archon, owned=None)
+    assert not _picked_on_the_ground(archon, owned=1)
+    assert base_floor.own_use(archon, lambda _facts: 0) == (
+        'G4',
+        'own use (0 owned, 1 kept): Merc base (own use, 1 kept): eth 4os Archon Plate',
+    )
+    for other in (
+        facts('Archon Plate', NORMAL, ethereal=False, sockets=4, ed=0),  # non-eth: not the merc base
+        facts('Archon Plate', NORMAL, ethereal=True, sockets=3, ed=0),
+        facts('Sacred Armor', NORMAL, ethereal=True, sockets=4, ed=0),
+    ):
+        assert base_floor.own_use(other, lambda _facts: 0) is None
+        assert not _picked_on_the_ground(other, owned=0)
+
+
+def test_the_kept_plain_eth_4os_archon_is_not_sold_in_town():
+    archon = facts('Archon Plate', NORMAL, ethereal=True, sockets=4, ed=0)
+    assert decide(archon, assess(archon, worth=None), []).action == Action.KEEP
 
 
 def test_the_superior_eth_4os_archon_stays_a_merc_base():

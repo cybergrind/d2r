@@ -12,8 +12,10 @@ specialization and concrete points/steps to scripting".
 - Any object with `label` and `plan(ActPlan)` is a step: an act file may define its own (`ActPlan.add`, `rest`,
   `skip`, `route_trip`), never editing this module.
 - `ActScript.alone` (2026-10-25): the act played by itself as its kind's game's own act, its `alone` steps only (no
-  rest of the act, no rotation, no other act: macros/tzroutine.py `alone_act`, macros/actloop.py `alone`); its `whole`
-  levels toured whole (tzroutine.py WHOLE). None: as before.
+  rest of the act, no rotation: macros/tzroutine.py `alone_act`, macros/actloop.py `alone`); its `whole` levels toured
+  whole (tzroutine.py WHOLE). None: as before. `ActScript.extras` (2026-10-26): the other acts that game plays after
+  its own when a shard of theirs is over the limit, each an act's script of its own alone steps (Act 2 TZ leveling's
+  act 4 and act 5, macros/acts/act2.py TZ_LEVELING_EXTRAS); no other act.
 
 Pure: the catalogue and the installed zone table only. Reuses routes/tz_routes.py and macros/tzroutine.py.
 """
@@ -31,9 +33,11 @@ from inventory_tracking.routes.tz_routes import RouteExcursion, route_excursion,
 
 # How a trip's levels on the way to its target are worked: AFTER only crossed (agenda.py ON_THE_WAY), each with its
 # own trip right after the target, nearest it first (the player, 2026-10-20 ~21:27: "river of flame -> CS -> kill
-# diablo -> do rest of flame river"); WORKED on the way (the player's "catacombs 2 -> 3 -> 4 -> andariel")
-AFTER, WORKED = 'after', 'worked'
-Crossed = Literal['after', 'worked']
+# diablo -> do rest of flame river"); WORKED on the way (the player's "catacombs 2 -> 3 -> 4 -> andariel"); ONLY only
+# crossed, no trip of theirs (2026-10-26, Act 2 TZ leveling's act 4: "act 4 terrorized: run full CS + Diablo", the
+# River of Flame its way in only; a later step or the act's rest may still take them)
+AFTER, WORKED, ONLY = 'after', 'worked', 'only'
+Crossed = Literal['after', 'worked', 'only']
 
 
 class Step(Protocol):
@@ -53,19 +57,29 @@ class ActScript:
     act: int
     steps: tuple[Step, ...] = ()
     ready: bool = False
-    # The act played alone (2026-10-25, macros/acts/act2.py ALONE): in a game whose own act it is (its kind's shard,
-    # played first: tzroutine.py `alone_act`) only these steps, then the game's end: no rest of the act, no rotation,
-    # no shard of another act (actloop.py `alone`). None: `steps`, the act's rest and the rotation, as before
+    # The act played alone (2026-10-25, the Act 2 TZ leveling kind, loop.py ACT2_TZ): in that kind's game (its shard's
+    # act played first: tzroutine.py `alone_act`) only these steps, then the acts of `extras` a shard over the limit
+    # terrorized, then the game's end: no rest of the act, no rotation, no other act (actloop.py `alone`). Every other
+    # kind plays `steps`, the act's rest and the rotation
     alone: tuple[Step, ...] | None = None
     # The levels the alone game works whole: every room toured whatever the level's size or a boss on it (tzroutine.py
     # WHOLE, `Excursion.whole`)
     whole: frozenset[int] = frozenset()
+    # The other acts the alone game plays after its own when a shard of theirs is over the limit (2026-10-26, actloop.py
+    # `extra_acts`): each a script of that act whose `alone` steps and `whole` levels are played, in the game's order
+    # (agenda.py `Agenda.acts`). Not the acts' own scripts: their kinds and every other game play those as before
+    extras: tuple[ActScript, ...] = ()
+
+    def extra(self, act: int | None) -> ActScript | None:
+        """The script `extras` holds for act `act`; None with none."""
+        return next((script for script in self.extras if script.act == act), None)
 
 
 @dataclass(frozen=True)
 class Trip:
     """Route `route`'s trip to level `target` (its boss's), from `waypoint` (None: the route's waypoint nearest it).
-    `crossed`: AFTER or WORKED (above). `missing`: why the catalogue cannot play it yet (the route to add); skipped."""
+    `crossed`: AFTER, WORKED or ONLY (above). `missing`: why the catalogue cannot play it yet (the route to add):
+    skipped."""
 
     route: str
     target: int
@@ -89,9 +103,10 @@ class Trip:
             act.skip(self, trip.blockers[0])
             act.add(trip)  # its levels are the itinerary's skipped, with the blocker, unless a later step covers them
             return
-        passes = crossed_levels(trip, self.target, act.zone) if self.crossed == AFTER else ()
+        passes = crossed_levels(trip, self.target, act.zone) if self.crossed in (AFTER, ONLY) else ()
         act.add(trip, frozenset(passes))
-        act.rest(passes, f'the levels {self.route} crossed')
+        if self.crossed == AFTER:
+            act.rest(passes, f'the levels {self.route} crossed')
 
 
 @dataclass(frozen=True)
@@ -214,6 +229,10 @@ def check(script: ActScript, act: int) -> list[str]:
     problems = [] if script.act == act else [f'the script says act {script.act}']
     if zone is None:
         return [*problems, f'no act {act}']
+    for extra in script.extras:
+        if extra.act == act or extra.alone is None or extra.extras:
+            problems.append(f'extra act {extra.act}: another act, with alone steps and no extras of its own')
+        problems += [f'extra act {extra.act}: {problem}' for problem in check(extra, extra.act)]
     names = {route.name for route in ROUTES}
     if any(area not in zone.areas for area in script.whole):
         problems.append(f'whole levels outside act {act}')

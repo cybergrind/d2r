@@ -61,7 +61,7 @@ def act_game(monkeypatch, act: int = 3, stacks: dict[int, int] | None = None, ou
             game.play.stacks[shard] -= 1
         return terrorize.Used(shard, used_act, before, before - (not carried), gone=True, listed=False, carried=carried)
 
-    def used(run, key, used_act, terrorized):
+    def used(run, key, used_act, terrorized, _floor=0):
         game.calls.append(('terrorize', used_act))
         return outcome(used_act, SHARD_OF[used_act], carried=False)
 

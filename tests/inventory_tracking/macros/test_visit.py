@@ -319,7 +319,11 @@ class Town:
                 play.staff = Teleport(play.staff.maximum, play.staff.maximum, False)
             return True
 
-        def walk_until(run, place, bounds, what):
+        real_walk = visit_module.walk_until
+
+        def walk_until(run, place, bounds, what, **kwargs):
+            if what != 'the waypoint':  # the walk to the put-down spot (visit.py DOWN_AWAY): the fake's own walk
+                return real_walk(run, place, bounds, what, **kwargs)
             self.order.append('waypoint')
             return run.world()
 
@@ -1698,6 +1702,105 @@ def test_a_full_tome_and_keys_skip_jamella_and_the_junk_is_put_down_in_one_openi
     assert line.endswith(', jamella -, halbu -, walk -)')
 
 
+# The junk put down off the stash's aims (visit.py DOWN_AWAY, 2026-10-26: the pile at the stash's feet had five of its
+# aims refused at every later opening of the game, 01:27:25-32 in 20261025T220620Z-ce560224)
+
+
+def test_the_put_down_spot_is_clear_of_the_stashs_aims_on_the_way_to_the_waypoint():
+    import math
+
+    import inventory_tracking.macros.visit as visit_module
+    from inventory_tracking.macros.teleport import CHEST_AIMS
+
+    town = visit_module.FORTRESS_MAP
+    spot = visit_module.down_spot(town.stash, town.waypoint)
+    dx, dy = spot[0] - town.stash[0], spot[1] - town.stash[1]
+    across, down = (dx - dy) * 16, (dx + dy) * 8  # classic pixels from the stash's ground (view.py UNIT_PIXELS)
+    pile, label = 80, 100  # a pile's spread across (+-5 units) and a long label's half width, classic pixels
+    assert all(abs(across - aim[0]) >= pile + label for aim in CHEST_AIMS)
+    assert math.dist(town.stash, spot) >= visit_module.DOWN_AWAY - 1e-9
+    gap = math.dist(town.stash, town.waypoint)
+    assert math.isclose(math.dist(town.stash, spot) + math.dist(spot, town.waypoint), gap)  # on the line to it
+    assert math.dist(spot, town.waypoint) >= gap / 2  # short of the waypoint's own click
+    assert abs(down) < 20  # level with the stash: the waypoint's way
+
+
+def at_the_fall(monkeypatch) -> list[tuple[float, float]]:
+    """Where the character stood at each item put down in town."""
+    import inventory_tracking.macros.visit as visit_module
+
+    stood: list[tuple[float, float]] = []
+    real = visit_module._fall
+
+    def fall(run, rect, item, in_cube, why):
+        me = run.world().player
+        stood.append((me.x, me.y))
+        return real(run, rect, item, in_cube, why)
+
+    monkeypatch.setattr(visit_module, '_fall', fall)
+    return stood
+
+
+def test_the_junk_is_put_down_away_from_the_stash_toward_the_waypoint(monkeypatch, caplog):
+    import math
+
+    import inventory_tracking.macros.visit as visit_module
+
+    play, town, _openings = at_need_town(monkeypatch)
+    stood = at_the_fall(monkeypatch)
+    assert play.thing is not None
+    play.thing = replace(play.thing, x=visit_module.USUAL[0], y=visit_module.USUAL[1])  # the Fortress's own stash
+    stash = (play.thing.x, play.thing.y)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert town.stops() == ['cain', 'stash']  # the walk is the put-down's, not the waypoint's
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert len(stood) == 2
+    wanted = visit_module.down_spot(stash, visit_module.FORTRESS_MAP.waypoint)
+    for here in stood:
+        assert math.dist(here, wanted) <= visit_module.DOWN_ARRIVED
+        assert math.dist(here, stash) >= visit_module.DOWN_AWAY - visit_module.DOWN_ARRIVED
+    assert done.contract.misses == ()
+    assert 'Macro: town visit: at the put-down spot' in caplog.text
+
+
+def test_a_game_left_at_the_visit_puts_the_junk_down_at_the_feet(monkeypatch):
+    import math
+
+    play, town, _openings = at_need_town(monkeypatch)
+    stood = at_the_fall(monkeypatch)
+    assert play.thing is not None
+
+    town.visit(Exit.LEAVE)
+
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert all(math.dist(here, (play.thing.x, play.thing.y)) < 4 for here in stood)  # no later opening in this game
+
+
+def test_a_put_down_spot_not_reached_puts_the_junk_down_where_the_character_stands(monkeypatch, caplog):
+    import inventory_tracking.macros.visit as visit_module
+    from inventory_tracking.macros.actuator import Abort
+
+    play, town, _openings = at_need_town(monkeypatch)
+    real = visit_module.walk_until
+
+    def walk_until(run, place, bounds, what, **kwargs):
+        if what == 'the put-down spot':
+            raise Abort('the put-down spot not reached by walking')
+        return real(run, place, bounds, what, **kwargs)
+
+    monkeypatch.setattr(visit_module, 'walk_until', walk_until)
+
+    with caplog.at_level('INFO'):
+        done = town.visit()
+
+    assert sorted(i.unit_id for i in play.fallen) == [11, 12]
+    assert done.contract.misses == ()
+    assert 'not reached: the put-down spot not reached by walking' in caplog.text
+
+
 @pytest.mark.parametrize(
     ('needs', 'said'),
     [
@@ -2078,8 +2181,8 @@ def test_a_potion_the_walk_back_picks_up_is_not_carried_out_of_town(monkeypatch)
     picked = thing(20, 'Super Healing Potion', 8, 1)
     real = visit_module.walk_until
 
-    def walk_until(run, place, bounds, what):
-        found = real(run, place, bounds, what)
+    def walk_until(run, place, bounds, what, **kwargs):
+        found = real(run, place, bounds, what, **kwargs)
         assert play.pack is not None
         play.pack = replace(play.pack, items=(*play.pack.items, picked))  # its label under a walk's click
         return found

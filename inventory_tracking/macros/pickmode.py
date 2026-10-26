@@ -32,7 +32,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.loot import api as field_api, assess, base_floor, ground_judge, value as loot_value
-from inventory_tracking.loot.api import FIELD, oversize
+from inventory_tracking.loot.api import FIELD, landing, oversize
 from inventory_tracking.loot.facts import from_drop
 from inventory_tracking.loot.ground_judge import BASE_CLASSES, GroundVerdict
 from inventory_tracking.loot.shown import RARITIES
@@ -221,19 +221,72 @@ def kept(loot: Loot, mode: str, tome: Callable[[], int | None] | None = None) ->
         shadow(loot, lambda drop: mode == MOST or sure(drop))
     except Exception as error:  # never into the look
         LOG.debug('Macro: loot: shadow: ground not logged: %s', error)
-    drops = tuple(found for drop in loot.drops if (found := _kept(drop, mode, loot, tome)) is not None)
-    return replace(loot, drops=drops)
+    drops = [found for drop in loot.drops if (found := _taken(drop, mode, loot, tome)) is not None]
+    return replace(loot, drops=tuple(_noted(_roomed(loot, drops), loot)))
 
 
-def _kept(drop: Drop, mode: str, loot: Loot, tome: Callable[[], int | None] | None = None) -> Drop | None:
-    """`drop` as `mode` takes it (`_taken`); a big set or unique one taken is remembered for the field check (G18,
-    loot/api.py `Field.note`; the player, 2026-10-20 ~13:28: "identify a big items in the middle of the run"): what
-    is taken does not change."""
-    found = _taken(drop, mode, loot, tome)
-    if found is not None:
+def _noted(drops: list[Drop], loot: Loot) -> list[Drop]:
+    """`drops`, the ones taken; a big set or unique one is remembered for the field check (G18, loot/api.py
+    `Field.note`; the player, 2026-10-20 ~13:28: "identify a big items in the middle of the run"), a stash-bound one
+    for the cube at the next quiet look (`Field.park`, CUBE_AT_PICKUP): what is taken does not change."""
+    for found in drops:
         FIELD.note(found, loot.game)
-        FIELD.park(found, loot.game)  # stash-bound: into the cube at the next quiet look (loot/api.py CUBE_AT_PICKUP)
-    return found
+        FIELD.park(found, loot.game)
+    return drops
+
+
+# The room a sure valuable needs is not taken by another drop (2026-10-26, game 3 at 02:14:54 of alt-d run
+# 20261025T220620Z: back from a trip for room with the loop's 2x4 block free, the MOST level took a magic Caduceus 2x3
+# into it beside a Unique Mesh Armor 2x3 and a Unique Scourge 1x3, and a trip was made for room; the Caduceus sold to a
+# vendor). The field's own guard (loot/api.py `Field._squeeze`) weighed only its big items, and MOST takes a drop
+# whatever the field says: a drop the level takes that is no sure valuable (`good`, the entry point's) is left while a
+# sure one in the look that fits now would not fit after it, in every level and for every path that picks from the
+# look (the press and its batch, the hunt's goals, the guard); seen again once the sure ones are taken.
+ROOM_SAID: set[tuple[object, int]] = set()
+
+
+def _roomed(loot: Loot, drops: list[Drop]) -> list[Drop]:
+    """`drops` (what the level takes of `loot`) less those that would take a sure valuable's room (ROOM_SAID's text),
+    each said once a game; all of them with the room unread. The geometry first, the entry point only when it
+    decides."""
+    if loot.room is None:
+        return drops
+    kept = []
+    for drop in drops:
+        loser = _room_loser(loot.room, drop, drops) if drop.kind == VALUABLE and not drop.prized else None
+        if loser is None:
+            kept.append(drop)
+            continue
+        said = (loot.game, drop.unit_id)
+        if said not in ROOM_SAID:
+            if len(ROOM_SAID) > JUNK_SAID_MOST:
+                ROOM_SAID.clear()
+            ROOM_SAID.add(said)
+            LOG.info('Macro: pickup: %s left on the ground: %s would lose its room', drop.label, loser.label)
+    return kept
+
+
+def _room_loser(room: tuple[str, ...], drop: Drop, drops: list[Drop]) -> Drop | None:
+    """The sure valuable of `drops` that fits the inventory's `room` now and would not after `drop` lands where the game
+    puts it, None when none does or `drop` is a sure valuable itself."""
+    from inventory_tracking.items.grid import Grid  # here: the module's lines are cited (build_wants)
+
+    grid = Grid(room)
+    spot = landing(grid, drop.size)
+    if spot is None:
+        return None  # no room for it: not picked up anyway
+    after = grid.take(spot, drop.size)
+    losers = [
+        other
+        for other in drops
+        if other.unit_id != drop.unit_id
+        and other.kind == VALUABLE
+        and grid.has_room(other.size)
+        and not after.has_room(other.size)
+    ]
+    if not losers or good(drop):
+        return None
+    return next((other for other in losers if good(other)), None)
 
 
 def junk_base(drop: Drop, based: GroundVerdict | None = None) -> str | None:
@@ -265,7 +318,9 @@ def _allowlisted(drop: Drop) -> bool:
     if not base_floor.PLAIN_BY_RULES:
         return True
     try:
-        return base_floor.allowed(from_drop(drop)) is not None
+        facts = from_drop(drop)
+        # or an own-use row under its cap (base_floor.OWN_USE; the player, 2026-10-25: one eth 4os Archon Plate)
+        return base_floor.allowed(facts) is not None or base_floor.own_use(facts, loot_value.owned_bases) is not None
     except Exception as error:  # the allowlist unreadable: not prized (left by `plain_base`)
         LOG.debug('Macro: pickup: no allowlist for %s: %s', drop.label, error)
         return False
@@ -442,14 +497,8 @@ def taken(loot: Loot, mode: str, tome: Callable[[], int | None] | None = None) -
     if not ASSESS_GROUND:
         return kept(loot, mode, tome)
     base_floor.seen(loot.game)  # the town's game for the allowlisted bases taken (keep.py K8 guard)
-    drops = []
-    for drop in loot.drops:
-        found = _assessed_taken(drop, mode, loot, tome)
-        if found is not None:
-            FIELD.note(found, loot.game)
-            FIELD.park(found, loot.game)
-            drops.append(found)
-    return replace(loot, drops=tuple(drops))
+    drops = [found for drop in loot.drops if (found := _assessed_taken(drop, mode, loot, tome)) is not None]
+    return replace(loot, drops=tuple(_noted(_roomed(loot, drops), loot)))
 
 
 def _assessed_taken(drop: Drop, mode: str, loot: Loot, tome: Callable[[], int | None] | None) -> Drop | None:

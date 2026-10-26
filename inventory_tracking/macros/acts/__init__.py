@@ -27,3 +27,9 @@ def ready(act: int | None) -> bool:
     """Whether act `act`'s script is ready (its kind offered, its order played)."""
     script = SCRIPTS.get(act) if act is not None else None
     return script is not None and script.ready
+
+
+def alone(act: int | None) -> bool:
+    """Whether act `act`'s script is ready with alone steps (`ActScript.alone`: loop.py ALONE_KINDS offered)."""
+    script = SCRIPTS.get(act) if act is not None else None
+    return script is not None and script.ready and script.alone is not None

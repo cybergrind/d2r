@@ -300,6 +300,7 @@ def judge(
         goal = boss_explore(self, run, world, player, goal, bosses, now)  # pursuit.py BOSS_EXPLORE
     if not pressed and not (posted is not None and posted.leashed):
         goal = self.nearby(goal, here)
+        goal = moves.engage_goal(self, foes, goal, here)  # the T5 pack's plan walks in (combat/engage.py)
     noted = heading(posted, goal) if posted is not None else None
     if posted is not None and noted is not None and self.swap(posted, noted):
         posted = noted  # across its level's open passage the run goes on (`carry_on`)

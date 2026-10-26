@@ -161,6 +161,9 @@ def no_pending_omens():
     pack.OMENS.clear()
     pack.HOP.at, pack.HOP.units = -math.inf, 0.0
     pack.MARK.at = -math.inf  # the mark's last key (MARK_HOLDS_JUMPS)
+    from inventory_tracking.combat import engage
+
+    engage.reset()  # the T5 pack's plan (combat/engage.py ENGAGE_PLAN)
     from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 
     ECHOING_STRIKE_ATTACK.held.unit = None  # the leader the build's one attack holds (builds/warlock/mark.py reads it)

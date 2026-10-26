@@ -23,7 +23,7 @@ def test_an_act_3_game_with_the_northern_at_the_cap_clears_act_3_then_act_5(monk
     game.game.play.stacks[NORTHERN] = STACK_MOST
     own = actloop.terrorize
 
-    def used(run, key, act, terrorized):
+    def used(run, key, act, terrorized, _floor=0):
         if act == 3:
             return own(run, key, act, terrorized)
         game.shard.append(act)

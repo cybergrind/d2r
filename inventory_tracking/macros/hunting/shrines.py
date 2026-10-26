@@ -31,6 +31,7 @@ from inventory_tracking.loot.shrines import EXPERIENCE_SECONDS, EXPERIENCE_SHRIN
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.experience import MAX_LEVEL, reading
 from inventory_tracking.macros.goals import PICK_NEAR, PICK_UP, WAIT, Goal
 from inventory_tracking.macros.hunting.base import FAR_JUDGED, HURT_SECONDS, LOOP_PICK_SECONDS, OPEN_NEAR, hostiles
 from inventory_tracking.macros.movement import HOPS
@@ -65,6 +66,12 @@ SHRINE_LIFE = 50.0  # % of the character's life at least (or the build's safety 
 SHRINE_NEAR = OPEN_NEAR  # units on a clear line: clicked from here (12; the click walks the rest)
 REFRESH_AFTER = 30.0  # seconds since this run used one: a second one renews no less than this
 SHRINE_POLL = 0.1  # seconds between the reads of its mode after a click
+# TZ_EVERY_SHRINE (the player, 2026-10-25 ~17:53: "in TZ if we're not 99 lvl already we should use all experience
+# shrines"): on a terrorized level, with the character read under MAX_LEVEL, every unused Experience Shrine the read
+# finds is gone for, not only one on the way, and a second renews the first's 144 s at any age (no REFRESH_AFTER wait).
+# The quiet (`quiet`) and the tries still hold. An unread level, level 99 or a level that is no terror zone: as before.
+TZ_EVERY_SHRINE = True
+TZ_SHRINE_SECONDS = 30.0  # seconds of the looks gone for one there (a shrine off the way is further than SHRINE_WALK)
 # Classic pixels above its ground point: a shrine is drawn as a statue or an altar standing on it (objects.txt gives
 # none a click box), so the aims go up its middle; each is clicked only with the shrine under the pointer by the
 # game's own hover record. Not yet seen clicked on this build.
@@ -168,6 +175,18 @@ def quiet(self: Hunter, run: Run, world: World, here: Point, place: Point) -> tu
     return None
 
 
+def every_shrine(self: Hunter, run: Run, area: int) -> bool:
+    """TZ_EVERY_SHRINE: whether level `area` is a terror zone now and the character's level is read under MAX_LEVEL."""
+    if not TZ_EVERY_SHRINE or run.loot is None or not self.bearings.terror(area):
+        return False
+    try:
+        loot = run.loot()
+    except OSError, ValueError:
+        return False
+    now = reading(dict(loot.stats)) if loot is not None and loot.stats else None
+    return now is not None and now.level < MAX_LEVEL
+
+
 def side_goal(self: Hunter, run: Run, world: World, goal: Goal | None, posted: Pursuit | None) -> Goal | None:
     """The level run's goal with an Experience Shrine on its way first (the module's rules); `goal` otherwise. Asked
     by `judge` on a run's own look (no advance press)."""
@@ -182,11 +201,13 @@ def side_goal(self: Hunter, run: Run, world: World, goal: Goal | None, posted: P
     watch.begin(world.game_name)
     level = self.known_level(player)
     ground = Ground(level.ground) if level is not None else None
+    every = every_shrine(self, run, player.area)
+    sight, seconds = (math.inf, TZ_SHRINE_SECONDS) if every else (SHRINE_SIGHT, SHRINE_SECONDS)
     found: list[tuple[float, Shrine]] = []
     for shrine in seen(self, run, now):
         place = (float(shrine.x), float(shrine.y))
         away = math.dist(here, place)
-        if shrine.unit_id in watch.left or shrine.mode != 0 or away > SHRINE_SIGHT:
+        if shrine.unit_id in watch.left or shrine.mode != 0 or away > sight:
             continue
         if shrine.shrine_type != EXPERIENCE_SHRINE:
             leave(watch, shrine, "not an Experience Shrine (another shrine's effect would end an Experience Shrine's)")
@@ -195,15 +216,15 @@ def side_goal(self: Hunter, run: Run, world: World, goal: Goal | None, posted: P
             leave(watch, shrine, f'not used in {SHRINE_TRIES} tries')
             continue
         since = watch.since.get(shrine.unit_id)
-        if since is not None and since[0] > SHRINE_SECONDS:
-            leave(watch, shrine, f'not used in {SHRINE_SECONDS:.0f} s gone for')
+        if since is not None and since[0] > seconds:
+            leave(watch, shrine, f'not used in {seconds:.0f} s gone for')
             continue
-        if watch.used_at is not None and now - watch.used_at < REFRESH_AFTER:
+        if not every and watch.used_at is not None and now - watch.used_at < REFRESH_AFTER:
             age = now - watch.used_at
             say(watch, shrine, f'waits: the last one was used {age:.0f} s ago (renewing it gains under '
                 f'{REFRESH_AFTER:.0f} of {EXPERIENCE_SECONDS:.0f} s)', 'renews little')  # fmt: skip
             continue
-        if since is None and not on_the_way(self, run, world, ground, here, place, shrine.unit_id):
+        if since is None and not every and not on_the_way(self, run, world, ground, here, place, shrine.unit_id):
             say(watch, shrine, f'not on the way from ({here[0]:.0f}, {here[1]:.0f}): {away:.0f} away', 'off the way')
             continue
         why = quiet(self, run, world, here, place)
@@ -216,7 +237,7 @@ def side_goal(self: Hunter, run: Run, world: World, goal: Goal | None, posted: P
     away, shrine = min(found, key=lambda pair: pair[0])
     spent, last = watch.since.get(shrine.unit_id, (0.0, now))
     watch.since[shrine.unit_id] = (spent + (now - last if 0.0 <= now - last <= SHRINE_GAP else 0.0), now)
-    say(watch, shrine, f'is {away:.0f} away: going to it', 'going')
+    say(watch, shrine, f'is {away:.0f} away: going to it' + (' (terror zone: every one)' if every else ''), 'going')
     spend = goal.spend if goal is not None else (self.looped_now(now) if posted.rush else PRESSED)
     route = goal.route if goal is not None else ''
     place = (float(shrine.x), float(shrine.y))

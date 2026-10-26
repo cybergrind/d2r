@@ -18,13 +18,17 @@ again, the kind's own shard and the game untouched.
 Every overflow shard used (2026-10-22, the player: "use all overflow shards => maybe more acts"): no bound on the acts
 a game (OVERFLOW_MOST None), a carried shard counted toward its stack (CARRIED_COUNT), a usable one never put down
 (SPARE_USABLE, `spared`), and one carried at the game's end used there, the game going on (END_USE, `use_at_end`).
+
+An alone kind (Act 2 TZ leveling, `alone`) plays its own act's steps and, by the same overflow paths, only its script's
+extra acts (2026-10-26, `extra_acts`: the Deep's act 4 and the Northern's act 5 over the limit, macros/acts/act2.py
+TZ_LEVELING_EXTRAS), once its own act is terrorized; its own Eastern from a stack over EASTERN_FLOOR (`own_floor`).
 """
 
 from collections.abc import Callable, Iterable
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Carried, Pack, StashView, World
-from inventory_tracking.game.stash import NORTHERN_FLOOR
+from inventory_tracking.game.stash import EASTERN_FLOOR, NORTHERN_FLOOR
 from inventory_tracking.macros import (
     midgame,
     terrorize as hands,  # `hands.CLICKS` read at the call
@@ -50,8 +54,9 @@ from inventory_tracking.native.layout import TOWN_IDS
 # The act kind "Shard: Act 4" offered (the picker's entry). On 2026-10-20 ~21:18 after the player's in-game test
 # (findings §6) with terrorize.CLICKS on. False: the kind is not offered
 ENABLED = True
-# The kinds' acts by kind key (loop.py ACT_KINDS: act1 ... act5, each offered once its script is ready, macros/acts/)
-ACTS = {f'act{act}': act for act in range(1, 6)}
+# The kinds' acts by kind key (loop.py ACT_KINDS: act1 ... act5, each offered once its script is ready, macros/acts/;
+# loop.py ALONE_KINDS: act2tz, Act 2 TZ leveling, the Eastern shard, 2026-10-25)
+ACTS = {**{f'act{act}': act for act in range(1, 6)}, 'act2tz': 2}
 # The shard step's outcomes in a game (`Agenda.shard`); an overflow act's (`Agenda.overflow`): USED, REFUSED (the
 # right click did not take: an act terrorized already, 15:08:41 on 2026-10-21), FAILED (a stop)
 USED, NONE_HELD, CLICKS_OFF, FAILED, GIVEN_UP, JOINED, REFUSED = (
@@ -146,14 +151,82 @@ def act_of(kind) -> int | None:
     return ACTS.get(kind.key)
 
 
-def alone(act: int | None) -> bool:
-    """Whether act `act`'s game plays it alone (macros/acts/engine.py `ActScript.alone`; act2.py ALONE, the player,
-    2026-10-25 ~17:15: "act 2 tz leveling ... go all canyon of the magi + all tals rasha tombs ... go full arcane
-    sanctuary"): its kind's game uses no shard over the limit (`overflow_due`, `picked_shards`, `unusable`: the acts
-    would not be played, tzroutine.py `itinerary` plans the alone act only), and no game of a kind with no act of its
-    own (TZ leveling, OVERFLOW_KINDS) uses its shard as an overflow (it would be the game's first act: alone, the
-    rotation dropped). False for None."""
+def alone(kind) -> bool:
+    """Whether `kind`'s game plays its act alone (loop.py `Kind.alone`: Act 2 TZ leveling; macros/acts/engine.py
+    `ActScript.alone`, act2.py TZ_LEVELING_STEPS; the player, 2026-10-25 ~17:15: "act 2 tz leveling ... go all canyon
+    of the magi + all tals rasha tombs ... go full arcane sanctuary"; ~17:47: "separate Act 2 TZ Leveling"): its game
+    uses a shard over the limit of its `extra_acts` only (`overflow_due`, `overflow`, `picked_shards`, `end_due`,
+    `unusable`), once its own act is terrorized; tzroutine.py `itinerary` plans the alone act and those. False for
+    None, any other kind, or its act with no alone steps."""
+    if kind is None or not getattr(kind, 'alone', False):
+        return False
+    act = act_of(kind)
     return act is not None and alone_act((act,)) == act
+
+
+def extra_acts(kind) -> frozenset[int]:
+    """The acts an alone kind's game plays after its own by a shard over the limit (macros/acts/engine.py
+    `ActScript.extras`; act2.py TZ_LEVELING_EXTRAS, 2026-10-26, the player: "if we get act 4 extra shard (like now, over
+    99) - we terrorize it", "act 4 terrorized: run full CS + Diablo"; "if we get act 5 extra shard - we terrorize it and
+    do full clear of worldstone keep 2, 3, trone room and baal"): Act 2 TZ leveling's 4 and 5. Empty for another kind:
+    its overflow as before."""
+    return script_extras(act_of(kind)) if alone(kind) else frozenset()
+
+
+def script_extras(act: int | None) -> frozenset[int]:
+    """The acts of act `act`'s script's extras (`ActScript.extras`); empty with none."""
+    from inventory_tracking.macros.acts import script_of  # late: the act scripts import tzroutine
+
+    script = script_of(act) if act is not None else None
+    return frozenset(extra.act for extra in script.extras) if script is not None else frozenset()
+
+
+# The alone kind's game with its act not terrorized (2026-10-25 ~19:12, the player: "act 2 tz leveling must do the: -
+# use shard for act 2 - canyon of the magi - all tal rasha tombs - duriel - arcane sanctuary + summoner - loop"; "no
+# other levels, no other shards"): never the rotation or the zones read. A game joined in a field level, or one whose
+# shard did not take (FAILED), ends (tzloop.py ALONE_ENDS: Save and Exit, the ground's valuables first), the next game
+# begins in town with the shard; no shard at the floor, the clicks off, or SHARD_FAILURES games in a row whose shard
+# did not take (GIVEN_UP) end the game and stop the loop in the lobby (`alone_stop`), so the player picks another kind
+ALONE_STOPS = frozenset((NONE_HELD, CLICKS_OFF, GIVEN_UP))
+STOP_SAID = 'stopped'  # `Agenda.shard` once `alone_stop` stopped the loop for it: a turn-on in the lobby goes on
+
+
+def fallback(loop, when: str = 'this game') -> str:
+    """What a game whose act is not terrorized plays, for the log: TZ+ on the rotation (`when`), or for an alone kind
+    nothing (`alone_end`)."""
+    return (
+        'the game ends unplayed (its kind plays no other level)' if alone(loop.kind) else f'TZ+ on the rotation {when}'
+    )
+
+
+def alone_end(loop) -> str | None:
+    """Why the alone kind's game ends unplayed (`ALONE_STOPS`, JOINED, FAILED); None for another kind, before its
+    shard step, or with its act terrorized (USED)."""
+    if not alone(loop.kind):
+        return None
+    shard, act = loop.agenda.shard, act_of(loop.kind)
+    name = name_of(next(each for each, its in SHARDS.items() if its == act))
+    if shard == JOINED:
+        return f'{loop.kind.name}: the game was joined in a field level, act {act} not terrorized'
+    if shard == FAILED:
+        return f'{loop.kind.name}: the {name} did not take, the next game tries again'
+    if shard == NONE_HELD:
+        return f'no {name} at {own_floor(loop.kind)}+ for {loop.kind.name}'
+    if shard == CLICKS_OFF:
+        return f'terrorize.CLICKS is off: no {name} for {loop.kind.name}'
+    if shard == GIVEN_UP:
+        return f'the {name} did not take {SHARD_FAILURES} games in a row: no {loop.kind.name}'
+    return None
+
+
+def alone_stop(loop) -> str | None:
+    """In the lobby after an alone kind's game ended for one of `ALONE_STOPS`: why the loop stops (said once: the
+    agenda's outcome is set to STOP_SAID and the failures counted afresh, so the player's turn-on goes on)."""
+    if not alone(loop.kind) or loop.agenda.shard not in ALONE_STOPS:
+        return None
+    why = alone_end(loop)
+    loop.agenda.shard, loop.agenda.shard_failures = STOP_SAID, 0
+    return f'{why}: the loop stops for the player to pick another kind'
 
 
 def shard_goal(world: World, loop) -> Objective | None:
@@ -165,12 +238,13 @@ def shard_goal(world: World, loop) -> Objective | None:
         return None
     if not player.in_town:
         agenda.shard = JOINED
-        LOG.info('Macro: act: the game is joined in a field level: no shard, the zones read are played')
+        played = 'no zone of it is played (`alone_end`)' if alone(loop.kind) else 'the zones read are played'
+        LOG.info('Macro: act: the game is joined in a field level: no shard, %s', played)
         return None
     if agenda.shard_failures >= SHARD_FAILURES:
         agenda.shard = GIVEN_UP
-        LOG.info('Macro: act: the shard did not take %d games in a row: TZ+ on the rotation until a restart',
-                 agenda.shard_failures)  # fmt: skip
+        LOG.info('Macro: act: the shard did not take %d games in a row: %s', agenda.shard_failures,
+                 fallback(loop, 'until a restart'))  # fmt: skip
         return None
     if loop.visit_due(world.game_name):
         return None  # the visit first: it makes the room the shard needs
@@ -210,20 +284,21 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
             return
         LOG.info('Macro: act: the carried %s did not take: one from its stack', name_of(item.txt))
     view = run.reads.stash_view()
-    if choose_shard(view, act) is None:
+    floor = own_floor(loop.kind)
+    if choose_shard(view, act, floor) is None:
         agenda.shard = NONE_HELD
-        LOG.info('Macro: act: no shard for act %d at %d or more (%s): TZ+ on the rotation this game', act,
-                 SHARD_FLOOR, stacks_said(view))  # fmt: skip
-        run.say(f'Act {act}: no shard at {SHARD_FLOOR}+: TZ+')
+        LOG.info('Macro: act: no shard for act %d at %d or more (%s): %s', act, floor, stacks_said(view),
+                 fallback(loop))  # fmt: skip
+        run.say(f'Act {act}: no shard at {floor}+: ' + ('the loop stops' if alone(loop.kind) else 'TZ+'))
         return
     if not hands.CLICKS:
         agenda.shard = CLICKS_OFF
-        LOG.info('Macro: act: terrorize.CLICKS is off: TZ+ on the rotation this game')
+        LOG.info('Macro: act: terrorize.CLICKS is off: %s', fallback(loop))
         return
     agenda.shard = FAILED  # tried once a game, whatever stops it (a stash out of sight)
     midgame.keep(loop)  # in the game's record before the click: a crash under it never tries a second shard
     try:
-        used = terrorize(run, inventory_key, act, terrorized)
+        used = terrorize(run, inventory_key, act, terrorized, floor)
     except Hand:
         agenda.shard = None  # the player's hand: tried again at the next leg
         raise
@@ -237,9 +312,25 @@ def own_shard(loop, run: Run, terrorized, inventory_key: str | None = None) -> N
                  name_of(used.shard))  # fmt: skip
         return
     agenda.shard_failures += 1
-    LOG.info('Macro: act: the shard did not take (%s): TZ+ on the rotation this game (%d of %d)',
+    LOG.info('Macro: act: the shard did not take (%s): %s (%d of %d)',
              'nothing used' if used is None else 'gone, the stack not one lower' if used.gone else 'still carried',
-             agenda.shard_failures, SHARD_FAILURES)  # fmt: skip
+             fallback(loop), agenda.shard_failures, SHARD_FAILURES)  # fmt: skip
+
+
+# The alone kinds' own shard floors (2026-10-26 ~09:05, the player, the Eastern stack at 89: "Floor 40: Act 2 TZ
+# leveling uses Eastern shards down to 40, as the Northern for Baal does ('floor is 40, use up to it')"): by act, the
+# stack taken from while it holds more than it (game/stash.py EASTERN_FLOOR), as NORTHERN_STACK's Northern. Every other
+# kind's own shard from a stack at SHARD_FLOOR (90) or more, as before
+ALONE_FLOORS = {2: EASTERN_FLOOR}
+
+
+def own_floor(kind) -> int:
+    """The least stack the kind's own shard is taken from (terrorize.py `choose_shard`'s `floor`): an alone kind's
+    floor over ALONE_FLOORS (41 for Act 2 TZ leveling's Eastern), every other kind's SHARD_FLOOR."""
+    act = act_of(kind) if kind is not None else None
+    if alone(kind) and act in ALONE_FLOORS:
+        return ALONE_FLOORS[act] + 1
+    return SHARD_FLOOR
 
 
 def carried_own(run: Run, act: int) -> Carried | None:
@@ -263,23 +354,27 @@ def overflow_due(
     carried: Iterable[Carried] = (),
     *,
     carried_only: bool = False,
+    alone: bool = False,
 ) -> tuple[tuple[int, Carried | None], ...]:
     """Pure. The overflow uses due now (`OVERFLOW`): each act of a shard over the limit (`over_limit`: its stack at the
     cap, or with no room for the `carried` ones, CARRIED_COUNT) but the kind's own (`own`), not terrorized and not
     tried in this game, with the carried shard of it to use (the inventory's
     first, then the cube's; None: one from its stack); the acts after `own` first (act 3: 4, 5, 1, 2), at most
     OVERFLOW_MOST played a game. () with the switch off or the stash unread. `carried_only`: only the acts of a carried
-    shard (a TZ leveling game, OVERFLOW_KINDS), so one with none carried does not take the slot from one carried."""
-    if not OVERFLOW or alone(own):
+    shard (a TZ leveling game, OVERFLOW_KINDS), so one with none carried does not take the slot from one carried.
+    `alone`: an alone kind's game (`alone`): the acts of its script's extras only (`script_extras` of `own`: Act 2 TZ
+    leveling's 4 and 5, 2026-10-26)."""
+    if not OVERFLOW:
         return ()
+    extras = script_extras(own) if alone else None
     held = tuple(carried)
     due = sorted(
         (SHARDS[shard], shard)
         for shard in over_limit(view, held if CARRIED_COUNT else ())
         if SHARDS[shard] != own
-        and not (own is None and alone(SHARDS[shard]))  # a TZ game's first act: alone, its rotation dropped
         and SHARDS[shard] not in agenda.acts
         and SHARDS[shard] not in agenda.overflow
+        and (extras is None or SHARDS[shard] in extras)
         and (not carried_only or any(item.txt == shard for item in held))
     )
     due.sort(key=lambda pair: (pair[0] - (own or 0)) % len(SHARDS))  # no own act (OVERFLOW_KINDS): act 1 first
@@ -298,17 +393,20 @@ def picked_shards(loop) -> frozenset[int]:
     each shard of an act neither terrorized nor tried in this game. Empty otherwise (today's: left on the ground)."""
     agenda, kind = getattr(loop, 'agenda', None), getattr(loop, 'kind', None)  # a bare loop: no act kind's game
     own = act_of(kind) if kind is not None else None
-    if not (OVERFLOW and PICK_OVER_LIMIT and hands.CLICKS) or own is None or agenda is None or alone(own):
+    if not (OVERFLOW and PICK_OVER_LIMIT and hands.CLICKS) or own is None or agenda is None:
         return frozenset()
-    if agenda.shard in NO_OVERFLOW:
+    if agenda.shard in NO_OVERFLOW or (alone(kind) and agenda.shard != USED):
         return frozenset()
     game = getattr(agenda.game, 'name', agenda.game)
     if game is None or loop.done == game:
         return frozenset()
     if OVERFLOW_MOST is not None and len(overflow_played(agenda)) >= OVERFLOW_MOST:
         return frozenset()
+    extras = extra_acts(kind) if alone(kind) else None  # an alone kind's: its extra acts' only
     return frozenset(
-        shard for shard, act in SHARDS.items() if act != own and act not in agenda.acts and act not in agenda.overflow
+        shard
+        for shard, act in SHARDS.items()
+        if act != own and act not in agenda.acts and act not in agenda.overflow and (extras is None or act in extras)
     )
 
 
@@ -318,9 +416,10 @@ def overflow(loop, run: Run, terrorized, inventory_key: str | None = None, *, ca
     after the acts before it; a refused one (an act terrorized already: it stays carried) or a stop is said and left:
     never the kind's shard failures, never the game's end. The player's hand or a cut run stops it, nothing noted
     (tried again at the next visit in town). `carried_only`: a carried shard only (a waypoint leg from a town: no walk
-    to the stash)."""
+    to the stash). An alone kind's game (`alone`): its `extra_acts` only, once its own act is terrorized (USED)."""
     agenda, own = loop.agenda, act_of(loop.kind)
-    if not OVERFLOW or not hands.CLICKS:
+    lone = alone(loop.kind)
+    if not OVERFLOW or not hands.CLICKS or (lone and agenda.shard != USED):
         return
     picked_only = own is None  # a kind of no act (OVERFLOW_KINDS): a picked-up shard only, never one from its stack
     if picked_only and getattr(loop.kind, 'key', None) not in OVERFLOW_KINDS:
@@ -331,7 +430,7 @@ def overflow(loop, run: Run, terrorized, inventory_key: str | None = None, *, ca
     view = run.reads.stash_view()
     pack = run.reads.carried()
     carried = (*pack.items, *pack.in_cube) if pack is not None else ()  # the inventory's first
-    for act, item in overflow_due(view, agenda, own, carried, carried_only=picked_only):
+    for act, item in overflow_due(view, agenda, own, carried, carried_only=picked_only, alone=lone):
         if carried_only and item is None:
             continue
         shard = next(each for each, its in SHARDS.items() if its == act)
@@ -402,6 +501,9 @@ def end_due(loop, run: Run) -> tuple[int, ...]:
     own = act_of(kind) if kind is not None else None
     if not (END_USE and OVERFLOW and hands.CLICKS) or getattr(loop, 'abandon', False) or kind is None:
         return ()
+    lone = alone(kind)
+    if lone and agenda.shard != USED:
+        return ()  # an alone kind's game whose own act is not terrorized: it ends unplayed
     if own is None and getattr(kind, 'key', None) not in OVERFLOW_KINDS:
         return ()
     if own is not None and agenda.shard in NO_OVERFLOW:
@@ -409,7 +511,8 @@ def end_due(loop, run: Run) -> tuple[int, ...]:
     view = run.reads.stash_view() or run.stash.current()
     pack = run.reads.carried()
     carried = (*pack.items, *pack.in_cube) if pack is not None else ()
-    return tuple(act for act, item in overflow_due(view, agenda, own, carried, carried_only=True) if item is not None)
+    due = overflow_due(view, agenda, own, carried, carried_only=True, alone=lone)
+    return tuple(act for act, item in due if item is not None)
 
 
 def unusable(loop, act: int) -> str | None:
@@ -422,10 +525,10 @@ def unusable(loop, act: int) -> str | None:
     own = act_of(kind)
     if own is None and getattr(kind, 'key', None) not in OVERFLOW_KINDS:
         return f'{getattr(kind, "name", kind.key)} has no shard use'
-    if alone(own) and act != own:
-        return f'act {own} plays alone (macros/acts/act{own}.py ALONE): no other act in its game'
-    if own is None and alone(act):
-        return f'act {act} plays alone (macros/acts/act{act}.py ALONE): never an overflow act of this kind'
+    if alone(kind) and act != own and act not in extra_acts(kind):
+        return f'{kind.name} plays act {own} alone: no other act in its game'
+    if alone(kind) and act != own and agenda.shard not in (None, USED):
+        return f'no shard is risked in this game ({agenda.shard}): it ends unplayed'
     if own is not None and agenda.shard is not None and agenda.shard in NO_OVERFLOW:
         return f'no shard is risked in this game ({agenda.shard})'
     if act == own:

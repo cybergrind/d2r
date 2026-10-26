@@ -81,8 +81,8 @@ def test_short_hops_by_a_held_t5_pack_are_not_made(monkeypatch, on):
     assert (short is not None) is on
     inside = pack.held(hold, (5010.0, 5012.0), pack.PLACE)  # 15.6 units, 12.6 from a member
     assert (inside is not None) is on
-    # The keep range's hop goes (2026-10-25 arena, apply-short.md: herald seed 8, the held hops let a hulk walk in)
-    assert pack.held(hold, (4990.0, 5004.0), pack.KEEP) is None
+    # The keep range's hop is held too (2026-10-25 ~18:50, the fixed arena: no new death, t5-blow-findings.md Update)
+    assert (pack.held(hold, (4990.0, 5004.0), pack.KEEP) is not None) is on
     assert pack.held(hold, (4975.0, 5000.0), pack.RETREAT) is None  # 25 units, 39 off the pack: a real retreat
 
 

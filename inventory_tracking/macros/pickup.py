@@ -32,7 +32,7 @@ from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, Dead, press_skill
-from inventory_tracking.macros.skills import skill_name
+from inventory_tracking.macros.skills import TELEPORT, skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
 from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump, walk_reaches
 from inventory_tracking.models import PotionType
@@ -285,11 +285,17 @@ def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
         return math.dist(here, (drop.x, drop.y))
 
     # A valuable with no room is left: no click takes it, and the press would do nothing else. One picked for the
-    # field identify (loot/api.py) comes after every other in sight: a big one never takes a valuable's room
+    # field identify (loot/api.py) comes after every other in sight: a big one never takes a valuable's room. Not a
+    # prized one remembered for the field check (G18, `Field.note`; 2026-10-26 02:14:54, a Unique Mesh Armor came after
+    # a vendor Caduceus): it is a valuable itself
     valuables = [drop for drop in loot.drops if drop.kind == VALUABLE and has_room(loot.room, drop.size)]
     if valuables:
         game = loot.game[0] if loot.game is not None else None
-        return Plan(min(valuables, key=lambda drop: (FIELD.class_of(drop.unit_id, game) is not None, away(drop))))
+
+        def last(drop: Drop) -> bool:
+            return not drop.prized and FIELD.class_of(drop.unit_id, game) is not None
+
+        return Plan(min(valuables, key=lambda drop: (last(drop), away(drop))))
     gold = [drop for drop in loot.drops if drop.kind == GOLD and away(drop) <= GOLD_UNITS]
     if gold:
         return Plan(min(gold, key=away))
@@ -369,9 +375,18 @@ def approach(run: Run, drop: Spot, level: Level | None, key_names, hops: int = H
             return
 
 
+HOP_UNMOVED = 'the character did not move'  # teleport.py `hop_to`'s abort words: the hop's Teleport moved nothing
+
+
 def moved_in_hand(run: Run, drop: Spot, level: Level, aspect: float, key_names, why: Abort) -> bool:
     """One move toward `drop` by the build's movement sets when no hop could be made (`why`); whether made."""
     travel = Travel(run.build.movement)
+    if HOP_UNMOVED in str(why):
+        # The hop's Teleport moved nothing: a fresh Travel did not know it and chose a Teleport to the same spot,
+        # twice a leg, and the loop stopped with a Large Charm and a Flawless Skull on the ground (2026-10-26
+        # 03:03:49-58: four presses at (22718.2, 9853.8), the pointer at y 111 of 1418). The failure is told to it, so
+        # its set leaves Teleport alone for the intent's distrust and takes another jump or a walk
+        travel.jump_failed[TELEPORT] = run.clock()
     world = run.world()
     ground = Ground(level.ground)
     found = travel.toward(run, world, ground, aspect, (drop.x, drop.y), PRESSED, level.rooms)

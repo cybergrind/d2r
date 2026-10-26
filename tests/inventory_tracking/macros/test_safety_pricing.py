@@ -1102,6 +1102,44 @@ def test_a_teleport_stand_chosen_look_after_look_with_the_character_still_is_dro
     assert stand_move(priced).harm.barred is None
 
 
+def test_a_teleport_the_looks_choose_but_nothing_presses_is_not_dropped(monkeypatch, caplog):
+    # rca/2026-10-26/cast-nothing-findings.md: the Key of Hate at 23:33:18 on 2026-10-25, "chosen 7 looks in a row over
+    # 1.0s" while the fight struck on (YIELD_KEEPS) and no Teleport key went: barred 20 s, 17.7 s to pick it up. The
+    # looks' choice counts nothing; only the pursuit's press does (`Safety.hopped`, hunting/moves.py `pursue`)
+    from inventory_tracking.combat.harm import Look
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+
+    stand = Step((8.0, 0.0), TELEPORT)
+    safety = module.Safety()
+    goal = Goal('Key of Hate, on the way', (20.0, 0.0), 'loot', 1.0, PRESSED)
+    hop = p.Move(stand, goal)
+    with caplog.at_level(logging.INFO, logger=LOG.name):
+        for now in (4.0, 4.15, 4.3, 4.45, 4.6, 4.75, 5.0):  # each look's choice (`Safety.price` -> `remember`)
+            safety.remember(hop, Look((), life=1800), (0.0, 0.0), False, (), now, None)
+    assert not safety.duds
+    assert safety.hops is None
+    assert 'the spot is dropped' not in caplog.text
+    _, priced = _clump_fight(monkeypatch, offer=(stand, 5.1), now=5.2, safety=safety)
+    assert next(c for c in priced.candidates if isinstance(c.act, p.Move)).harm.barred is None
+
+
+def test_a_dropped_spot_lapses_at_the_looks_though_no_press_comes(monkeypatch):
+    # The bar lapses with the looks (`remember`), not only at the next press: a spot never pressed again is freed
+    from inventory_tracking.combat.harm import Look
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+
+    stand = Step((8.0, 0.0), TELEPORT)
+    safety = module.Safety()
+    safety.duds = {stand.spot: 10.0}
+    goal = Goal('clearing the way', (20.0, 0.0), 'fight', 22.1, PRESSED)
+    safety.remember(p.Hold(goal), Look((), life=1800), (0.0, 0.0), False, (), 9.0, None)
+    assert list(safety.duds) == [stand.spot]
+    safety.remember(p.Hold(goal), Look((), life=1800), (0.0, 0.0), False, (), 10.5, None)
+    assert not safety.duds
+
+
 # The player, 2026-10-20 ~23:10 (combat/threats/diablo.py WALK_AROUND): "probably the best way to handle this
 # particular his attack - just walk around of him". The live fights of that evening hopped to the fight's better
 # place (a Teleport of 17 to 19 units) while his stream was under way; the stream re-aims at the landing.
@@ -1332,3 +1370,19 @@ def test_every_act_vetoed_reads_the_looks_own_decision_only() -> None:
     assert not every_act_vetoed(one, 5.0)
     assert not every_act_vetoed({'looked_at': 5.0, 'candidates': []}, 5.0)
     assert not every_act_vetoed({}, 0.0)
+
+
+def test_retreat_chosen_reads_the_chosen_candidate_of_the_looks_own_decision() -> None:
+    # macros/hunting/moves.py REJUV_VETOED (2026-10-25): under the drinker's danger share a look that chose a retreat
+    # drinks a rejuvenation first; a hold or a move toward the fight at the same look does not
+    from inventory_tracking.macros.safety import retreat_chosen
+
+    hold = {'act': 'Hold', 'place': (0.0, 0.0), 'retreat': False}
+    back = {'act': 'Move', 'place': (16.0, 0.0), 'retreat': True}
+    spot = {'act': 'Move', 'place': (3.0, 0.0), 'retreat': False}
+    walked = {'looked_at': 5.0, 'chosen': 'Move', 'chosen_place': (16.0, 0.0), 'candidates': [hold, spot, back]}
+    assert retreat_chosen(walked, 5.0)
+    assert not retreat_chosen(walked, 5.1)  # an older look
+    assert not retreat_chosen({**walked, 'chosen_place': (3.0, 0.0)}, 5.0)  # the firing spot
+    assert not retreat_chosen({**walked, 'chosen': 'Hold', 'chosen_place': (0.0, 0.0)}, 5.0)
+    assert not retreat_chosen({}, 0.0)

@@ -7,6 +7,7 @@ import pytest
 
 from inventory_tracking.game.records import GOLD, HEALING, VALUABLE, Drop, Loot, Rolls
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.loot import value as loot_value
 from inventory_tracking.macros import pickmode
 from inventory_tracking.macros.pickmode import (
     MODES,
@@ -399,6 +400,33 @@ def test_a_big_field_item_with_no_grand_charms_room_after_it_is_left(looping):
 
 
 @pytest.mark.parametrize('mode', MODES)
+def test_a_shown_item_never_takes_the_room_of_a_named_one_beside_it(looping, mode, monkeypatch):
+    """Game 3 at 02:14:54 on 2026-10-26 (alt-d run 20261025T220620Z, Tal Rasha's tomb): back from a trip for room with
+    the loop's 2x4 block free, the MOST level took the magic Caduceus (2x3, shown, nearest) beside a Unique Mesh Armor
+    (2x3) and a Unique Scourge (1x3); it was appraised vendor in town after a trip made for it. The shown one is left
+    while a named one would lose its room to it, in every level, and the 2x3 unique is the press's first."""
+    from inventory_tracking.game.records import NAMED
+    from inventory_tracking.loot import api
+    from inventory_tracking.macros.pickup import choose
+
+    for name, empty in (('waiting', {}), ('left_said', set()), ('judged', {}), ('roomless', {}), ('parking', {})):
+        monkeypatch.setattr(api.FIELD, name, empty)
+    monkeypatch.setattr(api.FIELD, 'tome_seen', None)
+    caduceus = replace(base('Caduceus', (2, 3), None, quality=4, unit=1), x=1.0)
+    mesh = replace(drop('Mesh Armor', source=NAMED, quality=7, prized=True), unit_id=2, size=(2, 3), x=3.0)
+    scourge = replace(drop('Scourge', source=NAMED, quality=7, prized=True), unit_id=3, size=(1, 3), x=5.0)
+    block = ('########..',) * 4  # the loop's 2x4 block, the rest the player's
+    look = Loot(drops=(caduceus, mesh, scourge), game=GAME, room=block)
+    found = kept(look, mode, lambda: 20)
+    assert [d.unit_id for d in found.drops] == [2, 3]
+    plan = choose(found, (0.0, 0.0))
+    assert plan is not None
+    assert plan.drop.unit_id == 2
+    alone = Loot(drops=(caduceus,), game=GAME, room=block)  # no named one beside it: taken as before
+    assert [d.unit_id for d in kept(alone, mode, lambda: 20).drops] == [1]
+
+
+@pytest.mark.parametrize('mode', MODES)
 def test_white_class_items_are_taken_by_their_paid_staff_mods_and_the_rest_left(mode):
     # The player, 2026-10-20 ~18:45: "implement [grimoire pickup rules] ... it worth to assess every item": G20 by the
     # ground read (rca/2026-10-20/white-bases-findings.md); a staff (2x4) over the cell cap is taken by the same verdict
@@ -496,7 +524,6 @@ LEFT = [
     ('Great Poleaxe', Rolls(6, damage=5), 3),  # the thin ordinary 6os key dropped
     # The base-price ruling (the player, 2026-10-23 ~17:20: "Sales-backed now", "Drop both"; loot/build_base_pickups.py,
     # rca/2026-10-23/base-prices-findings.md): sales decide per facet
-    ('Archon Plate', Rolls(4, ethereal=True), 2),  # eth 4os normal: fills n83 median 2.58 (narrowed to superior)
     ('Crystal Sword', Rolls(4, damage=15), 3),  # superior 15 ED 4os: contested, asks n42 4.03 against a fill of 1.0
     ('Cinquedeas', Rolls(3, ((384, 3),)), 2),  # +3 Eldritch Blast alone: fills n9 median 1.43
     ('Stilleto', Rolls(3, ((377, 3),)), 3),  # +3 Summon Defiler alone: thin (narrowed: a second mod +2)
@@ -519,6 +546,19 @@ LEFT = [
 def test_a_base_on_no_allowlist_entry_is_left(mode, name, rolls, quality):
     found = base(name, (2, 2), rolls, quality=quality, unit=41)
     assert kept(Loot(drops=(found,), game=GAME, room=EMPTY), mode).drops == ()
+
+
+@pytest.mark.parametrize('mode', MODES)
+def test_one_plain_eth_4os_archon_is_taken_while_none_is_owned(mode, monkeypatch):
+    """Off the allowlist (eth 4os normal fills n83 median 2.58), the own-use row (loot/base_floor.py OWN_USE; the
+    player, 2026-10-25: "I want to keep at least one 4os Archon Plate") takes it as a must-have while the collection
+    counts none; once one is owned it is left."""
+    archon = base('Archon Plate', (2, 2), Rolls(4, ethereal=True), quality=2, unit=41)
+    monkeypatch.setattr(loot_value, 'owned_bases', lambda _facts: 0)
+    [taken] = kept(Loot(drops=(archon,), game=GAME, room=EMPTY), mode).drops
+    assert taken.prized
+    monkeypatch.setattr(loot_value, 'owned_bases', lambda _facts: 1)
+    assert kept(Loot(drops=(archon,), game=GAME, room=EMPTY), mode).drops == ()
 
 
 TAKEN = [

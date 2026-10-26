@@ -99,6 +99,7 @@ from inventory_tracking.macros.tzroutine import (
     Excursion,
     GameView,
     Itinerary,
+    alone_act,
     itinerary,
     kept_to,
     policy_of,
@@ -320,6 +321,11 @@ PORTAL_TRIPS_FOLD = True
 TRIP_KINDS = frozenset({PORTAL_TO_TOWN, WAYPOINT, TOWN_ROUTINE, merc.MERC_ROUTINE, THROUGH_PORTAL, RESUME})
 # A recovery's game end (`next_goal`): a stop already ruled on (stops.py), left as before
 GIVEN_UP = 'the game given up (a recovery)'
+# The alone kind's game ended unplayed (actloop.py `alone_end`, 2026-10-25, the player: "no other levels, no other
+# shards"): left as GIVEN_UP's (no carried shard used at the end, no level or boss owed: none of the game's is its own),
+# the ground's valuables picked up first (`last_look`)
+ALONE_ENDS = 'the game ends unplayed: its kind plays no other level'
+UNPLAYED = frozenset((GIVEN_UP, ALONE_ENDS))
 
 # The leg each goal is made as (the HUD's and the log's `Loop: game N, <leg>`; the watch tools' phases)
 LEGS = {
@@ -368,17 +374,22 @@ def leg_of(goal: Objective) -> str:
     return LEGS[goal.kind]
 
 
-def zone_of(tz: LegHands, acts: tuple[int, ...] = (), bosses: BossLedger | None = None) -> Itinerary | None:
+def zone_of(
+    tz: LegHands, acts: tuple[int, ...] = (), bosses: BossLedger | None = None, alone: bool = False
+) -> Itinerary | None:
     """The itinerary of the zones the tracker reads as terrorized now (tzroutine.py `itinerary`), with each of `acts`
     a shard terrorized in this game (agenda.py `Agenda.acts`): planned whether or not the client's list names it
     (rca/2026-10-20/act-terrorize-findings.md §6 check 4 is open), and played in their order (the kind's act first,
     then the acts of shards over the limit: actloop.py OVERFLOW); and the rotating zones turned with a boss of
-    `bosses` alive (BOSS_ZONES, `boss_zones`)."""
+    `bosses` alive (BOSS_ZONES, `boss_zones`). `alone`: an alone kind's game (loop.py `Kind.alone`, Act 2 TZ leveling,
+    2026-10-25): its act alone, no rotation (tzroutine.py `itinerary`)."""
     read = frozenset(area for area in zone_levels() if tz.terrorized(area))
     known = frozenset(area for act in acts if (zone := manual_zone(act)) is not None for area in zone.core)
-    plan = itinerary(read | known, tuple(acts))
+    plan = itinerary(read | known, tuple(acts), alone)
+    if alone and alone_act(tuple(acts)) is not None:
+        return plan  # no rotating zone is played: none kept for its bosses
     kept = boss_zones(bosses, plan, tz) if bosses is not None else frozenset()
-    return itinerary(read | known | kept, tuple(acts)) if kept else plan
+    return itinerary(read | known | kept, tuple(acts), alone) if kept else plan
 
 
 def boss_zones(bosses: BossLedger, plan: Itinerary | None, tz: LegHands) -> frozenset[int]:
@@ -464,6 +475,8 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
     """The next leg's goal. `Dead` with the character dead; `Abort` with no zone read."""
     agenda = loop.agenda
     if not world.in_game:
+        if (why := actloop.alone_stop(loop)) is not None:
+            raise Abort(why, cause='idle')  # stops.py: STOP, in the lobby
         return agenda.next(None, in_game=False)
     player = world.player
     if player is None:
@@ -494,8 +507,12 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
         return top
     if (shard := actloop.shard_goal(world, loop)) is not None:
         return shard  # the act kind's Worldstone Shard first in a game (macros/actloop.py)
+    if (why := actloop.alone_end(loop)) is not None:
+        # The watch tools may read it (d2-loop-watch logwords.py)
+        LOG.info('Macro: act: %s: the game ends, no zone of it played', why)
+        return Objective(LEAVE_GAME, ALONE_ENDS, STACK)
     book_first(agenda, progress)
-    plan = zone_of(tz, agenda.acts, agenda.bosses)
+    plan = zone_of(tz, agenda.acts, agenda.bosses, getattr(loop.kind, 'alone', False))
     if plan is None and not player.in_town and (left := tz.sighted(None)) is not None:
         # The zone turned under the game with a valuable still on the ground: it is picked up first, then the game's
         # end. A Set Occult Codex by Andariel, room just made in the cube, stopped the loop at the 08:30 turn
@@ -507,7 +524,8 @@ def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | N
     # ZONE_WAIT_WSK (macros/zonewait.py, 2026-10-25, the player: "do worldstone keep, if we get some shard - good, if
     # not - next game"): the wait for a zone the loop cannot play filled with Worldstone Keep games, the zone read
     # played again as soon as it is playable; off, or with the next zone nearer than one such game, the wait below
-    filled = zonewait.fill(agenda.game, plan, player.in_town, player.area, zone_wait(time.time()))
+    alone = actloop.alone(loop.kind)  # no filler game: its kind plays no other level
+    filled = None if alone else zonewait.fill(agenda.game, plan, player.in_town, player.area, zone_wait(time.time()))
     if filled is not None:
         plan = filled
     elif not plan.excursions and player.in_town:
@@ -1147,11 +1165,16 @@ def perform(
             left = loop.last_look(run, tz) if tz is not None else None
             if left is not None:
                 raise Abort(f'no goals left, but {left} lies on the ground', cause='room')
-            if goal.label != GIVEN_UP and tz is not None and player is not None and end_use(loop, run, key_names, tz):
+            if (
+                goal.label not in UNPLAYED
+                and tz is not None
+                and player is not None
+                and end_use(loop, run, key_names, tz)
+            ):
                 return  # a carried shard over the limit used: the game goes on with its act (actloop.py END_USE)
-            if goal.label != GIVEN_UP:
+            if goal.label not in UNPLAYED:
                 unrouted(agenda, goal.label)
-            held = owed(agenda) if goal.label != GIVEN_UP else None
+            held = owed(agenda) if goal.label not in UNPLAYED else None
             if held is not None:
                 # The player, 2026-10-22: "we need to kill all bosses, no exceptions" (BOSS_STAYS); a shard's act is
                 # finished, every level (ACT_OWED)

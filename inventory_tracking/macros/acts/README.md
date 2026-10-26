@@ -35,9 +35,20 @@ SCRIPT = ActScript(
 - `Trip(route, target, waypoint=None, crossed=AFTER, missing='')`: catalogue route `route`'s trip to level `target`
   (the boss's). `waypoint` None: the route's waypoint nearest the target. `crossed=AFTER`: the levels on the way are
   only crossed (the leaders near) and each gets its own trip right after the target, nearest it first (Act 4's
-  River of Flame); `WORKED`: worked on the way. A toured level (a tomb) tours them all, one by one.
+  River of Flame); `WORKED`: worked on the way; `ONLY` (2026-10-26): only crossed, no trip of their own (a later
+  step or the act's rest may still take them). A toured level (a tomb) tours them all, one by one.
 - `Rest(levels=(…))`, `Rest(zone='Act2-ArcaneSanctuary')` (a rotating zone's name in the installed table),
   `Rest(route='Summoner')` (the route's levels): what no earlier step works, covered by `zone_route_plan`.
+- `ActScript(alone=(…), whole=frozenset(…), extras=(…))` (2026-10-25, act2.py TZ_LEVELING_STEPS): the steps of an
+  alone kind's game (loop.py `Kind.alone`, ALONE_KINDS: `act2tz`, "Act 2 TZ leveling", last in the picker) only, then
+  the acts of `extras` a shard over the limit terrorized in that game, then the game's end: no rest of the act, no
+  rotation, no other act (`actloop.alone`, `actloop.extra_acts`); `whole` levels toured whole whatever their size
+  (`tzroutine.WHOLE`, TZ+). `extras` (2026-10-26, act2.py TZ_LEVELING_EXTRAS): other acts' scripts of their own
+  `alone` steps and `whole` levels: act 4's Chaos Sanctuary whole and Diablo (the River of Flame `ONLY` crossed),
+  act 5's Worldstone Keep 2 and 3 whole, the Throne and Baal; a Deep or Northern over the limit is used (the overflow's
+  ways: a carried one first, else one from its stack; at the shard step, a town visit, the game's end) once act 2 is
+  terrorized, its act played after act 2's steps, act 4 before act 5. The act's own kind ("Shard: Act 2") and act 2 in
+  any other game play `steps` as below; "Shard: Act 4" and "Shard: Act 5" their own scripts.
 - After the steps, always: the rest of the act's levels, then the rotation. "Rest of zones one by one" needs no step;
   list `Rest(zone=…)` steps to fix the zones' order.
 - Your own step: any object with `label` and `plan(self, act: ActPlan)`; inside, `act.route_trip(route, target,

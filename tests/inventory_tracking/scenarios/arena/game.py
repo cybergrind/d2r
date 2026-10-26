@@ -349,6 +349,11 @@ PETS_AS_GAME = ('ALLIES_ALONG', 'WARP_ALONG', 'HOP_IDLE', 'PETS_MARK_ONLY', 'PET
 # before
 PETS_FOLLOW = False
 BESIDE = 0.6
+# The share of a physical blow every weapon set lets through, shown to the safety as stat 36 (2026-10-25,
+# rca/2026-10-25/t5-blow-findings.md): live stat 36 reads 18 (134 of 193 reads of 60 takes; -32 and -82 under Decrepify
+# and Amplify Damage). Before, the scenes' sets let 0.9 through (older takes' 10), and the stats shown left physical out
+# where a set's raw resistances are known (`raws`: fire, lightning, cold, poison), so the safety priced it uncut.
+PHYSICAL_THROUGH = 0.82
 # The rules a play may turn on (the module text).
 SIGIL_SLOWS, PETS_FIGHT, BODIES_BLOCK, MANA_SHOWN = 'sigil slows', 'pets fight', 'bodies block', 'mana shown'
 REVIVERS_RAISE = 'revivers raise'
@@ -602,7 +607,7 @@ class Arena(Game):
         self.healing_scale = healing_scale
         # The weapon sets: the one in hand first, as `Game.sets` has them.
         self.hand = hero.hand
-        self.resists = [dict(found.resist) for found in hero.sets]
+        self.resists = [dict(found.resist) | {'physical': PHYSICAL_THROUGH} for found in hero.sets]
         self.raws = [raw_resists(found.codes) for found in hero.sets]
         self.sets = [hero.sets[hero.hand].codes, hero.sets[1 - hero.hand].codes]  # type: ignore[assignment]
         staffed = next((index for index, found in enumerate(hero.sets) if found.teleport_charges is not None), None)
@@ -716,6 +721,7 @@ class Arena(Game):
             if raw is not None
             else {kind: (1 - through) * 100 for kind, through in self.resists[self.hand].items()}
         )
+        values.setdefault('physical', (1 - self.resists[self.hand]['physical']) * 100)
         curse = self.mobs.pack.minds.hex_on(0, self.mobs.frame)
         if curse is not None:
             for kind, delta in curse.resists.items():

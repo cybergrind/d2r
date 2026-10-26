@@ -382,16 +382,21 @@ ELITE_TARGET = re.compile(r'Macro: agenda: target the elite (\d+) \((\d+)\) \(\w
 # A jump cast: (the skill). The skill's press `'Macro: %s on %s, player mode %d'` (Teleport on t, Blade Warp on s).
 # 2026-10-21 20:57:07,300 INFO Macro: Teleport on t, player mode 1
 JUMP_CAST = re.compile(r'Macro: (Teleport|Blade Warp) on \w+, player mode \d+')
-# A jump's reason: the goal it went toward (folded), a better place in the fight, keeping range from a pack (and why).
-# teleport.py hop_to `'Teleport toward {label}: {left} left after this'`, the Blade Warp's twin, hunt.py's run line,
-# pack.py's `'Macro: Pack: keeping range: %s'`.
+# A jump's reason: the goal it went toward (folded), a better place in the fight, keeping range from a pack (and why),
+# the mana floor's leave. teleport.py hop_to `'Teleport toward {label}: {left} left after this'`, the Blade Warp's
+# twin, hunt.py's run line, the act's reason said (hunting/judging.py `run.say`): `'Macro: Pack: keeping range: %s'`
+# and `'Macro: Mana: leaving: %s'` (2026-10-25: the leave was not read; the 21:32 cluster read "clearing the way x10").
+# A keep-range hop or a leave says its reason, then within ms `Teleport toward <the goal>` for the same hop
+# (anomalies.py `reasons` counts the pair once: TWIN_SECONDS).
 # 2026-10-21 20:57:12,300 INFO Macro: Teleport toward full clear: a group of 13: 19 left after this
 # 2026-10-21 20:57:13,400 INFO Macro: run: a better place in the fight with 1 of 62 hostiles in reach, from (...)
 # 2026-10-21 18:27:49,373 INFO Macro: Pack: keeping range: extra fast: 2 of the pack on the character within 18 (...)
+# 2026-10-25 21:32:00,557 INFO Macro: Mana: leaving: mana 258 of 745, burnt 489 0.5 s ago, 2 drainers in reach
 JUMP_REASON = re.compile(
     r'Macro: (?:(?:Teleport|Blade Warp) toward (.+?)(?:: \d+ left after this.*)?$|run: (a better place) in the fight'
-    r'|Pack: (keeping range)(?:: ([a-z ]+):)?)'
+    r'|Pack: (keeping range)(?:: ([a-z ]+):)?|Mana: (leaving))'
 )
+TWIN_SECONDS = 0.25  # a `toward` line this soon after a keep-range or leave line is the same hop (23:23:57: 8 ms)
 # The lines that name no cause for a still or a long fight (the census, gold, the shadow verdicts, the strike's line,
 # the minute's rate, the keys' echo, the level's experience): left out of `cause?:`
 NOISE = re.compile(

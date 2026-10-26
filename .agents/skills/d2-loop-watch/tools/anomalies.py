@@ -76,6 +76,7 @@ from logwords import (
     SAFE_POINT,
     SAID,
     STRIKE,
+    TWIN_SECONDS,
     WAITING,
     WAVES,
 )
@@ -367,16 +368,26 @@ def kinds(lines: list[tuple[float, str]], start: float, end: float, top: int = T
 
 
 def reasons(lines: list[tuple[float, str]], start: float, end: float, top: int = TOP) -> list[str]:
-    """The jumps' reasons said in [start, end]: the goal toward (folded), a better place, keeping range (why)."""
+    """The jumps' reasons said in [start, end], one a jump: the goal toward (folded), a better place, keeping range
+    (why), the mana's leave. A keep-range hop or a leave says its reason, then `toward <the goal>` within TWIN_SECONDS:
+    that `toward` line is the same hop, not counted again."""
     counted: Counter[str] = Counter()
+    twin: float | None = None  # the clock of a keep-range or leave line whose `toward` line is still to come
     for t, text in lines:
         if start <= t <= end and (m := JUMP_REASON.search(text)) is not None:
             if m.group(1):
+                if twin is not None and 0.0 <= t - twin <= TWIN_SECONDS:
+                    twin = None
+                    continue
                 counted[f'toward {NUMBER.sub("N", m.group(1))}'] += 1
             elif m.group(2):
                 counted[m.group(2)] += 1
+            elif m.group(5):
+                counted[f'mana: {m.group(5)}'] += 1
+                twin = t
             else:
                 counted[m.group(3) + (f': {m.group(4)}' if m.group(4) else '')] += 1
+                twin = t
     return [f'{k} x{n}' for k, n in counted.most_common(top)]
 
 

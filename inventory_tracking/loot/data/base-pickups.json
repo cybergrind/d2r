@@ -1,5 +1,5 @@
 {
-  "built": "2026-10-23",
+  "built": "2026-10-25",
   "min_ist": 4.0,
   "min_sellers": 3,
   "min_fills": 3,
@@ -8329,6 +8329,11 @@
       "label": "Exile base (own Paladin): Sacred Targe / Rondache 4os or 0os, all res 40+, eth preferred",
       "class": "G7",
       "why": "narrowed into exile-shield-eth-0-4os-40res"
+    },
+    "own-merc-archon-eth-4os": {
+      "label": "Merc base (own use, 1 kept): eth 4os Archon Plate",
+      "class": "G4",
+      "why": "own use, 1 kept: loot/base_floor.py OWN_USE picks it under its cap (eth 4os normal fills n83 median 2.58; the player, 2026-10-25)"
     },
     "own-merc-cure-helm-eth-3os": {
       "label": "Cure base (merc): eth 3os or 0os Corona / Spired Helm / Bone Visage / Demonhead",

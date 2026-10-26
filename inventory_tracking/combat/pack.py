@@ -27,6 +27,7 @@ from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 
+from inventory_tracking.combat import engage
 from inventory_tracking.combat.mechanics.life import leader
 from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG
 from inventory_tracking.levels.geometry import Point
@@ -443,10 +444,12 @@ MARK_WALKS = 1.8  # s after the key: the demons on the pack (re-engaged p90 1.16
 # were stripped by it, the keep range 526 of 595, the better place 547 of 595). True: in a fight with a tier
 # HERALD_MARK_TIER Herald pack's member within HARD_SEEN, while a companion holds the pack (one DEMON_APART or more
 # off the character within DEMON_HOLDS of a member: `pack_held`), a jump that is short (under SHORT_HOP units) or lands
-# within PACK_REACH of a member is not made: the better place and the firing spot (voluntary jumps, PLACE); walked, or
-# the strike from here. The keep range's hop and the retreats go (the arena, apply-short.md: herald seed 8 died with
-# the keep range's hops held), and the exemptions of MARK_HOLDS_JUMPS stay. False: as before.
-NO_SHORT_HOPS_T5 = False
+# within PACK_REACH of a member is not made: the better place, the firing spot (voluntary jumps, PLACE) and the keep
+# range's hop (KEEP); walked, or the strike from here. The retreats go, and the exemptions of MARK_HOLDS_JUMPS stay.
+# On 2026-10-25 ~18:50 (d2r-f3, rca/2026-10-25/t5-blow-findings.md Update, the fixed arena with the Herald's blows
+# capped): herald 100 pairs 0/0 deaths, Herald killed 66 -> 74, -5.0 +- 2.4 s; canyon 80, manaburn 60, halls 40: no new
+# death. Seed 8's death with the keep hop held (apply-short.md) was the uncapped arena's. False: as before.
+NO_SHORT_HOPS_T5 = True
 SHORT_HOP = 15.0  # units: the player's "short distances"
 PACK_REACH = 18.0  # units from a member a landing is still inside the pack's reach (PACK_RANGE's far end, FAST_KEEP)
 HOLD_BURST = 0.15  # the share of the life lost within 1 s that is a real threat (a T5 blow is 400-900 of ~2900)
@@ -502,8 +505,13 @@ def jump_hold(
 ) -> JumpHold | None:
     """The look's hold on jumps (MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), or None with neither on. `hostiles`: the look's
     (`at` or `x`, `y`, and `tier`); `companions`: where they stand; `exempt`: the real threat seen, if any."""
-    if not (MARK_HOLDS_JUMPS or NO_SHORT_HOPS_T5):
+    if not (MARK_HOLDS_JUMPS or NO_SHORT_HOPS_T5 or engage.ENGAGE_PLAN):
         return None
+    found = list(hostiles)
+    hostiles = found
+    companions = list(companions)
+    engage_look(now, here, found, companions, bool(companions))  # the T5 pack's plan moved on (ENGAGE_PLAN)
+    engage.threatened(now, exempt)  # a real threat: the plan steps aside (engage.py THREAT_SECONDS)
     held: tuple[Point, ...] = ()
     if NO_SHORT_HOPS_T5:
         members = []
@@ -521,14 +529,16 @@ def held(hold: JumpHold | None, spot: Point, kind: str) -> str | None:
     (MARK_HOLDS_JUMPS, NO_SHORT_HOPS_T5), or None."""
     if hold is None or hold.exempt is not None:
         return None
+    planned = engage.holds_jump(kind)  # the T5 pack's plan: no jump but for danger (ENGAGE_PLAN)
+    if planned is not None:
+        return f'{HELD_SAID}: {planned}'
     if hold.marked <= MARK_LANDS:
         return f'{HELD_SAID}: the demons land on the mark ({hold.marked:.2f} s after its key; MARK_HOLDS_JUMPS)'
     if kind == PLACE and hold.marked <= MARK_WALKS:
         return f'{HELD_SAID}: walked while the mark takes the pack ({hold.marked:.2f} s on; MARK_HOLDS_JUMPS)'
-    if hold.held and kind == PLACE:
-        # A voluntary jump alone: the keep range's hop goes (2026-10-25 arena, apply-short.md: herald seed 8, its hops
-        # at 8.6-8.8 held, a tier 5 hulk walked in to 4.7 and one blow of 2233 took 1783 life while the staff's
-        # Teleport swapped in; the safety priced the blow at 682)
+    if hold.held and kind in (PLACE, KEEP):
+        # A voluntary jump and the keep range's hop; the retreats go. Seed 8's death with the keep hop held
+        # (apply-short.md, a blow of 2233) came from the uncapped arena: the capped one shows none (t5-blow-findings.md)
         away = math.dist(hold.here, spot)
         inside = min(math.dist(spot, m) for m in hold.held)
         if away < SHORT_HOP or inside < PACK_REACH:
@@ -543,7 +553,7 @@ def walks_now(hold: JumpHold | None) -> bool:
     """Whether the fight's better place is walked to now, not jumped (`held` for a PLACE jump anywhere near)."""
     if hold is None or hold.exempt is not None:
         return False
-    return hold.marked <= MARK_WALKS or bool(hold.held)
+    return hold.marked <= MARK_WALKS or bool(hold.held) or engage.walks()
 
 
 @dataclass(frozen=True)
@@ -655,7 +665,14 @@ def breaks_range(spot: Point, hostiles: Iterable, demons: Iterable[Point], jumpe
     the safety prices (macros/safety.py `Pricing.move_price`)."""
     if not PLACES_KEEP_RANGE:
         return None
-    return why_back(spot, members(hostiles), left_holding(demons, jumped), lead())
+    found = list(hostiles)
+    if engage.lifts_range() and not jumped:
+        # The T5 pack's plan holds the walk in (ENGAGE_PLAN): a walk's end clear of the melee keeps the range
+        held = list(demons)
+        here = engage.PLAN_HERE[0] or spot
+        if engage.place_ok(spot, plan_members(found), here, held):
+            return None
+    return why_back(spot, members(found), left_holding(demons, jumped), lead())
 
 
 def range_kept(
@@ -665,14 +682,21 @@ def range_kept(
     character could stand without the hop taking it out at once; every place with no pack or PLACES_KEEP_RANGE off.
     A place `jumps_from` units or more from `here` is one a jump goes to (stance.py `camp`: a jump that reaches a
     place is taken), judged with ALONG_ALL's demons along."""
-    pack = members(hostiles) if PLACES_KEEP_RANGE else []
+    found = list(hostiles)
+    pack = members(found) if PLACES_KEEP_RANGE else []
     if not pack:
         return lambda spot: True
     held, ahead = list(demons), lead()
     gone = left_holding(held, jumped=True)
+    planned = engage.lifts_range() and here is not None
+    points = plan_members(found)
 
     def kept(spot: Point) -> bool:
         jumped = here is not None and math.dist(here, spot) >= jumps_from
+        if planned and not jumped:
+            # The T5 pack's plan (ENGAGE_PLAN): a place behind the demons, clear of the melee
+            assert here is not None
+            return engage.place_ok(spot, points, here, held)
         return why_back(spot, pack, gone if jumped else held, ahead) is None
 
     return kept
@@ -785,6 +809,11 @@ def sigil_spot(here: Point, pack: Sequence[Member], demons: Iterable[Point], rad
     elsewhere covers more of it, else at the disc that covers the most (`densest`), of the members the tactic sees
     (`nearby`)."""
     seen = nearby(here, pack)
+    demons = list(demons)
+    melee = engage.sigil_at([m.at for m in seen], here, demons)
+    if melee is not None:
+        # The T5 pack's plan (ENGAGE_PLAN): where the demons meet the pack, where the strikes land
+        return melee, f'where the demons hold the pack ({len(covering(melee, seen, radius))} of {len(seen)} in it)'
     spot = densest(seen, radius)
     held = holding(here, seen, demons, radius)
     if held is not None and cover_weight(held[0], seen, radius) >= cover_weight(spot, seen, radius):
@@ -807,3 +836,27 @@ def between_spot(here: Point, pack: Sequence[Member]) -> Point | None:
         if all(math.dist(spot, m.at) >= SURROUND_RADIUS for m in pack):
             return spot
     return None
+
+
+# --- The T5 pack's plan (combat/engage.py ENGAGE_PLAN) ----------------------------------------------------------------
+
+
+def plan_members(hostiles: Iterable) -> list[Point]:
+    """The places of the plan's pack among `hostiles` (tier engage.PLAN_TIER and over)."""
+    return [m.at if hasattr(m, 'at') else (m.x, m.y) for m in hostiles if getattr(m, 'tier', 0) >= engage.PLAN_TIER]
+
+
+def engage_look(now: float, here: Point, hostiles: Iterable, companions: Sequence[Point], demons_out: bool) -> None:
+    """The T5 pack's plan moved on by a look (engage.py `observe`), with the last landing and the mark's last key."""
+    if not engage.ENGAGE_PLAN:
+        return
+    engage.observe(now, here, hostiles, companions, demons_out, HOP.at, HOP.units, MARK.at)
+    engage.PLAN_HERE[0] = here
+
+
+def walk_free(spot: Point, here: Point, hostiles: Iterable, companions: Sequence[Point]) -> bool:
+    """Whether a walk to `spot` is let past the keep ranges' bars by the T5 pack's plan (engage.py `lifts_range`,
+    `place_ok`): the demons hold the pack and the walk ends clear of the melee, behind them."""
+    if not engage.lifts_range():
+        return False
+    return engage.place_ok(spot, plan_members(hostiles), here, list(companions))

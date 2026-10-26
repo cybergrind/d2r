@@ -475,6 +475,55 @@
       }
     },
     {
+      "id": "own-merc-archon-eth-4os",
+      "class": "G4",
+      "who": "merc",
+      "label": "Merc base (own use, 1 kept): eth 4os Archon Plate",
+      "qualities": [
+        "normal"
+      ],
+      "ground": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "must": [
+        {
+          "key": "ethereal",
+          "equals": true
+        },
+        {
+          "key": "sockets",
+          "in": [
+            4
+          ]
+        }
+      ],
+      "keep_up_to": 1,
+      "source": "guides/pindle-anya.html:286",
+      "codes": [
+        "utp"
+      ],
+      "bases": [
+        "Archon Plate"
+      ],
+      "asks": {
+        "min_ist": 9.32,
+        "median_ist": 9.32,
+        "n": 3,
+        "kind": "asks",
+        "observed": "2026-09-18",
+        "source": "pricing/data/wp-b-prices.json#archon-plate/4os/eth/normal"
+      }
+    },
+    {
       "id": "archon-eth",
       "class": "G4",
       "who": "merc",

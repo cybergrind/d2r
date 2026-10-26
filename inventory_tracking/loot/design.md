@@ -932,6 +932,13 @@ Three switches, each on, each alone:
   drops at the cap; Superior 15 ED is still picked by its own row (as `pickmode.shield_base`). `keep.decide`: K3
   keeps while fewer comparable copies are owned (after K5), then K6 keeps only a better one (ED). White Monarchs are
   never sold (`pickmode.sellable`) nor field-dropped (not field items; `droppable` spares wants).
+  Since the 2026-10-23 allowlist (4 Ist floor) the plain 4os Monarch and trap claws are left on the ground all the
+  same: `assess._plain` takes a plain base only by the allowlist or by `base_floor.OWN_USE`.
+- Own-use eth 4os Archon (the player, 2026-10-25: "I want to keep at least one 4os Archon Plate"): the row
+  `own-merc-archon-eth-4os` (`keep_up_to` = `build_wants.MERC_ARCHON_CAP` 1, normal only) is in `base_floor.OWN_USE`,
+  so `assess._plain` picks a plain eth 4os Archon Plate off the allowlist while `owned_bases` counts fewer than one
+  (a Superior eth 4os counts too; an unread count picks, S8). The town keeps it by `merc-coh-archon-eth-4os`
+  (always kept, K3). `build_base_pickups.EXCLUDED` leaves the row out of the allowlist.
 - `pickmode.ground_base` passes `owned=loot_value.owned_bases` (same line count: build_wants' pickmode line citations
   hold). Tests: 11 new acceptance cases in `fixtures/valuables.json` (the harness counts `owned` per case and never
   reads the host's collection), `test_value.py` (the count), `test_pickmode.py` (the cap in the GOOD level).

@@ -136,6 +136,28 @@ def test_a_game_that_owes_levels_is_cut_by_no_progress_not_by_its_clock():
     assert loop.over_time(GAME, now + NO_PROGRESS_SECONDS + 1, owing=True)
 
 
+@pytest.mark.parametrize('on', [True, False], ids=['on', 'off'])
+def test_the_minutes_with_the_loop_off_are_not_counted_when_it_comes_on(monkeypatch, on):
+    # cybergg77, 2026-10-25 17:43:37: in the game for minutes with the loop off, the loop turned on and was stopped at
+    # once by "no progress for 300 s", three times
+    from inventory_tracking.macros import loop as looping
+    from inventory_tracking.macros.loop import NO_PROGRESS_SECONDS
+
+    monkeypatch.setattr(looping, 'OFF_TIME_NOT_COUNTED', on)
+    loop = Loop()
+    loop.start()
+    loop.progress_seen(GAME, 0.0, (0,))
+    loop.stop()
+    for now in range(0, 900, 30):  # the player's 15 minutes in the game, the watch's looks going on
+        loop.progress_seen(GAME, float(now), (0,))
+    loop.start()
+    loop.progress_seen(GAME, 900.0, (0,))
+    assert loop.over_time(GAME, 901.0, owing=True) is not on
+    if on:
+        assert not loop.over_time(GAME, 900.0 + NO_PROGRESS_SECONDS - 1, owing=True)
+        assert loop.over_time(GAME, 900.0 + NO_PROGRESS_SECONDS + 1, owing=True)
+
+
 def test_each_trip_for_room_gives_the_game_more_seconds():
     from inventory_tracking.macros.loop import TRIP_SECONDS
 

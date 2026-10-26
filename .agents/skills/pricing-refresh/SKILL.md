@@ -48,6 +48,7 @@ the importer's own (`pricing.knowledge.scope`, since 2026-10-19): `traderie.py -
 python3 pricing/tools/traderie.py search <name>                       # catalog id
 python3 pricing/tools/traderie.py listings <itemId> 4 --scope --props   # SC/NL/PC/RotW (--sc --nl --pc = same); 50/page, 0-based; --rarity rare|magic|unique, --eth/--noeth, --json
 python3 pricing/tools/traderie.py runes Pul Um Mal Ist Gul Vex Ohm Lo Sur Ber Jah Cham Zod   # rune-for-rune asks → pricing/raw/traderie/rune-*.json
+python3 pricing/tools/collect_commodities.py --collect [NAME…]          # loop materials (statues, essences, keys, shards, gems, El–Fal) → appraisal-commodities-<date>/; then commodity_market + rebuild (2026-10-25)
 python3 pricing/tools/d2io_search.py "<keyword>" ladder=2 hc=2 plat_pc=1 activesold=1 legacy_resu=2 --out pricing/raw/d2io/search-<x>.html
 python3 pricing/tools/d2io_search.py --parse pricing/raw/d2io/search-<x>.html   # re-parse a cached page
 pricing/tools/fetch.sh <url> <outfile>                                 # browser UA, skips if cached
@@ -56,7 +57,8 @@ python3 pricing/tools/traderie_trades.py [files]                       # trades/
 python3 pricing/tools/html2text.py <file.html> ["keyword" [context]]   # guides and cached pages as text
 python3 pricing/tools/tables.py <file.html>                            # maxroll gear tables
 ```
-Item ids already used: `pricing/tools/wp_b_ids.txt`. diablo2.io: keywords are mandatory, ≥ 30 s
+Item ids already used: `pricing/tools/wp_b_ids.txt`. Traderie `listings` page ≥ 1 answers HTTP 401 without a
+login (2026-10-03, 2026-10-25): unattended pulls get page 0, the 50 newest listings. diablo2.io: keywords are mandatory, ≥ 30 s
 between searches (guest flood control), retry once on an empty page, page 2 is `&start=30`.
 A 26-query batch at 36 s spacing with one 40 s retry still lost about half its pages (2026-10-09); for
 batches space ≥ 60 s and treat "pages: ?" as no data, not as zero matches. Traderie buy side:

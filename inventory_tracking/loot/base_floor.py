@@ -17,7 +17,7 @@ read's `base_verdict`), a key the table lacks (no band, thin, a relaxed facet, a
 import json
 import os
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
 from functools import cache
 from pathlib import Path
@@ -43,6 +43,7 @@ __all__ = [
     'BASE_FLOOR',
     'FLOOR_IST',
     'GAME',
+    'OWN_USE',
     'PICKUPS',
     'PICKUP_IST',
     'PLAIN_BY_RULES',
@@ -61,6 +62,7 @@ __all__ = [
     'kb_match',
     'key',
     'lower_keys',
+    'own_use',
     'pickups',
     'remember',
     'remembered',
@@ -90,6 +92,10 @@ TABLE = Path(__file__).parent / 'data' / 'base-floor.json'
 # the only white and grey weapons and armor PLAIN_BY_RULES picks, and keep.py K9 keeps
 PICKUPS = Path(__file__).parent / 'data' / 'base-pickups.json'
 PICKUP_IST = 4.0
+# Own-use rows (loot/data/wants.json `keep_up_to`) that take a plain base the allowlist leaves while fewer than the
+# row's cap of such bases are owned (`own_use`; the player, 2026-10-25: "I want to keep at least one 4os Archon
+# Plate"). Only the rows named: the Spirit Monarch and trap claw caps stay under the 4 Ist floor
+OWN_USE = frozenset(('own-merc-archon-eth-4os',))
 CATEGORIES = frozenset(('weapons', 'armor'))
 NEVER_CODES = frozenset(('leg',))  # Wirt's Leg (keep.py NEVER_SOLD_CODES), a club by its type
 PERFECT_ED = 15  # a superior's best ED roll: the premium buckets (">= 15 ED")
@@ -293,6 +299,22 @@ def allowed_by(
     perfect = rarity == 'superior' and ed >= PERFECT_ED
     found = kb_match(facts.code, rarity, ethereal=facts.ethereal, sockets=facts.sockets, perfect=perfect, doc=doc)
     return f'allowlisted: {found["facts"]} ({_evidence(found)})' if found else None
+
+
+def own_use(facts: ItemFacts, owned: Callable[[ItemFacts], int | None] | None) -> tuple[str, str] | None:
+    """(class, why) when an OWN_USE row takes the plain base `facts` (its ground conditions read and met) and fewer
+    than its `keep_up_to` copies are `owned`, None else. A count unread (None) takes it (S8: the cap does not hold)."""
+    from inventory_tracking.loot.wants import wants
+
+    for row in wants():
+        if row.id not in OWN_USE or row.keep_up_to is None or not row.applies(facts) or row.picks(facts) is not True:
+            continue
+        count = owned(facts) if owned is not None else None
+        if count is not None and count >= row.keep_up_to:
+            continue
+        held = 'owned copies not counted' if count is None else f'{count} owned'
+        return row.klass, f'own use ({held}, {row.keep_up_to} kept): {row.label}'
+    return None
 
 
 def lower_keys(code: str, rarity: str, *, ethereal: bool, sockets: int, perfect: bool) -> list[str]:

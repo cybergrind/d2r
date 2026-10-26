@@ -188,6 +188,14 @@ LANDING: list[tuple[float, float, float]] = []
 # from that landing moved nothing in 33 of 48 such hops within 10 units (hunting/moves.py REHOP_WALK reads it).
 MISSED: list[tuple[Point, Point, int]] = []
 REHOP_SAME = 1.5  # world units between two aims that are the same spot
+# 2026-10-26: landings the game took a Teleport press for and moved nothing, as (area, aim, clock): `landing` leaves a
+# spot within REFUSED_UNITS of one alone for REFUSED_SECONDS. Without it every try chose the same spot (the shortest
+# way left), the game refused it each time, and the loop stopped twice with a Large Charm and a Flawless Skull 33
+# away (03:03:49-58 and 03:11:06-10: eight presses at (22718.2, 9853.8) from (22743.5, 9859.5), a spot 15 off that
+# had taken a landing at 03:03:38).
+REFUSED: list[tuple[int, Point, float]] = []
+REFUSED_UNITS = 5.0  # one tile
+REFUSED_SECONDS = 20.0
 # 2026-10-21: Teleport the character's own (no staff read) is pressed again too when nothing landed REPRESS_SECONDS
 # after the key and the character stands free where it was. 55 of 151 own hops that ran out their act on 2026-10-20/21
 # had cast and moved nothing (the server's refusal, rca/2026-10-17/teleport-not-cast-findings.md: a re-press lands),
@@ -206,12 +214,6 @@ HOP_POLL = 0.01  # seconds between looks for a hop's landing and its cast's end 
 # 1546 life, were the hop's wait after a dropped key (rca/2026-10-23/pause-findings.md). Off: the one wait, as before.
 DROP_REPRESS = True
 DROP_REPRESSES = 3
-# 2026-10-23: once the hop's cast is seen (its landing then fixed: the game took the pointer at the cast), the hunt's
-# strike is aimed from the landing during the flight (`Run.flight`, hunt.py `preaim`): the strike's aim, 92 ms p50
-# after the cast's end, came after the landing (rca/2026-10-23/lag-findings.md §1, pause-findings.md). Off: the
-# pointer stays on the landing until the fight aims, as before. The hook is set only under hunt.py PREAIM (off).
-PREAIM_FLIGHT = True
-PREAIM_AFTER = 0.04  # seconds after the cast is first seen: a frame on, the pointer is surely taken
 # Seconds after the cast before is over within which a kept key's cast shows (the game issues it on its
 # next frame, or the one after when the press sat in its second entry).
 QUEUED_SECONDS = 0.09
@@ -711,12 +713,18 @@ def entry_in_view(target: Target, player: Player, way: Way, aspect: float) -> Po
 
 
 def landing(
-    target: Target, player: Player, way: Way, aspect: float, ring: tuple[float, float] | None = None
+    target: Target,
+    player: Player,
+    way: Way,
+    aspect: float,
+    ring: tuple[float, float] | None = None,
+    avoid: tuple[Point, ...] = (),
 ) -> tuple[Point, float] | None:
     """The footing in view that leaves the shortest way to the mark, with the tiles it takes off the
     way from where the character stands; None when nothing in view brings it MIN_GAIN nearer. `ring`
     (world units, least and most): only spots that far from the character, for a hop of one length
-    (controller mode, macros/pad.py)."""
+    (controller mode, macros/pad.py). `avoid` (world points): spots the game refused a hop onto
+    (`refused_aims`), none within REFUSED_UNITS of one."""
     start = (player.x / TILE_UNITS, player.y / TILE_UNITS)
     now = way.from_here(start)
 
@@ -729,7 +737,7 @@ def landing(
     candidates = (*spots_in_view(player, aspect), *(approaches(target) if target.warp else (target.point,)))
     found: list[tuple[float, float, Point]] = []  # (way to go, distance from the character, spot)
     for point in candidates:
-        if outside(point):
+        if outside(point) or any(math.dist(scaled(point), aim) < REFUSED_UNITS for aim in avoid):
             continue
         if target.warp and math.dist(scaled(point), scaled(target.point)) < WARP_TILES:
             continue  # the warp's own tiles: a hop onto them lands anywhere beside
@@ -1356,6 +1364,12 @@ def far_banned(key: tuple[int, int, int], now: float) -> bool:
     return failed is not None
 
 
+def refused_aims(area: int, now: float) -> tuple[Point, ...]:
+    """The aims in `area` the game refused a hop onto under REFUSED_SECONDS ago (`REFUSED`); older ones forgotten."""
+    REFUSED[:] = [entry for entry in REFUSED if 0.0 <= now - entry[2] < REFUSED_SECONDS]
+    return tuple(aim for where, aim, _ in REFUSED if where == area)
+
+
 def ban_far(key: tuple[int, int, int], now: float) -> None:
     for old in [old for old, failed in FAR_FAILED.items() if now - failed >= FAR_DISTRUST]:
         del FAR_FAILED[old]
@@ -1485,9 +1499,10 @@ def _hop_toward(
     key = (target.area, math.floor(target.point[0]), math.floor(target.point[1]))
     ring = run.pad.ring(TELEPORT) if run.pad is not None else None  # controller mode: a hop of one length
     found = None
+    avoid = refused_aims(player.area, run.clock())
     if not far_banned(key, run.clock()):
         way = way_for(target, Viewport(aspect), True)
-        found = landing(target, player, way, aspect, ring) if way.from_here(here) < math.inf else None
+        found = landing(target, player, way, aspect, ring, avoid) if way.from_here(here) < math.inf else None
         if found is None:
             ban_far(key, run.clock())
             LOG.info(
@@ -1498,7 +1513,7 @@ def _hop_toward(
         way = way_for(target, Viewport(aspect))
         if way.from_here(here) == math.inf:
             raise Abort(f'no way over the rooms to {target.label}')
-        found = landing(target, player, way, aspect, ring)
+        found = landing(target, player, way, aspect, ring, avoid)
     if found is None:
         raise Abort(f'no footing in view brings the character nearer to {target.label}')
     spot, gain = found
@@ -1517,15 +1532,13 @@ def _hop_toward(
     hop_to(run, target, player, rect, spot, gain, key_names)
 
 
-def dropped_watch(run: Run, arrived: Callable[[World], bool], landing: Point | None = None) -> World | None:
+def dropped_watch(run: Run, arrived: Callable[[World], bool]) -> World | None:
     """The landing within REPRESS_SECONDS of the key (None: none), the key pressed again at once each time the game is
     seen to have dropped it (DROP_REPRESS): no cast (ACTING) since the key, a block or a hit (KEY_DROP_MODES) seen, then
-    the character free. Once the cast is seen, `run.flight` is given `landing` (world units; PREAIM_FLIGHT)."""
+    the character free."""
     until = run.clock() + REPRESS_SECONDS
     cast = dropped = False
-    flown = not PREAIM_FLIGHT or landing is None or run.flight is None or run.pad is not None
     again = 0
-    cast_at: float | None = None  # when the cast was first seen (PREAIM_AFTER)
     while True:
         try:
             world = run.world()
@@ -1539,15 +1552,8 @@ def dropped_watch(run: Run, arrived: Callable[[World], bool], landing: Point | N
         if player is not None:
             if player.mode in ACTING:
                 cast = True
-                cast_at = run.clock() if cast_at is None else cast_at
-                due = run.clock() - cast_at >= PREAIM_AFTER
-                if not flown and due and run.flight is not None and landing is not None:
-                    flown = True
-                    run.flight(landing)  # the strike aimed during the flight (PREAIM_FLIGHT)
-                    continue  # looked at again at once: the aim took game time
             elif player.mode in KEY_DROP_MODES:
                 dropped = dropped or not cast
-                cast_at = None if dropped else cast_at
             elif DROP_REPRESS and dropped and again < DROP_REPRESSES:
                 again += 1
                 LOG.info('Macro: the Teleport key was dropped by a block or a hit: pressed again at once (%d)', again)
@@ -1620,7 +1626,7 @@ def hop_to(
             and now.mode not in KEY_DROP_MODES
         )
 
-    seen = dropped_watch(run, arrived, aim)
+    seen = dropped_watch(run, arrived)
     if seen is None and unspent():
         LOG.info(
             'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS
@@ -1655,6 +1661,8 @@ def hop_to(
             if after.game_name in LANDED:
                 raise Abort('Teleport: the game took neither of two presses (no charge spent)')
             raise Abort(LOST_KEY)
+        if after.player is not None and not moved(after.player, player):
+            REFUSED.append((player.area, aim, run.clock()))  # `landing` takes another spot next (REFUSED_SECONDS)
         raise Abort('Teleport: the character did not move (no charges, nowhere to land?)')
     run.mark('landed')
     LANDED[:] = [run.world().game_name]

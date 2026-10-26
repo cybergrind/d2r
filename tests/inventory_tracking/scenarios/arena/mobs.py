@@ -148,6 +148,9 @@ AURA_MOD = 30  # monumod `aura`: Aura Enchanted (threat_table.json rules.modifie
 # place of DANGER.aura_physical (2.0) and BOOST_RANGE (16, level 1's)
 AURA_RAISE, AURA_RANGE = aura_raise(MIGHT, AURA_LEVELS[MIGHT])
 AURA_FACTOR = 1.0 + AURA_RAISE / 100
+# The holder's own blows are raised by its aura too (2026-10-25, rca/2026-10-25/t5-blow-findings.md): in the takes of
+# 10-23..25 the unique's stat 25 equals its minions' in all 27 tier 5 packs read with both (285, 190, 475, 118). Before,
+# `_raised` left the holder out: the t5 Hulk Herald landed and showed (`shown_percent`) x1.0, the safety priced it 651.
 # monstats element types (the threat table's `elements`) as the kinds of damage a resistance cuts.
 KINDS = {'fire': 'fire', 'ltng': 'lightning', 'cold': 'cold', 'frze': 'cold'}
 ELEMENTAL, MAGIC = 'elemental', 'magic'  # parts nothing resists: an element the table does not name, and magic
@@ -415,10 +418,6 @@ class Mobs:
     AURA_RANGE while it lives) is for a scene that knows its auras and curses; left out, every Aura
     Enchanted monster of the scene has AURA_FACTOR. The scene given is not changed."""
 
-    # With `capped`: each melee blow is the game's own roll (`bounded`) in place of the fitted spread's, cut
-    # (rca/2026-10-21/fane-death-sim-findings.md §2, a variant set on the class for a run of plays)
-    uniform_roll: bool = False
-
     def __init__(self, scene: Scene, rng: random.Random, auras: Mapping[int, float] | None = None) -> None:
         self.mobs: dict[int, Mob] = {mob.unit: replace(mob) for mob in scene.mobs}
         self.hostile = [mob.unit for mob in self.mobs.values() if mob.owner is None and not mob.ally]
@@ -461,8 +460,6 @@ class Mobs:
         # of the damage auras on it (Might L16 +190, Concentration L16 +285, Fanaticism L12 +118 in the takes), its own
         # aura among them, on the physical points alone with `capped`; it replaces `auras`. None: `auras`, as before
         self.damage_percent: dict[int, list[tuple[float, float]]] | None = None  # unit -> (seconds, percent), in order
-        # `uniform_roll` (the class's, a variant): its rolls a stream of their own, drawn last
-        self.roll_rng = random.Random(rng.getrandbits(32))
         # The monsters a cast raised (sim/casters.py `Summon`: Baal's tentacles and clone): unit -> (its summoner, the
         # frame it is gone at or None). They go when that frame comes or their summoner dies; neither is a kill.
         self.area = scene.hero.area
@@ -594,7 +591,7 @@ class Mobs:
         return [unit for unit in self.hostile if self.mobs[unit].mode != LYING_DEAD and self.mobs[unit].life > 0]
 
     def _raised(self, unit: int) -> float:
-        """The factor the live auras around a monster put on its blows (its own does not count)."""
+        """The factor the live auras around a monster put on its blows, its own among them (the game's stat 25)."""
         mob = self.mobs.get(unit)
         factor = 1.0
         if mob is None:
@@ -608,7 +605,7 @@ class Mobs:
             return 1.0 + value / 100
         for other in self.live():
             raises = self.auras.get(other, 1.0)
-            if other != unit and raises != 1.0 and math.dist(self.mobs[other].at, mob.at) <= AURA_RANGE:
+            if raises != 1.0 and math.dist(self.mobs[other].at, mob.at) <= AURA_RANGE:
                 factor *= raises
         return factor
 
@@ -632,7 +629,9 @@ class Mobs:
         on 50 blows of mean 64) gives a level 96 unique blows of the character's whole life. The auras round it (on the
         physical points alone, as the game's Might) and the curses on the character are put on after (`landed`,
         `stopped`), so the cut is the game's most under them too. Shots, sparks, novas and a read AI's casts are left
-        as they are."""
+        as they are. The fitted spread, not the uniform roll (2026-10-25, rca/2026-10-25/t5-blow-findings.md): the
+        takes' clean tier 5 minion blows land at 0.38-0.76 of their priced most, at or under a uniform roll's least,
+        and the roll killed halls seed 10."""
         found = []
         for blow in blows:
             walker = self.pack.walkers.get(blow.unit)
@@ -642,15 +641,7 @@ class Mobs:
             if blow.kind != MELEE or walker is None or walker.mind is not None:
                 found.append(blow)
                 continue
-            least, most = walker.traits.damage
-            if self.uniform_roll:
-                # The game's own roll: physical uniform from its least to its most, each element a uniform share of it
-                physical = self.roll_rng.uniform(least, most)
-                parts = {PHYSICAL: physical} | {
-                    kind: physical * self.roll_rng.uniform(low, high) for kind, low, high in walker.traits.elements
-                }
-                found.append(replace(blow, damage=sum(parts.values()), parts=parts))
-                continue
+            most = walker.traits.damage[1]
             shares = {element: top for element, _, top in walker.traits.elements}
             parts = {
                 kind: min(

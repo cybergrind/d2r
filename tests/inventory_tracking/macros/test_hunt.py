@@ -239,6 +239,15 @@ def test_a_fight_logs_its_line_and_its_casts(caplog):
     assert fights[0].endswith('1 down; Nothing left in reach')
 
 
+@pytest.fixture
+def late_sigil(monkeypatch):
+    """The sigil as the fight's late row (buffs.py SIGIL_OPENER off): these tests pin the mark's rules and the late
+    row's timing. With the opener on (2026-10-26), its sigil goes before the strike and a mark key pressed under its
+    cast is pressed again (tests/inventory_tracking/builds/warlock/test_sigil_opener.py)."""
+    monkeypatch.setattr(warlock_buffs, 'SIGIL_OPENER', False)
+
+
+@pytest.mark.usefixtures('late_sigil')
 def test_an_elite_in_reach_gets_the_sigil_under_the_strike_and_not_again_for_a_while(marks_all):
     play = game(foe(10, 5008.0, 5000.0, CHAMPION), foe(11, 5006.0, 5003.0))
     play.toughness[10] = 4
@@ -1552,6 +1561,7 @@ def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_a
     assert "against the cast's 0.37s" in refused[0]  # one volley of the strike (mark.py MARK_CAST_SECONDS)
 
 
+@pytest.mark.usefixtures('late_sigil')
 def test_the_same_elite_is_marked_once_whatever_the_price_by_the_leaders_rule(caplog):
     # The player, 2026-10-20: "ok, recast. pack leader/herald first" (builds/warlock/mark.py MARK_LEADERS)
     elite = foe(11, 5010.0, 5002.0, CHAMPION, txt_id=312)
@@ -1578,6 +1588,7 @@ def test_no_death_mark_with_no_demon_out_and_the_reason_is_said(caplog):
     assert "no demon of the character's is out (the skill needs one)" in said[0]
 
 
+@pytest.mark.usefixtures('late_sigil')
 @pytest.mark.parametrize('every_move', [False, True], ids=['own rule', 'R1'])
 def test_death_mark_by_the_builds_own_rule_goes_on_diablo_once_while_it_lasts_and_says_why(
     caplog, monkeypatch, every_move
@@ -3037,75 +3048,14 @@ def test_the_fight_puts_the_pointer_on_a_covered_held_leaders_body_only_with_the
     assert ('the pointer on its body after' in caplog.text) is on
 
 
-# --- the strike aimed during a Teleport's flight (PREAIM, 2026-10-23) ---
+# --- the fight from a Teleport's landing ---
 
 
-def test_the_strike_is_aimed_from_the_landing_during_the_flight_and_kept_by_the_fight_only_from_there():
-    # rca/2026-10-23/pause-findings.md: the strike's aim (92 ms p50) came after the landing; teleport.py calls `preaim`
-    # once the hop's cast shows, and the fight's first aim is left out when the pointer stands for it
-    play = game(foe(10, 5030.0, 5000.0))  # out of reach from the start, in reach from the landing
-    hunt, run = hunter(play), play.run()
-    run.actuator.drift, run.actuator.steady = 10**6, False
-    view = Viewport(ASPECT)
-    hunt.preaim(run, (5020.0, 5000.0))
-    assert hunt.preaimed is not None
-    focal = hunt.preaimed[2]
-    assert math.dist(focal, (5030.0, 5000.0)) < 3.0
-    assert hunt.preaim_kept(run, (5020.0, 5000.0), focal, view)
-    assert hunt.preaimed is None  # used once
-
-    hunt.preaim(run, (5020.0, 5000.0))
-    assert not hunt.preaim_kept(run, (5014.0, 5005.0), focal, view)  # landed elsewhere: aimed again
-    hunt.preaim(run, (5020.0, 5000.0))
-    assert not hunt.preaim_kept(run, (5020.0, 5000.0), (5030.0, 5006.0), view)  # another line chosen
-    hunt.preaim(run, (5020.0, 5000.0))
-    play.clock.now += 2.0
-    assert not hunt.preaim_kept(run, (5020.0, 5000.0), focal, view)  # an old one
-
-
-@pytest.mark.parametrize('on', [False, True], ids=['off', 'on'])
-def test_with_preaim_not_rebuff_a_rebuff_retreats_flight_leaves_the_pointer_alone(monkeypatch, on):
-    # PREAIM_NOT_REBUFF (2026-10-25): Battle Orders is cast at a rebuff retreat's landing, not the strike; the pre-aim's
-    # pointer move alone took the arena's fane-death-20 Herald kills 19 -> 8 of 100 (smoothness-findings.md §6)
-    from inventory_tracking.macros import hunt as hunt_module
-
-    monkeypatch.setattr(hunt_module, 'PREAIM_NOT_REBUFF', on)
-    play = game(foe(10, 5030.0, 5000.0))
-    hunt, run = hunter(play), play.run()
-    run.actuator.drift, run.actuator.steady = 10**6, False
-    hunt.safety.rebuffed_at = play.clock.now - 0.1  # chosen, not landed yet
-    before = run.actuator.keys.pointer()
-    hunt.preaim(run, (5020.0, 5000.0))
-    if on:
-        assert hunt.preaimed is None
-        assert run.actuator.keys.pointer() == before
-    else:
-        assert hunt.preaimed is not None
-    hunt.safety.rebuff_landed = play.clock.now  # landed: the next hop's flight is pre-aimed again
-    hunt.preaim(run, (5020.0, 5000.0))
-    assert hunt.preaimed is not None
-
-
-def test_nothing_in_reach_of_the_landing_leaves_the_pointer_alone():
-    play = game(foe(10, 5090.0, 5000.0))
-    hunt, run = hunter(play), play.run()
-    before = run.actuator.keys.pointer()
-    hunt.preaim(run, (5020.0, 5000.0))
-    assert hunt.preaimed is None
-    assert run.actuator.keys.pointer() == before
-
-
-@pytest.mark.parametrize('on', [True, False])
-def test_a_fight_after_the_flight_strikes_with_no_aim_of_its_own(monkeypatch, on):
-    from inventory_tracking.macros import hunt as hunt_module
-
-    monkeypatch.setattr(hunt_module, 'PREAIM', on)
+def test_a_fight_from_the_landing_aims_and_strikes():
     play = game(foe(10, 5030.0, 5000.0, life=100, max_life=100))
     play.toughness[10] = 1000
     hunt, run = hunter(play, pursuit=False), play.run()
     run.actuator.drift, run.actuator.steady = 10**6, False
-    if on:
-        hunt.preaim(run, (5020.0, 5000.0))
     play.world = replace(play.world, player=replace(play.character, x=5020.0, y=5000.0))  # landed
     aimed, aim = [], run.actuator.aim
 
@@ -3118,4 +3068,4 @@ def test_a_fight_after_the_flight_strikes_with_no_aim_of_its_own(monkeypatch, on
     with pytest.raises(Abort, match='cancelled'):
         hunt.attack_mode(run, keys)
     assert play.strikes  # struck
-    assert (aimed == []) if on else bool(aimed)
+    assert aimed  # with an aim of its own

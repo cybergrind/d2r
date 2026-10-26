@@ -24,7 +24,6 @@ from inventory_tracking.combat.controller import (
     MOVE_CLICKS,
     NO_CAST,
     PENDING,
-    REAIM_UNITS,
     RETAP,
     Aim,
     CastWatch,
@@ -253,20 +252,6 @@ OMEN_MARK_WINDOW = 2.0  # s after the expected spawn the omen's mark is still th
 OMEN_MARK_PAST = ('a drainer',)  # the safety's real threats the omen's mark goes before (the coordinator, 11:38)
 FIGHT_PACE_SECONDS = 2.0  # one cast a look while blows that take the life can come in reach in this time
 ALARM_SECONDS = 2.0
-# 2026-10-23: the strike aimed during a Teleport's flight from the landing aimed at (teleport.py PREAIM_FLIGHT calls
-# `preaim`); the fight's first aim is left out when the pointer is within PREAIM_PIXELS of the aim it would make from
-# where the character landed, PREAIM_SECONDS after the pre-aim at most. The player, 2026-10-23: "human will react in
-# under 200ms"; the strike's aim (92 ms p50) came after the landing (rca/2026-10-23/lag-findings.md §1). Off: no hook.
-# OFF (2026-10-23, arena, rca/2026-10-23/pause-findings.md §4.4): 0 deaths either way, but the pursuit Fane plays' least
-# life fell in 8 of 8 variants (fane-death-20 55% -> 39%, fane-death-24 64% -> 53%), medians unchanged; off until why.
-PREAIM = False
-PREAIM_PIXELS = 12
-PREAIM_SECONDS = 1.0
-# PREAIM_NOT_REBUFF (2026-10-25, rca/2026-10-25/smoothness-findings.md §6): no pre-aim during a rebuff retreat's flight
-# (the safety's `rebuffed_at`, not landed yet): Battle Orders is cast at its landing, not a strike. In the arena's
-# fane-death-20 every seed opens with one, and its pointer move alone (the variant with no move plays as off in 100 of
-# 100) took the Herald kills 19 -> 8 of 100, a timing placebo 19 -> 16. False: every hop's flight, as PREAIM was built.
-PREAIM_NOT_REBUFF = False
 # CAST_TAIL (2026-10-24, rca/2026-10-24/realtime-4-findings.md §7; the player: "improve our reaction speed"): a
 # Teleport's landing is read ~77 ms before its cast ends, and the cast's Quick Cast keeps Teleport on the right button
 # to the end, so the strike's input was "unready": a FRAME nap, then the whole loop and a second pursue look before the
@@ -406,9 +391,6 @@ class Hunter:
         self.expired_motion = False  # an expired macro click still moving: safety owns the next act
         self.reach_decision: dict | None = None  # the decision a BOUT_REACH yield was made under (`bout_reach`)
         self.struck_at = -math.inf  # clock time the fight last saw the character cast under the held strike
-        # (clock, landing, focal) of the strike aimed during a Teleport's flight (PREAIM, `preaim`); the fight's first
-        # aim takes it or drops it
-        self.preaimed: tuple[float, Point, Point] | None = None
         self.life_seen: int | None = None  # the character's life at the last priced look (`safety_priced`)
         self.hurt_at = -math.inf  # clock time a priced look last saw the character's life go down
         # (the goal's key, since when, the dead seen then, the hostiles' life then) of the run's moves with no progress
@@ -1172,82 +1154,7 @@ class Hunter:
         """Fight whatever comes into reach until cancelled. Every pause looks at the left button every SLICE
         (`Pace.watched`), so no click of the player's goes unseen."""
         with run.pace.watched(lambda: self.sense(run), SLICE, run.clock):
-            self._attack_mode(run, key_names)
-
-    def _attack_mode(self, run: Run, key_names) -> None:
-        if PREAIM:
-            run.flight = lambda landing: self.preaim(run, landing)  # teleport.py PREAIM_FLIGHT
-        try:
             self._attack_looks(run, key_names)
-        finally:
-            run.flight = None
-
-    def preaim(self, run: Run, landing: Point) -> None:
-        """During a Teleport's flight onto `landing` (world units): the pointer onto the strike's aim from there, when
-        something is in reach of it (PREAIM). The attack's held leader is left as it was; a stop the run does not honour
-        leaves the pointer where it is."""
-        self.preaimed = None
-        if PREAIM_NOT_REBUFF and self.rebuff_flying(run.clock()):
-            return  # Battle Orders at the landing, not the strike
-        try:
-            world = run.world()
-            player, rect = world.player, run.actuator.keys.focused_window_rect()
-            if player is None or rect is None or player.mode in DEAD or player.in_town:
-                return
-            attack = self.attack
-            level = self.known_level(player)
-            ground = Ground(level.ground if level is not None else ())
-            there = replace(world, player=replace(player, x=landing[0], y=landing[1]))
-            foes = self.foes(there, run.clock())
-            reachable = [m for m in foes if in_reach(ground, landing, (m.x, m.y), attack.reach, world.doors)]
-            if not reachable:
-                return
-            view = Viewport(rect[2] / rect[3])
-            held = getattr(attack, 'held', None)
-            unit = getattr(held, 'unit', None)
-            try:
-                found = self.choose(there, foes, reachable, ground, view)
-            finally:
-                if held is not None:
-                    held.unit = unit  # the fight's own choice holds a leader, not this guess
-            where = view.aim(landing, found.focal)
-            if where is None:
-                return
-            run.actuator.aim(*where, scatter=(3, 3))
-            self.preaimed = (run.clock(), landing, found.focal)
-            LOG.info(
-                'Macro: strike aimed during the flight: from the landing (%.1f, %.1f) at (%.1f, %.1f), %d in reach',
-                *landing, *found.focal, len(reachable),
-            )  # fmt: skip
-        except Abort as stop:
-            if run.stops(stop):
-                raise
-
-    def rebuff_flying(self, now: float) -> bool:
-        """Whether a rebuff retreat the safety chose (`Safety.rebuff_chosen`) has not landed yet (PREAIM_NOT_REBUFF)."""
-        safety = self.safety
-        chosen = safety.rebuffed_at
-        return safety.rebuff_landed < chosen <= now <= chosen + safety_module.REBUFF_LANDS
-
-    def preaim_kept(self, run: Run, here: Point, focal: Point, view: Viewport) -> bool:
-        """Whether the pointer the flight put (`preaim`) stands for the aim at `focal` from `here`: within PREAIM_PIXELS
-        of it, the pre-aim PREAIM_SECONDS old at most, its focal within REAIM_UNITS. Used once: dropped either way."""
-        pre, self.preaimed = self.preaimed, None
-        if pre is None or run.clock() - pre[0] > PREAIM_SECONDS or math.dist(pre[2], focal) > REAIM_UNITS:
-            return False
-        where, rect = view.aim(here, focal), run.actuator.keys.focused_window_rect()
-        pointer = run.actuator.keys.pointer()
-        if where is None or rect is None or pointer is None or pointer != run.actuator.left_at:
-            return False
-        goal = (rect[0] + rect[2] * where[0], rect[1] + rect[3] * where[1])
-        off = math.dist(goal, pointer)
-        if off > PREAIM_PIXELS:
-            return False
-        LOG.info(
-            'Macro: strike: the aim made during the flight is kept, %.0f px off, landed %.1f from (%.1f, %.1f)',
-            off, math.dist(here, pre[1]), *pre[1],
-        )  # fmt: skip
-        return True
 
     def _attack_looks(self, run: Run, key_names) -> None:
         misses, logged_at, waited_at = 0, -math.inf, run.clock()
@@ -2437,8 +2344,6 @@ class Hunter:
                     omen_said = omen
                     LOG.info('Macro: omen: the line through the Herald coming at (%.1f, %.1f), %.1f away', *omen,
                              math.dist(here, omen))  # fmt: skip
-                if again is None and self.preaimed is not None and self.preaim_kept(run, here, focal, view):
-                    aim.put(focal, here, run.actuator.keys.pointer())  # aimed during the flight (PREAIM)
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
                 if run.pad is not None:
                     # Controller mode: the client strikes its own target, turned toward the prey (macros/pad.py).

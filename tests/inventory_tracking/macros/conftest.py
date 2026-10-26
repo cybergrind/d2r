@@ -69,6 +69,7 @@ def no_corners(monkeypatch):
     shown the game takes them: the routes pinned here are the ones the plain view gives. The tests of
     the corners themselves turn them on (`corners`)."""
     monkeypatch.setattr(view, 'CORNERS', [False])
+    monkeypatch.setattr(teleport, 'REFUSED', [])  # the landings a play's hops were refused
     teleport.way_for.cache_clear()
     yield
     teleport.way_for.cache_clear()

@@ -1407,7 +1407,7 @@ def act4_game(monkeypatch, area: int = FORTRESS, deep: int = 97, outcome: str = 
     game.play.stacks = {DEEP: deep}
     monkeypatch.setattr(terrorize, 'CLICKS', True)
 
-    def used(run, key, act, terrorized):
+    def used(run, key, act, terrorized, _floor=0):
         game.calls.append(('terrorize', act))
         game.keys_given.append(key)  # pyrefly: ignore[missing-attribute]
         if outcome == 'stops':

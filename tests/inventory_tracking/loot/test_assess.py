@@ -282,8 +282,6 @@ def test_a_shop_item_a_reviewed_pattern_names_is_a_target():
 ALLOWLIST_OVER_THE_TABLE = {
     'merc_colossus_voulge_eth_4os_superior': 'left: Colossus Voulge n1',
     'merc_dusk_eth_4os': 'left: merc-fortitude-dusk-eth-4os median 0.789',
-    # the base-price ruling (the player, 2026-10-23 ~17:20, "Sales-backed now"): eth 4os normal fills n83 median 2.58
-    'merc_archon_eth_4os': 'left: merc-coh-archon-eth-4os narrowed to superior',
     'warlock_dagger_3os_plus3_apocalypse': 'left: +3 Apocalypse alone fills 1.0, 0.79 (base-candidates.md §3)',
     'warlock_dagger_0os_elite_plus3_apocalypse': 'left: void-dagger-0os-plus3-apocalypse unproven',
     'merc_polearm_non_eth_left': 'picked: the KB key normal Giant Thresher 4os (median 4+)',
@@ -359,7 +357,9 @@ def test_the_ground_outcome_on_each_valuable(case):
     expected = case['expect']['ground'] == 'pick'
     plain = base_floor.is_plain(facts.code, facts.quality) and not facts.marked
     if plain:
-        assert (found.outcome == Outcome.PICK) == (base_floor.allowed(facts) is not None), found.said()
+        # the allowlist, or an own-use row under its cap (base_floor.OWN_USE: one eth 4os Archon, 2026-10-25)
+        taken = base_floor.allowed(facts) or base_floor.own_use(facts, counted(case))
+        assert (found.outcome == Outcome.PICK) == (taken is not None), found.said()
     elif case['id'] in FIELD_OVER_THE_TABLE:
         assert found.outcome == Outcome.LEAVE, found.said()
         real = replace(facts, size=(2, 3))  # the real base's size, the filter showing it: the size class G14

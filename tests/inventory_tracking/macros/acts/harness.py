@@ -228,7 +228,7 @@ class ActGame(ZoneWalk):
         self.game.play.stacks = {shard: shards}
         monkeypatch.setattr(terrorize, 'CLICKS', True)
 
-        def used(run, key, act, terrorized):
+        def used(run, key, act, terrorized, _floor=0):
             self.shard.append(act)
             if outcome != 'used':
                 return None

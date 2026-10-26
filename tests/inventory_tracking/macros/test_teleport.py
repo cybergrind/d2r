@@ -872,6 +872,22 @@ def test_a_landing_off_its_aim_is_remembered_and_one_on_it_forgets_it():
     assert teleport.MISSED == []
 
 
+def test_a_landing_the_game_refused_is_left_alone_and_the_next_hop_takes_another():
+    # 2026-10-26 03:03:49-58 and 03:11:06-10: eight presses at (22718.2, 9853.8), the same shortest-way spot each try,
+    # none moved the character, and the loop stopped twice with a Large Charm 33 away
+    play = game(None)
+    hit = play.keys.on_event
+    play.keys.on_event = lambda event: None  # the game refuses the hop
+    with pytest.raises(Abort, match='did not move'):
+        step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    ((area, refused, _),) = teleport.REFUSED
+    assert area == play.character.area
+    play.keys.on_event = hit
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert math.dist((play.character.x, play.character.y), refused) >= teleport.REFUSED_UNITS
+    assert teleport.refused_aims(area, play.run().clock() + teleport.REFUSED_SECONDS) == ()  # forgotten after
+
+
 def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_is_judged_like_any_other(corners):
     # The corners are confirmed in the game: a failed hop there is a lost key or the like, not a reason
     # to stop aiming there.
@@ -1453,11 +1469,8 @@ def test_a_key_a_block_dropped_is_pressed_again_once_the_character_is_free(monke
     assert (play.clock.now - began < 0.5) if on else (play.clock.now - began >= 0.6)
 
 
-@pytest.mark.parametrize('on', [True, False])
-def test_the_strike_is_aimed_during_the_flight_once_its_cast_shows(monkeypatch, on):
-    # 2026-10-23: the strike's aim came after the landing (92 ms p50, rca/2026-10-23/lag-findings.md §1); once the
-    # hop's cast shows, `Run.flight` is given the landing aimed at, a frame on, before the character lands
-    monkeypatch.setattr(teleport, 'PREAIM_FLIGHT', on)
+def test_a_hop_whose_cast_shows_lands():
+    # The hop's cast seen (mode 10) for 0.3 s before the landing: the watch waits through the cast to the landing
     play = game()
     react = play.keys.on_event
 
@@ -1474,16 +1487,5 @@ def test_the_strike_is_aimed_during_the_flight_once_its_cast_shows(monkeypatch, 
         return react(event)
 
     play.keys.on_event = flying
-    run = play.run()
-    began, given = play.clock.now, []
-    run.flight = lambda landing: given.append((play.clock.now - began, landing, play.character.x))
-    step_toward(run, target((1003.0, 1000.0)), keys)
+    step_toward(play.run(), target((1003.0, 1000.0)), keys)
     assert math.dist((play.character.x, play.character.y), (5015.0, 5000.0)) < 0.5
-    if on:
-        assert len(given) == 1
-        at, landing, x = given[0]
-        assert teleport.PREAIM_AFTER <= at < 0.3  # in the flight
-        assert x == 5000.0  # not landed yet
-        assert math.dist(landing, (5015.0, 5000.0)) < 1.0
-    else:
-        assert given == []

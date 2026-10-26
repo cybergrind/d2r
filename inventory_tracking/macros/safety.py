@@ -80,9 +80,12 @@ RAYS = 8  # plain rays round the character, asked after those while time is left
 FOOTING_RINGS = (1.5, 3.0)  # units round an escape's place where footing is looked for
 FOOTING_TURNS = 8
 FALL_HORIZON = 10.0  # seconds the character's own strikes are counted over for a stand's clear time
-# A Teleport to one spot chosen DUD_HOPS looks in a row over DUD_AFTER s with the character not moved past STILL_UNITS
+# A Teleport to one spot pressed DUD_HOPS times in a row over DUD_AFTER s with the character not moved past STILL_UNITS
 # cast nothing (game 30, 21:36:45: a stand under the skill bar, pressed 5 times): the spot is barred for DUD_SECONDS,
-# within DUD_UNITS of it
+# within DUD_UNITS of it. 2026-10-26 (rca/2026-10-26/cast-nothing-findings.md): counted at the press (hunting/moves.py
+# `pursue` calls `Safety.hopped` for the act it makes), no longer at every look's choice: 1874 of 1909 drops over 31.6 h
+# had never been pressed (the fight kept, or the pursuit's dead end filtered the act); the Key of Hate at 23:33:18 on
+# 2026-10-25, chosen 7 looks while the fight struck, was barred 20 s and took 17.7 s to pick up
 DUD_HOPS = 3
 DUD_AFTER = 1.0
 DUD_SECONDS = 20.0
@@ -1051,6 +1054,8 @@ class Pricing:
         if drain_escape.unpaid(step.skill, self.mana):  # Blade Warp's mana too (drain_escape.py MANA_ESCAPE)
             damage = replace(damage, barred=damage.barred or drain_escape.NO_MANA)
         kept = not (retreat or dodge or self.waited)  # a wait that changed nothing lifts the keep ranges (WAIT_LIFT)
+        if kept and step.skill is None and herald_pack.walk_free(step.spot, here, look.hostiles, look.companions):
+            kept = False  # the T5 pack's plan: the walk in behind the demons holding it (combat/engage.py ENGAGE_PLAN)
         if self.burning and kept and manaburn.intrudes(here, step.spot, self.burning) is not None:
             # A draining pack is fought from its keep range (manaburn.BURN_RANGE): no move deeper into it
             damage = replace(damage, barred=damage.barred or manaburn.LANDED)
@@ -1400,6 +1405,18 @@ def every_act_vetoed(decision: dict, since: float) -> bool:
     return decision.get('looked_at', -math.inf) >= since and bool(found) and all(c.get('veto') for c in found)
 
 
+def retreat_chosen(decision: dict, since: float) -> bool:
+    """Whether the look of `decision` (`Safety.decision`), made at `since` or after, chose a retreat: no progress act
+    fitted the life budget or every one was vetoed (macros/hunting/moves.py REJUV_VETOED)."""
+    if decision.get('looked_at', -math.inf) < since:
+        return False
+    chosen, place = decision.get('chosen'), decision.get('chosen_place')
+    return any(
+        c.get('retreat') and c.get('act') == chosen and c.get('place') == place
+        for c in decision.get('candidates') or ()
+    )
+
+
 def return_refused(loot: Loot | None, decision: dict) -> str | None:
     """Why the character does not go back for a boss after a beset recovery's town visit (RETURN_GATE), None when it
     may: `loot` the life and belt as read now (None: unread), `decision` the last danger pricing (`Safety.decision`)."""
@@ -1520,7 +1537,7 @@ class Safety:
     over_said: float = -math.inf
     over_since: int = 0
     aspect: float = DEFAULT_ASPECT  # the game window's width / height (`shown`)
-    # The Teleport chosen at the last looks: (spot, where the character stood, looks in a row, clock of the first)
+    # The Teleport pressed at the last acts made: (spot, where the character stood, presses in a row, the first's clock)
     hops: tuple[Point, Point, int, float] | None = None
     duds: dict[Point, float] = field(default_factory=dict)  # Teleport spots that cast nothing -> barred until
     left_at: tuple[Point, Point, float] | None = None  # the last safety Teleport: (origin, spot, clock) (BOUNCE_BACK)
@@ -2983,9 +3000,9 @@ class Safety:
         return not any(c.keeps for c in candidates)
 
     def remember(self, chosen: Act, look: Look, here: Point, asking: bool, key: tuple, now: float, posted) -> None:
-        """Note the acts stepped across (`stepped`), the Teleports that cast nothing (`hopped`) and whether the asked
-        goal stays blocked (`insisting`)."""
-        self.hopped(chosen, here, now)
+        """Note the acts stepped across (`stepped`) and whether the asked goal stays blocked (`insisting`); the barred
+        Teleport spots lapse. The Teleports that cast nothing are counted where they are pressed (`hopped`)."""
+        self.duds = {spot: until for spot, until in self.duds.items() if now < until}
         if (
             isinstance(chosen, Move)
             and chosen.step.skill == TELEPORT
@@ -3012,8 +3029,10 @@ class Safety:
             self.blocked_goal = None
 
     def hopped(self, chosen: Act, here: Point, now: float) -> None:
-        """A Teleport to one spot chosen look after look with the character still: past DUD_HOPS looks over DUD_AFTER s
-        the press casts nothing (a spot the window does not show, game 30 21:36:45), and the spot is barred."""
+        """The act the pursuit makes (`chosen`, hunting/moves.py `pursue`): a Teleport to one spot pressed again and
+        again with the character still: past DUD_HOPS presses over DUD_AFTER s the press casts nothing (a spot the
+        window does not show, game 30 21:36:45), and the spot is barred. Another act made starts the count again; a
+        look that makes none says nothing of the press and leaves it (2026-10-26, cast-nothing-findings.md)."""
         self.duds = {spot: until for spot, until in self.duds.items() if now < until}
         if not isinstance(chosen, Move) or chosen.step.skill != TELEPORT:
             self.hops = None
@@ -3027,9 +3046,9 @@ class Safety:
         if looks >= DUD_HOPS and now - last[3] >= DUD_AFTER:
             self.duds[last[0]] = now + DUD_SECONDS
             self.hops = None
-            LOG.info('Macro: safety: Teleport to (%.1f, %.1f) chosen %d looks in a row over %.1fs, the character still '
-                     'at (%.1f, %.1f): the spot is dropped for %.0fs', last[0][0], last[0][1], looks, now - last[3],
-                     here[0], here[1], DUD_SECONDS)  # fmt: skip
+            LOG.info('Macro: safety: Teleport to (%.1f, %.1f) pressed %d times in a row over %.1fs, the character '
+                     'still at (%.1f, %.1f): the spot is dropped for %.0fs', last[0][0], last[0][1], looks,
+                     now - last[3], here[0], here[1], DUD_SECONDS)  # fmt: skip
 
     def over(self, now: float, took: float, budget: float, laps: dict[str, float], chosen) -> None:
         """Log a look over OVER_BUDGET times its time with its three costliest stages, at most once in SAID_EVERY

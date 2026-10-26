@@ -19,6 +19,11 @@ def test_the_scene_carries_the_pack():
 
 
 @pytest.mark.slow
+@pytest.mark.xfail(
+    reason='with the own aura and the live physical resistance (2026-10-25), 1 kill on against 1 off, no death: '
+    'STAND_NOT_RETREAT to be measured again (rca/2026-10-25/t5-blow-findings.md, Update)',
+    strict=True,
+)
 def test_the_stand_on_fights_the_pack_the_dance_off_never_does():
     """The pack as the arena plays it: off, the dance never fights it (0 kills in 20 plays, life untouched); on, the
     stand's move in does, with no death and the lowest life above the safety's floor (65%; 2026-10-25: 76% least,

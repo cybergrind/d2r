@@ -454,6 +454,8 @@ class Assessor:
                                  'filled the stash", 2026-10-17)')  # fmt: skip
         why = base_floor.allowed(facts)
         if why is None:
+            if (own := base_floor.own_use(facts, self.counted)) is not None:  # under the cap (the player, 2026-10-25)
+                return GroundVerdict(True, True, Then.KEEP, *own)  # a must-have: fetched, the game not left with it
             return GroundVerdict(False, False, None, '', base_floor.facts_junk(facts) or PLAIN_LEFT)
         based = ground_judge.base_verdict(facts, owned=self.counted)
         rowed = based is not None and based.pick

@@ -27,7 +27,6 @@ from inventory_tracking.game.records import (
     World,
 )
 from inventory_tracking.game.stash import Stash
-from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Cause, Flipped
 from inventory_tracking.macros.timing import Pace
@@ -223,9 +222,6 @@ class Run:
         # The places the routine under way is confined to (`confined`): each judges every world read, and a reason from
         # one raises `Strayed` with its cause (the town visit's town: macros/visit.py `in_town`)
         self.confines: list[tuple[Callable[[World], str | None], Cause | None]] = []
-        # During a Teleport's flight, once its cast is seen, given the landing aimed at (world units): the hunt's
-        # strike aimed from there before the landing (teleport.py PREAIM_FLIGHT, hunt.py `preaim`); None: no hunt
-        self.flight: Callable[[Point], None] | None = None
 
     def world(self) -> World:
         if self.cancelled.is_set():

@@ -27,6 +27,10 @@ ONE_WAY_RETREAT = pytest.mark.xfail(
     "waiting for the player's ruling",
     strict=False,
 )
+# 2026-10-25 (rca/2026-10-25/t5-blow-findings.md, Update): with the live physical resistance shown (game.py
+# PHYSICAL_THROUGH, stat 36 = 18) low_life_in_melee walked back from three Bovines without the rejuvenation and died at
+# 0.48 s, low_life_two_dying_gloams never cast; under the drinker's danger share the rejuvenation now comes before a
+# retreat (macros/hunting/moves.py REJUV_VETOED, macros/safety.py `retreat_chosen`), and both cast.
 CASTING = [pytest.param(name, marks=ONE_WAY_RETREAT) if name == 'low_life_under_knights' else name for name in NAMES]
 
 

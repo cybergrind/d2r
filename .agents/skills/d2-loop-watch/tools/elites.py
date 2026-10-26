@@ -73,7 +73,14 @@ KILL_KINDS = ('champion', 'unique', 'super', 'herald')
 # The kinds by the name the log says (macros/loop.py Kind.name), and the legs only one kind makes
 NAMES = {
     kind.name: kind.key
-    for kind in (loop_module.LK, loop_module.ANDARIEL, loop_module.BAAL, loop_module.TZ, loop_module.TZ_CLEAR)
+    for kind in (
+        loop_module.LK,
+        loop_module.ANDARIEL,
+        loop_module.BAAL,
+        loop_module.TZ,
+        loop_module.TZ_CLEAR,
+        loop_module.ACT2_TZ,
+    )
 }
 TZ_LEGS = {
     loop_module.TZ_WAYPOINT,
@@ -236,7 +243,7 @@ def parse(lines: list[str]) -> list[Event]:
 
 
 # The shard act kinds (macros/loop.py ACT_KINDS), one per act: their legs are the TZ kinds'
-ACT_KINDS = tuple(f'act{act}' for act in range(1, 6))
+ACT_KINDS = (*(f'act{act}' for act in range(1, 6)), 'act2tz')  # and Act 2 TZ leveling (loop.py ACT2_TZ)
 
 
 def kind_of_leg(leg: str, now: str | None) -> str | None:

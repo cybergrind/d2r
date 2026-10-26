@@ -136,6 +136,10 @@ class Kind:
     # The boss's own level: the loot leg waits for his drops there only (`DROPS_LAND`), not on a level before it (the
     # Throne's loot after Lister for Baal); None: on any level of the kind
     lair: int | None = None
+    # Its shard's act played alone (macros/acts/engine.py `ActScript.alone`): the script's alone steps, then the game's
+    # end; no rest of the act, no rotation, no other act's shard (tzroutine.py `itinerary`, actloop.py `alone`). The
+    # Act 2 TZ leveling kind's (`ACT2_TZ`, 2026-10-25)
+    alone: bool = False
 
 
 LK = Kind(
@@ -220,18 +224,35 @@ def act_kind(act: int) -> Kind:
 
 ACT_KINDS = {kind.key: kind for kind in map(act_kind, range(1, 6))}
 ACT4 = ACT_KINDS['act4']
-TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key, *ACT_KINDS))  # the experience lines too (`look_at_experience`)
+# Act 2 TZ leveling (2026-10-25). The player, ~17:15: "act 2 tz leveling: use worlstone shard for act 2 / go all canyon
+# of the magi + all tals rasha tombs (small + kaa + duriel) / go full arcane sanctuary (+kill summoner)"; ~17:47:
+# "current run is TZ leveling, and I want to have separate Act 2 TZ Leveling with tal rasha's and arcane sanctuary". A
+# kind of its own beside "Shard: Act 2" (its whole act, as before) and TZ leveling (as before): the Eastern shard
+# (actloop.py ACTS), then act 2's alone steps (macros/acts/act2.py TZ_LEVELING_STEPS: the Canyon of the Magi and its
+# seven tombs, Duriel's Lair from the true tomb, the Arcane Sanctuary toured whole and the Summoner), then Save and
+# Exit. Its cap is the act 2 game's. Offered last (`loop_kinds`: "you must not touch any existing entries", the player,
+# 2026-10-25) while act 2's script has alone steps
+ACT2_TZ = replace(
+    act_kind(2), key='act2tz', name='Act 2 TZ leveling', metric='experience and elite kills an hour', word='A2TZ',
+    alone=True,
+)  # fmt: skip
+ALONE_KINDS = {ACT2_TZ.key: ACT2_TZ}
+# The experience lines too (`look_at_experience`)
+TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key, *ACT_KINDS, *ALONE_KINDS))
 
 
 def loop_kinds() -> dict[str, Kind]:
     """The kinds the player may choose (KP_6 three times, restart.py --kind); TZ kinds only with tzloop.ENABLED, a
-    shard act kind only with actloop.ENABLED as well and its act's script ready (macros/acts/)."""
+    shard act kind only with actloop.ENABLED as well and its act's script ready (macros/acts/); an alone kind (Act 2
+    TZ leveling) last, while its act's script has alone steps: the existing entries' order unchanged (the player,
+    2026-10-25: "you must not touch any existing entries")."""
     from inventory_tracking.macros import actloop, acts, tzloop  # late: tzloop imports this module
 
     tz = {TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR} if tzloop.ENABLED else {}
     on = tzloop.ENABLED and actloop.ENABLED
     act = {key: kind for key, kind in ACT_KINDS.items() if on and acts.ready(actloop.act_of(kind))}
-    return {**KINDS, **tz, **act}
+    lone = {key: kind for key, kind in ALONE_KINDS.items() if on and acts.alone(actloop.act_of(kind))}
+    return {**KINDS, **tz, **act, **lone}
 
 
 @dataclass(frozen=True)
@@ -419,6 +440,11 @@ TRIP_SECONDS = 80.0
 # worldstone hards spent! you must finish the game correctly"; the 3900 s cap stopped cyberg65 at 20:09 mid full
 # clear at 113 kills/min. The longest fruitless run seen is the 4.5 min tomb tour, which killed on the way
 NO_PROGRESS_SECONDS = 300.0
+# OFF_TIME_NOT_COUNTED (2026-10-25 17:43:37, game cybergg77: the player turned the loop on in a game they had been in
+# for minutes with it off, and "no progress for 300 s" stopped it at once, three times): the watchdog's clocks
+# (`progress_seen`'s no-progress clock and `overdue`'s game clock) start anew while the loop is off, as the focus wait
+# does ("the player's time, not the loop's"). False: they ran on while it was off, as before.
+OFF_TIME_NOT_COUNTED = True
 LOADING_SECONDS = 10.0  # for a game's character to be read after it shows as in a game
 # A stand this long within STILL_UNITS is the loop stuck (the player, 2026-10-17: "we stuck, but didn't detect it in
 # time"); the longest good stand is a shop visit, under 15 s
@@ -660,6 +686,8 @@ class Loop:
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
         self.counted_in, self.placed, self.portal, self.printed = None, False, None, None
         self.beset_due, self.fetch_back, self.fought_back = None, None, None
+        if OFF_TIME_NOT_COUNTED:
+            self.progressed = None  # the no-progress clock from the loop's start, not the game's (17:43:37)
         self.experience = Ledger()
         self.tidy_panels = True
 
@@ -690,6 +718,9 @@ class Loop:
         another game, starts the no-progress clock anew."""
         if self.progressed is None or self.progressed[0] != game or self.progressed[2] != mark:
             self.progressed = (game, now, mark)
+        elif OFF_TIME_NOT_COUNTED and not self.on:
+            self.progressed = (game, now, mark)
+            self.seen = (game, now)
 
     def no_progress(self, game: str | None, now: float) -> bool:
         """Whether `game` has gone NO_PROGRESS_SECONDS with no progress (`progress_seen`); the loop's own wait

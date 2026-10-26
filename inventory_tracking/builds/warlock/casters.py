@@ -44,7 +44,7 @@ from inventory_tracking.builds.warlock.buffs import (
 from inventory_tracking.builds.warlock.defiler import DEFILER_MANA, DEFILER_RETRY, world_spot
 from inventory_tracking.builds.warlock.mark import demons
 from inventory_tracking.builds.warlock.skills import BIND_DEMON, CONSUME, ENGORGE, SUMMON_DEFILER
-from inventory_tracking.combat import pack as herald_pack
+from inventory_tracking.combat import engage, pack as herald_pack
 from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, ITEM_UNIT, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT
 from inventory_tracking.game.records import Monster, Player, World
@@ -1282,22 +1282,35 @@ def pack_sigil(cast: Casting) -> Tried:
     seen, lying = in_flight(run, world)
     radius = (lying[2] if lying is not None else SIGIL_RADIUS) - SIGIL_EDGE
     gone = seen and lying is None and watch.age(now) >= SIGIL_SHOWS  # none of the character's in flight
-    spot, where = herald_pack.sigil_spot(here, pack, [(d.x, d.y) for d in demons(world)], radius)
+    sent = [(d.x, d.y) for d in demons(world)]
+    if engage.sigil_waits():
+        # The T5 pack's plan (combat/engage.py ENGAGE_PLAN): the sigil goes where the demons meet the pack, once
+        # the mark has put them there
+        return Tried(now, touched=False)
+    spot, where = herald_pack.sigil_spot(here, pack, sent, radius)
     if watch.lies(now, area) and not gone and watch.age(now) <= SIGIL_LASTS - SIGIL_EARLY:
         at = (lying[0], lying[1]) if lying is not None else watch.place
         assert at is not None
         inside = herald_pack.covering(at, pack, radius)
-        if len(inside) >= herald_pack.SIGIL_HALF * len(pack):
-            return Tried(now, touched=False)
-        held, best = herald_pack.cover_weight(at, pack, radius), herald_pack.cover_weight(spot, pack, radius)
-        if best <= held:
-            return Tried(now, touched=False)  # no disc covers more: kept
-        if SIGIL_KEEP_SHARE_ON and held >= SIGIL_KEEP_SHARE * best:
-            return Tried(now, touched=False)  # it holds half of what a new one would at least: kept
+        planned = engage.sigil_kept(at, [m.at for m in pack], here, sent)
+        if planned is True:
+            return Tried(now, touched=False)  # it lies where the melee is (ENGAGE_PLAN)
+        if planned is None:
+            if len(inside) >= herald_pack.SIGIL_HALF * len(pack):
+                return Tried(now, touched=False)
+            held, best = herald_pack.cover_weight(at, pack, radius), herald_pack.cover_weight(spot, pack, radius)
+            if best <= held:
+                return Tried(now, touched=False)  # no disc covers more: kept
+            if SIGIL_KEEP_SHARE_ON and held >= SIGIL_KEEP_SHARE * best:
+                return Tried(now, touched=False)  # it holds half of what a new one would at least: kept
         if watch.age(now) < SIGIL_GAP:
             assert watch.at is not None
             return Tried(watch.at + SIGIL_GAP - SIGIL_LOOK, touched=False)
-        why = f'the one that lies covers {len(inside)} of {len(pack)}'
+        why = (
+            f'the melee is {math.dist(at, spot):.1f} off the one that lies'
+            if planned is False
+            else f'the one that lies covers {len(inside)} of {len(pack)}'
+        )
     elif watch.lies(now, area) and not gone:
         why = f'the sigil runs out in {max(0.0, SIGIL_LASTS - watch.age(now)):.1f} s'
     else:

@@ -71,6 +71,9 @@ def t5_hulks(
         situation.pack(URDAR, 1, at=(3.5 * k, -AWAY), spread=0.0)
     situation.rules = tuple(rules)
     situation.seconds = seconds
+    # Each melee blow the game's own roll, shots cut (mobs.py `bounded`; 2026-10-25, rca/2026-10-25/t5-blow-findings.md:
+    # uncapped, the fitted spread landed a minion's 571 raw where the game's most is 235, 1490 taken under Might)
+    situation.capped = True
     situation.assumed.update({
         'the pack': 'built by hand after H-A (take 20261021T063019Z-77, 09:30:41), not cut from the take',
         'mods': "the Herald's aura alone (Might, the arena's); stoneskin, resist and fast not played",

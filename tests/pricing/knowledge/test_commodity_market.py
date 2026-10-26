@@ -30,7 +30,8 @@ def test_importer_does_not_promote_unknown_status_or_conflicting_identity(tmp_pa
 def test_cached_commodity_page_has_reproducible_scoped_unit_quote(tmp_path):
     document = build()
     assert document == json.loads((ROOT / 'pricing/data/appraisal-commodity-market.json').read_text())
-    rows = [r for r in document['rows'] if r['name'] == "Talic's Anguish"]
+    # The 2026-10-03 page; later dated pulls add their own rows beside it.
+    rows = [r for r in document['rows'] if r['name'] == "Talic's Anguish" and 'commodities-20261003/' in r['source']]
     assert len(rows) == 50
     assert {r['scope_status'] for r in rows} == {'verified', 'rejected'}
     result = retrieve_draft(

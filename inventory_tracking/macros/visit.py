@@ -14,6 +14,7 @@ before the stash closes. One planned out that found no room after all goes the s
 Rulings and evidence: history/visit.md.
 """
 
+import math
 from collections import Counter
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
@@ -21,6 +22,7 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import BANK
 from inventory_tracking.game.records import Carried, Pack, StashView, World
 from inventory_tracking.game.stash import full_of
 from inventory_tracking.items.metadata import item_base, metadata
@@ -944,6 +946,18 @@ DOWN_A_GAME: int | None = 6
 DOWN_GUARDED = True
 DOWN_GUARDED_MOST = 24
 _down = {'game': '', 'items': 0}  # the game the count is of (World.game_name) and the items put down in it
+# 2026-10-26 (probe.log of 20261025T220620Z-ce560224, 01:27:25-32): the junk put down at the feet by the stash laid its
+# labels over the stash's aims (teleport.py CHEST_AIMS, up to 36 classic pixels above its ground), and every opening
+# after it in the game had five aims refused ("has (4, ...) under it; not clicked", ~0.15 s each) before (0, -36) took:
+# 31 such refusals over 27 openings in session 20261025T190502Z-4815ebc0. The junk is now put down DOWN_AWAY units from
+# the stash on its line to the waypoint (`down_spot`), the way the next leg walks anyway (the loop's waypoint walk, or
+# Halbu's further east). In the Fortress (stash (5019, 5040), waypoint (5044, 5019)) that spot is ~315 classic pixels
+# across from the stash's ground (a unit is 16 across, 8 down, view.py UNIT_PIXELS) and level with it: past a pile's
+# spread (+-5 units across in the 01:27 pile of nine, ~80 pixels) and a long label's half width (~100); ~19 units short
+# of the waypoint. A game that ends at the visit (Exit.LEAVE) puts down at the feet, as before: no later opening
+DOWN_AWAY = 14.0
+DOWN_ARRIVED = 1.5  # units from the spot the walk to it is done at
+DOWN_CLICKS = 3  # walk clicks toward it at most (shop.py STEP 12 each); not reached, the junk falls where it stands
 JAMELLA_IDENTIFIES = 10  # "under about 10": a visit-to-visit use is about 7 scrolls (the findings, act 4 tome reads)
 # Low gold: under what a durability-only repair wants carried (repair.py WEAR_CARRIED, 200k). The staff's repairs cost
 # ~11k (11,056 at 22:49:04 on 2026-10-20), an unread quote wants twice the expected and 50k more (~72k, repair.py
@@ -1028,6 +1042,54 @@ def jamella_for(pack: Pack, needs: Needs, coins: int | None, down: Sequence[Carr
         return f'belt short {potions} healing potions'
     kept = next((item for item in down if never_down(item)), None)
     return f'the {_name(kept)} is never put down' if kept is not None else None
+
+
+def down_spot(
+    stash: tuple[float, float], waypoint: tuple[float, float], away: float = DOWN_AWAY
+) -> tuple[float, float]:
+    """Where the town's junk is put down (DOWN_AWAY): `away` units from the stash on the straight line to the waypoint,
+    never past halfway (the waypoint's own click is not covered either)."""
+    gap = math.dist(stash, waypoint)
+    share = min(0.5, away / gap) if gap else 0.0
+    return stash[0] + (waypoint[0] - stash[0]) * share, stash[1] + (waypoint[1] - stash[1]) * share
+
+
+def _stash_ground(run: Run, town: TownMap) -> tuple[float, float]:
+    """The stash's ground: the one drawn nearest the character, else the town's usual place."""
+    world = run.world()
+    shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id == BANK]
+    if world.player is None or not shown:
+        return town.stash
+    here = (world.player.x, world.player.y)
+    thing = min(shown, key=lambda t: math.dist((t.x, t.y), here))
+    return thing.x, thing.y
+
+
+def _to_down_spot(run: Run, town: TownMap) -> None:
+    """The walk to `down_spot` before the junk is put down (DOWN_AWAY), DOWN_CLICKS clicks at most; not reached, the
+    junk falls where the character stands."""
+    player = run.world().player
+    if player is None:
+        return
+    stash = _stash_ground(run, town)
+    spot = down_spot(stash, town.waypoint)
+    if math.dist((player.x, player.y), spot) <= DOWN_ARRIVED:
+        return
+
+    def there(world: World) -> bool:
+        me = world.player
+        return me is not None and math.dist((me.x, me.y), spot) <= DOWN_ARRIVED
+
+    began = run.clock()
+    try:
+        walk_until(run, lambda _world: spot, WAYPOINT_SEEN, 'the put-down spot', until=there, clicks=DOWN_CLICKS)
+    except Abort as stop:
+        if cut(run, stop):
+            raise
+        LOG.info('Macro: town visit: the put-down spot (%.1f, %.1f) not reached: %s', *spot, stop)
+        return
+    LOG.info('Macro: town visit: at the put-down spot (%.1f, %.1f), %.1f from the stash on the way to the waypoint, '
+             '%.1fs', *spot, math.dist(stash, spot), run.clock() - began)  # fmt: skip
 
 
 def _put_down(run: Run, key: str, items: Sequence[tuple[Carried, str]]) -> int:
@@ -1633,6 +1695,8 @@ def _visit(
                      'the stash): the junk sold', _down['items'], len(junked) + len(stacked_down))  # fmt: skip
             return False
         began = run.clock()
+        if exit != Exit.LEAVE:
+            _to_down_spot(run, town)  # off the stash's aims (DOWN_AWAY)
         fell = _put_down(
             run,
             key,

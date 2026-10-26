@@ -67,6 +67,10 @@ SKILL_TREES = [f'188:{klass * 8 + tree}' for klass in range(8) for tree in range
 # 4os Monarch) keeps copies until this many are owned in all (bases in the collection, no runeword: 2 on 2026-10-20,
 # MSockB and MSockC); later copies only when better (Superior 15 ED on the ground; better ED once carried, keep.py)
 SPIRIT_MONARCH_CAP = 6
+# The player, 2026-10-25: "I want to keep at least one 4os Archon Plate". A plain eth 4os Archon Plate (fills n83
+# median 2.58 Ist, under the allowlist's 4 Ist) is picked while fewer than this many eth 4os Archon Plates are owned
+# (the collection, online characters, a Superior one too: loot/value.py owned_bases); loot/base_floor.py OWN_USE
+MERC_ARCHON_CAP = 1
 
 
 def eth(value: bool = True) -> dict:
@@ -230,6 +234,21 @@ ROWS: list[dict[str, Any]] = [
         'asks': ('archon-plate', '4os/eth/normal'),
         'source': f'{WARLOCK}:139; {PINDLE}:286; {RUNES}:353',
         'quote': 'Eth 4os Archon Plate asks 9.3',
+    },
+    {
+        # Own use, capped (MERC_ARCHON_CAP): the one plain copy the allowlist's floor would leave on the ground
+        'id': 'own-merc-archon-eth-4os',
+        'class': 'G4',
+        'who': 'merc',
+        'label': 'Merc base (own use, 1 kept): eth 4os Archon Plate',
+        'bases': ['Archon Plate'],
+        'qualities': ['normal'],
+        'ground': [eth(), sockets(4)],
+        'must': [eth(), sockets(4)],
+        'keep_up_to': MERC_ARCHON_CAP,
+        'asks': ('archon-plate', '4os/eth/normal'),
+        'source': f'{PINDLE}:286',
+        'quote': 'keep one plain eth 4os Archon',
     },
     {
         'id': 'archon-eth',

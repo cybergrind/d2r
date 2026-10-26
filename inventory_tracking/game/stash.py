@@ -66,6 +66,10 @@ SHARD_FLOOR = 90
 # - a Baal game takes a Northern from its stack while it holds more than this (2026-10-25 ~13:48: "floor is 40, use up
 #   to it"; macros/actloop.py NORTHERN_FOR_BAAL)
 NORTHERN_FLOOR = 40
+# - an Act 2 TZ leveling game takes its Eastern from its stack while it holds more than this, as a Baal game its
+#   Northern (2026-10-26 ~09:05, the Eastern stack at 89, under SHARD_FLOOR: "Floor 40: Act 2 TZ leveling uses Eastern
+#   shards down to 40, as the Northern for Baal does ('floor is 40, use up to it')"; macros/actloop.py `own_floor`)
+EASTERN_FLOOR = 40
 # - a resource stack keeps this much room (2026-10-18: "at least 20 free slots"; town.py `Needs.stack_room`)
 STACK_ROOM = 20
 # itemstatcost.txt `goldbank`: the personal stash tab's gold (gamble.py, repair.py, stash.py; verified 2026-10-21,

@@ -203,3 +203,42 @@ def test_no_way_to_it_leaves_it_and_the_level_is_not_explored_for_it():
     shrines.no_way(hunt, found, 'no way toward Experience Shrine, on the way: walled')
     assert 700 in hunt.shrines.left
     assert side(play, hunt, run) == DOOR
+
+
+def leveled(play, level: int | None) -> None:
+    stats = dict(play.loot.stats)
+    stats.pop(12, None)
+    if level is not None:
+        stats[12], stats[13] = level, 1_000_000  # itemstatcost.txt level, experience
+    play.loot = replace(play.loot, stats=tuple(stats.items()))
+
+
+@pytest.mark.parametrize(('terror', 'level', 'taken'), [
+    (True, 92, True), (True, 98, True), (True, 99, False), (True, None, False), (False, 92, False),
+])  # fmt: skip
+def test_in_a_terror_zone_under_99_every_experience_shrine_is_gone_for(monkeypatch, caplog, terror, level, taken):
+    # the player, 2026-10-25 ~17:53: "in TZ if we're not 99 lvl already we should use all experience shrines"
+    play, hunt, run = level_run(east=PICK_NEAR + 60.0)  # off the way, past SHRINE_SIGHT
+    monkeypatch.setattr(hunt.bearings, 'terror', lambda area: terror)
+    leveled(play, level)
+    with caplog.at_level(logging.INFO):
+        found = side(play, hunt, run)
+    assert (found is not None and found.shrine) is taken, (terror, level)
+    if taken:
+        assert any('(terror zone: every one)' in line for line in caplog.messages)
+
+
+def test_in_a_terror_zone_a_second_one_is_taken_at_once_and_the_quiet_still_holds(monkeypatch):
+    play, hunt, run = level_run(east=PICK_NEAR + 20.0)
+    monkeypatch.setattr(hunt.bearings, 'terror', lambda area: True)
+    leveled(play, 95)
+    hunt.shrines.begin(play.world.game_name)
+    hunt.shrines.used_at = run.clock() - 1.0  # one used a second ago: no REFRESH_AFTER wait here
+    found = side(play, hunt, run)
+    assert found is not None
+    assert found.shrine
+    monkeypatch.setattr(shrines, 'TZ_EVERY_SHRINE', False)
+    assert side(play, hunt, run) == DOOR  # the switch off: as before
+    monkeypatch.setattr(shrines, 'TZ_EVERY_SHRINE', True)
+    monkeypatch.setattr(shrines, 'quiet', lambda *a: ('hostiles', 'waits: hostiles'))
+    assert side(play, hunt, run) == DOOR  # hostiles by it: it waits, as everywhere

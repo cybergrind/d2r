@@ -192,7 +192,10 @@ SIGIL_LOOK = 0.5  # seconds between two looks whether a dangerous monster still 
 # fights and for a group that drains mana (combat/threats/manaburn.py) or threatens OPENER_THREAT (terror/danger.py:
 # hit x rate x reach, so shooters and Extra Fast packs count), laid where that group will be OPENER_LEAD s on
 # (`opening`) and not again while the one that lies covers OPENER_KEEP of it. False: the row as before.
-SIGIL_OPENER = False
+# On 2026-10-26 (the player, ~09:10: "put sigil of lethargy where the main battle will occur", then "if we already have
+# this working, then put it live"): re-gated on that day's tree, 2500 plays (rca/2026-10-26/r1-sigil-regate-
+# findings.md): deaths 12 -> 13 against the placebo's 12 -> 15, least life and T5 Herald time no worse, kills +0.3%.
+SIGIL_OPENER = True
 OPENER_SEEN = 30.0  # units from the character within which hostiles are the fight's group (combat/pack.py PACK_SEEN)
 # 2026-10-24 (rca/2026-10-24/sigil-opener-2-findings.md): the opener cost pursuit kills (-3.6%, 160 plays): the early
 # row laid the pack's sigil again every SIGIL_LOOK while under half of the pack stood in it, before strikes (a drawn

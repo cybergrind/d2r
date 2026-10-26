@@ -22,7 +22,7 @@ from dataclasses import dataclass, replace
 from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAST, ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table, damage_data
 from inventory_tracking.builds.warlock.skills import DEATH_MARK
-from inventory_tracking.combat import pack as herald_pack, revivers
+from inventory_tracking.combat import engage, pack as herald_pack, revivers
 from inventory_tracking.combat.harm import SafetySettings
 from inventory_tracking.combat.mechanics.life import rank_share
 from inventory_tracking.combat.mechanics.tables import tables
@@ -32,7 +32,7 @@ from inventory_tracking.combat.sim.casters import hit_chance
 from inventory_tracking.combat.stance import CAST_SECONDS
 from inventory_tracking.combat.threats import dolls
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import DEFILER_CLASS, MAGIC_RESIST, MONSTER_RESISTS
+from inventory_tracking.game.layout import DEFILER_CLASS, MAGIC_RESIST, MONSTER_RESISTS, NO_OWNER
 from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.build import BuffFacts, Draw, DrawPrice
 from inventory_tracking.macros.goals import is_boss
@@ -820,6 +820,9 @@ def pack_designated(facts: BuffFacts) -> Monster | None:
     decided, doll = doll_herald_designated(facts)
     if decided:
         return doll
+    decided, planned = plan_mark(facts)
+    if decided:
+        return planned  # the T5 pack's plan decides (combat/engage.py ENGAGE_PLAN)
     lasting = [m for m in facts.reachable if herald_pack.in_pack(m.tier) and pack_lasts(facts, m)]
     if lasting:
         held = min(lasting, key=lambda m: (not herald(m), facts.since(DEATH_MARK, m.unit_id), m.unit_id))
@@ -827,9 +830,66 @@ def pack_designated(facts: BuffFacts) -> Monster | None:
         if aggro_lost(facts, held):
             return held
     chosen = pack_target(facts)
+    if chosen is not None and plan_trash(facts, chosen):
+        return None  # the T5 pack's plan: no mark on a member the strike kills now (combat/engage.py ENGAGE_PLAN)
     if chosen is not None:
         note(chosen, PACK_RANK, f"the tier {chosen.tier} Herald pack's member (the pack's order)")
     return chosen
+
+
+def plan_trash(facts: BuffFacts, monster: Monster) -> bool:
+    """Whether the T5 pack's plan leaves `monster` unmarked (combat/engage.py ENGAGE_PLAN, the demons on the pack):
+    the strike kills it within TRASH_CASTS (`fits`). Today 08:52:49.9-54.4 (rca/2026-10-26/herald-engage-findings.md
+    §1.4): five marks in 4.5 s on minions of 28-84/128 life, three that did not take, the demons on the pack all the
+    while."""
+    plan = engage.active()
+    player = facts.world.player
+    if plan is None or not plan.committed or plan.threatened() or player is None or monster.tier < engage.PLAN_TIER:
+        return False
+    return not fits(observe(player, [monster], ()), monster.unit_id)
+
+
+def plan_mark(facts: BuffFacts) -> tuple[bool, Monster | None]:
+    """The T5 pack's plan's mark (combat/engage.py ENGAGE_PLAN, `remark`; the player, 2026-10-26 ~09:10: "move daemons
+    to get aggro with DM between char and pack"): in MARK, once a phase, the nearest member while the pack is on the
+    character (engage.py `on_us`), else the member whose mark lasts (the demons sent back to it), else the nearest
+    member no body covers, the Herald first; (True, None) while that MARK's key lands. Past MARK (False, None): the
+    demons hold the pack, the mark rules' own marks stand but for a dying member (`plan_trash`). (False, None) too
+    with no plan for this look's pack (the rules as before)."""
+    player = facts.world.player
+    if not engage.ENGAGE_PLAN or player is None:
+        return False, None
+    here = (player.x, player.y)
+    companions = [(m.x, m.y) for m in facts.world.monsters if m.ally or m.owner != NO_OWNER]
+    herald_pack.engage_look(facts.now, here, facts.foes, companions, bool(demons(facts.world)))
+    plan = engage.active()
+    near = [m for m in facts.reachable if m.tier >= engage.PLAN_TIER]
+    if plan is None or not near or plan.threatened():
+        return False, None  # no plan here, or it steps aside for a real threat (engage.py THREAT_SECONDS)
+    if plan.phase is not engage.Phase.MARK:
+        return False, None  # the demons hold the pack: the mark rules' own marks, none on a dying member (`trash`)
+    if herald_pack.MARK.at >= plan.entered:
+        return True, None  # this MARK's key is out: its landing is waited for
+    pool = [m for m in near if facts.missed.get((DEATH_MARK, m.unit_id), 0) < MARK_RECASTS] or near
+    lasting = [m for m in pool if pack_lasts(facts, m)]
+    pressing = engage.on_us([(m.x, m.y) for m in pool], here, companions)
+    if pressing:
+        # The pack on the character: the demons onto the nearest of those, between the character and the rest
+        chosen = min(pool, key=lambda m: (math.dist(here, (m.x, m.y)), m.unit_id))
+    elif lasting:
+        chosen = min(lasting, key=lambda m: (not herald(m), facts.since(DEATH_MARK, m.unit_id), m.unit_id))
+    else:
+        bodies = [(m.x, m.y) for m in facts.foes]
+        chosen = min(
+            pool,
+            key=lambda m: (
+                herald_pack.covered((m.x, m.y), bodies),
+                not herald(m),
+                math.dist(here, (m.x, m.y)),
+                m.unit_id,
+            ),
+        )
+    return True, note(chosen, PACK_RANK, f"the tier {chosen.tier} Herald pack's member: the plan's mark (ENGAGE_PLAN)")
 
 
 def aggro_lost(facts: BuffFacts, monster: Monster) -> bool:

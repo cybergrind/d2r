@@ -6,7 +6,7 @@ from collections.abc import Mapping, Sequence
 from contextlib import contextmanager, nullcontext
 from typing import TYPE_CHECKING
 
-from inventory_tracking.combat import pack as herald_pack
+from inventory_tracking.combat import engage, pack as herald_pack
 from inventory_tracking.combat.policy import RUN_MODES, observe
 from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, HORIZON, RUN_SPEED, Camp, camp, no_footing
 from inventory_tracking.combat.survival import pressure
@@ -65,7 +65,7 @@ from inventory_tracking.macros.pursuit import (
 )
 from inventory_tracking.macros.routines import SUPER_UNIQUE_FLAG, take_battle_weapons
 from inventory_tracking.macros.running.base import DOOR_PRESS
-from inventory_tracking.macros.safety import DUD_UNITS, WALK_ROUND, WAY_SHARE, every_act_vetoed
+from inventory_tracking.macros.safety import DUD_UNITS, WALK_ROUND, WAY_SHARE, every_act_vetoed, retreat_chosen
 from inventory_tracking.macros.sight import clear_shot, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
@@ -93,6 +93,7 @@ from inventory_tracking.macros.travel import (
     PLAYER_STEP,
     PRESSED,
     SEEK,
+    STANDING,
     Point,
     Step,
     Untaken,
@@ -298,6 +299,12 @@ def barred(self: Hunter, act, now: float) -> bool:
 # came at 0.66 s, once the walk had been hit. True: under the safety floor, a look that found every act vetoed
 # (macros/safety.py `every_act_vetoed`) drinks a rejuvenation before its act whether a healing potion is on the belt or
 # not, and the next look decides the act at the life restored. False: only with no healing potion, as before.
+# 2026-10-25 (rca/2026-10-25/t5-blow-findings.md, Update): with the live physical resistance read (stat 36 = 18) the
+# same look prices the three Bovines' blows under the 500 life, the walk back of 16 is no longer vetoed, the
+# rejuvenation is not drunk and the walk dies at 0.48 s (512 taken); at 400 life by two Gloams no progress act fits the
+# budget 0 and the character retreats for the whole play, 0 casts. So under the drinker's `danger` share of the life
+# (combat/survival.py DrinkSettings, 30%) a look that chose a retreat (macros/safety.py `retreat_chosen`) drinks the
+# rejuvenation too, whatever the blows' pricing: a retreat there never comes before the rejuvenation.
 REJUV_VETOED = True
 
 
@@ -368,8 +375,10 @@ def pursue(
         kind = PotionType.REJUVENATION
         settings = self.build.settings
         # Recover the budget; the next look must see the healing before it allows a costlier act. With every act
-        # vetoed a healing potion is too slow (REJUV_VETOED)
-        cornered = REJUV_VETOED and taken is None and every_act_vetoed(self.safety.decision, looked)
+        # vetoed a healing potion is too slow, and so it is for a retreat under the drinker's `danger` (REJUV_VETOED)
+        priced = self.safety.decision or {}
+        critical = loot.life < loot.max_life * settings.drink.danger / 100 and retreat_chosen(priced, looked)
+        cornered = REJUV_VETOED and taken is None and (every_act_vetoed(priced, looked) or critical)
         if (
             0 < loot.life < loot.max_life * settings.safety.floor / 100
             and loot.belt_read  # an unread cell may hold the healing potion
@@ -416,13 +425,18 @@ def pursue(
     if isinstance(act, Defer):
         self.defer(run, goal, act.goal.label if act.goal is not None else 'the key', posted)
         return False
+    if escaping is None and self.stale(run, world, looked, act):
+        return True
+    if isinstance(act, Advance):
+        # The move made now counts toward a Teleport that casts nothing (macros/safety.py `hopped`, DUD_HOPS), not
+        # every look's choice: 2026-10-26, rca/2026-10-26/cast-nothing-findings.md (1874 of 1909 drops never pressed;
+        # the Key of Hate at 23:33:18 barred by 7 looks of a fight that struck on). Game 30's 5 presses still bar it
+        self.safety.hopped(act, here_of(world), run.clock())
     if dropped(act, self.safety.duds, DUD_UNITS, run.clock()):
-        # The safety dropped the spot in this very look (pursuit.py DUD_BINDS): the next look prices it barred
+        # The safety dropped the spot (DUD_BINDS), at this press too: the next look prices it barred
         assert isinstance(act, Advance)
         self.tell(run, f'{DUD_SAID}: ({act.step.spot[0]:.1f}, {act.step.spot[1]:.1f})')
         self.nap(run, FRAME)
-        return True
-    if escaping is None and self.stale(run, world, looked, act):
         return True
     if book is not None:
         book.lap('stale')
@@ -700,6 +714,31 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
             book.current.by = by
     self.travel.make(
         run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place, hurry=act.dodge
+    )
+
+
+def engage_goal(self: Hunter, foes: Sequence[Monster], goal: Goal | None, here: Point) -> Goal | None:
+    """The T5 pack's plan's walk in (combat/engage.py ENGAGE_PLAN, CLOSE_IN; the player, 2026-10-26 ~09:10: "walk
+    closer, behind the daemons that gets aggro") where the look has no goal of its own: attack mode alone with the pack
+    out of the strike's reach stood idle (the arena's herald scene: 13 of the pack 26-34 off, the demons back by the
+    character, 60 s of "nothing in reach and no fight to go to"). The fight of the nearest member, its move a walk
+    while the plan holds the jumps. `goal` as it was otherwise."""
+    plan = engage.active()
+    if goal is not None or plan is None or plan.phase is engage.Phase.STANDOFF or plan.threatened():
+        return goal
+    members = [
+        m for m in foes if m.tier >= engage.PLAN_TIER and math.dist(here, (m.x, m.y)) <= engage.PLAN_LOST
+    ]  # fmt: skip
+    if not members:
+        return goal
+    nearest = min(members, key=lambda m: (math.dist(here, (m.x, m.y)), m.unit_id))
+    return Goal(
+        f'the tier {nearest.tier} pack: the walk in ({plan.phase.value}; ENGAGE_PLAN)',
+        (nearest.x, nearest.y),
+        FIGHT,
+        self.reach,
+        STANDING,
+        unit=nearest.unit_id,
     )
 
 

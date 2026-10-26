@@ -80,7 +80,7 @@ def loop_on(lines: list[str]) -> bool:
 
 
 # The shard act kinds (macros/loop.py ACT_KINDS), one per act
-ACT_KINDS = tuple(f'act{act}' for act in range(1, 6))
+ACT_KINDS = (*(f'act{act}' for act in range(1, 6)), 'act2tz')  # and Act 2 TZ leveling (loop.py ACT2_TZ)
 
 
 def say(text: str) -> None:
@@ -185,7 +185,8 @@ def main(argv: list[str] | None = None) -> int:
         '--kind',
         choices=('lk', 'andariel', 'baal', 'tz', 'tzclear', *ACT_KINDS),
         help="the loop's run (macros/loop.py `loop_kinds`: tz and tzclear only once macros/tzloop.py ENABLED; "
-        "act1 ... act5 once macros/actloop.py ENABLED and the act's script is ready, macros/acts/); with --when "
+        "act1 ... act5 once macros/actloop.py ENABLED and the act's script is ready, macros/acts/; act2tz: Act 2 TZ "
+        'leveling, the Canyon, the tombs, Duriel, the Arcane Sanctuary, macros/acts/act2.py); with --when '
         'town|safe from the next game',
     )
     parser.add_argument(

@@ -193,7 +193,7 @@ def test_a_monster_in_contact_takes_life_at_the_rate_mobs_gives(monkeypatch):
     arena = Arena(scene, seed=3)
     arena.clock.sleep(5.0)
     bare = Mobs(scene, random.Random(3))
-    expected = sum(bare.tick(HERE, (), scene.hero.sets[0].resist) for _ in range(125))
+    expected = sum(bare.tick(HERE, (), arena.resists[0]) for _ in range(125))  # physical: PHYSICAL_THROUGH
     assert 0.0 < expected < LIFE
     assert arena.taken == pytest.approx(expected)
     assert arena.life == pytest.approx(LIFE - expected)

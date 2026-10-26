@@ -275,7 +275,7 @@ def test_an_aura_raises_the_blows_of_the_others_in_its_range():
     plain = played(Mobs(without, random.Random(3)), 100)
     striker = played(Mobs(alone, random.Random(3)), 100)
     assert striker > 0.0
-    assert raised == pytest.approx(plain + striker * (AURA_FACTOR - 1))  # the holder's own blows are not raised
+    assert raised == pytest.approx(plain + striker * (AURA_FACTOR - 1))  # the holder, out of reach, lands none
 
 
 def test_an_aura_ends_with_its_holder():

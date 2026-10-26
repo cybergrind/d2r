@@ -555,6 +555,40 @@ The worst setting: five of the six deaths and 28 of the 70 near-deaths had a tie
   10-19 09:22).
 - **Walls are also cover.** No death came with a wall between us and the pack (deaths.md, pattern 7).
 
+### §4.11 The T5 pack's plan (`ENGAGE_PLAN`, 2026-10-26)
+
+The player, 2026-10-26 ~09:10: "teleport to safe spot, once - move daemons to get aggro with DM between char and pack
+- walk closer, behind the daemons that gets aggro - put sigil of lethargy where the main battle will occur - deliver
+damage, focus herald or fast pack killing". The evidence is in rca/2026-10-26/herald-engage-findings.md:
+
+- 196 T5 fights had 6.2 jumps each and 1.9 flip-flops each (firing spot ↔ keep range).
+- 29 % of the marks were undone by a jump within 2 s.
+- 188 of 457 sigils were more than 6 u off the melee.
+
+`combat/engage.py` keeps one plan from look to look for a tier 5 pack:
+
+1. **STANDOFF.** The pack is on the character. One jump out is allowed.
+2. **MARK.** No voluntary jump, and one Death Mark key per phase:
+   - on the nearest member if the pack presses;
+   - else on the member whose mark lasts;
+   - else on the Herald.
+3. **CLOSE_IN.** Walk in, never jump, and stay behind the point where the demons hold the pack. The keep range's bars
+   do not apply to that walk. The sigil goes on that contact point.
+4. **STRIKE.** Strike. No mark on a member the strike is killing.
+
+The plan goes back to MARK only on a lost aggro or a pack on the character. A danger jump, which always takes the
+demons along, also sends it back to MARK. `Safety.real_threat` (the exempt hold) and every retreat stay above the plan.
+For 1.5 s after a real threat the plan steps aside (`THREAT_SECONDS`): in the v1 canyon gate its mark after every
+danger jump under javelins raised the deaths 6 → 14 of 80.
+
+**Gate, 2026-10-26** (findings §4): not passed, so the plan is off.
+
+- Herald scene: killed 100 of 100 against 83 of 100, 8.5 s sooner.
+- The sigil is 1.0 u from the melee against 2.7.
+- No new deaths in any scene.
+- Halls and canyon made more jumps (7.2 → 9.2, 14.3 → 15.5). In MARK the plan holds the jump while the keep range
+  bars the walk, so every act is vetoed and the vetoed-escape Teleport is made instead. That is fixed next.
+
 ---
 
 ## §5 Retreat and disengage
@@ -783,6 +817,7 @@ items are being built by the apply agent, one switch each, behind the §6.3 gate
 | 2.2 | Blade Warp escorts the merc out | live | — | `combat/escort.py` |
 | 3.3 | mark first at a T5 landing | live | `HERALD_MARK_FIRST`, `HERALD_MARK_ANY_MEMBER` | `combat/pack.py` |
 | 3.3 | mark after every move in a hard fight (R1) | off (gate done, waits on the player) | `DM_AFTER_EVERY_MOVE` + `DM_MOVE_NO_BURN` | `combat/pack.py` |
+| 4.11 | the T5 pack's plan: one jump out, mark, walk in, sigil at the contact, strike | off (gate 2026-10-26: Herald +, halls/canyon more jumps; not passed) | `ENGAGE_PLAN` | `combat/engage.py` |
 | 3.3 | no T5 landing mark in a burn fight | off | `HERALD_MARK_NO_BURN` | `combat/pack.py` |
 | 3.3 | mark members on the screen at a landing | off | `LANDING_MARK` | `macros/hunt.py` |
 | 3.3 | mark before the strike at any landing | off, **not wired** | `MARK_AT_LANDING`, `LANDING_IN_PACK` | `combat/pack.py` |

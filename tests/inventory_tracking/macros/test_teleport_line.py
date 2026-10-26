@@ -197,3 +197,63 @@ def test_a_spot_the_safety_drops_in_the_look_is_not_pressed_by_that_looks_act(mo
     hunt.safety.duds = {spot: run.clock() + 20.0}
     assert hunt.pursue(run, play.world, [], Ground(()), keys, in_reach=False)
     assert made == ([] if on else [hop])
+
+
+def test_a_teleport_pressed_again_and_again_with_the_character_still_is_dropped_at_the_press(monkeypatch):
+    # Game 30, 21:36:45 (rca/2026-10-19/game30-run-findings.md S2): a stand under the skill bar pressed 5 times over
+    # 8.4 s, never cast. Counted at the press since 2026-10-26 (rca/2026-10-26/cast-nothing-findings.md): the third
+    # press over DUD_AFTER is not made, the spot is barred and the next look prices it so (DUD_BINDS)
+    from inventory_tracking.macros import safety
+    from inventory_tracking.macros.hunting.base import Judged
+
+    play = game()
+    hunt = hunter(play)
+    run = play.run()
+    here = me(play.world)
+    spot = (here.x - 19.0, here.y + 10.0)
+    goal = Goal('full clear: an unexplored room', (here.x - 45.0, here.y + 5.0), FIGHT, 5.0, PRESSED)
+    hop = Move(Step(spot, TELEPORT), goal)
+    monkeypatch.setattr(hunt, 'judge', lambda *args, **kwargs: Judged(hop, goal, goal.place, None))
+    made: list[Move] = []
+    monkeypatch.setattr(hunt, 'advance', lambda run, world, ground, act, *rest: made.append(act))
+    for _ in range(3):
+        assert hunt.pursue(run, play.world, [], Ground(()), keys, in_reach=False)
+        play.clock.now += 0.6
+    assert made == [hop, hop]  # two presses cast nothing; the third finds the spot dropped
+    assert list(hunt.safety.duds) == [spot]
+    assert hunt.safety.duds[spot] > run.clock() + safety.DUD_SECONDS - 2.0
+
+
+def test_looks_that_press_nothing_between_presses_neither_count_nor_reset_them(monkeypatch):
+    # A look whose act is not made (the fight kept, a dead end filtered it) says nothing of the press: the count of
+    # the presses before it stands, and the looks alone never drop the spot (cast-nothing-findings.md, 2026-10-26)
+    from inventory_tracking.combat.harm import Look
+    from inventory_tracking.macros.hunting.base import Judged
+    from inventory_tracking.macros.pursuit import Hold
+
+    play = game()
+    hunt = hunter(play)
+    run = play.run()
+    here = me(play.world)
+    spot = (here.x - 19.0, here.y + 10.0)
+    goal = Goal('full clear: an unexplored room', (here.x - 45.0, here.y + 5.0), FIGHT, 5.0, PRESSED)
+    hop = Move(Step(spot, TELEPORT), goal)
+    made: list[Move] = []
+    monkeypatch.setattr(hunt, 'advance', lambda run, world, ground, act, *rest: made.append(act))
+    for _ in range(8):  # the safety's looks choose the hop, nothing presses it
+        hunt.safety.remember(hop, Look((), life=1800), (here.x, here.y), False, (), run.clock(), None)
+        play.clock.now += 0.15
+    assert not hunt.safety.duds
+    assert hunt.safety.hops is None
+    monkeypatch.setattr(hunt, 'judge', lambda *args, **kwargs: Judged(hop, goal, goal.place, None))
+    assert hunt.pursue(run, play.world, [], Ground(()), keys, in_reach=False)
+    play.clock.now += 0.6
+    # A strike look between
+    hunt.safety.remember(Hold(goal), Look((), life=1800), (here.x, here.y), False, (), run.clock(), None)
+    assert hunt.safety.hops is not None
+    assert hunt.safety.hops[2] == 1
+    assert hunt.pursue(run, play.world, [], Ground(()), keys, in_reach=False)
+    play.clock.now += 0.6
+    assert hunt.pursue(run, play.world, [], Ground(()), keys, in_reach=False)
+    assert made == [hop, hop]
+    assert list(hunt.safety.duds) == [spot]

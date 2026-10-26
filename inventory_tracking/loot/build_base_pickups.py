@@ -143,6 +143,8 @@ EXCLUDED = {
                                   'replaced by cure-helm-eth-superior-15ed',
     'pelt-3os-plus3-paid': 'Armageddon and Fury unpriced: replaced by pelt-3os-plus3-hurricane-tornado-volcano',
     'sacred-rondache-45-superior': 'priced only superior 15 ED 4os (§1b): replaced by rondache-45-superior-15ed-4os',
+    'own-merc-archon-eth-4os': 'own use, 1 kept: loot/base_floor.py OWN_USE picks it under its cap (eth 4os normal '
+                               'fills n83 median 2.58; the player, 2026-10-25)',
 }  # fmt: skip
 KB_EXCLUDED = {
     '7h7/normal/eth/4os/ordinary': 'eth 4os plain Great Poleaxe 3.90 Ist n16 (§4, wp-b; triage 4.05 borderline)',
